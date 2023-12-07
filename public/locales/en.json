@@ -1,0 +1,32 @@
+{
+  "account": {
+    "modal": {
+      "title": "Account"
+    }
+  },
+  "header": {
+    "search": {
+      "placeholder": "Search products, modules and actions...",
+      "title": "Global search results"
+    },
+    "guides": "Guides",
+    "support": "Support"
+  },
+  "signin": {
+    "login": {
+      "title": "Hi $1, glad to see you back.",
+      "welcome": "Hello, welcome to Lydim.",
+      "subtitle": "Enter your email to login",
+      "welcome_subtitle": "Choose an email to continue",
+      "email": "Email",
+      "code": "Code",
+      "password": "Password",
+      "password_instead": "Use a password instead",
+      "email_instead": "Send me a code by email instead"
+    }
+  },
+  "general": {
+    "app_name": "Lydim",
+    "continue": "Continue"
+  }
+}

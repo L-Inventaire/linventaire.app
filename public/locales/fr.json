@@ -1,0 +1,15 @@
+{
+  "account": {
+    "modal": {
+      "title": "Compte"
+    }
+  },
+  "header": {
+    "search": {
+      "placeholder": "Chercher des produits, modules, actions...",
+      "title": "Résultats de la recherche globale"
+    },
+    "guides": "Guides",
+    "support": "Support"
+  }
+}

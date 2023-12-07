@@ -1,0 +1,152 @@
+.react-datepicker__close-icon::after {
+    background-color: rgb(29, 78, 216) !important;
+}
+
+.react-datepicker {
+
+    .react-datepicker__header--custom {
+        background: #88888811 !important;
+        border-bottom: 1px solid #88888833;
+    }
+
+    .react-datepicker__day-name {
+    
+        @media (prefers-color-scheme: dark) {
+            color: #FFF;
+        }
+    }
+
+    .react-datepicker__day {
+        border-radius: 100% !important;
+        
+        @media (prefers-color-scheme: dark) {
+            color: #FFF;
+        }
+    }
+
+    .react-datepicker__day--keyboard-selected, .react-datepicker__month-text--keyboard-selected, .react-datepicker__quarter-text--keyboard-selected, .react-datepicker__year-text--keyboard-selected {
+        background-color: rgb(59, 130, 246) !important;
+    }
+
+}
+
+.multiselect-container {
+    cursor: pointer;
+    --mselect-background-color: #FFFFFF;
+
+    @media (prefers-color-scheme: dark) {
+        --mselect-background-color: rgb(15, 23, 42);
+    }
+
+    .optionListContainer {
+        background: var(--mselect-background-color);
+        border-radius: 0px;
+        padding-top: 4px;
+        width: calc(100% + 2px);
+        margin-left: -1px;
+        margin-top: -4px;
+        border-left-width: 1px;
+        border-right-width: 1px;
+        border-bottom-width: 1px;
+        border-color: #2563eb;
+        border-radius: 0 0 0.5rem 0.5rem;
+        --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);
+        box-shadow: 0px -4px 0px -1px var(--mselect-background-color), var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+        --tw-ring-opacity: 1;
+        --tw-ring-color: rgba(37, 99, 235, var(--tw-ring-opacity));
+        outline: 2px solid transparent;
+        outline-offset: 2px;
+        --tw-ring-inset: var(--tw-empty,/*!*/ /*!*/);
+        --tw-ring-offset-width: 0px;
+        --tw-ring-offset-color: var(--mselect-background-color);
+        --tw-ring-color: #2563eb;
+        --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+        --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+
+        &.displayNone {
+            display: block;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        &.displayBlock {
+            display: block;
+            opacity: 1;
+        }
+    }
+
+    .optionContainer {
+        border-radius: 0 0 0.5rem 0.5rem;
+        border-color: #88888855;
+        border-width: 0px;
+        border-top-width: 1px;
+        overflow: auto;
+        max-height: 25vh;
+
+        li {
+            padding: .25rem .5rem !important;
+            text-transform: capitalize;
+        }
+
+        .option.highlightOption, .option:hover {
+            background: rgba(59, 130, 246, 0.05) !important;
+            color: inherit !important;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            flex-direction: row;
+            cursor: pointer;
+
+            input {
+                cursor: pointer;
+                border-width: 1px;
+                border-style: solid;
+                border-color: #88888888;
+                margin: 0px;
+                margin-right: 0.4rem;
+                border-radius: 0.25rem;
+
+                &:checked {
+                    border-color: rgb(59, 130, 246);
+                }
+            }
+        }
+    }
+    
+    .search-wrapper {
+        height: 100%;
+        border: none;
+        padding: 0px;
+        overflow: auto;
+        display: flex;
+        width: 100%;
+        align-items: center;
+        padding-left: 0.75rem;
+        font-size: 0.875rem;
+        white-space: nowrap;
+        overflow: auto;
+
+        input {
+            width: 0;
+            height: 100%;
+            border: none;
+            padding: 0px;
+            margin: 0px;
+            font-size: 0.875rem;
+            outline: none !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding-right: 0.25rem;
+        }
+    }
+
+    &.empty {
+        .search-wrapper input {
+            flex: 1;
+            width: auto;
+        }
+    }
+}

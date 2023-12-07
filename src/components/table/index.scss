@@ -1,0 +1,23 @@
+.table-hover-sort-container {
+  .table-hover-sort {
+    display: none;
+  }
+  &:hover .table-hover-sort {
+    display: block;
+  }
+}
+
+.height-table-hack {
+    height: 1px;
+    min-height: 1px; /* https://stackoverflow.com/questions/3542090/how-to-make-div-fill-td-height */
+}
+
+@-moz-document url-prefix() {
+  .height-table-hack {
+    height: 100%;
+
+    & > * {
+      display: inline-table;
+    }
+  }
+}

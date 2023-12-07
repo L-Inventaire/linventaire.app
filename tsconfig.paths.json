@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "baseUrl": "src",
+        "paths": {
+            "@views/*": ["views/*"],
+            "@atoms/*": ["atoms/*"],
+            "@components/*": ["components/*"],
+            "@store/*": ["store/*"],
+            "@config/*": ["config/*"],
+            "@features/*": ["features/*"],
+            "@assets/*": ["assets/*"]
+        }
+    }
+}
