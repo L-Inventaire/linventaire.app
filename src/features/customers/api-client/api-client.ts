@@ -5,14 +5,16 @@ export class CustomersApiClient {
   static createAccount = async (
     captcha_validation: string,
     email_validation: string,
-    phone_validation: string
+    phone_validation?: string,
+    full_name?: string
   ): Promise<Customer> => {
-    const response = await fetchServer(`/api/customers/v1/customers`, {
+    const response = await fetchServer(`/api/users/v1/users`, {
       method: "POST",
       body: JSON.stringify({
         captcha_validation,
         email_validation,
         phone_validation,
+        full_name,
       }),
     });
     const data = await response.json();
@@ -20,7 +22,7 @@ export class CustomersApiClient {
   };
 
   static getSupport = async (): Promise<{ url: string }> => {
-    const response = await fetchServer(`/api/customers/v1/support`, {
+    const response = await fetchServer(`/api/users/v1/support`, {
       method: "GET",
     });
     const data = await response.json();
@@ -28,7 +30,7 @@ export class CustomersApiClient {
   };
 
   static getAccount = async (): Promise<Customer> => {
-    const response = await fetchServer(`/api/customers/v1/customers/me`, {
+    const response = await fetchServer(`/api/users/v1/users/me`, {
       method: "GET",
     });
     const data = await response.json();
@@ -38,15 +40,12 @@ export class CustomersApiClient {
   static setPreferences = async (
     preferences: Omit<Customer["preferences"], "version_id">
   ): Promise<Customer> => {
-    const response = await fetchServer(
-      `/api/customers/v1/customers/preferences`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          ...preferences,
-        }),
-      }
-    );
+    const response = await fetchServer(`/api/users/v1/users/preferences`, {
+      method: "POST",
+      body: JSON.stringify({
+        ...preferences,
+      }),
+    });
     const data = await response.json();
     return data as Customer;
   };
@@ -80,7 +79,7 @@ export class CustomersApiClient {
     }
 
     const response = await fetchServer(
-      `/api/customers/v1/customers?${[
+      `/api/users/v1/users?${[
         ...(type === "id" ? [`id=${encodeURIComponent(query)}`] : []),
         ...(type === "email" ? [`email=${encodeURIComponent(query)}`] : []),
         ...(type === "phone" ? [`phone=${encodeURIComponent(query)}`] : []),

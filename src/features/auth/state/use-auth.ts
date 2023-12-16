@@ -84,9 +84,8 @@ export const useAuth = () => {
       authorization: "",
       user: null,
     };
-    setAuth(updated);
     saveAuth(updated);
-    flushGlobalEffects();
+    document.location.replace("/");
   });
 
   const clearUserCached = useRecoilCallback(({ snapshot }) => () => {

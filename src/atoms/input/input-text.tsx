@@ -23,7 +23,7 @@ interface InputProps
 }
 
 export const defaultInputClassName = (theme: "plain" = "plain") => {
-  return "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full text-sm border-gray-200 dark:bg-slate-900 dark:border-slate-700 dark:text-white rounded-lg";
+  return "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full text-sm border-gray-200 dark:bg-slate-900 dark:border-slate-700 dark:text-white rounded-md";
 };
 
 export const errorInputClassName = (theme: "plain" = "plain") => {

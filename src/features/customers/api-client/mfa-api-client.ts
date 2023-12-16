@@ -8,7 +8,7 @@ export type MethodType = {
 
 export class CustomersMfasApiClient {
   static getMFAs = async () => {
-    const response = await fetchServer(`/api/customers/v1/customers/mfa`, {
+    const response = await fetchServer(`/api/users/v1/users/mfa`, {
       method: "GET",
     });
     const data = await response.json();
@@ -22,7 +22,7 @@ export class CustomersMfasApiClient {
     value: string;
     validation_token: string;
   }) => {
-    await fetchServer(`/api/customers/v1/customers/mfa`, {
+    await fetchServer(`/api/users/v1/users/mfa`, {
       method: "POST",
       body: JSON.stringify(mfa),
     });
@@ -30,7 +30,7 @@ export class CustomersMfasApiClient {
   };
 
   static deleteMFA = async (id: string) => {
-    await fetchServer(`/api/customers/v1/customers/mfa/${id}`, {
+    await fetchServer(`/api/users/v1/users/mfa/${id}`, {
       method: "DELETE",
     });
     return CustomersMfasApiClient.getMFAs();

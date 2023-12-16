@@ -19,7 +19,7 @@ const passwordCheckRegex =
 
 export const AccountModal = () => {
   const { t } = useTranslation();
-  const { logout } = useAuth();
+  const { logout, clearUserCached } = useAuth();
   const [updatePassword, setUpdatePassword] = useState(false);
   const [accountModal, setAccountModal] = useRecoilState(AccountModalAtom);
   const [passwordLoading, setPasswordLoading] = useState(false);
@@ -42,7 +42,14 @@ export const AccountModal = () => {
             Update password
           </Button>
 
-          <Button className="block" theme="danger" onClick={() => logout()}>
+          <Button
+            className="block"
+            theme="danger"
+            onClick={() => {
+              clearUserCached();
+              logout();
+            }}
+          >
             Logout
           </Button>
         </ModalContent>

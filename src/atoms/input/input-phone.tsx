@@ -9,13 +9,18 @@ const CustomInput = React.forwardRef((props: any, ref) => (
   <input
     {...props}
     ref={ref}
-    className={defaultInputClassName + " rounded-l-none"}
+    style={{ boxShadow: "none", border: "0px !important" }}
+    className={
+      defaultInputClassName() +
+      " rounded-l-none ring-transparent border-transparent focus:border-transparent shadow-none focus:shadow-none border-none"
+    }
   />
 ));
 
 export default function InputPhone(props: {
   disabled?: boolean;
   value: string;
+  size: "sm" | "md" | "lg";
   onChange: (phone: string) => void;
 }) {
   const countryHint =
@@ -29,10 +34,18 @@ export default function InputPhone(props: {
     countries.find((c: any) => c.code === countryHint) || countries[0]
   )?.code;
 
+  let inputClassName = defaultInputClassName();
+  if (props.size === "lg") inputClassName = inputClassName + " h-11";
+  else if (props.size === "sm") inputClassName = inputClassName + " h-7";
+  else inputClassName = inputClassName + " h-9";
+
   return (
     <PhoneInput
       disabled={props.disabled}
-      className={defaultInputClassName + " pl-3"}
+      className={
+        inputClassName +
+        " shadow-sm bg-white rounded-md border overflow-hidden pl-3"
+      }
       defaultCountry={country as any}
       inputComponent={CustomInput}
       value={props.value}

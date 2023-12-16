@@ -3,43 +3,121 @@ import InputCode from "@atoms/input/input-code";
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import { Input } from "@atoms/input/input-text";
 import Link from "@atoms/link";
-import { Section, Subtitle } from "@atoms/text";
+import { Info, Section, Subtitle } from "@atoms/text";
 import { PageLoader } from "@components/page-loader";
 import environment from "@config/environment";
 import { AuthApiClient } from "@features/auth/api-client/api-client";
 import { useAuth } from "@features/auth/state/use-auth";
+import { ROUTES } from "@features/routes";
 import { useControlledEffect } from "@features/utils/hooks/use-controlled-effect";
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+
+let tryAgainTimeout: any = null;
 
 export const Login = () => {
+  const navigate = useNavigate();
+  const { t } = useTranslation();
   const { loading: authLoading, userCached, login } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [allowTryAgain, setAllowTryAgain] = useState(false);
+
   const [methods, setMethods] = useState<
     ("email" | "password" | "app" | "phone")[]
   >([]);
   const [mode, setMode] = useState<"email" | "password" | null>(null);
+  const challenge = useRef("");
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
-  const [loading, setLoading] = useState(false);
-  const { t } = useTranslation();
 
   useControlledEffect(() => {
     if (mode === "email" && email) {
-      (window as any).grecaptcha.enterprise.ready(async () => {
-        const captchaValidation = await (
-          window as any
-        ).grecaptcha.enterprise.execute(environment.reCaptchaSiteKey, {
-          action: "captcha",
-        });
-        if (!(await AuthApiClient.requestEmailMFA(email, captchaValidation))) {
-          setMode(null);
-          toast.error("Failed to send authentication code");
-        }
-      });
+      requestEmailMFA();
     }
   }, [mode]);
+
+  const requestEmailMFA = async () => {
+    setAllowTryAgain(false);
+    clearTimeout(tryAgainTimeout);
+    const grecaptcha = (window as any).grecaptcha.enterprise;
+    grecaptcha.ready(async () => {
+      const captchaValidation = await grecaptcha.execute(
+        environment.reCaptchaSiteKey,
+        {
+          action: "captcha",
+        }
+      );
+      const token = await AuthApiClient.requestEmailMFA(
+        email,
+        captchaValidation
+      );
+      challenge.current = token.token;
+      if (!token) {
+        setMode(null);
+        toast.error("Failed to send authentication code");
+      } else {
+        toast.success(t("signin.login.code_info"));
+      }
+      tryAgainTimeout = setTimeout(() => setAllowTryAgain(true), 10000);
+    });
+  };
+
+  const submit = async () => {
+    setLoading(true);
+    try {
+      if (!mode) {
+        const { methods } = await AuthApiClient.getAvailableMFAs(email);
+        setMethods(methods.map((a) => a.method));
+        setMode(
+          methods.find((a) => a.method === "password") ? "password" : "email"
+        );
+      } else {
+        let authSecret = null;
+        if (mode === "email") {
+          const res = await AuthApiClient.verifyEmailMFA(
+            challenge.current,
+            code
+          );
+          authSecret = res.validation_token;
+        } else {
+          const res = await AuthApiClient.verifyPasswordMFA(
+            challenge.current,
+            code
+          );
+          authSecret = res.validation_token;
+        }
+        if (!authSecret) {
+          toast.error("This code is invalid");
+          setAllowTryAgain(true);
+        } else {
+          if (await login(authSecret, email)) {
+            toast.success("Logged in successfully");
+          } else {
+            if (mode === "email") {
+              //Mfa validation was successful but login failed so it means that the user is not registered
+              navigate(ROUTES.SignUp + "?token=" + authSecret);
+            } else {
+              toast.error("Failed to log in");
+            }
+          }
+        }
+      }
+    } catch (e) {
+      toast.error("An error occurred");
+    }
+
+    setLoading(false);
+  };
+
+  useControlledEffect(() => {
+    if (code.length === 8) {
+      submit();
+    }
+  }, [code]);
 
   return (
     <div>
@@ -47,7 +125,7 @@ export const Login = () => {
       {!authLoading && (
         <>
           {userCached?.id && (
-            <div className="text-center">
+            <div className="text-left">
               <Section>
                 {t("signin.login.title", [userCached?.fullName])}
               </Section>
@@ -55,7 +133,7 @@ export const Login = () => {
             </div>
           )}
           {!userCached?.id && (
-            <div className="text-center">
+            <div className="text-left">
               <Section>{t("signin.login.welcome")}</Section>
               <Subtitle>{t("signin.login.welcome_subtitle")}</Subtitle>
             </div>
@@ -100,9 +178,29 @@ export const Login = () => {
               label={t("signin.login.code")}
               className="mt-4"
               input={
-                <div className="flex flex-row">
-                  <InputCode onComplete={(e) => setCode(e)} />
-                </div>
+                <>
+                  <div className="flex flex-row">
+                    <InputCode
+                      onComplete={(e) => {
+                        setCode(e);
+                      }}
+                    />
+                  </div>
+                  <Info noColor className="text-left w-full block mt-2">
+                    {!allowTryAgain && (
+                      <Info>{t("signin.login.code_info")}</Info>
+                    )}
+                    {allowTryAgain && (
+                      <Link
+                        onClick={async () => {
+                          await requestEmailMFA();
+                        }}
+                      >
+                        {t("signin.login.code_resend")}
+                      </Link>
+                    )}
+                  </Info>
+                </>
               }
             />
           )}
@@ -131,40 +229,7 @@ export const Login = () => {
                 (!code && mode === "email")
               }
               onClick={async () => {
-                setLoading(true);
-                try {
-                  if (!mode) {
-                    const { methods } = await AuthApiClient.getAvailableMFAs(
-                      email
-                    );
-                    setMethods(methods.map((a) => a.method));
-                    setMode(
-                      methods.find((a) => a.method === "password")
-                        ? "password"
-                        : "email"
-                    );
-                  } else {
-                    (window as any).grecaptcha.enterprise.ready(async () => {
-                      const captchaValidation = await (
-                        window as any
-                      ).grecaptcha.enterprise.execute(
-                        environment.reCaptchaSiteKey,
-                        {
-                          action: "captcha",
-                        }
-                      );
-                      if (await AuthApiClient.getAvailableMFAs(email)) {
-                        toast.success("Logged in successfully");
-                      } else {
-                        toast.error("Failed to log in");
-                      }
-                    });
-                  }
-                } catch (e) {
-                  toast.error("An error occured");
-                }
-
-                setLoading(false);
+                submit();
               }}
             >
               {t("general.continue")}

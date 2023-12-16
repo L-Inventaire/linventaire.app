@@ -22,12 +22,12 @@ export default function SingleCenterCard(props: {
             alt="Lydim"
           />
           {!!props.title && (
-            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
+            <h2 className="mt-6 text-left text-3xl font-extrabold text-gray-900 dark:text-white">
               {props.title}
             </h2>
           )}
           {!!props.subtitle && (
-            <p className="mt-2 text-center text-sm text-gray-600 dark:text-slate-200">
+            <p className="mt-2 text-left text-sm text-gray-600 dark:text-slate-200">
               {props.subtitle}
             </p>
           )}
@@ -36,18 +36,18 @@ export default function SingleCenterCard(props: {
 
       <div
         style={{ zIndex: 1 }}
-        className="mt-0 mb-0 h-full sm:mb-12 sm:mt-8 sm:mx-auto sm:w-full sm:max-w-md"
+        className="mt-0 mb-0 h-full sm:mb-12 sm:mt-8 sm:ml-32 lg:ml-64 sm:mr-auto sm:w-full sm:max-w-md"
       >
-        <div className="py-8 px-4 sm:pb-8 pb-12 rounded-t-lg sm:rounded-lg sm:px-10 bg-white dark:bg-slate-800 backdrop-blur-sm bg-opacity-75">
+        <div className="py-8 px-4 sm:pb-8 pb-12 rounded-t-lg sm:rounded-lg sm:px-10 bg-white dark:bg-slate-800 shadow-lg">
           {props.insetLogo && (
             <>
               <img
-                className="mx-auto h-8 w-auto mb-4 dark:hidden"
-                src="/medias/logo-black.png"
+                className="h-8 w-auto mb-7 mt-2 dark:hidden"
+                src="/medias/logo-black.svg"
                 alt="Lydim"
               />
               <img
-                className="mx-auto h-8 w-auto mb-4 hidden dark:block"
+                className="h-8 w-auto mb-7 mt-2 hidden dark:block"
                 src="/medias/logo.svg"
                 alt="Lydim"
               />

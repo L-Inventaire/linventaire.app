@@ -1,10 +1,10 @@
+import { useControlledEffect } from "@features/utils/hooks/use-controlled-effect";
 import _ from "lodash";
 import {
   InputHTMLAttributes,
   memo,
   ReactNode,
   useCallback,
-  useEffect,
   useRef,
 } from "react";
 
@@ -23,7 +23,7 @@ export const AnimatedHeight = memo(
       }
     }, [el]);
 
-    useEffect(() => {
+    useControlledEffect(() => {
       interval = setInterval(() => {
         updateSize();
       }, 200);

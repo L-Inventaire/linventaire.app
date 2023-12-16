@@ -14,7 +14,7 @@
   },
   "signin": {
     "login": {
-      "title": "Hi $1, glad to see you back.",
+      "title": "Hi {{0}}, glad to see you back.",
       "welcome": "Hello, welcome to Lydim.",
       "subtitle": "Enter your email to login",
       "welcome_subtitle": "Choose an email to continue",
@@ -22,7 +22,19 @@
       "code": "Code",
       "password": "Password",
       "password_instead": "Use a password instead",
-      "email_instead": "Send me a code by email instead"
+      "email_instead": "Send me a code by email instead",
+      "code_info": "We sent you a code by email.",
+      "code_resend": "Try again"
+    },
+    "signup": {
+      "title": "Let's create your account",
+      "subtitle": "It seems this is your first time on Lydim, let us know who you are",
+      "name": "Full name",
+      "photo": "Picture",
+      "removePhoto": "Remove picture",
+      "addPhoto": "Upload picture",
+      "submit": "Create my account",
+      "error": "An error occurred, please try again"
     }
   },
   "general": {

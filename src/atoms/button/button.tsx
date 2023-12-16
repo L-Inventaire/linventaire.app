@@ -22,7 +22,7 @@ export const Button = (props: ButtonProps) => {
   );
 
   let colors =
-    "text-white bg-blue-500 hover:bg-blue-600 active:bg-blue-800 border-transparent drop-shadow-sm	";
+    "text-white bg-blue-500 from-current to-blue-600 hover:bg-blue-600 active:bg-blue-800 border-transparent drop-shadow-sm	";
 
   if (props.theme === "secondary")
     colors =
