@@ -1,12 +1,11 @@
+import { useAuth } from "@features/auth/state/use-auth";
 import { ROUTES } from "@features/routes";
-import { useListenForShortcuts } from "@features/utils/shortcuts";
 import { Modals } from "@views/modals";
 import { Outlet, Route } from "react-router-dom";
+import { Header } from "./_layout/header";
 import { ChaussurePage } from "./chaussures";
 import { DemoPage } from "./demo";
 import { TabPage } from "./tableau";
-import { Header } from "./_layout/header";
-import { useAuth } from "@features/auth/state/use-auth";
 
 export const BackOfficeRoutes = () => {
   return (

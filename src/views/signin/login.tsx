@@ -224,7 +224,7 @@ export const Login = () => {
               loading={loading}
               shortcut={["enter"]}
               disabled={
-                !email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/) ||
+                !email.match(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/) ||
                 (!password && mode === "password") ||
                 (!code && mode === "email")
               }

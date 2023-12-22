@@ -3,7 +3,7 @@ import { AuthJWT } from "../auth/jwt";
 
 export const fetchServer = async (
   url: string,
-  options: RequestInit
+  options: RequestInit = { method: "GET" }
 ): Promise<Response> => {
   const domain = Env.server.replace(/\/$/, "");
   options.headers = {

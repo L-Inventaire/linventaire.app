@@ -1,10 +1,7 @@
 import { AuthState, AuthType } from "@features/auth/state/store";
 import { CustomersApiClient } from "@features/customers/api-client/api-client";
 import { useControlledEffect } from "@features/utils/hooks/use-controlled-effect";
-import {
-  flushGlobalEffects,
-  useGlobalEffect,
-} from "@features/utils/hooks/use-global-effect";
+import { useGlobalEffect } from "@features/utils/hooks/use-global-effect";
 import { LoadingState } from "@features/utils/store/loading-state-atom";
 import jwt_decode from "jwt-decode";
 import _ from "lodash";

@@ -1,4 +1,4 @@
-import { Base, Info } from "@atoms/text";
+import { Info } from "@atoms/text";
 import { useControlledEffect } from "@features/utils/hooks/use-controlled-effect";
 import { useRef, useState } from "react";
 import { defaultInputClassName } from "./input-text";
