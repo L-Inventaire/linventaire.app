@@ -8,7 +8,8 @@ export interface ButtonProps
   loading?: boolean;
   disabled?: boolean;
   shortcut?: Shortcut[];
-  children: React.ReactNode;
+  children?: React.ReactNode;
+  icon?: (props: React.SVGProps<SVGSVGElement>) => JSX.Element;
 }
 
 export const Button = (props: ButtonProps) => {
@@ -94,6 +95,10 @@ export const Button = (props: ButtonProps) => {
           </svg>{" "}
         </>
       )}
+      {props.icon &&
+        props.icon({
+          className: "h-4 w-4 " + (props.children ? "-ml-1 mr-2" : "-mx-2"),
+        })}
       {props.children}
     </button>
   );

@@ -40,8 +40,8 @@ export const ButtonConfirm = (props: ButtonConfirmProps) => {
         }}
       >
         <ModalContent
-          title={props.confirmTitle || "Confirm action ?"}
-          text={props.confirmMessage || "Confirm action by clicking Confirm."}
+          title={props.confirmTitle || "Confirmer l'action ?"}
+          text={props.confirmMessage || "Cliquez sur confirmer pour continuer."}
           icon={props.confirmIcon || ExclamationCircleIcon}
           buttons={
             <>
@@ -54,8 +54,9 @@ export const ButtonConfirm = (props: ButtonConfirmProps) => {
                   }, 500);
                 }}
                 className="mr-4 my-2"
+                shortcut={["enter"]}
               >
-                {props.confirmButtonText || "Confirm"}
+                {props.confirmButtonText || "Confirmer"}
               </Button>
               <Button
                 onClick={() => {
@@ -63,8 +64,9 @@ export const ButtonConfirm = (props: ButtonConfirmProps) => {
                 }}
                 theme="default"
                 className={"mr-4 my-2 shadow-none"}
+                shortcut={["esc"]}
               >
-                {props.cancelButtonText || "Cancel"}
+                {props.cancelButtonText || "Annuler"}
               </Button>
             </>
           }

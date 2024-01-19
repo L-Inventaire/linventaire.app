@@ -1,16 +1,17 @@
 import _ from "lodash";
 import { defaultInputClassName, errorInputClassName } from "./input-text";
 
-interface InputProps
+export interface SelectInputProps
   extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "size"> {
   theme?: "plain";
   hasError?: boolean;
   size?: "md" | "lg" | "sm";
   className?: string;
   children?: React.ReactNode;
+  highlight?: boolean;
 }
 
-export function Select(props: InputProps) {
+export function Select(props: SelectInputProps) {
   let inputClassName = props.hasError
     ? errorInputClassName(props.theme)
     : defaultInputClassName(props.theme);

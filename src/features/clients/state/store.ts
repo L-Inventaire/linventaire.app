@@ -15,3 +15,8 @@ export const ClientUsersState = atomFamily<ClientsUsers[], string>({
   key: "ClientUsersState",
   default: [],
 });
+
+export const DidCreateCompanyOrSignupAtom = atom<boolean>({
+  key: "DidCreateCompanyOrSignupAtom",
+  default: false,
+});

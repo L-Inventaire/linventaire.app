@@ -17,10 +17,12 @@ interface InputProps
   hasError?: boolean;
   size?: "md" | "lg" | "sm";
   className?: string;
-  value?: string[];
-  onChange?: (e: string[]) => void;
+  value?: { label: string; value: string }[];
+  onChange?: (e: { label: string; value: string }[]) => void;
+  onSearch?: (e: string) => void;
   options: { label: string; value: string }[];
   selectionLimit?: number;
+  placeholder?: string;
 }
 
 export function SelectMultiple(props: InputProps) {
@@ -30,7 +32,7 @@ export function SelectMultiple(props: InputProps) {
   inputClassName = inputClassName + (props.disabled ? " opacity-75" : "");
 
   if (props.highlight && (props.value?.length || 0) > 0)
-    inputClassName = inputClassName + " ring-2 ring-yellow-500";
+    inputClassName = inputClassName + " !ring-2 !ring-yellow-500";
 
   if (props.size === "lg") inputClassName = inputClassName + " text-lg h-11";
   else if (props.size === "sm")
@@ -48,7 +50,7 @@ export function SelectMultiple(props: InputProps) {
     <div className="relative">
       <Multiselect
         ref={props.multiselectRef}
-        emptyRecordMsg="No options available"
+        singleSelect={props.selectionLimit === 1}
         selectionLimit={props.selectionLimit}
         onListFocus={() => setFocused(true)}
         onListBlur={() => setFocused(false)}
@@ -57,21 +59,23 @@ export function SelectMultiple(props: InputProps) {
           " bg-white dark:bg-slate-900 border " +
           ((props.value || []).length === 0 ? "empty " : "") +
           (focused
-            ? "ring-blue-500 ring-1 !border-blue-500 dark:border-blue-500 rounded-b-none "
+            ? "ring-blue-600 ring-1 !border-blue-600 dark:border-blue-600 rounded-b-none "
             : "") +
           " " +
+          ((props.value?.length || 0) > 0 ? " pr-12 " : " pr-8 ") +
           props.className
         }
         {..._.omit(props, "label", "className", "size", "value", "onChange")}
-        selectedValues={props.options.filter((o) =>
-          (props.value || []).includes(o.value)
-        )}
-        onSelect={(e: { value: string }[]) =>
-          props.onChange && props.onChange(e.map((a) => a.value))
+        selectedValues={props.value}
+        onSelect={(e: { label: string; value: string }[]) =>
+          props.onChange && props.onChange(e.map((a) => a))
         }
-        onRemove={(e: { value: string }[]) =>
-          props.onChange && props.onChange(e.map((a) => a.value))
+        onRemove={(e: { label: string; value: string }[]) =>
+          props.onChange && props.onChange(e.map((a) => a))
         }
+        onSearch={(e: string) => {
+          props.onSearch && props.onSearch(e);
+        }}
         displayValue="label"
         options={props.options}
         showCheckbox
@@ -86,7 +90,7 @@ export function SelectMultiple(props: InputProps) {
           onClick={() => {
             props.onChange && props.onChange([]);
           }}
-          className="h-4 w-4 cursor-pointer hover:opacity-50 bg-blue-600 p-0.5 text-white rounded-full absolute m-auto top-0 bottom-0 right-8"
+          className="h-4 w-4 cursor-pointer hover:opacity-50 bg-blue-700 p-0.5 text-white rounded-full absolute m-auto top-0 bottom-0 right-8"
         />
       )}
       <ChevronDownIcon className="h-5 w-5 pointer-events-none absolute m-auto top-0 bottom-0 right-2.5 text-slate-500" />

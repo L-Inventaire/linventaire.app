@@ -23,7 +23,7 @@ export const Header = () => {
 
 const Logo = () => (
   <Link
-    to={ROUTES.Demo}
+    to={ROUTES.Home}
     noColor
     className="flex-row items-center mr-4 mr-8 flex"
   >

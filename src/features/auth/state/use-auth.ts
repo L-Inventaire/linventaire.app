@@ -61,7 +61,7 @@ export const useAuth = () => {
       userCached: {
         avatar: customer.preferences.avatar || "",
         fullName: getFullName(customer),
-        email: customer.id_email,
+        email: customer.email,
         id: customer.id,
       },
     });

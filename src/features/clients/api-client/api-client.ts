@@ -70,7 +70,7 @@ export class ClientsApiClient {
       `/api/clients/v1/clients/${clientId}/users/${userId}`,
       {
         method: "POST",
-        body: JSON.stringify({ roles }),
+        body: JSON.stringify({ list: roles }),
       }
     );
     const data = await response.json();

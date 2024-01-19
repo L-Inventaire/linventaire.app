@@ -5,11 +5,12 @@ interface InputLabelProps {
   suffix?: (props: any) => JSX.Element;
   input: ({ className }: { className: string }) => ReactNode;
   className?: string;
+  onClick?: () => void;
 }
 
 export const InputDecorationIcon = (props: InputLabelProps) => {
   return (
-    <div className={"relative " + props.className}>
+    <div className={"relative " + props.className} onClick={props.onClick}>
       {props.prefix && (
         <props.prefix className="h-4 w-4 absolute m-auto top-0 bottom-0 left-3 text-slate-500" />
       )}

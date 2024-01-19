@@ -1,0 +1,7 @@
+.animated-confetti-confetti {
+    z-index: 999999;
+    width: 10px;
+    height: 20px;
+    position: fixed;
+    opacity: 0.7;
+}

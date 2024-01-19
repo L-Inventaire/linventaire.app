@@ -2,7 +2,7 @@ import { Shortcut, useShortcuts } from "@features/utils/shortcuts";
 import _ from "lodash";
 import React from "react";
 
-interface InputProps
+export interface InputProps
   extends Omit<
     React.InputHTMLAttributes<HTMLInputElement> &
       React.TextareaHTMLAttributes<HTMLTextAreaElement>,

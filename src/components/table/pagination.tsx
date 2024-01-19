@@ -1,12 +1,14 @@
 import { Button } from "@atoms/button/button";
-import Select from "@atoms/select";
+import Select from "@atoms/input/input-select";
 import { Info } from "@atoms/text";
+import { formatNumber } from "@features/utils/format/strings";
 import {
   ChevronDoubleLeftIcon,
   ChevronDoubleRightIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
 } from "@heroicons/react/outline";
+import { useTranslation } from "react-i18next";
 
 type PropsType = {
   dataLength: number;
@@ -22,6 +24,50 @@ type PropsType = {
   onChangePageSize?: (size: number) => void;
 };
 
+export function TablePaginationSimple({
+  dataLength,
+  loading,
+  pagination,
+  onChangePage,
+}: PropsType) {
+  const { t } = useTranslation();
+  return (
+    <>
+      <div className="flex w-full flex-col justify-center items-center space-y-2 my-2">
+        <div className="items-center flex flex-row">
+          {!!onChangePage && (
+            <>
+              <Button
+                theme="default"
+                size="sm"
+                disabled={
+                  loading ||
+                  pagination.page ===
+                    Math.ceil(pagination.total / pagination.perPage)
+                }
+                onClick={() =>
+                  onChangePage && onChangePage(pagination.page + 1)
+                }
+                className="!px-1.5 rounded-l-none shrink-0"
+              >
+                {t("general.tables.more")}
+              </Button>
+            </>
+          )}
+        </div>
+        <div>
+          <Info>
+            {t("general.tables.pagination", {
+              current: formatNumber(dataLength),
+              total: formatNumber(pagination.total),
+            })}
+          </Info>
+        </div>
+      </div>
+    </>
+  );
+}
+
 export function TablePagination({
   dataLength,
   loading,
@@ -31,7 +77,7 @@ export function TablePagination({
 }: PropsType) {
   return (
     <>
-      <div className="flex w-full">
+      <div className="flex w-full items-center">
         <div className="grow">
           <Info>
             Showing {dataLength} of {pagination.total} results

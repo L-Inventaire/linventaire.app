@@ -39,7 +39,7 @@ const useRedirectToApp = () => {
       navigate(
         decodeURIComponent(
           new URL((window as any).document.location).searchParams.get("r") || ""
-        ) || ROUTES.Demo
+        ) || ROUTES.Home
       );
     }, 500);
   }, [navigate]);

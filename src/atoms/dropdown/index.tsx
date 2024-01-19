@@ -1,95 +1,175 @@
+import { Button, ButtonProps } from "@atoms/button/button";
+import { ChevronDownIcon } from "@heroicons/react/outline";
 import _ from "lodash";
-import RDropdown from "./dropdown";
-import "./index.css";
+import React, { useEffect, useRef, useState } from "react";
+import ReactDOM from "react-dom";
+import { atom, useRecoilState } from "recoil";
 
-interface Option {
+type OptionsType = {
   label: React.ReactNode;
-  value: string;
   className?: string;
-  data?: {
-    [dataAttribute: string]: string | number;
+  icon?: (props: { className?: string }) => React.ReactNode;
+  onClick?: () => void;
+};
+
+type DropdownProps = {
+  options: OptionsType[];
+  children: React.ReactNode;
+} & React.HTMLAttributes<HTMLDivElement>;
+
+export const DropdownRoot = () => {
+  return <div id="dropdown-root" />;
+};
+
+const CurrentlyActiveDropdownAtom = atom({
+  key: "CurrentlyActiveDropdownAtom",
+  default: "",
+});
+
+let i = 1;
+const getId = () => {
+  i += 1;
+  return `dropdown-${i}`;
+};
+
+export const Dropdown = ({ options, children, ...props }: DropdownProps) => {
+  const [currentlyActiveDropDown, setCurrentlyActiveDropDown] = useRecoilState(
+    CurrentlyActiveDropdownAtom
+  );
+  const refId = useRef<string | null>(getId());
+  const [isVisible, setIsVisible] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const buttonRef = useRef<HTMLDivElement | null>(null);
+
+  const toggleDropdown = (e: any) => {
+    if (props.onClick) props.onClick(e);
+    const isVisibleAndCurrentlyActive =
+      isVisible && currentlyActiveDropDown === refId.current;
+    if (!isVisibleAndCurrentlyActive)
+      setCurrentlyActiveDropDown(refId.current || "");
+    setIsVisible(!isVisibleAndCurrentlyActive);
   };
-}
-interface Group {
-  type: "group";
-  name: string;
-  items: Option[];
-}
-interface ReactDropdownProps {
-  options: (Group | Option | string)[];
-  baseClassName?: string;
-  className?: string;
-  controlClassName?: string;
-  placeholderClassName?: string;
-  menuClassName?: string;
-  arrowClassName?: string;
-  disabled?: boolean;
-  arrowClosed?: React.ReactNode;
-  arrowOpen?: React.ReactNode;
-  onChange?: (arg: Option) => void;
-  onFocus?: (arg: boolean) => void;
-  value?: Option | string;
-  placeholder?: String;
-}
 
-export interface DropdownProps extends ReactDropdownProps {
-  theme?: "primary" | "secondary" | "danger" | "default" | "outlined";
-  size?: "md" | "lg" | "xl" | "sm";
-  loading?: boolean;
-  disabled?: boolean;
-  align?: "left" | "right";
-}
+  const onClick = (item: OptionsType, e: any) => {
+    if (item.onClick) {
+      item.onClick();
+      setIsVisible(false);
+    }
+  };
 
-export const Dropdown = (props: DropdownProps) => {
-  const disabled = props.disabled || props.loading;
+  const closeDropdown = (e: any) => {
+    if (
+      dropdownRef.current &&
+      !dropdownRef.current.contains(e.target as Node) &&
+      buttonRef.current &&
+      !buttonRef.current.contains(e.target as Node)
+    ) {
+      setIsVisible(false);
+    }
+  };
 
-  let colors =
-    "text-white bg-blue-500 hover:bg-blue-600 active:bg-blue-800 border-transparent drop-shadow-sm	";
+  useEffect(() => {
+    document.addEventListener("click", closeDropdown);
+    document.addEventListener("mousewheel", closeDropdown);
+    return () => {
+      document.removeEventListener("click", closeDropdown);
+      document.removeEventListener("mousewheel", closeDropdown);
+    };
+  }, []);
 
-  if (props.theme === "secondary")
-    colors =
-      "text-blue-500 bg-blue-100 hover:bg-blue-200 active:bg-blue-200 border-transparent ";
+  useEffect(() => {
+    if (
+      isVisible &&
+      currentlyActiveDropDown &&
+      dropdownRef.current &&
+      buttonRef.current
+    ) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const dropdownWidth = dropdownRef.current.offsetWidth;
 
-  if (props.theme === "danger")
-    colors =
-      "text-white bg-rose-500 hover:bg-rose-600 active:bg-rose-700 border-transparent ";
+      let top = rect.bottom;
+      let left = rect.left;
 
-  if (props.theme === "default")
-    colors =
-      "text-black bg-white border-slate-200 hover:bg-slate-50 active:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:active:bg-slate-700 dark:text-white dark:border-slate-900";
+      // Ensure dropdown doesn't go beyond the window's right edge
+      if (left + dropdownWidth > window.innerWidth) {
+        left = rect.right - dropdownWidth; // Align to the right of the button
+      }
 
-  if (props.theme === "outlined")
-    colors =
-      "text-blue-400 bg-white dark:bg-slate-900 dark:hover:bg-slate-800 dark:active:bg-slate-900 hover:bg-slate-50 active:bg-slate-200 border-blue-400 border-solid	";
+      dropdownRef.current.style.top = `${top}px`;
+      dropdownRef.current.style.left = `${left}px`;
+    }
+  }, [isVisible, currentlyActiveDropDown]);
 
-  if (disabled) colors += " opacity-50 pointer-events-none";
-
-  let className = colors;
-
-  if (props.size === "xl") className = className + " text-base h-14 px-12 ";
-  else if (props.size === "lg") className = className + " text-base h-11 px-6 ";
-  else if (props.size === "sm")
-    className = className + " px-4 text-sm h-8 px-3";
-  else className = className + " px-4 text-base h-9";
+  const dropdownContent = (
+    <div
+      className="absolute bg-white dark:bg-slate-800 border rounded-sm shadow"
+      style={{ zIndex: 999 }}
+      ref={dropdownRef}
+    >
+      {options.map((item, index) => {
+        return (
+          <div
+            key={index}
+            className={
+              "text-sm w-40 p-2 flex flex-row items-center " +
+              item.className +
+              " " +
+              (item.onClick
+                ? "cursor-pointer hover:bg-gray-500 hover:bg-opacity-10 "
+                : "")
+            }
+            onClick={(e) => onClick(item, e)}
+          >
+            {item.icon &&
+              item.icon({ className: "w-4 h-4 inline mr-1 shrink-0" })}
+            {item.label}
+          </div>
+        );
+      })}
+    </div>
+  );
 
   return (
-    <RDropdown
-      baseClassName={"Dropdown"}
-      className={
-        "overflow-visible inline-flex items-center justify-center text-sm cursor-pointer " +
-        (props.align === "left" ? "dropdown-align-left " : "") +
-        props.className
-      }
-      controlClassName={
-        "whitespace-nowrap text-ellipsis inline-flex items-center justify-center py-2 border text-sm font-medium rounded focus:outline-none pr-8 " +
-        className
-      }
-      menuClassName={
-        "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-lg shadow-lg overflow-hidden z-10"
-      }
-      disabled={disabled}
-      value={""}
-      {..._.omit(props, "loading", "children", "className")}
-    />
+    <>
+      <div
+        onClick={toggleDropdown}
+        ref={buttonRef}
+        {..._.omit(props, "children", "onClick")}
+      >
+        {children}
+      </div>
+      {isVisible &&
+        currentlyActiveDropDown === refId.current &&
+        ReactDOM.createPortal(
+          dropdownContent,
+          document.getElementById("dropdown-root")!
+        )}
+    </>
+  );
+};
+
+export const DropdownButton = ({
+  children,
+  options,
+  className,
+  ...props
+}: ButtonProps & {
+  options: OptionsType[];
+}) => {
+  return (
+    <Dropdown
+      options={options}
+      className={className}
+      onClick={props.onClick as any}
+    >
+      <Button
+        theme="primary"
+        size="sm"
+        {..._.omit(props, "children", "className", "options", "onClick")}
+      >
+        {children}
+        <ChevronDownIcon className="w-4 h-4 ml-1 -mr-1" />
+      </Button>
+    </Dropdown>
   );
 };

@@ -6,6 +6,7 @@ export interface InputLabelProps {
   hasError?: boolean;
   input?: React.ReactNode;
   className?: string;
+  labelClassName?: string;
 }
 
 export const InputLabel = (props: InputLabelProps) => {
@@ -13,7 +14,12 @@ export const InputLabel = (props: InputLabelProps) => {
     <>
       {props.label && (
         <div className={props.className}>
-          <label className="block text-sm font-medium text-gray-700 dark:text-slate-400 whitespace-nowrap overflow-hidden text-ellipsis">
+          <label
+            className={
+              "block text-sm font-medium text-gray-700 dark:text-slate-400 whitespace-nowrap overflow-hidden text-ellipsis " +
+              props.labelClassName
+            }
+          >
             {props.label}
           </label>
           <div className="mt-1">{props.input}</div>

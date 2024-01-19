@@ -21,14 +21,6 @@ export class CustomersApiClient {
     return data as Customer;
   };
 
-  static getSupport = async (): Promise<{ url: string }> => {
-    const response = await fetchServer(`/api/users/v1/support`, {
-      method: "GET",
-    });
-    const data = await response.json();
-    return data as { url: string };
-  };
-
   static getAccount = async (): Promise<Customer> => {
     const response = await fetchServer(`/api/users/v1/users/me`, {
       method: "GET",

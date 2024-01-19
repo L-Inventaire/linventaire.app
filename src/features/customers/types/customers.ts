@@ -9,12 +9,8 @@ export type PublicCustomer = {
 
 export type Customer = {
   id: string;
-  id_email: string;
-  id_phone: string;
-  role: "USER" | "DISABLED" | "SYSADMIN" | "SYSAGENT";
-  created_at: number;
-  mfas: MFA[];
-
+  email: string;
+  phone: string;
   full_name: string;
   preferences: Preferences;
 };

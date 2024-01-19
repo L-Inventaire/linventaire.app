@@ -1,16 +1,13 @@
 import { Button } from "@atoms/button/button";
 import { InputLabel } from "@atoms/input/input-decoration-label";
+import { InputImage } from "@atoms/input/input-image";
 import { Input } from "@atoms/input/input-text";
-import Link from "@atoms/link";
-import { Info, Section, Subtitle, Title } from "@atoms/text";
+import { Section, Subtitle } from "@atoms/text";
 import { PageLoader } from "@components/page-loader";
 import environment from "@config/environment";
 import { useAuth } from "@features/auth/state/use-auth";
 import { CustomersApiClient } from "@features/customers/api-client/api-client";
 import { ROUTES } from "@features/routes";
-import { debounce } from "@features/utils/debounce";
-import { stringToColor } from "@features/utils/format/strings";
-import { PhotographIcon } from "@heroicons/react/solid";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
@@ -24,25 +21,12 @@ export const SignUp = () => {
   );
   const { loading: authLoading, login } = useAuth();
   const [name, setName] = useState("");
-  const [photoName, setPhotoName] = useState("");
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   if (!emailValidation) {
     navigate(ROUTES.Login);
   }
-
-  const handleImageChange = (e: any) => {
-    const file = e.target.files[0];
-    console.log(file);
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event: any) => {
-        setImageBase64(event.target.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const submit = async () => {
     setLoading(true);
@@ -104,21 +88,6 @@ export const SignUp = () => {
                 placeholder="Jeff Bezos"
                 onChange={(e) => {
                   setName(e.target.value);
-                  debounce(
-                    () =>
-                      setPhotoName(
-                        e.target.value
-                          .split(" ")
-                          .map((e) => e[0].toLocaleUpperCase())
-                          .join("")
-                          .slice(0, 2)
-                      ),
-                    {
-                      key: "preferences:profile:photoName",
-                      timeout: 1000,
-                      doInitialCall: false,
-                    }
-                  );
                 }}
               />
             }
@@ -128,60 +97,10 @@ export const SignUp = () => {
             label={t("signin.signup.photo")}
             className="mt-4"
             input={
-              <>
-                <div
-                  style={
-                    photoName
-                      ? { backgroundColor: stringToColor(photoName) }
-                      : {}
-                  }
-                  className="w-20 h-20 flex items-center justify-center rounded-md bg-slate-200 dark:bg-slate-700 hover:bg-opacity-75 flex items-center justify-center cursor-pointer"
-                  onClick={() =>
-                    document.getElementById("profileImageInput")?.click()
-                  }
-                >
-                  {" "}
-                  {imageBase64 ? (
-                    <img
-                      src={imageBase64}
-                      alt="Profile"
-                      className="w-full h-full rounded-md object-cover"
-                    />
-                  ) : photoName ? (
-                    <Title>{photoName}</Title>
-                  ) : (
-                    <PhotographIcon className="w-8 h-8 text-slate-500 dark:text-slate-400" />
-                  )}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    id="profileImageInput"
-                    onChange={handleImageChange}
-                  />
-                </div>
-                {!!imageBase64 && (
-                  <Info noColor>
-                    <Link
-                      onClick={() => setImageBase64(null)}
-                      className="text-red-500"
-                    >
-                      {t("signin.signup.removePhoto")}
-                    </Link>
-                  </Info>
-                )}
-                {!imageBase64 && (
-                  <Info noColor>
-                    <Link
-                      onClick={() =>
-                        document.getElementById("profileImageInput")?.click()
-                      }
-                    >
-                      {t("signin.signup.addPhoto")}
-                    </Link>
-                  </Info>
-                )}
-              </>
+              <InputImage
+                fallback={name}
+                onChange={(b64) => setImageBase64(b64)}
+              />
             }
           />
 
