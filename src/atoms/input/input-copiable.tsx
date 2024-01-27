@@ -10,7 +10,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const defaultInputClassName =
-  "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-slate-200 rounded-lg";
+  "shadow-sm focus:ring-wood-500 focus:border-wood-500 block w-full sm:text-sm border-wood-200 rounded-lg";
 
 let copiedTimeout: any = 0;
 

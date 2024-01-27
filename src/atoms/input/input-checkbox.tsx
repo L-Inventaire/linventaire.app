@@ -16,9 +16,9 @@ export const Checkbox = (props: {
         className={
           " shrink-0 flex justify-center items-center w-5 h-5 border-2 rounded text-white " +
           (props.value
-            ? "border-blue-400 bg-blue-400 hover:border-blue-500 hover:bg-blue-500"
-            : "border-slate-300 " +
-              (props.disabled ? "" : "hover:border-blue-200")) +
+            ? "border-wood-400 bg-wood-400 hover:border-wood-500 hover:bg-wood-500"
+            : "border-wood-300 " +
+              (props.disabled ? "" : "hover:border-wood-200")) +
           " " +
           (props.disabled ? "opacity-50" : "cursor-pointer") +
           " " +

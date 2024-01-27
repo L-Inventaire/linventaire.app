@@ -55,14 +55,14 @@ export const NoClientView = () => {
               <>
                 <Title>You joined a company!</Title>
                 <Info className="block mb-2 mt-2">
-                  You can continue to Simple
+                  You can continue to L'inventaire
                 </Info>
                 <Button
                   size="md"
                   theme="primary"
                   onClick={() => navigate(ROUTES.Home)}
                 >
-                  Open Simple
+                  Open L'inventaire
                 </Button>
               </>
             )}
@@ -144,8 +144,8 @@ export const NoClientView = () => {
                 Create my company
               </SectionSmall>
               <Info className="block mb-2">
-                Your company also need to be created on Simple. Create your
-                company and invite your collaborators to join it.
+                Your company also need to be created on L'inventaire. Create
+                your company and invite your collaborators to join it.
               </Info>
               <Button
                 theme={!clients.length ? "primary" : "default"}

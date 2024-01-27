@@ -23,11 +23,11 @@ export const Button = (props: ButtonProps) => {
   );
 
   let colors =
-    "text-white bg-blue-500 from-current to-blue-600 hover:bg-blue-600 active:bg-blue-800 drop-shadow-sm	";
+    "text-white bg-wood-500 hover:bg-wood-600 active:bg-wood-700 border-transparent ";
 
   if (props.theme === "secondary")
     colors =
-      "text-blue-500 bg-blue-100 hover:bg-blue-200 active:bg-blue-200 border-transparent ";
+      "text-wood-500 bg-wood-100 hover:bg-wood-200 active:bg-wood-200 border-transparent ";
 
   if (props.theme === "danger")
     colors =
@@ -35,11 +35,11 @@ export const Button = (props: ButtonProps) => {
 
   if (props.theme === "default")
     colors =
-      "text-black bg-white border-slate-200 hover:bg-slate-50 active:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:active:bg-slate-700 dark:text-white dark:border-slate-900";
+      "text-black bg-white border-wood-200 hover:bg-wood-50 active:bg-wood-200 dark:bg-wood-950 dark:hover:bg-wood-700 dark:active:bg-wood-700 dark:text-white dark:border-wood-900";
 
   if (props.theme === "outlined")
     colors =
-      "text-blue-400 bg-white dark:bg-slate-900 dark:hover:bg-slate-800 dark:active:bg-slate-900 hover:bg-slate-50 active:bg-slate-200 border-blue-400 border-solid	";
+      "text-wood-400 bg-white dark:bg-wood-990 dark:hover:bg-wood-800 dark:active:bg-wood-900 hover:bg-wood-50 active:bg-wood-200 border-wood-400 border-solid	";
 
   if (disabled) colors += " opacity-50 pointer-events-none";
 
@@ -63,7 +63,7 @@ export const Button = (props: ButtonProps) => {
     <button
       type="button"
       className={
-        "whitespace-nowrap overflow-hidden text-ellipsis inline-flex items-center justify-center py-2 border text-sm font-medium rounded-lg focus:outline-none " +
+        "whitespace-nowrap overflow-hidden text-ellipsis inline-flex items-center justify-center py-2 border text-sm font-medium rounded-md focus:outline-none " +
         className +
         " " +
         props.className

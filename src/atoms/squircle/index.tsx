@@ -14,7 +14,7 @@ export default (props: {
   const shadow = props.shadow || "large";
   const color = props.noColor
     ? ""
-    : "bg-white dark:bg-slate-800 dark:text-white ";
+    : "bg-white dark:bg-wood-950 dark:text-white ";
 
   useEffect(() => {
     clearTimeout(squircleTimeout);

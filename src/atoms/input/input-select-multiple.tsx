@@ -56,10 +56,10 @@ export function SelectMultiple(props: InputProps) {
         onListBlur={() => setFocused(false)}
         className={
           inputClassName +
-          " bg-white dark:bg-slate-900 border " +
+          " bg-white dark:bg-wood-990 border " +
           ((props.value || []).length === 0 ? "empty " : "") +
           (focused
-            ? "ring-blue-600 ring-1 !border-blue-600 dark:border-blue-600 rounded-b-none "
+            ? "ring-wood-600 ring-1 !border-wood-600 dark:border-wood-600 rounded-b-none "
             : "") +
           " " +
           ((props.value?.length || 0) > 0 ? " pr-12 " : " pr-8 ") +
@@ -90,10 +90,10 @@ export function SelectMultiple(props: InputProps) {
           onClick={() => {
             props.onChange && props.onChange([]);
           }}
-          className="h-4 w-4 cursor-pointer hover:opacity-50 bg-blue-700 p-0.5 text-white rounded-full absolute m-auto top-0 bottom-0 right-8"
+          className="h-4 w-4 cursor-pointer hover:opacity-50 bg-wood-700 p-0.5 text-white rounded-full absolute m-auto top-0 bottom-0 right-8"
         />
       )}
-      <ChevronDownIcon className="h-5 w-5 pointer-events-none absolute m-auto top-0 bottom-0 right-2.5 text-slate-500" />
+      <ChevronDownIcon className="h-5 w-5 pointer-events-none absolute m-auto top-0 bottom-0 right-2.5 text-wood-500" />
     </div>
   );
 }

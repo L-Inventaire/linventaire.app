@@ -56,7 +56,7 @@ export const AnimatedBackground = () => {
 
   return (
     <>
-      <div className="lamp">
+      <div className="hidden">
         <div className="lava"></div>
       </div>
       <svg

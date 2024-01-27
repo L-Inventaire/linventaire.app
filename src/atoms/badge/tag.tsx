@@ -19,7 +19,7 @@ export const Tag = ({
       className={
         "text-left rounded inline-block px-1.5 py-px text-sm text-center " +
         (!noColor
-          ? "bg-slate-300 text-slate-800 dark:bg-slate-600 dark:text-slate-100 "
+          ? "bg-wood-300 text-wood-800 dark:bg-wood-600 dark:text-wood-100 "
           : "") +
         (className || "")
       }

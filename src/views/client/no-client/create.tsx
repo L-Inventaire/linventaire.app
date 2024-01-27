@@ -285,7 +285,7 @@ export const NewClientForm = (props: { onClose: () => void }) => {
         )}
         {step === 3 && (
           <div className="w-full h-32 flex items-center justify-center">
-            <Loader color="text-blue-500" />
+            <Loader color="text-wood-500" />
           </div>
         )}
 

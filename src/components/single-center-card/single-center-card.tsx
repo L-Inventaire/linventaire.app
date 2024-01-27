@@ -14,12 +14,12 @@ export default function SingleCenterCard(props: {
           <img
             className="mx-auto h-6 w-auto dark:hidden"
             src="/medias/logo.png"
-            alt="Simple"
+            alt="L'inventaire"
           />
           <img
             className="mx-auto h-6 w-auto hidden dark:block"
             src="/medias/logo.svg"
-            alt="Simple"
+            alt="L'inventaire"
           />
           {!!props.title && (
             <h2 className="mt-6 text-left text-3xl font-extrabold text-gray-900 dark:text-white">
@@ -27,7 +27,7 @@ export default function SingleCenterCard(props: {
             </h2>
           )}
           {!!props.subtitle && (
-            <p className="mt-2 text-left text-sm text-gray-600 dark:text-slate-200">
+            <p className="mt-2 text-left text-sm text-gray-600 dark:text-gray-200">
               {props.subtitle}
             </p>
           )}
@@ -36,20 +36,20 @@ export default function SingleCenterCard(props: {
 
       <div
         style={{ zIndex: 1 }}
-        className="mt-0 mb-0 h-full sm:mb-12 sm:mt-8 sm:ml-32 lg:ml-64 sm:mr-auto sm:w-full sm:max-w-md"
+        className="mt-0 mb-0 h-full sm:mb-12 sm:mt-8 mx-auto sm:w-full sm:max-w-md"
       >
-        <div className="py-8 px-4 sm:pb-8 pb-12 rounded-t-lg sm:rounded-lg sm:px-10 bg-white dark:bg-slate-800 shadow-lg">
+        <div className="py-8 px-4 sm:pb-8 pb-12 rounded-t-lg sm:rounded-lg sm:px-10 bg-white dark:bg-slate-950 shadow-lg">
           {props.insetLogo && (
             <>
               <img
                 className="h-8 w-auto mb-7 mt-2 dark:hidden"
                 src="/medias/logo-black.svg"
-                alt="Simple"
+                alt="L'inventaire"
               />
               <img
                 className="h-8 w-auto mb-7 mt-2 hidden dark:block"
                 src="/medias/logo.svg"
-                alt="Simple"
+                alt="L'inventaire"
               />
             </>
           )}

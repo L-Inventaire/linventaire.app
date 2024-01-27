@@ -101,11 +101,11 @@ export const InputWithSuggestions = (props: InputSuggestionProps) => {
         </div>
       )}
       {focus && !!filteredOptions?.length && value.length > 0 && (
-        <div className="absolute z-10 top-full left-0 w-full bg-white shadow-md max-h-lg overflow-auto dark:bg-slate-800">
+        <div className="absolute z-10 top-full left-0 w-full bg-white shadow-md max-h-lg overflow-auto dark:bg-wood-950">
           {_.uniqBy(filteredOptions, "value").map((e: any, index: number) => (
             <div
               key={index}
-              className={`py-1 px-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-500 ${
+              className={`py-1 px-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-wood-500 ${
                 selectedIndex === index ? "bg-gray-200" : ""
               }`}
               onMouseDown={() => {

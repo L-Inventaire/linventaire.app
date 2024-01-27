@@ -11,7 +11,7 @@ export const Card = (props: {
   return (
     <div
       className={
-        "bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center p-3 " +
+        "bg-wood-100 dark:bg-wood-950 rounded-lg flex items-center p-3 " +
         (props.className || "")
       }
     >

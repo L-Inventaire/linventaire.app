@@ -20,7 +20,7 @@ export default function InitialRouter() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-full w-full dark:bg-slate-900 bg-white">
+      <div className="flex justify-center items-center h-full w-full dark:bg-wood-990 bg-white">
         <PageLoader />
       </div>
     );
@@ -29,12 +29,12 @@ export default function InitialRouter() {
   return (
     <Suspense
       fallback={
-        <div className="flex justify-center items-center h-full w-full dark:bg-slate-900 bg-white">
+        <div className="flex justify-center items-center h-full w-full dark:bg-wood-990 bg-wood-50">
           <PageLoader />
         </div>
       }
     >
-      <div className="flex min-h-full dark:bg-slate-900 bg-white h-full">
+      <div className="flex min-h-full dark:bg-wood-990 bg-wood-50 h-full">
         <Routes>
           <Route path="/">
             {BackOfficeRoutes()}

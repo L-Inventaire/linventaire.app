@@ -15,7 +15,7 @@
   "signin": {
     "login": {
       "title": "Hi {{0}}, glad to see you back.",
-      "welcome": "Hello, welcome to Simple.",
+      "welcome": "Hello, welcome to L'inventaire.",
       "subtitle": "Enter your email to login",
       "welcome_subtitle": "Choose an email to continue",
       "email": "Email",
@@ -28,7 +28,7 @@
     },
     "signup": {
       "title": "Let's create your account",
-      "subtitle": "It seems this is your first time on Simple, let us know who you are",
+      "subtitle": "It seems this is your first time on L'inventaire, let us know who you are",
       "name": "Full name",
       "photo": "Picture",
       "removePhoto": "Remove picture",
@@ -38,7 +38,7 @@
     }
   },
   "general": {
-    "app_name": "Simple",
+    "app_name": "L'inventaire",
     "continue": "Continue"
   }
 }

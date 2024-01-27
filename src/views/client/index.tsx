@@ -47,7 +47,7 @@ export const Layout = () => {
 
   return (
     <>
-      <div className="flex w-full grow flex-col bg-slate-50 dark:bg-slate-900 h-full intro-animated-root z-10">
+      <div className="flex w-full grow flex-col bg-slate-50 dark:bg-slate-990 h-full intro-animated-root z-10">
         {afterSignupOrNewCompany && <Confetti />}
         <Header />
         <div className="grow flex min-h-0">

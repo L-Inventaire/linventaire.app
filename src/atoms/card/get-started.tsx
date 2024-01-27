@@ -17,7 +17,7 @@ export const GetStartedCard = (props: {
     <Card
       className={
         (props.className || "") +
-        " !bg-blue-200 border border-blue-400 dark:bg-blue-900"
+        " !bg-wood-200 border border-wood-400 dark:bg-wood-990"
       }
       prefix={<InformationCircleIcon className="h-6 w-6 mx-2 mr-3 shrink-0" />}
       title={

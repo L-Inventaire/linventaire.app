@@ -164,7 +164,7 @@ export function RenderedTable<T>({
     <div
       ref={parentRef}
       className={
-        "not-prose text-left border-slate-200 dark:border-slate-700 relative overflow-auto " +
+        "not-prose text-left border-wood-200 dark:border-wood-700 relative overflow-auto " +
         (className || "")
       }
     >
@@ -193,7 +193,7 @@ export function RenderedTable<T>({
       >
         {loading && (
           <div className="absolute m-auto left-0 top-0 right-0 bottom-0 w-6 h-6 text-center z-10">
-            <Loader color="text-blue-500" />
+            <Loader color="text-wood-500" />
           </div>
         )}
 
@@ -292,7 +292,7 @@ export function RenderedTable<T>({
                       className={
                         "w-8 shrink-0 relative " +
                         (scrollable
-                          ? " sticky top-0 bg-slate-50 dark:bg-slate-800 "
+                          ? " sticky top-0 bg-wood-50 dark:bg-wood-950 "
                           : "")
                       }
                     >
@@ -338,7 +338,7 @@ export function RenderedTable<T>({
                           ? "cursor-pointer hover:bg-opacity-75 "
                           : "") +
                         (scrollable
-                          ? " sticky top-0 bg-slate-50 dark:bg-slate-800 z-10 "
+                          ? " sticky top-0 bg-wood-50 dark:bg-wood-950 z-10 "
                           : "") +
                         (column.thClassName || "")
                       }
@@ -354,7 +354,7 @@ export function RenderedTable<T>({
                     >
                       <div
                         className={
-                          "items-center flex text-blue-500 table-hover-sort-container  " +
+                          "items-center flex text-wood-500 table-hover-sort-container  " +
                           (column.headClassName || "")
                         }
                       >
@@ -368,14 +368,14 @@ export function RenderedTable<T>({
                           <div className="w-8 flex items-center ml-1">
                             {pagination?.orderBy === i &&
                               pagination.order === "DESC" && (
-                                <ArrowSmUpIcon className="h-4 w-4 text-blue-500 inline" />
+                                <ArrowSmUpIcon className="h-4 w-4 text-wood-500 inline" />
                               )}
                             {pagination?.orderBy === i &&
                               pagination.order !== "DESC" && (
-                                <ArrowSmDownIcon className="h-4 w-4 text-blue-500 inline" />
+                                <ArrowSmDownIcon className="h-4 w-4 text-wood-500 inline" />
                               )}
                             {pagination?.orderBy !== i && column.orderable && (
-                              <ArrowSmDownIcon className="table-hover-sort h-4 w-4 text-slate-500 opacity-50 inline" />
+                              <ArrowSmDownIcon className="table-hover-sort h-4 w-4 text-wood-500 opacity-50 inline" />
                             )}
                           </div>
                         )}
@@ -394,7 +394,7 @@ export function RenderedTable<T>({
                       " p-4 text-center" +
                       (scrollable
                         ? ""
-                        : "bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600")
+                        : "bg-white dark:bg-wood-700 border border-wood-200 dark:border-wood-600")
                     }
                   >
                     <Info>{t("general.tables.empty")}</Info>
@@ -432,8 +432,8 @@ export function RenderedTable<T>({
                           className={
                             "w-full " +
                             (isSelected
-                              ? " bg-blue-200 dark:bg-blue-800 "
-                              : " bg-slate-200 dark:bg-slate-700 ") +
+                              ? " bg-wood-200 dark:bg-wood-950 "
+                              : " bg-wood-200 dark:bg-wood-700 ") +
                             (onClick
                               ? "cursor-pointer hover:bg-opacity-75 "
                               : "") +
@@ -484,8 +484,8 @@ export function RenderedTable<T>({
                                 : "dark:bg-opacity-25 bg-opacity-25 "
                               : "") +
                             (isSelected
-                              ? " bg-blue-200 dark:bg-blue-800 "
-                              : " bg-white dark:bg-slate-700 ")
+                              ? " bg-wood-200 dark:bg-wood-950 "
+                              : " bg-white dark:bg-wood-700 ")
                           }
                         >
                           {columns.map((cell, j) => (
@@ -526,7 +526,7 @@ export function RenderedTable<T>({
                           >
                             <div
                               className={
-                                "h-full w-full flex items-center border-t border-slate-200 dark:border-slate-600 " +
+                                "h-full w-full flex items-center border-t border-wood-200 dark:border-wood-600 " +
                                 (i % 2
                                   ? isSelected
                                     ? "dark:bg-opacity-90 bg-opacity-90 "
@@ -540,8 +540,8 @@ export function RenderedTable<T>({
                                 ((iLast && jFirst && " rounded-bl ") || "") +
                                 ((iLast && jLast && " rounded-br ") || "") +
                                 (isSelected
-                                  ? " bg-blue-200 dark:bg-blue-800 "
-                                  : " bg-white dark:bg-slate-700 ") +
+                                  ? " bg-wood-200 dark:bg-wood-950 "
+                                  : " bg-white dark:bg-wood-700 ") +
                                 (cell.className || "")
                               }
                             >
@@ -571,9 +571,9 @@ export function RenderedTable<T>({
                 <td
                   colSpan={columns.length + (onSelect ? 1 : 0)}
                   className={
-                    "items-center pl-2 py-2 pr-0 text-slate-500 dark:text-slate-400 " +
+                    "items-center pl-2 py-2 pr-0 text-wood-500 dark:text-wood-400 " +
                     (scrollable
-                      ? " sticky bottom-0 bg-slate-50 dark:bg-slate-800 z-10 "
+                      ? " sticky bottom-0 bg-wood-50 dark:bg-wood-950 z-10 "
                       : "")
                   }
                 >

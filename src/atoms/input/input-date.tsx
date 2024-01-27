@@ -50,11 +50,11 @@ export function InputDate(props: InputProps) {
       onFocus={() => setActive(true)}
       onBlur={() => setActive(false)}
       clearButtonClassName="mr-1"
-      calendarClassName="select-none !bg-white dark:!bg-slate-900 shadow border !border-slate-300 dark:!border-slate-700 rounded-lg overflow-hidden "
+      calendarClassName="select-none !bg-white dark:!bg-wood-900 shadow border !border-wood-300 dark:!border-wood-700 rounded-lg overflow-hidden "
       renderCustomHeader={(e) => (
         <div className="flex flex-row items-center">
           <div
-            className="cursor-pointer hover:text-blue-500 text-black dark:text-white"
+            className="cursor-pointer hover:text-wood-500 text-black dark:text-white"
             onClick={e.decreaseMonth}
           >
             <ArrowLeftIcon className="h-4 w-4 mx-3" />
@@ -79,7 +79,7 @@ export function InputDate(props: InputProps) {
             {new Date(e.monthDate).getFullYear()}
           </Base>
           <div
-            className="cursor-pointer hover:text-blue-500 text-black dark:text-white"
+            className="cursor-pointer hover:text-wood-500 text-black dark:text-white"
             onClick={e.increaseMonth}
           >
             <ArrowRightIcon className="h-4 w-4 mx-3" />

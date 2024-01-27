@@ -1,18 +1,26 @@
 const defaultTheme = require("tailwindcss/defaultTheme");
 
 let shades = [];
-["slate", "red", "orange", "green", "blue", "yellow", "rose", "purple"].map(
-  (color) => {
-    [50, 100, 200, 300, 400, 500, 600, 700, 800, 900].map((shade) => {
-      shades.push(`bg-${color}-${shade}`);
-      shades.push(`border-${color}-${shade}`);
-      shades.push(`text-${color}-${shade}`);
-      shades.push(`dark:bg-${color}-${shade}`);
-      shades.push(`dark:border-${color}-${shade}`);
-      shades.push(`dark:text-${color}-${shade}`);
-    });
-  }
-);
+[
+  "wood",
+  "slate",
+  "red",
+  "orange",
+  "green",
+  "blue",
+  "yellow",
+  "rose",
+  "purple",
+].map((color) => {
+  [50, 100, 200, 300, 400, 500, 600, 700, 800, 900].map((shade) => {
+    shades.push(`bg-${color}-${shade}`);
+    shades.push(`border-${color}-${shade}`);
+    shades.push(`text-${color}-${shade}`);
+    shades.push(`dark:bg-${color}-${shade}`);
+    shades.push(`dark:border-${color}-${shade}`);
+    shades.push(`dark:text-${color}-${shade}`);
+  });
+});
 
 module.exports = {
   content: ["./src/**/*.{html,js,ts,tsx}"],
@@ -25,64 +33,39 @@ module.exports = {
         xxs: "9px",
       },
       borderRadius: {
-        DEFAULT: "1rem",
-        md: "1rem",
-        lg: "2rem",
-        xl: "2rem",
+        DEFAULT: "0.3rem",
+        md: "0.3rem",
+        lg: "0.5rem",
+        xl: "0.8rem",
       },
       colors: {
-        green: {
-          50: "#f0fdf3",
-          100: "#dbfde5",
-          200: "#b4f8c8",
-          300: "#83f2a5",
-          400: "#46e276",
-          500: "#1ec953",
-          600: "#12a741",
-          700: "#128336",
-          800: "#14672f",
-          900: "#125529",
-          950: "#042f14",
+        wood: {
+          50: "#f6f4f0",
+          100: "#e9e4d8",
+          200: "#d6c7b2",
+          300: "#bea686",
+          400: "#aa8a65",
+          500: "#987655",
+          600: "#856249",
+          700: "#6b4c3d",
+          800: "#5c4137",
+          900: "#503933",
+          950: "#241e1b",
+          990: "#080403",
         },
-        orange: {
-          50: "#fef8ee",
-          100: "#fbe7c6",
-          200: "#f8dbb0",
-          300: "#f4c07d",
-          400: "#ee9b49",
-          500: "#ea8025",
-          600: "#db671b",
-          700: "#b64e18",
-          800: "#913e1b",
-          900: "#753519",
-          950: "#3f190b",
+        slate: {
+          50: "#f3f3f1",
+          100: "#e3e2de",
+          200: "#c8c7c0",
+          300: "#aaa69d",
+          400: "#8e8a80",
+          500: "#7f7a71",
+          600: "#6d675f",
+          700: "#585450",
+          800: "#4d4a47",
+          900: "#444240",
+          950: "#231d1a",
         },
-        red: {
-          50: "#fff1f3",
-          100: "#ffe3e6",
-          200: "#ffccd5",
-          300: "#ffaebc",
-          400: "#fe6e8a",
-          500: "#f83b64",
-          600: "#e51950",
-          700: "#c20e43",
-          800: "#a20f3f",
-          900: "#8b103c",
-          950: "#4e031c",
-        } /*
-        blue: {
-          50: "#effcfb",
-          100: "#d8f5f3",
-          200: "#a0e7e5",
-          300: "#81dfde",
-          400: "#47c9c9",
-          500: "#2badaf",
-          600: "#278c93",
-          700: "#267278",
-          800: "#265d64",
-          900: "#244e55",
-          950: "#133339",
-        },*/,
       },
     },
   },

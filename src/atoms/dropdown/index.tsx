@@ -102,7 +102,7 @@ export const Dropdown = ({ options, children, ...props }: DropdownProps) => {
 
   const dropdownContent = (
     <div
-      className="absolute bg-white dark:bg-slate-800 border rounded-sm shadow"
+      className="absolute bg-white dark:bg-wood-950 border rounded-sm shadow"
       style={{ zIndex: 999 }}
       ref={dropdownRef}
     >

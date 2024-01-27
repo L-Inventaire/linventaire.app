@@ -133,7 +133,7 @@ export const Modal = (props: {
             >
               <Dialog.Panel
                 className={
-                  "align-bottom bg-white dark:bg-slate-900 px-4 pt-5 pb-4 text-left w-full sm:w-auto overflow-hidden shadow-xl transform transition-all sm:align-middle sm:p-6 " +
+                  "align-bottom bg-white dark:bg-wood-990 px-4 pt-5 pb-4 text-left w-full sm:w-auto overflow-hidden shadow-xl transform transition-all sm:align-middle sm:p-6 " +
                   "relative inline-block rounded-tr-xl rounded-tl-xl sm:rounded-lg sm:my-8 w-full sm:w-full sm:max-w-[400px] " +
                   (props.className || "")
                 }
@@ -143,7 +143,7 @@ export const Modal = (props: {
                   <div className="z-20 absolute top-0 right-0 pt-4 pr-4">
                     <button
                       type="button"
-                      className="bg-slate-300 dark:bg-slate-600 rounded-full p-1 text-slate-600 dark:text-slate-300 hover:opacity-75 focus:outline-none "
+                      className="bg-wood-300 dark:bg-wood-600 rounded-full p-1 text-wood-600 dark:text-wood-300 hover:opacity-75 focus:outline-none "
                       onClick={() => props.onClose && props.onClose()}
                     >
                       <XIcon className="h-5 w-5" aria-hidden="true" />

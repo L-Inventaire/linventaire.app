@@ -71,7 +71,7 @@ export const Search = () => {
       />
       <Transition
         show={focused}
-        className="absolute top-12 md:top-full left-0 bottom-0 md:bottom-auto bg-white dark:bg-slate-900 p-4 text-left w-full md:w-auto overflow-auto shadow-xl md:rounded-lg sm:w-full z-20"
+        className="absolute top-12 md:top-full left-0 bottom-0 md:bottom-auto bg-white dark:bg-wood-990 p-4 text-left w-full md:w-auto overflow-auto shadow-xl md:rounded-lg sm:w-full z-20"
         enter="transition ease-out duration-100"
         enterFrom="transform opacity-0 -translate-y-6"
         enterTo="transform opacity-100 translate-y-0"

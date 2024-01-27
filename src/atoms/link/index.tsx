@@ -28,7 +28,7 @@ export default function Link(
 
   const colors = props.noColor
     ? ""
-    : "hover:text-blue-600 active:text-blue-800 text-blue-500";
+    : "hover:text-wood-600 active:text-wood-800 text-wood-500";
 
   if (
     (props.href || "")?.startsWith("http") ||

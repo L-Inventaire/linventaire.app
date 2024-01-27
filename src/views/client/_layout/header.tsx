@@ -8,7 +8,7 @@ import { Search } from "./search";
 
 export const Header = () => {
   return (
-    <div className="bg-blue-500 h-14 flex flex-row justify-center items-center px-2 sm:px-4 min-h-0 shrink-0 z-60 text-white">
+    <div className="bg-wood-500 h-14 flex flex-row justify-center items-center px-2 sm:px-4 min-h-0 shrink-0 z-60 text-white">
       <div className="flex flex-row items-center justify-center ml-4">
         <Logo />
       </div>
@@ -29,9 +29,9 @@ const Logo = () => (
     noColor
     className="flex-row items-center mr-4 mr-8 flex"
   >
-    <img src="/medias/logo.svg" className="h-6" alt="Simple" />
+    <img src="/medias/logo.svg" className="h-6" alt="L'inventaire" />
     <Base noColor className="inline-flex ml-2 md:inline-flex hidden">
-      Simple
+      L'inventaire
     </Base>
   </Link>
 );

@@ -16,7 +16,7 @@ export const InputLabel = (props: InputLabelProps) => {
         <div className={props.className}>
           <label
             className={
-              "block text-sm font-medium text-gray-700 dark:text-slate-400 whitespace-nowrap overflow-hidden text-ellipsis " +
+              "block text-sm font-medium text-gray-700 dark:text-wood-400 whitespace-nowrap overflow-hidden text-ellipsis " +
               props.labelClassName
             }
           >
@@ -26,7 +26,7 @@ export const InputLabel = (props: InputLabelProps) => {
           {props.feedback && (
             <Info
               noColor
-              className={props.hasError ? "text-red-400" : "text-blue-400"}
+              className={props.hasError ? "text-red-400" : "text-wood-400"}
             >
               {props.feedback}
             </Info>
