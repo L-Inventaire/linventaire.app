@@ -7,7 +7,9 @@
   right: 0;
   z-index: 0;
   overflow: hidden;
-  background: linear-gradient(to right, #FBE7C650, #B4F8C850, #A0E7E550, #FFAEBC50);
+  /*background: linear-gradient(to right, #FBE7C650, #B4F8C850, #A0E7E550, #FFAEBC50);*/
+  /* Vibrant colors intead, no pastel */
+  background: linear-gradient(to right, #FF000080, #FF00FF80, #0000FF80, #00FFFF80);
   animation: colorAnimation 20s ease-in-out infinite;
 }
 

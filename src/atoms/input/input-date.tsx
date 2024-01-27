@@ -11,6 +11,7 @@ interface InputProps
     React.SelectHTMLAttributes<HTMLSelectElement>,
     "size" | "onChange" | "value"
   > {
+  placeholder?: string;
   highlight?: boolean;
   theme?: "plain";
   hasError?: boolean;

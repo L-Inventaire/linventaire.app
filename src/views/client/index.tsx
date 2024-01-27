@@ -11,6 +11,7 @@ import { TabPage } from "./tableau";
 import { Confetti } from "@atoms/confetti";
 import { useRecoilValue } from "recoil";
 import { DidCreateCompanyOrSignupAtom } from "@features/clients/state/store";
+import { AnimatedBackground } from "@components/animated-background";
 
 export const BackOfficeRoutes = () => {
   return (
@@ -45,15 +46,18 @@ export const Layout = () => {
   }
 
   return (
-    <div className="flex w-full grow flex-col bg-slate-50 dark:bg-slate-900 h-full">
-      {afterSignupOrNewCompany && <Confetti />}
-      <Header />
-      <div className="grow flex min-h-0">
-        <div className="grow min-h-0 overflow-auto">
-          <Outlet />
+    <>
+      <div className="flex w-full grow flex-col bg-slate-50 dark:bg-slate-900 h-full intro-animated-root z-10">
+        {afterSignupOrNewCompany && <Confetti />}
+        <Header />
+        <div className="grow flex min-h-0">
+          <div className="grow min-h-0 overflow-auto">
+            <Outlet />
+          </div>
         </div>
+        <Modals />
       </div>
-      <Modals />
-    </div>
+      <AnimatedBackground />
+    </>
   );
 };

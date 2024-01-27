@@ -3,6 +3,7 @@ import { defaultInputClassName, errorInputClassName } from "./input-text";
 
 export interface SelectInputProps
   extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "size"> {
+  placeholder?: string;
   theme?: "plain";
   hasError?: boolean;
   size?: "md" | "lg" | "sm";

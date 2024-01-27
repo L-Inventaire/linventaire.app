@@ -48,13 +48,13 @@ export const Search = () => {
         prefix={SearchIcon}
         input={({ className }) => (
           <Input
-            size="sm"
+            size="md"
             onFocus={() => setFocused(true)}
             onBlur={() => setTimeout(() => setFocused(false), 200)}
             onChange={(e) => setQuery(e.target.value)}
-            inputClassName={"!h-8 " + className}
+            inputClassName={"!rounded-full text-black " + className}
             placeholder={t("header.search.placeholder")}
-            shortcut={["shift+k"]}
+            shortcut={["shift+k", "ctrl+k"]}
           />
         )}
       />

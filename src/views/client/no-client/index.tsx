@@ -2,23 +2,31 @@ import Avatar from "@atoms/avatar/avatar";
 import { Button } from "@atoms/button/button";
 import Link from "@atoms/link";
 import { Base, Info, SectionSmall, Title } from "@atoms/text";
-import { AnimatedBackground } from "@components/animated-background";
 import SingleCenterCard from "@components/single-center-card/single-center-card";
 import { Table } from "@components/table";
+import { useAuth } from "@features/auth/state/use-auth";
 import {
   useClientInvitations,
   useClients,
 } from "@features/clients/state/use-clients";
-import { useState } from "react";
-import { NewClientForm } from "./create";
-import toast from "react-hot-toast";
-import { useAuth } from "@features/auth/state/use-auth";
-import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@features/routes";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+import { NewClientForm } from "./create";
+import { AnimatedBackground } from "@components/animated-background";
+import { useSetRecoilState } from "recoil";
+import { DidCreateCompanyOrSignupAtom } from "@features/clients/state/store";
 
 export const NoClientView = () => {
   const { user, logout } = useAuth();
   const [create, setCreate] = useState(false);
+
+  const setAfterSignUpOrNewCompany = useSetRecoilState(
+    DidCreateCompanyOrSignupAtom
+  );
+
+  setAfterSignUpOrNewCompany(true);
 
   const navigate = useNavigate();
 
@@ -47,14 +55,14 @@ export const NoClientView = () => {
               <>
                 <Title>You joined a company!</Title>
                 <Info className="block mb-2 mt-2">
-                  You can continue to Lydim
+                  You can continue to Simple
                 </Info>
                 <Button
-                  size="sm"
+                  size="md"
                   theme="primary"
                   onClick={() => navigate(ROUTES.Home)}
                 >
-                  Open Lydim
+                  Open Simple
                 </Button>
               </>
             )}
@@ -136,10 +144,16 @@ export const NoClientView = () => {
                 Create my company
               </SectionSmall>
               <Info className="block mb-2">
-                Your company also need to be created on Lydim. Create your
+                Your company also need to be created on Simple. Create your
                 company and invite your collaborators to join it.
               </Info>
-              <Button onClick={() => setCreate(true)}>New company</Button>
+              <Button
+                theme={!clients.length ? "primary" : "default"}
+                size="sm"
+                onClick={() => setCreate(true)}
+              >
+                New company
+              </Button>
 
               <br />
               <br />

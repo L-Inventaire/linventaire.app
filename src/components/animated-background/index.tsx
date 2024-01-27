@@ -2,7 +2,9 @@ import { useEffect } from "react";
 import "./index.css";
 
 const createBlob = (top = 0, _delay = 0) => {
-  const colors = ["#FBE7C6", "#B4F8C8", "#A0E7E5", "#FFAEBC"]; // Random colors palette
+  let colors = ["#FBE7C6", "#B4F8C8", "#A0E7E5", "#FFAEBC"]; // Random colors palette
+  // More vibrant colors
+  colors = ["#FBE7C6", "#B4F8C8", "#A0E7E5", "#FFAEBC", "#FBE7C6", "#B4F8C8"];
   const screenSize = window.innerHeight;
   const blobSize = 0.1 * screenSize + Math.random() * screenSize * 0.2; // Random size in % of screen height
   const position = "right";

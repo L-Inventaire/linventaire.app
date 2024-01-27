@@ -23,7 +23,7 @@ export const Button = (props: ButtonProps) => {
   );
 
   let colors =
-    "text-white bg-blue-500 from-current to-blue-600 hover:bg-blue-600 active:bg-blue-800 border-transparent drop-shadow-sm	";
+    "text-white bg-blue-500 from-current to-blue-600 hover:bg-blue-600 active:bg-blue-800 drop-shadow-sm	";
 
   if (props.theme === "secondary")
     colors =
@@ -63,7 +63,7 @@ export const Button = (props: ButtonProps) => {
     <button
       type="button"
       className={
-        "whitespace-nowrap overflow-hidden text-ellipsis inline-flex items-center justify-center py-2 border text-sm font-medium rounded focus:outline-none " +
+        "whitespace-nowrap overflow-hidden text-ellipsis inline-flex items-center justify-center py-2 border text-sm font-medium rounded-lg focus:outline-none " +
         className +
         " " +
         props.className

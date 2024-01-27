@@ -5,6 +5,7 @@ import { defaultInputClassName } from "./input/input-text";
 
 interface InputProps
   extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "size"> {
+  placeholder?: string;
   highlight?: boolean;
   className?: string;
   size?: "md" | "sm";

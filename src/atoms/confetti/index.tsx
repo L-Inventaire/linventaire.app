@@ -66,6 +66,23 @@ function createConfetti(container: any, x: number, y: number) {
 export const Confetti = () => {
   useEffect(() => {
     allTopOfScreenConfetti();
+
+    document
+      .getElementsByClassName("intro-animated-root")?.[0]
+      ?.classList.add("root-intro");
+    setTimeout(() => {
+      document
+        .getElementsByClassName("intro-animated-root")?.[0]
+        ?.classList.add("root-intro-from");
+    }, 1000);
+    setTimeout(() => {
+      document
+        .getElementsByClassName("intro-animated-root")?.[0]
+        ?.classList.remove("root-intro");
+      document
+        .getElementsByClassName("intro-animated-root")?.[0]
+        ?.classList.remove("root-intro-from");
+    }, 4000);
   }, []);
   return <></>;
 };

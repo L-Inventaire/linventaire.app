@@ -14,12 +14,12 @@ export default function SingleCenterCard(props: {
           <img
             className="mx-auto h-6 w-auto dark:hidden"
             src="/medias/logo.png"
-            alt="Lydim"
+            alt="Simple"
           />
           <img
             className="mx-auto h-6 w-auto hidden dark:block"
             src="/medias/logo.svg"
-            alt="Lydim"
+            alt="Simple"
           />
           {!!props.title && (
             <h2 className="mt-6 text-left text-3xl font-extrabold text-gray-900 dark:text-white">
@@ -44,12 +44,12 @@ export default function SingleCenterCard(props: {
               <img
                 className="h-8 w-auto mb-7 mt-2 dark:hidden"
                 src="/medias/logo-black.svg"
-                alt="Lydim"
+                alt="Simple"
               />
               <img
                 className="h-8 w-auto mb-7 mt-2 hidden dark:block"
                 src="/medias/logo.svg"
-                alt="Lydim"
+                alt="Simple"
               />
             </>
           )}
