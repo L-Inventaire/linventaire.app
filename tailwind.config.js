@@ -40,6 +40,7 @@ module.exports = {
       },
       colors: {
         wood: {
+          25: "#fbf9f5",
           50: "#f6f4f0",
           100: "#e9e4d8",
           200: "#d6c7b2",
@@ -54,6 +55,7 @@ module.exports = {
           990: "#080403",
         },
         slate: {
+          25: "#f8f9f9",
           50: "#f3f3f1",
           100: "#e3e2de",
           200: "#c8c7c0",

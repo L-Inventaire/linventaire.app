@@ -46,6 +46,7 @@
     "react-superellipse": "^0.0.6",
     "recoil": "^0.7.2",
     "seedrandom": "^3.0.5",
+    "simplebar-react": "^3.2.4",
     "tippy.js": "^6.3.7",
     "web-vitals": "^2.1.4"
   },

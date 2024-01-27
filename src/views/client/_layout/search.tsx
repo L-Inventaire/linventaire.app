@@ -44,7 +44,7 @@ export const Search = () => {
   return (
     <div className="md:relative z-10 w-full">
       <InputDecorationIcon
-        className="max-w-md w-full relative z-20"
+        className="w-full relative z-20"
         prefix={SearchIcon}
         input={({ className }) => (
           <Input
@@ -52,7 +52,7 @@ export const Search = () => {
             onFocus={() => setFocused(true)}
             onBlur={() => setTimeout(() => setFocused(false), 200)}
             onChange={(e) => setQuery(e.target.value)}
-            inputClassName={"!rounded-full text-black " + className}
+            inputClassName={"!rounded-md text-black " + className}
             placeholder={t("header.search.placeholder")}
             shortcut={["shift+k", "ctrl+k"]}
           />

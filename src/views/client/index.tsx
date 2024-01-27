@@ -12,6 +12,7 @@ import { Confetti } from "@atoms/confetti";
 import { useRecoilValue } from "recoil";
 import { DidCreateCompanyOrSignupAtom } from "@features/clients/state/store";
 import { AnimatedBackground } from "@components/animated-background";
+import { SideBar } from "./_layout/sidebar";
 
 export const BackOfficeRoutes = () => {
   return (
@@ -47,16 +48,19 @@ export const Layout = () => {
 
   return (
     <>
-      <div className="flex w-full grow flex-col bg-slate-50 dark:bg-slate-990 h-full intro-animated-root z-10">
-        {afterSignupOrNewCompany && <Confetti />}
-        <Header />
-        <div className="grow flex min-h-0">
-          <div className="grow min-h-0 overflow-auto">
-            <Outlet />
+      {afterSignupOrNewCompany && <Confetti />}
+      <div className="flex w-full grow flex-row bg-slate-50 dark:bg-slate-990 h-full intro-animated-root z-10">
+        <SideBar />
+        <div className="grow flex-col bg-white border-l border-slate-500 border-opacity-10">
+          <Header />
+          <div className="grow flex min-h-0">
+            <div className="grow min-h-0 overflow-auto">
+              <Outlet />
+            </div>
           </div>
         </div>
-        <Modals />
       </div>
+      <Modals />
       <AnimatedBackground />
     </>
   );

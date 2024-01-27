@@ -1,62 +1,51 @@
 import Link from "@atoms/link";
-import { Base, BaseSmall } from "@atoms/text";
-import { ROUTES } from "@features/routes";
-import { AcademicCapIcon, SupportIcon } from "@heroicons/react/outline";
+import { BaseSmall, Info, Title } from "@atoms/text";
 import { useTranslation } from "react-i18next";
-import { Account } from "./account";
 import { Search } from "./search";
+import { Button } from "@atoms/button/button";
+import { PlusIcon } from "@heroicons/react/outline";
 
 export const Header = () => {
   return (
-    <div className="bg-wood-500 h-14 flex flex-row justify-center items-center px-2 sm:px-4 min-h-0 shrink-0 z-60 text-white">
-      <div className="flex flex-row items-center justify-center ml-4">
-        <Logo />
+    <div className="bg-wood-25 border-b border-opacity-10 border-slate-500 lg:pt-4 flex flex-row justify-center lg:items-center px-2 sm:px-4 min-h-0 shrink-0 z-60">
+      <div className="lg:mr-4 text-center mt-4 lg:text-left lg:mt-0">
+        <div className="my-2 inline text-center lg:mr-4">
+          <Info className="inline">L'inventaire / </Info>
+          <Title className="inline">Les Factures</Title>
+        </div>
+
+        <div className="flex my-2 lg:inline-flex space-x-2">
+          <Button size="sm" icon={(p) => <PlusIcon {...p} />}>
+            Créer une facture
+          </Button>
+          <Button size="sm" theme="secondary">
+            Créer un devis
+          </Button>
+        </div>
       </div>
-      <div className="grow flex items-center justify-center">
-        <Search />
-      </div>
-      <div className="flex flex-row items-center justify-center ml-4">
+
+      <div className="hidden lg:inline-flex grow flex items-start justify-center"></div>
+
+      <div className="hidden lg:inline-flex flex flex-row items-center justify-center ml-4">
         <Links />
-        <Account />
+      </div>
+
+      <div className="hidden lg:inline max-w-md w-full">
+        <Search />
       </div>
     </div>
   );
 };
 
-const Logo = () => (
-  <Link
-    to={ROUTES.Home}
-    noColor
-    className="flex-row items-center mr-4 mr-8 flex"
-  >
-    <img src="/medias/logo.svg" className="h-6" alt="L'inventaire" />
-    <Base noColor className="inline-flex ml-2 md:inline-flex hidden">
-      L'inventaire
-    </Base>
-  </Link>
-);
-
 const Links = () => {
   const { t } = useTranslation();
   return (
     <>
-      <Link
-        target="_BLANK"
-        href="https://google.com"
-        noColor
-        className="hidden md:inline-flex flex-row"
-      >
-        <AcademicCapIcon className="h-5 mr-2" />
+      <Link target="_BLANK" href="https://google.com" className="flex-row">
         <BaseSmall noColor>{t("header.guides")}</BaseSmall>
       </Link>
       <Separator />
-      <Link
-        target="_BLANK"
-        href="mailto:"
-        noColor
-        className="hidden md:inline-flex flex-row"
-      >
-        <SupportIcon className="h-5 mr-2" />
+      <Link target="_BLANK" href="mailto:" className="flex-row">
         <BaseSmall noColor>{t("header.support")}</BaseSmall>
       </Link>
       <Separator />
@@ -65,5 +54,5 @@ const Links = () => {
 };
 
 const Separator = () => (
-  <div className="hidden md:inline h-5 mx-4 border-solid border-r border-white opacity-50 inline-block"></div>
+  <div className="hidden md:inline h-5 mx-4 border-solid border-r border-slate-500 opacity-25 inline-block"></div>
 );
