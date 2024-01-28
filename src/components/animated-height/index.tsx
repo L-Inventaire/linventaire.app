@@ -11,7 +11,12 @@ import {
 let interval: any = null;
 
 export const AnimatedHeight = memo(
-  (props: { children: ReactNode } & InputHTMLAttributes<HTMLDivElement>) => {
+  (
+    props: {
+      trigger?: (cb: () => void) => void;
+      children: ReactNode;
+    } & InputHTMLAttributes<HTMLDivElement>
+  ) => {
     const el = useRef<HTMLDivElement>(null);
 
     const updateSize = useCallback(() => {
@@ -22,6 +27,8 @@ export const AnimatedHeight = memo(
         parent.style.overflow = `hidden`;
       }
     }, [el]);
+
+    props.trigger?.(updateSize);
 
     useControlledEffect(() => {
       interval = setInterval(() => {

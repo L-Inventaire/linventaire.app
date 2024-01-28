@@ -1,175 +1,214 @@
 import { Button, ButtonProps } from "@atoms/button/button";
-import { ChevronDownIcon } from "@heroicons/react/outline";
+import { BaseSmall, Info } from "@atoms/text";
+import { AnimatedHeight } from "@components/animated-height";
 import _ from "lodash";
-import React, { useEffect, useRef, useState } from "react";
-import ReactDOM from "react-dom";
-import { atom, useRecoilState } from "recoil";
+import React, { useEffect, useCallback } from "react";
+import { atom, useSetRecoilState, useRecoilState } from "recoil";
 
-type OptionsType = {
-  label: React.ReactNode;
-  className?: string;
-  icon?: (props: { className?: string }) => React.ReactNode;
+export type DropDownMenuType = {
+  type?: "divider" | "danger" | "menu"; // default to menu
+  icon?: (p: any) => React.ReactNode;
+  label?: string | React.ReactNode;
+  shortcut?: string[];
   onClick?: () => void;
-};
+}[];
 
-type DropdownProps = {
-  options: OptionsType[];
-  children: React.ReactNode;
-} & React.HTMLAttributes<HTMLDivElement>;
-
-export const DropdownRoot = () => {
-  return <div id="dropdown-root" />;
-};
-
-const CurrentlyActiveDropdownAtom = atom({
-  key: "CurrentlyActiveDropdownAtom",
-  default: "",
+export const DropDownAtom = atom<{
+  target: HTMLElement | null;
+  menu: DropDownMenuType;
+  position?: "bottom" | "left" | "right"; //Default to bottom
+}>({
+  key: "dropdown",
+  default: {
+    target: null,
+    position: "bottom",
+    menu: [],
+  },
 });
 
-let i = 1;
-const getId = () => {
-  i += 1;
-  return `dropdown-${i}`;
+export const DropdownButton = (
+  props: { menu: DropDownMenuType } & ButtonProps
+) => {
+  const setState = useSetRecoilState(DropDownAtom);
+
+  return (
+    <Button
+      onClick={(e) => {
+        setState({
+          target: e.currentTarget,
+          position: "bottom",
+          menu: props.menu,
+        });
+      }}
+      {..._.omit(props, ["menu"])}
+    >
+      {props.children}
+    </Button>
+  );
 };
 
-export const Dropdown = ({ options, children, ...props }: DropdownProps) => {
-  const [currentlyActiveDropDown, setCurrentlyActiveDropDown] = useRecoilState(
-    CurrentlyActiveDropdownAtom
-  );
-  const refId = useRef<string | null>(getId());
-  const [isVisible, setIsVisible] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement | null>(null);
-  const buttonRef = useRef<HTMLDivElement | null>(null);
+let lastTarget: HTMLElement | null = null;
+let autoHeightTrigger: (() => void) | null = null;
+let timeout: any = 0;
 
-  const toggleDropdown = (e: any) => {
-    if (props.onClick) props.onClick(e);
-    const isVisibleAndCurrentlyActive =
-      isVisible && currentlyActiveDropDown === refId.current;
-    if (!isVisibleAndCurrentlyActive)
-      setCurrentlyActiveDropDown(refId.current || "");
-    setIsVisible(!isVisibleAndCurrentlyActive);
-  };
+export const DropDownMenu = () => {
+  const [state, setState] = useRecoilState(DropDownAtom);
+  const ref = React.useRef<HTMLDivElement>(null);
 
-  const onClick = (item: OptionsType, e: any) => {
-    if (item.onClick) {
-      item.onClick();
-      setIsVisible(false);
+  const updatePosition = useCallback(() => {
+    clearTimeout(timeout);
+
+    // Changed target: animate transition
+    if (!lastTarget) {
+      if (ref.current)
+        ref.current.style.transition = "opacity 0.1s ease-in-out";
     }
-  };
+    lastTarget = state.target;
 
-  const closeDropdown = (e: any) => {
-    if (
-      dropdownRef.current &&
-      !dropdownRef.current.contains(e.target as Node) &&
-      buttonRef.current &&
-      !buttonRef.current.contains(e.target as Node)
-    ) {
-      setIsVisible(false);
-    }
-  };
+    if (state.target) {
+      //Get screen position and size
+      const targetRect = state.target.getBoundingClientRect();
+      if (ref.current) {
+        ref.current.style.pointerEvents = "none";
+        const position =
+          window.screen.width < 640
+            ? [0, 0]
+            : state.position === "left"
+            ? [targetRect.x - 256, targetRect.y]
+            : state.position === "right"
+            ? [targetRect.x + targetRect.width, targetRect.y]
+            : [targetRect.x, targetRect.y + targetRect.height];
+        ref.current.style.transform = `translate(${Math.min(
+          Math.max(Math.ceil(position[0]), 0),
+          window.innerWidth - 256
+        )}px, ${Math.max(Math.ceil(position[1]), 0)}px)`;
 
-  useEffect(() => {
-    document.addEventListener("click", closeDropdown);
-    document.addEventListener("mousewheel", closeDropdown);
-    return () => {
-      document.removeEventListener("click", closeDropdown);
-      document.removeEventListener("mousewheel", closeDropdown);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (
-      isVisible &&
-      currentlyActiveDropDown &&
-      dropdownRef.current &&
-      buttonRef.current
-    ) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      const dropdownWidth = dropdownRef.current.offsetWidth;
-
-      let top = rect.bottom;
-      let left = rect.left;
-
-      // Ensure dropdown doesn't go beyond the window's right edge
-      if (left + dropdownWidth > window.innerWidth) {
-        left = rect.right - dropdownWidth; // Align to the right of the button
+        if (window.screen.width < 640) {
+          ref.current.style.boxShadow =
+            "0px 0px 0px 10000px rgba(0, 0, 0, 0.2)";
+        } else {
+          ref.current.style.boxShadow = "";
+        }
       }
 
-      dropdownRef.current.style.top = `${top}px`;
-      dropdownRef.current.style.left = `${left}px`;
-    }
-  }, [isVisible, currentlyActiveDropDown]);
+      // Trigger animated height now
+      autoHeightTrigger?.();
 
-  const dropdownContent = (
-    <div
-      className="absolute bg-white dark:bg-wood-950 border rounded-sm shadow"
-      style={{ zIndex: 999 }}
-      ref={dropdownRef}
-    >
-      {options.map((item, index) => {
-        return (
-          <div
-            key={index}
-            className={
-              "text-sm w-40 p-2 flex flex-row items-center " +
-              item.className +
-              " " +
-              (item.onClick
-                ? "cursor-pointer hover:bg-gray-500 hover:bg-opacity-10 "
-                : "")
-            }
-            onClick={(e) => onClick(item, e)}
-          >
-            {item.icon &&
-              item.icon({ className: "w-4 h-4 inline mr-1 shrink-0" })}
-            {item.label}
-          </div>
-        );
-      })}
-    </div>
+      // For next time, we want to animate the transition
+      // Also we want to make sure the menu is not outside the screen
+      timeout = setTimeout(() => {
+        const height = ref.current?.getBoundingClientRect().height;
+        if (height && ref.current) {
+          ref.current.style.transition = "all 0.1s ease-in-out";
+          ref.current.style.pointerEvents = "all";
+
+          const currentTransform = ref.current?.style.transform.match(/\d+/g);
+          ref.current.style.transform = `translate(${
+            currentTransform ? currentTransform[0] : 0
+          }px, ${Math.max(
+            Math.min(
+              window.innerHeight - height,
+              parseInt(currentTransform ? currentTransform[1] : "0")
+            ),
+            0
+          )}px)`;
+        }
+      }, 200);
+    }
+  }, [state.target, state.position]);
+
+  const clickOutside = useCallback(
+    (e?: MouseEvent) => {
+      if (
+        !e ||
+        (state.target &&
+          !state.target.contains(e.target as Node) &&
+          !ref.current?.contains(e.target as Node))
+      ) {
+        setState({ ...state, target: null });
+      }
+    },
+    [state, setState]
   );
 
+  useEffect(() => {
+    updatePosition();
+  }, [state.target, updatePosition]);
+
+  useEffect(() => {
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("click", clickOutside);
+    return () => {
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("click", clickOutside);
+    };
+  }, [updatePosition, clickOutside]);
+
   return (
-    <>
-      <div
-        onClick={toggleDropdown}
-        ref={buttonRef}
-        {..._.omit(props, "children", "onClick")}
+    <div
+      ref={ref}
+      style={{
+        pointerEvents: state.target ? "all" : "none",
+        opacity: state.target && state.menu.length > 0 ? 1 : 0,
+      }}
+      className="z-50 transition-all fixed sm:bottom-auto bottom-0 h-auto shadow-xl border border-slate-500 border-opacity-10 sm:rounded-lg max-w-2xl w-full sm:w-64 bg-white dark:bg-wood-900 overflow-hidden"
+    >
+      <AnimatedHeight
+        trigger={(cb) => (autoHeightTrigger = cb)}
+        className="px-2 py-1"
       >
-        {children}
-      </div>
-      {isVisible &&
-        currentlyActiveDropDown === refId.current &&
-        ReactDOM.createPortal(
-          dropdownContent,
-          document.getElementById("dropdown-root")!
+        {state.menu.map((m, i) =>
+          m.type === "divider" ? (
+            <Divider />
+          ) : (
+            <div
+              key={i}
+              onClick={() => {
+                m.onClick?.();
+                clickOutside();
+              }}
+              className={
+                "h-7 my-1 items-center hover:bg-opacity-25 hover:bg-opacity-25 px-2 py-1 rounded-md select-none cursor-pointer flex " +
+                (m.type === "danger"
+                  ? "text-red-500 hover:bg-red-300 "
+                  : "hover:bg-wood-300 ")
+              }
+            >
+              {m.icon?.({
+                className: "w-4 h-4 mr-1 text-slate-900 dark:text-slate-100",
+              })}
+              <BaseSmall noColor={m.type === "danger"} className="grow">
+                {m.label}
+              </BaseSmall>
+              {m.shortcut && (
+                <Info className="opacity-50">{showShortCut(m.shortcut)}</Info>
+              )}
+            </div>
+          )
         )}
-    </>
+      </AnimatedHeight>
+    </div>
   );
 };
 
-export const DropdownButton = ({
-  children,
-  options,
-  className,
-  ...props
-}: ButtonProps & {
-  options: OptionsType[];
-}) => {
-  return (
-    <Dropdown
-      options={options}
-      className={className}
-      onClick={props.onClick as any}
-    >
-      <Button
-        theme="primary"
-        size="sm"
-        {..._.omit(props, "children", "className", "options", "onClick")}
-      >
-        {children}
-        <ChevronDownIcon className="w-4 h-4 ml-1 -mr-1" />
-      </Button>
-    </Dropdown>
-  );
+const Divider = () => (
+  <div className="my-2 -mx-2 h-px bg-slate-500 bg-opacity-10" />
+);
+
+const showShortCut = (shortcut: string[]) => {
+  return shortcut
+    .filter((a) =>
+      navigator.userAgent.indexOf("Mac OS X") !== -1
+        ? true
+        : a.indexOf("cmd") === -1
+    )
+    .map((a) =>
+      a
+        .replace("cmd", "⌘")
+        .replace("ctrl", "ctrl+")
+        .replace("alt", "⌥")
+        .replace("shift", "⇧")
+        .replace("del", "⌫")
+        .replace(/\+/g, "")
+    )[0];
 };

@@ -47,8 +47,7 @@ export const Button = (props: ButtonProps) => {
 
   if (props.size === "xl") className = className + " text-base h-14 px-14 ";
   else if (props.size === "lg") className = className + " text-base h-11 px-8 ";
-  else if (props.size === "sm")
-    className = className + " px-4 text-sm h-8 px-4";
+  else if (props.size === "sm") className = className + " px-3 text-sm h-7";
   else className = className + " px-4 text-base h-9";
 
   if (!props.children) {

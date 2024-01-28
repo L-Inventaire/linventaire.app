@@ -310,19 +310,10 @@ export function RenderedTable<T>({
                               /* placeholder={`${selected.length || 0} item${
                                 selected.length > 1 ? "s" : ""
                               }`} */
-                              options={onSelect.map((a) => ({
-                                value: "customer",
-                                label: (
-                                  <span
-                                    onClick={() => a.callback(selected)}
-                                    className="flex items-center p-2 font-normal"
-                                  >
-                                    {a.icon && (
-                                      <a.icon className="h-4 w-4 mr-2" />
-                                    )}
-                                    {a.label}
-                                  </span>
-                                ),
+                              menu={onSelect.map((a) => ({
+                                onClick: () => a.callback(selected),
+                                icon: a.icon,
+                                label: a.label,
                               }))}
                             />
                           )}
