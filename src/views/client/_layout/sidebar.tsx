@@ -21,7 +21,7 @@ export const SideBar = () => {
   const { user } = useAuth();
 
   return (
-    <div className="hidden sm:block bg-wood-50 w-20 overflow-hidden relative">
+    <div className="hidden sm:block bg-wood-50 dark:bg-wood-990 w-20 overflow-hidden relative">
       <SimpleBar style={{ maxHeight: "100%" }}>
         {/* Space for avatar */}
         <div className="h-16 mb-2" />
@@ -42,7 +42,7 @@ export const SideBar = () => {
         <div className="h-20" />
       </SimpleBar>
 
-      <div className="absolute top-0 w-full pt-6 pb-3 bg-wood-50 backdrop-blur-sm bg-opacity-25">
+      <div className="absolute top-0 w-full pt-6 pb-3 bg-wood-50 dark:bg-wood-990 backdrop-blur-sm bg-opacity-25">
         <div className="w-20 flex items-center justify-center">
           <Avatar
             size={8}
@@ -52,7 +52,7 @@ export const SideBar = () => {
         </div>
       </div>
 
-      <div className="absolute bottom-0 w-full h-20 bg-wood-50 backdrop-blur-sm bg-opacity-25">
+      <div className="absolute bottom-0 w-full h-20 bg-wood-50 dark:bg-wood-990 backdrop-blur-sm bg-opacity-25">
         <div className="w-20 h-16 flex items-center justify-center">
           <Logo />
         </div>
@@ -78,8 +78,10 @@ const MenuItem = ({
     >
       <div
         className={
-          "cursor-pointer w-12 h-12 flex items-center justify-center hover:bg-wood-100 rounded-lg " +
-          (active ? "bg-wood-100 " : "opacity-75 hover:opacity-100 ")
+          "cursor-pointer w-12 h-12 flex items-center justify-center hover:bg-wood-100 dark:hover:bg-wood-800 rounded-lg " +
+          (active
+            ? "bg-wood-100 dark:bg-wood-800 "
+            : "opacity-75 hover:opacity-100 ")
         }
       >
         {icon({

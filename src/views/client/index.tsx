@@ -51,7 +51,7 @@ export const Layout = () => {
       {afterSignupOrNewCompany && <Confetti />}
       <div className="flex w-full grow flex-row bg-slate-50 dark:bg-slate-990 h-screen intro-animated-root z-10">
         <SideBar />
-        <div className="grow flex-col bg-white border-l border-slate-500 border-opacity-10">
+        <div className="grow flex-col bg-white dark:bg-slate-950 border-l border-slate-500 border-opacity-15">
           <Header />
           <div className="grow flex min-h-0">
             <div className="grow min-h-0 overflow-auto">

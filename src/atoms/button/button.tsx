@@ -27,7 +27,7 @@ export const Button = (props: ButtonProps) => {
 
   if (props.theme === "secondary")
     colors =
-      "text-wood-500 bg-wood-100 hover:bg-wood-200 active:bg-wood-300 border-transparent ";
+      "text-wood-500 bg-wood-100 hover:bg-wood-200 active:bg-wood-300 border-transparent dark:bg-wood-900 dark:active:bg-wood-900 dark:hover:bg-wood-900 dark:text-slate-200 dark:hover:bg-opacity-75 dark:active:bg-opacity-50";
 
   if (props.theme === "danger")
     colors =

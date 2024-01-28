@@ -7,7 +7,7 @@ import { PlusIcon } from "@heroicons/react/outline";
 
 export const Header = () => {
   return (
-    <div className="bg-wood-25 border-b border-opacity-10 border-slate-500 lg:pt-4 flex flex-row justify-center lg:items-center px-2 sm:px-4 min-h-0 shrink-0 z-60">
+    <div className="bg-wood-25 dark:bg-wood-990 border-b border-opacity-10 border-slate-500 lg:pt-4 flex flex-row justify-center lg:items-center px-2 sm:px-4 min-h-0 shrink-0 z-60">
       <div className="lg:mr-4 text-center mt-4 lg:text-left lg:mt-0">
         <div className="my-2 inline text-center lg:mr-4">
           <Info className="inline">L'inventaire / </Info>
