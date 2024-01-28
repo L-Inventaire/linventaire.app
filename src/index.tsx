@@ -7,6 +7,7 @@ import "tippy.js/dist/tippy.css";
 import "simplebar-react/dist/simplebar.min.css";
 import reportWebVitals from "./reportWebVitals";
 import InitialRouter from "./views";
+
 initReactFastclick();
 
 const App = () => {

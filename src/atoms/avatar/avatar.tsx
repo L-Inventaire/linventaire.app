@@ -7,14 +7,13 @@ export const getColor = (name: string) => {
   return "hsl(" + seed + ", 80%, 40%)";
 };
 
-export default function Avatar(
-  props: any & {
-    shape?: "square" | "circle";
-    fallback?: string;
-    avatar: string;
-    size: 5 | 28 | 14 | 48;
-  }
-) {
+export default function Avatar(props: {
+  shape?: "square" | "circle";
+  fallback?: string;
+  avatar?: string;
+  size: 5 | 8 | 10 | 11 | 28 | 14 | 48;
+  className?: string;
+}) {
   const size = props.size || 14;
   const className =
     " inline-block h-" +
@@ -25,7 +24,7 @@ export default function Avatar(
     " overflow-hidden bg-wood-200 " +
     (props.className || "");
 
-  if (props.avatar || props.src) {
+  if (props.avatar) {
     return (
       <div
         className={className}
@@ -33,7 +32,7 @@ export default function Avatar(
         style={{
           backgroundPosition: "center",
           backgroundSize: "cover",
-          backgroundImage: "url(" + (props.avatar || props.src) + ")",
+          backgroundImage: "url(" + props.avatar + ")",
         }}
       />
     );
