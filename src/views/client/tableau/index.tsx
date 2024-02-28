@@ -1,4 +1,4 @@
-import { Page } from "@atoms/layout/page";
+import { Page } from "@views/client/_layout/page";
 import { Title } from "@atoms/text";
 import { Table } from "@components/table";
 import { Column } from "@components/table/table";

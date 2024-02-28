@@ -1,6 +1,6 @@
 import { Button } from "@atoms/button/button";
-import { DropDownAtom, DropDownMenu } from "@atoms/dropdown";
-import { Page } from "@atoms/layout/page";
+import { DropDownAtom } from "@atoms/dropdown";
+import { Page } from "@views/client/_layout/page";
 import { useTranslation } from "react-i18next";
 import { useSetRecoilState } from "recoil";
 
@@ -9,7 +9,21 @@ export const DemoPage = () => {
   const setState = useSetRecoilState(DropDownAtom);
 
   return (
-    <Page>
+    <Page
+      actions={
+        <>
+          <Button size="sm">Créer une facture</Button>
+          <Button size="sm" theme="secondary">
+            Créer un devis
+          </Button>
+        </>
+      }
+      title={[
+        {
+          label: "Factures",
+        },
+      ]}
+    >
       <Button
         onClick={(e) => {
           setState({

@@ -1,5 +1,5 @@
 import React from "react";
-import { Page } from "@atoms/layout/page";
+import { Page } from "@views/client/_layout/page";
 import { Title } from "@atoms/text";
 import { useTranslation } from "react-i18next";
 
