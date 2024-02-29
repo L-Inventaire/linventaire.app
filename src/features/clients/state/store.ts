@@ -1,5 +1,5 @@
 import { atom, atomFamily } from "recoil";
-import { ClientsUsers } from "../types/clients";
+import { ClientsUserWithUser, ClientsUsers } from "../types/clients";
 
 export const ClientsState = atom<ClientsUsers[]>({
   key: "ClientsState",
@@ -11,7 +11,7 @@ export const ClientInvitationsState = atom<ClientsUsers[]>({
   default: [],
 });
 
-export const ClientUsersState = atomFamily<ClientsUsers[], string>({
+export const ClientUsersState = atomFamily<ClientsUserWithUser[], string>({
   key: "ClientUsersState",
   default: [],
 });

@@ -1,22 +1,23 @@
+import { Button } from "@atoms/button/button";
 import { DropdownButton } from "@atoms/dropdown";
 import { Checkbox } from "@atoms/input/input-checkbox";
 import Select from "@atoms/input/input-select";
 import { Loader } from "@atoms/loader";
+import { Modal } from "@atoms/modal/modal";
 import { Base, Info } from "@atoms/text";
 import {
   ArrowSmDownIcon,
   ArrowSmUpIcon,
+  ChevronDownIcon,
   CogIcon,
   DownloadIcon,
 } from "@heroicons/react/outline";
 import _ from "lodash";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { TablePagination, TablePaginationSimple } from "./pagination";
-import { Button } from "@atoms/button/button";
-import { Modal } from "@atoms/modal/modal";
 import { TableExportModal } from "./export-modal";
 import { TableOptionsModal } from "./options-modal";
+import { TablePagination, TablePaginationSimple } from "./pagination";
 
 export type RenderOptions = {
   responsive?: boolean;
@@ -29,6 +30,7 @@ export type Column<T> = {
   headClassName?: string;
   cellClassName?: string;
   orderable?: boolean;
+  hidden?: boolean;
   render: (item: T, options: RenderOptions) => string | ReactNode;
 };
 
@@ -57,6 +59,7 @@ type PropsType<T> = {
     | {
         icon?: (props: any) => JSX.Element;
         label: string | ReactNode;
+        type?: "danger" | "menu";
         callback: (items: T[]) => void;
       }[]
     | ((items: T[]) => void);
@@ -119,7 +122,12 @@ export function RenderedTable<T>({
       setSelected(
         _.uniqBy(
           [
-            ...selected.filter((s) => !newSelection.includes(s)),
+            ...selected.filter(
+              (s) =>
+                !newSelection
+                  .map((a) => (a as any)[rowIndex || "id"])
+                  .includes((s as any)[rowIndex || "id"])
+            ),
             ...(a ? newSelection : []),
             anchor,
           ],
@@ -132,7 +140,12 @@ export function RenderedTable<T>({
           _.uniqBy([...selected, row], (s) => (s as any)[rowIndex || "id"])
         );
       } else {
-        setSelected(selected.filter((s) => s !== row));
+        setSelected(
+          selected.filter(
+            (s) =>
+              (s as any)[rowIndex || "id"] !== (row as any)[rowIndex || "id"]
+          )
+        );
       }
     }
   };
@@ -155,8 +168,6 @@ export function RenderedTable<T>({
     resizeEvent();
     return () => window.removeEventListener("resize", resizeEvent);
   }, [resizeEvent]);
-
-  scrollable = true;
 
   const responsiveMode = useResponsiveMode && parentWidth < 600; //Work in progress for responsive mode
 
@@ -197,51 +208,54 @@ export function RenderedTable<T>({
           </div>
         )}
 
-        {(responsiveMode || grid) && columns.find((c) => c.orderable) && (
-          <div
-            className={
-              "float-left flex flex-row " +
-              (responsiveMode ? "w-full" : "max-w-sm")
-            }
-          >
-            <Select
-              size="sm"
-              className="grow w-full my-2"
-              onChange={(e) => {
-                if (onChangeOrder) {
-                  onChangeOrder(parseInt(e.target.value), "ASC");
+        {(responsiveMode || grid) &&
+          columns.filter((a) => !a.hidden).find((c) => c.orderable) && (
+            <div
+              className={
+                "float-left flex flex-row " +
+                (responsiveMode ? "w-full" : "max-w-sm")
+              }
+            >
+              <Select
+                size="sm"
+                className="grow w-full my-2"
+                onChange={(e) => {
+                  if (onChangeOrder) {
+                    onChangeOrder(parseInt(e.target.value), "ASC");
 
-                  // go back to first selection in select
-                  e.target.selectedIndex = 0;
-                }
-              }}
-            >
-              <option value="">
-                {"Trier par "}
-                {columns[pagination?.orderBy as number]?.title ?? "..."}
-              </option>
-              {columns.map((c, i) => (
-                <option key={i} value={i}>
-                  {c.title}
+                    // go back to first selection in select
+                    e.target.selectedIndex = 0;
+                  }
+                }}
+              >
+                <option value="">
+                  {"Trier par "}
+                  {columns[pagination?.orderBy as number]?.title ?? "..."}
                 </option>
-              ))}
-            </Select>
-            <Select
-              size="sm"
-              className="shrink-0 !w-auto -ml-px my-2"
-              onChange={(e) => {
-                if (onChangeOrder)
-                  onChangeOrder(
-                    pagination?.orderBy || 0,
-                    e.target.value as "ASC" | "DESC"
-                  );
-              }}
-            >
-              <option value={"ASC"}>Croissant</option>
-              <option value={"DESC"}>Décroissant</option>
-            </Select>
-          </div>
-        )}
+                {columns
+                  .filter((a) => !a.hidden)
+                  .map((c, i) => (
+                    <option key={i} value={i}>
+                      {c.title}
+                    </option>
+                  ))}
+              </Select>
+              <Select
+                size="sm"
+                className="shrink-0 !w-auto -ml-px my-2"
+                onChange={(e) => {
+                  if (onChangeOrder)
+                    onChangeOrder(
+                      pagination?.orderBy || 0,
+                      e.target.value as "ASC" | "DESC"
+                    );
+                }}
+              >
+                <option value={"ASC"}>Croissant</option>
+                <option value={"DESC"}>Décroissant</option>
+              </Select>
+            </div>
+          )}
 
         {onFetchExportData && (
           <div className="float-right ml-2">
@@ -284,20 +298,21 @@ export function RenderedTable<T>({
         >
           {!responsiveMode &&
             !grid &&
-            columns.map((c) => c.title || "").join("") && (
+            columns
+              .filter((a) => !a.hidden)
+              .map((c) => c.title || "")
+              .join("") && (
               <thead>
                 <tr>
                   {onSelect && (
                     <th
                       className={
                         "w-8 shrink-0 relative " +
-                        (scrollable
-                          ? " sticky top-0 bg-wood-50 dark:bg-wood-950 "
-                          : "")
+                        (scrollable ? " sticky top-0 " : "")
                       }
                     >
                       <div
-                        className="absolute z-10 mt-1 top-0 left-0 "
+                        className="absolute z-20 top-0 left-0 "
                         style={{
                           boxShadow: "40px 0 20px #F8FAFC",
                         }}
@@ -307,85 +322,92 @@ export function RenderedTable<T>({
                             <DropdownButton
                               theme="primary"
                               size="sm"
-                              /* placeholder={`${selected.length || 0} item${
-                                selected.length > 1 ? "s" : ""
-                              }`} */
                               menu={onSelect.map((a) => ({
                                 onClick: () => a.callback(selected),
                                 icon: a.icon,
                                 label: a.label,
+                                type: a.type,
                               }))}
-                            />
+                              icon={(p) => <ChevronDownIcon {...p} />}
+                            >
+                              {selected.length || 0} item
+                              {selected.length > 1 ? "s" : ""}
+                            </DropdownButton>
                           )}
                       </div>
                     </th>
                   )}
-                  {columns.map((column, i) => (
-                    <th
-                      key={i}
-                      className={
-                        "font-medium p-2 py-1  " +
-                        (column.orderable
-                          ? "cursor-pointer hover:bg-opacity-75 "
-                          : "") +
-                        (scrollable
-                          ? " sticky top-0 bg-wood-50 dark:bg-wood-950 z-10 "
-                          : "") +
-                        (column.thClassName || "")
-                      }
-                      onClick={() => {
-                        if (column.orderable) {
-                          onChangeOrder &&
-                            onChangeOrder(
-                              i,
-                              pagination?.order === "ASC" ? "DESC" : "ASC"
-                            );
-                        }
-                      }}
-                    >
-                      <div
+                  {columns
+                    .filter((a) => !a.hidden)
+                    .map((column, i) => (
+                      <th
+                        key={i}
                         className={
-                          "items-center flex text-wood-500 table-hover-sort-container  " +
-                          (column.headClassName || "")
+                          "font-medium px-1 py-1  " +
+                          (column.orderable
+                            ? "cursor-pointer hover:bg-opacity-75 "
+                            : "") +
+                          (scrollable ? " sticky top-0 z-10 " : "") +
+                          (column.thClassName || "")
                         }
+                        onClick={() => {
+                          if (column.orderable) {
+                            onChangeOrder &&
+                              onChangeOrder(
+                                i,
+                                pagination?.order === "ASC" ? "DESC" : "ASC"
+                              );
+                          }
+                        }}
                       >
-                        <Info
-                          className="uppercase"
-                          noColor={pagination?.orderBy === i}
+                        <div
+                          className={
+                            "items-center flex text-wood-500 table-hover-sort-container  " +
+                            (column.headClassName || "")
+                          }
                         >
-                          {column.title}
-                        </Info>
-                        {column.orderable && (
-                          <div className="w-8 flex items-center ml-1">
-                            {pagination?.orderBy === i &&
-                              pagination.order === "DESC" && (
-                                <ArrowSmUpIcon className="h-4 w-4 text-wood-500 inline" />
-                              )}
-                            {pagination?.orderBy === i &&
-                              pagination.order !== "DESC" && (
-                                <ArrowSmDownIcon className="h-4 w-4 text-wood-500 inline" />
-                              )}
-                            {pagination?.orderBy !== i && column.orderable && (
-                              <ArrowSmDownIcon className="table-hover-sort h-4 w-4 text-wood-500 opacity-50 inline" />
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </th>
-                  ))}
+                          <Info
+                            className="uppercase"
+                            noColor={pagination?.orderBy === i}
+                          >
+                            {column.title}
+                          </Info>
+                          {column.orderable && (
+                            <div className="w-8 flex items-center ml-1">
+                              {pagination?.orderBy === i &&
+                                pagination.order === "DESC" && (
+                                  <ArrowSmUpIcon className="h-4 w-4 text-wood-500 inline" />
+                                )}
+                              {pagination?.orderBy === i &&
+                                pagination.order !== "DESC" && (
+                                  <ArrowSmDownIcon className="h-4 w-4 text-wood-500 inline" />
+                                )}
+                              {pagination?.orderBy !== i &&
+                                column.orderable && (
+                                  <ArrowSmDownIcon className="table-hover-sort h-4 w-4 text-wood-500 opacity-50 inline" />
+                                )}
+                            </div>
+                          )}
+                        </div>
+                      </th>
+                    ))}
                 </tr>
               </thead>
             )}
           <tbody className="overflow-hidden ">
             {data.length === 0 && !loading && (
               <tr>
-                <td colSpan={columns.length + (onSelect ? 1 : 0)}>
+                <td
+                  colSpan={
+                    columns.filter((a) => !a.hidden).length + (onSelect ? 1 : 0)
+                  }
+                >
                   <div
                     className={
                       " p-4 text-center" +
                       (scrollable
                         ? ""
-                        : "bg-white dark:bg-wood-700 border border-wood-200 dark:border-wood-600")
+                        : "bg-white dark:bg-wood-700 border border-wood-100")
                     }
                   >
                     <Info>{t("general.tables.empty")}</Info>
@@ -479,79 +501,86 @@ export function RenderedTable<T>({
                               : " bg-white dark:bg-wood-700 ")
                           }
                         >
-                          {columns.map((cell, j) => (
-                            <div
-                              className={
-                                "flex flex-row items-center space-x-2 " +
-                                (j !== 0 ? "mt-2" : "")
-                              }
-                              key={j}
-                            >
-                              {columns.some((a) => a.title) && (
-                                <div className="grow">
-                                  {cell.title && (
-                                    <Info className="uppercase">
-                                      {cell.title}
-                                    </Info>
-                                  )}
+                          {columns
+                            .filter((a) => !a.hidden)
+                            .map((cell, j) => (
+                              <div
+                                className={
+                                  "flex flex-row items-center space-x-2 " +
+                                  (j !== 0 ? "mt-2" : "")
+                                }
+                                key={j}
+                              >
+                                {columns
+                                  .filter((a) => !a.hidden)
+                                  .some((a) => a.title) && (
+                                  <div className="grow">
+                                    {cell.title && (
+                                      <Info className="uppercase">
+                                        {cell.title}
+                                      </Info>
+                                    )}
+                                  </div>
+                                )}
+                                <div className="overflow-hidden">
+                                  {cell.render(row, { responsive: true })}
                                 </div>
-                              )}
-                              <div className="overflow-hidden">
-                                {cell.render(row, { responsive: true })}
                               </div>
-                            </div>
-                          ))}
+                            ))}
                         </div>
                       </td>
                     )}
                     {!responsiveMode &&
-                      columns.map((cell, j) => {
-                        const jFirst = j === 0;
-                        const jLast = j === columns.length - 1;
-                        const iFirst = i === 0;
-                        const iLast = i === data.length - 1;
-                        return (
-                          <td
-                            key={j}
-                            className="m-0 p-0 height-table-hack overflow-hidden"
-                          >
-                            <div
-                              className={
-                                "h-full w-full flex items-center border-t border-wood-200 dark:border-wood-600 " +
-                                (i % 2
-                                  ? isSelected
-                                    ? "dark:bg-opacity-90 bg-opacity-90 "
-                                    : "dark:bg-opacity-25 bg-opacity-25 "
-                                  : "") +
-                                ((jFirst && " border-l ") || "") +
-                                ((jLast && " border-r ") || "") +
-                                ((iLast && " border-b ") || "") +
-                                ((iFirst && jFirst && " rounded-tl ") || "") +
-                                ((iFirst && jLast && " rounded-tr ") || "") +
-                                ((iLast && jFirst && " rounded-bl ") || "") +
-                                ((iLast && jLast && " rounded-br ") || "") +
-                                (isSelected
-                                  ? " bg-wood-200 dark:bg-wood-950 "
-                                  : " bg-white dark:bg-wood-700 ") +
-                                (cell.className || "")
-                              }
+                      columns
+                        .filter((a) => !a.hidden)
+                        .map((cell, j) => {
+                          const jFirst = j === 0;
+                          const jLast =
+                            j === columns.filter((a) => !a.hidden).length - 1;
+                          const iFirst = i === 0;
+                          const iLast = i === data.length - 1;
+                          return (
+                            <td
+                              key={j}
+                              className="m-0 p-0 height-table-hack overflow-hidden"
                             >
-                              <Base
+                              <div
                                 className={
-                                  (jFirst ? "pl-2 " : "") +
-                                  (jLast ? "pr-2 " : "") +
-                                  "w-full py-2 px-1 inline-flex items-center h-full " +
-                                  (cell.cellClassName || "") +
-                                  " " +
-                                  (cellClassName?.(row) || "")
+                                  "h-full w-full flex items-center min-h-10 border-t border-wood-100 dark:border-wood-700 bg-wood-50 " +
+                                  (i % 2
+                                    ? isSelected
+                                      ? "dark:bg-opacity-90 bg-opacity-90 "
+                                      : "dark:bg-opacity-25 bg-opacity-25 "
+                                    : "") +
+                                  ((jFirst && " border-l ") || "") +
+                                  ((jLast && " border-r ") || "") +
+                                  ((iLast && " border-b ") || "") +
+                                  ((iFirst && jFirst && " rounded-tl ") || "") +
+                                  ((iFirst && jLast && " rounded-tr ") || "") +
+                                  ((iLast && jFirst && " rounded-bl ") || "") +
+                                  ((iLast && jLast && " rounded-br ") || "") +
+                                  (isSelected
+                                    ? " bg-wood-200 dark:bg-wood-950 "
+                                    : " bg-white dark:bg-wood-700 ") +
+                                  (cell.className || "")
                                 }
                               >
-                                {cell.render(row, { responsive: false })}
-                              </Base>
-                            </div>
-                          </td>
-                        );
-                      })}
+                                <Base
+                                  className={
+                                    (jFirst ? "pl-2 " : "") +
+                                    (jLast ? "pr-2 " : "") +
+                                    "w-full py-1 px-1 inline-flex items-center h-full " +
+                                    (cell.cellClassName || "") +
+                                    " " +
+                                    (cellClassName?.(row) || "")
+                                  }
+                                >
+                                  {cell.render(row, { responsive: false })}
+                                </Base>
+                              </div>
+                            </td>
+                          );
+                        })}
                   </tr>
                 );
               })}
@@ -560,12 +589,12 @@ export function RenderedTable<T>({
             <tfoot>
               <tr>
                 <td
-                  colSpan={columns.length + (onSelect ? 1 : 0)}
+                  colSpan={
+                    columns.filter((a) => !a.hidden).length + (onSelect ? 1 : 0)
+                  }
                   className={
-                    "items-center pl-2 py-2 pr-0 text-wood-500 dark:text-wood-400 " +
-                    (scrollable
-                      ? " sticky bottom-0 bg-wood-50 dark:bg-wood-950 z-10 "
-                      : "")
+                    "items-center pl-2 py-1 pr-0 text-wood-500 dark:text-wood-400 " +
+                    (scrollable ? " sticky bottom-0 z-10 " : "")
                   }
                 >
                   {showPagination === "full" ? (

@@ -3,7 +3,7 @@ import Link from "@atoms/link";
 import { BaseSmall, Info } from "@atoms/text";
 import { AnimatedHeight } from "@components/animated-height";
 import _ from "lodash";
-import React, { useCallback, useEffect } from "react";
+import React, { Fragment, useCallback, useEffect } from "react";
 import { atom, useRecoilState, useSetRecoilState } from "recoil";
 
 export type DropDownMenuType = {
@@ -161,9 +161,9 @@ export const DropDownMenu = () => {
       >
         {state.menu.map((m, i) =>
           m.type === "divider" ? (
-            <Divider />
+            <Divider key={i} />
           ) : m.type === "label" ? (
-            m.label
+            <Fragment key={i}>{m.label}</Fragment>
           ) : (
             <Link
               noColor

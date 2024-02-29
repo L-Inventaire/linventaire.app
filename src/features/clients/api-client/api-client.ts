@@ -1,5 +1,5 @@
 import { fetchServer } from "@features/utils/fetch-server";
-import { Clients, ClientsUsers } from "../types/clients";
+import { Clients, ClientsUserWithUser, ClientsUsers } from "../types/clients";
 
 export class ClientsApiClient {
   static getMine = async () => {
@@ -58,7 +58,7 @@ export class ClientsApiClient {
       `/api/clients/v1/clients/${clientId}/users`
     );
     const data = await response.json();
-    return data as ClientsUsers[];
+    return data as ClientsUserWithUser[];
   };
 
   static updateUser = async (
@@ -70,7 +70,7 @@ export class ClientsApiClient {
       `/api/clients/v1/clients/${clientId}/users/${userId}`,
       {
         method: "POST",
-        body: JSON.stringify({ list: roles }),
+        body: JSON.stringify({ roles: roles }),
       }
     );
     const data = await response.json();

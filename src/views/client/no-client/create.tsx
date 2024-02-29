@@ -21,7 +21,7 @@ import { useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 
 export const NewClientForm = (props: { onClose?: () => void }) => {
-  const { create, inviteUser } = useClients();
+  const { create, inviteUsers } = useClients();
   const navigate = useNavigate();
 
   const [step, setStep] = useState(0);
@@ -68,9 +68,7 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
         },
       });
       if (!client.client_id) throw new Error("No client id");
-      await Promise.all(
-        invitations.map((i) => inviteUser(client.client_id, i))
-      );
+      await inviteUsers(client.client_id, invitations);
       setAfterSignUpOrNewCompany(true);
       navigate(
         getRoute(ROUTES.Home, {

@@ -3,6 +3,7 @@ import { ClientsApiClient } from "../api-client/api-client";
 import { ClientUsersState } from "./store";
 import { ClientsUsers } from "../types/clients";
 import { LoadingState } from "@features/utils/store/loading-state-atom";
+import toast from "react-hot-toast";
 
 export const useClientUsers = (id: string) => {
   const [users, setUsers] = useRecoilState(ClientUsersState(id));
@@ -25,8 +26,14 @@ export const useClientUsers = (id: string) => {
 
   const remove = async (email: string) => {
     setLoading(true);
-    await ClientsApiClient.removeUser(id, email);
-    await refresh();
+    try {
+      await ClientsApiClient.removeUser(id, email);
+      await refresh();
+      toast.success("Utilisateur supprimé");
+    } catch (e) {
+      console.error(e);
+      toast.error("Erreur lors de la suppression de l'utilisateur");
+    }
   };
 
   const update = async (

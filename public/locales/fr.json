@@ -11,5 +11,10 @@
     },
     "guides": "Guides",
     "support": "Aide"
+  },
+  "general": {
+    "tables": {
+      "empty": "Aucune donnée"
+    }
   }
 }

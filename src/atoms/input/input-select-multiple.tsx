@@ -47,7 +47,7 @@ export function SelectMultiple(props: InputProps) {
   }, [focused]);
 
   return (
-    <div className="relative">
+    <div className={"relative " + props.className}>
       <Multiselect
         ref={props.multiselectRef}
         singleSelect={props.selectionLimit === 1}
@@ -56,14 +56,13 @@ export function SelectMultiple(props: InputProps) {
         onListBlur={() => setFocused(false)}
         className={
           inputClassName +
-          " bg-white dark:bg-wood-990 border " +
+          " bg-white dark:bg-wood-990  border " +
           ((props.value || []).length === 0 ? "empty " : "") +
           (focused
             ? "ring-wood-600 ring-1 !border-wood-600 dark:border-wood-600 rounded-b-none "
             : "") +
           " " +
-          ((props.value?.length || 0) > 0 ? " pr-12 " : " pr-8 ") +
-          props.className
+          ((props.value?.length || 0) > 0 ? " pr-12 " : " pr-8 ")
         }
         {..._.omit(props, "label", "className", "size", "value", "onChange")}
         selectedValues={props.value}

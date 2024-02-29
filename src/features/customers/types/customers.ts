@@ -2,9 +2,7 @@ export type PublicCustomer = {
   avatar: string;
   email: string;
   id: string;
-  name: string;
-  phone: string;
-  company: { name: string; logo: string } | null;
+  full_name: string;
 };
 
 export type Customer = {

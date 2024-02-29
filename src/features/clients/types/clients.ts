@@ -1,3 +1,5 @@
+import { PublicCustomer } from "@features/customers/types/customers";
+
 export type ClientsUsers = {
   client_id: string;
   user_id: string;
@@ -8,6 +10,10 @@ export type ClientsUsers = {
   client: Clients;
 };
 
+export type ClientsUserWithUser = ClientsUsers & {
+  user: PublicCustomer | { email: string };
+};
+
 // Roles are mainly read / write / manage
 // read: can read and export data
 // write: can write data
@@ -15,6 +21,7 @@ export type ClientsUsers = {
 
 export const Roles = [
   "CLIENT_MANAGE",
+  "CLIENT_WRITE",
   "CLIENT_READ",
   "CONTACTS_READ",
   "CONTACTS_WRITE",
@@ -56,6 +63,7 @@ type Company = {
 type Preferences = {
   logo?: string;
   language?: string;
+  currency?: string;
 };
 
 type Configuration = {

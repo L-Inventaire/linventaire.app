@@ -65,3 +65,7 @@ export const buildSearchURL = (params: any): string => {
   const urlParams = new URLSearchParams(params as any).toString();
   return urlParams;
 };
+
+export const getEmailsFromString = (str: string) => {
+  return (str || "").match(/[^@\d]+@([^@\d]+\.)+[a-z0-9]+/g) || [];
+};

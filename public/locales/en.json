@@ -39,6 +39,9 @@
   },
   "general": {
     "app_name": "L'inventaire",
-    "continue": "Continue"
+    "continue": "Continue",
+    "tables": {
+      "empty": "No data"
+    }
   }
 }

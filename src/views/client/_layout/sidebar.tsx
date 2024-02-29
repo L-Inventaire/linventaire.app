@@ -2,6 +2,7 @@ import { DropDownAtom, DropDownMenuType } from "@atoms/dropdown";
 import Link from "@atoms/link";
 import { InfoSmall } from "@atoms/text";
 import Env from "@config/environment";
+import { useHasAccess } from "@features/access";
 import { ROUTES, getRoute } from "@features/routes";
 import {
   AdjustmentsIcon,
@@ -23,6 +24,8 @@ import SimpleBar from "simplebar-react";
 import { Account } from "./account";
 
 export const SideBar = () => {
+  const hasAccess = useHasAccess();
+
   return (
     <div className="hidden sm:block bg-wood-50 dark:bg-wood-990 w-20 overflow-hidden fixed h-screen">
       <SimpleBar style={{ maxHeight: "100%" }}>
@@ -217,34 +220,47 @@ export const SideBar = () => {
             },
           ]}
         />
-        <MenuItem
-          to={getRoute(ROUTES.SettingsPreferences)}
-          icon={(p) => <AdjustmentsIcon {...p} />}
-          menu={[
-            {
-              label: "Paramètres de L'inventaire",
-              to: getRoute(ROUTES.SettingsPreferences),
-            },
-            {
-              label: "Votre entreprise",
-              to: getRoute(ROUTES.SettingsCompany),
-            },
-            {
-              label: "Collaborateurs",
-              to: getRoute(ROUTES.SettingsUsers),
-            },
-            {
-              type: "divider",
-            },
-            {
-              label: "Paiements et plans",
-              to: getRoute(ROUTES.SettingsBilling),
-              icon: (p) => (
-                <StarIcon className="h-4 w-h-4 text-orange-500 mr-1" />
-              ),
-            },
-          ]}
-        />
+        {(hasAccess("CLIENT_READ") || hasAccess("USERS_READ")) && (
+          <MenuItem
+            icon={(p) => <AdjustmentsIcon {...p} />}
+            menu={[
+              ...(hasAccess("CLIENT_READ")
+                ? ([
+                    {
+                      label: "Paramètres de L'inventaire",
+                      to: getRoute(ROUTES.SettingsPreferences),
+                    },
+                    {
+                      label: "Votre entreprise",
+                      to: getRoute(ROUTES.SettingsCompany),
+                    },
+                  ] as DropDownMenuType)
+                : []),
+              ...(hasAccess("USERS_READ")
+                ? ([
+                    {
+                      label: "Collaborateurs",
+                      to: getRoute(ROUTES.SettingsUsers),
+                    },
+                  ] as DropDownMenuType)
+                : []),
+              ...(hasAccess("CLIENT_READ")
+                ? ([
+                    {
+                      type: "divider",
+                    },
+                    {
+                      label: "Paiements et plans",
+                      to: getRoute(ROUTES.SettingsBilling),
+                      icon: () => (
+                        <StarIcon className="h-4 w-h-4 text-orange-500 mr-1" />
+                      ),
+                    },
+                  ] as DropDownMenuType)
+                : []),
+            ]}
+          />
+        )}
 
         {/* Space for logo */}
         <div className="h-20" />
@@ -292,7 +308,7 @@ const MenuItem = ({
           });
         }}
         onClick={(e: any) => {
-          setMenu({ target: menu ? e.currentTarget : null, menu: [] });
+          to && setMenu({ target: menu ? e.currentTarget : null, menu: [] });
         }}
         className={
           "cursor-pointer w-12 h-12 flex items-center justify-center hover:bg-wood-100 dark:hover:bg-wood-800 rounded-lg " +

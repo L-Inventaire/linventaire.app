@@ -45,7 +45,7 @@ export const JoinCompany = () => {
                 render: (i) => (
                   <div className="flex flex-row items-center">
                     <Avatar
-                      className="mr-2"
+                      className="mr-2 shrink-0"
                       size={11}
                       fallback={i.client.company.name}
                       avatar={i.client.preferences.logo}

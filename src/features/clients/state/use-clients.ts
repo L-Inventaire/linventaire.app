@@ -3,7 +3,7 @@ import { ClientInvitationsState, ClientsState } from "./store";
 import { useGlobalEffect } from "@features/utils/hooks/use-global-effect";
 import { ClientsApiClient } from "../api-client/api-client";
 import toast from "react-hot-toast";
-import { Clients } from "../types/clients";
+import { Clients, Role } from "../types/clients";
 import { LoadingState } from "@features/utils/store/loading-state-atom";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect } from "react";
@@ -25,9 +25,15 @@ export const useClients = () => {
     setLoading(false);
   };
 
-  const inviteUser = async (id: string, email: string) => {
+  const inviteUsers = async (
+    id: string,
+    emails: string[],
+    roles: Role[] = []
+  ) => {
     setLoading(true);
-    await ClientsApiClient.updateUser(id, email, []);
+    for (const email of emails) {
+      await ClientsApiClient.updateUser(id, email, roles);
+    }
     await refresh();
   };
 
@@ -40,8 +46,13 @@ export const useClients = () => {
 
   const update = async (clientId: string, client: Partial<Clients>) => {
     setLoading(true);
-    await ClientsApiClient.update(clientId, client);
-    await refresh();
+    try {
+      await ClientsApiClient.update(clientId, client);
+      await refresh();
+      toast.success("Your company has been updated.");
+    } catch (e) {
+      toast.error("We couldn't update your company. Please try again.");
+    }
   };
 
   useGlobalEffect(
@@ -65,7 +76,7 @@ export const useClients = () => {
   return {
     loading,
     clients,
-    inviteUser,
+    inviteUsers,
     create,
     update,
     refresh,

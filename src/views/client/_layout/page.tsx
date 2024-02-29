@@ -29,7 +29,7 @@ export const Page = (props: {
 
   return (
     <ErrorBoundary>
-      <div className="p-6 w-full mx-auto text-black dark:text-white">
+      <div className="p-6 w-full mx-auto text-black dark:text-white min-h-full">
         {props.children}
       </div>
     </ErrorBoundary>

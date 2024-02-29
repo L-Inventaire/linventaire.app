@@ -23,6 +23,7 @@ type PropsType<T> = {
     | {
         icon?: (props: any) => JSX.Element;
         label: string | ReactNode;
+        type?: "danger" | "menu";
         callback: (items: T[]) => void;
       }[]
     | ((items: T[]) => void);
