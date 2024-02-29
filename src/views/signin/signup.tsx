@@ -98,6 +98,7 @@ export const SignUp = () => {
             className="mt-4"
             input={
               <InputImage
+                shape="circle"
                 fallback={name}
                 onChange={(b64) => setImageBase64(b64)}
               />

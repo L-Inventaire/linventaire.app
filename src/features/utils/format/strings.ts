@@ -1,3 +1,5 @@
+import Env from "@config/environment";
+
 export const validateEmail = (email: string) => {
   return email.match(
     /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
@@ -11,7 +13,7 @@ export const validatePassword = (password: string) => {
   return defaultRegex.test(password);
 };
 
-export const stringToColor = (str: string, saturation = 80, lightness = 60) => {
+export const stringToColor = (str: string, saturation = 70, lightness = 50) => {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
@@ -68,4 +70,10 @@ export const buildSearchURL = (params: any): string => {
 
 export const getEmailsFromString = (str: string) => {
   return (str || "").match(/[^@\d]+@([^@\d]+\.)+[a-z0-9]+/g) || [];
+};
+
+export const getServerUri = (src?: string) => {
+  if (!src) return null;
+  if (src.startsWith("http") || src.startsWith("data:image")) return src;
+  return Env.server.replace(/\/$/, "") + src;
 };

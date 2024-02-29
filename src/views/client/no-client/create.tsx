@@ -125,7 +125,6 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
               className="mt-4"
               input={
                 <InputImage
-                  shape="circle"
                   fallback={companyName}
                   onChange={(b64) => setImageBase64(b64)}
                 />

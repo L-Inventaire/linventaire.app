@@ -4,6 +4,7 @@ import { Base, Info } from "@atoms/text";
 import { useAuth } from "@features/auth/state/use-auth";
 import { useClients } from "@features/clients/state/use-clients";
 import { ROUTES, getRoute } from "@features/routes";
+import { getServerUri } from "@features/utils/format/strings";
 import { PlusIcon } from "@heroicons/react/outline";
 import { useSetRecoilState } from "recoil";
 
@@ -28,7 +29,7 @@ export const Account = () => {
                     <Avatar
                       size={8}
                       fallback={user?.full_name || ""}
-                      avatar={user?.preferences?.avatar || ""}
+                      avatar={getServerUri(user?.preferences?.avatar) || ""}
                     />
                     <div className="flex flex-col flex grow">
                       <Base>{user?.full_name}</Base>
@@ -53,9 +54,10 @@ export const Account = () => {
                 label: (
                   <div className="flex flex-row items-center justify-center space-x-2">
                     <Avatar
+                      shape="square"
                       size={5}
                       fallback={c.client?.company?.name || ""}
-                      avatar={c.client?.preferences?.logo || ""}
+                      avatar={getServerUri(c.client?.preferences?.logo) || ""}
                     />
                     <div className="grow">{c.client.company.name}</div>
                   </div>
@@ -76,14 +78,12 @@ export const Account = () => {
             ],
           });
         }}
-        onClick={(e: any) => {
-          setMenu({ target: e.currentTarget, menu: [] });
-        }}
       >
         <Avatar
           size={8}
+          shape="square"
           fallback={client?.client?.company?.name || ""}
-          avatar={client?.client?.preferences?.logo || ""}
+          avatar={getServerUri(client?.client?.preferences?.logo) || ""}
         />
       </div>
     </div>

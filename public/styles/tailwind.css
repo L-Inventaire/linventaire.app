@@ -965,6 +965,10 @@ select {
   margin-bottom: 0.5rem;
 }
 
+.mb-3 {
+  margin-bottom: 0.75rem;
+}
+
 .mb-4 {
   margin-bottom: 1rem;
 }
@@ -1039,18 +1043,6 @@ select {
 
 .mt-8 {
   margin-top: 2rem;
-}
-
-.mr-1\.5 {
-  margin-right: 0.375rem;
-}
-
-.mb-3 {
-  margin-bottom: 0.75rem;
-}
-
-.\!block {
-  display: block !important;
 }
 
 .block {
@@ -1169,8 +1161,16 @@ select {
   min-height: 0px;
 }
 
+.min-h-10 {
+  min-height: 2.5rem;
+}
+
 .min-h-11 {
   min-height: 2.75rem;
+}
+
+.min-h-8 {
+  min-height: 2rem;
 }
 
 .min-h-full {
@@ -1181,28 +1181,12 @@ select {
   min-height: 100vh;
 }
 
-.min-h-8 {
-  min-height: 2rem;
-}
-
-.min-h-10 {
-  min-height: 2.5rem;
-}
-
-.min-h-12 {
-  min-height: 3rem;
-}
-
-.min-h-20 {
-  min-height: 5rem;
-}
-
-.\!min-h-12 {
-  min-height: 3rem !important;
-}
-
 .\!w-auto {
   width: auto !important;
+}
+
+.w-1 {
+  width: 0.25rem;
 }
 
 .w-10 {
@@ -1265,10 +1249,6 @@ select {
   width: 100%;
 }
 
-.w-1 {
-  width: 0.25rem;
-}
-
 .min-w-0 {
   min-width: 0px;
 }
@@ -1295,6 +1275,10 @@ select {
   max-width: 80rem;
 }
 
+.max-w-lg {
+  max-width: 32rem;
+}
+
 .max-w-md {
   max-width: 28rem;
 }
@@ -1305,10 +1289,6 @@ select {
 
 .max-w-xl {
   max-width: 36rem;
-}
-
-.max-w-lg {
-  max-width: 32rem;
 }
 
 .max-w-xs {
@@ -1509,6 +1489,12 @@ select {
   margin-left: calc(0.5rem * calc(1 - var(--tw-space-x-reverse)));
 }
 
+.space-x-3 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 0;
+  margin-right: calc(0.75rem * var(--tw-space-x-reverse));
+  margin-left: calc(0.75rem * calc(1 - var(--tw-space-x-reverse)));
+}
+
 .space-y-1 > :not([hidden]) ~ :not([hidden]) {
   --tw-space-y-reverse: 0;
   margin-top: calc(0.25rem * calc(1 - var(--tw-space-y-reverse)));
@@ -1525,12 +1511,6 @@ select {
   --tw-space-y-reverse: 0;
   margin-top: calc(1rem * calc(1 - var(--tw-space-y-reverse)));
   margin-bottom: calc(1rem * var(--tw-space-y-reverse));
-}
-
-.space-x-3 > :not([hidden]) ~ :not([hidden]) {
-  --tw-space-x-reverse: 0;
-  margin-right: calc(0.75rem * var(--tw-space-x-reverse));
-  margin-left: calc(0.75rem * calc(1 - var(--tw-space-x-reverse)));
 }
 
 .overflow-auto {
@@ -1659,6 +1639,10 @@ select {
 
 .border-2 {
   border-width: 2px;
+}
+
+.border-0 {
+  border-width: 0px;
 }
 
 .border-b {
@@ -2182,12 +2166,30 @@ select {
   border-color: rgb(228 228 231 / var(--tw-border-opacity));
 }
 
+.border-gray-500 {
+  --tw-border-opacity: 1;
+  border-color: rgb(107 114 128 / var(--tw-border-opacity));
+}
+
+.border-black {
+  --tw-border-opacity: 1;
+  border-color: rgb(0 0 0 / var(--tw-border-opacity));
+}
+
 .border-opacity-10 {
   --tw-border-opacity: 0.1;
 }
 
 .border-opacity-15 {
   --tw-border-opacity: 0.15;
+}
+
+.border-opacity-25 {
+  --tw-border-opacity: 0.25;
+}
+
+.border-opacity-50 {
+  --tw-border-opacity: 0.5;
 }
 
 .\!bg-white {
@@ -2914,10 +2916,6 @@ select {
   padding-top: 1.5rem;
 }
 
-.pb-1 {
-  padding-bottom: 0.25rem;
-}
-
 .text-left {
   text-align: left;
 }
@@ -3539,6 +3537,10 @@ select {
   opacity: 0.75;
 }
 
+.opacity-10 {
+  opacity: 0.1;
+}
+
 .shadow {
   --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
@@ -3593,6 +3595,10 @@ select {
   box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
 }
 
+.ring-inset {
+  --tw-ring-inset: inset;
+}
+
 .\!ring-yellow-500 {
   --tw-ring-opacity: 1 !important;
   --tw-ring-color: rgb(234 179 8 / var(--tw-ring-opacity)) !important;
@@ -3610,6 +3616,15 @@ select {
 .ring-yellow-500 {
   --tw-ring-opacity: 1;
   --tw-ring-color: rgb(234 179 8 / var(--tw-ring-opacity));
+}
+
+.ring-pink-300 {
+  --tw-ring-opacity: 1;
+  --tw-ring-color: rgb(249 168 212 / var(--tw-ring-opacity));
+}
+
+.ring-offset-0 {
+  --tw-ring-offset-width: 0px;
 }
 
 .blur {
@@ -4016,10 +4031,6 @@ html, body, #root {
 
   .md\:top-full {
     top: 100%;
-  }
-
-  .md\:mr-2 {
-    margin-right: 0.5rem;
   }
 
   .md\:inline {
@@ -4572,6 +4583,11 @@ html, body, #root {
   .dark\:border-zinc-800 {
     --tw-border-opacity: 1;
     border-color: rgb(39 39 42 / var(--tw-border-opacity));
+  }
+
+  .dark\:border-white {
+    --tw-border-opacity: 1;
+    border-color: rgb(255 255 255 / var(--tw-border-opacity));
   }
 
   .dark\:\!bg-wood-900 {
@@ -5565,5 +5581,13 @@ html, body, #root {
 
   .dark\:active\:bg-opacity-50:active {
     --tw-bg-opacity: 0.5;
+  }
+
+  .dark\:active\:bg-opacity-25:active {
+    --tw-bg-opacity: 0.25;
+  }
+
+  .dark\:active\:bg-opacity-10:active {
+    --tw-bg-opacity: 0.1;
   }
 }

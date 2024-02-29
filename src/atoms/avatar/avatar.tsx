@@ -1,11 +1,8 @@
 import { Info } from "@atoms/text";
+import { stringToColor } from "@features/utils/format/strings";
 import _ from "lodash";
-import seedrandom from "seedrandom";
 
-export const getColor = (name: string) => {
-  const seed = Math.floor(seedrandom(name)() * 100000000) % 360;
-  return "hsl(" + seed + ", 80%, 40%)";
-};
+export const getColor = stringToColor;
 
 export default function Avatar(props: {
   shape?: "square" | "circle";
@@ -39,33 +36,35 @@ export default function Avatar(props: {
   }
 
   if (props.fallback) {
+    const fallback = props.fallback
+      .split(" ")
+      .filter((a: string) => a.trim())
+      .map((a: string) => a[0].toUpperCase())
+      .slice(0, 2)
+      .join("");
     return (
       <span
         className={
           className +
           " flex items-center justify-center text-white background-cover "
         }
-        style={{ backgroundColor: `${getColor(props.fallback)}` }}
+        style={{ backgroundColor: `${getColor(fallback)}` }}
         {..._.omit(props, "avatar", "className", "src")}
       >
         <Info
           noColor
           className={
-            size < 8
+            "text-black " +
+            (size < 8
               ? "text-xxs"
               : size < 14
               ? "text-sm"
               : size < 28
               ? "text-base"
-              : "text-lg"
+              : "text-lg")
           }
         >
-          {props.fallback
-            .split(" ")
-            .filter((a: string) => a.trim())
-            .map((a: string) => a[0].toUpperCase())
-            .slice(0, 2)
-            .join("")}
+          {fallback}
         </Info>
       </span>
     );

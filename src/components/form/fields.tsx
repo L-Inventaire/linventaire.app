@@ -134,13 +134,13 @@ export const FormInput = memo(
       <InputLabel
         className="w-full"
         label={props.label || ""}
-        labelClassName="opacity-75"
         input={
           <>
             {(!props.type ||
               props.type === "text" ||
               props.type === "scan") && (
               <InputWithSuggestions
+                className="w-full"
                 autoFocus={props.autoFocus}
                 inputClassName={props.type === "scan" ? "to-focus" : ""}
                 style={{ minWidth: 128 }}
@@ -156,6 +156,7 @@ export const FormInput = memo(
             )}
             {props.type === "formatted" && (
               <InputFormat
+                className="w-full"
                 style={{ minWidth: 128 }}
                 format={props.format || "price"}
                 highlight={highlight}
@@ -168,6 +169,7 @@ export const FormInput = memo(
             )}
             {props.type === "number" && (
               <Input
+                className="w-full"
                 highlight={highlight}
                 value={(props.value as number) || 0}
                 onChange={(e) => onChange(e.target.value)}
@@ -194,6 +196,7 @@ export const FormInput = memo(
             )}
             {props.type === "date" && (
               <InputDate
+                className="w-full"
                 highlight={highlight}
                 value={
                   props.value ? new Date(props.value as string | number) : null
@@ -221,6 +224,7 @@ export const FormInput = memo(
             )}
             {props.type === "multiselect" && (
               <SelectMultiple
+                className="w-full"
                 highlight={highlight}
                 value={
                   props.value
@@ -237,6 +241,7 @@ export const FormInput = memo(
             )}
             {props.type === "searchselect" && (
               <SelectMultiple
+                className="w-full"
                 highlight={highlight}
                 value={
                   props.value
@@ -254,6 +259,7 @@ export const FormInput = memo(
             )}
             {props.type === "select" && (
               <Select
+                className="w-full"
                 highlight={highlight}
                 value={(props.value as string) || ""}
                 onChange={(e) => onChange(e.target.value)}
@@ -273,6 +279,7 @@ export const FormInput = memo(
             )}
             {props.type === "select_boolean" && (
               <SelectBoolean
+                className="w-full"
                 highlight={highlight}
                 value={props.value as boolean}
                 onChange={(e) => onChange(e)}

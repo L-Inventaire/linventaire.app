@@ -48,6 +48,7 @@ export const Search = () => {
         prefix={SearchIcon}
         input={({ className }) => (
           <Input
+            className="w-full"
             size="md"
             onFocus={() => setFocused(true)}
             onBlur={() => setTimeout(() => setFocused(false), 200)}

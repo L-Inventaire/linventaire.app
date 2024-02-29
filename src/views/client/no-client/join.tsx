@@ -8,6 +8,7 @@ import {
   useClientInvitations,
   useClients,
 } from "@features/clients/state/use-clients";
+import { getServerUri } from "@features/utils/format/strings";
 import toast from "react-hot-toast";
 import { useSetRecoilState } from "recoil";
 
@@ -48,7 +49,7 @@ export const JoinCompany = () => {
                       className="mr-2 shrink-0"
                       size={11}
                       fallback={i.client.company.name}
-                      avatar={i.client.preferences.logo}
+                      avatar={getServerUri(i.client.preferences.logo) || ""}
                     />
                     <div className="grow">
                       <Base className="block">{i.client.company.name}</Base>

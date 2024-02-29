@@ -30,7 +30,9 @@ export class CustomersApiClient {
   };
 
   static setPreferences = async (
-    preferences: Omit<Customer["preferences"], "version_id">
+    preferences: Omit<Customer["preferences"], "version_id"> & {
+      full_name?: string;
+    }
   ): Promise<Customer> => {
     const response = await fetchServer(`/api/users/v1/users/preferences`, {
       method: "POST",

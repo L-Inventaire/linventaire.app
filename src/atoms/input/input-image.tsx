@@ -11,10 +11,12 @@ export const InputImage = ({
   shape,
   fallback,
   onChange,
+  value,
 }: {
   shape?: "circle" | "square";
   fallback?: string;
   onChange: (imageBase64: string) => void;
+  value?: string;
 }) => {
   const { t } = useTranslation();
   const [imageBase64, setImageBase64] = useState<string | null>(null);
@@ -31,8 +33,12 @@ export const InputImage = ({
     }
   };
 
+  useEffect(() => {
+    if (value) setImageBase64(value);
+  }, [value]);
+
   useControlledEffect(() => {
-    if (imageBase64) onChange(imageBase64);
+    onChange(imageBase64 || "");
   }, [imageBase64]);
 
   useEffect(() => {

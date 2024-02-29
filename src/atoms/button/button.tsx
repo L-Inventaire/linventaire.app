@@ -23,19 +23,19 @@ export const Button = (props: ButtonProps) => {
   );
 
   let colors =
-    "text-white bg-wood-500 hover:bg-wood-600 active:bg-wood-700 border-transparent ";
+    "text-white bg-wood-500 hover:bg-wood-600 active:bg-wood-700 border-px border-opacity-10 border-box border-black border-inside ";
 
   if (props.theme === "secondary")
     colors =
-      "text-wood-500 bg-wood-100 hover:bg-wood-200 active:bg-wood-300 border-transparent dark:bg-wood-900 dark:active:bg-wood-900 dark:hover:bg-wood-900 dark:text-slate-200 dark:hover:bg-opacity-75 dark:active:bg-opacity-50";
+      "text-wood-500 bg-wood-100 hover:bg-wood-200 active:bg-wood-300 dark:bg-wood-900 dark:active:bg-wood-900 dark:hover:bg-wood-900 dark:text-slate-200 dark:hover:bg-opacity-75 dark:active:bg-opacity-10 border-px border-opacity-50 border-box border-black border-inside ";
 
   if (props.theme === "danger")
     colors =
-      "text-white bg-rose-500 hover:bg-rose-600 active:bg-rose-700 border-transparent ";
+      "text-white bg-rose-500 hover:bg-rose-600 active:bg-rose-700 border-px border-opacity-10 border-box border-black border-inside  ";
 
   if (props.theme === "default")
     colors =
-      "text-black bg-white border-wood-200 hover:bg-wood-50 active:bg-wood-200 dark:bg-wood-950 dark:hover:bg-wood-700 dark:active:bg-wood-700 dark:text-white dark:border-wood-900";
+      "text-black bg-white border-wood-200 hover:bg-wood-50 active:bg-wood-200 dark:bg-wood-950 dark:hover:bg-wood-700 dark:active:bg-wood-700 dark:text-white dark:border-wood-900 border-px border-opacity-10 border-box border-black border-inside ";
 
   if (props.theme === "outlined")
     colors =
@@ -79,7 +79,7 @@ export const Button = (props: ButtonProps) => {
             viewBox="0 0 24 24"
           >
             <circle
-              className="opacity-25"
+              className="opacity-10"
               cx="12"
               cy="12"
               r="10"

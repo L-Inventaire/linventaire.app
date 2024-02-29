@@ -9,7 +9,10 @@ import { useClientUsers } from "@features/clients/state/use-client-users";
 import { useClients } from "@features/clients/state/use-clients";
 import { ClientsUsers, Role, Roles } from "@features/clients/types/clients";
 import { PublicCustomer } from "@features/customers/types/customers";
-import { getEmailsFromString } from "@features/utils/format/strings";
+import {
+  getEmailsFromString,
+  getServerUri,
+} from "@features/utils/format/strings";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Page } from "../../_layout/page";
@@ -17,6 +20,7 @@ import _ from "lodash";
 import { ButtonConfirm } from "@atoms/button/confirm";
 import { useAuth } from "@features/auth/state/use-auth";
 import { Modal, ModalContent } from "@atoms/modal/modal";
+import Avatar from "@atoms/avatar/avatar";
 
 export const CompanyUsersPage = () => {
   const { user: me } = useAuth();
@@ -245,7 +249,17 @@ export const CompanyUsersPage = () => {
         columns={[
           {
             title: "Utilisateur",
-            render: (user) => user.user.full_name,
+            render: (user) => (
+              <>
+                <Avatar
+                  avatar={getServerUri(user.user?.avatar) || ""}
+                  fallback={user.user.full_name}
+                  size={5}
+                  className="mr-2"
+                />
+                {user.user.full_name}
+              </>
+            ),
           },
           {
             title: "Email",
