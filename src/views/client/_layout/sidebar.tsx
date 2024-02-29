@@ -35,7 +35,7 @@ export const SideBar = () => {
           menu={[
             {
               label: "Tableau de bord",
-              to: ROUTES.Home,
+              to: getRoute(ROUTES.Home),
             },
           ]}
         />
@@ -45,11 +45,11 @@ export const SideBar = () => {
           menu={[
             {
               label: "Notifications",
-              to: ROUTES.Notifications,
+              to: getRoute(ROUTES.Notifications),
             },
             {
               label: "Évènements",
-              to: ROUTES.Events,
+              to: getRoute(ROUTES.Events),
             },
           ]}
         />
@@ -69,15 +69,15 @@ export const SideBar = () => {
             {
               label: "Contacts",
               shortcut: ["C"],
-              to: ROUTES.Contacts,
+              to: getRoute(ROUTES.Contacts),
             },
             {
               label: "Fournisseurs",
-              to: ROUTES.Contacts + "?type=supplier",
+              to: getRoute(ROUTES.Contacts) + "?type=supplier",
             },
             {
               label: "Clients",
-              to: ROUTES.Contacts + "?type=client",
+              to: getRoute(ROUTES.Contacts) + "?type=client",
             },
           ]}
         />
@@ -103,17 +103,17 @@ export const SideBar = () => {
             {
               label: "Factures",
               shortcut: ["F"],
-              to: ROUTES.Invoices,
+              to: getRoute(ROUTES.Invoices),
             },
             {
               label: "Devis",
               shortcut: ["D"],
-              to: ROUTES.Quotes,
+              to: getRoute(ROUTES.Quotes),
             },
             {
               label: "Abonnements",
               shortcut: ["F"],
-              to: ROUTES.Subscriptions,
+              to: getRoute(ROUTES.Subscriptions),
             },
           ]}
         />
@@ -133,7 +133,7 @@ export const SideBar = () => {
             {
               label: "Commandes",
               shortcut: ["S"],
-              to: ROUTES.Orders,
+              to: getRoute(ROUTES.Orders),
             },
           ]}
         />
@@ -153,7 +153,7 @@ export const SideBar = () => {
             {
               label: "Réceptions",
               shortcut: ["R"],
-              to: ROUTES.Receipts,
+              to: getRoute(ROUTES.Receipts),
             },
           ]}
         />
@@ -163,7 +163,7 @@ export const SideBar = () => {
           menu={[
             {
               label: "Stock",
-              to: ROUTES.Stock,
+              to: getRoute(ROUTES.Stock),
             },
           ]}
         />
@@ -183,7 +183,7 @@ export const SideBar = () => {
             {
               label: "Temps sur site",
               shortcut: ["T"],
-              to: ROUTES.Consulting,
+              to: getRoute(ROUTES.Consulting),
             },
           ]}
         />
@@ -203,7 +203,7 @@ export const SideBar = () => {
             {
               label: "Articles",
               shortcut: ["P"],
-              to: ROUTES.Products,
+              to: getRoute(ROUTES.Products),
             },
           ]}
         />
@@ -213,7 +213,7 @@ export const SideBar = () => {
           menu={[
             {
               label: "Statistiques",
-              to: ROUTES.Statistics,
+              to: getRoute(ROUTES.Statistics),
             },
           ]}
         />
@@ -223,22 +223,22 @@ export const SideBar = () => {
           menu={[
             {
               label: "Paramètres de L'inventaire",
-              to: ROUTES.SettingsPreferences,
+              to: getRoute(ROUTES.SettingsPreferences),
             },
             {
-              label: "Paramètres de l'entreprise",
-              to: ROUTES.SettingsCompany,
+              label: "Votre entreprise",
+              to: getRoute(ROUTES.SettingsCompany),
             },
             {
               label: "Collaborateurs",
-              to: ROUTES.SettingsUsers,
+              to: getRoute(ROUTES.SettingsUsers),
             },
             {
               type: "divider",
             },
             {
               label: "Paiements et plans",
-              to: ROUTES.SettingsBilling,
+              to: getRoute(ROUTES.SettingsBilling),
               icon: (p) => (
                 <StarIcon className="h-4 w-h-4 text-orange-500 mr-1" />
               ),

@@ -27,9 +27,9 @@ export const ROUTES = {
   SignUp: "/login/signup",
   JoinCompany: "/join-company",
 
-  Account: "/account",
-  AccountSecurity: "/account/security",
-  AccountClients: "/account/clients",
+  Account: "/:client/account",
+  AccountSecurity: "/:client/account/security",
+  AccountClients: "/:client/account/clients",
 
   Home: "/:client/home",
   Notifications: "/:client/notifications",

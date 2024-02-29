@@ -20,7 +20,7 @@ export const InvoicesPage = () => {
       }
       title={[
         {
-          label: "Factures",
+          label: "Les Factures",
         },
       ]}
     >

@@ -168,14 +168,10 @@ export const DropDownMenu = () => {
             <Link
               noColor
               key={i}
-              onClick={
-                m.onClick
-                  ? () => {
-                      m.onClick?.();
-                      clickOutside();
-                    }
-                  : undefined
-              }
+              onClick={() => {
+                m.onClick?.();
+                clickOutside();
+              }}
               to={m.to}
               className={
                 "h-7 my-1 items-center hover:bg-opacity-25 hover:bg-opacity-25 px-2 py-1 rounded-md select-none cursor-pointer flex " +

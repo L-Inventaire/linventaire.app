@@ -9,15 +9,34 @@ import { Outlet, Route, useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { Header } from "./_layout/header";
 import { SideBar } from "./_layout/sidebar";
-import { DashboardHomePage } from "./dashboard/home";
-import { InvoicesPage } from "./invoices";
+import { AccountPage } from "./account";
+import { AccountClientsPage } from "./account/clients";
+import { SecurityPage } from "./account/security";
+import { DashboardHomePage } from "./modules/dashboard/home";
+import { InvoicesPage } from "./modules/invoices";
 import { NoClientView } from "./no-client";
+import { CompanyPage } from "./settings/company";
+import { CompanyPlanPage } from "./settings/plan";
+import { PreferencesPage } from "./settings/preferences";
+import { CompanyUsersPage } from "./settings/users";
 
 export const BackOfficeRoutes = () => {
   return (
     <>
       <Route path={ROUTES.JoinCompany} element={<NoClientView />} />
       <Route element={<Layout />}>
+        <Route path={ROUTES.Account} element={<AccountPage />} />
+        <Route path={ROUTES.AccountClients} element={<AccountClientsPage />} />
+        <Route path={ROUTES.AccountSecurity} element={<SecurityPage />} />
+
+        <Route
+          path={ROUTES.SettingsPreferences}
+          element={<PreferencesPage />}
+        />
+        <Route path={ROUTES.SettingsCompany} element={<CompanyPage />} />
+        <Route path={ROUTES.SettingsUsers} element={<CompanyUsersPage />} />
+        <Route path={ROUTES.SettingsBilling} element={<CompanyPlanPage />} />
+
         <Route path={ROUTES.Home} element={<DashboardHomePage />} />
         <Route path={ROUTES.Invoices} element={<InvoicesPage />} />
       </Route>

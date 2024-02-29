@@ -39,11 +39,11 @@ export const Account = () => {
               },
               {
                 label: "Préférence et profil",
-                to: ROUTES.Account,
+                to: getRoute(ROUTES.Account),
               },
               {
                 label: "Sécurité",
-                to: ROUTES.AccountSecurity,
+                to: getRoute(ROUTES.AccountSecurity),
               },
               {
                 type: "divider",
@@ -63,7 +63,7 @@ export const Account = () => {
               })),
               {
                 label: "Gérer mes entreprise",
-                to: ROUTES.AccountClients,
+                to: getRoute(ROUTES.AccountClients),
               },
               {
                 type: "divider",
