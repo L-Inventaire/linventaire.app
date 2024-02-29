@@ -10,7 +10,7 @@ import { Table } from "@components/table";
 import { DidCreateCompanyOrSignupAtom } from "@features/clients/state/store";
 import { useClients } from "@features/clients/state/use-clients";
 import { Clients } from "@features/clients/types/clients";
-import { ROUTES } from "@features/routes";
+import { ROUTES, getRoute } from "@features/routes";
 import { validateEmail } from "@features/utils/format/strings";
 import { useControlledEffect } from "@features/utils/hooks/use-controlled-effect";
 import { MailIcon } from "@heroicons/react/outline";
@@ -20,7 +20,7 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 
-export const NewClientForm = (props: { onClose: () => void }) => {
+export const NewClientForm = (props: { onClose?: () => void }) => {
   const { create, inviteUser } = useClients();
   const navigate = useNavigate();
 
@@ -72,7 +72,11 @@ export const NewClientForm = (props: { onClose: () => void }) => {
         invitations.map((i) => inviteUser(client.client_id, i))
       );
       setAfterSignUpOrNewCompany(true);
-      navigate(ROUTES.Home);
+      navigate(
+        getRoute(ROUTES.Home, {
+          client: client.client_id,
+        })
+      );
     } catch (e) {
       setStep(0);
       console.log(e);
@@ -87,12 +91,12 @@ export const NewClientForm = (props: { onClose: () => void }) => {
           ? "Create your new company"
           : `Almost ready to work with ${companyName}`}
       </Title>
-      {step < 3 && (
+      {step < 3 && props.onClose && (
         <Info className="block">
           <Link
             onClick={() => {
               if (step === 0) {
-                props.onClose();
+                props.onClose?.();
               } else {
                 setStep(step - 1);
               }

@@ -23,6 +23,8 @@ export const Page = (props: {
   useEffect(() => {
     setActions(props.actions || <></>);
     setTitle(props.title || []);
+    // Set title on window
+    document.title = (props.title || []).map((t) => t.label).join(" / ");
   }, [location.pathname, props.actions, props.title]);
 
   return (

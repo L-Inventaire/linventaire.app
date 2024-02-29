@@ -1,16 +1,18 @@
 import { Button, ButtonProps } from "@atoms/button/button";
+import Link from "@atoms/link";
 import { BaseSmall, Info } from "@atoms/text";
 import { AnimatedHeight } from "@components/animated-height";
 import _ from "lodash";
-import React, { useEffect, useCallback } from "react";
-import { atom, useSetRecoilState, useRecoilState } from "recoil";
+import React, { useCallback, useEffect } from "react";
+import { atom, useRecoilState, useSetRecoilState } from "recoil";
 
 export type DropDownMenuType = {
-  type?: "divider" | "danger" | "menu"; // default to menu
+  type?: "divider" | "danger" | "menu" | "label"; // default to menu
   icon?: (p: any) => React.ReactNode;
   label?: string | React.ReactNode;
   shortcut?: string[];
   onClick?: () => void;
+  to?: string;
 }[];
 
 export const DropDownAtom = atom<{
@@ -160,13 +162,21 @@ export const DropDownMenu = () => {
         {state.menu.map((m, i) =>
           m.type === "divider" ? (
             <Divider />
+          ) : m.type === "label" ? (
+            m.label
           ) : (
-            <div
+            <Link
+              noColor
               key={i}
-              onClick={() => {
-                m.onClick?.();
-                clickOutside();
-              }}
+              onClick={
+                m.onClick
+                  ? () => {
+                      m.onClick?.();
+                      clickOutside();
+                    }
+                  : undefined
+              }
+              to={m.to}
               className={
                 "h-7 my-1 items-center hover:bg-opacity-25 hover:bg-opacity-25 px-2 py-1 rounded-md select-none cursor-pointer flex " +
                 (m.type === "danger"
@@ -183,7 +193,7 @@ export const DropDownMenu = () => {
               {m.shortcut && (
                 <Info className="opacity-50">{showShortCut(m.shortcut)}</Info>
               )}
-            </div>
+            </Link>
           )
         )}
       </AnimatedHeight>

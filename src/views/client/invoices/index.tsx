@@ -4,7 +4,7 @@ import { Page } from "@views/client/_layout/page";
 import { useTranslation } from "react-i18next";
 import { useSetRecoilState } from "recoil";
 
-export const DemoPage = () => {
+export const InvoicesPage = () => {
   const { t } = useTranslation();
   const setState = useSetRecoilState(DropDownAtom);
 

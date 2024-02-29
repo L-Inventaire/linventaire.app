@@ -94,7 +94,7 @@ export const Login = () => {
           toast.error("This code is invalid");
           setAllowTryAgain(true);
         } else {
-          if (await login(authSecret, email)) {
+          if (await login(authSecret, email, false)) {
             toast.success("Logged in successfully");
           } else {
             if (mode === "email") {

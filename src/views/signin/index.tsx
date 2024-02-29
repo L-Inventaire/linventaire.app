@@ -1,11 +1,12 @@
 import SingleCenterCard from "@components/single-center-card/single-center-card";
 import { useAuth } from "@features/auth/state/use-auth";
-import { ROUTES } from "@features/routes";
+import { ROUTES, getRoute } from "@features/routes";
 import { ReactNode, useCallback, useEffect } from "react";
 import { Route, useNavigate } from "react-router-dom";
 import { Login } from "./login";
 import { SignUp } from "./signup";
 import { AnimatedBackground } from "@components/animated-background";
+import { useClients } from "@features/clients/state/use-clients";
 
 export const LoginRoutes = () => {
   return (
@@ -33,20 +34,21 @@ export const LoginRoutes = () => {
 const useRedirectToApp = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { clients, loading } = useClients();
 
   const redirectToApp = useCallback(() => {
-    setTimeout(() => {
-      navigate(
-        decodeURIComponent(
-          new URL((window as any).document.location).searchParams.get("r") || ""
-        ) || ROUTES.Home
-      );
-    }, 500);
-  }, [navigate]);
+    navigate(
+      decodeURIComponent(
+        new URL((window as any).document.location).searchParams.get("r") || ""
+      ) || clients?.[0]?.client?.id
+        ? getRoute(ROUTES.Home, { client: clients?.[0]?.client?.id })
+        : ROUTES.JoinCompany
+    );
+  }, [navigate, clients, loading]);
 
   useEffect(() => {
-    if (user?.id) redirectToApp();
-  }, [user?.id, redirectToApp]);
+    if (user?.id && !loading) redirectToApp();
+  }, [user?.id, loading]);
 
   return { user };
 };

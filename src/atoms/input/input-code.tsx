@@ -1,6 +1,6 @@
 import { Info } from "@atoms/text";
 import { useControlledEffect } from "@features/utils/hooks/use-controlled-effect";
-import { useRef, useState } from "react";
+import { Fragment, useRef, useState } from "react";
 import { defaultInputClassName } from "./input-text";
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -45,9 +45,8 @@ export default function InputCode(props: InputProps) {
     >
       <div className="flex -space-x-px shadow-sm rounded-lg">
         {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-          <>
+          <Fragment key={i}>
             <input
-              key={i}
               ref={refs[i]}
               style={{ fontSize: "1.2rem" }}
               value={code[i - 1] || ""}
@@ -80,7 +79,7 @@ export default function InputCode(props: InputProps) {
                 <Info>-</Info>
               </div>
             )}
-          </>
+          </Fragment>
         ))}
       </div>
     </div>

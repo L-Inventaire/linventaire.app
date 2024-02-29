@@ -43,11 +43,15 @@ export const useAuth = () => {
     };
   };
 
-  const extendsToken = async (validationToken?: string, email?: string) => {
+  const extendsToken = async (
+    validationToken?: string,
+    email?: string,
+    doLogout = true
+  ) => {
     const { token } = await AuthApiClient.extendToken(validationToken, email);
 
     if (!token) {
-      logout();
+      if (doLogout) logout();
       return false;
     }
     AuthJWT.token = token;

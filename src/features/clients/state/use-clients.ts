@@ -5,10 +5,18 @@ import { ClientsApiClient } from "../api-client/api-client";
 import toast from "react-hot-toast";
 import { Clients } from "../types/clients";
 import { LoadingState } from "@features/utils/store/loading-state-atom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect } from "react";
+import { ROUTES, getRoute } from "@features/routes";
+import { useAuth } from "@features/auth/state/use-auth";
 
 export const useClients = () => {
+  const { user } = useAuth();
   const [clients, setClients] = useRecoilState(ClientsState);
   const [loading, setLoading] = useRecoilState(LoadingState("useClients"));
+  const navigate = useNavigate();
+  const { client: clientId } = useParams();
+  const client = clients.find((c) => c.client.id === clientId);
 
   const refresh = async () => {
     setLoading(true);
@@ -40,15 +48,29 @@ export const useClients = () => {
     "useClients",
     async () => {
       try {
-        await refresh();
+        if (user) await refresh();
       } catch (e) {
         toast.error("We couldn't get your clients. Please reload the page.");
       }
     },
-    []
+    [!!user]
   );
 
-  return { loading, clients, inviteUser, create, update, refresh };
+  useEffect(() => {
+    if (clientId && !client && !loading && !!user) {
+      navigate(getRoute(ROUTES.Home, { client: clients[0]?.client.id }));
+    }
+  }, [client?.client_id, loading]);
+
+  return {
+    loading,
+    clients,
+    inviteUser,
+    create,
+    update,
+    refresh,
+    client,
+  };
 };
 
 export const useClientInvitations = () => {

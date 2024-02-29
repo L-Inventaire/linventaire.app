@@ -782,6 +782,10 @@ select {
   inset: 0px;
 }
 
+.-bottom-1 {
+  bottom: -0.25rem;
+}
+
 .bottom-0 {
   bottom: 0px;
 }
@@ -832,18 +836,6 @@ select {
 
 .top-full {
   top: 100%;
-}
-
-.-bottom-1 {
-  bottom: -0.25rem;
-}
-
-.-bottom-2 {
-  bottom: -0.5rem;
-}
-
-.bottom-2 {
-  bottom: 0.5rem;
 }
 
 .z-0 {
@@ -1049,8 +1041,8 @@ select {
   margin-top: 2rem;
 }
 
-.mb-3 {
-  margin-bottom: 0.75rem;
+.mr-1\.5 {
+  margin-right: 0.375rem;
 }
 
 .\!block {
@@ -1173,6 +1165,10 @@ select {
   min-height: 0px;
 }
 
+.min-h-11 {
+  min-height: 2.75rem;
+}
+
 .min-h-full {
   min-height: 100%;
 }
@@ -1181,8 +1177,8 @@ select {
   min-height: 100vh;
 }
 
-.min-h-11 {
-  min-height: 2.75rem;
+.min-h-8 {
+  min-height: 2rem;
 }
 
 .\!w-auto {
@@ -1497,6 +1493,12 @@ select {
   --tw-space-y-reverse: 0;
   margin-top: calc(1rem * calc(1 - var(--tw-space-y-reverse)));
   margin-bottom: calc(1rem * var(--tw-space-y-reverse));
+}
+
+.space-x-3 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 0;
+  margin-right: calc(0.75rem * var(--tw-space-x-reverse));
+  margin-left: calc(0.75rem * calc(1 - var(--tw-space-x-reverse)));
 }
 
 .overflow-auto {
@@ -2880,8 +2882,8 @@ select {
   padding-top: 1.5rem;
 }
 
-.pt-2 {
-  padding-top: 0.5rem;
+.pb-1 {
+  padding-bottom: 0.25rem;
 }
 
 .text-left {
@@ -3878,10 +3880,6 @@ html, body, #root {
     height: 100vh;
   }
 
-  .sm\:h-11 {
-    height: 2.75rem;
-  }
-
   .sm\:w-10 {
     width: 2.5rem;
   }
@@ -4046,10 +4044,6 @@ html, body, #root {
     display: inline-flex;
   }
 
-  .lg\:h-11 {
-    height: 2.75rem;
-  }
-
   .lg\:grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -4068,10 +4062,6 @@ html, body, #root {
 }
 
 @media (min-width: 1280px) {
-  .xl\:h-11 {
-    height: 2.75rem;
-  }
-
   .xl\:grid-cols-3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }

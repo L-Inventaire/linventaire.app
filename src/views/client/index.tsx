@@ -1,27 +1,25 @@
+import { Confetti } from "@atoms/confetti";
+import { AnimatedBackground } from "@components/animated-background";
 import { useAuth } from "@features/auth/state/use-auth";
+import { DidCreateCompanyOrSignupAtom } from "@features/clients/state/store";
 import { useClients } from "@features/clients/state/use-clients";
-import { ROUTES } from "@features/routes";
+import { ROUTES, useRoutes } from "@features/routes";
 import { Modals } from "@views/modals";
 import { Outlet, Route, useNavigate } from "react-router-dom";
-import { Header } from "./_layout/header";
-import { ChaussurePage } from "./chaussures";
-import { DemoPage } from "./demo";
-import { NoClientView } from "./no-client";
-import { TabPage } from "./tableau";
-import { Confetti } from "@atoms/confetti";
 import { useRecoilValue } from "recoil";
-import { DidCreateCompanyOrSignupAtom } from "@features/clients/state/store";
-import { AnimatedBackground } from "@components/animated-background";
+import { Header } from "./_layout/header";
 import { SideBar } from "./_layout/sidebar";
+import { DashboardHomePage } from "./dashboard/home";
+import { InvoicesPage } from "./invoices";
+import { NoClientView } from "./no-client";
 
 export const BackOfficeRoutes = () => {
   return (
     <>
       <Route path={ROUTES.JoinCompany} element={<NoClientView />} />
       <Route element={<Layout />}>
-        <Route path={ROUTES.Home} element={<DemoPage />} />
-        <Route path={ROUTES.Tableau} element={<TabPage />} />
-        <Route path={ROUTES.Chaussures} element={<ChaussurePage />} />
+        <Route path={ROUTES.Home} element={<DashboardHomePage />} />
+        <Route path={ROUTES.Invoices} element={<InvoicesPage />} />
       </Route>
     </>
   );
@@ -32,6 +30,7 @@ export const Layout = () => {
   const { clients, loading } = useClients();
   const afterSignupOrNewCompany = useRecoilValue(DidCreateCompanyOrSignupAtom);
   const navigate = useNavigate();
+  useRoutes();
 
   if (!user?.id) {
     logout();
