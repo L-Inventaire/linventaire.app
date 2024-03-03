@@ -19,6 +19,7 @@ import {
   ViewGridIcon,
 } from "@heroicons/react/outline";
 import { StarIcon } from "@heroicons/react/solid";
+import { useLocation } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import SimpleBar from "simplebar-react";
 import { Account } from "./account";
@@ -223,7 +224,7 @@ export const SideBar = () => {
         {(hasAccess("CLIENT_READ") || hasAccess("USERS_READ")) && (
           <MenuItem
             icon={(p) => <AdjustmentsIcon {...p} />}
-            to={getRoute(ROUTES.SettingsPreferences)}
+            to={getRoute(ROUTES.Settings)}
             menu={[
               ...(hasAccess("CLIENT_READ")
                 ? ([
@@ -291,7 +292,11 @@ const MenuItem = ({
   menu?: DropDownMenuType;
   to?: string;
 }) => {
+  const location = useLocation();
   const setMenu = useSetRecoilState(DropDownAtom);
+  if (to && location.pathname.indexOf(to) === 0) {
+    active = true;
+  }
   return (
     <div
       className={

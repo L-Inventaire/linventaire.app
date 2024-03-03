@@ -16,7 +16,7 @@ export const InputLabel = (props: InputLabelProps) => {
         <div className={props.className}>
           <label
             className={
-              "block text-sm font-medium text-slate-500 dark:text-wood-400 whitespace-nowrap overflow-hidden text-ellipsis " +
+              "block text-sm font-medium text-slate-500 whitespace-nowrap overflow-hidden text-ellipsis " +
               props.labelClassName
             }
           >

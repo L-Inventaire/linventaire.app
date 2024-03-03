@@ -1,13 +1,14 @@
 import { Button, ButtonProps } from "@atoms/button/button";
 import Link from "@atoms/link";
-import { BaseSmall, Info } from "@atoms/text";
+import { BaseSmall, Info, SectionSmall } from "@atoms/text";
 import { AnimatedHeight } from "@components/animated-height";
 import _ from "lodash";
 import React, { Fragment, useCallback, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { atom, useRecoilState, useSetRecoilState } from "recoil";
 
 export type DropDownMenuType = {
-  type?: "divider" | "danger" | "menu" | "label"; // default to menu
+  type?: "divider" | "danger" | "menu" | "label" | "title"; // default to menu
   icon?: (p: any) => React.ReactNode;
   label?: string | React.ReactNode;
   shortcut?: string[];
@@ -172,13 +173,22 @@ export const Menu = ({
   menu: DropDownMenuType;
   clickItem?: () => void;
 }) => {
+  const location = useLocation();
   return (
     <>
-      {menu.map((m, i) =>
-        m.type === "divider" ? (
+      {menu.map((m, i) => {
+        let active = false;
+        if (m.to && location.pathname.indexOf(m.to) === 0) {
+          active = true;
+        }
+        return m.type === "divider" ? (
           <Divider key={i} />
         ) : m.type === "label" ? (
           <Fragment key={i}>{m.label}</Fragment>
+        ) : m.type === "title" ? (
+          <SectionSmall key={i} className="p-2 -mb-1">
+            {m.label}
+          </SectionSmall>
         ) : (
           <Link
             noColor
@@ -192,7 +202,10 @@ export const Menu = ({
               "h-7 my-1 items-center hover:bg-opacity-25 hover:bg-opacity-25 px-2 py-1 rounded-md select-none cursor-pointer flex " +
               (m.type === "danger"
                 ? "text-red-500 hover:bg-red-300 "
-                : "hover:bg-wood-300 ")
+                : "hover:bg-wood-300 ") +
+              (active
+                ? " bg-wood-100 dark:bg-wood-800 "
+                : " opacity-75 hover:opacity-100 ")
             }
           >
             {m.icon?.({
@@ -205,8 +218,8 @@ export const Menu = ({
               <Info className="opacity-50">{showShortCut(m.shortcut)}</Info>
             )}
           </Link>
-        )
-      )}
+        );
+      })}
     </>
   );
 };

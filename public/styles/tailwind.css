@@ -2752,10 +2752,6 @@ select {
   padding: 1rem;
 }
 
-.p-6 {
-  padding: 1.5rem;
-}
-
 .\!px-1 {
   padding-left: 0.25rem !important;
   padding-right: 0.25rem !important;
@@ -2895,6 +2891,10 @@ select {
   padding-right: 2.25rem;
 }
 
+.pt-0 {
+  padding-top: 0px;
+}
+
 .pt-1 {
   padding-top: 0.25rem;
 }
@@ -2909,14 +2909,6 @@ select {
 
 .pt-6 {
   padding-top: 1.5rem;
-}
-
-.pt-0 {
-  padding-top: 0px;
-}
-
-.pb-0 {
-  padding-bottom: 0px;
 }
 
 .text-left {
@@ -3811,6 +3803,11 @@ input, select {
   border-color: rgb(152 118 85 / var(--tw-border-opacity));
 }
 
+.focus\:border-slate-500:focus {
+  --tw-border-opacity: 1;
+  border-color: rgb(127 122 113 / var(--tw-border-opacity));
+}
+
 .focus\:shadow-none:focus {
   --tw-shadow: 0 0 #0000;
   --tw-shadow-colored: 0 0 #0000;
@@ -3894,10 +3891,6 @@ input, select {
 
   .sm\:mt-8 {
     margin-top: 2rem;
-  }
-
-  .sm\:mb-6 {
-    margin-bottom: 1.5rem;
   }
 
   .sm\:block {
@@ -3989,10 +3982,6 @@ input, select {
     padding: 1.5rem;
   }
 
-  .sm\:p-4 {
-    padding: 1rem;
-  }
-
   .sm\:px-10 {
     padding-left: 2.5rem;
     padding-right: 2.5rem;
@@ -4005,14 +3994,6 @@ input, select {
 
   .sm\:pb-8 {
     padding-bottom: 2rem;
-  }
-
-  .sm\:pt-4 {
-    padding-top: 1rem;
-  }
-
-  .sm\:pt-2 {
-    padding-top: 0.5rem;
   }
 
   .sm\:pt-3 {
@@ -4092,10 +4073,6 @@ input, select {
     margin-top: 0px;
   }
 
-  .lg\:mb-6 {
-    margin-bottom: 1.5rem;
-  }
-
   .lg\:inline {
     display: inline;
   }
@@ -4116,21 +4093,8 @@ input, select {
     padding: 1rem;
   }
 
-  .lg\:p-6 {
-    padding: 1.5rem;
-  }
-
-  .lg\:px-6 {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-
   .lg\:pt-4 {
     padding-top: 1rem;
-  }
-
-  .lg\:pb-2 {
-    padding-bottom: 0.5rem;
   }
 
   .lg\:text-left {
@@ -4977,6 +4941,11 @@ input, select {
   .dark\:bg-slate-950 {
     --tw-bg-opacity: 1;
     background-color: rgb(35 29 26 / var(--tw-bg-opacity));
+  }
+
+  .dark\:bg-slate-990 {
+    --tw-bg-opacity: 1;
+    background-color: rgb(8 4 3 / var(--tw-bg-opacity));
   }
 
   .dark\:bg-wood-100 {

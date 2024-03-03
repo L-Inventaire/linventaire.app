@@ -5,11 +5,12 @@ import { DidCreateCompanyOrSignupAtom } from "@features/clients/state/store";
 import { useClients } from "@features/clients/state/use-clients";
 import { ROUTES, getRoute, useRoutes } from "@features/routes";
 import { Modals } from "@views/modals";
-import { Outlet, Route, useNavigate } from "react-router-dom";
+import { Navigate, Outlet, Route, useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { Header } from "./_layout/header";
+import { SecondSideBar } from "./_layout/second-sidebar";
 import { SideBar } from "./_layout/sidebar";
-import { AccountPage } from "./account";
+import { AccountPage } from "./account/profil";
 import { AccountClientsPage } from "./account/clients";
 import { SecurityPage } from "./account/security";
 import { DashboardHomePage } from "./modules/dashboard/home";
@@ -19,18 +20,24 @@ import { CompanyPage } from "./settings/company";
 import { CompanyPlanPage } from "./settings/plan";
 import { PreferencesPage } from "./settings/preferences";
 import { CompanyUsersPage } from "./settings/users";
-import { Menu } from "@atoms/dropdown";
-import { SectionSmall } from "@atoms/text";
 
 export const BackOfficeRoutes = () => {
   return (
     <>
       <Route path={ROUTES.JoinCompany} element={<NoClientView />} />
       <Route element={<Layout />}>
-        <Route path={ROUTES.Account} element={<AccountPage />} />
+        <Route
+          path={ROUTES.Account}
+          element={<Navigate to={getRoute(ROUTES.AccountProfile)} />}
+        />
+        <Route path={ROUTES.AccountProfile} element={<AccountPage />} />
         <Route path={ROUTES.AccountClients} element={<AccountClientsPage />} />
         <Route path={ROUTES.AccountSecurity} element={<SecurityPage />} />
 
+        <Route
+          path={ROUTES.Settings}
+          element={<Navigate to={getRoute(ROUTES.SettingsPreferences)} />}
+        />
         <Route
           path={ROUTES.SettingsPreferences}
           element={<PreferencesPage />}
@@ -74,50 +81,8 @@ export const Layout = () => {
         <div className="grow flex flex-col bg-white dark:bg-slate-950 border-l border-slate-500 border-opacity-15 sm:ml-20">
           <Header />
           <div className="grow flex min-h-0">
-            {true && (
-              <div className="sm:block hidden border-r border-slate-500 border-opacity-15 w-64 shrink-0 p-2 bg-wood-25 bg-opacity-50">
-                <Menu
-                  menu={[
-                    {
-                      type: "label",
-                      label: (
-                        <SectionSmall className="p-2 -mb-1">
-                          Paramètres
-                        </SectionSmall>
-                      ),
-                    },
-                    {
-                      label: "Paramètres de L'inventaire",
-                      to: getRoute(ROUTES.SettingsPreferences),
-                    },
-                    {
-                      label: "Votre entreprise",
-                      to: getRoute(ROUTES.SettingsCompany),
-                    },
-                    {
-                      label: "Colaborateurs",
-                      to: getRoute(ROUTES.SettingsUsers),
-                    },
-                    {
-                      type: "divider",
-                    },
-                    {
-                      type: "label",
-                      label: (
-                        <SectionSmall className="p-2 -mb-1">
-                          Abonnement
-                        </SectionSmall>
-                      ),
-                    },
-                    {
-                      label: "Paiements et plans",
-                      to: getRoute(ROUTES.SettingsBilling),
-                    },
-                  ]}
-                />
-              </div>
-            )}
-            <div className="grow min-h-0 overflow-auto">
+            <SecondSideBar />
+            <div className="grow min-h-0 overflow-auto bg-wood-25 dark:bg-slate-950">
               <Outlet />
             </div>
           </div>

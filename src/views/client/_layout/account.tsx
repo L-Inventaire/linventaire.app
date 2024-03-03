@@ -1,11 +1,11 @@
 import Avatar from "@atoms/avatar/avatar";
 import { DropDownAtom } from "@atoms/dropdown";
+import Link from "@atoms/link";
 import { Base, Info } from "@atoms/text";
 import { useAuth } from "@features/auth/state/use-auth";
 import { useClients } from "@features/clients/state/use-clients";
 import { ROUTES, getRoute } from "@features/routes";
 import { getServerUri } from "@features/utils/format/strings";
-import { PlusIcon } from "@heroicons/react/outline";
 import { useSetRecoilState } from "recoil";
 
 export const Account = () => {
@@ -15,7 +15,9 @@ export const Account = () => {
 
   return (
     <div className="absolute top-0 w-full pt-6 pb-3 bg-wood-50 dark:bg-wood-990 backdrop-blur-sm bg-opacity-25">
-      <div
+      <Link
+        noColor
+        to={getRoute(ROUTES.Account)}
         className="w-20 flex items-center justify-center"
         onMouseEnter={(e: any) => {
           setMenu({
@@ -40,7 +42,7 @@ export const Account = () => {
               },
               {
                 label: "Préférence et profil",
-                to: getRoute(ROUTES.Account),
+                to: getRoute(ROUTES.AccountProfile),
               },
               {
                 label: "Sécurité",
@@ -85,7 +87,7 @@ export const Account = () => {
           fallback={client?.client?.company?.name || ""}
           avatar={getServerUri(client?.client?.preferences?.logo) || ""}
         />
-      </div>
+      </Link>
     </div>
   );
 };

@@ -1,6 +1,13 @@
 /** Describes application routes **/
 
+import { DropDownMenuType } from "@atoms/dropdown";
 import { useParams } from "react-router-dom";
+import { Role } from "./clients/types/clients";
+
+export type MenuIndex = (hasAccess: (role: Role) => boolean) => {
+  prefix: string;
+  menu: DropDownMenuType;
+};
 
 let currentClient = "";
 
@@ -28,6 +35,7 @@ export const ROUTES = {
   JoinCompany: "/join-company",
 
   Account: "/:client/account",
+  AccountProfile: "/:client/account/profile",
   AccountSecurity: "/:client/account/security",
   AccountClients: "/:client/account/clients",
 
@@ -69,6 +77,7 @@ export const ROUTES = {
   ProductsView: "/:client/products/:id",
   ProductsEdit: "/:client/products/:id/form",
 
+  Settings: "/:client/settings",
   SettingsPreferences: "/:client/settings/preferences",
   SettingsCompany: "/:client/settings/company",
   SettingsUsers: "/:client/settings/users",
