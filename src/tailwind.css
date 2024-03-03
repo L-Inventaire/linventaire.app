@@ -11,3 +11,7 @@ html, body, #root {
 .grecaptcha-badge {
     opacity: 0;
 }
+
+input, select {
+    width: 100%;
+}

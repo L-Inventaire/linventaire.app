@@ -45,5 +45,13 @@ export const useClientUsers = (id: string) => {
     await refresh();
   };
 
-  return { loading, users, add, remove, update, refresh };
+  return {
+    loading,
+    users: users.filter((u) => u.active),
+    allUsers: users,
+    add,
+    remove,
+    update,
+    refresh,
+  };
 };

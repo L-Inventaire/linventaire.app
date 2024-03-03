@@ -15,7 +15,7 @@ import {
 } from "@features/utils/format/strings";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { Page } from "../../_layout/page";
+import { Page, PageBlock } from "../../_layout/page";
 import _ from "lodash";
 import { ButtonConfirm } from "@atoms/button/confirm";
 import { useAuth } from "@features/auth/state/use-auth";
@@ -57,8 +57,6 @@ export const CompanyUsersPage = () => {
 
   return (
     <Page title={[{ label: "Paramètres" }, { label: "Vos Collaborateurs" }]}>
-      <Section>Inviter un collaborateur</Section>
-
       <Modal
         open={updatingUsers.length > 0}
         onClose={() => setUpdatingUsers([])}
@@ -107,54 +105,57 @@ export const CompanyUsersPage = () => {
         </ModalContent>
       </Modal>
 
-      <InputLabel
-        className="max-w-xl mb-6"
-        label="Emails"
-        input={
-          <div className="flex-col flex space-y-2">
-            <Input
-              placeholder="Jeff <jeff@books.com>, romaric@books.com"
-              disabled={loading}
-              value={invitees}
-              onChange={(e) => setInvitees(e.target.value)}
-            />
-            <div className="flex-row flex space-x-2 grow w-full">
-              <SelectMultiple
-                className="grow"
-                placeholder="Rôles"
-                value={inviteesRoles.map((a) => ({ value: a, label: a }))}
-                onChange={(e) => setInviteesRoles(e.map((a) => a.value))}
-                options={getRoles()}
+      <PageBlock>
+        <Section>Inviter un collaborateur</Section>
+        <InputLabel
+          className="max-w-xl"
+          label="Emails"
+          input={
+            <div className="flex-col flex space-y-2">
+              <Input
+                placeholder="Jeff <jeff@books.com>, romaric@books.com"
+                disabled={loading}
+                value={invitees}
+                onChange={(e) => setInvitees(e.target.value)}
               />
-              <Button
-                disabled={!invitedEmails.length}
-                loading={loading}
-                className="shrink-0"
-                onClick={async () => {
-                  try {
-                    await inviteUsers(
-                      client!.client_id,
-                      invitedEmails,
-                      inviteesRoles as Role[]
-                    );
-                    setInvitees("");
-                    refresh();
-                    toast.success("Invitations envoyées");
-                  } catch (e) {
-                    console.error(e);
-                    toast.error("Erreur lors de l'envoi des invitations");
-                  }
-                }}
-              >
-                Inviter {invitedEmails.length} utilisateurs
-              </Button>
+              <div className="flex-row flex space-x-2 grow w-full">
+                <SelectMultiple
+                  className="grow"
+                  placeholder="Rôles"
+                  value={inviteesRoles.map((a) => ({ value: a, label: a }))}
+                  onChange={(e) => setInviteesRoles(e.map((a) => a.value))}
+                  options={getRoles()}
+                />
+                <Button
+                  disabled={!invitedEmails.length}
+                  loading={loading}
+                  className="shrink-0"
+                  onClick={async () => {
+                    try {
+                      await inviteUsers(
+                        client!.client_id,
+                        invitedEmails,
+                        inviteesRoles as Role[]
+                      );
+                      setInvitees("");
+                      refresh();
+                      toast.success("Invitations envoyées");
+                    } catch (e) {
+                      console.error(e);
+                      toast.error("Erreur lors de l'envoi des invitations");
+                    }
+                  }}
+                >
+                  Inviter {invitedEmails.length} utilisateurs
+                </Button>
+              </div>
             </div>
-          </div>
-        }
-      />
+          }
+        />
+      </PageBlock>
 
       {!!users.filter((u) => !(u.user as any).id).length && (
-        <>
+        <PageBlock>
           <Section>Invitations en attente</Section>
           <Info className="block mb-3">
             Ces utilisateurs doivent créer un compte en utilisant l'email défini
@@ -183,7 +184,6 @@ export const CompanyUsersPage = () => {
                     },
                   ]
             }
-            className="mb-6"
             data={_.sortBy(
               users.filter((u) => !(u.user as any).id) as (ClientsUsers & {
                 user: { email: string };
@@ -222,86 +222,88 @@ export const CompanyUsersPage = () => {
               },
             ]}
           />
-        </>
+        </PageBlock>
       )}
 
-      <Section>Vos collaborateur</Section>
-      <Table
-        data={_.sortBy(
-          users.filter((u) => (u.user as any).id) as (ClientsUsers & {
-            user: PublicCustomer;
-          })[],
-          (a) => a.user.full_name + a.user.email
-        )}
-        rowIndex="user_id"
-        onSelect={
-          readOnly
-            ? undefined
-            : [
-                {
-                  label: "Changer les rôles",
-                  callback: (user) => {
-                    setUpdatingUsers(users.map((u) => u.user_id));
+      <PageBlock>
+        <Section>Vos collaborateur</Section>
+        <Table
+          data={_.sortBy(
+            users.filter((u) => (u.user as any).id) as (ClientsUsers & {
+              user: PublicCustomer;
+            })[],
+            (a) => a.user.full_name + a.user.email
+          )}
+          rowIndex="user_id"
+          onSelect={
+            readOnly
+              ? undefined
+              : [
+                  {
+                    label: "Changer les rôles",
+                    callback: (user) => {
+                      setUpdatingUsers(users.map((u) => u.user_id));
+                    },
                   },
-                },
-              ]
-        }
-        columns={[
-          {
-            title: "Utilisateur",
-            render: (user) => (
-              <>
-                <Avatar
-                  avatar={getServerUri(user.user?.avatar) || ""}
-                  fallback={user.user.full_name}
-                  size={5}
-                  className="mr-2"
-                />
-                {user.user.full_name}
-              </>
-            ),
-          },
-          {
-            title: "Email",
-            render: (user) => user.user.email,
-          },
-          {
-            title: "Roles",
-            render: (user) => (
-              <InfoSmall>{roleSumary(user.roles.list)}</InfoSmall>
-            ),
-          },
-          {
-            title: "Actions",
-            thClassName: "w-20",
-            hidden: readOnly,
-            render: (user) =>
-              user.user.id === me?.id ? (
-                <Info>It's you</Info>
-              ) : (
+                ]
+          }
+          columns={[
+            {
+              title: "Utilisateur",
+              render: (user) => (
                 <>
-                  <Button
-                    size="sm"
-                    className="mr-2"
-                    onClick={() => setUpdatingUsers([user.user_id])}
-                  >
-                    Modifier
-                  </Button>
-                  <ButtonConfirm
-                    loading={loading}
-                    onClick={() => {
-                      remove(user.user.id);
-                    }}
-                    size="sm"
-                    theme="danger"
-                  >
-                    Retirer
-                  </ButtonConfirm>
+                  <Avatar
+                    avatar={getServerUri(user.user?.avatar) || ""}
+                    fallback={user.user.full_name}
+                    size={5}
+                    className="mr-2 shrink-0"
+                  />
+                  {user.user.full_name}
                 </>
               ),
-          },
-        ]}
-      />
+            },
+            {
+              title: "Email",
+              render: (user) => user.user.email,
+            },
+            {
+              title: "Roles",
+              render: (user) => (
+                <InfoSmall>{roleSumary(user.roles.list)}</InfoSmall>
+              ),
+            },
+            {
+              title: "Actions",
+              thClassName: "w-20",
+              hidden: readOnly,
+              render: (user) =>
+                user.user.id === me?.id ? (
+                  <Info>It's you</Info>
+                ) : (
+                  <>
+                    <Button
+                      size="sm"
+                      className="mr-2"
+                      onClick={() => setUpdatingUsers([user.user_id])}
+                    >
+                      Modifier
+                    </Button>
+                    <ButtonConfirm
+                      loading={loading}
+                      onClick={() => {
+                        remove(user.user.id);
+                      }}
+                      size="sm"
+                      theme="danger"
+                    >
+                      Retirer
+                    </ButtonConfirm>
+                  </>
+                ),
+            },
+          ]}
+        />
+      </PageBlock>
     </Page>
   );
 };

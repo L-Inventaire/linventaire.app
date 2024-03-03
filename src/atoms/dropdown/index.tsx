@@ -159,41 +159,55 @@ export const DropDownMenu = () => {
         trigger={(cb) => (autoHeightTrigger = cb)}
         className="px-2 py-1"
       >
-        {state.menu.map((m, i) =>
-          m.type === "divider" ? (
-            <Divider key={i} />
-          ) : m.type === "label" ? (
-            <Fragment key={i}>{m.label}</Fragment>
-          ) : (
-            <Link
-              noColor
-              key={i}
-              onClick={() => {
-                m.onClick?.();
-                clickOutside();
-              }}
-              to={m.to}
-              className={
-                "h-7 my-1 items-center hover:bg-opacity-25 hover:bg-opacity-25 px-2 py-1 rounded-md select-none cursor-pointer flex " +
-                (m.type === "danger"
-                  ? "text-red-500 hover:bg-red-300 "
-                  : "hover:bg-wood-300 ")
-              }
-            >
-              {m.icon?.({
-                className: "w-4 h-4 mr-1 text-slate-900 dark:text-slate-100",
-              })}
-              <BaseSmall noColor={m.type === "danger"} className="grow">
-                {m.label}
-              </BaseSmall>
-              {m.shortcut && (
-                <Info className="opacity-50">{showShortCut(m.shortcut)}</Info>
-              )}
-            </Link>
-          )
-        )}
+        <Menu menu={state.menu} clickItem={() => clickOutside()} />
       </AnimatedHeight>
     </div>
+  );
+};
+
+export const Menu = ({
+  menu,
+  clickItem,
+}: {
+  menu: DropDownMenuType;
+  clickItem?: () => void;
+}) => {
+  return (
+    <>
+      {menu.map((m, i) =>
+        m.type === "divider" ? (
+          <Divider key={i} />
+        ) : m.type === "label" ? (
+          <Fragment key={i}>{m.label}</Fragment>
+        ) : (
+          <Link
+            noColor
+            key={i}
+            onClick={() => {
+              m.onClick?.();
+              clickItem?.();
+            }}
+            to={m.to}
+            className={
+              "h-7 my-1 items-center hover:bg-opacity-25 hover:bg-opacity-25 px-2 py-1 rounded-md select-none cursor-pointer flex " +
+              (m.type === "danger"
+                ? "text-red-500 hover:bg-red-300 "
+                : "hover:bg-wood-300 ")
+            }
+          >
+            {m.icon?.({
+              className: "w-4 h-4 mr-1 text-slate-900 dark:text-slate-100",
+            })}
+            <BaseSmall noColor={m.type === "danger"} className="grow">
+              {m.label}
+            </BaseSmall>
+            {m.shortcut && (
+              <Info className="opacity-50">{showShortCut(m.shortcut)}</Info>
+            )}
+          </Link>
+        )
+      )}
+    </>
   );
 };
 

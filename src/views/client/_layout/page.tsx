@@ -29,7 +29,7 @@ export const Page = (props: {
 
   return (
     <ErrorBoundary>
-      <div className="p-6 w-full mx-auto text-black dark:text-white min-h-full">
+      <div className="p-4 w-full mx-auto text-black dark:text-white min-h-full">
         {props.children}
       </div>
     </ErrorBoundary>
@@ -39,7 +39,7 @@ export const Page = (props: {
 export const MaxWidthPage = (props: { children: ReactNode }) => {
   return (
     <ErrorBoundary>
-      <div className="p-6 max-w-7xl mx-auto text-black dark:text-white">
+      <div className="p-4 max-w-7xl mx-auto text-black dark:text-white">
         {props.children}
       </div>
     </ErrorBoundary>
@@ -53,5 +53,13 @@ export const FullScreenPage = (props: { children: ReactNode }) => {
         {props.children}
       </div>
     </ErrorBoundary>
+  );
+};
+
+export const PageBlock = (props: { children: ReactNode }) => {
+  return (
+    <div className="p-3 lg:p-4 sm:pt-3 lg:pt-4 pt-0 sm:border border-b sm:mx-0 -mx-4 rounded-md mb-4">
+      {props.children}
+    </div>
   );
 };

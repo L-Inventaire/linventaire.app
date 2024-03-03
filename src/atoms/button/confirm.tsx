@@ -53,7 +53,7 @@ export const ButtonConfirm = (props: ButtonConfirmProps) => {
                     props.onClick && props.onClick(e);
                   }, 500);
                 }}
-                className="mr-4 my-2"
+                className="mt-2"
                 shortcut={["enter"]}
               >
                 {props.confirmButtonText || "Confirmer"}
@@ -63,7 +63,7 @@ export const ButtonConfirm = (props: ButtonConfirmProps) => {
                   setInConfirm(false);
                 }}
                 theme="default"
-                className={"mr-4 my-2 shadow-none"}
+                className={"mr-4 mt-2 shadow-none"}
                 shortcut={["esc"]}
               >
                 {props.cancelButtonText || "Annuler"}

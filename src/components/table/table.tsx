@@ -199,7 +199,7 @@ export function RenderedTable<T>({
           "relative print:overflow-none " + (scrollable ? "h-full " : "")
         }
         style={{
-          minHeight: 100,
+          minHeight: 60,
         }}
       >
         {loading && (

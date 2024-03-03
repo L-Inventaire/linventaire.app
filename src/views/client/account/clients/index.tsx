@@ -9,7 +9,7 @@ import {
 } from "@features/clients/state/use-clients";
 import { getServerUri } from "@features/utils/format/strings";
 import { PlusIcon } from "@heroicons/react/outline";
-import { Page } from "../../_layout/page";
+import { Page, PageBlock } from "../../_layout/page";
 
 export const AccountClientsPage = () => {
   const { loading, invitations, accept } = useClientInvitations();
@@ -17,17 +17,66 @@ export const AccountClientsPage = () => {
 
   return (
     <Page title={[{ label: "Compte" }, { label: "Mes Entreprises" }]}>
-      <Section>Invitations</Section>
-      {invitations?.length === 0 && !loading && (
-        <>
-          <Info>Vous n'avez aucune invitation en attente.</Info>
-          <div className="mt-6" />
-        </>
-      )}
-      {(invitations?.length > 0 || loading) && (
+      <PageBlock>
+        <Section>Invitations</Section>
+        {invitations?.length === 0 && !loading && (
+          <>
+            <Info>Vous n'avez aucune invitation en attente.</Info>
+          </>
+        )}
+        {(invitations?.length > 0 || loading) && (
+          <Table
+            loading={loading}
+            data={invitations}
+            columns={[
+              {
+                render: (c) => (
+                  <>
+                    <Avatar
+                      size={5}
+                      shape="square"
+                      fallback={c.client.company.name}
+                      avatar={getServerUri(c.client.preferences?.logo) || ""}
+                      className="mr-2"
+                    />
+                    {c.client.company.name}
+                  </>
+                ),
+              },
+              {
+                render: (c) => (
+                  <div className="text-right w-full">
+                    <Button size="sm" onClick={() => accept(c.client_id)}>
+                      Accepter
+                    </Button>
+                    <Button
+                      theme="danger"
+                      size="sm"
+                      className="ml-2"
+                      onClick={() => accept(c.client_id, false)}
+                    >
+                      Refuser
+                    </Button>
+                  </div>
+                ),
+              },
+            ]}
+          />
+        )}
+      </PageBlock>
+
+      <PageBlock>
+        <Button
+          className="float-right"
+          size="sm"
+          icon={(p) => <PlusIcon {...p} />}
+        >
+          Créer une entreprise
+        </Button>
+        <Section>Entreprises</Section>
         <Table
-          loading={loading}
-          data={invitations}
+          loading={loadingClients}
+          data={clients}
           columns={[
             {
               render: (c) => (
@@ -43,56 +92,9 @@ export const AccountClientsPage = () => {
                 </>
               ),
             },
-            {
-              render: (c) => (
-                <div className="text-right w-full">
-                  <Button size="sm" onClick={() => accept(c.client_id)}>
-                    Accepter
-                  </Button>
-                  <Button
-                    theme="danger"
-                    size="sm"
-                    className="ml-2"
-                    onClick={() => accept(c.client_id, false)}
-                  >
-                    Refuser
-                  </Button>
-                </div>
-              ),
-            },
           ]}
         />
-      )}
-
-      <Button
-        className="float-right"
-        size="sm"
-        icon={(p) => <PlusIcon {...p} />}
-      >
-        Créer une entreprise
-      </Button>
-      <Section>Entreprises</Section>
-
-      <Table
-        loading={loadingClients}
-        data={clients}
-        columns={[
-          {
-            render: (c) => (
-              <>
-                <Avatar
-                  size={5}
-                  shape="square"
-                  fallback={c.client.company.name}
-                  avatar={getServerUri(c.client.preferences?.logo) || ""}
-                  className="mr-2"
-                />
-                {c.client.company.name}
-              </>
-            ),
-          },
-        ]}
-      />
+      </PageBlock>
     </Page>
   );
 };

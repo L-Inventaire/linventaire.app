@@ -8,6 +8,7 @@ export type ClientsUsers = {
   updated_by: string;
   roles: { list: Role[] };
   client: Clients;
+  active: boolean;
 };
 
 export type ClientsUserWithUser = ClientsUsers & {

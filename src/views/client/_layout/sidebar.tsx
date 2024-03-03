@@ -223,6 +223,7 @@ export const SideBar = () => {
         {(hasAccess("CLIENT_READ") || hasAccess("USERS_READ")) && (
           <MenuItem
             icon={(p) => <AdjustmentsIcon {...p} />}
+            to={getRoute(ROUTES.SettingsPreferences)}
             menu={[
               ...(hasAccess("CLIENT_READ")
                 ? ([

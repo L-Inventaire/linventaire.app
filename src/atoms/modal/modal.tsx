@@ -198,7 +198,7 @@ export const ModalContent = (props: {
           >
             <Section>{props.title}</Section>
           </Dialog.Title>
-          <div className="mt-4">
+          <div className="mt-2">
             <p className="text-sm text-gray-500 dark:text-white">
               {props.text || ""}
             </p>
