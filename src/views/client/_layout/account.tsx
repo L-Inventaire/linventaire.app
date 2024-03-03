@@ -14,7 +14,7 @@ export const Account = () => {
   const setMenu = useSetRecoilState(DropDownAtom);
 
   return (
-    <div className="absolute top-0 w-full pt-6 pb-3 bg-wood-50 dark:bg-wood-990 backdrop-blur-sm bg-opacity-25">
+    <div className="absolute top-0 w-full pt-6 pb-3 bg-wood-50 dark:bg-wood-990">
       <Link
         noColor
         to={getRoute(ROUTES.Account)}

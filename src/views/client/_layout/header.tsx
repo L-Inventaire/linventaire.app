@@ -2,8 +2,11 @@ import Link from "@atoms/link";
 import { BaseSmall, Info, Title } from "@atoms/text";
 import { ROUTES } from "@features/routes";
 import { useTranslation } from "react-i18next";
-import { atom, useRecoilValue } from "recoil";
+import { atom, useRecoilState, useRecoilValue } from "recoil";
 import { Search } from "./search";
+import { MenuIcon } from "@heroicons/react/outline";
+import { useLocation } from "react-router-dom";
+import { useEffect } from "react";
 
 export const LayoutTitleAtom = atom<
   {
@@ -16,18 +19,40 @@ export const LayoutTitleAtom = atom<
   default: [{}],
 });
 
-export const LayoutActionsAtom = atom<React.ReactNode>({
+export const LayoutActionsAtom = atom<React.ReactNode | null>({
   key: "LayoutActionsAtom",
-  default: <></>,
+  default: null,
+});
+
+export const ResponsiveMenuAtom = atom<boolean>({
+  key: "ResponsiveMenuAtom",
+  default: false,
 });
 
 export const Header = () => {
   const title = useRecoilValue(LayoutTitleAtom);
   const actions = useRecoilValue(LayoutActionsAtom);
+  const [menuOpen, setMenuOpen] = useRecoilState(ResponsiveMenuAtom);
+  const location = useLocation();
+
+  useEffect(() => setMenuOpen(false), [location.pathname]);
 
   return (
-    <div className="bg-wood-50 dark:bg-wood-950 border-b border-opacity-10 border-slate-500 lg:pt-4 flex flex-row justify-center lg:items-center px-2 sm:px-4 min-h-0 shrink-0 z-60">
-      <div className="lg:mr-4 text-center mt-4 lg:text-left lg:mt-0 min-h-11">
+    <div
+      className={
+        "relative bg-wood-50 dark:bg-wood-950 border-b border-opacity-10 border-slate-500 lg:pt-4 flex flex-row justify-center lg:items-center px-16 sm:px-4 min-h-0 shrink-0 z-60 transition-all " +
+        (menuOpen ? "pointer-events-none opacity-25 " : "opacity-100")
+      }
+    >
+      <div
+        className={
+          "z-10 sm:hidden absolute transition-all h-full flex items-center justify-center left-4 "
+        }
+      >
+        <MenuIcon onClick={() => setMenuOpen(true)} className="h-6 w-6" />
+      </div>
+
+      <div className="lg:mr-4 transition-all text-center sm:mt-4 lg:text-left lg:mt-0 min-h-11 ">
         <div className="my-2 inline-block text-center sm:text-left lg:mr-4 relative -bottom-1 min-h-8">
           <Link to={ROUTES.Home} noColor>
             <Info className="inline">
@@ -47,9 +72,11 @@ export const Header = () => {
             </Link>
           ))}
         </div>
-        <div className="flex my-2 lg:inline-flex space-x-2 justify-center">
-          {actions}
-        </div>
+        {actions && (
+          <div className="flex my-2 lg:inline-flex space-x-2 justify-center">
+            {actions}
+          </div>
+        )}
       </div>
 
       <div className="hidden lg:inline-flex grow flex items-start justify-center"></div>

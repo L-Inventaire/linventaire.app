@@ -20,15 +20,22 @@ import {
 } from "@heroicons/react/outline";
 import { StarIcon } from "@heroicons/react/solid";
 import { useLocation } from "react-router-dom";
-import { useSetRecoilState } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import SimpleBar from "simplebar-react";
 import { Account } from "./account";
+import { ResponsiveMenuAtom } from "./header";
 
 export const SideBar = () => {
   const hasAccess = useHasAccess();
+  const menuOpen = useRecoilValue(ResponsiveMenuAtom);
 
   return (
-    <div className="hidden sm:block bg-wood-50 dark:bg-wood-990 w-20 overflow-hidden fixed h-screen">
+    <div
+      className={
+        "sm:translate-x-0 z-10 transition-all sm:block bg-wood-50 dark:bg-wood-990 w-20 overflow-hidden fixed h-screen " +
+        (menuOpen ? " translate-x-0 " : " -translate-x-full ")
+      }
+    >
       <SimpleBar style={{ maxHeight: "100%" }}>
         {/* Space for avatar */}
         <div className="h-16 mb-2" />
@@ -270,7 +277,7 @@ export const SideBar = () => {
 
       <Account />
 
-      <div className="absolute bottom-0 w-full h-20 bg-wood-50 dark:bg-wood-990 backdrop-blur-sm bg-opacity-25">
+      <div className="absolute bottom-0 w-full h-20 bg-wood-50 dark:bg-wood-990">
         <div className="w-20 h-16 flex items-center justify-center">
           <Logo />
         </div>
@@ -307,6 +314,13 @@ const MenuItem = ({
         to={to}
         noColor
         onMouseEnter={(e: any) => {
+          setMenu({
+            target: menu ? e.currentTarget : null,
+            position: "right",
+            menu: menu || [],
+          });
+        }}
+        onLongPress={(e: any) => {
           setMenu({
             target: menu ? e.currentTarget : null,
             position: "right",

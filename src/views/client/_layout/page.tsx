@@ -21,7 +21,7 @@ export const Page = (props: {
   const location = useParams();
 
   useEffect(() => {
-    setActions(props.actions || <></>);
+    setActions(props.actions || null);
     setTitle(props.title || []);
     // Set title on window
     document.title = (props.title || []).map((t) => t.label).join(" - ");
@@ -29,7 +29,7 @@ export const Page = (props: {
 
   return (
     <ErrorBoundary>
-      <div className="p-4 w-full mx-auto text-black dark:text-white min-h-full">
+      <div className="p-4 w-full mx-auto text-black dark:text-white min-h-full sm:bg-transparent bg-white">
         {props.children}
       </div>
     </ErrorBoundary>

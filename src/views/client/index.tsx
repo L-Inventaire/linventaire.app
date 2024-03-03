@@ -6,10 +6,10 @@ import { useClients } from "@features/clients/state/use-clients";
 import { ROUTES, getRoute, useRoutes } from "@features/routes";
 import { Modals } from "@views/modals";
 import { Navigate, Outlet, Route, useNavigate } from "react-router-dom";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { Header } from "./_layout/header";
 import { SecondSideBar } from "./_layout/second-sidebar";
-import { SideBar } from "./_layout/sidebar";
+import { ResponsiveMenuAtom } from "./_layout/header";
 import { AccountPage } from "./account/profil";
 import { AccountClientsPage } from "./account/clients";
 import { SecurityPage } from "./account/security";
@@ -20,6 +20,7 @@ import { CompanyPage } from "./settings/company";
 import { CompanyPlanPage } from "./settings/plan";
 import { PreferencesPage } from "./settings/preferences";
 import { CompanyUsersPage } from "./settings/users";
+import { SideBar } from "./_layout/sidebar";
 
 export const BackOfficeRoutes = () => {
   return (
@@ -54,6 +55,7 @@ export const BackOfficeRoutes = () => {
 };
 
 export const Layout = () => {
+  const [menuOpen, setMenuOpen] = useRecoilState(ResponsiveMenuAtom);
   const { user, logout } = useAuth();
   const { clients, loading } = useClients();
   const afterSignupOrNewCompany = useRecoilValue(DidCreateCompanyOrSignupAtom);
@@ -76,13 +78,31 @@ export const Layout = () => {
   return (
     <>
       {afterSignupOrNewCompany && <Confetti />}
-      <div className="flex w-full grow flex-row bg-slate-50 dark:bg-slate-990 h-screen intro-animated-root z-10">
+      <div className="sm:overflow-auto overflow-hidden relative flex w-full grow flex-row bg-slate-50 dark:bg-slate-990 h-screen intro-animated-root z-10">
         <SideBar />
-        <div className="grow flex flex-col bg-white dark:bg-slate-950 border-l border-slate-500 border-opacity-15 sm:ml-20">
+        <div
+          className={
+            "z-0 transition-all grow flex flex-col border-l sm:ml-20 " +
+            (menuOpen
+              ? " bg-slate-900 overflow-hidden "
+              : "bg-white dark:bg-slate-950 ")
+          }
+          style={{
+            transform: menuOpen ? "translateX(80px)" : "translateX(0)",
+          }}
+        >
           <Header />
-          <div className="grow flex min-h-0">
+          <div
+            className="grow flex min-h-0 "
+            onClick={() => setMenuOpen(false)}
+          >
             <SecondSideBar />
-            <div className="grow min-h-0 overflow-auto bg-wood-25 dark:bg-slate-950">
+            <div
+              className={
+                "grow min-h-0 overflow-auto bg-wood-25 dark:bg-slate-950 transition-all " +
+                (menuOpen ? " opacity-25 pointer-events-none " : "opacity-100 ")
+              }
+            >
               <Outlet />
             </div>
           </div>
