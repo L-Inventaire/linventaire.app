@@ -203,9 +203,7 @@ export const Menu = ({
               (m.type === "danger"
                 ? "text-red-500 hover:bg-red-300 "
                 : "hover:bg-wood-300 ") +
-              (active
-                ? " bg-wood-100 dark:bg-wood-800 "
-                : " opacity-75 hover:opacity-100 ")
+              (active ? " bg-wood-100 dark:bg-wood-800 " : "")
             }
           >
             {m.icon?.({

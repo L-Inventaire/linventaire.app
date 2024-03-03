@@ -1,3 +1,4 @@
+import Link from "@atoms/link";
 import { Shortcut, useShortcuts } from "@features/utils/shortcuts";
 import _ from "lodash";
 
@@ -9,6 +10,7 @@ export interface ButtonProps
   disabled?: boolean;
   shortcut?: Shortcut[];
   children?: React.ReactNode;
+  to?: string;
   icon?: (props: React.SVGProps<SVGSVGElement>) => JSX.Element;
 }
 
@@ -21,6 +23,14 @@ export const Button = (props: ButtonProps) => {
       if (props.onClick) props.onClick(e as any);
     }
   );
+
+  if (props.to) {
+    return (
+      <Link to={props.to} noColor>
+        <Button {..._.omit(props, "to")} />
+      </Link>
+    );
+  }
 
   let colors =
     "text-white bg-wood-500 hover:bg-wood-600 active:bg-wood-700 border-px border-opacity-10 border-box border-black border-inside ";

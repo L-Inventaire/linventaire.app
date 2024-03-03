@@ -9,11 +9,12 @@ export type MenuIndex = (hasAccess: (role: Role) => boolean) => {
   menu: DropDownMenuType;
 };
 
-let currentClient = "";
+let currentClient = window.localStorage.getItem("client") || "";
 
 export const useRoutes = () => {
   const { client } = useParams();
   currentClient = client || "-";
+  window.localStorage.setItem("client", currentClient);
   return {
     get: getRoute,
   };

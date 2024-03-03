@@ -16,6 +16,13 @@ export const Account = () => {
   return (
     <div className="absolute top-0 w-full pt-6 pb-3 bg-wood-50 dark:bg-wood-990">
       <Link
+        onClick={(e: any) =>
+          setMenu({
+            target: e.currentTarget,
+            position: "right",
+            menu: [],
+          })
+        }
         noColor
         to={getRoute(ROUTES.Account)}
         className="w-20 flex items-center justify-center"

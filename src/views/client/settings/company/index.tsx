@@ -13,9 +13,14 @@ import { InputLabel } from "@atoms/input/input-decoration-label";
 import { InputImage } from "@atoms/input/input-image";
 import { getServerUri } from "@features/utils/format/strings";
 import { ButtonConfirm } from "@atoms/button/confirm";
+import { useClientUsers } from "@features/clients/state/use-client-users";
+import { useAuth } from "@features/auth/state/use-auth";
+import toast from "react-hot-toast";
 
 export const CompanyPage = () => {
+  const { user } = useAuth();
   const { update, client: clientUser } = useClients();
+  const { users, remove } = useClientUsers(clientUser?.client?.id || "");
   const client = clientUser?.client;
   const hasAccess = useHasAccess();
   const readOnly = !hasAccess("CLIENT_WRITE");
@@ -217,10 +222,20 @@ export const CompanyPage = () => {
           </Info>
           <br />
           <ButtonConfirm
+            disabled={users.length > 1}
             theme="danger"
             className="mt-4"
             confirmButtonTheme="danger"
             confirmButtonText="Détruire l'entreprise"
+            onClick={async () => {
+              try {
+                await remove(user?.id || "");
+                document.location.reload();
+              } catch (e) {
+                console.error(e);
+                toast.error("Vous ne pouvez pas supprimer cette entreprise.");
+              }
+            }}
           >
             Détruire l'entreprise
           </ButtonConfirm>

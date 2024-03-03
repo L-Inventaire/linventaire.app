@@ -10,8 +10,13 @@ import {
 import { getServerUri } from "@features/utils/format/strings";
 import { PlusIcon } from "@heroicons/react/outline";
 import { Page, PageBlock } from "../../_layout/page";
+import { ClientsApiClient } from "@features/clients/api-client/api-client";
+import { useAuth } from "@features/auth/state/use-auth";
+import toast from "react-hot-toast";
+import { ROUTES, getRoute } from "@features/routes";
 
 export const AccountClientsPage = () => {
+  const { user } = useAuth();
   const { loading, invitations, accept } = useClientInvitations();
   const { clients, loading: loadingClients } = useClients();
 
@@ -90,6 +95,42 @@ export const AccountClientsPage = () => {
                   />
                   {c.client.company.name}
                 </>
+              ),
+            },
+            {
+              render: (c) => (
+                <div className="text-right w-full">
+                  {c.roles.list.includes("CLIENT_MANAGE") && (
+                    <Button
+                      size="sm"
+                      theme="outlined"
+                      className="mr-2"
+                      to={getRoute(ROUTES.Settings, { client: c.client_id })}
+                    >
+                      Gérer
+                    </Button>
+                  )}
+                  <ButtonConfirm
+                    size="sm"
+                    theme="danger"
+                    onClick={async () => {
+                      try {
+                        await ClientsApiClient.removeUser(
+                          c.client_id,
+                          user?.id || ""
+                        );
+                        document.location.reload();
+                      } catch (e) {
+                        console.error(e);
+                        toast.error(
+                          "Vous ne pouvez pas quitter cette entreprise."
+                        );
+                      }
+                    }}
+                  >
+                    Quitter l'entreprise
+                  </ButtonConfirm>
+                </div>
               ),
             },
           ]}

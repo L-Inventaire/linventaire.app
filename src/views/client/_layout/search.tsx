@@ -59,30 +59,6 @@ export const Search = () => {
           />
         )}
       />
-      <Transition
-        show={focused}
-        style={{ height: 1000000, width: 1000000, left: -500000, top: -500000 }}
-        className="fixed bg-black bg-opacity-50 w-full h-full z-10"
-        enter="transition ease-out duration-100"
-        enterFrom="transform opacity-0 "
-        enterTo="transform opacity-100"
-        leave="transition ease-in duration-75"
-        leaveFrom="transform opacity-100"
-        leaveTo="transform opacity-0 "
-      />
-      <Transition
-        show={focused}
-        className="absolute top-12 md:top-full left-0 bottom-0 md:bottom-auto bg-white dark:bg-wood-990 p-4 text-left w-full md:w-auto overflow-auto shadow-xl md:rounded-lg sm:w-full z-20"
-        enter="transition ease-out duration-100"
-        enterFrom="transform opacity-0 -translate-y-6"
-        enterTo="transform opacity-100 translate-y-0"
-        leave="transition ease-in duration-75"
-        leaveFrom="transform opacity-100 translate-y-0"
-        leaveTo="transform opacity-0 -translate-y-6"
-      >
-        <Section>{t("header.search.title")}</Section>
-        TODO
-      </Transition>
     </div>
   );
 };
