@@ -34,6 +34,7 @@ export const ROUTES = {
   Login: "/login",
   SignUp: "/login/signup",
   JoinCompany: "/join-company",
+  CreateCompany: "/create-company",
 
   Account: "/:client/account",
   AccountProfile: "/:client/account/profile",

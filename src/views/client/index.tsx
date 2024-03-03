@@ -26,6 +26,7 @@ export const BackOfficeRoutes = () => {
   return (
     <>
       <Route path={ROUTES.JoinCompany} element={<NoClientView />} />
+      <Route path={ROUTES.CreateCompany} element={<NoClientView create />} />
       <Route element={<Layout />}>
         <Route
           path={ROUTES.Account}

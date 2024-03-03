@@ -75,6 +75,7 @@ export const AccountClientsPage = () => {
           className="float-right"
           size="sm"
           icon={(p) => <PlusIcon {...p} />}
+          to={ROUTES.CreateCompany}
         >
           Créer une entreprise
         </Button>
@@ -84,6 +85,7 @@ export const AccountClientsPage = () => {
           data={clients}
           columns={[
             {
+              title: "Entreprise",
               render: (c) => (
                 <>
                   <Avatar
@@ -98,6 +100,8 @@ export const AccountClientsPage = () => {
               ),
             },
             {
+              title: "Actions",
+              headClassName: "justify-end",
               render: (c) => (
                 <div className="text-right w-full">
                   {c.roles.list.includes("CLIENT_MANAGE") && (

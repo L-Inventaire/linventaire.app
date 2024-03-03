@@ -29,7 +29,7 @@ export const PreferencesPage = () => {
         <div className="max-w-lg">
           <InputLabel
             className="mb-4"
-            label="Langue de l'interface"
+            label="Langue de l'entreprise"
             input={
               <Select
                 disabled={readOnly}

@@ -4,21 +4,16 @@ import { Info, SectionSmall, Title } from "@atoms/text";
 import { AnimatedBackground } from "@components/animated-background";
 import SingleCenterCard from "@components/single-center-card/single-center-card";
 import { useAuth } from "@features/auth/state/use-auth";
-import { DidCreateCompanyOrSignupAtom } from "@features/clients/state/store";
-import {
-  useClientInvitations,
-  useClients,
-} from "@features/clients/state/use-clients";
+import { useClients } from "@features/clients/state/use-clients";
 import { ROUTES, getRoute } from "@features/routes";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSetRecoilState } from "recoil";
 import { NewClientForm } from "./create";
 import { JoinCompany } from "./join";
 
-export const NoClientView = () => {
+export const NoClientView = (props: { create?: boolean }) => {
   const { user, logout } = useAuth();
-  const [create, setCreate] = useState(false);
+  const [create, setCreate] = useState(props.create);
   const { clients } = useClients();
   const navigate = useNavigate();
 
@@ -82,7 +77,15 @@ export const NoClientView = () => {
           </>
         )}
 
-        {create && <NewClientForm onClose={() => setCreate(false)} />}
+        {create && (
+          <NewClientForm
+            onClose={() =>
+              props.create
+                ? (document.location = getRoute(ROUTES.AccountClients))
+                : setCreate(false)
+            }
+          />
+        )}
       </SingleCenterCard>
       <AnimatedBackground />
     </div>
