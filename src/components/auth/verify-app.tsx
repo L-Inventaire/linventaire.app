@@ -21,6 +21,7 @@ export const VerifyApp = (props: {
         type="number"
         label="TOTP one time code"
         placeholder="123456"
+        autoFocus
         onChange={(e) => {
           setCode(e.target.value);
           setHasCodeError(false);
@@ -28,6 +29,7 @@ export const VerifyApp = (props: {
       />
       <div className="text-center my-4">
         <Button
+          shortcut={["enter"]}
           loading={props.isLoading}
           onClick={async () => {
             const { validation_token } = await AuthApiClient.verifyAppMFA(

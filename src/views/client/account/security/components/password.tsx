@@ -1,15 +1,15 @@
 import { Alert } from "@atoms/alert";
+import { Button } from "@atoms/button/button";
+import { ButtonConfirm } from "@atoms/button/confirm";
+import { Input } from "@atoms/input/input-text";
+import { Modal, ModalContent } from "@atoms/modal/modal";
+import * as Text from "@atoms/text";
 import { MFAVerificationModal } from "@components/auth/mfa-verification-modal";
 import { PageLoader } from "@components/page-loader";
 import { MethodType } from "@features/customers/api-client/mfa-api-client";
 import { useCustomerMfa } from "@features/customers/state/hooks";
 import { ExclamationCircleIcon } from "@heroicons/react/outline";
-import { useState } from "react";
-import * as Text from "@atoms/text";
-import { Modal, ModalContent } from "@atoms/modal/modal";
-import { Input } from "@atoms/input/input-text";
-import { Button } from "@atoms/button/button";
-import { ButtonConfirm } from "@atoms/button/confirm";
+import { useEffect, useState } from "react";
 
 export const SecurityPassword = (props: { mfa?: MethodType }) => {
   const { setMfa, deleteMfa } = useCustomerMfa();
@@ -24,6 +24,15 @@ export const SecurityPassword = (props: { mfa?: MethodType }) => {
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
 
+  useEffect(() => {
+    if (edited) {
+      setPassword("");
+      setPasswordConfirmation("");
+      setInMfaVerification(false);
+      setNewMfa(null);
+    }
+  }, [edited]);
+
   return (
     <>
       <Modal
@@ -33,59 +42,61 @@ export const SecurityPassword = (props: { mfa?: MethodType }) => {
           setNewMfa(null);
         }}
       >
-        <ModalContent
-          title="Update your account password"
-          text="Set a new password for your account."
-        >
-          <br />
-          {!newMfa && (
-            <>
-              <Input
-                type="password"
-                autoComplete="off"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <br />
-              <Input
-                type="password"
-                autoComplete="off"
-                placeholder="Confirm password"
-                value={passwordConfirmation}
-                onChange={(e) => setPasswordConfirmation(e.target.value)}
-              />
-              <br />
-              <Text.Info className="text-sm block">
-                Your password must contain at least 8 characters, including one
-                digit and one uppercase letter.
-              </Text.Info>
-              <br />
+        {edited && (
+          <ModalContent
+            title="Update your account password"
+            text="Set a new password for your account."
+          >
+            <br />
+            {!newMfa && (
+              <>
+                <Input
+                  className="mb-4"
+                  type="password"
+                  autoComplete="off"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <Input
+                  className="mb-4"
+                  type="password"
+                  autoComplete="off"
+                  placeholder="Confirm password"
+                  value={passwordConfirmation}
+                  onChange={(e) => setPasswordConfirmation(e.target.value)}
+                />
+                <Text.Info className="text-sm block">
+                  Your password must contain at least 8 characters, including
+                  one digit and one uppercase letter.
+                </Text.Info>
+                <br />
 
-              <div>
-                <Button
-                  disabled={
-                    password !== passwordConfirmation ||
-                    password.length < 8 ||
-                    !/\d/.test(password) ||
-                    !/[A-Z]/.test(password)
-                  }
-                  onClick={async () => {
-                    setNewMfa({
-                      type: "password",
-                      value: password,
-                      validation_token: "",
-                    });
-                    setInMfaVerification(true);
-                  }}
-                >
-                  Update account password
-                </Button>
-              </div>
-            </>
-          )}
-          {newMfa && <PageLoader />}
-        </ModalContent>
+                <div>
+                  <Button
+                    disabled={
+                      password !== passwordConfirmation ||
+                      password.length < 8 ||
+                      !/\d/.test(password) ||
+                      !/[A-Z]/.test(password)
+                    }
+                    onClick={async () => {
+                      setNewMfa({
+                        type: "password",
+                        value: password,
+                        validation_token: "",
+                      });
+                      setInMfaVerification(true);
+                    }}
+                  >
+                    Update account password
+                  </Button>
+                </div>
+              </>
+            )}
+            {newMfa && <PageLoader />}
+          </ModalContent>
+        )}
       </Modal>
 
       <MFAVerificationModal

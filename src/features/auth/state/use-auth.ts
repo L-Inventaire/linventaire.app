@@ -48,7 +48,11 @@ export const useAuth = () => {
     email?: string,
     doLogout = true
   ) => {
-    const { token } = await AuthApiClient.extendToken(validationToken, email);
+    const { token } = await AuthApiClient.extendToken(
+      validationToken,
+      undefined,
+      email
+    );
 
     if (!token) {
       if (doLogout) logout();

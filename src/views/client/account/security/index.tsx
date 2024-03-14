@@ -1,4 +1,4 @@
-import { Info, Section } from "@atoms/text";
+import { Info, Section, SectionSmall } from "@atoms/text";
 import { useCustomerMfa } from "@features/customers/state/hooks";
 import { useEffect } from "react";
 import { Page, PageBlock } from "../../_layout/page";
@@ -18,7 +18,8 @@ export const SecurityPage = () => {
   return (
     <Page title={[{ label: "Compte" }, { label: "Sécurité" }]}>
       <PageBlock>
-        <Section>Email</Section>
+        <Section>Authentification</Section>
+        <SectionSmall>Email</SectionSmall>
         <Info>
           Votre email est toujours utilisable pour récupérer l'accès à votre
           compte, sauf en cas d'activation d'un second facteur
@@ -27,9 +28,8 @@ export const SecurityPage = () => {
         <div className="mt-4">
           <SecurityEmail mfa={getMfa("email")} />
         </div>
-      </PageBlock>
-      <PageBlock>
-        <Section>Mot de passe</Section>
+        <br />
+        <SectionSmall>Mot de passe</SectionSmall>
         <Info>
           Vous pouvez configurer un mot de passe afin de vous connecter plus
           rapidement. Vous pouvez toujours récupérer votre compte via l'envoi
@@ -40,7 +40,7 @@ export const SecurityPage = () => {
         </div>
       </PageBlock>
       <PageBlock>
-        <Section>Authentification à deux facteurs (2FA)</Section>
+        <Section>Second facteur d'authentification (2FA)</Section>
         <Info>
           Pour sécuriser votre compte, vous pouvez activer l'authentification à
           deux facteurs.

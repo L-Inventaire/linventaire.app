@@ -88,9 +88,10 @@ export const VerifyEmail = (props: {
     clearTimeout(verifyEmailTimeout);
     setHasTimeout(false);
     setIsLoading(true);
-    (window as any).grecaptcha.ready(async () => {
+    const grecaptcha = (window as any).grecaptcha.enterprise;
+    grecaptcha.ready(async () => {
       try {
-        const captchaValidation = await (window as any).grecaptcha.execute(
+        const captchaValidation = await grecaptcha.execute(
           environment.reCaptchaSiteKey,
           {
             action: "captcha",

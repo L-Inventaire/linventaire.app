@@ -12,11 +12,15 @@ import { VerifyApp } from "./verify-app";
 import { VerifyPassword } from "./verify-password";
 import { useTranslation } from "react-i18next";
 import { Input } from "@atoms/input/input-text";
+import { AuthJWT } from "@features/auth/jwt";
 
 export const MfaList = (props: {
   onTokenExtended?: () => void;
   onStepChanged?: (step: "email" | "verification") => void;
   excludeMfas?: string[];
+  fa1token?: string;
+  email?: string;
+  methods?: { id: string; method: string }[];
 }) => {
   const { extendsToken: _extendsToken, user, userCached } = useAuth();
   const { t } = useTranslation();
@@ -28,6 +32,14 @@ export const MfaList = (props: {
 
   const extendsToken = useCallback(
     async (token: string, email?: string) => {
+      if (props.fa1token) {
+        const { token: fa2token } = await AuthApiClient.extendToken(
+          props.fa1token,
+          token,
+          email
+        );
+        if (fa2token) AuthJWT.token = fa2token;
+      }
       const res = await _extendsToken(token, email);
       if (res) {
         onTokenExtended();
@@ -43,7 +55,9 @@ export const MfaList = (props: {
     [props.onTokenExtended, _extendsToken]
   );
 
-  const [email, setEmail] = useState(user?.email || userCached?.email || "");
+  const [email, setEmail] = useState(
+    props.email || user?.email || userCached?.email || ""
+  );
 
   const [isLoading, setIsLoading] = useState(false);
   const [mfaList, setMfaList] = useState<{ id: string; method: string }[]>([]);
@@ -57,18 +71,22 @@ export const MfaList = (props: {
   } | null>(null);
 
   const getMfaList = async () => {
-    setIsLoading(true);
-    const data = await AuthApiClient.getAvailableMFAs(email);
+    let methods = props.methods;
 
-    //We already have 2FA
-    if (data.current_authentication_factors >= 2) {
-      onTokenExtended();
-      return;
+    if (!methods) {
+      setIsLoading(true);
+      const data = await AuthApiClient.getAvailableMFAs(email);
+
+      //We already have 2FA
+      if (data.current_authentication_factors >= 2) {
+        onTokenExtended();
+        return;
+      }
+
+      setIsLoading(false);
+      methods = data.methods;
     }
 
-    setIsLoading(false);
-
-    let methods = data.methods;
     const secondaryMethods: { id: string; method: string }[] = [];
 
     methods = methods.filter((method) => {
@@ -147,7 +165,7 @@ export const MfaList = (props: {
         </>
       )}
 
-      {!isLoading && mfaList.length > 0 && !user?.email && (
+      {!isLoading && mfaList.length > 0 && !user?.email && !props.email && (
         <p className="text-center pt-4 ">
           <span className="text-sm text-black dark:text-white opacity-50">
             {t("signin.login.continue_as") + " "} <strong>{email}</strong>{" "}
@@ -172,6 +190,7 @@ export const MfaList = (props: {
               key={i}
               theme="default"
               type="button"
+              shortcut={["enter"]}
               className={
                 " !shadow-none " +
                 (mfaList.length > 1 && i > 0 && i < mfaList.length

@@ -114,14 +114,27 @@ export class AuthApiClient {
     };
   };
 
-  static extendToken = async (validatonToken?: string, email?: string) => {
+  static extendToken = async (
+    validatonToken?: string,
+    fa2ValidationToken?: string,
+    email?: string
+  ) => {
     const response = await fetchServer(`/api/auth/v1/token`, {
       method: "POST",
-      body: JSON.stringify({ auth_validation_token: validatonToken, email }),
+      body: JSON.stringify({
+        auth_validation_token: validatonToken,
+        fa2_validation_token: fa2ValidationToken,
+        email,
+      }),
     });
     const data = await response.json();
     return data as {
-      token: string;
+      token?: string;
+      methods?: {
+        id: string;
+        method: "app" | "phone" | "email" | "password";
+      }[];
+      need_fa2_validation_token?: boolean;
     };
   };
 }

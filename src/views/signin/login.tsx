@@ -4,6 +4,7 @@ import { InputLabel } from "@atoms/input/input-decoration-label";
 import { Input } from "@atoms/input/input-text";
 import Link from "@atoms/link";
 import { Info, Section, Subtitle } from "@atoms/text";
+import { MFAVerificationModal } from "@components/auth/mfa-verification-modal";
 import { PageLoader } from "@components/page-loader";
 import environment from "@config/environment";
 import { AuthApiClient } from "@features/auth/api-client/api-client";
@@ -28,6 +29,10 @@ export const Login = () => {
     ("email" | "password" | "app" | "phone")[]
   >([]);
   const [mode, setMode] = useState<"email" | "password" | null>(null);
+  const [inMfaVerification, setInMfaVerification] = useState("");
+  const [fa2methods, setFa2methods] = useState<
+    { id: string; method: string }[] | undefined
+  >(undefined);
   const challenge = useRef("");
 
   const [email, setEmail] = useState("");
@@ -93,24 +98,34 @@ export const Login = () => {
           );
           authSecret = res.validation_token;
         } else {
-          const res = await AuthApiClient.verifyPasswordMFA(
-            challenge.current,
-            code
-          );
+          const res = await AuthApiClient.verifyPasswordMFA(email, password);
           authSecret = res.validation_token;
         }
         if (!authSecret) {
           toast.error("This code is invalid");
           setAllowTryAgain(true);
         } else {
-          if (await login(authSecret, email, false)) {
-            toast.success("Logged in successfully");
+          //Test if we need 2FA
+          const { token, methods } = await AuthApiClient.extendToken(
+            authSecret,
+            undefined,
+            email
+          );
+
+          if (!token) {
+            // Check 2fa
+            setInMfaVerification(authSecret);
+            setFa2methods(methods);
           } else {
-            if (mode === "email") {
-              //Mfa validation was successful but login failed so it means that the user is not registered
-              navigate(ROUTES.SignUp + "?token=" + authSecret);
+            if (await login(authSecret, email, false)) {
+              toast.success("Logged in successfully");
             } else {
-              toast.error("Failed to log in");
+              if (mode === "email") {
+                //Mfa validation was successful but login failed so it means that the user is not registered
+                navigate(ROUTES.SignUp + "?token=" + authSecret);
+              } else {
+                toast.error("Failed to log in");
+              }
             }
           }
         }
@@ -131,6 +146,23 @@ export const Login = () => {
   return (
     <div>
       {authLoading && <PageLoader />}
+
+      <MFAVerificationModal
+        text="Sign in to your account"
+        excludeMfas={["email", "password"]}
+        open={!!inMfaVerification}
+        onClose={() => {
+          setInMfaVerification("");
+        }}
+        fa1token={inMfaVerification}
+        email={email}
+        methods={fa2methods}
+        onTokenExtended={async () => {
+          // Nothing to do, it is done in the modal
+          setInMfaVerification("");
+        }}
+      />
+
       {!authLoading && (
         <>
           {userCached?.id && (
@@ -172,9 +204,11 @@ export const Login = () => {
               input={
                 <div className="flex flex-row">
                   <Input
+                    autoFocus
                     size="lg"
                     value={password}
                     placeholder="••••••••"
+                    type="password"
                     onChange={(e) => setPassword(e.target.value)}
                   />
                 </div>
@@ -214,21 +248,22 @@ export const Login = () => {
             />
           )}
 
-          <div className="flex flex-row">
+          <div className="flex flex-row justify-center items-center mt-6">
             <div className="grow">
               {methods.length > 1 && (
-                <Link
-                  onClick={() =>
-                    setMode(mode === "email" ? "password" : "email")
-                  }
-                >
-                  {mode === "email" && t("signin.login.password_instead")}
-                  {mode === "password" && t("signin.login.email_instead")}
-                </Link>
+                <Info>
+                  <Link
+                    onClick={() =>
+                      setMode(mode === "email" ? "password" : "email")
+                    }
+                  >
+                    {mode === "email" && t("signin.login.password_instead")}
+                    {mode === "password" && t("signin.login.email_instead")}
+                  </Link>
+                </Info>
               )}
             </div>
             <Button
-              className="mt-6"
               size="lg"
               loading={loading}
               shortcut={["enter"]}

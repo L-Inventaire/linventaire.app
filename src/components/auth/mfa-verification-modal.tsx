@@ -11,6 +11,9 @@ export const MFAVerificationModal = (props: {
   onClose: () => void;
   onTokenExtended: () => void;
   excludeMfas?: MethodType["type"][];
+  fa1token?: string;
+  email?: string;
+  methods?: { id: string; method: string }[];
 }) => {
   const { getExtractedToken } = useAuth();
   const callOnce = useRef(false);
@@ -47,6 +50,9 @@ export const MFAVerificationModal = (props: {
         <MfaList
           onTokenExtended={onTokenExtended}
           excludeMfas={props.excludeMfas}
+          fa1token={props.fa1token}
+          email={props.email}
+          methods={props.methods}
         />
       </ModalContent>
     </Modal>
