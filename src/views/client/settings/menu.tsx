@@ -1,4 +1,3 @@
-import { SectionSmall } from "@atoms/text";
 import { MenuIndex, ROUTES, getRoute } from "@features/routes";
 
 export const SettingsMenu: MenuIndex = (hasAccess) => ({

@@ -1,4 +1,4 @@
-import { Section, SectionSmall } from "./text";
+import { SectionSmall } from "./text";
 
 export const Alert = (props: {
   theme: "success" | "danger" | "warning" | "gray";

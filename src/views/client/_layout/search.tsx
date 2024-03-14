@@ -1,8 +1,6 @@
 import { InputDecorationIcon } from "@atoms/input/input-decoration-icon";
 import { Input } from "@atoms/input/input-text";
-import { Section } from "@atoms/text";
 import { debounce } from "@features/utils/debounce";
-import { Transition } from "@headlessui/react";
 import { SearchIcon } from "@heroicons/react/outline";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -11,7 +9,7 @@ type SearchResult = {}; //TODO
 
 export const Search = () => {
   const { t } = useTranslation();
-  const [focused, setFocused] = useState(false);
+  const [, setFocused] = useState(false);
   const [query, setQuery] = useState("");
   const requestId = useRef<number>(0);
   const [, setLoading] = useState(false);

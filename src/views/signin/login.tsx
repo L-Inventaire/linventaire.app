@@ -43,14 +43,8 @@ export const Login = () => {
   const requestEmailMFA = async () => {
     setAllowTryAgain(false);
     clearTimeout(tryAgainTimeout);
-    const grecaptcha = (window as any).grecaptcha.enterprise;
-    grecaptcha.ready(async () => {
-      const captchaValidation = await grecaptcha.execute(
-        environment.reCaptchaSiteKey,
-        {
-          action: "captcha",
-        }
-      );
+
+    const request = async (captchaValidation: string) => {
       const token = await AuthApiClient.requestEmailMFA(
         email,
         captchaValidation
@@ -63,7 +57,22 @@ export const Login = () => {
         toast.success(t("signin.login.code_info"));
       }
       tryAgainTimeout = setTimeout(() => setAllowTryAgain(true), 10000);
-    });
+    };
+
+    const grecaptcha = (window as any).grecaptcha?.enterprise;
+    if (grecaptcha) {
+      grecaptcha.ready(async () => {
+        const captchaValidation = await grecaptcha.execute(
+          environment.reCaptchaSiteKey,
+          {
+            action: "captcha",
+          }
+        );
+        request(captchaValidation);
+      });
+    } else {
+      request("fake");
+    }
   };
 
   const submit = async () => {
