@@ -69,7 +69,11 @@ export const buildSearchURL = (params: any): string => {
 };
 
 export const getEmailsFromString = (str: string) => {
-  return (str || "").match(/[^@\d]+@([^@\d]+\.)+[a-z0-9]+/g) || [];
+  return (
+    (str || "").match(
+      /[^<>()[\]\\.,;:\s@"]+@([^<>()[\]\\.,;:\s@"]+\.)+[a-zA-Z0-9]+/g
+    ) || []
+  );
 };
 
 export const getServerUri = (src?: string) => {

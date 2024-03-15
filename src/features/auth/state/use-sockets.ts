@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { io, Socket } from "socket.io-client";
 import { AuthJWT } from "../jwt";
 import { useAuth } from "./use-auth";
+import { queryClient } from "../../../index";
 
 let socket: Socket<DefaultEventsMap, DefaultEventsMap> | null = null;
 
@@ -27,6 +28,18 @@ export const useWebsockets = () => {
       socket.on("connect", () => {
         for (const client of clients) {
           socket?.emit("join", { room: "client/" + client?.client_id });
+        }
+      });
+
+      socket.on("message", (event) => {
+        if (event.event === "invalidated") {
+          for (const doc of event.data) {
+            const invalidated = [doc.doc_table];
+            console.log("invalidated", invalidated);
+            queryClient.invalidateQueries({
+              queryKey: invalidated,
+            });
+          }
         }
       });
     }

@@ -78,7 +78,7 @@ export const CompanyUsersPage = () => {
               for (const user of updatingUsers) {
                 const u = users.find((u) => u.user_id === user);
                 if (u) {
-                  await update(user, roles);
+                  await update({ id: user, roles });
                 }
               }
               setUpdatingUsers([]);

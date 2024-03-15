@@ -1,57 +1,56 @@
-import { useRecoilState } from "recoil";
-import { ClientsApiClient } from "../api-client/api-client";
-import { ClientUsersState } from "./store";
-import { ClientsUsers } from "../types/clients";
-import { LoadingState } from "@features/utils/store/loading-state-atom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { ClientsApiClient } from "../api-client/api-client";
+import { ClientsUsers } from "../types/clients";
 
 export const useClientUsers = (id: string) => {
-  const [users, setUsers] = useRecoilState(ClientUsersState(id));
-  const [loading, setLoading] = useRecoilState(
-    LoadingState(`useClientUsers-${id}`)
-  );
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
+    queryKey: ["clients_users", id],
+    queryFn: () => ClientsApiClient.getUsers(id),
+  });
+
+  const users = query.data ?? [];
+  const loading = query.isLoading;
 
   const refresh = async () => {
-    setLoading(true);
-    const users = await ClientsApiClient.getUsers(id);
-    setUsers(users);
-    setLoading(false);
+    queryClient.invalidateQueries({ queryKey: ["clients_users", id] });
   };
 
-  const add = async (email: string) => {
-    setLoading(true);
-    await ClientsApiClient.updateUser(id, email, []);
-    await refresh();
-  };
+  const add = useMutation({
+    mutationFn: (email: string) => ClientsApiClient.updateUser(id, email, []),
+    onSuccess: () => refresh(),
+  });
 
-  const remove = async (email: string) => {
-    setLoading(true);
-    try {
-      await ClientsApiClient.removeUser(id, email);
-      await refresh();
+  const remove = useMutation({
+    mutationFn: (email: string) => ClientsApiClient.removeUser(id, email),
+    onSuccess: () => {
+      refresh();
       toast.success("Utilisateur supprimé");
-    } catch (e) {
-      console.error(e);
-      toast.error("Erreur lors de la suppression de l'utilisateur");
-    }
-  };
+    },
+    onError: () =>
+      toast.error("Erreur lors de la suppression de l'utilisateur"),
+  });
 
-  const update = async (
-    userId: string,
-    roles: ClientsUsers["roles"]["list"]
-  ) => {
-    setLoading(true);
-    await ClientsApiClient.updateUser(id, userId, roles);
-    await refresh();
-  };
+  const update = useMutation({
+    mutationFn: ({
+      id: userId,
+      roles,
+    }: {
+      id: string;
+      roles: ClientsUsers["roles"]["list"];
+    }) => ClientsApiClient.updateUser(id, userId, roles),
+    onSuccess: () => refresh(),
+  });
 
   return {
     loading,
     users: users.filter((u) => u.active),
     allUsers: users,
-    add,
-    remove,
-    update,
+    add: add.mutate,
+    remove: remove.mutate,
+    update: update.mutate,
     refresh,
   };
 };
