@@ -21,6 +21,7 @@ import { CompanyPlanPage } from "./settings/plan";
 import { PreferencesPage } from "./settings/preferences";
 import { CompanyUsersPage } from "./settings/users";
 import { SideBar } from "./_layout/sidebar";
+import { useWebsockets } from "@features/auth/state/use-sockets";
 
 export const BackOfficeRoutes = () => {
   return (
@@ -57,6 +58,7 @@ export const BackOfficeRoutes = () => {
 
 export const Layout = () => {
   const [menuOpen, setMenuOpen] = useRecoilState(ResponsiveMenuAtom);
+  useWebsockets();
   const { user, logout } = useAuth();
   const { clients, loading } = useClients();
   const afterSignupOrNewCompany = useRecoilValue(DidCreateCompanyOrSignupAtom);

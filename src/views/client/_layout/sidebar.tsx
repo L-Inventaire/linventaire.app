@@ -320,13 +320,6 @@ const MenuItem = ({
             menu: menu || [],
           });
         }}
-        onLongPress={(e: any) => {
-          setMenu({
-            target: menu ? e.currentTarget : null,
-            position: "right",
-            menu: menu || [],
-          });
-        }}
         onClick={(e: any) => {
           to && setMenu({ target: menu ? e.currentTarget : null, menu: [] });
         }}

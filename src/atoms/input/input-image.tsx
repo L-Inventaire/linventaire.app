@@ -48,7 +48,7 @@ export const InputImage = ({
           fallback
             ? fallback
                 .split(" ")
-                .map((e) => e[0].toLocaleUpperCase())
+                .map((e) => (e[0] || "").toLocaleUpperCase())
                 .join("")
                 .slice(0, 2)
             : ""
