@@ -43,3 +43,11 @@ export const PageBlock = (props: { children: ReactNode }) => {
     </div>
   );
 };
+
+export const PageColumns = (props: { children: ReactNode }) => {
+  return (
+    <div className="flex flex-col space-y-2 lg:flex-row lg:space-x-2 lg:space-y-0 w-full">
+      {props.children}
+    </div>
+  );
+};

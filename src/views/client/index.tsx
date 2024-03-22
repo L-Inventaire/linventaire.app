@@ -22,6 +22,9 @@ import { PreferencesPage } from "./settings/preferences";
 import { CompanyUsersPage } from "./settings/users";
 import { SideBar } from "./_layout/sidebar";
 import { useWebsockets } from "@features/auth/state/use-sockets";
+import { ContactsPage } from "./modules/contacts";
+import { ContactsViewPage } from "./modules/contacts/view";
+import { ContactsEditPage } from "./modules/contacts/edit";
 
 export const BackOfficeRoutes = () => {
   return (
@@ -36,6 +39,10 @@ export const BackOfficeRoutes = () => {
         <Route path={ROUTES.AccountProfile} element={<AccountPage />} />
         <Route path={ROUTES.AccountClients} element={<AccountClientsPage />} />
         <Route path={ROUTES.AccountSecurity} element={<SecurityPage />} />
+
+        <Route path={ROUTES.Contacts} element={<ContactsPage />} />
+        <Route path={ROUTES.ContactsView} element={<ContactsViewPage />} />
+        <Route path={ROUTES.ContactsEdit} element={<ContactsEditPage />} />
 
         <Route
           path={ROUTES.Settings}

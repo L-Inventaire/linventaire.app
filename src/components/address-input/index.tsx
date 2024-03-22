@@ -1,6 +1,6 @@
 import countries from "@assets/countries.json";
 import { Input } from "@atoms/input/input-text";
-import Select from "@atoms/select";
+import Select from "@atoms/input/input-select";
 import { Clients } from "@features/clients/types/clients";
 import { useControlledEffect } from "@features/utils/hooks/use-controlled-effect";
 import { useState } from "react";

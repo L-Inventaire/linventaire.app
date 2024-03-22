@@ -33,7 +33,7 @@ export const SecurityApp = (props: { mfa?: MethodType }) => {
   } | null>(null);
 
   const generateTOTP = () => {
-    const issuer = "MetaWallet";
+    const issuer = "L'inventaire";
     const secret = Array(64)
       .fill("ABCDEFGHIJKLMNOPQRSTUVWXYZ234567")
       .map(function (x) {

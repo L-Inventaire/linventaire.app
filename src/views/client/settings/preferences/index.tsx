@@ -1,6 +1,6 @@
 import { Button } from "@atoms/button/button";
 import { InputLabel } from "@atoms/input/input-decoration-label";
-import Select from "@atoms/select";
+import Select from "@atoms/input/input-select";
 import { Section } from "@atoms/text";
 import { useClients } from "@features/clients/state/use-clients";
 import { Clients } from "@features/clients/types/clients";

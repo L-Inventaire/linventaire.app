@@ -1,5 +1,6 @@
 import _ from "lodash";
 import { defaultInputClassName, errorInputClassName } from "./input-text";
+import { InputLabel } from "./input-decoration-label";
 
 export interface SelectInputProps
   extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "size"> {
@@ -10,6 +11,7 @@ export interface SelectInputProps
   className?: string;
   children?: React.ReactNode;
   highlight?: boolean;
+  label?: string;
 }
 
 export function Select(props: SelectInputProps) {
@@ -22,6 +24,15 @@ export function Select(props: SelectInputProps) {
   else if (props.size === "sm")
     inputClassName = inputClassName + " text-sm h-7 py-0 px-3";
   else inputClassName = inputClassName + " text-base h-9 py-1";
+
+  if (props.label) {
+    return (
+      <InputLabel
+        label={props.label}
+        input={<Select {...props} label={undefined} />}
+      />
+    );
+  }
 
   return (
     <select

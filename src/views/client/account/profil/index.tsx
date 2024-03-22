@@ -8,7 +8,7 @@ import { CustomersApiClient } from "@features/customers/api-client/api-client";
 import { useState } from "react";
 import { Page, PageBlock } from "../../_layout/page";
 import toast from "react-hot-toast";
-import Select from "@atoms/select";
+import Select from "@atoms/input/input-select";
 import { getServerUri } from "@features/utils/format/strings";
 
 export const AccountPage = () => {

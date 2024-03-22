@@ -10,7 +10,13 @@ export const FormReadonly = memo(
   (
     props: Omit<SearchFormFieldType, "key"> & {
       size: "md" | "lg";
-      value: string | boolean | number | Date | string[];
+      value:
+        | string
+        | number
+        | true
+        | Date
+        | string[]
+        | { label: string; value: string };
       values: any;
     }
   ) => {

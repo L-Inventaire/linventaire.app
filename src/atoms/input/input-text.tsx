@@ -1,6 +1,7 @@
 import { Shortcut, useShortcuts } from "@features/utils/shortcuts";
 import _ from "lodash";
 import React from "react";
+import { InputLabel } from "./input-decoration-label";
 
 export interface InputProps
   extends Omit<
@@ -59,6 +60,15 @@ export const Input = (props: InputProps) => {
       (inputRef as any)?.current?.focus();
     }
   );
+
+  if (props.label) {
+    return (
+      <InputLabel
+        label={props.label}
+        input={<Input {...props} label={undefined} />}
+      />
+    );
+  }
 
   return (
     <>

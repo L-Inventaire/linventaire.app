@@ -11,34 +11,53 @@ import { debounce } from "@features/utils/debounce";
 import { useControlledEffect } from "@features/utils/hooks/use-controlled-effect";
 import { ArrowsExpandIcon, SearchIcon } from "@heroicons/react/outline";
 import { nanoid } from "nanoid";
-import { memo, useRef, useState } from "react";
+import { memo, useContext, useRef, useState } from "react";
 import { SearchFormFieldType } from "./types";
 import _ from "lodash";
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import { InputDecorationIcon } from "@atoms/input/input-decoration-icon";
+import { FormReadonly } from "./readonly";
+import { FormContextContext } from "./formcontext";
+import { twMerge } from "tailwind-merge";
 
 export const FormInput = memo(
   (
     props: Omit<SearchFormFieldType, "key"> & {
+      className?: string;
       highlight?: boolean;
       main?: boolean;
-      size: "md" | "lg";
-      value:
+      size?: "md" | "lg";
+      readonly?: boolean;
+      ctrl?: {
+        value: any;
+        onChange: (value: any) => void;
+      };
+      value?:
         | string
         | boolean
         | number
         | Date
         | string[]
         | { label: string; value: string };
-      onChange: (value: any) => void;
+      onChange?: (value: any) => void;
       onSearch?: () => void;
       disabled?: boolean;
-      values: any;
+      values?: any;
       autoFocus?: "scan" | "keyboard" | boolean;
     }
   ) => {
+    const formContext = useContext(FormContextContext);
+
+    const readonly = props.readonly ?? formContext.readonly;
+    const alwaysVisible = props.alwaysVisible ?? formContext.alwaysVisible;
+    const size = props.size || formContext.size || "md";
+    const highlight = props.highlight || formContext.highlight || false;
+    const placeholder = props.placeholder || props.label || "";
+    const disabled = props.disabled || formContext.disabled || false;
+    const _value = props.ctrl?.value || props.value;
+    const _onChange = props.ctrl?.onChange || props.onChange;
+
     const fieldId = useRef(nanoid());
-    const highlight = props.highlight || false;
     const [optionsLoading, setOptionsLoading] = useState(false);
     const [options, setOptions] = useState<{ label: string; value: string }[]>(
       typeof props.options === "function" ? [] : props.options || []
@@ -73,7 +92,7 @@ export const FormInput = memo(
     };
 
     useControlledEffect(
-      () => suggest(typeof props.value === "string" ? props.value : ""),
+      () => suggest(typeof _value === "string" ? _value : ""),
       []
     );
 
@@ -91,15 +110,15 @@ export const FormInput = memo(
       if (suggestionQuery && typeof props.options === "function") {
         suggest(suggestionQuery || (value as string));
       }
-      props.onChange(value);
+      _onChange?.(value);
     };
 
     if (props.type === "custom") {
       return (
         <>
           {(props as any).node({
-            value: props.value,
-            onChange: props.onChange,
+            value: _value,
+            onChange: _onChange,
           })}
         </>
       );
@@ -110,7 +129,12 @@ export const FormInput = memo(
       (!props.type || props.type === "text" || props.type === "scan")
     ) {
       return (
-        <div className="flex flex-row w-full max-w-xl grow items-center">
+        <div
+          className={twMerge(
+            "flex flex-row w-full max-w-xl grow items-center",
+            props.className || ""
+          )}
+        >
           <InputWithSuggestions
             autoFocus={props.autoFocus}
             inputClassName={props.type === "scan" ? "to-focus" : ""}
@@ -118,10 +142,10 @@ export const FormInput = memo(
             loading={optionsLoading}
             highlight={highlight}
             size="lg"
-            placeholder={props.placeholder}
-            value={(props.value as string) || ""}
+            placeholder={placeholder}
+            value={(_value as string) || ""}
             onChange={(e) => onChange(e.target.value, e.target.value)}
-            disabled={props.disabled}
+            disabled={disabled}
           />
           <Button onClick={props.onSearch} size="lg" shortcut={["enter"]}>
             <SearchIcon className="h-6 w-6 -mx-2" />
@@ -130,9 +154,24 @@ export const FormInput = memo(
       );
     }
 
+    if (readonly) {
+      return (
+        <div className={twMerge("w-full", props.className || "")}>
+          <FormReadonly
+            {...props}
+            alwaysVisible={alwaysVisible}
+            type={props.type}
+            value={_value || ""}
+            size={size || "md"}
+            values={props.values}
+          />
+        </div>
+      );
+    }
+
     return (
       <InputLabel
-        className="w-full"
+        className={twMerge("w-full", props.className || "")}
         label={props.label || ""}
         input={
           <>
@@ -147,11 +186,11 @@ export const FormInput = memo(
                 options={options}
                 loading={optionsLoading}
                 highlight={highlight}
-                value={(props.value as string) || ""}
+                value={(_value as string) || ""}
                 onChange={(e) => onChange(e.target.value, e.target.value)}
-                size={props.size}
-                placeholder={props.placeholder}
-                disabled={props.disabled}
+                size={size}
+                placeholder={placeholder}
+                disabled={disabled}
               />
             )}
             {props.type === "formatted" && (
@@ -160,23 +199,23 @@ export const FormInput = memo(
                 style={{ minWidth: 128 }}
                 format={props.format || "price"}
                 highlight={highlight}
-                value={(props.value as string) || ""}
+                value={(_value as string) || ""}
                 onChange={(e) => onChange(e.target.value)}
-                size={props.size}
-                placeholder={props.placeholder}
-                disabled={props.disabled}
+                size={size}
+                placeholder={placeholder}
+                disabled={disabled}
               />
             )}
             {props.type === "number" && (
               <Input
                 className="w-full"
                 highlight={highlight}
-                value={(props.value as number) || 0}
+                value={(_value as number) || 0}
                 onChange={(e) => onChange(e.target.value)}
-                size={props.size}
+                size={size}
                 type="number"
-                placeholder={props.placeholder}
-                disabled={props.disabled}
+                placeholder={placeholder}
+                disabled={disabled}
                 min={props.min}
                 max={props.max}
                 onBlur={(e) => {
@@ -198,27 +237,25 @@ export const FormInput = memo(
               <InputDate
                 className="w-full"
                 highlight={highlight}
-                value={
-                  props.value ? new Date(props.value as string | number) : null
-                }
+                value={_value ? new Date(_value as string | number) : null}
                 onChange={(e) => onChange(e)}
-                placeholder={props.placeholder}
-                size={props.size}
-                disabled={props.disabled}
+                placeholder={placeholder}
+                size={size}
+                disabled={disabled}
               />
             )}
             {props.type === "boolean" && (
               <div
                 className={
                   "overflow-hidden flex items-center " +
-                  (props.size === "lg" ? "h-11" : "h-9")
+                  (size === "lg" ? "h-11" : "h-9")
                 }
               >
                 <Checkbox
-                  value={(props.value as boolean) || false}
+                  value={(_value as boolean) || false}
                   onChange={(e) => onChange(e)}
-                  label={props.placeholder}
-                  disabled={props.disabled}
+                  label={placeholder}
+                  disabled={disabled}
                 />
               </div>
             )}
@@ -227,15 +264,13 @@ export const FormInput = memo(
                 className="w-full"
                 highlight={highlight}
                 value={
-                  props.value
-                    ? [props.value as { label: string; value: string }]
-                    : []
+                  _value ? [_value as { label: string; value: string }] : []
                 }
                 onChange={(e) => onChange(e)}
                 onSearch={(e) => suggest(e)}
-                size={props.size}
+                size={size}
                 options={options || []}
-                disabled={props.disabled}
+                disabled={disabled}
                 selectionLimit={props.max}
               />
             )}
@@ -244,16 +279,14 @@ export const FormInput = memo(
                 className="w-full"
                 highlight={highlight}
                 value={
-                  props.value
-                    ? [props.value as { label: string; value: string }]
-                    : []
+                  _value ? [_value as { label: string; value: string }] : []
                 }
                 onChange={(e) => onChange(e)}
                 onSearch={(e) => suggest(e)}
-                size={props.size}
-                placeholder={props.placeholder}
+                size={size}
+                placeholder={placeholder}
                 options={options || []}
-                disabled={props.disabled}
+                disabled={disabled}
                 selectionLimit={1}
               />
             )}
@@ -261,13 +294,13 @@ export const FormInput = memo(
               <Select
                 className="w-full"
                 highlight={highlight}
-                value={(props.value as string) || ""}
+                value={(_value as string) || ""}
                 onChange={(e) => onChange(e.target.value)}
-                size={props.size}
-                placeholder={props.placeholder}
-                disabled={props.disabled}
+                size={size}
+                placeholder={placeholder}
+                disabled={disabled}
               >
-                <option value="">{props.placeholder || "-"}</option>
+                <option value="">{placeholder || "-"}</option>
                 {(options || []).map((el) => {
                   return (
                     <option key={el.value} value={el.value}>
@@ -281,18 +314,18 @@ export const FormInput = memo(
               <SelectBoolean
                 className="w-full"
                 highlight={highlight}
-                value={props.value as boolean}
+                value={_value as boolean}
                 onChange={(e) => onChange(e)}
-                size={props.size}
-                placeholder={props.placeholder}
-                disabled={props.disabled}
+                size={size}
+                placeholder={placeholder}
+                disabled={disabled}
               />
             )}
             {props.type === "modal" && (
               <InputDecorationIcon
                 suffix={(p) => <ArrowsExpandIcon {...p} />}
                 onClick={() => {
-                  if (props.disabled) return;
+                  if (disabled) return;
                   props.onClick &&
                     props.onClick({ readonly: false, values: props.values });
                 }}
@@ -302,8 +335,8 @@ export const FormInput = memo(
                     className={className + " pointer-events-none"}
                     highlight={highlight}
                     value={
-                      (props.render?.(props.value, props.values) as string) ||
-                      (props.value as string)
+                      (props.render?.(_value, props.values) as string) ||
+                      (_value as string)
                     }
                     onChange={() => {}}
                     onClick={(e) => {
@@ -311,9 +344,9 @@ export const FormInput = memo(
                       e.stopPropagation();
                       (e.target as HTMLInputElement).blur();
                     }}
-                    size={props.size}
-                    placeholder={props.placeholder}
-                    disabled={props.disabled}
+                    size={size}
+                    placeholder={placeholder}
+                    disabled={disabled}
                   />
                 )}
               />
