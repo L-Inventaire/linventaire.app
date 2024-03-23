@@ -8,7 +8,7 @@ body .ce-block__content, body .ce-toolbar__content {
   border-radius: 4px;
   box-shadow: 0 2px 8px #00000022;
   padding: 2px 4px;
-  margin-top: -2px;
+  margin-top: -2px; 
   margin-right: 8px;
   border: 1px solid #e8e8eb;
 }
@@ -24,4 +24,10 @@ body .cdx-list__item {
 body .cdx-block {
   padding-top: 0;
   padding-bottom: 0.4em;
+}
+
+@media (min-width: 651px){
+  body .codex-editor--narrow .ce-toolbar__actions {
+    margin-right: 0px;
+  }
 }

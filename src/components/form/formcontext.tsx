@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { createContext, useContext } from "react";
+import { createContext, useContext, useRef, useState } from "react";
 
 export const FormContextContext = createContext<{
   readonly: boolean;
@@ -51,14 +51,21 @@ export function useFormController<T extends Object>(
   get: T,
   set: (e: any) => void
 ) {
-  return (key: keyof T | string[]) => {
-    return {
-      value: _.get(get, key),
-      onChange: (value: any) => {
-        set((prev: T) => {
-          return _.set({ ...prev }, key, value);
-        });
-      },
-    };
+  const initial = useRef({ ...get });
+  const [lockNavigation, setLockNavigation] = useState(false);
+  return {
+    lockNavigation,
+    setLockNavigation,
+    ctrl: (key: keyof T | string[]) => {
+      return {
+        value: _.get(get, key),
+        onChange: (value: any) => {
+          setLockNavigation(_.isEqual(initial.current, get) === false);
+          set((prev: T) => {
+            return _.set({ ...prev }, key, value);
+          });
+        },
+      };
+    },
   };
 }

@@ -4,7 +4,13 @@ import _ from "lodash";
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  theme?: "primary" | "secondary" | "danger" | "default" | "outlined";
+  theme?:
+    | "primary"
+    | "secondary"
+    | "danger"
+    | "default"
+    | "outlined"
+    | "invisible";
   size?: "md" | "lg" | "xl" | "sm";
   loading?: boolean;
   disabled?: boolean;
@@ -50,6 +56,10 @@ export const Button = (props: ButtonProps) => {
   if (props.theme === "outlined")
     colors =
       "text-wood-400 bg-white dark:bg-wood-990 dark:hover:bg-wood-800 dark:active:bg-wood-900 hover:bg-wood-50 active:bg-wood-200 border-wood-400 border-solid	";
+
+  if (props.theme === "invisible")
+    colors =
+      "text-wood-400 bg-transparent dark:hover:bg-wood-800 dark:active:bg-wood-900 hover:bg-wood-50 active:bg-wood-100 border-none";
 
   if (disabled) colors += " opacity-50 pointer-events-none";
 

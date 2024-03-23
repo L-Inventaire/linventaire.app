@@ -1,5 +1,6 @@
 import currencies from "@assets/currencies.json";
 import languages from "@assets/languages.json";
+import { Button } from "@atoms/button/button";
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import { Info, Section, Title } from "@atoms/text";
 import { AddressInput } from "@components/address-input";
@@ -11,6 +12,7 @@ import { ContactsApiClient } from "@features/contacts/api-client/contacts-api-cl
 import { Contacts, getContactName } from "@features/contacts/types/types";
 import { ROUTES, getRoute } from "@features/routes";
 import { debounce } from "@features/utils/debounce";
+import { useNavigationPrompt } from "@features/utils/use-navigation-prompt";
 import { Page, PageBlock, PageColumns } from "@views/client/_layout/page";
 import _ from "lodash";
 import { useEffect, useState } from "react";
@@ -19,8 +21,13 @@ export const ContactsEditPage = () => {
   const { client } = useClients();
   const [contact, setContact] = useState<Contacts>({
     type: "company",
+    delivery_address: null,
   } as Contacts);
-  const ctrl = useFormController(contact, setContact);
+
+  const { lockNavigation, ctrl } = useFormController(contact, setContact);
+  useNavigationPrompt(lockNavigation);
+
+  const readonly = false;
 
   useEffect(() => {
     if (contact.business_registered_id && contact.type === "company") {
@@ -34,6 +41,7 @@ export const ContactsEditPage = () => {
             (prev: Partial<Contacts>) =>
               ({
                 business_registered_name: value?.name,
+                delivery_address: prev.delivery_address,
                 ..._.omitBy(prev, _.isEmpty),
                 address: {
                   address_line_1: value?.address?.address_line_1,
@@ -61,12 +69,16 @@ export const ContactsEditPage = () => {
         { label: "Créer" },
       ]}
     >
-      <FormContext alwaysVisible>
+      <FormContext readonly={readonly} alwaysVisible>
+        <Button className="float-right" disabled={!getContactName(contact)}>
+          Sauvegarder
+        </Button>
         <Title>Création de {getContactName(contact) || "<nouveau>"}</Title>
+
         <div className="mt-4" />
         <PageColumns>
           <div className="grow lg:max-w-xl">
-            <PageBlock title="Général">
+            <PageBlock closable title="Général">
               <div className="space-y-2">
                 <FormContext size="lg">
                   <PageColumns>
@@ -135,39 +147,33 @@ export const ContactsEditPage = () => {
                     </FormContext>
                   )}
                 </FormContext>
-                <FormInput
-                  label="Étiquettes"
-                  type="multiselect"
-                  ctrl={ctrl("tags")}
-                />
+
+                <PageColumns>
+                  <FormInput
+                    label="Fournisseur"
+                    placeholder="Ce contact est un fournisseur"
+                    type="boolean"
+                    ctrl={ctrl("is_supplier")}
+                  />
+                  <FormInput
+                    label="Client"
+                    placeholder="Ce contact est un client"
+                    type="boolean"
+                    ctrl={ctrl("is_client")}
+                  />
+                </PageColumns>
               </div>
             </PageBlock>
-            <PageBlock title="Contacts">
-              <div className="space-y-2">
-                <FormInput
-                  type="formatted"
-                  format="mail"
-                  label="Email"
-                  placeholder="email@server.com"
-                  ctrl={ctrl("email")}
-                />
-                <FormInput
-                  type="phone"
-                  label="Téléphone"
-                  placeholder="+33 6 12 34 56 78"
-                  ctrl={ctrl("phone")}
-                />
-              </div>
-            </PageBlock>
-            <PageBlock title="Relations">
+            <PageBlock closable title="Relations">
               <Section>Relations</Section>
             </PageBlock>
-          </div>
-          <div className="grow lg:max-w-xl">
-            <PageBlock title="Adresse de facturation">
+            <PageBlock closable title="Adresse de facturation">
               <AddressInput ctrl={ctrl("address")} autoComplete={false} />
             </PageBlock>
-            <PageBlock title="Adresse de livraison">
+            <PageBlock closable title="Adresse de livraison">
+              {contact.delivery_address === null && readonly && (
+                <Info>Aucune adresse de livraison renseignée.</Info>
+              )}
               <FormInput
                 type="boolean"
                 placeholder="Utiliser l'adresse de facturation"
@@ -190,7 +196,13 @@ export const ContactsEditPage = () => {
                 </div>
               )}
             </PageBlock>
-            <PageBlock title="Coordonnées bancaires">
+            <PageBlock
+              closable
+              title="Coordonnées bancaires"
+              open={
+                !!Object.values(contact.billing || {}).filter(Boolean).length
+              }
+            >
               <div className="space-y-2 mt-4">
                 <FormInput
                   label="IBAN"
@@ -211,6 +223,10 @@ export const ContactsEditPage = () => {
                   type="select"
                   ctrl={ctrl(["billing", "payment_method"])}
                   options={[
+                    {
+                      label: "Aucun",
+                      value: "",
+                    },
                     {
                       label: "Virement bancaire",
                       value: "bank",
@@ -243,23 +259,69 @@ export const ContactsEditPage = () => {
                 />
               </div>
             </PageBlock>
-            <PageBlock title="Préférences">
+            <PageBlock
+              title="Préférences"
+              closable
+              open={
+                !!contact.currency ||
+                !!contact.language ||
+                !!contact.tags?.length
+              }
+            >
               <div className="space-y-2 mt-4">
                 <FormInput
-                  label="Langue"
-                  type="select"
-                  ctrl={ctrl("language")}
-                  options={languages}
+                  label="Étiquettes"
+                  type="multiselect"
+                  ctrl={ctrl("tags")}
                 />
                 <FormInput
-                  label="Currency"
+                  label="Langue de préférence"
+                  placeholder="Sélectionner une langue"
+                  type="select"
+                  ctrl={ctrl("language")}
+                  options={[
+                    {
+                      label: "Aucune",
+                      value: "",
+                    },
+                    ...languages,
+                  ]}
+                />
+                <FormInput
+                  label="Devise de préférence"
+                  placeholder="Sélectionner une devise"
                   type="select"
                   ctrl={ctrl("currency")}
-                  options={currencies}
+                  options={[
+                    {
+                      label: "Aucune",
+                      value: "",
+                    },
+                    ...currencies,
+                  ]}
                 />
               </div>
             </PageBlock>
-            <PageBlock title="Notes">
+          </div>
+          <div className="grow lg:max-w-xl">
+            <PageBlock closable title="Contacts">
+              <div className="space-y-2">
+                <FormInput
+                  type="formatted"
+                  format="mail"
+                  label="Email"
+                  placeholder="email@server.com"
+                  ctrl={ctrl("email")}
+                />
+                <FormInput
+                  type="phone"
+                  label="Téléphone"
+                  placeholder="+33 6 12 34 56 78"
+                  ctrl={ctrl("phone")}
+                />
+              </div>
+            </PageBlock>
+            <PageBlock closable title="Notes et documents">
               <div className="space-y-2 mt-4">
                 <InputLabel
                   label="Notes"

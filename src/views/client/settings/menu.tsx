@@ -8,22 +8,41 @@ export const SettingsMenu: MenuIndex = (hasAccess) => ({
       label: "Paramètres",
     },
     {
-      label: "Paramètres de L'inventaire",
+      label: "Préférences",
       to: getRoute(ROUTES.SettingsPreferences),
+    },
+    {
+      label: "Étiquettes",
+      to: getRoute(ROUTES.SettingsTags),
+    },
+    {
+      label: "Champs personnalisés",
+      to: getRoute(ROUTES.SettingsCustomFields),
+    },
+    {
+      label: "Développeurs",
+      to: getRoute(ROUTES.SettingsApi),
+    },
+    {
+      type: "divider",
+    },
+    {
+      type: "title",
+      label: "Entreprise",
     },
     {
       label: "Votre entreprise",
       to: getRoute(ROUTES.SettingsCompany),
     },
     {
-      label: "Colaborateurs",
+      label: "Collaborateurs",
       to: getRoute(ROUTES.SettingsUsers),
     },
     {
       type: "divider",
     },
     {
-      type: "label",
+      type: "title",
       label: "Abonnement",
     },
     {

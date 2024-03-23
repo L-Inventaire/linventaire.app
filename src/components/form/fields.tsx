@@ -306,7 +306,9 @@ export const FormInput = memo(
                 placeholder={placeholder}
                 disabled={disabled}
               >
-                <option value="">{placeholder || "-"}</option>
+                <option value="" disabled>
+                  {placeholder || "-"}
+                </option>
                 {(options || []).map((el) => {
                   return (
                     <option key={el.value} value={el.value}>

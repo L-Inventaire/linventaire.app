@@ -81,7 +81,10 @@ export const ROUTES = {
 
   Settings: "/:client/settings",
   SettingsPreferences: "/:client/settings/preferences",
+  SettingsTags: "/:client/settings/tags",
+  SettingsCustomFields: "/:client/settings/custom-fields",
   SettingsCompany: "/:client/settings/company",
   SettingsUsers: "/:client/settings/users",
+  SettingsApi: "/:client/settings/api",
   SettingsBilling: "/:client/settings/billing",
 };

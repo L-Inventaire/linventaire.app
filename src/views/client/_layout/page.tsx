@@ -1,12 +1,15 @@
+import { Button } from "@atoms/button/button";
 import { Section } from "@atoms/text";
+import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/outline";
 import {
   LayoutActionsAtom,
   LayoutTitleAtom,
 } from "@views/client/_layout/header";
 import { ErrorBoundary } from "@views/error-boundary";
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
+import { twMerge } from "tailwind-merge";
 
 export const Page = (props: {
   children: ReactNode;
@@ -37,11 +40,54 @@ export const Page = (props: {
   );
 };
 
-export const PageBlock = (props: { children: ReactNode; title?: string }) => {
+export const PageBlockHr = () => {
   return (
-    <div className="p-3 lg:p-4 sm:pt-3 lg:pt-4 pt-0 sm:border border-b sm:mx-0 -mx-4 rounded-md mb-4 bg-white dark:bg-slate-990 dark:border-slate-900">
-      {props.title && <Section>{props.title}</Section>}
-      {props.children}
+    <div className="-mx-4 border-solid border-b dark:border-slate-900 !my-4" />
+  );
+};
+
+export const PageBlock = (props: {
+  children: ReactNode;
+  title?: string;
+  closable?: boolean;
+  open?: boolean;
+}) => {
+  const [isOpen, setIsOpen] = useState<boolean>(props.open ?? true);
+
+  useEffect(() => {
+    setIsOpen(props.open ?? true);
+  }, [props.open]);
+
+  return (
+    <div
+      className={twMerge(
+        "p-3 lg:p-4 sm:pt-3 lg:pt-4 pt-0 sm:border border-b sm:mx-0 -mx-4 rounded-md mb-4 bg-white dark:bg-slate-970 dark:border-slate-970",
+        !isOpen && props.closable ? "cursor-pointer" : ""
+      )}
+      onClick={() => props.closable && !isOpen && setIsOpen(!isOpen)}
+    >
+      {props.closable && (
+        <Button
+          className="float-right"
+          size="sm"
+          theme="invisible"
+          onClick={() => setIsOpen(!isOpen)}
+          icon={(p) =>
+            isOpen ? <ChevronUpIcon {...p} /> : <ChevronDownIcon {...p} />
+          }
+        />
+      )}
+      {props.title && <Section className="!mb-0">{props.title}</Section>}
+      <div
+        className={twMerge(
+          "transition-all",
+          isOpen
+            ? "max-h-screen mt-2 opacity-1"
+            : "max-h-0 opacity-0 overflow-hidden"
+        )}
+      >
+        {props.children}
+      </div>
     </div>
   );
 };

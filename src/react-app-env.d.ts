@@ -18,3 +18,4 @@ declare module "@editorjs/checklist";
 declare module "@editorjs/delimiter";
 declare module "@editorjs/inline-code";
 declare module "@editorjs/underline";
+declare module "use-navigation-prompt";

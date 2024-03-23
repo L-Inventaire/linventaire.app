@@ -236,7 +236,7 @@ export const SideBar = () => {
               ...(hasAccess("CLIENT_READ")
                 ? ([
                     {
-                      label: "Paramètres de L'inventaire",
+                      label: "Tous les paramètres",
                       to: getRoute(ROUTES.SettingsPreferences),
                     },
                     {

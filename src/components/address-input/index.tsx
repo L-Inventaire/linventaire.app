@@ -3,7 +3,7 @@ import { Input } from "@atoms/input/input-text";
 import Select from "@atoms/input/input-select";
 import { Clients } from "@features/clients/types/clients";
 import { useControlledEffect } from "@features/utils/hooks/use-controlled-effect";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   FormContextContext,
   FormControllerType,
@@ -34,6 +34,17 @@ export const AddressInput = (props: {
     value?.country || navigator.language.toLocaleUpperCase() || "US"
   );
 
+  useEffect(() => {
+    setAddressLine1(value?.address_line_1 || "");
+    setAddressLine2(value?.address_line_2 || "");
+    setZip(value?.zip || "");
+    setCity(value?.city || "");
+    setRegion(value?.region || "");
+    setCountry(
+      value?.country || navigator.language.toLocaleUpperCase() || "US"
+    );
+  }, [value]);
+
   useControlledEffect(() => {
     onChange?.({
       address_line_1: addressLine1,
@@ -55,14 +66,14 @@ export const AddressInput = (props: {
               {addressLine1 && <>{addressLine1}</>}
               {addressLine2 && (
                 <>
-                  <br />
+                  {addressLine1 && <br />}
                   {addressLine2}
                 </>
               )}
-              <br />
+              {(zip || city) && <br />}
               {zip && <>{zip} </>}
               {city && <>{city}</>}
-              <br />
+              {(region || country) && <br />}
               {region && <>{region} </>}
               {country && (
                 <>
@@ -121,7 +132,7 @@ export const AddressInput = (props: {
               disabled={disabled}
             />
             <div
-              className="flex -space-x-px bg-white block relative"
+              className="flex -space-x-px block relative"
               style={{ marginTop: "-1px" }}
             >
               <Input
