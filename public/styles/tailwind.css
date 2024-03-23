@@ -938,6 +938,10 @@ select {
   margin-bottom: 2rem;
 }
 
+.\!mb-4 {
+  margin-bottom: 1rem !important;
+}
+
 .-mb-1 {
   margin-bottom: -0.25rem;
 }
@@ -1064,18 +1068,6 @@ select {
 
 .mt-8 {
   margin-top: 2rem;
-}
-
-.mb-8 {
-  margin-bottom: 2rem;
-}
-
-.\!mb-8 {
-  margin-bottom: 2rem !important;
-}
-
-.\!mb-4 {
-  margin-bottom: 1rem !important;
 }
 
 .block {
@@ -1290,12 +1282,12 @@ select {
   width: 100%;
 }
 
-.w-24 {
-  width: 6rem;
-}
-
 .min-w-0 {
   min-width: 0px;
+}
+
+.min-w-32 {
+  min-width: 8rem;
 }
 
 .min-w-\[25\%\] {
@@ -1310,14 +1302,6 @@ select {
 
 .min-w-full {
   min-width: 100%;
-}
-
-.min-w-16 {
-  min-width: 4rem;
-}
-
-.min-w-32 {
-  min-width: 8rem;
 }
 
 .max-w-2xl {
@@ -4199,6 +4183,12 @@ input, select {
     --tw-space-y-reverse: 0;
     margin-top: calc(0px * calc(1 - var(--tw-space-y-reverse)));
     margin-bottom: calc(0px * var(--tw-space-y-reverse));
+  }
+
+  .lg\:space-x-4 > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-x-reverse: 0;
+    margin-right: calc(1rem * var(--tw-space-x-reverse));
+    margin-left: calc(1rem * calc(1 - var(--tw-space-x-reverse)));
   }
 
   .lg\:p-4 {

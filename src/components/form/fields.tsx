@@ -17,8 +17,9 @@ import _ from "lodash";
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import { InputDecorationIcon } from "@atoms/input/input-decoration-icon";
 import { FormReadonly } from "./readonly";
-import { FormContextContext } from "./formcontext";
+import { FormContextContext, FormControllerType } from "./formcontext";
 import { twMerge } from "tailwind-merge";
+import InputPhone from "@atoms/input/input-phone";
 
 export const FormInput = memo(
   (
@@ -28,10 +29,7 @@ export const FormInput = memo(
       main?: boolean;
       size?: "md" | "lg";
       readonly?: boolean;
-      ctrl?: {
-        value: any;
-        onChange: (value: any) => void;
-      };
+      ctrl?: FormControllerType;
       value?:
         | string
         | boolean
@@ -172,7 +170,7 @@ export const FormInput = memo(
     return (
       <InputLabel
         className={twMerge("w-full", props.className || "")}
-        label={props.label || ""}
+        label={props.label || " "}
         input={
           <>
             {(!props.type ||
@@ -203,6 +201,14 @@ export const FormInput = memo(
                 onChange={(e) => onChange(e.target.value)}
                 size={size}
                 placeholder={placeholder}
+                disabled={disabled}
+              />
+            )}
+            {props.type === "phone" && (
+              <InputPhone
+                value={(_value as string) || ""}
+                onChange={(e) => onChange(e)}
+                size={size}
                 disabled={disabled}
               />
             )}

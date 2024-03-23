@@ -18,7 +18,7 @@ export function Select(props: SelectInputProps) {
   let inputClassName = props.hasError
     ? errorInputClassName(props.theme)
     : defaultInputClassName(props.theme);
-  inputClassName = inputClassName + (props.disabled ? " opacity-75" : "");
+  inputClassName = inputClassName + (props.disabled ? " opacity-50" : "");
 
   if (props.size === "lg") inputClassName = inputClassName + " text-lg h-11";
   else if (props.size === "sm")

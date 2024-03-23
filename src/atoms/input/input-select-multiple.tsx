@@ -29,7 +29,7 @@ export function SelectMultiple(props: InputProps) {
   let inputClassName = props.hasError
     ? errorInputClassName(props.theme)
     : defaultInputClassName(props.theme);
-  inputClassName = inputClassName + (props.disabled ? " opacity-75" : "");
+  inputClassName = inputClassName + (props.disabled ? " opacity-50" : "");
 
   if (props.highlight && (props.value?.length || 0) > 0)
     inputClassName = inputClassName + " !ring-2 !ring-yellow-500";

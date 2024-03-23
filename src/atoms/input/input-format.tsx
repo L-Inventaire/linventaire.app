@@ -4,22 +4,30 @@ import { useCallback, useEffect, useState, useRef } from "react";
 import { Input, InputProps } from "./input-text";
 
 export const InputFormat = (
-  props: InputProps & { format: "price" | "percentage" | "mail" | "phone" }
+  props: InputProps & {
+    format: "price" | "percentage" | "mail" | "phone" | "iban";
+  }
 ) => {
   const [value, setValue] = useState(props.value);
   const [isFocused, setIsFocused] = useState(false);
   const ref = useRef<HTMLInputElement>(null);
+  const needUnfocus = props.format === "price" || props.format === "percentage";
+  const isNumber = props.format === "price" || props.format === "percentage";
 
   const extractRawValue = (val: string) => {
     if (!(val + "").trim()) return "";
-    return (
-      parseFloat(
-        val
-          .replace(",", ".")
-          .replace(/[^0-9.-]/gm, "")
-          .replace(/(.)-/gm, "$1")
-      ) + ""
-    );
+    if (props.format === "iban")
+      return val.toLocaleUpperCase().replace(/[^A-Z0-9]/gm, "");
+    if (isNumber)
+      return (
+        parseFloat(
+          val
+            .replace(",", ".")
+            .replace(/[^0-9.-]/gm, "")
+            .replace(/(.)-/gm, "$1")
+        ) + ""
+      );
+    return val;
   };
 
   const applyFormat = useCallback(
@@ -30,6 +38,18 @@ export const InputFormat = (
         val = extractRawValue(val) + " %";
       } else if (props.format === "price") {
         val = "" + formatAmount(parseFloat(extractRawValue(val)));
+      } else if (props.format === "iban") {
+        val =
+          "" +
+          val
+            .toLocaleUpperCase()
+            .replace(/[^A-Z0-9]/, "")
+            .replace(/([A-Z0-9]{4})/g, "$1 ")
+            .replace(/ $/, "");
+      } else if (props.format === "phone") {
+        val = val.replace(/[^0-9+]/gm, "");
+      } else if (props.format === "mail") {
+        val = val.replace(/[^a-zA-Z0-9@.-_]/gm, "");
       }
       return val;
     },
@@ -37,7 +57,7 @@ export const InputFormat = (
   );
 
   useEffect(() => {
-    if (!isFocused) {
+    if (!isFocused || !needUnfocus) {
       setValue(applyFormat((props.value as string) + ""));
     }
   }, [isFocused, props.value, applyFormat]);

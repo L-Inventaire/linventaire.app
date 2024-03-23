@@ -38,7 +38,7 @@ export const Input = (props: InputProps) => {
   let inputClassName = props.hasError
     ? errorInputClassName(props.theme)
     : defaultInputClassName(props.theme);
-  inputClassName = inputClassName + (props.disabled ? " opacity-75" : "");
+  inputClassName = inputClassName + (props.disabled ? " opacity-50" : "");
 
   const internalRef = React.useRef<HTMLInputElement | HTMLTextAreaElement>();
   const inputRef = props.inputRef || internalRef;

@@ -42,6 +42,11 @@ export const FormContext = ({
   );
 };
 
+export type FormControllerType = {
+  value: any;
+  onChange: (value: any) => void;
+};
+
 export function useFormController<T extends Object>(
   get: T,
   set: (e: any) => void

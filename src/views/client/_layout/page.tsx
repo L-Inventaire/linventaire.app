@@ -1,3 +1,4 @@
+import { Section } from "@atoms/text";
 import {
   LayoutActionsAtom,
   LayoutTitleAtom,
@@ -36,9 +37,10 @@ export const Page = (props: {
   );
 };
 
-export const PageBlock = (props: { children: ReactNode }) => {
+export const PageBlock = (props: { children: ReactNode; title?: string }) => {
   return (
     <div className="p-3 lg:p-4 sm:pt-3 lg:pt-4 pt-0 sm:border border-b sm:mx-0 -mx-4 rounded-md mb-4 bg-white dark:bg-slate-990 dark:border-slate-900">
+      {props.title && <Section>{props.title}</Section>}
       {props.children}
     </div>
   );
@@ -46,7 +48,7 @@ export const PageBlock = (props: { children: ReactNode }) => {
 
 export const PageColumns = (props: { children: ReactNode }) => {
   return (
-    <div className="flex flex-col space-y-2 lg:flex-row lg:space-x-2 lg:space-y-0 w-full">
+    <div className="flex flex-col space-y-4 lg:flex-row lg:space-x-4 lg:space-y-0 w-full">
       {props.children}
     </div>
   );

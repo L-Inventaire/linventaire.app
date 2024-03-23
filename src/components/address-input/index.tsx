@@ -3,28 +3,39 @@ import { Input } from "@atoms/input/input-text";
 import Select from "@atoms/input/input-select";
 import { Clients } from "@features/clients/types/clients";
 import { useControlledEffect } from "@features/utils/hooks/use-controlled-effect";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import {
+  FormContextContext,
+  FormControllerType,
+} from "@components/form/formcontext";
+import { Base } from "@atoms/text";
 
 export const AddressInput = (props: {
+  ctrl?: FormControllerType;
   value?: Partial<Clients["address"]>;
   onChange?: (args: Partial<Clients["address"]>) => void;
   disabled?: boolean;
+  autoComplete?: boolean;
+  readonly?: boolean;
 }) => {
-  const [addressLine1, setAddressLine1] = useState(
-    props.value?.address_line_1 || ""
-  );
-  const [addressLine2, setAddressLine2] = useState(
-    props.value?.address_line_2 || ""
-  );
-  const [zip, setZip] = useState(props.value?.zip || "");
-  const [city, setCity] = useState(props.value?.city || "");
-  const [region, setRegion] = useState(props.value?.region || "");
+  const context = useContext(FormContextContext);
+  const value = props.ctrl?.value || props.value || {};
+  const onChange = props.ctrl?.onChange || props.onChange || (() => {});
+  const disabled = props.disabled ?? context?.disabled;
+  const readonly = props.readonly ?? context?.readonly;
+  const autoComplete = props.autoComplete === false ? false : true;
+
+  const [addressLine1, setAddressLine1] = useState(value?.address_line_1 || "");
+  const [addressLine2, setAddressLine2] = useState(value?.address_line_2 || "");
+  const [zip, setZip] = useState(value?.zip || "");
+  const [city, setCity] = useState(value?.city || "");
+  const [region, setRegion] = useState(value?.region || "");
   const [country, setCountry] = useState(
-    props.value?.country || navigator.language.toLocaleUpperCase() || "US"
+    value?.country || navigator.language.toLocaleUpperCase() || "US"
   );
 
   useControlledEffect(() => {
-    props.onChange?.({
+    onChange?.({
       address_line_1: addressLine1,
       address_line_2: addressLine2,
       zip,
@@ -34,8 +45,42 @@ export const AddressInput = (props: {
     });
   }, [addressLine1, addressLine2, zip, city, region, country]);
 
+  if (readonly) {
+    return (
+      <div className="space-y-2">
+        <Input
+          label="Address"
+          inputComponent={
+            <Base>
+              {addressLine1 && <>{addressLine1}</>}
+              {addressLine2 && (
+                <>
+                  <br />
+                  {addressLine2}
+                </>
+              )}
+              <br />
+              {zip && <>{zip} </>}
+              {city && <>{city}</>}
+              <br />
+              {region && <>{region} </>}
+              {country && (
+                <>
+                  {countries.find((a) => a.code === country)?.name || country}
+                </>
+              )}
+            </Base>
+          }
+        />
+      </div>
+    );
+  }
+
   return (
-    <>
+    <form
+      className="space-y-2"
+      autoComplete={props.autoComplete === false ? "off" : undefined}
+    >
       <Input
         label="Address"
         inputComponent={
@@ -43,27 +88,25 @@ export const AddressInput = (props: {
             <Input
               id="address-line-1"
               placeholder="1007 Mountain Drive"
-              autoComplete="street-address"
+              autoComplete={autoComplete ? "street-address" : "off"}
               inputClassName="relative rounded-none rounded-t-md focus:z-10 "
               value={addressLine1}
               onChange={(e) => setAddressLine1(e.target.value)}
-              disabled={props.disabled}
+              disabled={disabled}
             />
             <Input
               style={{ marginTop: -1 }}
               id="address-line-2"
               placeholder={addressLine1 ? "Address line 2" : "Wayne's manor"}
               inputClassName="relative rounded-none rounded-b-md focus:z-10"
-              autoComplete="address-level-4"
+              autoComplete={autoComplete ? "address-level-4" : "off"}
               value={addressLine2}
               onChange={(e) => setAddressLine2(e.target.value)}
-              disabled={props.disabled}
+              disabled={disabled}
             />
           </>
         }
       />
-      <br />
-
       <Input
         label="Region and city"
         inputComponent={
@@ -71,11 +114,11 @@ export const AddressInput = (props: {
             <Input
               style={{ marginTop: -1 }}
               placeholder="Region"
-              autoComplete="address-level1"
+              autoComplete={autoComplete ? "address-level1" : "off"}
               inputClassName="relative rounded-none rounded-t-md focus:z-10"
               value={region}
               onChange={(e) => setRegion(e.target.value)}
-              disabled={props.disabled}
+              disabled={disabled}
             />
             <div
               className="flex -space-x-px bg-white block relative"
@@ -83,27 +126,24 @@ export const AddressInput = (props: {
             >
               <Input
                 placeholder="ZIP"
-                autoComplete="postal-code"
+                autoComplete={autoComplete ? "postal-code" : "off"}
                 inputClassName="rounded-none rounded-bl-md focus:z-10"
                 value={zip}
                 onChange={(e) => setZip(e.target.value)}
-                disabled={props.disabled}
+                disabled={disabled}
               />
               <Input
                 placeholder="City"
-                autoComplete="address-level2"
+                autoComplete={autoComplete ? "address-level2" : "off"}
                 inputClassName="rounded-none rounded-br-md focus:z-10"
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
-                disabled={props.disabled}
+                disabled={disabled}
               />
             </div>
           </>
         }
       />
-
-      <br />
-
       <Input
         label="Country"
         inputComponent={
@@ -114,7 +154,7 @@ export const AddressInput = (props: {
               value={country}
               autoComplete="country"
               onChange={(e) => setCountry(e.target.value)}
-              disabled={props.disabled}
+              disabled={disabled}
             >
               {countries.map((country) => (
                 <option key={country.code} value={country.code}>
@@ -125,6 +165,6 @@ export const AddressInput = (props: {
           </>
         }
       />
-    </>
+    </form>
   );
 };

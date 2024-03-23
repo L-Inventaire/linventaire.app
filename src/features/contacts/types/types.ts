@@ -18,13 +18,30 @@ export type Contacts = {
   person_last_name: string;
 
   language: string;
+  currency: string;
 
   email: string;
   phone: string;
   address: Address;
   delivery_address: Address | null;
+  billing: Billing;
 
   notes: string;
+  tags: string[];
+};
+
+export type Billing = {
+  iban: string;
+  bic: string;
+  name: string;
+  payment_method:
+    | "bank"
+    | "cash"
+    | "check"
+    | "sepa"
+    | "paypal"
+    | "stripe"
+    | "other";
 };
 
 export const getContactName = (contact: Contacts) => {

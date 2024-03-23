@@ -1,0 +1,27 @@
+body .ce-block__content, body .ce-toolbar__content {
+  max-width: none;
+  font-size: 0.875rem;
+}
+
+.ce-toolbar__actions--opened {
+  background: #FFF;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px #00000022;
+  padding: 2px 4px;
+  margin-top: -2px;
+  margin-right: 8px;
+  border: 1px solid #e8e8eb;
+}
+
+.codex-editor__redactor {
+  padding-bottom: 0px !important;
+}
+
+body .cdx-list__item {
+  padding: 1.5px 0 1.5px 3px
+}
+
+body .cdx-block {
+  padding-top: 0;
+  padding-bottom: 0.4em;
+}

@@ -1,4 +1,9 @@
+import currencies from "@assets/currencies.json";
+import languages from "@assets/languages.json";
+import { InputLabel } from "@atoms/input/input-decoration-label";
 import { Info, Section, Title } from "@atoms/text";
+import { AddressInput } from "@components/address-input";
+import { EditorInput } from "@components/editor-input";
 import { FormInput } from "@components/form/fields";
 import { FormContext, useFormController } from "@components/form/formcontext";
 import { useClients } from "@features/clients/state/use-clients";
@@ -7,9 +12,8 @@ import { Contacts, getContactName } from "@features/contacts/types/types";
 import { ROUTES, getRoute } from "@features/routes";
 import { debounce } from "@features/utils/debounce";
 import { Page, PageBlock, PageColumns } from "@views/client/_layout/page";
-import { useEffect, useState } from "react";
-import countries from "@assets/countries.json";
 import _ from "lodash";
+import { useEffect, useState } from "react";
 
 export const ContactsEditPage = () => {
   const { client } = useClients();
@@ -58,13 +62,11 @@ export const ContactsEditPage = () => {
       ]}
     >
       <FormContext alwaysVisible>
-        <Title>Création de {getContactName(contact) || "-"}</Title>
+        <Title>Création de {getContactName(contact) || "<nouveau>"}</Title>
         <div className="mt-4" />
         <PageColumns>
           <div className="grow lg:max-w-xl">
-            <PageBlock>
-              <Section>Général</Section>
-
+            <PageBlock title="Général">
               <div className="space-y-2">
                 <FormContext size="lg">
                   <PageColumns>
@@ -108,10 +110,12 @@ export const ContactsEditPage = () => {
 
                   {contact.type === "company" && (
                     <FormContext disabled={!contact.business_registered_id}>
-                      <Info className="block mt-2 !mb-4">
-                        Entrez un numéro de SIRET ou SIREN pour pré-remplir les
-                        champs.
-                      </Info>
+                      {!contact.business_registered_id && (
+                        <Info className="block mt-2 !mb-4">
+                          Entrez un numéro de SIRET ou SIREN pour pré-remplir
+                          les champs.
+                        </Info>
+                      )}
                       <>
                         <PageColumns>
                           <FormInput
@@ -131,65 +135,139 @@ export const ContactsEditPage = () => {
                     </FormContext>
                   )}
                 </FormContext>
+                <FormInput
+                  label="Étiquettes"
+                  type="multiselect"
+                  ctrl={ctrl("tags")}
+                />
               </div>
             </PageBlock>
-            <PageBlock>
-              <Section>Contacts</Section>
-            </PageBlock>
-            <PageBlock>
-              <Section>Relations</Section>
-            </PageBlock>
-            <PageBlock>
-              <Section>Statistiques</Section>
-            </PageBlock>
-          </div>
-          <div className="grow">
-            <PageBlock>
-              <Section>Adresse de facturation</Section>
+            <PageBlock title="Contacts">
               <div className="space-y-2">
                 <FormInput
-                  label="Adresse ligne 1"
-                  ctrl={ctrl(["address", "address_line_1"])}
+                  type="formatted"
+                  format="mail"
+                  label="Email"
+                  placeholder="email@server.com"
+                  ctrl={ctrl("email")}
                 />
                 <FormInput
-                  label="Adresse ligne 2"
-                  ctrl={ctrl(["address", "address_line_2"])}
+                  type="phone"
+                  label="Téléphone"
+                  placeholder="+33 6 12 34 56 78"
+                  ctrl={ctrl("phone")}
                 />
-                <PageColumns>
-                  <FormInput label="Ville" ctrl={ctrl(["address", "city"])} />
-                  <FormInput
-                    label="Code postal"
-                    ctrl={ctrl(["address", "zip"])}
-                  />
-                </PageColumns>
-                <PageColumns>
-                  <FormInput
-                    label="Région"
-                    ctrl={ctrl(["address", "region"])}
-                  />
-                  <FormInput
-                    type="select"
-                    label="Pays"
-                    ctrl={ctrl(["address", "country"])}
-                    options={countries.map((a) => ({
-                      label: a.name,
-                      value: a.code,
-                    }))}
-                  />
-                </PageColumns>
               </div>
             </PageBlock>
-            <PageBlock>
-              <Section>Adresse de livraison</Section>
+            <PageBlock title="Relations">
+              <Section>Relations</Section>
             </PageBlock>
-            <PageBlock>
-              <Section>Coordonnées bancaires</Section>
+          </div>
+          <div className="grow lg:max-w-xl">
+            <PageBlock title="Adresse de facturation">
+              <AddressInput ctrl={ctrl("address")} autoComplete={false} />
             </PageBlock>
-            <PageBlock>
-              <Section>Préférences</Section>
+            <PageBlock title="Adresse de livraison">
+              <FormInput
+                type="boolean"
+                placeholder="Utiliser l'adresse de facturation"
+                onChange={(e) =>
+                  e
+                    ? setContact({ ...contact, delivery_address: null })
+                    : setContact({
+                        ...contact,
+                        delivery_address: { ...contact.address },
+                      })
+                }
+                value={contact.delivery_address === null}
+              />
+              {contact.delivery_address !== null && (
+                <div className="mt-4">
+                  <AddressInput
+                    ctrl={ctrl("delivery_address")}
+                    autoComplete={false}
+                  />
+                </div>
+              )}
             </PageBlock>
-            <PageBlock>
-              <Section>Notes</Section>
+            <PageBlock title="Coordonnées bancaires">
+              <div className="space-y-2 mt-4">
+                <FormInput
+                  label="IBAN"
+                  ctrl={ctrl(["billing", "iban"])}
+                  type="formatted"
+                  format="iban"
+                />
+                <PageColumns>
+                  <FormInput label="BIC" ctrl={ctrl(["billing", "bic"])} />
+                  <FormInput
+                    label="Titulaire"
+                    ctrl={ctrl(["billing", "name"])}
+                  />
+                </PageColumns>
+                <br />
+                <FormInput
+                  label="Méthode de paiement par défaut"
+                  type="select"
+                  ctrl={ctrl(["billing", "payment_method"])}
+                  options={[
+                    {
+                      label: "Virement bancaire",
+                      value: "bank",
+                    },
+                    {
+                      label: "Espèces",
+                      value: "cash",
+                    },
+                    {
+                      label: "Chèque",
+                      value: "check",
+                    },
+                    {
+                      label: "SEPA",
+                      value: "sepa",
+                    },
+                    {
+                      label: "Paypal",
+                      value: "paypal",
+                    },
+                    {
+                      label: "Stripe",
+                      value: "stripe",
+                    },
+                    {
+                      label: "Autre",
+                      value: "other",
+                    },
+                  ]}
+                />
+              </div>
+            </PageBlock>
+            <PageBlock title="Préférences">
+              <div className="space-y-2 mt-4">
+                <FormInput
+                  label="Langue"
+                  type="select"
+                  ctrl={ctrl("language")}
+                  options={languages}
+                />
+                <FormInput
+                  label="Currency"
+                  type="select"
+                  ctrl={ctrl("currency")}
+                  options={currencies}
+                />
+              </div>
+            </PageBlock>
+            <PageBlock title="Notes">
+              <div className="space-y-2 mt-4">
+                <InputLabel
+                  label="Notes"
+                  input={
+                    <EditorInput placeholder="Cliquez pour ajouter des notes" />
+                  }
+                />
+              </div>
             </PageBlock>
           </div>
         </PageColumns>
