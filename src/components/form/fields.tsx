@@ -21,6 +21,7 @@ import { FormContextContext, FormControllerType } from "./formcontext";
 import { twMerge } from "tailwind-merge";
 import InputPhone from "@atoms/input/input-phone";
 import InputColor from "@atoms/input/input-color";
+import { TagsInput } from "@components/tags-input";
 
 export const FormInput = memo(
   (
@@ -189,6 +190,14 @@ export const FormInput = memo(
                 onChange={(e) => onChange(e.target.value, e.target.value)}
                 size={size}
                 placeholder={placeholder}
+                disabled={disabled}
+              />
+            )}
+            {props.type === "tags" && (
+              <TagsInput
+                className="w-full"
+                value={(_value as string[]) || []}
+                onChange={(e) => onChange(e)}
                 disabled={disabled}
               />
             )}

@@ -4,20 +4,32 @@ import { applySearchFilter } from "@features/utils/format/strings";
 import _ from "lodash";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Input, InputProps } from "./input-text";
+import { twMerge } from "tailwind-merge";
 
 // ... (existing imports)
 
 type InputSuggestionProps = {
+  wrapperClassName?: string;
+  onSelect?: (value: string) => void;
   options: { label: string; value: string }[];
   loading?: boolean;
   autoFocus?: "scan" | "keyboard" | boolean;
-} & Omit<InputProps, "autoFocus">;
+  render?: (e: { label: string; value: string }) => React.ReactNode;
+} & Omit<InputProps, "autoFocus" | "onSelect">;
 
 export const InputWithSuggestions = (props: InputSuggestionProps) => {
+  const [value, setValue] = useState<string>((props.value as string) || "");
   const [focus, setFocus] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  const value = typeof props.value === "string" ? props.value : "";
   const ref = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setValue((props.value as string) || "");
+  }, [props.value]);
+
+  useEffect(() => {
+    props.onChange?.({ target: { value } } as any);
+  }, [value]);
 
   const filteredOptions = _.uniqBy(
     props.options.filter(
@@ -42,10 +54,13 @@ export const InputWithSuggestions = (props: InputSuggestionProps) => {
         );
         break;
       case "Enter":
-        if (selectedIndex >= 0 && selectedIndex < filteredOptions.length) {
+        if (selectedIndex < filteredOptions.length) {
+          const i = Math.max(selectedIndex, 0);
+          setValue("");
+          props.onSelect && props.onSelect(filteredOptions[i].value);
           props.onChange &&
             props.onChange({
-              target: { value: filteredOptions[selectedIndex].value },
+              target: { value: filteredOptions[i].value },
             } as any);
           setFocus(false);
         }
@@ -80,11 +95,22 @@ export const InputWithSuggestions = (props: InputSuggestionProps) => {
   }, [value]);
 
   return (
-    <div className={"relative w-full "}>
+    <div className={twMerge("relative w-full", props.wrapperClassName)}>
       <Input
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
         inputRef={ref}
         autoFocus={props.autoFocus === "keyboard" || props.autoFocus === true}
-        {..._.omit(props, "options", "loading", "autoFocus")}
+        {..._.omit(
+          props,
+          "options",
+          "loading",
+          "autoFocus",
+          "onChange",
+          "value",
+          "wrapperClassName",
+          "onSelect"
+        )}
         onFocus={(e) => {
           setFocus(true);
           props.onFocus && props.onFocus(e as any);
@@ -93,7 +119,15 @@ export const InputWithSuggestions = (props: InputSuggestionProps) => {
           setFocus(false);
           props.onBlur && props.onBlur(e as any);
         }}
-        onKeyDown={(e) => onKeyDown(e)}
+        onKeyDown={(e) => {
+          onKeyDown(e);
+          setFocus(true);
+        }}
+        className={
+          focus && !!filteredOptions?.length && value.length > 0
+            ? "rounded-b-none"
+            : ""
+        }
       />
       {props.loading && (
         <div className="absolute top-1/2 right-2 transform -translate-y-1/2 h-full flex items-center">
@@ -101,7 +135,7 @@ export const InputWithSuggestions = (props: InputSuggestionProps) => {
         </div>
       )}
       {focus && !!filteredOptions?.length && value.length > 0 && (
-        <div className="absolute z-10 top-full left-0 w-full bg-white shadow-md max-h-lg overflow-auto dark:bg-wood-950">
+        <div className="absolute z-10 top-full left-0 w-full bg-white shadow-md max-h-lg overflow-auto dark:bg-wood-950 border ring-1 border-wood-500 ring-wood-500 rounded-b-md border-t-none">
           {_.uniqBy(filteredOptions, "value").map((e: any, index: number) => (
             <div
               key={index}
@@ -109,12 +143,14 @@ export const InputWithSuggestions = (props: InputSuggestionProps) => {
                 selectedIndex === index ? "bg-gray-200" : ""
               }`}
               onMouseDown={() => {
+                setValue("");
+                props.onSelect && props.onSelect(e.value);
                 props.onChange &&
                   props.onChange({ target: { value: e.value } } as any);
                 setFocus(false);
               }}
             >
-              <BaseSmall>{e.label}</BaseSmall>
+              <BaseSmall>{props.render?.(e) || e.label}</BaseSmall>
             </div>
           ))}
         </div>

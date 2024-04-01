@@ -162,6 +162,7 @@ export const ContactsEditPage = () => {
                     ctrl={ctrl("is_client")}
                   />
                 </PageColumns>
+                <FormInput label="Étiquettes" type="tags" ctrl={ctrl("tags")} />
               </div>
             </PageBlock>
             <PageBlock closable title="Relations">
@@ -269,11 +270,6 @@ export const ContactsEditPage = () => {
               }
             >
               <div className="space-y-2 mt-4">
-                <FormInput
-                  label="Étiquettes"
-                  type="multiselect"
-                  ctrl={ctrl("tags")}
-                />
                 <FormInput
                   label="Langue de préférence"
                   placeholder="Sélectionner une langue"

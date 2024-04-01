@@ -11,11 +11,14 @@ import { FormInput } from "@components/form/fields";
 import { useFormController } from "@components/form/formcontext";
 import { Tag } from "@atoms/badge/tag";
 import { PencilIcon, TrashIcon } from "@heroicons/react/outline";
+import _ from "lodash";
 
 export const TagsPage = () => {
   const { tags, remove, upsert } = useTags();
   const [edit, setEdit] = useState<Partial<Tags> | null>(null);
   const { ctrl } = useFormController(edit || {}, setEdit);
+
+  console.log(edit);
 
   return (
     <Page title={[{ label: "Paramètres" }, { label: "Étiquettes" }]}>
@@ -59,18 +62,12 @@ export const TagsPage = () => {
 
         <Table
           className="mt-4"
-          data={tags.data || []}
+          data={_.sortBy(tags.data || [], "name")}
           columns={[
             {
               title: "Étiquette",
               render: (tag) => (
-                <Tag
-                  noColor
-                  style={{ backgroundColor: tag.color }}
-                  className="text-white"
-                >
-                  {tag.name}
-                </Tag>
+                <Tag color={tag.color || "#000000"}>{tag.name}</Tag>
               ),
             },
             {

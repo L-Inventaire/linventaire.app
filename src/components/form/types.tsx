@@ -29,6 +29,7 @@ export type SearchFormFieldType = (
       key: string;
       label?: string;
       type?:
+        | "tags"
         | "text"
         | "select"
         | "date"

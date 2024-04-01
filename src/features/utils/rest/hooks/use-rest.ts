@@ -6,7 +6,7 @@ const restApiClients: { [key: string]: RestApiClient<any> } = {};
 
 export const useRest = <T>(table: string) => {
   restApiClients[table] = restApiClients[table] || new RestApiClient(table);
-  const restApiClient = restApiClients[table];
+  const restApiClient = restApiClients[table] as RestApiClient<T>;
   const { id } = useCurrentClient();
   const queryClient = useQueryClient();
 

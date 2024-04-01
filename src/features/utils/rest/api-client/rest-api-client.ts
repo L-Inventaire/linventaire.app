@@ -20,7 +20,7 @@ export class RestApiClient<T> {
     ).json();
   };
 
-  create = async (clientId: string, item: T): Promise<T> => {
+  create = async (clientId: string, item: Partial<T>): Promise<T> => {
     return await (
       await fetchServer(`/api/rest/v1/${clientId}/${this.table}`, {
         method: "POST",
@@ -29,7 +29,11 @@ export class RestApiClient<T> {
     ).json();
   };
 
-  update = async (clientId: string, item: T, id?: string): Promise<T> => {
+  update = async (
+    clientId: string,
+    item: Partial<T>,
+    id?: string
+  ): Promise<T> => {
     return await (
       await fetchServer(
         `/api/rest/v1/${clientId}/${this.table}/${(item as any).id || id}`,
