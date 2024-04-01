@@ -25,6 +25,7 @@ import { useWebsockets } from "@features/auth/state/use-sockets";
 import { ContactsPage } from "./modules/contacts";
 import { ContactsViewPage } from "./modules/contacts/view";
 import { ContactsEditPage } from "./modules/contacts/edit";
+import { twMerge } from "tailwind-merge";
 
 export const BackOfficeRoutes = () => {
   return (
@@ -88,7 +89,12 @@ export const Layout = () => {
   return (
     <>
       {afterSignupOrNewCompany && <Confetti />}
-      <div className="sm:overflow-auto overflow-hidden relative flex w-full grow flex-row bg-slate-50 dark:bg-slate-990 h-screen intro-animated-root z-10">
+      <div
+        className={twMerge(
+          "sm:overflow-auto overflow-hidden relative flex w-full grow flex-row bg-slate-50 dark:bg-slate-990 h-screen intro-animated-root z-10",
+          afterSignupOrNewCompany ? "fade-in-slow" : ""
+        )}
+      >
         <SideBar />
         <div
           className={

@@ -3802,6 +3802,20 @@ input, select {
   width: 100%;
 }
 
+.fade-in-slow {
+  animation: fadeIn 2s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 .focus-within\:z-10:focus-within {
   z-index: 10;
 }

@@ -178,11 +178,8 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
               }
             />
 
-            <InputLabel
-              label="Address"
-              className="mt-4"
-              input={<AddressInput onChange={(a) => setAddress(a)} />}
-            />
+            <div className="mt-4" />
+            <AddressInput onChange={(a) => setAddress(a)} />
           </>
         )}
 
