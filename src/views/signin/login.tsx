@@ -21,7 +21,12 @@ let tryAgainTimeout: any = null;
 export const Login = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { loading: authLoading, userCached, login } = useAuth();
+  const {
+    loading: authLoading,
+    userCached,
+    clearUserCached,
+    login,
+  } = useAuth();
   const [loading, setLoading] = useState(false);
   const [allowTryAgain, setAllowTryAgain] = useState(false);
 
@@ -41,9 +46,14 @@ export const Login = () => {
 
   useControlledEffect(() => {
     if (mode === "email" && email) {
-      requestEmailMFA();
+      clearUserCached();
     }
   }, [mode]);
+
+  useControlledEffect(() => {
+    if (userCached && email && userCached.email !== email) {
+    }
+  }, [email]);
 
   const requestEmailMFA = async () => {
     setAllowTryAgain(false);
@@ -106,13 +116,10 @@ export const Login = () => {
           setAllowTryAgain(true);
         } else {
           //Test if we need 2FA
-          const { token, methods } = await AuthApiClient.extendToken(
-            authSecret,
-            undefined,
-            email
-          );
+          const { methods, need_fa2_validation_token } =
+            await AuthApiClient.extendToken(authSecret, undefined, email);
 
-          if (!token) {
+          if (need_fa2_validation_token) {
             // Check 2fa
             setInMfaVerification(authSecret);
             setFa2methods(methods);

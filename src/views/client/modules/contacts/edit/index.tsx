@@ -321,6 +321,9 @@ export const ContactsEditPage = () => {
                 />
               </div>
             </PageBlock>
+            <PageBlock closable title="Information complémentaire">
+              TODO: custom fields
+            </PageBlock>
             <PageBlock closable title="Notes et documents">
               <div className="space-y-2 mt-4">
                 <InputLabel

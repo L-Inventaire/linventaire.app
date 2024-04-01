@@ -33,7 +33,7 @@ export const Page = (props: {
 
   return (
     <ErrorBoundary>
-      <div className="p-4 w-full mx-auto text-black dark:text-white min-h-full sm:bg-transparent bg-white">
+      <div className="p-4 w-full mx-auto text-black dark:text-white min-h-full sm:bg-transparent bg-white dark:bg-slate-970">
         {props.children}
       </div>
     </ErrorBoundary>
@@ -61,7 +61,7 @@ export const PageBlock = (props: {
   return (
     <div
       className={twMerge(
-        "p-3 lg:p-4 sm:pt-3 lg:pt-4 pt-0 sm:border border-b sm:mx-0 -mx-4 rounded-md mb-4 bg-white dark:bg-slate-970 dark:border-slate-970",
+        "p-3 lg:p-4 sm:pt-3 lg:pt-4 pt-0 sm:border border-b sm:mx-0 -mx-4 rounded-md mb-4 bg-white dark:bg-slate-970 dark:sm:border-slate-970 dark:border-slate-950",
         !isOpen && props.closable ? "cursor-pointer" : ""
       )}
       onClick={() => props.closable && !isOpen && setIsOpen(!isOpen)}
@@ -94,7 +94,7 @@ export const PageBlock = (props: {
 
 export const PageColumns = (props: { children: ReactNode }) => {
   return (
-    <div className="flex flex-col space-y-4 lg:flex-row lg:space-x-4 lg:space-y-0 w-full">
+    <div className="flex flex-col sm:space-y-4 lg:flex-row lg:space-x-4 lg:space-y-0 w-full">
       {props.children}
     </div>
   );

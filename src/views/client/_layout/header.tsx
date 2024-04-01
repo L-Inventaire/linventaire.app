@@ -46,10 +46,13 @@ export const Header = () => {
     >
       <div
         className={
-          "z-10 sm:hidden absolute transition-all h-full flex items-center justify-center left-4 "
+          "z-10 sm:hidden absolute transition-all h-full flex items-center justify-center left-4  "
         }
       >
-        <MenuIcon onClick={() => setMenuOpen(true)} className="h-6 w-6" />
+        <MenuIcon
+          onClick={() => setMenuOpen(true)}
+          className="h-6 w-6 dark:text-white"
+        />
       </div>
 
       <div className="lg:mr-4 transition-all text-center sm:mt-4 lg:text-left lg:mt-0 min-h-11 ">

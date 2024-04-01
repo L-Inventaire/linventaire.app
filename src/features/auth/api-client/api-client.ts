@@ -134,6 +134,7 @@ export class AuthApiClient {
         id: string;
         method: "app" | "phone" | "email" | "password";
       }[];
+      error?: string;
       need_fa2_validation_token?: boolean;
     };
   };
