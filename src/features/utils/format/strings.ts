@@ -81,3 +81,12 @@ export const getServerUri = (src?: string) => {
   if (src.startsWith("http") || src.startsWith("data:image")) return src;
   return Env.server.replace(/\/$/, "") + src;
 };
+
+export const getRandomHexColor = () => {
+  return (
+    "#" +
+    Math.floor(Math.random() * 16777215)
+      .toString(16)
+      .padStart(6, "0")
+  );
+};

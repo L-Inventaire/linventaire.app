@@ -54,7 +54,11 @@ export const InputWithSuggestions = (props: InputSuggestionProps) => {
         );
         break;
       case "Enter":
-        if (selectedIndex < filteredOptions.length) {
+        if (
+          selectedIndex < filteredOptions.length &&
+          filteredOptions.length &&
+          ref.current?.matches(":focus")
+        ) {
           const i = Math.max(selectedIndex, 0);
           setValue("");
           props.onSelect && props.onSelect(filteredOptions[i].value);

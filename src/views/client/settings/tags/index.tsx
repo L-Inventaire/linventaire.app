@@ -18,8 +18,6 @@ export const TagsPage = () => {
   const [edit, setEdit] = useState<Partial<Tags> | null>(null);
   const { ctrl } = useFormController(edit || {}, setEdit);
 
-  console.log(edit);
-
   return (
     <Page title={[{ label: "Paramètres" }, { label: "Étiquettes" }]}>
       <PageBlock>

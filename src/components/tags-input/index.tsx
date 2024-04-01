@@ -4,14 +4,11 @@ import { InputWithSuggestions } from "@atoms/input/input-with-suggestion";
 import { Loader } from "@atoms/loader";
 import { Info } from "@atoms/text";
 import { useTags } from "@features/tags/hooks/use-tags";
+import { getRandomHexColor } from "@features/utils/format/strings";
 import { TrashIcon } from "@heroicons/react/outline";
 import _ from "lodash";
 import { useState } from "react";
 import { twMerge } from "tailwind-merge";
-
-const getRandom = () => {
-  return "#" + Math.floor(Math.random() * 16777215).toString(16);
-};
 
 export const TagsInput = (props: {
   value: string[];
@@ -20,7 +17,7 @@ export const TagsInput = (props: {
   placeholder?: string;
   disabled?: boolean;
 }) => {
-  const [nextColor, setNextColor] = useState(getRandom());
+  const [nextColor, setNextColor] = useState(getRandomHexColor());
   const [search, setSearch] = useState("");
   const [focused, setFocused] = useState(false);
   const { tags, create } = useTags();
@@ -81,7 +78,7 @@ export const TagsInput = (props: {
               } else {
                 setFocused(false);
                 //Add the new tag
-                setNextColor(getRandom());
+                setNextColor(getRandomHexColor());
                 const tag = await create.mutateAsync({
                   name: value,
                   color: nextColor,

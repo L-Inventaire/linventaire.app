@@ -3,10 +3,7 @@ import { InputDecorationIcon } from "./input-decoration-icon";
 import { Input, defaultInputClassName } from "./input-text";
 import { RefreshIcon } from "@heroicons/react/solid";
 import { useEffect } from "react";
-
-const getRandom = () => {
-  return "#" + Math.floor(Math.random() * 16777215).toString(16);
-};
+import { getRandomHexColor } from "@features/utils/format/strings";
 
 export default function InputColor(props: {
   disabled?: boolean;
@@ -16,7 +13,7 @@ export default function InputColor(props: {
 }) {
   useEffect(() => {
     if (!props.value) {
-      props.onChange(getRandom());
+      props.onChange(getRandomHexColor());
     } else {
       if (!props.value.startsWith("#")) {
         props.onChange("#" + props.value.toUpperCase());
@@ -37,7 +34,7 @@ export default function InputColor(props: {
           style={{
             backgroundColor: props.value,
           }}
-          onClick={() => props.onChange(getRandom())}
+          onClick={() => props.onChange(getRandomHexColor())}
         >
           <RefreshIcon className="w-3 h-3 text-white" />
         </div>
