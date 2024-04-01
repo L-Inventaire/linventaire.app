@@ -20,6 +20,7 @@ import { FormReadonly } from "./readonly";
 import { FormContextContext, FormControllerType } from "./formcontext";
 import { twMerge } from "tailwind-merge";
 import InputPhone from "@atoms/input/input-phone";
+import InputColor from "@atoms/input/input-color";
 
 export const FormInput = memo(
   (
@@ -201,6 +202,14 @@ export const FormInput = memo(
                 onChange={(e) => onChange(e.target.value)}
                 size={size}
                 placeholder={placeholder}
+                disabled={disabled}
+              />
+            )}
+            {props.type === "color" && (
+              <InputColor
+                value={(_value as string) || ""}
+                onChange={(e) => onChange(e)}
+                size={size}
                 disabled={disabled}
               />
             )}

@@ -40,6 +40,7 @@ export type SearchFormFieldType = (
         | "searchselect"
         | "modal"
         | "phone"
+        | "color"
         | "scan"; //Default is text
       placeholder?: string;
       disabled?: boolean;

@@ -1,6 +1,6 @@
 import { Shortcut, useShortcuts } from "@features/utils/shortcuts";
 import _ from "lodash";
-import React from "react";
+import React, { useEffect } from "react";
 import { InputLabel } from "./input-decoration-label";
 
 export interface InputProps
@@ -21,6 +21,7 @@ export interface InputProps
   className?: string;
   inputRef?: React.Ref<HTMLInputElement | HTMLTextAreaElement>;
   shortcut?: Shortcut[];
+  autoFocus?: boolean;
 }
 
 export const defaultInputClassName = (theme: "plain" = "plain") => {
@@ -60,6 +61,12 @@ export const Input = (props: InputProps) => {
       (inputRef as any)?.current?.focus();
     }
   );
+
+  useEffect(() => {
+    if (props.autoFocus) {
+      (inputRef as any)?.current?.focus();
+    }
+  }, [props.autoFocus]);
 
   if (props.label) {
     return (

@@ -1,4 +1,4 @@
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { ClientInvitationsState, ClientsState } from "./store";
 import { useGlobalEffect } from "@features/utils/hooks/use-global-effect";
 import { ClientsApiClient } from "../api-client/api-client";
@@ -9,6 +9,16 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect } from "react";
 import { ROUTES, getRoute } from "@features/routes";
 import { useAuth } from "@features/auth/state/use-auth";
+
+export const useCurrentClient = () => {
+  const { client: clientId } = useParams();
+  const clients = useRecoilValue(ClientsState);
+  return {
+    id: clientId,
+    client: clients.find((c) => c.client.id === clientId)?.client,
+    clientUser: clients.find((c) => c.client.id === clientId),
+  };
+};
 
 export const useClients = () => {
   const { user } = useAuth();

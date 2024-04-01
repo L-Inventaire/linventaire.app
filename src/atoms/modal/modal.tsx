@@ -1,4 +1,5 @@
 import { Section } from "@atoms/text";
+import { useShortcuts } from "@features/utils/shortcuts";
 import { Dialog, Transition } from "@headlessui/react";
 import { XIcon } from "@heroicons/react/outline";
 import { ErrorBoundary } from "@views/error-boundary";
@@ -65,6 +66,11 @@ export const Modal = (props: {
   }, [openStatus, onClose]);
 
   const zIndex = "z-" + level + "0";
+
+  useShortcuts(
+    ["esc"],
+    () => props.closable !== false && props.onClose && props.onClose()
+  );
 
   return (
     <Transition.Root show={open} as={Fragment}>
