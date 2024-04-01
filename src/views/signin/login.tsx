@@ -46,12 +46,13 @@ export const Login = () => {
 
   useControlledEffect(() => {
     if (mode === "email" && email) {
-      clearUserCached();
+      requestEmailMFA();
     }
   }, [mode]);
 
   useControlledEffect(() => {
     if (userCached && email && userCached.email !== email) {
+      clearUserCached();
     }
   }, [email]);
 
