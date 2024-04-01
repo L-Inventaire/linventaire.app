@@ -12,7 +12,7 @@ export const PreferencesPage = () => {
   const { update, client: clientUser, loading } = useClients();
   const client = clientUser?.client;
   const hasAccess = useHasAccess();
-  const readOnly = !hasAccess("CLIENT_WRITE");
+  const readOnly = !hasAccess("CLIENT_MANAGE");
 
   const [preferences, setPreferences] = useState<
     Partial<Clients["preferences"]>

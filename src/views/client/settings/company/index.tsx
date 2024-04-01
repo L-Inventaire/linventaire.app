@@ -23,7 +23,7 @@ export const CompanyPage = () => {
   const { users, remove } = useClientUsers(clientUser?.client?.id || "");
   const client = clientUser?.client;
   const hasAccess = useHasAccess();
-  const readOnly = !hasAccess("CLIENT_WRITE");
+  const readOnly = !hasAccess("CLIENT_MANAGE");
 
   const [company, setCompany] = useState<Partial<Clients["company"]>>({});
   const [address, setAddress] = useState<Partial<Clients["address"]>>({});

@@ -21,15 +21,24 @@ export type ClientsUserWithUser = ClientsUsers & {
 // manage: can manage data, e.g. delete, massive edits, configurations, etc.
 
 export const Roles = [
+  "ANY", // Anyone in the company can access it
   "CLIENT_MANAGE",
-  "CLIENT_WRITE",
   "CLIENT_READ",
   "CONTACTS_READ",
   "CONTACTS_WRITE",
   "CONTACTS_MANAGE",
+  "COMMENTS_READ",
+  "COMMENTS_WRITE",
+  "COMMENTS_MANAGE",
+  "TAGS_READ",
+  "TAGS_MANAGE",
+  "TAGS_MANAGE",
   "USERS_READ",
   "USERS_WRITE",
   "USERS_MANAGE",
+  "EVENTS_READ",
+  "EVENTS_WRITE",
+  "EVENTS_MANAGE",
 ] as const;
 
 export type Role = (typeof Roles)[number];

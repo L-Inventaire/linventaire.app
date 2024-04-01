@@ -3,6 +3,7 @@ import { Button } from "@atoms/button/button";
 import { InputWithSuggestions } from "@atoms/input/input-with-suggestion";
 import { Loader } from "@atoms/loader";
 import { Info } from "@atoms/text";
+import { useHasAccess } from "@features/access";
 import { useTags } from "@features/tags/hooks/use-tags";
 import { getRandomHexColor } from "@features/utils/format/strings";
 import { TrashIcon } from "@heroicons/react/outline";
@@ -17,6 +18,7 @@ export const TagsInput = (props: {
   placeholder?: string;
   disabled?: boolean;
 }) => {
+  const hasAccess = useHasAccess();
   const [nextColor, setNextColor] = useState(getRandomHexColor());
   const [search, setSearch] = useState("");
   const [focused, setFocused] = useState(false);
@@ -69,7 +71,9 @@ export const TagsInput = (props: {
                   label: a.name,
                   value: a.id,
                 })),
-              { value: search, label: search },
+              ...(hasAccess("TAGS_MANAGE")
+                ? [{ value: search, label: search }]
+                : []),
             ]}
             onSelect={async (value: string) => {
               const tag = tags.data?.find((a) => a.id === value);

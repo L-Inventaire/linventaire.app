@@ -12,22 +12,26 @@ import { useFormController } from "@components/form/formcontext";
 import { Tag } from "@atoms/badge/tag";
 import { PencilIcon, TrashIcon } from "@heroicons/react/outline";
 import _ from "lodash";
+import { useHasAccess } from "@features/access";
 
 export const TagsPage = () => {
   const { tags, remove, upsert } = useTags();
   const [edit, setEdit] = useState<Partial<Tags> | null>(null);
   const { ctrl } = useFormController(edit || {}, setEdit);
+  const hasAccess = useHasAccess();
 
   return (
     <Page title={[{ label: "Paramètres" }, { label: "Étiquettes" }]}>
       <PageBlock>
-        <Button
-          className="float-right"
-          onClick={() => setEdit({})}
-          shortcut={["shift+a"]}
-        >
-          Ajouter
-        </Button>
+        {hasAccess("TAGS_MANAGE") && (
+          <Button
+            className="float-right"
+            onClick={() => setEdit({})}
+            shortcut={["shift+a"]}
+          >
+            Ajouter
+          </Button>
+        )}
         <Modal open={!!edit} onClose={() => setEdit(null)}>
           {!!edit && (
             <ModalContent
@@ -69,6 +73,7 @@ export const TagsPage = () => {
               ),
             },
             {
+              hidden: !hasAccess("TAGS_MANAGE"),
               title: "Actions",
               thClassName: "w-1 whitespace-nowrap",
               render: (tag) => {
