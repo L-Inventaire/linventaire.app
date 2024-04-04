@@ -1,6 +1,9 @@
 export const PageLoader = () => {
   return (
-    <div className="h-full flex justify-center items-center text-center overflow-hidden">
+    <div
+      className="h-full flex justify-center items-center text-center overflow-hidden"
+      style={{ minHeight: "50vh" }}
+    >
       <svg
         role="status"
         className="inline w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-wood-500"

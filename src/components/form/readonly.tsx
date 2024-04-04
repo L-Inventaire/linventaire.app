@@ -5,6 +5,8 @@ import { formatTime } from "@features/utils/format/dates";
 import { formatAmount } from "@features/utils/format/strings";
 import { memo } from "react";
 import { SearchFormFieldType } from "./types";
+import { TagsInput } from "@components/tags-input";
+import InputPhone from "@atoms/input/input-phone";
 
 export const FormReadonly = memo(
   (
@@ -57,6 +59,19 @@ export const FormReadonly = memo(
                 {props.render?.(props.value, props.values) ||
                   (props.value as string)}
               </Base>
+            )}
+            {props.type === "tags" && (
+              <TagsInput
+                className="w-full"
+                value={(props.value as string[]) || []}
+                disabled={true}
+              />
+            )}
+            {props.type === "phone" && (
+              <InputPhone
+                value={(props.value as string) || ""}
+                readonly={true}
+              />
             )}
             {props.type === "date" && (
               <Base className="whitespace-nowrap">

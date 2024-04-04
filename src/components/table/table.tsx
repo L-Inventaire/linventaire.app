@@ -487,7 +487,7 @@ export function RenderedTable<T>({
                       </td>
                     )}
                     {responsiveMode && (
-                      <td className="m-0 p-0 height-table-hack">
+                      <td className="m-0 p-0 height-table-hack sm:w-auto w-full">
                         <div
                           className={
                             "mb-2 m-0 p-0 border rounded-md p-2 " +
@@ -593,7 +593,7 @@ export function RenderedTable<T>({
                     columns.filter((a) => !a.hidden).length + (onSelect ? 1 : 0)
                   }
                   className={
-                    "items-center pl-2 py-1 pr-0 text-wood-500 dark:text-wood-400 " +
+                    "items-center py-1 pr-0 text-wood-500 dark:text-wood-400 " +
                     (scrollable ? " sticky bottom-0 z-10 " : "")
                   }
                 >

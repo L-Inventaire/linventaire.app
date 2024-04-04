@@ -6,6 +6,7 @@ export const useNavigationPrompt = (lockNavigation?: boolean) => {
   // when the lockNavigation is set to true
 
   useBlocker(({ currentLocation, nextLocation }) => {
+    console.log("beforeunload", lockNavigation);
     if (!lockNavigation) return false;
     const proceed = window.confirm("Are you sure you want to leave this page?");
     return (

@@ -59,11 +59,17 @@ export function useFormController<T extends Object>(
     ctrl: (key: keyof T | string[]) => {
       return {
         value: _.get(get, key),
-        onChange: (value: any) => {
-          setLockNavigation(_.isEqual(initial.current, get) === false);
-          set((prev: T) => {
-            return _.set({ ...prev }, key, value);
-          });
+        onChange: (value: keyof T | any) => {
+          // Only if there is a real change somewhere
+          if (
+            !_.isEqual((get as any)[key], value) &&
+            [value, (get as any)[key]].filter((a) => a).length // If we gone from null to empty string or similar, ignore change
+          ) {
+            setLockNavigation(_.isEqual(initial.current, get) === false);
+            set((prev: T) => {
+              return _.set({ ...prev }, key, value);
+            });
+          }
         },
       };
     },

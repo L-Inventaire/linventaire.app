@@ -14,7 +14,7 @@ import { twMerge } from "tailwind-merge";
 export const TagsInput = (props: {
   value: string[];
   className?: string;
-  onChange: (value: string[]) => void;
+  onChange?: (value: string[]) => void;
   placeholder?: string;
   disabled?: boolean;
 }) => {
@@ -40,11 +40,11 @@ export const TagsInput = (props: {
           }
           onClick={() =>
             !props.disabled &&
-            props.onChange(props.value.filter((a) => a !== tag.id))
+            props.onChange?.(props.value.filter((a) => a !== tag.id))
           }
           key={tag.id}
         >
-          <TrashIcon className="w-3 h-3 mr-2" />
+          {!props.disabled && <TrashIcon className="w-3 h-3 mr-2" />}
           {tag.name}
         </Tag>
       ))}
@@ -78,7 +78,7 @@ export const TagsInput = (props: {
             onSelect={async (value: string) => {
               const tag = tags.data?.find((a) => a.id === value);
               if (tag) {
-                props.onChange([...props.value, tag.id]);
+                props.onChange?.([...props.value, tag.id]);
               } else {
                 setFocused(false);
                 //Add the new tag
@@ -87,7 +87,7 @@ export const TagsInput = (props: {
                   name: value,
                   color: nextColor,
                 });
-                props.onChange([...props.value, tag.id]);
+                props.onChange?.([...props.value, tag.id]);
               }
             }}
             render={(e) =>

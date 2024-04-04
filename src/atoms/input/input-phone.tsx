@@ -4,6 +4,7 @@ import "react-phone-number-input/style.css";
 import countries from "@assets/countries.json";
 import { getCountryFromTimezone } from "@features/utils/location";
 import { defaultInputClassName } from "./input-text";
+import { twMerge } from "tailwind-merge";
 
 const CustomInput = React.forwardRef((props: any, ref) => (
   <input
@@ -19,9 +20,10 @@ const CustomInput = React.forwardRef((props: any, ref) => (
 
 export default function InputPhone(props: {
   disabled?: boolean;
+  readonly?: boolean;
   value: string;
-  size: "sm" | "md" | "lg";
-  onChange: (phone: string) => void;
+  size?: "sm" | "md" | "lg";
+  onChange?: (phone: string) => void;
 }) {
   const countryHint =
     getCountryFromTimezone() ||
@@ -41,15 +43,17 @@ export default function InputPhone(props: {
 
   return (
     <PhoneInput
-      disabled={props.disabled}
-      className={
-        inputClassName +
-        " shadow-sm bg-white rounded-md border overflow-hidden pl-3"
-      }
+      disabled={props.disabled || props.readonly}
+      className={twMerge(
+        inputClassName,
+        "shadow-sm bg-white rounded-md border overflow-hidden pl-3",
+        props.disabled ? "opacity-50" : "",
+        props.readonly ? "PhoneReadonly border-none shadow-none pl-0" : ""
+      )}
       defaultCountry={country as any}
       inputComponent={CustomInput}
       value={props.value}
-      onChange={props.onChange}
+      onChange={props.onChange || (() => null)}
       placeholder="+11234567890"
     />
   );

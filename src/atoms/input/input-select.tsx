@@ -22,7 +22,7 @@ export function Select(props: SelectInputProps) {
 
   if (props.size === "lg") inputClassName = inputClassName + " text-lg h-11";
   else if (props.size === "sm")
-    inputClassName = inputClassName + " text-sm h-7 py-0 px-3";
+    inputClassName = inputClassName + " text-sm h-7 py-0 px-3 pr-8";
   else inputClassName = inputClassName + " text-base h-9 py-1";
 
   if (props.label) {

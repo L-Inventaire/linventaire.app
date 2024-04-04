@@ -88,5 +88,12 @@ export const getRandomHexColor = () => {
     Math.floor(Math.random() * 16777215)
       .toString(16)
       .padStart(6, "0")
+      .replace(/../g, (x) =>
+        Math.floor(parseInt(x, 16) * 0.8)
+          .toString(16)
+          .padStart(2, "0")
+      )
   );
 };
+
+(window as any).getRandomHexColor = getRandomHexColor;

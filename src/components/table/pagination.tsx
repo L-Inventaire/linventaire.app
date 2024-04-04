@@ -88,6 +88,7 @@ export function TablePagination({
             <>
               <Info className="whitespace-nowrap mr-2">Per page</Info>
               <Select
+                className="shrink-0 w-max"
                 disabled={loading}
                 size="sm"
                 value={pagination.perPage || "10"}
