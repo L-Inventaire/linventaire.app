@@ -6,9 +6,14 @@ import { useContacts } from "@features/contacts/hooks/use-contacts";
 import { getContactName } from "@features/contacts/types/types";
 import { ROUTES, getRoute } from "@features/routes";
 import { Page, PageBlock } from "@views/client/_layout/page";
+import { useState } from "react";
+import { SearchBar } from "./components/search-bar";
 
 export const ContactsPage = () => {
-  const { contacts } = useContacts();
+  const [options, setOptions] = useState({ limit: 10, offset: 0 });
+  const { contacts } = useContacts(options);
+
+  (window as any).setOptions = setOptions;
   return (
     <Page title={[{ label: "Contacts" }]}>
       <div className="float-right">
@@ -18,6 +23,10 @@ export const ContactsPage = () => {
       </div>
       <Title>Tous les contacts</Title>
       <div className="mb-4" />
+
+      <SearchBar />
+      <div className="mb-4" />
+
       <Table
         loading={contacts.isPending}
         data={contacts.data || []}
