@@ -61,6 +61,7 @@
     "react-phone-number-input": "^3.3.7",
     "react-router-dom": "6",
     "react-scripts": "5.0.1",
+    "react-string-replace": "^1.1.1",
     "react-superellipse": "^0.0.6",
     "recoil": "^0.7.2",
     "seedrandom": "^3.0.5",

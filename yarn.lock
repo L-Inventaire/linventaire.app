@@ -9735,6 +9735,11 @@ react-scripts@5.0.1:
   optionalDependencies:
     fsevents "^2.3.2"
 
+react-string-replace@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/react-string-replace/-/react-string-replace-1.1.1.tgz#8413a598c60e397fe77df3464f2889f00ba25989"
+  integrity sha512-26TUbLzLfHQ5jO5N7y3Mx88eeKo0Ml0UjCQuX4BMfOd/JX+enQqlKpL1CZnmjeBRvQE8TR+ds9j1rqx9CxhKHQ==
+
 react-superellipse@^0.0.6:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/react-superellipse/-/react-superellipse-0.0.6.tgz#2d79df0fc435ab06825d8c5ec05244288eae48c8"
