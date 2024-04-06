@@ -3,6 +3,12 @@ import { fetchServer } from "@features/utils/fetch-server";
 export class RestApiClient<T> {
   constructor(private table: string) {}
 
+  schema = async (clientId: string): Promise<T[]> => {
+    return await (
+      await fetchServer(`/api/rest/v1/${clientId}/${this.table}/schema`)
+    ).json();
+  };
+
   list = async (
     clientId: string,
     query?: Partial<T> | any,

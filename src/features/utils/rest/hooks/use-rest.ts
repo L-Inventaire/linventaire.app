@@ -73,3 +73,11 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
 
   return { items, remove, create, update, upsert };
 };
+
+export const useRestSchema = (table: string) => {
+  const { id } = useCurrentClient();
+  return useQuery({
+    queryKey: [table + "_schema", id],
+    queryFn: () => restApiClients[table].schema(id || ""),
+  });
+};

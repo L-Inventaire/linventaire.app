@@ -5,54 +5,18 @@ import { buildFilter } from "./filter";
 import { SearchField } from "./types";
 import { extractFilters, generateQuery } from "./utils";
 
-export const SearchBar = () => {
+export const SearchBar = ({ fields }: { fields: SearchField[] }) => {
   const [value, setValue] = useState(
     'number:12->13,>=15 boolean:1 !name:~"James and co" tags:"Interne","Autre" date:2024-04-04 date:2025-04-04T10:15->2026-04-04T00:00 test and that\'s all'
   );
   const rendererRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const fields: SearchField[] = [
-    {
-      label: "Name",
-      key: "name",
-      type: "text",
-      search: async (query: string) => [
-        { value: 1, label: "example1" },
-        { value: 2, label: "example2" },
-      ],
-    },
-    {
-      label: "Tags",
-      key: "tags",
-      type: "text",
-      search: async (query: string) => [
-        { value: 1, label: "Tag 1" },
-        { value: 2, label: "Tag 2" },
-      ],
-    },
-    {
-      label: "Date",
-      key: "date",
-      type: "date",
-    },
-    {
-      label: "Number",
-      key: "number",
-      type: "number",
-    },
-    {
-      label: "Boolean",
-      key: "boolean",
-      type: "boolean",
-    },
-  ];
-
   // When value change, set inputHeight to rendererRef height
   useEffect(() => {
     if (rendererRef.current && inputRef.current) {
       inputRef.current.style.height = `${Math.max(
-        38,
+        39,
         rendererRef.current.scrollHeight + 2
       )}px`;
     }
@@ -61,7 +25,7 @@ export const SearchBar = () => {
   console.log(generateQuery(fields, extractFilters(value)));
 
   return (
-    <div className="relative w-full group bg-white rounded z-10">
+    <div className="relative w-full group bg-white dark:bg-slate-990 rounded z-10">
       <div
         ref={rendererRef}
         style={{
@@ -69,6 +33,7 @@ export const SearchBar = () => {
           lineHeight: "1.5",
         }}
         className={twMerge(
+          "break-all",
           "pointer-events-none select-none absolute w-full h-max left-0 top-0 text-sm px-3 py-2 border border-transparent",
           value && "font-mono"
         )}
@@ -84,7 +49,8 @@ export const SearchBar = () => {
         spellCheck={false}
         multiline
         className={twMerge(
-          "z-10 bg-transparent text-transparent dark:text-transparent caret-black dark:caret-white w-full focus:rounded-b-none",
+          "break-all",
+          "z-10 !bg-transparent !dark:bg-transparent !text-transparent !dark:text-transparent caret-black dark:caret-white w-full focus:rounded-b-none",
           value && "font-mono"
         )}
         value={value}

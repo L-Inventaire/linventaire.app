@@ -1635,6 +1635,10 @@ select {
   white-space: nowrap;
 }
 
+.break-all {
+  word-break: break-all;
+}
+
 .\!rounded-md {
   border-radius: 0.3rem !important;
 }
@@ -2817,6 +2821,10 @@ select {
   background-color: rgb(113 63 18 / var(--tw-bg-opacity));
 }
 
+.\!bg-transparent {
+  background-color: transparent !important;
+}
+
 .bg-opacity-10 {
   --tw-bg-opacity: 0.1;
 }
@@ -3653,6 +3661,10 @@ select {
 .text-zinc-500 {
   --tw-text-opacity: 1;
   color: rgb(113 113 122 / var(--tw-text-opacity));
+}
+
+.\!text-transparent {
+  color: transparent !important;
 }
 
 .underline {
@@ -5289,6 +5301,10 @@ input, select {
   .dark\:bg-yellow-900 {
     --tw-bg-opacity: 1;
     background-color: rgb(113 63 18 / var(--tw-bg-opacity));
+  }
+
+  .dark\:bg-transparent {
+    background-color: transparent;
   }
 
   .dark\:bg-opacity-25 {

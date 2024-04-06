@@ -5,15 +5,18 @@ import { TagsInput } from "@components/tags-input";
 import { useContacts } from "@features/contacts/hooks/use-contacts";
 import { getContactName } from "@features/contacts/types/types";
 import { ROUTES, getRoute } from "@features/routes";
-import { Page, PageBlock } from "@views/client/_layout/page";
+import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { SearchBar } from "./components/search-bar";
+import { useRestSchema } from "@features/utils/rest/hooks/use-rest";
+import { flattenKeys } from "@features/utils/flatten";
+import { SearchField } from "./components/search-bar/types";
 
 export const ContactsPage = () => {
   const [options, setOptions] = useState({ limit: 10, offset: 0 });
   const { contacts } = useContacts(options);
+  const schema = useRestSchema("contacts");
 
-  (window as any).setOptions = setOptions;
   return (
     <Page title={[{ label: "Contacts" }]}>
       <div className="float-right">
@@ -24,7 +27,11 @@ export const ContactsPage = () => {
       <Title>Tous les contacts</Title>
       <div className="mb-4" />
 
-      <SearchBar />
+      <SearchBar
+        fields={Object.entries(flattenKeys(schema.data)).map(([key, value]) => {
+          return { key, label: key, type: value as SearchField["type"] };
+        })}
+      />
       <div className="mb-4" />
 
       <Table
