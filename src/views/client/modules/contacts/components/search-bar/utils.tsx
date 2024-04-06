@@ -14,7 +14,7 @@ export const extractFilters = (str: string): MatchedStringFilter[] => {
     str.match(/(!?[^ :]+:~?([^" ]+|("[^"]+("|$),?)+[^" ]*)|[^ ]+)/gm) || [];
   return filters.map((filter) => {
     const parts = filter.match(
-      /(([^ :]+):([^~" ]+|(~?"[^"]+("|$),?)+[^" ]*)?)/
+      /(([^ :]+):(~?[^~" ]+|(~?"[^"]+("|$),?)+[^" ]*)?)/
     );
     if (!parts)
       return { key: "", not: false, raw: filter, values: [], values_raw: "" };
@@ -41,7 +41,8 @@ export const generateQuery = (
     .map((a) => a.raw)
     .join(" ");
 
-  return [
+  let valid = true;
+  const result = [
     {
       key: "query",
       not: false,
@@ -62,14 +63,12 @@ export const generateQuery = (
                 op: (isRegex ? "regex" : "equals") as OutputQueryOp,
                 value,
               };
-            }
-            if (field?.type === "boolean") {
+            } else if (field?.type === "boolean") {
               return {
                 op: "equals" as OutputQueryOp,
                 value: value === "1",
               };
-            }
-            if (field?.type === "number" || field?.type === "date") {
+            } else if (field?.type === "number" || field?.type === "date") {
               let [min, max] = value.split("->") as [
                 string | number | Date | null,
                 string | number | Date | null
@@ -108,10 +107,17 @@ export const generateQuery = (
                 op: "equals" as OutputQueryOp,
                 value: min,
               };
+            } else {
+              valid = false;
             }
             return { op: "equals" as OutputQueryOp, value };
           }),
         };
       }),
   ];
+
+  return {
+    valid,
+    fields: result,
+  };
 };

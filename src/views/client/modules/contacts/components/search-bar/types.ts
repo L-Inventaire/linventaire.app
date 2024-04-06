@@ -16,7 +16,10 @@ export type MatchedStringFilter = {
 export type OutputQueryOp = "equals" | "regex" | "gte" | "lte" | "range";
 
 export type OutputQuery = {
-  key: string;
-  not?: boolean;
-  values: { op: OutputQueryOp; value: any }[];
-}[];
+  valid: boolean;
+  fields: {
+    key: string;
+    not?: boolean;
+    values: { op: OutputQueryOp; value: any }[];
+  }[];
+};

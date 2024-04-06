@@ -2,15 +2,29 @@ import { Input } from "@atoms/input/input-text";
 import { useEffect, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { buildFilter } from "./filter";
-import { SearchField } from "./types";
+import { OutputQuery, SearchField } from "./types";
 import { extractFilters, generateQuery } from "./utils";
 
-export const SearchBar = ({ fields }: { fields: SearchField[] }) => {
+export const SearchBar = ({
+  fields,
+  onChange,
+}: {
+  fields: SearchField[];
+  onChange: (str: OutputQuery) => void;
+}) => {
   const [value, setValue] = useState(
-    'number:12->13,>=15 boolean:1 !name:~"James and co" tags:"Interne","Autre" date:2024-04-04 date:2025-04-04T10:15->2026-04-04T00:00 test and that\'s all'
+    new URLSearchParams(window.location.search).get("q") || ""
   );
   const rendererRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // When value change, set it to url querystring ?q=
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    url.searchParams.set("q", value);
+    window.history.replaceState({}, "", url.toString());
+    onChange(generateQuery(fields, extractFilters(value)));
+  }, [value]);
 
   // When value change, set inputHeight to rendererRef height
   useEffect(() => {
@@ -21,8 +35,6 @@ export const SearchBar = ({ fields }: { fields: SearchField[] }) => {
       )}px`;
     }
   }, [value]);
-
-  console.log(generateQuery(fields, extractFilters(value)));
 
   return (
     <div className="relative w-full group bg-white dark:bg-slate-990 rounded z-10">
