@@ -1,3 +1,5 @@
+import { RestSearchQuery } from "@features/utils/rest/hooks/use-rest";
+
 export type SearchField = {
   label: string;
   key: string;
@@ -13,13 +15,7 @@ export type MatchedStringFilter = {
   values_raw: string;
 };
 
-export type OutputQueryOp = "equals" | "regex" | "gte" | "lte" | "range";
-
 export type OutputQuery = {
   valid: boolean;
-  fields: {
-    key: string;
-    not?: boolean;
-    values: { op: OutputQueryOp; value: any }[];
-  }[];
+  fields: RestSearchQuery[];
 };

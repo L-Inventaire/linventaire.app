@@ -24,7 +24,7 @@ export const TagsInput = (props: {
   const [focused, setFocused] = useState(false);
   const { tags, create } = useTags();
   const selectedTags = _.sortBy(
-    (tags.data || []).filter((tag) => props.value.includes(tag.id)),
+    (tags.data?.list || []).filter((tag) => props.value.includes(tag.id)),
     "name"
   );
 
@@ -65,7 +65,7 @@ export const TagsInput = (props: {
             className="max-w-24"
             onChange={(e) => setSearch(e.target.value)}
             options={[
-              ...(tags.data || [])
+              ...(tags.data?.list || [])
                 .filter((a) => !props.value.includes(a.id))
                 .map((a) => ({
                   label: a.name,
@@ -76,7 +76,7 @@ export const TagsInput = (props: {
                 : []),
             ]}
             onSelect={async (value: string) => {
-              const tag = tags.data?.find((a) => a.id === value);
+              const tag = (tags.data?.list || [])?.find((a) => a.id === value);
               if (tag) {
                 props.onChange?.([...props.value, tag.id]);
               } else {
@@ -91,11 +91,12 @@ export const TagsInput = (props: {
               }
             }}
             render={(e) =>
-              tags.data?.find((a) => a.id === e.value) ? (
+              (tags.data?.list || [])?.find((a) => a.id === e.value) ? (
                 <Tag
                   className="-mx-1"
                   color={
-                    tags.data?.find((a) => a.id === e.value)?.color || "#000000"
+                    (tags.data?.list || [])?.find((a) => a.id === e.value)
+                      ?.color || "#000000"
                   }
                 >
                   {e.label}

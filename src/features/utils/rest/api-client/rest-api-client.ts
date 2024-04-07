@@ -1,4 +1,5 @@
 import { fetchServer } from "@features/utils/fetch-server";
+import toast from "react-hot-toast";
 
 export class RestApiClient<T> {
   constructor(private table: string) {}
@@ -17,13 +18,16 @@ export class RestApiClient<T> {
       offset?: number;
       asc?: boolean;
     }
-  ): Promise<T[]> => {
-    return await (
-      await fetchServer(`/api/rest/v1/${clientId}/${this.table}/search`, {
+  ): Promise<{ total: number; list: T[] }> => {
+    const tmp = await fetchServer(
+      `/api/rest/v1/${clientId}/${this.table}/search`,
+      {
         method: "POST",
         body: JSON.stringify({ query, options }),
-      })
-    ).json();
+      }
+    );
+    if (tmp.status === 200) return await tmp.json();
+    throw new Error("Error fetching data");
   };
 
   create = async (clientId: string, item: Partial<T>): Promise<T> => {

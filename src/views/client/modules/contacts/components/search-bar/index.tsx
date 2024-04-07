@@ -4,13 +4,16 @@ import { twMerge } from "tailwind-merge";
 import { buildFilter } from "./filter";
 import { OutputQuery, SearchField } from "./types";
 import { extractFilters, generateQuery } from "./utils";
+import { debounce as delayCall } from "@features/utils/debounce";
 
 export const SearchBar = ({
   fields,
   onChange,
+  debounce = 300,
 }: {
   fields: SearchField[];
   onChange: (str: OutputQuery) => void;
+  debounce?: number;
 }) => {
   const [value, setValue] = useState(
     new URLSearchParams(window.location.search).get("q") || ""
@@ -23,7 +26,15 @@ export const SearchBar = ({
     const url = new URL(window.location.href);
     url.searchParams.set("q", value);
     window.history.replaceState({}, "", url.toString());
-    onChange(generateQuery(fields, extractFilters(value)));
+    delayCall(
+      () => {
+        onChange(generateQuery(fields, extractFilters(value)));
+      },
+      {
+        key: "search-bar",
+        timeout: debounce,
+      }
+    );
   }, [value]);
 
   // When value change, set inputHeight to rendererRef height
@@ -70,11 +81,13 @@ export const SearchBar = ({
           setValue(e.target.value?.replace(/\n/g, "").replace(/ +/g, " ") || "")
         }
       />
-      <div className="hidden group-focus-within:block text-sm z-10 absolute right-0 top-full w-full h-max shadow-md flex items-center pr-2 bg-white dark:bg-wood-990 ring-1 ring-wood-500 border border-wood-500 rounded rounded-t-none p-4">
-        Yo
-        <br />
-        And more
-      </div>
+      {false && (
+        <div className="hidden group-focus-within:block text-sm z-10 absolute right-0 top-full w-full h-max shadow-md flex items-center pr-2 bg-white dark:bg-wood-990 ring-1 ring-wood-500 border border-wood-500 rounded rounded-t-none p-4">
+          Yo
+          <br />
+          And more
+        </div>
+      )}
     </div>
   );
 };

@@ -2322,6 +2322,10 @@ select {
   --tw-border-opacity: 0.5;
 }
 
+.\!bg-transparent {
+  background-color: transparent !important;
+}
+
 .\!bg-white {
   --tw-bg-opacity: 1 !important;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity)) !important;
@@ -2821,10 +2825,6 @@ select {
   background-color: rgb(113 63 18 / var(--tw-bg-opacity));
 }
 
-.\!bg-transparent {
-  background-color: transparent !important;
-}
-
 .bg-opacity-10 {
   --tw-bg-opacity: 0.1;
 }
@@ -3152,6 +3152,10 @@ select {
 
 .leading-6 {
   line-height: 1.5rem;
+}
+
+.\!text-transparent {
+  color: transparent !important;
 }
 
 .text-amber-500 {
@@ -3549,10 +3553,6 @@ select {
   color: rgb(68 66 64 / var(--tw-text-opacity));
 }
 
-.text-transparent {
-  color: transparent;
-}
-
 .text-white {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
@@ -3661,10 +3661,6 @@ select {
 .text-zinc-500 {
   --tw-text-opacity: 1;
   color: rgb(113 113 122 / var(--tw-text-opacity));
-}
-
-.\!text-transparent {
-  color: transparent !important;
 }
 
 .underline {
@@ -5303,10 +5299,6 @@ input, select {
     background-color: rgb(113 63 18 / var(--tw-bg-opacity));
   }
 
-  .dark\:bg-transparent {
-    background-color: transparent;
-  }
-
   .dark\:bg-opacity-25 {
     --tw-bg-opacity: 0.25;
   }
@@ -5677,10 +5669,6 @@ input, select {
   .dark\:text-slate-900 {
     --tw-text-opacity: 1;
     color: rgb(68 66 64 / var(--tw-text-opacity));
-  }
-
-  .dark\:text-transparent {
-    color: transparent;
   }
 
   .dark\:text-white {

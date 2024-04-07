@@ -1,12 +1,20 @@
 import { useCurrentClient } from "@features/clients/state/use-clients";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { RestApiClient } from "../api-client/rest-api-client";
 import _ from "lodash";
+import { RestApiClient } from "../api-client/rest-api-client";
 
 const restApiClients: { [key: string]: RestApiClient<any> } = {};
 
+export type RestSearchQueryOp = "equals" | "regex" | "gte" | "lte" | "range";
+
+export type RestSearchQuery = {
+  key: string;
+  not?: boolean;
+  values: { op: RestSearchQueryOp; value: any }[];
+};
+
 export type RestOptions<T> = {
-  query?: Partial<T> | any;
+  query?: RestSearchQuery[] | Partial<T>;
   limit?: number;
   offset?: number;
   asc?: boolean;
@@ -19,17 +27,14 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
   const queryClient = useQueryClient();
 
   const items = useQuery({
-    queryKey: [
-      table,
-      id,
-      options?.offset,
-      options?.limit,
-      options?.asc,
-      options?.query,
-    ],
+    queryKey: [table, id],
+    staleTime: 1000 * 60 * 5, // 5 minutes
     queryFn: () =>
       restApiClient.list(id || "", options?.query, _.omit(options, "query")),
   });
+
+  const refresh = () =>
+    queryClient.invalidateQueries({ queryKey: [table, id] });
 
   const remove = useMutation({
     mutationFn: (itemId: string) => restApiClient.delete(id || "", itemId),
@@ -71,7 +76,7 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
     },
   });
 
-  return { items, remove, create, update, upsert };
+  return { refresh, items, remove, create, update, upsert };
 };
 
 export const useRestSchema = (table: string) => {

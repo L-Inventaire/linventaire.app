@@ -64,7 +64,7 @@ export const TagsPage = () => {
 
         <Table
           className="mt-4"
-          data={_.sortBy(tags.data || [], "name")}
+          data={_.sortBy(tags.data?.list || [], "name")}
           columns={[
             {
               title: "Étiquette",

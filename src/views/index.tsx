@@ -2,7 +2,7 @@ import { PageLoader } from "@components/page-loader";
 import { useAuth } from "@features/auth/state/use-auth";
 import { ROUTES } from "@features/routes";
 import { useListenForShortcuts } from "@features/utils/shortcuts";
-import { Suspense, useEffect } from "react";
+import { Suspense } from "react";
 import { Toaster } from "react-hot-toast";
 import {
   Navigate,
@@ -10,7 +10,6 @@ import {
   RouterProvider,
   createBrowserRouter,
   createRoutesFromElements,
-  useLocation,
 } from "react-router-dom";
 import { BackOfficeRoutes } from "./client";
 import { LoginRoutes } from "./signin";

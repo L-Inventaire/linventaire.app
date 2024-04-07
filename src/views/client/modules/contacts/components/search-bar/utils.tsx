@@ -1,9 +1,5 @@
-import {
-  MatchedStringFilter,
-  OutputQuery,
-  OutputQueryOp,
-  SearchField,
-} from "./types";
+import { RestSearchQueryOp } from "@features/utils/rest/hooks/use-rest";
+import { MatchedStringFilter, OutputQuery, SearchField } from "./types";
 
 export const labelToVariable = (label: string) =>
   label.toLowerCase().replace(/[^a-z0-9]/g, "_");
@@ -46,7 +42,7 @@ export const generateQuery = (
     {
       key: "query",
       not: false,
-      values: [{ op: "equals" as OutputQueryOp, value: query }],
+      values: [{ op: "equals" as RestSearchQueryOp, value: query }],
     },
     ...filters
       .filter((a) => a.key)
@@ -60,12 +56,12 @@ export const generateQuery = (
               const isRegex = value.startsWith("~");
               value = value.replace(/(^~?"|"$)/g, "");
               return {
-                op: (isRegex ? "regex" : "equals") as OutputQueryOp,
+                op: (isRegex ? "regex" : "equals") as RestSearchQueryOp,
                 value,
               };
             } else if (field?.type === "boolean") {
               return {
-                op: "equals" as OutputQueryOp,
+                op: "equals" as RestSearchQueryOp,
                 value: value === "1",
               };
             } else if (field?.type === "number" || field?.type === "date") {
@@ -87,30 +83,30 @@ export const generateQuery = (
 
               if (value.startsWith(">=")) {
                 return {
-                  op: "gte" as OutputQueryOp,
+                  op: "gte" as RestSearchQueryOp,
                   value: min,
                 };
               }
               if (value.startsWith("<=")) {
                 return {
-                  op: "lte" as OutputQueryOp,
+                  op: "lte" as RestSearchQueryOp,
                   value: min,
                 };
               }
               if (value.includes("->")) {
                 return {
-                  op: "range" as OutputQueryOp,
+                  op: "range" as RestSearchQueryOp,
                   value: [min, max],
                 };
               }
               return {
-                op: "equals" as OutputQueryOp,
+                op: "equals" as RestSearchQueryOp,
                 value: min,
               };
             } else {
               valid = false;
             }
-            return { op: "equals" as OutputQueryOp, value };
+            return { op: "equals" as RestSearchQueryOp, value };
           }),
         };
       }),
