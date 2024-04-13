@@ -14,6 +14,7 @@ export type DropDownMenuType = {
   shortcut?: string[];
   onClick?: () => void;
   to?: string;
+  active?: boolean;
 }[];
 
 export const DropDownAtom = atom<{
@@ -177,7 +178,7 @@ export const Menu = ({
   return (
     <>
       {menu.map((m, i) => {
-        let active = false;
+        let active = false || m.active;
         if (m.to && location.pathname.indexOf(m.to) === 0) {
           active = true;
         }
@@ -238,6 +239,11 @@ const showShortCut = (shortcut: string[]) => {
         .replace("cmd", "⌘")
         .replace("ctrl", "ctrl+")
         .replace("alt", "⌥")
+        .replace("enter", "↵")
+        .replace("up", "↑")
+        .replace("down", "↓")
+        .replace("left", "←")
+        .replace("right", "→")
         .replace("shift", "⇧")
         .replace("del", "⌫")
         .replace(/\+/g, "")

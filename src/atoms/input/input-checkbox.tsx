@@ -1,10 +1,12 @@
 import { CheckIcon } from "@heroicons/react/outline";
 import { BaseSmall } from "../text";
+import { twMerge } from "tailwind-merge";
 
 export const Checkbox = (props: {
   label?: string;
   onChange?: (status: boolean, e: React.MouseEvent<HTMLInputElement>) => void;
   value?: boolean;
+  size?: "sm" | "md";
   className?: string;
   disabled?: boolean;
 }) => {
@@ -13,17 +15,17 @@ export const Checkbox = (props: {
 
     return (
       <div
-        className={
-          " shrink-0 flex justify-center items-center w-5 h-5 border-2 rounded text-white " +
-          (props.value
-            ? "border-wood-400 bg-wood-400 hover:border-wood-500 hover:bg-wood-500"
-            : "border-wood-300 " +
-              (props.disabled ? "" : "hover:border-wood-200")) +
-          " " +
-          (props.disabled ? "opacity-50" : "cursor-pointer") +
-          " " +
-          (className || "")
-        }
+        className={twMerge(
+          " shrink-0 flex justify-center items-center border-2 rounded text-white " +
+            (props.value
+              ? "border-wood-400 bg-wood-400 hover:border-wood-500 hover:bg-wood-500"
+              : "border-wood-300 " +
+                (props.disabled ? "" : "hover:border-wood-200")) +
+            " " +
+            (props.disabled ? "opacity-50" : "cursor-pointer"),
+          className,
+          props.size === "sm" ? "w-4 h-4" : "w-5 h-5 "
+        )}
         onClick={(e) =>
           !props.label &&
           !props.disabled &&

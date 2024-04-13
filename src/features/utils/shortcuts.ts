@@ -5,7 +5,12 @@ export type Shortcut =
   | ShortcutKeys
   | ConcatenatedString<"ctrl+", ShortcutKeys>
   | ConcatenatedString<"alt+", ShortcutKeys>
-  | ConcatenatedString<"shift+", ShortcutKeys>;
+  | ConcatenatedString<"shift+", ShortcutKeys>
+  | ConcatenatedString<"cmd+", ShortcutKeys>
+  | ConcatenatedString<"cmd+shift+", ShortcutKeys>
+  | ConcatenatedString<"ctrl+shift+", ShortcutKeys>
+  | ConcatenatedString<"ctrl+alt+", ShortcutKeys>
+  | ConcatenatedString<"ctrl+alt+shift+", ShortcutKeys>;
 
 type ConcatenatedString<T extends string, S extends string> = `${T}${S}`;
 

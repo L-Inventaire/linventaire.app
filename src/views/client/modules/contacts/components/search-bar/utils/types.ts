@@ -1,9 +1,16 @@
 import { RestSearchQuery } from "@features/utils/rest/hooks/use-rest";
 
+type ConcatenatedString<T extends string, S extends string> = `${T}${S}`;
+
 export type SearchField = {
   label: string;
   key: string;
-  type: "text" | "date" | "number" | "boolean";
+  type:
+    | "text"
+    | "date"
+    | "number"
+    | "boolean"
+    | ConcatenatedString<"type:", string>;
   search?: (query: string) => Promise<{ value: any; label: string }[]>;
 };
 

@@ -53,7 +53,7 @@ export const Search = () => {
             onChange={(e) => setQuery(e.target.value)}
             inputClassName={"!rounded-md text-black " + className}
             placeholder={t("header.search.placeholder")}
-            shortcut={["shift+k", "ctrl+k"]}
+            shortcut={["shift+k", "ctrl+k", "cmd+k"]}
           />
         )}
       />

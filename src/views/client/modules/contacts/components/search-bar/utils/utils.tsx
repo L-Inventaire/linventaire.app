@@ -1,5 +1,13 @@
 import { RestSearchQueryOp } from "@features/utils/rest/hooks/use-rest";
 import { MatchedStringFilter, OutputQuery, SearchField } from "./types";
+import { flattenKeys } from "@features/utils/flatten";
+
+export const schemaToSearchFields = (schema: any) => {
+  return Object.entries(flattenKeys(schema)).map(([key, value]) => {
+    key = key.replace(/\[0\]$/, "");
+    return { key, label: key, type: value as SearchField["type"] };
+  });
+};
 
 export const labelToVariable = (label: string) =>
   label.toLowerCase().replace(/[^a-z0-9]/g, "_");
@@ -7,22 +15,24 @@ export const labelToVariable = (label: string) =>
 // Filters have this form: field:"value with spaces","value2","value3" or just field:value,value2
 export const extractFilters = (str: string): MatchedStringFilter[] => {
   const filters =
-    str.match(/(!?[^ :]+:~?([^" ]+|("[^"]+("|$),?)+[^" ]*)|[^ ]+)/gm) || [];
+    str.match(/(!?[^ :]+:~?([^" ]+|("[^"]*("|$),?)+[^" ]*)|[^ ]+)/gm) || [];
   return filters.map((filter) => {
     const parts = filter.match(
-      /(([^ :]+):(~?[^~" ]+|(~?"[^"]+("|$),?)+[^" ]*)?)/
+      /(([^ :]+):(~([^"]|$)|~?[^~" ]+|(~?"[^"]*("|$),?)+[^" ]*)?)/
     );
     if (!parts)
       return { key: "", not: false, raw: filter, values: [], values_raw: "" };
     const key = parts[2];
-    const values = (parts[3] || "").match(/(~?"[^"]+("|$)|[^,]+)/g) || [];
+    const values =
+      (parts[3] || "").match(/(~([^"]|$)|~?"[^"]*("|$)|[^,]+)/g) || [];
     return {
       key: key.replace(/^!/, ""),
       not: key.startsWith("!"),
+      fuzzy: (parts[3] || "").startsWith("~"),
       raw: filter,
       values_raw: parts[3] || "",
       values: values
-        .map((value) => value.replace(/^"(.*?)("|$)$/g, "$1"))
+        .map((value) => value.replace(/^~?"(.*?)("|$)$/g, "$1"))
         .filter(Boolean),
     };
   });

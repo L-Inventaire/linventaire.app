@@ -1,5 +1,4 @@
 import { fetchServer } from "@features/utils/fetch-server";
-import toast from "react-hot-toast";
 
 export class RestApiClient<T> {
   constructor(private table: string) {}

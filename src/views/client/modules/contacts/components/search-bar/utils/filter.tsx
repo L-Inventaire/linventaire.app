@@ -60,7 +60,8 @@ export const buildFilter = (
       >
         <span className="font-bold">
           {filter.not && "!"}
-          {fieldName}{" "}
+          {fieldName}
+          {":"}
         </span>
         <span>{filter.values_raw}</span>
       </span>

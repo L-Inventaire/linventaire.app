@@ -15,8 +15,8 @@ export const useContacts = (options?: RestOptions<Contacts>) => {
 export const useContact = (id: string) => {
   const rest = useContacts({ query: { id } });
   return {
-    contact: (rest.contacts.data?.list || [])[0],
-    isPending: rest.contacts.isPending,
+    contact: id ? (rest.contacts.data?.list || [])[0] : null,
+    isPending: id ? rest.contacts.isPending : false,
     ...rest,
   };
 };

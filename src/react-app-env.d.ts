@@ -6,6 +6,7 @@ declare module "d3-shape";
 declare module "react-use-dimensions";
 declare module "react-modal-image";
 declare module "react-mentions";
+declare module "fuse.js";
 
 declare module "@editorjs/embed";
 declare module "@editorjs/table";

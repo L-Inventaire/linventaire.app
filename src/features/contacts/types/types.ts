@@ -44,7 +44,7 @@ export type Billing = {
     | "other";
 };
 
-export const getContactName = (contact: Contacts) => {
+export const getContactName = (contact: Partial<Contacts>) => {
   return contact.type === "person"
     ? [contact.person_first_name, contact.person_last_name]
         .filter(Boolean)

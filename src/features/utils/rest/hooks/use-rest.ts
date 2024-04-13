@@ -18,6 +18,7 @@ export type RestOptions<T> = {
   limit?: number;
   offset?: number;
   asc?: boolean;
+  index?: string;
 };
 
 export const useRest = <T>(table: string, options?: RestOptions<T>) => {

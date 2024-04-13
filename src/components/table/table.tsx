@@ -218,7 +218,7 @@ export function RenderedTable<T>({
             >
               <Select
                 size="sm"
-                className="grow w-full my-2"
+                className="grow w-full my-2 mr-2"
                 onChange={(e) => {
                   if (onChangeOrder) {
                     onChangeOrder(parseInt(e.target.value), "ASC");

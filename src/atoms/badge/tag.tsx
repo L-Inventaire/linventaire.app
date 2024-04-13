@@ -1,10 +1,12 @@
 import { CSSProperties, ReactNode } from "react";
+import { twMerge } from "tailwind-merge";
 
 export const Tag = ({
   color,
   className,
   noColor,
   children,
+  size,
   style,
   onClick,
 }: {
@@ -12,6 +14,7 @@ export const Tag = ({
   className?: string;
   noColor?: boolean;
   children: ReactNode;
+  size?: "sm" | "md";
   style?: CSSProperties;
   onClick?: () => void;
 }) => {
@@ -27,13 +30,14 @@ export const Tag = ({
     <div
       onClick={onClick}
       style={{ ...(style || {}), minWidth: "21px" }}
-      className={
-        "h-7 text-left rounded inline-block px-2 inline-flex items-center text-sm text-center border border-opacity-10 border-box border-black border-inside " +
-        (!noColor
-          ? "bg-wood-300 text-wood-800 dark:bg-wood-600 dark:text-wood-100 "
-          : "") +
-        (className || "")
-      }
+      className={twMerge(
+        size === "sm" ? "h-5 px-1" : "h-7 px-2",
+        "text-left rounded inline-block inline-flex items-center text-sm text-center border border-opacity-10 border-box border-black border-inside " +
+          (!noColor
+            ? "bg-wood-300 text-wood-800 dark:bg-wood-600 dark:text-wood-100 "
+            : "") +
+          (className || "")
+      )}
     >
       {children}
     </div>

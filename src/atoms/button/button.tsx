@@ -75,7 +75,7 @@ export const Button = (props: ButtonProps) => {
       className = className + " w-11 !p-0 justify-center";
     else if (props.size === "sm")
       className = className + " w-7 !p-0 justify-center";
-    else className = className + " w-9 !p-0 justify-center";
+    else className = className + " w-12 !p-0 justify-center";
   }
 
   return (

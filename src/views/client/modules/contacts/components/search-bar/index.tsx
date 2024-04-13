@@ -1,10 +1,14 @@
+import { InputDecorationIcon } from "@atoms/input/input-decoration-icon";
 import { Input } from "@atoms/input/input-text";
+import { debounce as delayCall } from "@features/utils/debounce";
+import { SearchIcon } from "@heroicons/react/solid";
 import { useEffect, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { buildFilter } from "./filter";
-import { OutputQuery, SearchField } from "./types";
-import { extractFilters, generateQuery } from "./utils";
-import { debounce as delayCall } from "@features/utils/debounce";
+import { buildFilter } from "./utils/filter";
+import { useSuggestions } from "./hooks/use-suggestions";
+import { SearchBarSuggestions } from "./suggestions";
+import { OutputQuery, SearchField } from "./utils/types";
+import { extractFilters, generateQuery } from "./utils/utils";
 
 export const SearchBar = ({
   fields,
@@ -18,11 +22,17 @@ export const SearchBar = ({
   const [value, setValue] = useState(
     new URLSearchParams(window.location.search).get("q") || ""
   );
+  const [selectionIndex, setSelectionIndex] = useState(0);
   const rendererRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const { suggestions, onKeyDown, applySelection, getSuggestions } =
+    useSuggestions(fields, inputRef, setValue);
+
   // When value change, set it to url querystring ?q=
   useEffect(() => {
+    setSelectionIndex(0);
+
     const url = new URL(window.location.href);
     url.searchParams.set("q", value);
     window.history.replaceState({}, "", url.toString());
@@ -41,7 +51,7 @@ export const SearchBar = ({
   useEffect(() => {
     if (rendererRef.current && inputRef.current) {
       inputRef.current.style.height = `${Math.max(
-        39,
+        36,
         rendererRef.current.scrollHeight + 2
       )}px`;
     }
@@ -57,35 +67,51 @@ export const SearchBar = ({
         }}
         className={twMerge(
           "break-all",
-          "pointer-events-none select-none absolute w-full h-max left-0 top-0 text-sm px-3 py-2 border border-transparent",
-          value && "font-mono"
+          "translate-y-px pointer-events-none select-none absolute w-full h-max left-0 top-0 text-sm px-3 py-1.5 border border-transparent",
+          value && "font-mono",
+          "pl-8"
         )}
       >
         {extractFilters(value).map((filter) => {
           return buildFilter(fields, filter);
         })}
       </div>
-      <Input
-        style={{ resize: "none", lineHeight: "1.5" }}
-        placeholder="Rechercher dans tous les champs..."
-        inputRef={inputRef}
-        spellCheck={false}
-        multiline
-        className={twMerge(
-          "break-all",
-          "z-10 !bg-transparent !dark:bg-transparent !text-transparent !dark:text-transparent caret-black dark:caret-white w-full focus:rounded-b-none",
-          value && "font-mono"
+      <InputDecorationIcon
+        prefix={(p) => <SearchIcon {...p} />}
+        input={({ className }) => (
+          <Input
+            shortcut={["ctrl+f", "cmd+shift+f"]}
+            onMouseUp={getSuggestions}
+            onKeyUp={getSuggestions}
+            onKeyDown={onKeyDown}
+            style={{ resize: "none", lineHeight: "1.5" }}
+            placeholder="Rechercher dans tous les champs..."
+            inputRef={inputRef}
+            spellCheck={false}
+            multiline
+            className={twMerge(
+              "break-all",
+              "z-10 !bg-transparent !dark:bg-transparent !text-transparent !dark:text-transparent caret-black dark:caret-white w-full py-1.5",
+              suggestions.length > 0 && "focus:rounded-b-none",
+              value && "font-mono",
+              className
+            )}
+            value={value}
+            onChange={(e) =>
+              setValue(
+                e.target.value?.replace(/\n/g, "").replace(/ +/g, " ") || ""
+              )
+            }
+          />
         )}
-        value={value}
-        onChange={(e) =>
-          setValue(e.target.value?.replace(/\n/g, "").replace(/ +/g, " ") || "")
-        }
       />
-      {false && (
-        <div className="hidden group-focus-within:block text-sm z-10 absolute right-0 top-full w-full h-max shadow-md flex items-center pr-2 bg-white dark:bg-wood-990 ring-1 ring-wood-500 border border-wood-500 rounded rounded-t-none p-4">
-          Yo
-          <br />
-          And more
+      {suggestions.length > 0 && (
+        <div className="hidden group-focus-within:block hover:block text-sm z-10 absolute right-0 top-full w-full h-max shadow-md flex items-center bg-white dark:bg-wood-990 ring-1 ring-wood-500 border border-wood-500 rounded rounded-t-none px-2 py-1">
+          <SearchBarSuggestions
+            suggestions={suggestions}
+            selected={selectionIndex}
+            onClick={(i) => applySelection(i)}
+          />
         </div>
       )}
     </div>
