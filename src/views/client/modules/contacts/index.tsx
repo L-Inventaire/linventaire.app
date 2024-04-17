@@ -1,27 +1,29 @@
+import Avatar from "@atoms/avatar/avatar";
+import { Tag } from "@atoms/badge/tag";
 import { Button } from "@atoms/button/button";
-import { Title } from "@atoms/text";
+import InputDate from "@atoms/input/input-date";
+import Select from "@atoms/input/input-select";
+import { Info, Title } from "@atoms/text";
 import { Table } from "@components/table";
 import { TagsInput } from "@components/tags-input";
 import { useContacts } from "@features/contacts/hooks/use-contacts";
 import { Contacts, getContactName } from "@features/contacts/types/types";
 import { ROUTES, getRoute } from "@features/routes";
-import { flattenKeys } from "@features/utils/flatten";
 import {
   RestOptions,
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
-import { Page } from "@views/client/_layout/page";
-import { useState } from "react";
-import { SearchBar } from "./components/search-bar";
-import { SearchField } from "./components/search-bar/utils/types";
-import Select from "@atoms/input/input-select";
 import {
-  CogIcon,
+  DocumentTextIcon,
   DotsHorizontalIcon,
   PlusIcon,
 } from "@heroicons/react/outline";
-import InputDate from "@atoms/input/input-date";
+import { Page } from "@views/client/_layout/page";
+import { useState } from "react";
+import { SearchBar } from "./components/search-bar";
 import { schemaToSearchFields } from "./components/search-bar/utils/utils";
+import { twMerge } from "tailwind-merge";
+import { getRandomHexColor } from "@features/utils/format/strings";
 
 export const ContactsPage = () => {
   const [options, setOptions] = useState<RestOptions<Contacts>>({
@@ -65,7 +67,10 @@ export const ContactsPage = () => {
           />
         </div>
         <SearchBar
-          fields={schemaToSearchFields(schema.data)}
+          schema={{
+            table: "contacts",
+            fields: schemaToSearchFields(schema.data),
+          }}
           onChange={(q) =>
             q.valid && setOptions({ ...options, query: q.fields })
           }
@@ -73,6 +78,39 @@ export const ContactsPage = () => {
         <Button theme="default" icon={(p) => <DotsHorizontalIcon {...p} />} />
       </div>
       <div className="mb-4" />
+
+      {["sm", "md"].map((size: any) => (
+        <div className="items-center flex space-x-2 my-4">
+          <Tag color={getRandomHexColor()} size={size}>
+            Some tag
+          </Tag>
+          <Tag
+            size={size}
+            noColor
+            className="bg-white dark:bg-slate-900 rounded-full"
+          >
+            <Avatar
+              className={twMerge("mr-1", size === "sm" ? "-ml-0.5" : "-ml-1")}
+              fallback="Romaric Mourgues"
+              size={size === "sm" ? 4 : 5}
+            />
+            Romaric Mourgues
+          </Tag>
+          <Tag size={size} noColor className="bg-white dark:bg-slate-900 pr-1">
+            <Avatar
+              shape="square"
+              className={twMerge("mr-1", size === "sm" ? "-ml-0.5" : "-ml-1")}
+              fallback="L'inventaire"
+              size={size === "sm" ? 4 : 5}
+            />
+            L'inventaire
+          </Tag>
+          <Tag size={size} noColor className="bg-white dark:bg-slate-900 pr-1">
+            <DocumentTextIcon className="mr-1 -ml-1 h-4 w-4 text-slate-500" />
+            Facture #782
+          </Tag>
+        </div>
+      ))}
 
       <Table
         loading={contacts.isPending}
@@ -98,9 +136,21 @@ export const ContactsPage = () => {
         }}
         columns={[
           {
+            title: "ID",
+            orderable: true,
+            render: (contact) => <Info>{contact.id}</Info>,
+          },
+          {
             title: "Name",
             orderable: true,
             render: (contact) => getContactName(contact),
+          },
+          {
+            title: "Contacts",
+            orderable: true,
+            render: (contact) => (
+              <Info>{[contact.email, contact.phone].join(" ")}</Info>
+            ),
           },
           {
             title: "Tags",

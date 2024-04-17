@@ -1,6 +1,7 @@
 import { Info } from "@atoms/text";
 import { stringToColor } from "@features/utils/format/strings";
 import _ from "lodash";
+import { twMerge } from "tailwind-merge";
 
 export const getColor = stringToColor;
 
@@ -8,18 +9,23 @@ export default function Avatar(props: {
   shape?: "square" | "circle";
   fallback?: string;
   avatar?: string;
-  size: 5 | 8 | 10 | 11 | 28 | 14 | 48;
+  size: 4 | 5 | 8 | 10 | 11 | 28 | 14 | 48;
   className?: string;
 }) {
   const size = props.size || 14;
-  const className =
+  const className = twMerge(
     " inline-block h-" +
-    size +
-    " w-" +
-    size +
-    (props.shape === "square" ? " rounded-lg " : " rounded-full ") +
-    " overflow-hidden bg-wood-200 " +
-    (props.className || "");
+      size +
+      " w-" +
+      size +
+      (props.shape === "square"
+        ? size < 8
+          ? " rounded-md "
+          : " rounded-lg "
+        : " rounded-full ") +
+      " overflow-hidden bg-wood-200 ",
+    props.className
+  );
 
   if (props.avatar) {
     return (

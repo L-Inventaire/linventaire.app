@@ -142,11 +142,12 @@ export const buildFilter = (
               {type === "boolean" && value && (
                 <span
                   style={{ width: value.length + "ch" }}
-                  className="inline-block text-center"
+                  className={twMerge(
+                    "inline-block text-center",
+                    value === "1" ? "text-wood-500" : "text-red-500"
+                  )}
                 >
-                  <span className="font-sans text-xs text-wood-500 -top-px relative">
-                    {value === "1" ? "✓" : "✘"}
-                  </span>
+                  {value === "1" ? "1" : "0"}
                 </span>
               )}
             </span>

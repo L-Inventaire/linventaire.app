@@ -19,7 +19,7 @@ export const Checkbox = (props: {
           " shrink-0 flex justify-center items-center border-2 rounded text-white " +
             (props.value
               ? "border-wood-400 bg-wood-400 hover:border-wood-500 hover:bg-wood-500"
-              : "border-wood-300 " +
+              : "border-wood-200 bg-wood-50 " +
                 (props.disabled ? "" : "hover:border-wood-200")) +
             " " +
             (props.disabled ? "opacity-50" : "cursor-pointer"),

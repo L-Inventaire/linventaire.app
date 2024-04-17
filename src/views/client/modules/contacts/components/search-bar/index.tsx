@@ -11,23 +11,29 @@ import { OutputQuery, SearchField } from "./utils/types";
 import { extractFilters, generateQuery } from "./utils/utils";
 
 export const SearchBar = ({
-  fields,
+  schema,
   onChange,
   debounce = 300,
 }: {
-  fields: SearchField[];
+  schema: { table: string; fields: SearchField[] };
   onChange: (str: OutputQuery) => void;
   debounce?: number;
 }) => {
+  const fields = schema.fields;
   const [value, setValue] = useState(
     new URLSearchParams(window.location.search).get("q") || ""
   );
-  const [selectionIndex, setSelectionIndex] = useState(0);
   const rendererRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { suggestions, onKeyDown, applySelection, getSuggestions } =
-    useSuggestions(fields, inputRef, setValue);
+  const {
+    suggestions,
+    onKeyDown,
+    applySelection,
+    getSuggestions,
+    selectionIndex,
+    setSelectionIndex,
+  } = useSuggestions(schema, inputRef, setValue);
 
   // When value change, set it to url querystring ?q=
   useEffect(() => {

@@ -2,6 +2,7 @@ import { useCurrentClient } from "@features/clients/state/use-clients";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import _ from "lodash";
 import { RestApiClient } from "../api-client/rest-api-client";
+import { useSuggestions } from "@views/client/modules/contacts/components/search-bar/hooks/use-suggestions";
 
 const restApiClients: { [key: string]: RestApiClient<any> } = {};
 
@@ -19,6 +20,25 @@ export type RestOptions<T> = {
   offset?: number;
   asc?: boolean;
   index?: string;
+};
+
+export const useRestSuggestions = <T>(
+  table: string,
+  column: string,
+  query?: string
+) => {
+  restApiClients[table] = restApiClients[table] || new RestApiClient(table);
+  const restApiClient = restApiClients[table] as RestApiClient<T>;
+  const { id } = useCurrentClient();
+
+  const suggestions = useQuery({
+    queryKey: [table + "-suggestions", id, column, query],
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    queryFn: () =>
+      column ? restApiClient.suggestions(id || "", column, query) : [],
+  });
+
+  return { suggestions };
 };
 
 export const useRest = <T>(table: string, options?: RestOptions<T>) => {

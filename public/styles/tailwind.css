@@ -963,6 +963,14 @@ select {
   margin-bottom: -0.25rem;
 }
 
+.-ml-0 {
+  margin-left: -0px;
+}
+
+.-ml-0\.5 {
+  margin-left: -0.125rem;
+}
+
 .-ml-1 {
   margin-left: -0.25rem;
 }
@@ -3017,6 +3025,10 @@ select {
   padding-right: 0px;
 }
 
+.pr-1 {
+  padding-right: 0.25rem;
+}
+
 .pr-12 {
   padding-right: 3rem;
 }
@@ -4836,6 +4848,10 @@ input, select {
   .dark\:border-zinc-800 {
     --tw-border-opacity: 1;
     border-color: rgb(39 39 42 / var(--tw-border-opacity));
+  }
+
+  .dark\:border-opacity-10 {
+    --tw-border-opacity: 0.1;
   }
 
   .dark\:\!bg-wood-900 {
