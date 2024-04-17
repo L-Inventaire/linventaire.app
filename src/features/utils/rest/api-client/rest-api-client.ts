@@ -1,4 +1,5 @@
 import { fetchServer } from "@features/utils/fetch-server";
+import _ from "lodash";
 
 export class RestApiClient<T> {
   constructor(private table: string) {}
@@ -22,12 +23,14 @@ export class RestApiClient<T> {
       updated?: number;
     }[]
   > => {
-    return await (
+    const tmp = await (
       await fetchServer(`/api/rest/v1/${clientId}/${this.table}/suggestions`, {
         method: "POST",
         body: JSON.stringify({ column, query }),
       })
     ).json();
+    if (_.isArray(tmp)) return tmp;
+    return [];
   };
 
   history = async (

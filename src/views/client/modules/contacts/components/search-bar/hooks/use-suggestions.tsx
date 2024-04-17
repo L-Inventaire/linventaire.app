@@ -1,32 +1,26 @@
 import { Tag } from "@atoms/badge/tag";
+import { debounce } from "@features/utils/debounce";
+import { useRestSuggestions } from "@features/utils/rest/hooks/use-rest";
 import Fuse from "fuse.js";
+import _ from "lodash";
 import { ReactNode, useState } from "react";
 import { SearchField } from "../utils/types";
 import { labelToVariable } from "../utils/utils";
 import { useCaret } from "./use-caret";
-import _, { set } from "lodash";
-import { useRestSuggestions } from "@features/utils/rest/hooks/use-rest";
-import { debounce } from "@features/utils/debounce";
 
-export type Suggestions = (
-  | {
-      type: "operator";
-      value:
+export type Suggestions = {
+  type: "operator" | "field" | "value";
+  field?: SearchField;
+  value:
+    | (
         | "invert" // Toggle "!""
         | "fuzzy" // Toggle "~"
-        | "finish"; // Goes to next filter (finish values and add space)
-      render: string | ReactNode;
-    }
-  | {
-      type: "field";
-      value: SearchField;
-    }
-  | {
-      type: "value";
-      value: string;
-      render?: string | ReactNode;
-    }
-)[];
+        | "finish"
+      )
+    | string; // Goes to next filter (finish values and add space)
+  render?: string | ReactNode;
+  onClick?: () => void;
+}[];
 
 export const useSuggestions = (
   schema: { table: string; fields: SearchField[] },
@@ -34,8 +28,9 @@ export const useSuggestions = (
   setValue: (value: string) => void
 ) => {
   const fields = schema.fields;
+  const [mode, setMode] = useState<"field" | "value">("field");
   const [columnSearch, setColumnSearch] = useState<[string, string]>(["", ""]); // [Column, query]
-  const [suggestions, setSuggestions] = useState<Suggestions>([]);
+  const [_suggestions, setSuggestions] = useState<Suggestions>([]);
   const [selectionIndex, setSelectionIndex] = useState(0);
 
   const { suggestions: restColumnSuggestions } =
@@ -45,31 +40,22 @@ export const useSuggestions = (
       columnSearch[1]
     );
 
-  console.log(restColumnSuggestions);
+  const suggestions = [
+    ..._suggestions,
+    ...(mode === "value"
+      ? ((restColumnSuggestions.data || []).map((a) => ({
+          type: "value",
+          value: a.value,
+          render: a.label,
+        })) as Suggestions)
+      : []),
+  ];
 
   const { getCaretPosition, replaceAtCursor } = useCaret(inputRef, setValue);
 
   const applySelection = (index: number) => {
-    if (suggestions[index] && suggestions[index].type === "field") {
-      const status = getCaretPosition();
-      const field = fields.find(
-        (a) =>
-          labelToVariable(a.label) ===
-          (suggestions[index].value as SearchField).label
-      );
-      const defaultSuffix =
-        field?.type === "text"
-          ? ':~""'
-          : field?.type === "boolean"
-          ? ":1"
-          : ":";
-      const defaultOffset = field?.type === "text" ? -1 : 0;
-      const currentValue = status.text?.current?.split(":")[1] || "";
-      replaceAtCursor(
-        labelToVariable((suggestions[index].value as SearchField).label) +
-          (currentValue ? ":" + currentValue : defaultSuffix),
-        defaultOffset
-      );
+    if (suggestions[index] && suggestions[index].onClick) {
+      suggestions[index].onClick?.();
     }
     getSuggestions();
   };
@@ -124,7 +110,11 @@ export const useSuggestions = (
         threshold: 0.6,
         keys: ["labels"],
       });
-      const result = fuse.search(fieldTyped || "");
+      const result = fuse
+        .search(fieldTyped || "")
+        .filter((a: any) =>
+          a.item.labels.some((b: string) => b[0] === fieldTyped[0])
+        );
 
       const resultFields = fieldTyped
         ? _.sortBy(
@@ -139,15 +129,38 @@ export const useSuggestions = (
           )
         : _.sortBy(fields, "label");
 
+      setMode("field");
       setSuggestions(
-        resultFields
-          .slice(0, 5)
-          .map((a: SearchField) => ({ type: "field", value: a }))
+        resultFields.slice(0, 5).map((activeField: SearchField) => ({
+          type: "field",
+          field: activeField,
+          value: activeField.key,
+          onClick: () => {
+            const status = getCaretPosition();
+            const field = fields.find(
+              (a) => labelToVariable(a.label) === activeField?.label
+            );
+            const defaultSuffix =
+              field?.type === "text"
+                ? ':~""'
+                : field?.type === "boolean"
+                ? ":1"
+                : ":";
+            const defaultOffset = field?.type === "text" ? -1 : 0;
+            const currentValue = status.text?.current?.split(":")[1] || "";
+            replaceAtCursor(
+              labelToVariable(activeField?.label || "") +
+                (currentValue ? ":" + currentValue : defaultSuffix),
+              defaultOffset
+            );
+          },
+        }))
       );
     } else {
       const field = schema.fields.find(
         (a) => labelToVariable(a.label) === status.filter?.key
       );
+
       const column = status.filter?.key || "";
       const query = status.filter?.values[0] || "";
       debounce(
@@ -160,18 +173,30 @@ export const useSuggestions = (
         }
       );
 
-      console.log("field", schema.fields, status.filter?.key, field);
+      console.log("status.value", status.value);
 
       // Inside a filter's value
+      setMode("value");
       setSuggestions([
         {
           type: "operator",
           value: "finish",
+          onClick: () => {
+            const status = getCaretPosition();
+            replaceAtCursor(status.text.current + " ", 0);
+          },
           render: <span>Terminer</span>,
         },
         {
           type: "operator",
           value: "invert",
+          onClick: () => {
+            const status = getCaretPosition();
+            const word = ("!" + status.text.current).replace(/^!!/g, "");
+            const cursorOffsetFromEnd =
+              status.caret.current - status.caret.after;
+            replaceAtCursor(word, cursorOffsetFromEnd);
+          },
           render: (
             <span>
               <Tag
@@ -190,6 +215,16 @@ export const useSuggestions = (
               {
                 type: "operator",
                 value: "fuzzy",
+                onClick: () => {
+                  const status = getCaretPosition();
+                  let word = status.text.current.replace(/:"/, ':~"');
+                  if (status.text.current.split(":")[1].indexOf('~"') === 0) {
+                    word = status.text.current.replace(/:~"/, ':"');
+                  }
+                  const cursorOffsetFromEnd =
+                    status.caret.current - status.caret.after;
+                  replaceAtCursor(word, cursorOffsetFromEnd);
+                },
                 render: (
                   <span>
                     <Tag
@@ -210,14 +245,7 @@ export const useSuggestions = (
   };
 
   return {
-    suggestions: [
-      ...suggestions,
-      ...((restColumnSuggestions.data || []).map((a) => ({
-        type: "value",
-        value: a.value,
-        render: a.label,
-      })) as Suggestions),
-    ],
+    suggestions,
     onKeyDown,
     getSuggestions,
     setSelectionIndex,

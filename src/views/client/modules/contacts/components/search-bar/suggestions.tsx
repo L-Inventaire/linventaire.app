@@ -38,7 +38,7 @@ export const SearchBarSuggestions = ({
                 ),
                 shortcut: i === selected ? ["enter"] : [],
                 active: i === selected,
-                onClick: () => {},
+                onClick: a.onClick,
               })),
             ] as DropDownMenuType)
           : []),
@@ -50,7 +50,7 @@ export const SearchBarSuggestions = ({
                 label: <Info>Filtres</Info>,
                 onClick: () => {},
               },
-              ...fields.map(({ value }, i) => ({
+              ...fields.map(({ field, onClick }, i) => ({
                 type: "menu",
                 label: (
                   <span>
@@ -59,14 +59,14 @@ export const SearchBarSuggestions = ({
                       noColor
                       className="bg-wood-500 text-white -ml-1 font-mono"
                     >
-                      {(value as SearchField).label}
+                      {field?.label}
                     </Tag>{" "}
-                    {(value as SearchField).key}
+                    {field?.key}
                   </span>
                 ),
                 shortcut: i + operators.length === selected ? ["enter"] : [],
                 active: i + operators.length === selected,
-                onClick: () => onClick(i),
+                onClick: onClick,
               })),
             ] as DropDownMenuType)
           : []),
@@ -91,7 +91,7 @@ export const SearchBarSuggestions = ({
                     ? ["enter"]
                     : [],
                 active: i + operators.length + fields.length === selected,
-                onClick: () => {},
+                onClick: a.onClick,
               })),
             ] as DropDownMenuType)
           : []),

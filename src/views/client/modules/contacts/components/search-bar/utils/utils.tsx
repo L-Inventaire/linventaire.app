@@ -21,7 +21,14 @@ export const extractFilters = (str: string): MatchedStringFilter[] => {
       /(([^ :]+):(~([^"]|$)|~?[^~" ]+|(~?"[^"]*("|$),?)+[^" ]*)?)/
     );
     if (!parts)
-      return { key: "", not: false, raw: filter, values: [], values_raw: "" };
+      return {
+        key: "",
+        not: false,
+        raw: filter,
+        values: [],
+        values_raw: "",
+        values_raw_array: [],
+      };
     const key = parts[2];
     const values =
       (parts[3] || "").match(/(~([^"]|$)|~?"[^"]*("|$)|[^,]+)/g) || [];
@@ -34,6 +41,7 @@ export const extractFilters = (str: string): MatchedStringFilter[] => {
       values: values
         .map((value) => value.replace(/^~?"(.*?)("|$)$/g, "$1"))
         .filter(Boolean),
+      values_raw_array: values,
     };
   });
 };

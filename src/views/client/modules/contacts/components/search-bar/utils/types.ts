@@ -20,6 +20,11 @@ export type MatchedStringFilter = {
   raw: string;
   values: string[];
   values_raw: string;
+  values_raw_array: string[];
+};
+
+export type MatchedStringValue = {
+  index: number;
 };
 
 export type OutputQuery = {

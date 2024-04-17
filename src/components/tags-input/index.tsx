@@ -31,13 +31,14 @@ export const TagsInput = (props: {
   if (tags.isPending) return <Loader />;
 
   return (
-    <div className={twMerge(props.className, "space-x-2")}>
+    <div className={twMerge(props.className, "-m-1")}>
       {selectedTags.map((tag) => (
         <Tag
           color={tag.color || "#000000"}
-          className={
-            !props.disabled ? "cursor-pointer inline-flex items-center" : ""
-          }
+          className={twMerge(
+            !props.disabled ? "cursor-pointer inline-flex items-center" : "",
+            "m-1"
+          )}
           onClick={() =>
             !props.disabled &&
             props.onChange?.(props.value.filter((a) => a !== tag.id))

@@ -1,10 +1,11 @@
-import { MatchedStringFilter } from "../utils/types";
+import { MatchedStringFilter, MatchedStringValue } from "../utils/types";
 import { extractFilters } from "../utils/utils";
 
 export type CaretPositionType = {
   caret: { before: number; current: number; after: number };
   text: { before: string; current: string; after: string; all: string };
   filter: MatchedStringFilter | null;
+  value: MatchedStringValue | null;
 };
 
 let lastCaretPosition = 0;
@@ -28,22 +29,34 @@ export const useCaret = (
       let pos = 0;
       let before = "";
       for (const filter of filters) {
+        const posBefore = pos;
         pos += filter.raw.length + 1; // +1 for the space
         if (caret < pos) {
-          return {
-            caret: {
-              before: before.length,
-              current: caret,
-              after: pos - 1,
-            },
-            text: {
-              before,
-              current: filter.raw,
-              after: text.slice(pos - 1),
-              all: text,
-            },
-            filter,
-          };
+          const keyEndPos = posBefore + (filter.key || filter.raw).length + 1;
+          let subPos = keyEndPos; // +1 for the ":"
+          for (let i = 0; i < filter.values_raw_array.length + 1; i++) {
+            const index = filter.values_raw_array[i] ? i : -1;
+            subPos += filter.values_raw_array[i]
+              ? filter.values_raw_array[i].length + 1
+              : 1;
+            if (caret < subPos) {
+              return {
+                caret: {
+                  before: before.length,
+                  current: caret,
+                  after: pos - 1,
+                },
+                text: {
+                  before,
+                  current: filter.raw,
+                  after: text.slice(pos - 1),
+                  all: text,
+                },
+                filter,
+                value: caret < keyEndPos || index < 0 ? null : { index },
+              };
+            }
+          }
         }
         before += filter.raw + " ";
       }
@@ -61,6 +74,7 @@ export const useCaret = (
         all: text,
       },
       filter: null,
+      value: null,
     };
   };
 
