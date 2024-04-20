@@ -112,7 +112,7 @@ export const useSuggestions = (
               field?.type === "text" || values.some((a) => a.indexOf(" ") >= 0);
             let word =
               (status.filter?.not ? "!" : "") +
-              field?.key +
+              labelToVariable(field?.label || "") +
               ":" +
               (status.filter?.regex ? "~" : "") +
               (isText ? '"' : "") +
@@ -120,9 +120,9 @@ export const useSuggestions = (
               (isText ? '"' : "");
 
             //Go to next filter if we just added the first value, or stay in filter otherwise
-            word += wasFirstValue ? " " : "";
+            word += wasFirstValue && values.length !== 0 ? " " : "";
             const cursorOffsetFromEnd =
-              (wasFirstValue || values.length === 0) && isText ? -1 : 0;
+              (!wasFirstValue || values.length === 0) && isText ? -1 : 0;
 
             if (alreadyHasValue) {
               displayToValueMap.current = Object.fromEntries(
@@ -201,7 +201,7 @@ export const useSuggestions = (
       const fieldTyped = status.text.current.split(":")[0] || "";
 
       const availableFields = fields.map((f) => ({
-        labels: (f.label + " " + f.key)
+        labels: (f.label + " " + f.key + " " + f.keywords.join(" "))
           .replace(/[^a-z]/gm, " ")
           .split(" ")
           .map((s) => s.toLowerCase().slice(0, fieldTyped?.length || 1000)),
@@ -241,7 +241,7 @@ export const useSuggestions = (
           onClick: () => {
             const status = getCaretPosition();
             const field = fields.find(
-              (a) => labelToVariable(a.label) === activeField?.label
+              (a) => labelToVariable(a.label) === activeField?.key
             );
             const defaultSuffix =
               field?.type === "text"
@@ -264,9 +264,9 @@ export const useSuggestions = (
         (a) => labelToVariable(a.label) === status.filter?.key
       );
 
-      console.log(status);
+      console.log(status, field);
 
-      const column = status.filter?.key || "";
+      const column = field?.key || "";
       const query = ""; //status.filter?.values[status.value?.index || 0] || "";
       debounce(
         () => {

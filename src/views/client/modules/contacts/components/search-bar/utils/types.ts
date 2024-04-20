@@ -5,6 +5,7 @@ type ConcatenatedString<T extends string, S extends string> = `${T}${S}`;
 export type SearchField = {
   label: string;
   key: string;
+  keywords: string[];
   type:
     | "text"
     | "date"

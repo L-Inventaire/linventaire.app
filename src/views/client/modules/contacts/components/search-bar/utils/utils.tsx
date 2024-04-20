@@ -2,10 +2,26 @@ import { RestSearchQueryOp } from "@features/utils/rest/hooks/use-rest";
 import { MatchedStringFilter, OutputQuery, SearchField } from "./types";
 import { flattenKeys } from "@features/utils/flatten";
 
-export const schemaToSearchFields = (schema: any) => {
+export const schemaToSearchFields = (
+  schema: any,
+  translations: {
+    [key: string]: string | { label: string; keywords: string };
+  } = {}
+) => {
   return Object.entries(flattenKeys(schema)).map(([key, value]) => {
     key = key.replace(/\[0\]$/, "");
-    return { key, label: key, type: value as SearchField["type"] };
+    const tr =
+      typeof translations[key] === "string"
+        ? { label: translations[key], keywords: translations[key] }
+        : (translations[key] as any);
+    return {
+      key,
+      label: tr?.label || key,
+      keywords: [...(tr?.keywords || "").split(" "), key, tr?.label]
+        .filter((a) => a)
+        .map((a) => a.normalize("NFD").replace(/[\u0300-\u036f]/g, "")),
+      type: value as SearchField["type"],
+    };
   });
 };
 

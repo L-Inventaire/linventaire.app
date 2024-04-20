@@ -1,5 +1,3 @@
-import Avatar from "@atoms/avatar/avatar";
-import { Tag } from "@atoms/badge/tag";
 import { Button } from "@atoms/button/button";
 import InputDate from "@atoms/input/input-date";
 import Select from "@atoms/input/input-select";
@@ -13,17 +11,11 @@ import {
   RestOptions,
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
-import {
-  DocumentTextIcon,
-  DotsHorizontalIcon,
-  PlusIcon,
-} from "@heroicons/react/outline";
+import { DotsHorizontalIcon, PlusIcon } from "@heroicons/react/outline";
 import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { SearchBar } from "./components/search-bar";
 import { schemaToSearchFields } from "./components/search-bar/utils/utils";
-import { twMerge } from "tailwind-merge";
-import { getRandomHexColor } from "@features/utils/format/strings";
 
 export const ContactsPage = () => {
   const [options, setOptions] = useState<RestOptions<Contacts>>({
@@ -69,7 +61,17 @@ export const ContactsPage = () => {
         <SearchBar
           schema={{
             table: "contacts",
-            fields: schemaToSearchFields(schema.data),
+            fields: schemaToSearchFields(schema.data, {
+              tags: {
+                label: "Étiquettes",
+                keywords: "tags étiquettes label",
+              },
+              updated_by: {
+                label: "Mis à jour par",
+                keywords: "updated_by mis à jour par auteur utilisateur user",
+              },
+              email: "Email",
+            }),
           }}
           onChange={(q) =>
             q.valid && setOptions({ ...options, query: q.fields })
