@@ -23,20 +23,53 @@ export const SearchBarSuggestions = ({
   return (
     <Menu
       menu={[
-        // When field is chosen, show the operations (invert, toggle fuzzy, add 'or' value, etc.)
-        ...(operators.length
+        // Add suggested values, or date picker for date fields
+        ...(values.length
           ? ([
               {
                 type: "label",
-                label: <Info>Opérations</Info>,
+                label: <Info>Valeurs</Info>,
                 onClick: () => {},
               },
-              ...operators.map((a, i) => ({
+              ...values.map((a: Suggestions[0], i) => ({
                 type: "menu",
+                className: "group/item",
                 label: (
-                  <span>
-                    {((a as any).render || a.value) as string | ReactNode}
-                  </span>
+                  <div className="flex flex-row space-x items-center overflow-hidden text-ellipsis whitespace-nowrap">
+                    <Checkbox size="sm" className="mr-2" value={a.active} />
+                    {a.field?.type.indexOf("type:") !== 0 && (
+                      <span>{(a.render || a.value) as string | ReactNode}</span>
+                    )}
+                    {a.field?.type.indexOf("type:") === 0 && (
+                      <RestTag
+                        type={a.field?.type.split(":")[1] as string}
+                        size="sm"
+                        label={a.render}
+                        item={a.item}
+                        id={a.value}
+                      />
+                    )}
+                    <InfoSmall
+                      className={twMerge(
+                        "ml-1 group-hover/item:opacity-100 opacity-0",
+                        i === selected && "opacity-100"
+                      )}
+                    >
+                      {!!a.count && (
+                        <>
+                          {" • "}
+                          {a.count > 10 ? "~" : ""}
+                          {a.count} documents
+                        </>
+                      )}
+                      {!!a.updated && (
+                        <>
+                          {" • "}dernière utilisation
+                          {" " + formatTime(a.updated, { keepTime: false })}
+                        </>
+                      )}
+                    </InfoSmall>
+                  </div>
                 ),
                 shortcut: i === selected ? ["enter"] : [],
                 active: i === selected,
@@ -69,8 +102,8 @@ export const SearchBarSuggestions = ({
                     {field?.key}
                   </span>
                 ),
-                shortcut: i + operators.length === selected ? ["enter"] : [],
-                active: i + operators.length === selected,
+                shortcut: i + values.length === selected ? ["enter"] : [],
+                active: i + values.length === selected,
                 onClick: () => {
                   onClick?.();
                   afterOnClick();
@@ -78,60 +111,26 @@ export const SearchBarSuggestions = ({
               })),
             ] as DropDownMenuType)
           : []),
-        // Add suggested values, or date picker for date fields
-        ...(values.length
+        // When field is chosen, show the operations (invert, toggle fuzzy, add 'or' value, etc.)
+        ...(operators.length
           ? ([
               {
                 type: "label",
-                label: <Info>Valeurs</Info>,
+                label: <Info>Opérations</Info>,
                 onClick: () => {},
               },
-              ...values.map((a: Suggestions[0], i) => ({
+              ...operators.map((a, i) => ({
                 type: "menu",
-                className: "group/item",
                 label: (
-                  <div className="flex flex-row space-x items-center overflow-hidden text-ellipsis whitespace-nowrap">
-                    <Checkbox size="sm" className="mr-2" value={a.active} />
-                    {a.field?.type.indexOf("type:") !== 0 && (
-                      <span>{(a.render || a.value) as string | ReactNode}</span>
-                    )}
-                    {a.field?.type.indexOf("type:") === 0 && (
-                      <RestTag
-                        type={a.field?.type.split(":")[1] as string}
-                        size="sm"
-                        label={a.render}
-                        item={a.item}
-                        id={a.value}
-                      />
-                    )}
-                    <InfoSmall
-                      className={twMerge(
-                        "ml-1 group-hover/item:opacity-100 opacity-0",
-                        i + operators.length + fields.length === selected &&
-                          "opacity-100"
-                      )}
-                    >
-                      {!!a.count && (
-                        <>
-                          {" • "}
-                          {a.count > 10 ? "~" : ""}
-                          {a.count} documents
-                        </>
-                      )}
-                      {!!a.updated && (
-                        <>
-                          {" • "}dernière utilisation le
-                          {" " + formatTime(a.updated, { keepTime: false })}
-                        </>
-                      )}
-                    </InfoSmall>
-                  </div>
+                  <span>
+                    {((a as any).render || a.value) as string | ReactNode}
+                  </span>
                 ),
                 shortcut:
-                  i + operators.length + fields.length === selected
+                  i + fields.length + values.length === selected
                     ? ["enter"]
                     : [],
-                active: i + operators.length + fields.length === selected,
+                active: i + fields.length + values.length === selected,
                 onClick: () => {
                   a.onClick?.();
                   afterOnClick();

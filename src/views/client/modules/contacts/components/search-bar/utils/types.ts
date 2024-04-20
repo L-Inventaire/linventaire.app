@@ -17,6 +17,7 @@ export type SearchField = {
 export type MatchedStringFilter = {
   key: string;
   not: boolean;
+  regex: boolean;
   raw: string;
   values: string[];
   values_raw: string;

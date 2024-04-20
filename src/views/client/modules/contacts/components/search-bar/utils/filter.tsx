@@ -128,7 +128,9 @@ export const buildFilter = (
                     : "calc(0.5ch)",
               }}
             >
-              {type !== "boolean" &&
+              {type?.indexOf("type:") === 0 && <span>{value}</span>}
+              {type?.indexOf("type:") !== 0 &&
+                type !== "boolean" &&
                 reactStringReplace(value, /(->|<=|>=|T)/, (match) => (
                   <span
                     style={{ width: match.length + "ch" }}
@@ -139,7 +141,7 @@ export const buildFilter = (
                     </span>
                   </span>
                 ))}
-              {type === "boolean" && value && (
+              {type?.indexOf("type:") !== 0 && type === "boolean" && value && (
                 <span
                   style={{ width: value.length + "ch" }}
                   className={twMerge(

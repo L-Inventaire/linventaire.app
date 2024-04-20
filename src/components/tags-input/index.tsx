@@ -31,7 +31,7 @@ export const TagsInput = (props: {
   if (tags.isPending) return <Loader />;
 
   return (
-    <div className={twMerge(props.className, "-m-1")}>
+    <div className={twMerge(props.className, selectedTags.length && "-m-1")}>
       {selectedTags.map((tag) => (
         <Tag
           color={tag.color || "#000000"}

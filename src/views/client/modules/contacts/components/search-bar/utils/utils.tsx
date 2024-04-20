@@ -24,6 +24,7 @@ export const extractFilters = (str: string): MatchedStringFilter[] => {
       return {
         key: "",
         not: false,
+        regex: false,
         raw: filter,
         values: [],
         values_raw: "",
@@ -35,7 +36,7 @@ export const extractFilters = (str: string): MatchedStringFilter[] => {
     return {
       key: key.replace(/^!/, ""),
       not: key.startsWith("!"),
-      fuzzy: (parts[3] || "").startsWith("~"),
+      regex: (parts[3] || "").startsWith("~"),
       raw: filter,
       values_raw: parts[3] || "",
       values: values
@@ -51,7 +52,8 @@ export const extractFilters = (str: string): MatchedStringFilter[] => {
 
 export const generateQuery = (
   fields: SearchField[],
-  filters: MatchedStringFilter[]
+  filters: MatchedStringFilter[],
+  replacementsMap?: { [key: string]: string }
 ): OutputQuery => {
   const query = filters
     .filter((a) => !a.key)
@@ -63,6 +65,7 @@ export const generateQuery = (
     {
       key: "query",
       not: false,
+      regex: false,
       values: [{ op: "equals" as RestSearchQueryOp, value: query }],
     },
     ...filters
@@ -72,9 +75,12 @@ export const generateQuery = (
         return {
           key: field?.key || a.key,
           not: a.not,
+          regex: a.regex,
           values: a.values.map((value) => {
+            value =
+              replacementsMap?.[(field?.key || a.key) + ":" + value] || value;
             if (field?.type === "text" || field?.type?.indexOf("type:") === 0) {
-              const isRegex = value.startsWith("~");
+              const isRegex = a.regex;
               value = value.replace(/(^~?"|"$)/g, "");
               return {
                 op: (isRegex ? "regex" : "equals") as RestSearchQueryOp,

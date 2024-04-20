@@ -80,7 +80,10 @@ export const useCaret = (
 
   const replaceAtCursor = (replacement: string, offset = 0) => {
     const { text, caret } = getCaretPosition();
-    const newText = `${text.before}${replacement}${text.after}`;
+    const newText = `${text.before}${replacement}${text.after}`.replace(
+      / +/g,
+      " "
+    );
     setValue(newText);
     inputRef.current!.value = newText;
     inputRef.current?.focus();

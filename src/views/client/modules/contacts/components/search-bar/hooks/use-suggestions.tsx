@@ -3,10 +3,11 @@ import { debounce } from "@features/utils/debounce";
 import { useRestSuggestions } from "@features/utils/rest/hooks/use-rest";
 import Fuse from "fuse.js";
 import _ from "lodash";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { SearchField } from "../utils/types";
 import { labelToVariable } from "../utils/utils";
 import { useCaret } from "./use-caret";
+import { Info } from "@atoms/text";
 
 export type Suggestions = {
   type: "operator" | "field" | "value";
@@ -33,14 +34,40 @@ export type Suggestions = {
 export const useSuggestions = (
   schema: { table: string; fields: SearchField[] },
   inputRef: React.RefObject<HTMLInputElement>,
-  setValue: (value: string) => void
+  setValue: (value: string) => void,
+  initialDisplayToValueMap: any
 ) => {
   const fields = schema.fields;
+  const { getCaretPosition, replaceAtCursor } = useCaret(inputRef, setValue);
   const [mode, setMode] = useState<"field" | "value">("field");
   const [currentFilterValues, setCurrentFilterValues] = useState<string[]>([]);
   const [columnSearch, setColumnSearch] = useState<[string, string]>(["", ""]); // [Column, query]
   const [_suggestions, setSuggestions] = useState<Suggestions>([]);
   const [selectionIndex, setSelectionIndex] = useState(0);
+  const displayToValueMap = useRef<{
+    [key: string]: string;
+  }>(initialDisplayToValueMap || {});
+  const status = getCaretPosition();
+
+  const [recentSearches, setRecentSearches] = useState<string[]>(
+    JSON.parse(localStorage.getItem("search-recent-" + schema.table) || "[]")
+  );
+  const [popularFilters, setPopularFilters] = useState<string[]>(
+    JSON.parse(
+      localStorage.getItem("search-popular-filters-" + schema.table) || "[]"
+    )
+  );
+
+  useEffect(() => {
+    localStorage.setItem(
+      "search-recent-" + schema.table,
+      JSON.stringify(recentSearches)
+    );
+    localStorage.setItem(
+      "search-popular-filters-" + schema.table,
+      JSON.stringify(popularFilters)
+    );
+  }, [recentSearches, popularFilters]);
 
   const { suggestions: restColumnSuggestions } =
     useRestSuggestions<SearchField>(
@@ -54,7 +81,6 @@ export const useSuggestions = (
   }, [_suggestions.length]); // Keep position if we just added a value
 
   const suggestions = [
-    ..._suggestions,
     ...(mode === "value"
       ? ((restColumnSuggestions.data || []).map((a) => ({
           type: "value",
@@ -68,39 +94,72 @@ export const useSuggestions = (
           onClick: () => {
             const status = getCaretPosition();
             const field = fields.find((f) => f.key === columnSearch[0]);
-            const cursorOffsetFromEnd =
-              status.caret.current - status.caret.after;
-            if (currentFilterValues.includes(a.value)) {
-              const word = status.text.current.replace(/""/, "").replace(
-                new RegExp(
-                  // Replace either the corresponding value or add at the very end
-                  `("${a.value}"|${a.value}),?`
-                ),
-                ""
-              );
-              replaceAtCursor(word, cursorOffsetFromEnd);
-            } else {
-              const word = status.text.current.replace(/""/, "").replace(
-                new RegExp(
-                  // Replace either the corresponding value or add at the very end
-                  `${status.filter?.values[status.value?.index || 0] || ""}$`
-                ),
-                field?.type === "text" ? `"${a.value}",""` : `${a.value},`
-              );
-              replaceAtCursor(word, cursorOffsetFromEnd);
+            const currentSearchValueIndex = status.value?.index || 0;
+            const inputValue = a.label || a.value;
+            const inSearchMode = false; // TODO: We need to differentiate when we are filtering and when we got back to the filter
+            // Update list of values
+            const alreadyHasValue = currentFilterValues
+              .filter((_, i) => i !== currentSearchValueIndex || !inSearchMode)
+              .includes(a.value);
+            const values = (status.filter?.values || [])
+              .filter((_, i) => i !== currentSearchValueIndex || !inSearchMode)
+              .filter((c) => c !== inputValue);
+            const wasFirstValue = !alreadyHasValue && values.length === 0;
+            if (!alreadyHasValue) {
+              values.push(inputValue);
             }
+            const isText =
+              field?.type === "text" || values.some((a) => a.indexOf(" ") >= 0);
+            let word =
+              (status.filter?.not ? "!" : "") +
+              field?.key +
+              ":" +
+              (status.filter?.regex ? "~" : "") +
+              (isText ? '"' : "") +
+              values.join(isText ? '","' : ",") +
+              (isText ? '"' : "");
+
+            //Go to next filter if we just added the first value, or stay in filter otherwise
+            word += wasFirstValue ? " " : "";
+            const cursorOffsetFromEnd =
+              (wasFirstValue || values.length === 0) && isText ? -1 : 0;
+
+            if (alreadyHasValue) {
+              displayToValueMap.current = Object.fromEntries(
+                Object.entries(displayToValueMap.current).filter(
+                  ([key]) => key !== field?.key + ":" + inputValue
+                )
+              );
+            } else {
+              displayToValueMap.current = {
+                ...displayToValueMap.current,
+                [field?.key + ":" + inputValue]: a.value,
+              };
+            }
+
+            replaceAtCursor(word, cursorOffsetFromEnd);
           },
         })) as Suggestions)
       : []),
+    ..._suggestions,
   ];
-
-  const { getCaretPosition, replaceAtCursor } = useCaret(inputRef, setValue);
 
   const afterApplySelection = () => {
     getSuggestions();
   };
 
   const onKeyDown = (e: any) => {
+    // Manage arrow keys
+    if (e.key === "Backspace" || e.key === "Delete") {
+      // TODO Remove current value or tag
+      // TODO do it for all keys?
+      if (false) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      return;
+    }
+
     // Manage arrow keys
     if (e.key === "ArrowUp") {
       e.preventDefault();
@@ -130,13 +189,13 @@ export const useSuggestions = (
 
   const getSuggestions = () => {
     const status = getCaretPosition();
-    setCurrentFilterValues(status.filter?.values || []);
+    setCurrentFilterValues(
+      (status.filter?.values || []).map(
+        (a) => displayToValueMap.current[status.filter?.key + ":" + a] || a
+      )
+    );
 
-    if (
-      status.text.current
-        .slice(0, status.caret.current - status.caret.before)
-        ?.indexOf(":") === -1
-    ) {
+    if (status.text.current?.indexOf(":") === -1) {
       // Choosing a filter
 
       const fieldTyped = status.text.current.split(":")[0] || "";
@@ -171,7 +230,7 @@ export const useSuggestions = (
             "score",
             (r) => r.label.length
           )
-        : _.sortBy(fields, "label");
+        : []; // _.sortBy(fields, "label"); // TODO for now it seems more great to show nothing when we start in the field
 
       setMode("field");
       setSuggestions(
@@ -205,8 +264,10 @@ export const useSuggestions = (
         (a) => labelToVariable(a.label) === status.filter?.key
       );
 
+      console.log(status);
+
       const column = status.filter?.key || "";
-      const query = status.filter?.values[status.value?.index || 0] || "";
+      const query = ""; //status.filter?.values[status.value?.index || 0] || "";
       debounce(
         () => {
           setColumnSearch([column, query]);
@@ -220,51 +281,66 @@ export const useSuggestions = (
       // Inside a filter's value
       setMode("value");
       setSuggestions([
-        {
-          type: "operator",
-          value: "finish",
-          onClick: () => {
-            const status = getCaretPosition();
-            replaceAtCursor(status.text.current.replace(/,"*$/, "") + " ", 0);
-          },
-          render: <span>Passer au filtre suivant</span>,
-        },
-        {
-          type: "operator",
-          value: "add",
-          onClick: () => {
-            const status = getCaretPosition();
-            const field = fields.find((f) => f.key === columnSearch[0]);
-            replaceAtCursor(
-              status.text.current + (field?.type === "text" ? ',""' : ","),
-              field?.type === "text" ? -1 : 0
-            );
-          },
-          render: <span>Ajouter une valeur</span>,
-        },
-        {
-          type: "operator",
-          value: "invert",
-          onClick: () => {
-            const status = getCaretPosition();
-            const word = ("!" + status.text.current).replace(/^!!/g, "");
-            const cursorOffsetFromEnd =
-              status.caret.current - status.caret.after;
-            replaceAtCursor(word, cursorOffsetFromEnd);
-          },
-          render: (
-            <span>
-              <Tag
-                size="sm"
-                noColor
-                className="bg-red-500 text-white -ml-1 text-center items-center justify-center font-mono"
-              >
-                !
-              </Tag>{" "}
-              Inverser la condition
-            </span>
-          ),
-        },
+        ...(status.filter?.values.length
+          ? ([
+              {
+                type: "operator",
+                value: "finish",
+                onClick: () => {
+                  const status = getCaretPosition();
+                  replaceAtCursor(
+                    status.text.current.replace(/,"*$/, "") + " ",
+                    0
+                  );
+                },
+                render: (
+                  <span>
+                    <Info className="inline-block w-4 text-center mr-2">✓</Info>
+                    Sortir du filtre
+                  </span>
+                ),
+              },
+              {
+                type: "operator",
+                value: "add",
+                onClick: () => {
+                  const status = getCaretPosition();
+                  const field = fields.find((f) => f.key === columnSearch[0]);
+                  replaceAtCursor(
+                    status.text.current +
+                      (field?.type === "text" ? ',""' : ","),
+                    field?.type === "text" ? -1 : 0
+                  );
+                },
+                render: (
+                  <span>
+                    {" "}
+                    <Info className="inline-block w-4 text-center mr-2">+</Info>
+                    Ajouter une autre valeur
+                  </span>
+                ),
+              },
+              {
+                type: "operator",
+                value: "invert",
+                onClick: () => {
+                  const status = getCaretPosition();
+                  const word = ("!" + status.text.current).replace(/^!!/g, "");
+                  const cursorOffsetFromEnd =
+                    status.caret.current - status.caret.after;
+                  replaceAtCursor(word, cursorOffsetFromEnd);
+                },
+                render: (
+                  <span>
+                    <Info className="inline-block w-4 text-center mr-2">!</Info>
+                    {status.filter.not
+                      ? "Ne pas inverser la condition"
+                      : "Inverser la condition"}
+                  </span>
+                ),
+              },
+            ] as Suggestions)
+          : []),
         ...(field?.type === "text"
           ? ([
               {
@@ -282,14 +358,8 @@ export const useSuggestions = (
                 },
                 render: (
                   <span>
-                    <Tag
-                      size="sm"
-                      noColor
-                      className="bg-wood-500 text-white -ml-1 text-center items-center justify-center font-mono"
-                    >
-                      ~
-                    </Tag>{" "}
-                    Fuzzy
+                    <Info className="inline-block w-4 text-center mr-2">~</Info>
+                    Recherche exacte / proche
                   </span>
                 ),
               },
@@ -305,5 +375,6 @@ export const useSuggestions = (
     getSuggestions,
     selectionIndex,
     afterApplySelection,
+    displayToValueMap: displayToValueMap.current,
   };
 };

@@ -3689,6 +3689,10 @@ select {
   color: rgb(113 113 122 / var(--tw-text-opacity));
 }
 
+.text-transparent {
+  color: transparent;
+}
+
 .underline {
   text-decoration-line: underline;
 }

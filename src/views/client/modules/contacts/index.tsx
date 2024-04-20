@@ -103,11 +103,6 @@ export const ContactsPage = () => {
         }}
         columns={[
           {
-            title: "ID",
-            orderable: true,
-            render: (contact) => <Info>{contact.id}</Info>,
-          },
-          {
             title: "Name",
             orderable: true,
             render: (contact) => getContactName(contact),

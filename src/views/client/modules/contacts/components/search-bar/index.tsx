@@ -32,16 +32,25 @@ export const SearchBar = ({
     getSuggestions,
     selectionIndex,
     afterApplySelection,
-  } = useSuggestions(schema, inputRef, setValue);
+    displayToValueMap,
+  } = useSuggestions(
+    schema,
+    inputRef,
+    setValue,
+    JSON.parse(new URLSearchParams(window.location.search).get("map") || "{}")
+  );
 
   // When value change, set it to url querystring ?q=
   useEffect(() => {
     const url = new URL(window.location.href);
     url.searchParams.set("q", value);
+    url.searchParams.set("map", JSON.stringify(displayToValueMap));
     window.history.replaceState({}, "", url.toString());
     delayCall(
       () => {
-        onChange(generateQuery(fields, extractFilters(value)));
+        onChange(
+          generateQuery(fields, extractFilters(value), displayToValueMap)
+        );
       },
       {
         key: "search-bar",
@@ -87,8 +96,11 @@ export const SearchBar = ({
             onMouseUp={getSuggestions}
             onKeyUp={getSuggestions}
             onKeyDown={onKeyDown}
+            onBlur={() => {
+              setValue((value.trim() ? value + " " : "").replace(/ +/gm, " "));
+            }}
             style={{ resize: "none", lineHeight: "1.5" }}
-            placeholder="Rechercher dans tous les champs..."
+            placeholder="Recherche globale, tags:factures, updated_at:2024-01-01..."
             inputRef={inputRef}
             spellCheck={false}
             multiline
