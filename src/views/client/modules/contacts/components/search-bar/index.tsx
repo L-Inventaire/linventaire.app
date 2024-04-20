@@ -29,16 +29,13 @@ export const SearchBar = ({
   const {
     suggestions,
     onKeyDown,
-    applySelection,
     getSuggestions,
     selectionIndex,
-    setSelectionIndex,
+    afterApplySelection,
   } = useSuggestions(schema, inputRef, setValue);
 
   // When value change, set it to url querystring ?q=
   useEffect(() => {
-    setSelectionIndex(0);
-
     const url = new URL(window.location.href);
     url.searchParams.set("q", value);
     window.history.replaceState({}, "", url.toString());
@@ -116,7 +113,7 @@ export const SearchBar = ({
           <SearchBarSuggestions
             suggestions={suggestions}
             selected={selectionIndex}
-            onClick={(i) => applySelection(i)}
+            afterOnClick={afterApplySelection}
           />
         </div>
       )}

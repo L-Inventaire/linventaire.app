@@ -1,5 +1,6 @@
 import _ from "lodash";
 import { ReactNode } from "react";
+import { twMerge } from "tailwind-merge";
 
 type TextProps = {
   type:
@@ -116,19 +117,19 @@ const Text = (props: TextProps) => {
       defaultClassName =
         "text-sm font-normal" +
         " " +
-        (props.noColor ? "" : "text-slate-400 dark:text-white dark:opacity-50");
+        (props.noColor ? "" : "text-slate-300 dark:text-white dark:opacity-50");
       break;
     case "info-small":
       defaultClassName =
         "text-xs font-normal" +
         " " +
-        (props.noColor ? "" : "text-slate-400 dark:text-white dark:opacity-50");
+        (props.noColor ? "" : "text-slate-300 dark:text-white dark:opacity-50");
       break;
   }
 
   return (
     <span
-      className={defaultClassName + " " + (props.className || "")}
+      className={twMerge(defaultClassName, props.className)}
       {..._.omit(props, "type", "className", "children", "noColor")}
     >
       {props.children}

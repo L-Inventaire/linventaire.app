@@ -32,10 +32,10 @@ export const useCaret = (
         const posBefore = pos;
         pos += filter.raw.length + 1; // +1 for the space
         if (caret < pos) {
-          const keyEndPos = posBefore + (filter.key || filter.raw).length + 1;
-          let subPos = keyEndPos; // +1 for the ":"
+          const keyEndPos = posBefore + filter.raw.split(":")[0].length + 1;
+          let subPos = keyEndPos;
           for (let i = 0; i < filter.values_raw_array.length + 1; i++) {
-            const index = filter.values_raw_array[i] ? i : -1;
+            const index = filter.values_raw_array[i] !== undefined ? i : -1;
             subPos += filter.values_raw_array[i]
               ? filter.values_raw_array[i].length + 1
               : 1;
@@ -88,6 +88,7 @@ export const useCaret = (
       caret.before + replacement.length + offset,
       caret.before + replacement.length + offset
     );
+    lastCaretPosition = caret.before + replacement.length + offset;
   };
 
   return { getCaretPosition, replaceAtCursor };

@@ -194,6 +194,7 @@ export const Login = () => {
               <div className="flex flex-row">
                 <Input
                   size="lg"
+                  autoComplete="email"
                   value={email}
                   placeholder="jeff@books.com"
                   onChange={(e) => {

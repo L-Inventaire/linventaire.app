@@ -1,7 +1,7 @@
 import environment from "@config/environment";
-import { Customer } from "@features/customers/types/customers";
+import { Customer, PublicCustomer } from "@features/customers/types/customers";
 
-export const getFullName = (user: Customer) => {
+export const getFullName = (user: Customer | PublicCustomer) => {
   return user.full_name;
 };
 

@@ -6,6 +6,7 @@ import _ from "lodash";
 import React, { Fragment, useCallback, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { atom, useRecoilState, useSetRecoilState } from "recoil";
+import { twMerge } from "tailwind-merge";
 
 export type DropDownMenuType = {
   type?: "divider" | "danger" | "menu" | "label" | "title"; // default to menu
@@ -15,6 +16,7 @@ export type DropDownMenuType = {
   onClick?: () => void;
   to?: string;
   active?: boolean;
+  className?: string;
 }[];
 
 export const DropDownAtom = atom<{
@@ -199,13 +201,14 @@ export const Menu = ({
               clickItem?.();
             }}
             to={m.to}
-            className={
+            className={twMerge(
               "h-7 my-1 items-center hover:bg-opacity-25 hover:bg-opacity-25 px-2 py-1 rounded-md select-none cursor-pointer flex " +
-              (m.type === "danger"
-                ? "text-red-500 hover:bg-red-300 "
-                : "hover:bg-wood-300 ") +
-              (active ? " bg-wood-100 dark:bg-wood-800 " : "")
-            }
+                (m.type === "danger"
+                  ? "text-red-500 hover:bg-red-300 "
+                  : "hover:bg-wood-300 ") +
+                (active ? " bg-wood-100 dark:bg-wood-800 " : ""),
+              m.className
+            )}
           >
             {m.icon?.({
               className: "w-4 h-4 mr-1 text-slate-900 dark:text-slate-100",

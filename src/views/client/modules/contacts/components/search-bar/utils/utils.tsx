@@ -41,7 +41,10 @@ export const extractFilters = (str: string): MatchedStringFilter[] => {
       values: values
         .map((value) => value.replace(/^~?"(.*?)("|$)$/g, "$1"))
         .filter(Boolean),
-      values_raw_array: values,
+      values_raw_array: [
+        ...values,
+        ...((parts[3] || "").match(/,$/) ? [""] : []),
+      ],
     };
   });
 };
@@ -70,7 +73,7 @@ export const generateQuery = (
           key: field?.key || a.key,
           not: a.not,
           values: a.values.map((value) => {
-            if (field?.type === "text") {
+            if (field?.type === "text" || field?.type?.indexOf("type:") === 0) {
               const isRegex = value.startsWith("~");
               value = value.replace(/(^~?"|"$)/g, "");
               return {

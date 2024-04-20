@@ -62,7 +62,7 @@ export const ContactsPage = () => {
             placeholder="From"
           />
           <InputDate
-            className="rounded-l-none -mlŒ-px hover:z-10"
+            className="rounded-l-none -ml-px hover:z-10"
             placeholder="To"
           />
         </div>
@@ -78,39 +78,6 @@ export const ContactsPage = () => {
         <Button theme="default" icon={(p) => <DotsHorizontalIcon {...p} />} />
       </div>
       <div className="mb-4" />
-
-      {["sm", "md"].map((size: any) => (
-        <div className="items-center flex space-x-2 my-4">
-          <Tag color={getRandomHexColor()} size={size}>
-            Some tag
-          </Tag>
-          <Tag
-            size={size}
-            noColor
-            className="bg-white dark:bg-slate-900 rounded-full"
-          >
-            <Avatar
-              className={twMerge("mr-1", size === "sm" ? "-ml-0.5" : "-ml-1")}
-              fallback="Romaric Mourgues"
-              size={size === "sm" ? 4 : 5}
-            />
-            Romaric Mourgues
-          </Tag>
-          <Tag size={size} noColor className="bg-white dark:bg-slate-900 pr-1">
-            <Avatar
-              shape="square"
-              className={twMerge("mr-1", size === "sm" ? "-ml-0.5" : "-ml-1")}
-              fallback="L'inventaire"
-              size={size === "sm" ? 4 : 5}
-            />
-            L'inventaire
-          </Tag>
-          <Tag size={size} noColor className="bg-white dark:bg-slate-900 pr-1">
-            <DocumentTextIcon className="mr-1 -ml-1 h-4 w-4 text-slate-500" />
-            Facture #782
-          </Tag>
-        </div>
-      ))}
 
       <Table
         loading={contacts.isPending}

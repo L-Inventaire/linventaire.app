@@ -3,7 +3,7 @@ import { debounce } from "@features/utils/debounce";
 import { useRestSuggestions } from "@features/utils/rest/hooks/use-rest";
 import Fuse from "fuse.js";
 import _ from "lodash";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { SearchField } from "../utils/types";
 import { labelToVariable } from "../utils/utils";
 import { useCaret } from "./use-caret";
@@ -11,6 +11,7 @@ import { useCaret } from "./use-caret";
 export type Suggestions = {
   type: "operator" | "field" | "value";
   field?: SearchField;
+
   value:
     | (
         | "invert" // Toggle "!""
@@ -18,8 +19,15 @@ export type Suggestions = {
         | "finish"
       )
     | string; // Goes to next filter (finish values and add space)
-  render?: string | ReactNode;
   onClick?: () => void;
+
+  render?: string | ReactNode; // A special rendered item
+
+  // Special sub entities
+  item?: any; // The item from the rest api when special type (ex. type:tags)
+  active?: boolean; // If this item is selected in the active filter
+  count?: number; // Number of documents with this value
+  updated?: number; // Last time this value was used in a document
 }[];
 
 export const useSuggestions = (
@@ -29,6 +37,7 @@ export const useSuggestions = (
 ) => {
   const fields = schema.fields;
   const [mode, setMode] = useState<"field" | "value">("field");
+  const [currentFilterValues, setCurrentFilterValues] = useState<string[]>([]);
   const [columnSearch, setColumnSearch] = useState<[string, string]>(["", ""]); // [Column, query]
   const [_suggestions, setSuggestions] = useState<Suggestions>([]);
   const [selectionIndex, setSelectionIndex] = useState(0);
@@ -40,23 +49,54 @@ export const useSuggestions = (
       columnSearch[1]
     );
 
+  useEffect(() => {
+    setSelectionIndex(0);
+  }, [_suggestions.length]); // Keep position if we just added a value
+
   const suggestions = [
     ..._suggestions,
     ...(mode === "value"
       ? ((restColumnSuggestions.data || []).map((a) => ({
           type: "value",
+          field: fields.find((f) => f.key === columnSearch[0]),
           value: a.value,
           render: a.label,
+          item: a.item,
+          count: a.count,
+          updated: a.updated,
+          active: currentFilterValues.includes(a.value),
+          onClick: () => {
+            const status = getCaretPosition();
+            const field = fields.find((f) => f.key === columnSearch[0]);
+            const cursorOffsetFromEnd =
+              status.caret.current - status.caret.after;
+            if (currentFilterValues.includes(a.value)) {
+              const word = status.text.current.replace(/""/, "").replace(
+                new RegExp(
+                  // Replace either the corresponding value or add at the very end
+                  `("${a.value}"|${a.value}),?`
+                ),
+                ""
+              );
+              replaceAtCursor(word, cursorOffsetFromEnd);
+            } else {
+              const word = status.text.current.replace(/""/, "").replace(
+                new RegExp(
+                  // Replace either the corresponding value or add at the very end
+                  `${status.filter?.values[status.value?.index || 0] || ""}$`
+                ),
+                field?.type === "text" ? `"${a.value}",""` : `${a.value},`
+              );
+              replaceAtCursor(word, cursorOffsetFromEnd);
+            }
+          },
         })) as Suggestions)
       : []),
   ];
 
   const { getCaretPosition, replaceAtCursor } = useCaret(inputRef, setValue);
 
-  const applySelection = (index: number) => {
-    if (suggestions[index] && suggestions[index].onClick) {
-      suggestions[index].onClick?.();
-    }
+  const afterApplySelection = () => {
     getSuggestions();
   };
 
@@ -80,13 +120,17 @@ export const useSuggestions = (
       if (suggestions.length === 0) return;
       e.preventDefault();
       e.stopPropagation();
-      applySelection(selectionIndex);
+      if (suggestions[selectionIndex] && suggestions[selectionIndex].onClick) {
+        suggestions[selectionIndex].onClick?.();
+      }
+      afterApplySelection();
       return;
     }
   };
 
   const getSuggestions = () => {
     const status = getCaretPosition();
+    setCurrentFilterValues(status.filter?.values || []);
 
     if (
       status.text.current
@@ -162,7 +206,7 @@ export const useSuggestions = (
       );
 
       const column = status.filter?.key || "";
-      const query = status.filter?.values[0] || "";
+      const query = status.filter?.values[status.value?.index || 0] || "";
       debounce(
         () => {
           setColumnSearch([column, query]);
@@ -173,8 +217,6 @@ export const useSuggestions = (
         }
       );
 
-      console.log("status.value", status.value);
-
       // Inside a filter's value
       setMode("value");
       setSuggestions([
@@ -183,9 +225,22 @@ export const useSuggestions = (
           value: "finish",
           onClick: () => {
             const status = getCaretPosition();
-            replaceAtCursor(status.text.current + " ", 0);
+            replaceAtCursor(status.text.current.replace(/,"*$/, "") + " ", 0);
           },
-          render: <span>Terminer</span>,
+          render: <span>Passer au filtre suivant</span>,
+        },
+        {
+          type: "operator",
+          value: "add",
+          onClick: () => {
+            const status = getCaretPosition();
+            const field = fields.find((f) => f.key === columnSearch[0]);
+            replaceAtCursor(
+              status.text.current + (field?.type === "text" ? ',""' : ","),
+              field?.type === "text" ? -1 : 0
+            );
+          },
+          render: <span>Ajouter une valeur</span>,
         },
         {
           type: "operator",
@@ -206,7 +261,7 @@ export const useSuggestions = (
               >
                 !
               </Tag>{" "}
-              Inverser
+              Inverser la condition
             </span>
           ),
         },
@@ -248,8 +303,7 @@ export const useSuggestions = (
     suggestions,
     onKeyDown,
     getSuggestions,
-    setSelectionIndex,
     selectionIndex,
-    applySelection,
+    afterApplySelection,
   };
 };

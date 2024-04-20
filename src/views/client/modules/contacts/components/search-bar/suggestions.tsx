@@ -1,19 +1,21 @@
 import { Tag } from "@atoms/badge/tag";
 import { DropDownMenuType, Menu } from "@atoms/dropdown";
 import { Checkbox } from "@atoms/input/input-checkbox";
-import { Info } from "@atoms/text";
+import { Info, InfoSmall } from "@atoms/text";
+import { RestTag } from "@components/rest-tags";
 import { ReactNode } from "react";
-import { SearchField } from "./utils/types";
 import { Suggestions } from "./hooks/use-suggestions";
+import { formatTime } from "@features/utils/format/dates";
+import { twMerge } from "tailwind-merge";
 
 export const SearchBarSuggestions = ({
   suggestions,
   selected,
-  onClick,
+  afterOnClick,
 }: {
   suggestions: Suggestions;
   selected: number;
-  onClick: (index: number) => void;
+  afterOnClick: () => void;
 }) => {
   const operators = suggestions.filter((a) => a.type === "operator");
   const fields = suggestions.filter((a) => a.type === "field");
@@ -38,7 +40,10 @@ export const SearchBarSuggestions = ({
                 ),
                 shortcut: i === selected ? ["enter"] : [],
                 active: i === selected,
-                onClick: a.onClick,
+                onClick: () => {
+                  a.onClick?.();
+                  afterOnClick();
+                },
               })),
             ] as DropDownMenuType)
           : []),
@@ -66,7 +71,10 @@ export const SearchBarSuggestions = ({
                 ),
                 shortcut: i + operators.length === selected ? ["enter"] : [],
                 active: i + operators.length === selected,
-                onClick: onClick,
+                onClick: () => {
+                  onClick?.();
+                  afterOnClick();
+                },
               })),
             ] as DropDownMenuType)
           : []),
@@ -78,12 +86,45 @@ export const SearchBarSuggestions = ({
                 label: <Info>Valeurs</Info>,
                 onClick: () => {},
               },
-              ...values.map((a: any, i) => ({
+              ...values.map((a: Suggestions[0], i) => ({
                 type: "menu",
+                className: "group/item",
                 label: (
-                  <div className="flex flex-row space-x items-center">
-                    <Checkbox size="sm" className="mr-2" value />
-                    <span>{(a.render || a.value) as string | ReactNode}</span>
+                  <div className="flex flex-row space-x items-center overflow-hidden text-ellipsis whitespace-nowrap">
+                    <Checkbox size="sm" className="mr-2" value={a.active} />
+                    {a.field?.type.indexOf("type:") !== 0 && (
+                      <span>{(a.render || a.value) as string | ReactNode}</span>
+                    )}
+                    {a.field?.type.indexOf("type:") === 0 && (
+                      <RestTag
+                        type={a.field?.type.split(":")[1] as string}
+                        size="sm"
+                        label={a.render}
+                        item={a.item}
+                        id={a.value}
+                      />
+                    )}
+                    <InfoSmall
+                      className={twMerge(
+                        "ml-1 group-hover/item:opacity-100 opacity-0",
+                        i + operators.length + fields.length === selected &&
+                          "opacity-100"
+                      )}
+                    >
+                      {!!a.count && (
+                        <>
+                          {" • "}
+                          {a.count > 10 ? "~" : ""}
+                          {a.count} documents
+                        </>
+                      )}
+                      {!!a.updated && (
+                        <>
+                          {" • "}dernière utilisation le
+                          {" " + formatTime(a.updated, { keepTime: false })}
+                        </>
+                      )}
+                    </InfoSmall>
                   </div>
                 ),
                 shortcut:
@@ -91,7 +132,10 @@ export const SearchBarSuggestions = ({
                     ? ["enter"]
                     : [],
                 active: i + operators.length + fields.length === selected,
-                onClick: a.onClick,
+                onClick: () => {
+                  a.onClick?.();
+                  afterOnClick();
+                },
               })),
             ] as DropDownMenuType)
           : []),

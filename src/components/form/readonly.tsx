@@ -76,7 +76,7 @@ export const FormReadonly = memo(
             {props.type === "date" && (
               <Base className="whitespace-nowrap">
                 {props.render?.(props.value, props.values) ||
-                  formatTime(props.value as string, "fr-FR", {
+                  formatTime(props.value as string, {
                     keepTime:
                       new Date(props.value as string).getSeconds() === 0
                         ? false

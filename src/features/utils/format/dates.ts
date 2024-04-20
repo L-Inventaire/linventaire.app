@@ -6,10 +6,10 @@
  */
 export const formatTime = (
   time: number | string,
-  locale?: string,
   options: { keepTime?: boolean; keepSeconds?: boolean; keepDate?: boolean } = {
     keepTime: true,
-  }
+  },
+  locale?: string
 ) => {
   time = new Date(time).getTime();
   locale = locale || navigator.language;
