@@ -138,6 +138,10 @@ export function RenderedTable<T>({
   const { t } = useTranslation();
 
   const onClickCheckbox = (row: T, a: boolean, e: any) => {
+    // Unselect all selected text
+    if (window.getSelection) {
+      window.getSelection()?.removeAllRanges();
+    }
     //Code to manage shift click range
     if ((e.shiftKey || e.ctrlKey) && selected.length > 0) {
       let anchor = selected[selected.length - 1];

@@ -118,6 +118,15 @@ export const generateQuery = (
                 value: value === "1",
               };
             } else if (field?.type === "number" || field?.type === "date") {
+              // If only a value without anything else and it is a date, we automatically apply a range
+              if (
+                value.match(/^[0-9]/) &&
+                value.indexOf("->") < 0 &&
+                field?.type === "date"
+              ) {
+                value = `${value}->${value}`;
+              }
+
               let [min, max] = value.split("->") as [
                 string | number | Date | null,
                 string | number | Date | null

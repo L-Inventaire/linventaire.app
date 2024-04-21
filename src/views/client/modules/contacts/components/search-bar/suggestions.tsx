@@ -36,6 +36,9 @@ export const SearchBarSuggestions = ({
   const operators = suggestions.filter((a) => a.type === "operator");
   const fields = suggestions.filter((a) => a.type === "field");
   const values = suggestions.filter((a) => a.type === "value");
+  searching =
+    searching &&
+    !["boolean", "date", "number"].includes(currentField?.type || "");
   return (
     <Menu
       menu={[
@@ -44,33 +47,41 @@ export const SearchBarSuggestions = ({
               {
                 type: "label",
                 label: (
-                  <Info className="block my-2 flex items-center">
-                    {searching && !!currentField && (
-                      <>
-                        <SearchIcon className="w-4 h-4 inline-block mr-1" />
-                        <span>
-                          Recherchez dans les valeurs de{" "}
-                          <b>{currentField?.label}</b>
-                          ...
-                        </span>
-                      </>
+                  <>
+                    <Info className="block my-2 flex items-center">
+                      {searching && !!currentField && (
+                        <>
+                          <SearchIcon className="w-4 h-4 inline-block mr-1" />
+                          <span>
+                            Recherchez dans les valeurs de{" "}
+                            <b>{currentField?.label}</b>
+                            ...
+                          </span>
+                        </>
+                      )}
+                      {!searching && !!currentField && (
+                        <>
+                          <InformationCircleIcon className="w-4 h-4 inline-block mr-1" />
+                          <span>
+                            <b>{currentField?.label}</b>{" "}
+                            {!caret.filter?.not
+                              ? "correspond à"
+                              : "ne correspond pas à"}{" "}
+                            {caret.filter?.values
+                              .map((a) => `"${a}"`)
+                              .join(" ou ")}
+                            .
+                          </span>
+                        </>
+                      )}
+                    </Info>
+                    {currentField.type === "date" && (
+                      <div className="mb-2">TODO DATE PICKER</div>
                     )}
-                    {!searching && !!currentField && (
-                      <>
-                        <InformationCircleIcon className="w-4 h-4 inline-block mr-1" />
-                        <span>
-                          <b>{currentField?.label}</b>{" "}
-                          {!caret.filter?.not
-                            ? "correspond à"
-                            : "ne correspond pas à"}{" "}
-                          {caret.filter?.values
-                            .map((a) => `"${a}"`)
-                            .join(" ou ")}
-                          .
-                        </span>
-                      </>
+                    {currentField.type === "number" && (
+                      <div className="mb-2">TODO NUMBER PICKER</div>
                     )}
-                  </Info>
+                  </>
                 ),
               },
             ] as DropDownMenuType)

@@ -10,6 +10,9 @@ import { useCaret } from "./use-caret";
 // TODO:
 // - Implement dates
 // - Implement numbers
+// - Recoil save search state for page change and go back
+// - Recent tags
+// - Popular complete searches
 
 export type Suggestions = {
   type: "operator" | "field" | "value";
