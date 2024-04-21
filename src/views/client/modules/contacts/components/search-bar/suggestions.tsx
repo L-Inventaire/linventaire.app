@@ -12,6 +12,9 @@ import { CaretPositionType } from "./hooks/use-caret";
 import { Suggestions } from "./hooks/use-suggestions";
 import { SearchField } from "./utils/types";
 import { labelToVariable } from "./utils/utils";
+import Select from "@atoms/input/input-select";
+import { Input } from "@atoms/input/input-text";
+import InputDate from "@atoms/input/input-date";
 
 export const SearchBarSuggestions = ({
   suggestions,
@@ -75,11 +78,42 @@ export const SearchBarSuggestions = ({
                         </>
                       )}
                     </Info>
-                    {currentField.type === "date" && (
-                      <div className="mb-2">TODO DATE PICKER</div>
-                    )}
-                    {currentField.type === "number" && (
-                      <div className="mb-2">TODO NUMBER PICKER</div>
+                    {(currentField.type === "date" ||
+                      currentField.type === "number") && (
+                      <div className="mb-2 flex space-x-2 items-center max-w-md">
+                        <Select size="sm" className="shrink-0 w-max">
+                          <option value="">Égal à</option>
+                          <option value=">=">Supérieur à</option>
+                          <option value="<=">Inférieur à</option>
+                          <option value="->">Entre</option>
+                        </Select>
+                        {currentField.type === "date" && (
+                          <>
+                            <InputDate size="sm" className="shrink-0 w-32" />
+                            <span>et</span>
+                            <InputDate size="sm" className="shrink-0 w-32" />
+                          </>
+                        )}
+                        {currentField.type === "number" && (
+                          <>
+                            <Input
+                              value=""
+                              type="number"
+                              pattern="\d*"
+                              size="sm"
+                              className="shrink-0"
+                            />
+                            <span>et</span>
+                            <Input
+                              value=""
+                              type="number"
+                              pattern="\d*"
+                              size="sm"
+                              className="shrink-0"
+                            />
+                          </>
+                        )}
+                      </div>
                     )}
                   </>
                 ),

@@ -54,12 +54,12 @@ export const useSuggestions = (
       status.text.current.match(/"$/))
   );
 
-  const field = schema.fields.find(
+  const currentField = schema.fields.find(
     (a) => labelToVariable(a.label) === status.filter?.key
   );
   const columnSearch = [
-    !["boolean", "date", "number"].includes(field?.type as string)
-      ? field?.key
+    !["boolean", "date", "number"].includes(currentField?.type as string)
+      ? currentField?.key
       : "" || "",
     (inSearchMode ? status.filter?.values[status.value?.index || 0] : "") || "",
   ] as [string, string];
@@ -202,8 +202,13 @@ export const useSuggestions = (
   const onKeyDown = (e: any) => {
     // Manage arrow keys
     if (e.key === "Backspace" || e.key === "Delete") {
-      if (!inSearchMode) {
-        const status = getCaretPosition();
+      const status = getCaretPosition();
+      if (
+        !inSearchMode ||
+        status.text.current
+          .slice(0, status.caret.current - status.caret.before)
+          .match(/:$/)
+      ) {
         if (
           e.key === "Backspace" &&
           status.caret.before === status.caret.current
@@ -214,17 +219,25 @@ export const useSuggestions = (
           return;
         }
         const value = status.filter?.values_raw_array[status.value?.index || 0];
+
         const inLabel =
-          status.filter?.key &&
+          (status.filter?.key &&
+            status.text.current
+              .slice(0, status.caret.current - status.caret.before)
+              .indexOf(":") === -1) ||
           status.text.current
             .slice(0, status.caret.current - status.caret.before)
-            .indexOf(":") === -1;
+            .match(/:$/);
         if (inLabel) {
           e.preventDefault();
           e.stopPropagation();
           // Remove the whole filter
           replaceAtCursor("");
-        } else if (value) {
+        } else if (
+          value &&
+          currentField?.type !== "date" &&
+          currentField?.type !== "number"
+        ) {
           e.preventDefault();
           e.stopPropagation();
           const withoutValue = status.text.current
@@ -344,25 +357,22 @@ export const useSuggestions = (
       // Inside a filter's value
       setMode("value");
       setSuggestions([
+        {
+          type: "operator",
+          value: "finish",
+          onClick: () => {
+            const status = getCaretPosition();
+            replaceAtCursor(status.text.current.replace(/,"*$/, "") + " ", 0);
+          },
+          render: (
+            <span>
+              <Info className="inline-block w-4 text-center mr-2">✓</Info>
+              Sortir du filtre
+            </span>
+          ),
+        },
         ...(status.filter?.values.length
           ? ([
-              {
-                type: "operator",
-                value: "finish",
-                onClick: () => {
-                  const status = getCaretPosition();
-                  replaceAtCursor(
-                    status.text.current.replace(/,"*$/, "") + " ",
-                    0
-                  );
-                },
-                render: (
-                  <span>
-                    <Info className="inline-block w-4 text-center mr-2">✓</Info>
-                    Sortir du filtre
-                  </span>
-                ),
-              },
               {
                 type: "operator",
                 value: "add",

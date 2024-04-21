@@ -70,12 +70,15 @@ export const ContactsPage = () => {
                 label: "Étiquettes",
                 keywords: "tags étiquettes label",
               },
+              updated_at: "Date de mise à jour",
               updated_by: {
                 label: "Mis à jour par",
                 keywords: "updated_by mis à jour par auteur utilisateur user",
               },
               email: "Email",
+              phone: "Téléphone",
               is_supplier: "Fournisseur",
+              is_client: "Client",
             }),
           }}
           onChange={(q) =>
