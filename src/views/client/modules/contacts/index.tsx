@@ -11,7 +11,7 @@ import {
   RestOptions,
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
-import { DotsHorizontalIcon, PlusIcon } from "@heroicons/react/outline";
+import { PlusIcon } from "@heroicons/react/outline";
 import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { SearchBar } from "./components/search-bar";
@@ -42,22 +42,26 @@ export const ContactsPage = () => {
       <div className="mb-4" />
 
       <div className="flex flex-row space-x-2">
-        <Select className="w-max">
-          <option>Tous</option>
-          <option>Clients</option>
-          <option>Fournisseurs</option>
-          <option>Aucun</option>
-        </Select>
-        <div className="flex flex-row relative">
-          <InputDate
-            className="rounded-r-none -mr-px hover:z-10"
-            placeholder="From"
-          />
-          <InputDate
-            className="rounded-l-none -ml-px hover:z-10"
-            placeholder="To"
-          />
-        </div>
+        {false && (
+          <>
+            <Select className="w-max">
+              <option>Tous</option>
+              <option>Clients</option>
+              <option>Fournisseurs</option>
+              <option>Aucun</option>
+            </Select>
+            <div className="flex flex-row relative">
+              <InputDate
+                className="rounded-r-none -mr-px hover:z-10"
+                placeholder="From"
+              />
+              <InputDate
+                className="rounded-l-none -ml-px hover:z-10"
+                placeholder="To"
+              />
+            </div>
+          </>
+        )}
         <SearchBar
           schema={{
             table: "contacts",
@@ -77,7 +81,6 @@ export const ContactsPage = () => {
             q.valid && setOptions({ ...options, query: q.fields })
           }
         />
-        <Button theme="default" icon={(p) => <DotsHorizontalIcon {...p} />} />
       </div>
       <div className="mb-4" />
 

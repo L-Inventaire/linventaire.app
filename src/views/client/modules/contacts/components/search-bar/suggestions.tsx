@@ -1,35 +1,96 @@
 import { Tag } from "@atoms/badge/tag";
 import { DropDownMenuType, Menu } from "@atoms/dropdown";
 import { Checkbox } from "@atoms/input/input-checkbox";
+import { Loader } from "@atoms/loader";
 import { Info, InfoSmall } from "@atoms/text";
 import { RestTag } from "@components/rest-tags";
-import { ReactNode } from "react";
-import { Suggestions } from "./hooks/use-suggestions";
 import { formatTime } from "@features/utils/format/dates";
+import { InformationCircleIcon, SearchIcon } from "@heroicons/react/outline";
+import { ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
+import { CaretPositionType } from "./hooks/use-caret";
+import { Suggestions } from "./hooks/use-suggestions";
+import { SearchField } from "./utils/types";
+import { labelToVariable } from "./utils/utils";
 
 export const SearchBarSuggestions = ({
   suggestions,
   selected,
   afterOnClick,
+  caret,
+  searching,
+  schema,
+  loadingSuggestionsValues,
 }: {
   suggestions: Suggestions;
   selected: number;
   afterOnClick: () => void;
+  caret: CaretPositionType;
+  searching: boolean;
+  schema: { table: string; fields: SearchField[] };
+  loadingSuggestionsValues: boolean;
 }) => {
+  const currentField = schema.fields.find(
+    (a) => labelToVariable(a.label) === caret.filter?.key
+  );
   const operators = suggestions.filter((a) => a.type === "operator");
   const fields = suggestions.filter((a) => a.type === "field");
   const values = suggestions.filter((a) => a.type === "value");
   return (
     <Menu
       menu={[
-        // Add suggested values, or date picker for date fields
-        ...(values.length
+        ...(currentField
           ? ([
               {
                 type: "label",
-                label: <Info>Valeurs</Info>,
-                onClick: () => {},
+                label: (
+                  <Info className="block my-2 flex items-center">
+                    {searching && !!currentField && (
+                      <>
+                        <SearchIcon className="w-4 h-4 inline-block mr-1" />
+                        <span>
+                          Recherchez dans les valeurs de{" "}
+                          <b>{currentField?.label}</b>
+                          ...
+                        </span>
+                      </>
+                    )}
+                    {!searching && !!currentField && (
+                      <>
+                        <InformationCircleIcon className="w-4 h-4 inline-block mr-1" />
+                        <span>
+                          <b>{currentField?.label}</b> correspond à{" "}
+                          {caret.filter?.values
+                            .map((a) => `"${a}"`)
+                            .join(" ou ")}
+                          .
+                        </span>
+                      </>
+                    )}
+                  </Info>
+                ),
+              },
+            ] as DropDownMenuType)
+          : []),
+        // Add suggested values, or date picker for date fields
+        ...(values.length || (searching && !!currentField)
+          ? ([
+              {
+                type: "label",
+                label: (
+                  <Info className={twMerge("block", !values.length && "mb-2")}>
+                    {loadingSuggestionsValues && (
+                      <>
+                        <Loader className={"w-4 h-4 mr-2"} />
+                        <Info>Recherche...</Info>
+                      </>
+                    )}
+                    {!loadingSuggestionsValues && !!values.length && "Valeurs"}
+                    {!loadingSuggestionsValues &&
+                      !values.length &&
+                      "Aucune valeur ne correspond à votre recherche."}
+                  </Info>
+                ),
               },
               ...values.map((a: Suggestions[0], i) => ({
                 type: "menu",

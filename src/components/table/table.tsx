@@ -18,6 +18,7 @@ import { useTranslation } from "react-i18next";
 import { TableExportModal } from "./export-modal";
 import { TableOptionsModal } from "./options-modal";
 import { TablePagination, TablePaginationSimple } from "./pagination";
+import { twMerge } from "tailwind-merge";
 
 export type RenderOptions = {
   responsive?: boolean;
@@ -68,6 +69,44 @@ type PropsType<T> = {
   onChangePage?: (page: number) => void;
   onChangePageSize?: (size: number) => void;
   onFetchExportData?: (pagination: Pagination) => Promise<T[]>;
+};
+
+const defaultCellClassName = ({
+  selected,
+  rowFirst,
+  rowLast,
+  rowOdd,
+  colFirst,
+  colLast,
+  className,
+}: {
+  selected: boolean;
+  rowFirst: boolean;
+  rowLast: boolean;
+  rowOdd?: boolean;
+  colFirst: boolean;
+  colLast: boolean;
+  className?: string;
+}) => {
+  return twMerge(
+    "h-full w-full flex items-center min-h-10 border-t border-wood-100 dark:border-wood-700 bg-wood-50",
+    rowOdd
+      ? selected
+        ? "dark:bg-opacity-90 bg-opacity-90 "
+        : "dark:bg-opacity-25 bg-opacity-25 "
+      : "",
+    (colFirst && " border-l ") || "",
+    (colLast && " border-r ") || "",
+    (rowLast && " border-b ") || "",
+    (rowFirst && colFirst && " rounded-tl ") || "",
+    (rowFirst && colLast && " rounded-tr ") || "",
+    (rowLast && colFirst && " rounded-bl ") || "",
+    (rowLast && colLast && " rounded-br ") || "",
+    selected
+      ? " bg-wood-200 dark:bg-wood-950 "
+      : " bg-wood-50 dark:bg-wood-700 group-hover/row:bg-wood-100",
+    className || ""
+  );
 };
 
 export function RenderedTable<T>({
@@ -471,19 +510,37 @@ export function RenderedTable<T>({
                 const isSelected = selected
                   .map((a) => (a as any)[rowIndex || "id"])
                   .includes((row as any)[rowIndex || "id"]);
+                const iFirst = i === 0;
+                const iLast = i === data.length - 1;
                 return (
                   <tr
                     key={i}
                     onClick={() => onClick && onClick(row)}
-                    className={onClick ? "cursor-pointer hover:opacity-75" : ""}
+                    className={twMerge(
+                      "group/row",
+                      onClick && "cursor-pointer"
+                    )}
                   >
                     {onSelect && (
-                      <td className="w-8">
-                        <Checkbox
-                          className="mr-2"
-                          value={isSelected}
-                          onChange={(a, e) => onClickCheckbox(row, a, e)}
-                        />
+                      <td className="w-8 m-0 p-0 height-table-hack overflow-hidden">
+                        <div
+                          className={defaultCellClassName({
+                            selected: isSelected,
+                            rowFirst: iFirst,
+                            rowLast: iLast,
+                            rowOdd: i % 2 === 0,
+                            colFirst: true,
+                            colLast: false,
+                            className: "flex justify-center items-center",
+                          })}
+                        >
+                          <Checkbox
+                            className="ml-1"
+                            size="sm"
+                            value={isSelected}
+                            onChange={(a, e) => onClickCheckbox(row, a, e)}
+                          />
+                        </div>
                       </td>
                     )}
                     {responsiveMode && (
@@ -534,36 +591,24 @@ export function RenderedTable<T>({
                       columns
                         .filter((a) => !a.hidden)
                         .map((cell, j) => {
-                          const jFirst = j === 0;
+                          const jFirst = j === 0 && !onSelect;
                           const jLast =
                             j === columns.filter((a) => !a.hidden).length - 1;
-                          const iFirst = i === 0;
-                          const iLast = i === data.length - 1;
                           return (
                             <td
                               key={j}
                               className="m-0 p-0 height-table-hack overflow-hidden"
                             >
                               <div
-                                className={
-                                  "h-full w-full flex items-center min-h-10 border-t border-wood-100 dark:border-wood-700 bg-wood-50 " +
-                                  (i % 2
-                                    ? isSelected
-                                      ? "dark:bg-opacity-90 bg-opacity-90 "
-                                      : "dark:bg-opacity-25 bg-opacity-25 "
-                                    : "") +
-                                  ((jFirst && " border-l ") || "") +
-                                  ((jLast && " border-r ") || "") +
-                                  ((iLast && " border-b ") || "") +
-                                  ((iFirst && jFirst && " rounded-tl ") || "") +
-                                  ((iFirst && jLast && " rounded-tr ") || "") +
-                                  ((iLast && jFirst && " rounded-bl ") || "") +
-                                  ((iLast && jLast && " rounded-br ") || "") +
-                                  (isSelected
-                                    ? " bg-wood-200 dark:bg-wood-950 "
-                                    : " bg-white dark:bg-wood-700 ") +
-                                  (cell.className || "")
-                                }
+                                className={defaultCellClassName({
+                                  selected: isSelected,
+                                  rowFirst: iFirst,
+                                  rowLast: iLast,
+                                  rowOdd: i % 2 === 0,
+                                  colFirst: jFirst,
+                                  colLast: jLast,
+                                  className: cell.className || "",
+                                })}
                               >
                                 <Base
                                   className={

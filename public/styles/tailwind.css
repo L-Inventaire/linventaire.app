@@ -959,6 +959,11 @@ select {
   margin-bottom: 2rem;
 }
 
+.mx-1 {
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
+}
+
 .\!mb-0 {
   margin-bottom: 0px !important;
 }
@@ -4028,6 +4033,10 @@ input, select {
   opacity: 0.75;
 }
 
+.hover\:opacity-90:hover {
+  opacity: 0.9;
+}
+
 .focus\:z-10:focus {
   z-index: 10;
 }
@@ -4094,6 +4103,20 @@ input, select {
 
 .group:focus-within .group-focus-within\:block {
   display: block;
+}
+
+.group\/row:hover .group-hover\/row\:bg-wood-200 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(214 199 178 / var(--tw-bg-opacity));
+}
+
+.group\/row:hover .group-hover\/row\:bg-wood-100 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(233 228 216 / var(--tw-bg-opacity));
+}
+
+.group\/row:hover .group-hover\/row\:bg-opacity-75 {
+  --tw-bg-opacity: 0.75;
 }
 
 .group:hover .group-hover\:opacity-100 {

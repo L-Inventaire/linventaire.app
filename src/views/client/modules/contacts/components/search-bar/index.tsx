@@ -33,6 +33,9 @@ export const SearchBar = ({
     selectionIndex,
     afterApplySelection,
     displayToValueMap,
+    caret,
+    searching,
+    loadingSuggestionsValues,
   } = useSuggestions(
     schema,
     inputRef,
@@ -126,6 +129,10 @@ export const SearchBar = ({
             suggestions={suggestions}
             selected={selectionIndex}
             afterOnClick={afterApplySelection}
+            caret={caret}
+            searching={searching}
+            schema={schema}
+            loadingSuggestionsValues={loadingSuggestionsValues}
           />
         </div>
       )}

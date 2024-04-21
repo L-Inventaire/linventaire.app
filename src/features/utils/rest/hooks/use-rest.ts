@@ -1,8 +1,9 @@
 import { useCurrentClient } from "@features/clients/state/use-clients";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import _ from "lodash";
+import { useEffect, useState } from "react";
+import { useDebounceValue } from "usehooks-ts";
 import { RestApiClient } from "../api-client/rest-api-client";
-import { useSuggestions } from "@views/client/modules/contacts/components/search-bar/hooks/use-suggestions";
 
 const restApiClients: { [key: string]: RestApiClient<any> } = {};
 
@@ -31,14 +32,52 @@ export const useRestSuggestions = <T>(
   const restApiClient = restApiClients[table] as RestApiClient<T>;
   const { id } = useCurrentClient();
 
-  const suggestions = useQuery({
-    queryKey: [table + "-suggestions", id, column, query],
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    queryFn: () =>
-      column ? restApiClient.suggestions(id || "", column, query) : [],
+  const [loading, setLoading] = useState(false);
+  const [debouncedQuery, setQuery] = useDebounceValue(query, 500);
+  const [suggestions, setSuggestions] = useState<
+    {
+      value: any;
+      label?: string;
+      item?: any;
+      count?: number;
+      updated?: number;
+    }[]
+  >([]);
+
+  useEffect(() => {
+    setLoading(true);
+    setQuery(query);
+  }, [query]);
+
+  const suggestionsQuery = useQuery({
+    queryKey: [table + "-suggestions", id, column, query ? debouncedQuery : ""],
+    staleTime: !query ? 1000 * 60 * 5 : 1000, // 5 minutes
+    queryFn: async () => {
+      if (column) {
+        return restApiClient.suggestions(
+          id || "",
+          column,
+          query ? debouncedQuery : ""
+        );
+      }
+      return [];
+    },
   });
 
-  return { suggestions };
+  useEffect(() => {
+    if (suggestionsQuery.isFetched) {
+      setLoading(false);
+      setSuggestions(suggestionsQuery.data || []);
+    }
+  }, [suggestionsQuery.data]);
+
+  return {
+    suggestions: {
+      ...suggestionsQuery,
+      data: suggestions,
+      isPending: loading || suggestionsQuery.isPending,
+    },
+  };
 };
 
 export const useRest = <T>(table: string, options?: RestOptions<T>) => {

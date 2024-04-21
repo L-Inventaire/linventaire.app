@@ -1,5 +1,4 @@
-import { Tag } from "@atoms/badge/tag";
-import { debounce } from "@features/utils/debounce";
+import { Info } from "@atoms/text";
 import { useRestSuggestions } from "@features/utils/rest/hooks/use-rest";
 import Fuse from "fuse.js";
 import _ from "lodash";
@@ -7,19 +6,12 @@ import { ReactNode, useEffect, useRef, useState } from "react";
 import { SearchField } from "../utils/types";
 import { labelToVariable } from "../utils/utils";
 import { useCaret } from "./use-caret";
-import { Info } from "@atoms/text";
 
 export type Suggestions = {
   type: "operator" | "field" | "value";
   field?: SearchField;
 
-  value:
-    | (
-        | "invert" // Toggle "!""
-        | "fuzzy" // Toggle "~"
-        | "finish"
-      )
-    | string; // Goes to next filter (finish values and add space)
+  value: string; // Goes to next filter (finish values and add space)
   onClick?: () => void;
 
   render?: string | ReactNode; // A special rendered item
@@ -41,13 +33,29 @@ export const useSuggestions = (
   const { getCaretPosition, replaceAtCursor } = useCaret(inputRef, setValue);
   const [mode, setMode] = useState<"field" | "value">("field");
   const [currentFilterValues, setCurrentFilterValues] = useState<string[]>([]);
-  const [columnSearch, setColumnSearch] = useState<[string, string]>(["", ""]); // [Column, query]
   const [_suggestions, setSuggestions] = useState<Suggestions>([]);
   const [selectionIndex, setSelectionIndex] = useState(0);
   const displayToValueMap = useRef<{
     [key: string]: string;
   }>(initialDisplayToValueMap || {});
   const status = getCaretPosition();
+
+  const inSearchMode = !!(
+    (status.caret.current === status.caret.after &&
+      !status.text.current.match(/"$/)) ||
+    (status.caret.current === status.caret.after - 1 &&
+      status.text.current.match(/"$/))
+  );
+
+  const field = schema.fields.find(
+    (a) => labelToVariable(a.label) === status.filter?.key
+  );
+  const columnSearch = [
+    !["boolean", "date", "number"].includes(field?.type as string)
+      ? field?.key
+      : "" || "",
+    (inSearchMode ? status.filter?.values[status.value?.index || 0] : "") || "",
+  ] as [string, string];
 
   const [recentSearches, setRecentSearches] = useState<string[]>(
     JSON.parse(localStorage.getItem("search-recent-" + schema.table) || "[]")
@@ -96,7 +104,6 @@ export const useSuggestions = (
             const field = fields.find((f) => f.key === columnSearch[0]);
             const currentSearchValueIndex = status.value?.index || 0;
             const inputValue = a.label || a.value;
-            const inSearchMode = false; // TODO: We need to differentiate when we are filtering and when we got back to the filter
             // Update list of values
             const alreadyHasValue = currentFilterValues
               .filter((_, i) => i !== currentSearchValueIndex || !inSearchMode)
@@ -189,9 +196,12 @@ export const useSuggestions = (
 
   const getSuggestions = () => {
     const status = getCaretPosition();
+    const field = fields.find(
+      (a) => labelToVariable(a.label) === status.filter?.key
+    );
     setCurrentFilterValues(
       (status.filter?.values || []).map(
-        (a) => displayToValueMap.current[status.filter?.key + ":" + a] || a
+        (a) => displayToValueMap.current[field?.key + ":" + a] || a
       )
     );
 
@@ -264,20 +274,6 @@ export const useSuggestions = (
         (a) => labelToVariable(a.label) === status.filter?.key
       );
 
-      console.log(status, field);
-
-      const column = field?.key || "";
-      const query = ""; //status.filter?.values[status.value?.index || 0] || "";
-      debounce(
-        () => {
-          setColumnSearch([column, query]);
-        },
-        {
-          key: "search-bar-suggestions",
-          timeout: 1000,
-        }
-      );
-
       // Inside a filter's value
       setMode("value");
       setSuggestions([
@@ -307,7 +303,10 @@ export const useSuggestions = (
                   const status = getCaretPosition();
                   const field = fields.find((f) => f.key === columnSearch[0]);
                   replaceAtCursor(
-                    status.text.current +
+                    status.text.current
+                      .replace(/,+/, ",")
+                      .replace(/(,"")+/, ',""')
+                      .replace(/(,"?"?$)/, "") +
                       (field?.type === "text" ? ',""' : ","),
                     field?.type === "text" ? -1 : 0
                   );
@@ -316,7 +315,7 @@ export const useSuggestions = (
                   <span>
                     {" "}
                     <Info className="inline-block w-4 text-center mr-2">+</Info>
-                    Ajouter une autre valeur
+                    Ajouter ou rechercher une autre valeur
                   </span>
                 ),
               },
@@ -371,10 +370,13 @@ export const useSuggestions = (
 
   return {
     suggestions,
+    loadingSuggestionsValues: restColumnSuggestions.isPending,
     onKeyDown,
     getSuggestions,
     selectionIndex,
     afterApplySelection,
     displayToValueMap: displayToValueMap.current,
+    searching: inSearchMode,
+    caret: status,
   };
 };

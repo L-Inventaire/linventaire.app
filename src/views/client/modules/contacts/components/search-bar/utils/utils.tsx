@@ -26,7 +26,11 @@ export const schemaToSearchFields = (
 };
 
 export const labelToVariable = (label: string) =>
-  label.toLowerCase().replace(/[^a-z0-9]/g, "_");
+  label
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]/g, "_");
 
 // Filters have this form: field:"value with spaces","value2","value3" or just field:value,value2
 export const extractFilters = (str: string): MatchedStringFilter[] => {
