@@ -7,6 +7,10 @@ import { SearchField } from "../utils/types";
 import { labelToVariable } from "../utils/utils";
 import { useCaret } from "./use-caret";
 
+// TODO:
+// - Implement dates
+// - Implement numbers
+
 export type Suggestions = {
   type: "operator" | "field" | "value";
   field?: SearchField;
@@ -127,7 +131,8 @@ export const useSuggestions = (
               (isText ? '"' : "");
 
             //Go to next filter if we just added the first value, or stay in filter otherwise
-            word += wasFirstValue && values.length !== 0 ? " " : "";
+            word +=
+              wasFirstValue && values.length !== 0 ? " " : isText ? ',""' : ",";
             const cursorOffsetFromEnd =
               (!wasFirstValue || values.length === 0) && isText ? -1 : 0;
 
@@ -151,6 +156,42 @@ export const useSuggestions = (
     ..._suggestions,
   ];
 
+  // This function will clean the value input
+  const cleanValue = () => {
+    const cleanStr = (str: string) =>
+      str
+        .replace(/,""/gm, "")
+        .replace(/,+/gm, ",")
+        .replace(/,($| )/, "")
+        .replace(/[^ ]+:($| )/, "");
+
+    let value = inputRef.current?.value || "";
+    // Focus or closest .group parent is in hover state
+    const hasFocus =
+      document.activeElement === inputRef.current ||
+      (inputRef.current as HTMLElement).closest(".group")?.matches(":hover");
+
+    if (hasFocus) return;
+
+    value = cleanStr(value);
+    value = (value.trim() ? value + " " : "").replace(/ +/gm, " ");
+    inputRef.current!.value = value;
+    setValue(value);
+  };
+
+  // Lets keep the map clean
+  const cleanMap = () => {
+    let value = inputRef.current?.value || "";
+    // Clean the displayValueMap
+    displayToValueMap.current = Object.fromEntries(
+      Object.entries(displayToValueMap.current).filter(
+        ([key]) => value.indexOf(key.split(":").slice(1).join(":")) >= 0
+      )
+    );
+  };
+
+  cleanMap();
+
   const afterApplySelection = () => {
     getSuggestions();
   };
@@ -158,11 +199,36 @@ export const useSuggestions = (
   const onKeyDown = (e: any) => {
     // Manage arrow keys
     if (e.key === "Backspace" || e.key === "Delete") {
-      // TODO Remove current value or tag
-      // TODO do it for all keys?
-      if (false) {
-        e.preventDefault();
-        e.stopPropagation();
+      if (!inSearchMode) {
+        const status = getCaretPosition();
+        if (
+          e.key === "Backspace" &&
+          status.caret.before === status.caret.current
+        ) {
+          return;
+        }
+        if (e.key === "Delete" && status.caret.after === status.caret.current) {
+          return;
+        }
+        const value = status.filter?.values_raw_array[status.value?.index || 0];
+        const inLabel =
+          status.filter?.key &&
+          status.text.current
+            .slice(0, status.caret.current - status.caret.before)
+            .indexOf(":") === -1;
+        if (inLabel) {
+          e.preventDefault();
+          e.stopPropagation();
+          // Remove the whole filter
+          replaceAtCursor("");
+        } else if (value) {
+          e.preventDefault();
+          e.stopPropagation();
+          const withoutValue = status.text.current
+            .replace(value, "")
+            .replace(/,$/, "");
+          replaceAtCursor(withoutValue);
+        }
       }
       return;
     }
@@ -240,7 +306,7 @@ export const useSuggestions = (
             "score",
             (r) => r.label.length
           )
-        : []; // _.sortBy(fields, "label"); // TODO for now it seems more great to show nothing when we start in the field
+        : [];
 
       setMode("field");
       setSuggestions(
@@ -250,14 +316,12 @@ export const useSuggestions = (
           value: activeField.key,
           onClick: () => {
             const status = getCaretPosition();
-            const field = fields.find(
-              (a) => labelToVariable(a.label) === activeField?.key
-            );
+            const field = activeField;
             const defaultSuffix =
               field?.type === "text"
                 ? ':~""'
                 : field?.type === "boolean"
-                ? ":1"
+                ? ":1 "
                 : ":";
             const defaultOffset = field?.type === "text" ? -1 : 0;
             const currentValue = status.text?.current?.split(":")[1] || "";
@@ -378,5 +442,6 @@ export const useSuggestions = (
     displayToValueMap: displayToValueMap.current,
     searching: inSearchMode,
     caret: status,
+    cleanValue,
   };
 };

@@ -1,6 +1,7 @@
 import { RestSearchQueryOp } from "@features/utils/rest/hooks/use-rest";
 import { MatchedStringFilter, OutputQuery, SearchField } from "./types";
 import { flattenKeys } from "@features/utils/flatten";
+import { getPeriodEnd } from "@features/utils/format/dates";
 
 export const schemaToSearchFields = (
   schema: any,
@@ -19,7 +20,12 @@ export const schemaToSearchFields = (
       label: tr?.label || key,
       keywords: [...(tr?.keywords || "").split(" "), key, tr?.label]
         .filter((a) => a)
-        .map((a) => a.normalize("NFD").replace(/[\u0300-\u036f]/g, "")),
+        .map((a) =>
+          a
+            .toLocaleLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+        ),
       type: value as SearchField["type"],
     };
   });
@@ -27,7 +33,7 @@ export const schemaToSearchFields = (
 
 export const labelToVariable = (label: string) =>
   label
-    .toLowerCase()
+    .toLocaleLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]/g, "_");
@@ -119,7 +125,8 @@ export const generateQuery = (
 
               if (field?.type === "date") {
                 min = min ? new Date(min) : null;
-                max = max ? new Date(max) : null;
+                // For max we apply a special treatment to *include* it
+                max = max ? new Date(getPeriodEnd(max as string)) : null;
               } else {
                 min = min ? parseFloat(min as string) : null;
                 max = max ? parseFloat(max as string) : null;

@@ -75,6 +75,7 @@ export const ContactsPage = () => {
                 keywords: "updated_by mis à jour par auteur utilisateur user",
               },
               email: "Email",
+              is_supplier: "Fournisseur",
             }),
           }}
           onChange={(q) =>

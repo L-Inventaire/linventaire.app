@@ -36,3 +36,16 @@ export const formatDuration = (duration: number) => {
   const minutes = duration % 60;
   return `${hours}h ${(minutes + "").padStart(2, "0")}m`;
 };
+
+export function getPeriodEnd(dateStr: string) {
+  const maxDay = new Date(
+    new Date(dateStr).getFullYear(),
+    new Date(dateStr).getMonth() + 1,
+    0
+  ).getDate();
+
+  return (
+    dateStr +
+    ("9999-12-" + maxDay + "T23:59:59").slice((dateStr as string)?.length || 0)
+  );
+}

@@ -2,6 +2,7 @@ import { twMerge } from "tailwind-merge";
 import { MatchedStringFilter, SearchField } from "./types";
 import { labelToVariable } from "./utils";
 import reactStringReplace from "react-string-replace";
+import { CheckCircleIcon, XCircleIcon } from "@heroicons/react/outline";
 
 export const buildFilter = (
   fields: SearchField[],
@@ -33,7 +34,7 @@ export const buildFilter = (
     if (
       type === "date" &&
       !filter.values_raw.match(
-        /^(((>=|<=)\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?|\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?|\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?->\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?),?)+$/
+        /^(((>=|<=)\d{4}(-\d{2}(-\d{2})?)?(T\d{2}:\d{2})?|\d{4}(-\d{2}(-\d{2})?)?(T\d{2}:\d{2})?|\d{4}(-\d{2}(-\d{2})?)?(T\d{2}:\d{2})?->\d{4}(-\d{2}(-\d{2})?)?(T\d{2}:\d{2})?),?)+$/
       )
     ) {
       type = undefined;
@@ -103,7 +104,7 @@ export const buildFilter = (
       </span>
       <span
         className={twMerge(
-          "bg-wood-500 bg-opacity-10 border border-wood-500 rounded rounded-l-none"
+          "relative bg-wood-500 bg-opacity-10 border border-wood-500 rounded rounded-l-none"
         )}
         style={{
           padding: "1px calc(0.5ch - 1px)",
@@ -149,7 +150,12 @@ export const buildFilter = (
                     value === "1" ? "text-wood-500" : "text-red-500"
                   )}
                 >
-                  {value === "1" ? "1" : "0"}
+                  {" "}
+                  {value === "1" ? (
+                    <CheckCircleIcon className="h-4 w-4 absolute top-0 left-0 right-0 bottom-0 m-auto" />
+                  ) : (
+                    <XCircleIcon className="h-4 w-4 absolute top-0 left-0 right-0 bottom-0 m-auto" />
+                  )}
                 </span>
               )}
             </span>

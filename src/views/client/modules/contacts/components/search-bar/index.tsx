@@ -36,6 +36,7 @@ export const SearchBar = ({
     caret,
     searching,
     loadingSuggestionsValues,
+    cleanValue,
   } = useSuggestions(
     schema,
     inputRef,
@@ -99,9 +100,7 @@ export const SearchBar = ({
             onMouseUp={getSuggestions}
             onKeyUp={getSuggestions}
             onKeyDown={onKeyDown}
-            onBlur={() => {
-              setValue((value.trim() ? value + " " : "").replace(/ +/gm, " "));
-            }}
+            onBlur={() => cleanValue()}
             style={{ resize: "none", lineHeight: "1.5" }}
             placeholder="Recherche globale, tags:factures, updated_at:2024-01-01..."
             inputRef={inputRef}
@@ -117,7 +116,10 @@ export const SearchBar = ({
             value={value}
             onChange={(e) =>
               setValue(
-                e.target.value?.replace(/\n/g, "").replace(/ +/g, " ") || ""
+                e.target.value
+                  ?.replace(/\n/g, "")
+                  .replace(/ +/g, " ")
+                  .replace(/^ +/, "") || ""
               )
             }
           />

@@ -59,7 +59,10 @@ export const SearchBarSuggestions = ({
                       <>
                         <InformationCircleIcon className="w-4 h-4 inline-block mr-1" />
                         <span>
-                          <b>{currentField?.label}</b> correspond à{" "}
+                          <b>{currentField?.label}</b>{" "}
+                          {!caret.filter?.not
+                            ? "correspond à"
+                            : "ne correspond pas à"}{" "}
                           {caret.filter?.values
                             .map((a) => `"${a}"`)
                             .join(" ou ")}
