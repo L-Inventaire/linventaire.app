@@ -846,6 +846,26 @@ select {
   top: 100%;
 }
 
+.top-2 {
+  top: 0.5rem;
+}
+
+.left-1 {
+  left: 0.25rem;
+}
+
+.top-1 {
+  top: 0.25rem;
+}
+
+.left-0\.5 {
+  left: 0.125rem;
+}
+
+.top-0\.5 {
+  top: 0.125rem;
+}
+
 .z-0 {
   z-index: 0;
 }
@@ -3912,6 +3932,14 @@ select {
   transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
 }
 
+.\[type\:tags\] {
+  type: tags;
+}
+
+.\[type\:users\] {
+  type: users;
+}
+
 html, body, #root {
   margin: 0;
   padding: 0;
@@ -4124,12 +4152,26 @@ input, select {
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
+.group\/user:hover .group-hover\/user\:translate-y-0 {
+  --tw-translate-y: 0px;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.group\/user:hover .group-hover\/user\:translate-y-full {
+  --tw-translate-y: 100%;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
 .group\/row:hover .group-hover\/row\:bg-wood-100 {
   --tw-bg-opacity: 1;
   background-color: rgb(233 228 216 / var(--tw-bg-opacity));
 }
 
 .group\/item:hover .group-hover\/item\:opacity-100 {
+  opacity: 1;
+}
+
+.group\/user:hover .group-hover\/user\:opacity-100 {
   opacity: 1;
 }
 

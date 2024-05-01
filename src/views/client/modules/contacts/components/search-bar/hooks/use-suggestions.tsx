@@ -1,4 +1,5 @@
 import { Info } from "@atoms/text";
+import { normalizeString } from "@features/utils/format/strings";
 import { useRestSuggestions } from "@features/utils/rest/hooks/use-rest";
 import Fuse from "fuse.js";
 import _ from "lodash";
@@ -184,6 +185,7 @@ export const useSuggestions = (
 
   // Lets keep the map clean
   const cleanMap = () => {
+    if (!inputRef.current) return;
     let value = inputRef.current?.value || "";
     // Clean the displayValueMap
     displayToValueMap.current = Object.fromEntries(
@@ -305,10 +307,14 @@ export const useSuggestions = (
         threshold: 0.6,
         keys: ["labels"],
       });
+
       const result = fuse
         .search(fieldTyped || "")
         .filter((a: any) =>
-          a.item.labels.some((b: string) => b[0] === fieldTyped[0])
+          a.item.labels.some(
+            (b: string) =>
+              normalizeString(b)[0] === normalizeString(fieldTyped)[0]
+          )
         );
 
       const resultFields = fieldTyped

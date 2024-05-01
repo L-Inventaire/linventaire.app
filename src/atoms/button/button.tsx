@@ -88,7 +88,7 @@ export const Button = (props: ButtonProps) => {
         props.className
       }
       disabled={disabled}
-      {..._.omit(props, "loading", "children", "className")}
+      {..._.omit(props, "loading", "children", "className", "icon")}
     >
       {props.loading && (
         <>

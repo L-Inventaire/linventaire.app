@@ -83,8 +83,8 @@ export const FieldsPage = () => {
                     { label: "Nombre", value: "number" },
                     { label: "Booléen", value: "boolean" },
                     { label: "Date", value: "date" },
-                    { label: "Users", value: "type:users" },
-                    { label: "Étiquettes", value: "type:tags" },
+                    { label: "Users", value: "[type:users]" },
+                    { label: "Étiquettes", value: "[type:tags]" },
                   ]}
                 />
                 <FormInput

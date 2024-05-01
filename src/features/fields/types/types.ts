@@ -4,5 +4,5 @@ export type Fields = {
   id: string;
   code: string;
   name: string;
-  type: "number" | "string" | "boolean";
+  type: "text" | "number" | "boolean" | "date" | "type:users" | "type:tags";
 };

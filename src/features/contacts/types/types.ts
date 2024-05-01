@@ -28,6 +28,8 @@ export type Contacts = {
 
   notes: string;
   tags: string[];
+
+  fields: any;
 };
 
 export type Billing = {

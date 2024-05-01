@@ -97,7 +97,8 @@ export const Input = (props: InputProps) => {
               "className",
               "value",
               "size",
-              "multiline"
+              "multiline",
+              "inputRef"
             )}
             value={props.value}
           />

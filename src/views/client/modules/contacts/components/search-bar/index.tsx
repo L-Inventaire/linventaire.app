@@ -1,12 +1,14 @@
 import { InputDecorationIcon } from "@atoms/input/input-decoration-icon";
 import { Input } from "@atoms/input/input-text";
+import { useTableFields } from "@features/fields/hooks/use-fields";
 import { debounce as delayCall } from "@features/utils/debounce";
+import { normalizeString } from "@features/utils/format/strings";
 import { SearchIcon } from "@heroicons/react/solid";
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { buildFilter } from "./utils/filter";
 import { useSuggestions } from "./hooks/use-suggestions";
 import { SearchBarSuggestions } from "./suggestions";
+import { buildFilter } from "./utils/filter";
 import { OutputQuery, SearchField } from "./utils/types";
 import { extractFilters, generateQuery } from "./utils/utils";
 
@@ -19,7 +21,22 @@ export const SearchBar = ({
   onChange: (str: OutputQuery) => void;
   debounce?: number;
 }) => {
+  const { fields: customFields, loading: loadingCustomFields } = useTableFields(
+    schema.table
+  );
+  schema.fields = schema.fields.map((a) => {
+    const cf = customFields.find((b) => "fields." + b.code === a.key);
+    if (cf) {
+      return {
+        ...a,
+        keywords: [...a.keywords, normalizeString(cf.name)],
+        label: cf.name,
+      };
+    }
+    return a;
+  });
   const fields = schema.fields;
+
   const [value, setValue] = useState(
     new URLSearchParams(window.location.search).get("q") || ""
   );
@@ -46,22 +63,24 @@ export const SearchBar = ({
 
   // When value change, set it to url querystring ?q=
   useEffect(() => {
-    const url = new URL(window.location.href);
-    url.searchParams.set("q", value);
-    url.searchParams.set("map", JSON.stringify(displayToValueMap));
-    window.history.replaceState({}, "", url.toString());
-    delayCall(
-      () => {
-        onChange(
-          generateQuery(fields, extractFilters(value), displayToValueMap)
-        );
-      },
-      {
-        key: "search-bar",
-        timeout: debounce,
-      }
-    );
-  }, [value]);
+    if (!loadingCustomFields) {
+      const url = new URL(window.location.href);
+      url.searchParams.set("q", value);
+      url.searchParams.set("map", JSON.stringify(displayToValueMap));
+      window.history.replaceState({}, "", url.toString());
+      delayCall(
+        () => {
+          onChange(
+            generateQuery(fields, extractFilters(value), displayToValueMap)
+          );
+        },
+        {
+          key: "search-bar",
+          timeout: debounce,
+        }
+      );
+    }
+  }, [value, loadingCustomFields, fields]);
 
   // When value change, set inputHeight to rendererRef height
   useEffect(() => {
@@ -88,14 +107,15 @@ export const SearchBar = ({
           "pl-8"
         )}
       >
-        {extractFilters(value).map((filter) => {
-          return buildFilter(fields, filter);
+        {extractFilters(value).map((filter, i) => {
+          return <Fragment key={i}>{buildFilter(fields, filter)}</Fragment>;
         })}
       </div>
       <InputDecorationIcon
         prefix={(p) => <SearchIcon {...p} />}
         input={({ className }) => (
           <Input
+            disabled={loadingCustomFields}
             shortcut={["ctrl+f", "cmd+shift+f"]}
             onMouseUp={getSuggestions}
             onKeyUp={getSuggestions}

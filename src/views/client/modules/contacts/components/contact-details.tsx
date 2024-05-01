@@ -4,6 +4,7 @@ import { Button } from "@atoms/button/button";
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import { Info, Section, Title } from "@atoms/text";
 import { AddressInput } from "@components/address-input";
+import { CustomFieldsInput } from "@components/custom-fields-input";
 import { EditorInput } from "@components/editor-input";
 import { FormInput } from "@components/form/fields";
 import { FormContext, useFormController } from "@components/form/formcontext";
@@ -388,7 +389,11 @@ export const ContactsDetailsPage = ({
               </div>
             </PageBlock>
             <PageBlock closable title="Information complémentaire">
-              TODO: custom fields
+              <CustomFieldsInput
+                table={"contacts"}
+                ctrl={ctrl("fields")}
+                readonly={readonly}
+              />
             </PageBlock>
             <PageBlock closable title="Notes et documents">
               <div className="space-y-2 mt-4">

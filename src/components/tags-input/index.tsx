@@ -14,6 +14,8 @@ import { twMerge } from "tailwind-merge";
 export const TagsInput = (props: {
   value: string[];
   className?: string;
+  max?: number;
+  size?: "sm" | "md";
   onChange?: (value: string[]) => void;
   placeholder?: string;
   disabled?: boolean;
@@ -28,16 +30,21 @@ export const TagsInput = (props: {
     "name"
   );
 
+  const size = props.size || "md";
+
   if (tags.isPending) return <Loader />;
 
   return (
     <div className={twMerge(props.className, selectedTags.length && "-m-1")}>
       {selectedTags.map((tag) => (
         <Tag
+          size={size}
           color={tag.color || "#000000"}
           className={twMerge(
             !props.disabled ? "cursor-pointer inline-flex items-center" : "",
-            "m-1 group/tag hover:opacity-75 active:opacity-50 hover:border-red-500"
+            "m-1 group/tag",
+            !props.disabled &&
+              "hover:opacity-75 active:opacity-50 hover:border-red-500"
           )}
           onClick={() =>
             !props.disabled &&
@@ -52,7 +59,7 @@ export const TagsInput = (props: {
             ) : undefined
           }
           key={tag.id}
-          dataTooltip={"Retirer l'étiquette"}
+          dataTooltip={!props.disabled ? "Retirer l'étiquette" : undefined}
         >
           {tag.name}
         </Tag>
@@ -87,7 +94,10 @@ export const TagsInput = (props: {
             onSelect={async (value: string) => {
               const tag = (tags.data?.list || [])?.find((a) => a.id === value);
               if (tag) {
-                props.onChange?.([...props.value, tag.id]);
+                props.onChange?.([
+                  ...props.value.slice(0, props.max || 100),
+                  tag.id,
+                ]);
               } else {
                 setFocused(false);
                 //Add the new tag

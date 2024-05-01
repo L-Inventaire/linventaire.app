@@ -115,6 +115,7 @@ export const buildFilter = (
           filter.values_raw &&
           filter.values_raw.split(",").map((value, i) => (
             <span
+              key={i}
               className={
                 i < filter.values_raw.split(",").length - 1
                   ? "border-r border-wood-500"
