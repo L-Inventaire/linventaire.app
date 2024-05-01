@@ -83,7 +83,7 @@ export type SearchFormFieldType = (
   alwaysVisible?: boolean; //Force display the input in readonly mode even if nullish value
   min?: number; //Min value for number inputs
   max?: number; //Max value for number inputs, or max number of items for multi selects
-  format?: "price" | "percentage" | "mail" | "phone" | "iban";
+  format?: "price" | "percentage" | "mail" | "phone" | "iban" | "code";
   render?: (value: any, values: any) => string | ReactNode;
   autoFocus?: "scan" | "keyboard" | boolean;
 };

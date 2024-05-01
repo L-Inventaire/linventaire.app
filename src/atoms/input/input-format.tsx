@@ -1,14 +1,45 @@
-import { formatAmount } from "@features/utils/format/strings";
+import {
+  formatAmount,
+  normalizeStringToKey,
+} from "@features/utils/format/strings";
 import _ from "lodash";
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Input, InputProps } from "./input-text";
 
 export const InputFormat = (
   props: InputProps & {
-    format: "price" | "percentage" | "mail" | "phone" | "iban";
+    format: "price" | "percentage" | "mail" | "phone" | "iban" | "code";
   }
 ) => {
-  const [value, setValue] = useState(props.value);
+  const applyFormat = useCallback(
+    (val: string) => {
+      if (!(val + "").trim()) return "";
+      if (props.format === "percentage") {
+        val = parseFloat(val).toFixed(2).toString();
+        val = extractRawValue(val) + " %";
+      } else if (props.format === "code") {
+        val = normalizeStringToKey(val);
+      } else if (props.format === "price") {
+        val = "" + formatAmount(parseFloat(extractRawValue(val)));
+      } else if (props.format === "iban") {
+        val =
+          "" +
+          val
+            .toLocaleUpperCase()
+            .replace(/[^A-Z0-9]/, "")
+            .replace(/([A-Z0-9]{4})/g, "$1 ")
+            .replace(/ $/, "");
+      } else if (props.format === "phone") {
+        val = val.replace(/[^0-9+]/gm, "");
+      } else if (props.format === "mail") {
+        val = val.replace(/[^a-zA-Z0-9@.-_]/gm, "");
+      }
+      return val;
+    },
+    [props.format]
+  );
+
+  const [value, setValue] = useState(applyFormat(props.value as string));
   const [isFocused, setIsFocused] = useState(false);
   const ref = useRef<HTMLInputElement>(null);
   const needUnfocus = props.format === "price" || props.format === "percentage";
@@ -30,32 +61,6 @@ export const InputFormat = (
     return val;
   };
 
-  const applyFormat = useCallback(
-    (val: string) => {
-      if (!(val + "").trim()) return "";
-      if (props.format === "percentage") {
-        val = parseFloat(val).toFixed(2).toString();
-        val = extractRawValue(val) + " %";
-      } else if (props.format === "price") {
-        val = "" + formatAmount(parseFloat(extractRawValue(val)));
-      } else if (props.format === "iban") {
-        val =
-          "" +
-          val
-            .toLocaleUpperCase()
-            .replace(/[^A-Z0-9]/, "")
-            .replace(/([A-Z0-9]{4})/g, "$1 ")
-            .replace(/ $/, "");
-      } else if (props.format === "phone") {
-        val = val.replace(/[^0-9+]/gm, "");
-      } else if (props.format === "mail") {
-        val = val.replace(/[^a-zA-Z0-9@.-_]/gm, "");
-      }
-      return val;
-    },
-    [props.format]
-  );
-
   useEffect(() => {
     if (!isFocused || !needUnfocus) {
       setValue(applyFormat((props.value as string) + ""));
@@ -67,7 +72,7 @@ export const InputFormat = (
       {..._.omit(props, "value", "onChange")}
       value={value}
       onChange={(e) => {
-        setValue(e.target.value);
+        setValue(applyFormat(e.target.value));
         props.onChange &&
           props.onChange({
             target: { value: extractRawValue(e.target.value) },

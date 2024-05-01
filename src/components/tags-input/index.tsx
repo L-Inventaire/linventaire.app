@@ -6,7 +6,7 @@ import { Info } from "@atoms/text";
 import { useHasAccess } from "@features/access";
 import { useTags } from "@features/tags/hooks/use-tags";
 import { getRandomHexColor } from "@features/utils/format/strings";
-import { TrashIcon } from "@heroicons/react/outline";
+import { TagIcon, TrashIcon } from "@heroicons/react/solid";
 import _ from "lodash";
 import { useState } from "react";
 import { twMerge } from "tailwind-merge";
@@ -37,15 +37,23 @@ export const TagsInput = (props: {
           color={tag.color || "#000000"}
           className={twMerge(
             !props.disabled ? "cursor-pointer inline-flex items-center" : "",
-            "m-1"
+            "m-1 group/tag hover:opacity-75 active:opacity-50 hover:border-red-500"
           )}
           onClick={() =>
             !props.disabled &&
             props.onChange?.(props.value.filter((a) => a !== tag.id))
           }
+          icon={
+            !props.disabled ? (
+              <div className="w-3 h-3 relative mr-1 overflow-hidden shrink-0">
+                <TrashIcon className="w-3 h-3 absolute group-hover/tag:translate-y-0 -translate-y-full transition-all" />
+                <TagIcon className="w-3 h-3 absolute group-hover/tag:translate-y-full translate-y-0 transition-all" />
+              </div>
+            ) : undefined
+          }
           key={tag.id}
+          dataTooltip={"Retirer l'étiquette"}
         >
-          {!props.disabled && <TrashIcon className="w-3 h-3 mr-2" />}
           {tag.name}
         </Tag>
       ))}
@@ -103,12 +111,14 @@ export const TagsInput = (props: {
                   {e.label}
                 </Tag>
               ) : (
-                <>
-                  Ajouter{" "}
-                  <Tag className="ml-1" color={nextColor}>
-                    {e.value}
-                  </Tag>
-                </>
+                <div className="flex w-full items-center overflow-hidden">
+                  <span className="shrink-0">Ajouter </span>
+                  <span className="grow relative">
+                    <Tag className="ml-1" color={nextColor}>
+                      {e.value}
+                    </Tag>
+                  </span>
+                </div>
               )
             }
           />

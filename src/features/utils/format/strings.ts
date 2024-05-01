@@ -63,6 +63,10 @@ export const normalizeString = (str: string) => {
     .toLowerCase(); // Convertit la chaîne en minuscules
 };
 
+export const normalizeStringToKey = (str: string) => {
+  return normalizeString(str).replace(/ +/gm, "_");
+};
+
 export const buildSearchURL = (params: any): string => {
   const urlParams = new URLSearchParams(params as any).toString();
   return urlParams;

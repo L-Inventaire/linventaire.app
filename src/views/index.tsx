@@ -13,6 +13,7 @@ import {
 } from "react-router-dom";
 import { BackOfficeRoutes } from "./client";
 import { LoginRoutes } from "./signin";
+import { Tooltip } from "@atoms/tooltip";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -48,6 +49,7 @@ export default function InitialRouter() {
       <div className="flex min-h-full dark:bg-wood-990 bg-wood-50 h-full">
         <RouterProvider router={router} />
         <Toaster position="top-center" />
+        <Tooltip />
       </div>
     </Suspense>
   );

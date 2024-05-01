@@ -25,6 +25,7 @@ export const TagsPage = () => {
       <PageBlock>
         {hasAccess("TAGS_MANAGE") && (
           <Button
+            size="sm"
             className="float-right"
             onClick={() => setEdit({})}
             shortcut={["shift+a"]}

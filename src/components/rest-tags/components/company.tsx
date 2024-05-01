@@ -33,14 +33,20 @@ const CompanyTagRender = ({
   company?: Clients;
 }) => {
   return (
-    <Tag size={size} noColor className="bg-white dark:bg-slate-900 pr-1">
-      <Avatar
-        shape="square"
-        className={twMerge("mr-1", size === "sm" ? "-ml-0.5" : "-ml-1")}
-        fallback={company?.company.name || "-"}
-        avatar={company?.preferences.logo}
-        size={size === "sm" ? 4 : 5}
-      />
+    <Tag
+      icon={
+        <Avatar
+          shape="square"
+          className={twMerge("mr-1", size === "sm" ? "-ml-0.5" : "-ml-1")}
+          fallback={company?.company.name || "-"}
+          avatar={company?.preferences.logo}
+          size={size === "sm" ? 4 : 5}
+        />
+      }
+      size={size}
+      noColor
+      className="bg-white dark:bg-slate-900 pr-1"
+    >
       {company?.company.name || "-"}
     </Tag>
   );

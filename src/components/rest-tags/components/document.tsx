@@ -8,11 +8,17 @@ export const RestDocumentTag = ({
 }: {
   size: "md" | "sm";
   label: string | ReactNode;
-  icon: (p: { className: string }) => ReactNode;
+  icon?: (p: { className: string }) => ReactNode;
 }) => {
   return (
-    <Tag size={size} noColor className="bg-white dark:bg-slate-900 pr-1">
-      {icon({ className: "mr-1 -ml-1 h-4 w-4 text-slate-500" })}
+    <Tag
+      icon={
+        icon ? icon({ className: "mr-1 -ml-1 h-4 w-4 text-slate-500" }) : ""
+      }
+      size={size}
+      noColor
+      className="bg-white dark:bg-slate-900 pr-1"
+    >
       {label}
     </Tag>
   );

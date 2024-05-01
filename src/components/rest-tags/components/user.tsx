@@ -32,16 +32,18 @@ const UserTagRender = ({
   const avatar = user?.avatar;
   return (
     <Tag
+      icon={
+        <Avatar
+          className={twMerge("mr-1", size === "sm" ? "-ml-0.5" : "-ml-1")}
+          fallback={name}
+          avatar={avatar}
+          size={size === "sm" ? 4 : 5}
+        />
+      }
       size={size}
       noColor
       className="bg-white dark:bg-slate-900 rounded-full"
     >
-      <Avatar
-        className={twMerge("mr-1", size === "sm" ? "-ml-0.5" : "-ml-1")}
-        fallback={name}
-        avatar={avatar}
-        size={size === "sm" ? 4 : 5}
-      />
       {name}
     </Tag>
   );
