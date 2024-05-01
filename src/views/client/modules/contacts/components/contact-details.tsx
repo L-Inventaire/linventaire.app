@@ -141,7 +141,7 @@ export const ContactsDetailsPage = ({
       <div className="mt-4" />
       <FormContext readonly={readonly} alwaysVisible>
         <PageColumns>
-          <div className="grow lg:max-w-xl">
+          <div className="grow">
             <PageBlock closable title="Général">
               <div className="space-y-2">
                 <FormContext size="lg">
@@ -229,9 +229,45 @@ export const ContactsDetailsPage = ({
                 <FormInput label="Étiquettes" type="tags" ctrl={ctrl("tags")} />
               </div>
             </PageBlock>
+            <PageBlock closable title="Contacts">
+              <div className="space-y-2">
+                <FormInput
+                  type="formatted"
+                  format="mail"
+                  label="Email"
+                  placeholder="email@server.com"
+                  ctrl={ctrl("email")}
+                />
+                <FormInput
+                  type="phone"
+                  label="Téléphone"
+                  placeholder="+33 6 12 34 56 78"
+                  ctrl={ctrl("phone")}
+                />
+              </div>
+            </PageBlock>
+            <PageBlock closable title="Notes et documents">
+              <div className="space-y-2 mt-4">
+                <InputLabel
+                  label="Notes"
+                  input={
+                    <EditorInput
+                      key={readonly ? ctrl("notes").value : undefined}
+                      placeholder="Cliquez pour ajouter des notes"
+                      disabled={readonly}
+                      value={ctrl("notes").value || ""}
+                      onChange={(e) => ctrl("notes").onChange(e)}
+                    />
+                  }
+                />
+                <InputLabel label="Documents" input={<>[Documents input]</>} />
+              </div>
+            </PageBlock>
             <PageBlock closable title="Relations">
               <Section>Relations</Section>
             </PageBlock>
+          </div>
+          <div className="grow lg:max-w-xl">
             <PageBlock closable title="Adresse de facturation">
               <AddressInput ctrl={ctrl("address")} autoComplete={false} />
             </PageBlock>
@@ -331,6 +367,13 @@ export const ContactsDetailsPage = ({
                 />
               </div>
             </PageBlock>
+            <PageBlock closable title="Information complémentaire">
+              <CustomFieldsInput
+                table={"contacts"}
+                ctrl={ctrl("fields")}
+                readonly={readonly}
+              />
+            </PageBlock>
             <PageBlock
               title="Préférences"
               closable
@@ -366,42 +409,6 @@ export const ContactsDetailsPage = ({
                     },
                     ...currencies,
                   ]}
-                />
-              </div>
-            </PageBlock>
-          </div>
-          <div className="grow lg:max-w-xl">
-            <PageBlock closable title="Contacts">
-              <div className="space-y-2">
-                <FormInput
-                  type="formatted"
-                  format="mail"
-                  label="Email"
-                  placeholder="email@server.com"
-                  ctrl={ctrl("email")}
-                />
-                <FormInput
-                  type="phone"
-                  label="Téléphone"
-                  placeholder="+33 6 12 34 56 78"
-                  ctrl={ctrl("phone")}
-                />
-              </div>
-            </PageBlock>
-            <PageBlock closable title="Information complémentaire">
-              <CustomFieldsInput
-                table={"contacts"}
-                ctrl={ctrl("fields")}
-                readonly={readonly}
-              />
-            </PageBlock>
-            <PageBlock closable title="Notes et documents">
-              <div className="space-y-2 mt-4">
-                <InputLabel
-                  label="Notes"
-                  input={
-                    <EditorInput placeholder="Cliquez pour ajouter des notes" />
-                  }
                 />
               </div>
             </PageBlock>

@@ -1,6 +1,6 @@
 body .ce-block__content, body .ce-toolbar__content {
   max-width: none;
-  font-size: 0.875rem;
+  font-size: 1rem;
 }
 
 .ce-toolbar__actions--opened {
@@ -24,6 +24,11 @@ body .cdx-list__item {
 body .cdx-block {
   padding-top: 0;
   padding-bottom: 0.4em;
+}
+
+/* height 0px for ce-paragraph cdx-block with no children */
+body .remove-first-line-hack .ce-block:first-child {
+  height: 0px;
 }
 
 @media (min-width: 651px){

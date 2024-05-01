@@ -8,6 +8,7 @@ import Table from "@editorjs/table";
 import Underline from "@editorjs/underline";
 import { createReactEditorJS } from "react-editor-js";
 import "./index.css";
+import { twMerge } from "tailwind-merge";
 
 export const EDITOR_JS_TOOLS = {
   embed: Embed,
@@ -20,9 +21,29 @@ export const EDITOR_JS_TOOLS = {
   underline: Underline,
 };
 
-export const EditorInput = (props: { placeholder?: string }) => {
+export const EditorInput = (props: {
+  disabled?: boolean;
+  placeholder?: string;
+  value?: string;
+  onChange?: (e: string) => void;
+}) => {
   const ReactEditorJS = createReactEditorJS();
   return (
-    <ReactEditorJS placeholder={props.placeholder} tools={EDITOR_JS_TOOLS} />
+    <div
+      className={twMerge("w-full", props.disabled && "remove-first-line-hack")}
+    >
+      <ReactEditorJS
+        readOnly={props.disabled}
+        onChange={async (e) => {
+          if (!props.disabled) {
+            const val = JSON.stringify(await e.saver.save());
+            props.onChange?.(val);
+          }
+        }}
+        placeholder={props.placeholder}
+        defaultValue={JSON.parse(props.value || "{}")}
+        tools={EDITOR_JS_TOOLS}
+      />
+    </div>
   );
 };
