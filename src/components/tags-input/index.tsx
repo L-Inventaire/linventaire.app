@@ -35,7 +35,12 @@ export const TagsInput = (props: {
   if (tags.isPending) return <Loader />;
 
   return (
-    <div className={twMerge(props.className, selectedTags.length && "-m-1")}>
+    <div
+      className={twMerge(
+        props.className,
+        (selectedTags.length || !props.disabled) && "-m-1"
+      )}
+    >
       {selectedTags.map((tag) => (
         <Tag
           size={size}
@@ -66,7 +71,12 @@ export const TagsInput = (props: {
       ))}
       {props.disabled && !selectedTags.length && <Info>Aucune étiquette</Info>}
       {!props.disabled && !focused && (
-        <Button size="sm" theme="invisible" onClick={() => setFocused(true)}>
+        <Button
+          className="m-1"
+          size="sm"
+          theme="default"
+          onClick={() => setFocused(true)}
+        >
           + Ajouter
         </Button>
       )}
@@ -77,7 +87,7 @@ export const TagsInput = (props: {
             autoFocus
             onBlur={() => setFocused(false)}
             size="sm"
-            wrapperClassName="inline-block w-max"
+            wrapperClassName="m-1 inline-block w-max"
             className="max-w-24"
             onChange={(e) => setSearch(e.target.value)}
             options={[

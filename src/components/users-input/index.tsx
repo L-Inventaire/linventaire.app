@@ -38,7 +38,12 @@ export const UsersInput = (props: {
   if (loading) return <Loader />;
 
   return (
-    <div className={twMerge(props.className, selectedUsers.length && "-m-1")}>
+    <div
+      className={twMerge(
+        props.className,
+        (selectedUsers.length || !props.disabled) && "-m-1"
+      )}
+    >
       {selectedUsers.map((user) => (
         <RestUserTag
           size={size}
@@ -77,7 +82,12 @@ export const UsersInput = (props: {
         <Info>Aucun utilisateur</Info>
       )}
       {!props.disabled && !focused && (
-        <Button size="sm" theme="invisible" onClick={() => setFocused(true)}>
+        <Button
+          className="align-top m-1"
+          size="sm"
+          theme="default"
+          onClick={() => setFocused(true)}
+        >
           + Ajouter
         </Button>
       )}
@@ -88,7 +98,7 @@ export const UsersInput = (props: {
             autoFocus
             onBlur={() => setFocused(false)}
             size="sm"
-            wrapperClassName="inline-block w-max"
+            wrapperClassName="align-top m-1 inline-block w-max"
             className="max-w-24"
             options={[
               ...(users || [])

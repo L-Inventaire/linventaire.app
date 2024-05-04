@@ -1,5 +1,6 @@
 import InputDate from "@atoms/input/input-date";
 import { InputLabel } from "@atoms/input/input-decoration-label";
+import { FilesInput } from "@components/files-input";
 import { FormInput } from "@components/form/fields";
 import { FormControllerType } from "@components/form/formcontext";
 import { TagsInput } from "@components/tags-input";
@@ -26,7 +27,7 @@ export const CustomFieldsInput = ({
         const isArray = type.length !== f.type.length;
         return (
           <>
-            {!["type:tags", "type:users"].includes(type) && (
+            {!["type:tags", "type:users", "type:files"].includes(type) && (
               <FormInput
                 label={f.name}
                 type={type as any}
@@ -39,12 +40,25 @@ export const CustomFieldsInput = ({
                 }
               />
             )}
-            {["type:tags", "type:users"].includes(type) && (
+            {["type:tags", "type:users", "type:files"].includes(type) && (
               <InputLabel
                 label={f.name}
                 labelClassName={readonly ? "opacity-50" : ""}
                 input={
                   <>
+                    {type === "type:files" && (
+                      <FilesInput
+                        disabled={readonly}
+                        max={isArray ? undefined : 1}
+                        value={value[f.code] || []}
+                        onChange={(files) =>
+                          onChange({
+                            ...value,
+                            [f.code]: files,
+                          })
+                        }
+                      />
+                    )}
                     {type === "type:tags" && (
                       <TagsInput
                         disabled={readonly}

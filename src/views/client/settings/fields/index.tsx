@@ -85,6 +85,7 @@ export const FieldsPage = () => {
                     { label: "Date", value: "date" },
                     { label: "Users", value: "[type:users]" },
                     { label: "Étiquettes", value: "[type:tags]" },
+                    { label: "Fichiers", value: "[type:files]" },
                   ]}
                 />
                 <FormInput

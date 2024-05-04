@@ -34,7 +34,7 @@ export const EditorInput = (props: {
     >
       <ReactEditorJS
         readOnly={props.disabled}
-        onChange={async (e) => {
+        onChange={async (e: any) => {
           if (!props.disabled) {
             const val = JSON.stringify(await e.saver.save());
             props.onChange?.(val);

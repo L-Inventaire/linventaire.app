@@ -1111,6 +1111,22 @@ select {
   margin-top: 2rem;
 }
 
+.-mr-1 {
+  margin-right: -0.25rem;
+}
+
+.ml-0 {
+  margin-left: 0px;
+}
+
+.ml-0\.5 {
+  margin-left: 0.125rem;
+}
+
+.mr-1\.5 {
+  margin-right: 0.375rem;
+}
+
 .block {
   display: block;
 }
@@ -1848,6 +1864,10 @@ select {
 
 .border-solid {
   border-style: solid;
+}
+
+.border-dashed {
+  border-style: dashed;
 }
 
 .border-none {
@@ -3106,6 +3126,10 @@ select {
   padding-top: 2rem;
 }
 
+.pr-3 {
+  padding-right: 0.75rem;
+}
+
 .text-left {
   text-align: left;
 }
@@ -3116,6 +3140,10 @@ select {
 
 .text-right {
   text-align: right;
+}
+
+.align-top {
+  vertical-align: top;
 }
 
 .align-bottom {
@@ -3920,6 +3948,10 @@ select {
   transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
 }
 
+.\[type\:files\] {
+  type: files;
+}
+
 .\[type\:tags\] {
   type: tags;
 }
@@ -4028,6 +4060,11 @@ input, select {
   background-color: rgb(133 98 73 / var(--tw-bg-opacity));
 }
 
+.hover\:bg-slate-50:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(243 243 241 / var(--tw-bg-opacity));
+}
+
 .hover\:bg-opacity-25:hover {
   --tw-bg-opacity: 0.25;
 }
@@ -4115,6 +4152,11 @@ input, select {
 .active\:bg-wood-700:active {
   --tw-bg-opacity: 1;
   background-color: rgb(107 76 61 / var(--tw-bg-opacity));
+}
+
+.active\:bg-slate-200:active {
+  --tw-bg-opacity: 1;
+  background-color: rgb(200 199 192 / var(--tw-bg-opacity));
 }
 
 .active\:text-wood-800:active {
@@ -5922,6 +5964,11 @@ input, select {
     background-color: rgb(80 57 51 / var(--tw-bg-opacity));
   }
 
+  .dark\:hover\:bg-slate-700:hover {
+    --tw-bg-opacity: 1;
+    background-color: rgb(88 84 80 / var(--tw-bg-opacity));
+  }
+
   .dark\:hover\:bg-opacity-75:hover {
     --tw-bg-opacity: 0.75;
   }
@@ -5934,6 +5981,11 @@ input, select {
   .dark\:active\:bg-wood-900:active {
     --tw-bg-opacity: 1;
     background-color: rgb(80 57 51 / var(--tw-bg-opacity));
+  }
+
+  .dark\:active\:bg-slate-700:active {
+    --tw-bg-opacity: 1;
+    background-color: rgb(88 84 80 / var(--tw-bg-opacity));
   }
 
   .dark\:active\:bg-opacity-10:active {

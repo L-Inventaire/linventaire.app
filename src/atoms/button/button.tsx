@@ -51,7 +51,7 @@ export const Button = (props: ButtonProps) => {
 
   if (props.theme === "default")
     colors =
-      "text-black bg-white border-wood-200 hover:bg-wood-50 active:bg-wood-200 dark:bg-wood-950 dark:hover:bg-wood-700 dark:active:bg-wood-700 dark:text-white dark:border-wood-900 border-px border-opacity-50 border-box border-black border-inside ";
+      "text-black bg-white border-slate-200 hover:bg-slate-50 active:bg-slate-200 dark:bg-slate-950 dark:hover:bg-slate-700 dark:active:bg-slate-700 dark:text-white dark:border-slate-900 border-px border-opacity-50 border-box border-black border-inside ";
 
   if (props.theme === "outlined")
     colors =
