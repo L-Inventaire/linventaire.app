@@ -18,6 +18,7 @@ import "react-circular-progressbar/dist/styles.css";
 initializeFileTypeIcons();
 
 type FileTagType = {
+  onDelete?: () => void;
   size: "lg" | "md" | "sm";
   progress?: number;
   id?: string;
@@ -61,14 +62,6 @@ const FileTagRender = ({
       icon={
         icon ? (
           icon
-        ) : thumb ? (
-          <Avatar
-            className={twMerge("mr-2", size === "sm" ? "-ml-0.5" : "-ml-1")}
-            fallback={name}
-            avatar={thumb}
-            shape="square"
-            size={size === "sm" ? 4 : 5}
-          />
         ) : (
           <Icon
             className="mr-2"
@@ -88,6 +81,15 @@ const FileTagRender = ({
       {...props}
     >
       <span className="flex items-center">
+        {thumb && (
+          <span className="w-7 h-7 flex items-center justify-center mr-1">
+            <img
+              src={thumb}
+              className="object-contain border border-wood-200 dark:border-wood-800 rounded-sm"
+              alt={name}
+            />
+          </span>
+        )}
         <span>{centerEllipsis(name)}</span>
         {file?.id && progress === undefined && (
           <div className="group/file ml-1 flex items-center">
@@ -97,14 +99,19 @@ const FileTagRender = ({
               className="inline-block"
               size="sm"
               icon={(p) => <DownloadIcon {...p} />}
+              to={FilesApiClient.getDownloadUrl(file)}
+              target="_blank"
             />
-            <Button
-              data-tooltip="Supprimer"
-              theme="invisible"
-              className="inline-block"
-              size="sm"
-              icon={() => <XIcon className="h-4 w-4 text-red-500" />}
-            />
+            {props.onDelete && (
+              <Button
+                data-tooltip="Supprimer"
+                theme="invisible"
+                className="inline-block"
+                size="sm"
+                icon={() => <XIcon className="h-4 w-4 text-red-500" />}
+                onClick={props.onDelete}
+              />
+            )}
           </div>
         )}
         {progress !== undefined && (

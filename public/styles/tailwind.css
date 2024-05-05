@@ -1419,6 +1419,10 @@ select {
   max-width: 20rem;
 }
 
+.max-w-5 {
+  max-width: 1.25rem;
+}
+
 .flex-1 {
   flex: 1 1 0%;
 }
@@ -2911,6 +2915,10 @@ select {
 
 .fill-wood-500 {
   fill: #987655;
+}
+
+.object-contain {
+  object-fit: contain;
 }
 
 .object-cover {
@@ -5967,6 +5975,11 @@ input, select {
   .dark\:hover\:bg-slate-700:hover {
     --tw-bg-opacity: 1;
     background-color: rgb(88 84 80 / var(--tw-bg-opacity));
+  }
+
+  .dark\:hover\:bg-wood-950:hover {
+    --tw-bg-opacity: 1;
+    background-color: rgb(36 30 27 / var(--tw-bg-opacity));
   }
 
   .dark\:hover\:bg-opacity-75:hover {

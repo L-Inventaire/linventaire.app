@@ -5,6 +5,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { defaultInputClassName, errorInputClassName } from "./input-text";
 import "./styles.scss";
+import { twMerge } from "tailwind-merge";
 
 interface InputProps
   extends Omit<
@@ -40,10 +41,10 @@ export function InputDate(props: InputProps) {
 
   return (
     <DatePicker
-      wrapperClassName={active ? "z-10" : ""}
+      wrapperClassName={twMerge(active ? "z-10" : "", props.className)}
       dateFormat={"yyyy-MM-dd"}
       placeholderText={props.placeholder || "YYYY-MM-DD"}
-      className={inputClassName + " " + props.className}
+      className={twMerge(inputClassName, props.className)}
       selected={props.value ? new Date(props.value) : null}
       onChange={(date) => props.onChange?.(date)}
       isClearable

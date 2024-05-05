@@ -6,6 +6,7 @@ import { Info, Section, Title } from "@atoms/text";
 import { AddressInput } from "@components/address-input";
 import { CustomFieldsInput } from "@components/custom-fields-input";
 import { EditorInput } from "@components/editor-input";
+import { FilesInput } from "@components/files-input";
 import { FormInput } from "@components/form/fields";
 import { FormContext, useFormController } from "@components/form/formcontext";
 import { PageLoader } from "@components/page-loader";
@@ -260,7 +261,21 @@ export const ContactsDetailsPage = ({
                     />
                   }
                 />
-                <InputLabel label="Documents" input={<>[Documents input]</>} />
+                <InputLabel
+                  label="Documents"
+                  input={
+                    <FilesInput
+                      disabled={readonly}
+                      value={ctrl("documents").value || ""}
+                      onChange={(e) => ctrl("documents").onChange(e)}
+                      rel={{
+                        table: "contacts",
+                        id: contact.id || "",
+                        field: "documents",
+                      }}
+                    />
+                  }
+                />
               </div>
             </PageBlock>
             <PageBlock closable title="Relations">
@@ -372,6 +387,7 @@ export const ContactsDetailsPage = ({
                 table={"contacts"}
                 ctrl={ctrl("fields")}
                 readonly={readonly}
+                entityId={contact.id || ""}
               />
             </PageBlock>
             <PageBlock

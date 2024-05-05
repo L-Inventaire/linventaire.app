@@ -17,6 +17,7 @@ export interface ButtonProps
   shortcut?: Shortcut[];
   children?: React.ReactNode;
   to?: string;
+  target?: string;
   icon?: (props: React.SVGProps<SVGSVGElement>) => JSX.Element;
 }
 
@@ -32,7 +33,7 @@ export const Button = (props: ButtonProps) => {
 
   if (props.to) {
     return (
-      <Link to={props.to} noColor>
+      <Link to={props.to} target={props.target} noColor>
         <Button {..._.omit(props, "to")} />
       </Link>
     );

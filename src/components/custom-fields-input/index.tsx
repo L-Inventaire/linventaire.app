@@ -1,4 +1,3 @@
-import InputDate from "@atoms/input/input-date";
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import { FilesInput } from "@components/files-input";
 import { FormInput } from "@components/form/fields";
@@ -6,15 +5,16 @@ import { FormControllerType } from "@components/form/formcontext";
 import { TagsInput } from "@components/tags-input";
 import { UsersInput } from "@components/users-input";
 import { useTableFields } from "@features/fields/hooks/use-fields";
-import _ from "lodash";
 
 export const CustomFieldsInput = ({
   table,
   ctrl,
+  entityId,
   readonly,
 }: {
   table: string;
   ctrl: FormControllerType;
+  entityId: string;
   readonly?: boolean;
 }) => {
   const { fields } = useTableFields(table);
@@ -57,6 +57,11 @@ export const CustomFieldsInput = ({
                             [f.code]: files,
                           })
                         }
+                        rel={{
+                          table: "contacts",
+                          id: entityId || "",
+                          field: "fields." + f.code,
+                        }}
                       />
                     )}
                     {type === "type:tags" && (

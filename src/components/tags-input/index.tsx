@@ -122,6 +122,7 @@ export const TagsInput = (props: {
             render={(e) =>
               (tags.data?.list || [])?.find((a) => a.id === e.value) ? (
                 <Tag
+                  size="md"
                   className="-mx-1"
                   color={
                     (tags.data?.list || [])?.find((a) => a.id === e.value)

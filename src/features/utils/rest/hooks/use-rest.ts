@@ -21,6 +21,7 @@ export type RestOptions<T> = {
   offset?: number;
   asc?: boolean;
   index?: string;
+  key?: string;
 };
 
 export const useRestSuggestions = <T>(
@@ -87,7 +88,7 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
   const queryClient = useQueryClient();
 
   const items = useQuery({
-    queryKey: [table, id],
+    queryKey: [table, id, options?.key || "default"],
     staleTime: 1000 * 60 * 5, // 5 minutes
     queryFn: () =>
       restApiClient.list(id || "", options?.query, _.omit(options, "query")),

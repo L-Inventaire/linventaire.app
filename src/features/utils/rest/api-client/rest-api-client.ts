@@ -56,7 +56,7 @@ export class RestApiClient<T> {
     }
   ): Promise<{ total: number; list: T[] }> => {
     const tmp = await fetchServer(
-      `/api/rest/v1/${clientId}/${this.table}/search`,
+      `/api/rest/v1/${clientId}/${this.table}/search?${this.table}`,
       {
         method: "POST",
         body: JSON.stringify({ query, options }),

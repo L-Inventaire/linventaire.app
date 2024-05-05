@@ -27,6 +27,7 @@ export type Contacts = {
   billing: Billing;
 
   notes: string;
+  documents: string[];
   tags: string[];
 
   fields: any;
