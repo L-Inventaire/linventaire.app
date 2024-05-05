@@ -30,7 +30,7 @@ export const FilesInput = (props: {
         key: "id",
         values: (props.value || []).map((a) => ({
           op: "equals",
-          value: a.split("file:").pop(),
+          value: a.split("files:").pop(),
         })),
       },
     ],
@@ -69,7 +69,7 @@ export const FilesInput = (props: {
                 ? undefined
                 : () =>
                     props.onChange?.(
-                      props.value.filter((a) => a !== `file:${file.id}`)
+                      props.value.filter((a) => a !== `files:${file.id}`)
                     )
             }
             file={file}
@@ -114,9 +114,12 @@ export const FilesInput = (props: {
                         name: file.name,
                         size: file.size,
                         mime: file.type,
-                        rel_table: props.rel?.table,
+
+                        // File starts unreferenced until we save the entity
+                        // When saved, the file gets referenced by a trigger in backend (detects file:ididid pattern in the entity)
+                        rel_table: "",
                         rel_id: "",
-                        rel_field: props.rel?.field,
+                        rel_field: "",
                         rel_unreferenced: true,
                       },
                       file,
@@ -140,7 +143,7 @@ export const FilesInput = (props: {
                 ...props.value,
                 ...(newFilesRef.current || [])
                   .filter((a) => a.entity?.id)
-                  .map((a) => `file:${a.entity?.id}`),
+                  .map((a) => `files:${a.entity?.id}`),
               ]);
               newFilesRef.current = [];
               setLoading(false);
