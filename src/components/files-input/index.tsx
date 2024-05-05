@@ -115,11 +115,12 @@ export const FilesInput = (props: {
                         size: file.size,
                         mime: file.type,
 
+                        rel_table: props.rel?.table || "",
+                        rel_field: props.rel?.field || "",
+
                         // File starts unreferenced until we save the entity
                         // When saved, the file gets referenced by a trigger in backend (detects file:ididid pattern in the entity)
-                        rel_table: "",
                         rel_id: "",
-                        rel_field: "",
                         rel_unreferenced: true,
                       },
                       file,
