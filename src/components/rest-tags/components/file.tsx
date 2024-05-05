@@ -10,7 +10,12 @@ import {
   initializeFileTypeIcons,
 } from "@fluentui/react-file-type-icons";
 import { Icon } from "@fluentui/react/lib/Icon";
-import { DownloadIcon, TrashIcon, XIcon } from "@heroicons/react/outline";
+import {
+  DownloadIcon,
+  EyeIcon,
+  TrashIcon,
+  XIcon,
+} from "@heroicons/react/outline";
 import { CircularProgressbar } from "react-circular-progressbar";
 import { twMerge } from "tailwind-merge";
 import "react-circular-progressbar/dist/styles.css";
@@ -98,10 +103,21 @@ const FileTagRender = ({
               theme="invisible"
               className="inline-block"
               size="sm"
-              icon={(p) => <DownloadIcon {...p} />}
-              to={FilesApiClient.getDownloadUrl(file)}
+              icon={(p) => <EyeIcon {...p} />}
+              to={FilesApiClient.getDownloadUrl(file, true)}
               target="_blank"
             />
+            {!props.onDelete && (
+              <Button
+                data-tooltip="Télécharger"
+                theme="invisible"
+                className="inline-block"
+                size="sm"
+                icon={(p) => <DownloadIcon {...p} />}
+                to={FilesApiClient.getDownloadUrl(file)}
+                target="_blank"
+              />
+            )}
             {props.onDelete && (
               <Button
                 data-tooltip="Supprimer"

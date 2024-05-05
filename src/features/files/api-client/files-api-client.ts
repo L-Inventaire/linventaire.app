@@ -42,7 +42,15 @@ export class FilesApiClient {
     );
   };
 
-  static getDownloadUrl = (file: Pick<Files, "key" | "client_id">): string => {
-    return Env.server + `/api/files/v1/${file.client_id}/download/${file.key}`;
+  static getDownloadUrl = (
+    file: Pick<Files, "key" | "client_id" | "name" | "mime">,
+    preview?: boolean
+  ): string => {
+    return (
+      Env.server +
+      `/api/files/v1/${file.client_id}/download/${file.key}?name=${
+        file.name
+      }&mime=${file.mime}${preview ? "&preview=1" : ""}`
+    );
   };
 }

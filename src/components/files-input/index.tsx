@@ -4,7 +4,8 @@ import { useClients } from "@features/clients/state/use-clients";
 import { FilesApiClient } from "@features/files/api-client/files-api-client";
 import { useFiles } from "@features/files/hooks/use-files";
 import { Files } from "@features/files/types/types";
-import { useEffect, useRef, useState } from "react";
+import _ from "lodash";
+import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { twMerge } from "tailwind-merge";
 
@@ -58,7 +59,7 @@ export const FilesInput = (props: {
       )}
     >
       <div className="w-full">
-        {(existingFiles || []).map((file) => (
+        {_.sortBy(existingFiles || [], "created_at").map((file) => (
           <RestFileTag
             className="m-1"
             id={file.id}
