@@ -95,7 +95,9 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
   });
 
   const refresh = () =>
-    queryClient.invalidateQueries({ queryKey: [table, id] });
+    queryClient.invalidateQueries({
+      queryKey: [table, id, ...(options?.key ? [options?.key] : [])],
+    });
 
   const remove = useMutation({
     mutationFn: (itemId: string) => restApiClient.delete(id || "", itemId),

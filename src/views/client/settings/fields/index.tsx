@@ -12,33 +12,46 @@ import { useFields } from "@features/fields/hooks/use-fields";
 import { Fields } from "@features/fields/types/types";
 import { normalizeStringToKey } from "@features/utils/format/strings";
 import {
+  DocumentTextIcon,
   PencilIcon,
+  TagIcon,
   TrashIcon,
   UserIcon,
-  UsersIcon,
 } from "@heroicons/react/outline";
 import _ from "lodash";
 import { useState } from "react";
 import { Page, PageBlock } from "../../_layout/page";
+
+const tables = [
+  {
+    label: "Contacts",
+    value: "contacts",
+    icon: (p: any) => <UserIcon {...p} />,
+  },
+  {
+    label: "Factures, Devis, Bons de commandes et Avoirs",
+    value: "invoices",
+    icon: (p: any) => <DocumentTextIcon {...p} />,
+  },
+  {
+    label: "Articles",
+    value: "articles",
+    icon: (p: any) => <TagIcon {...p} />,
+  },
+];
+
+export const tableToIcons = (table: string) =>
+  tables.find((a) => a.value === table) || {
+    label: table,
+    value: table,
+    icon: (p: any) => <DocumentTextIcon {...p} />,
+  };
 
 export const FieldsPage = () => {
   const { fields, remove, upsert } = useFields();
   const [edit, setEdit] = useState<Partial<Fields> | null>(null);
   const { ctrl } = useFormController(edit || {}, setEdit);
   const hasAccess = useHasAccess();
-
-  const customizableDocuments = [
-    {
-      label: "Contacts",
-      value: "contacts",
-      icon: (p: any) => <UserIcon {...p} />,
-    },
-    {
-      label: "Contact - Relations",
-      value: "contact_relations",
-      icon: (p: any) => <UsersIcon {...p} />,
-    },
-  ];
 
   return (
     <Page title={[{ label: "Paramètres" }, { label: "Champs personnalisés" }]}>
@@ -69,7 +82,7 @@ export const FieldsPage = () => {
                   placeholder="Choisir un document"
                   type="select"
                   ctrl={ctrl("document_type")}
-                  options={customizableDocuments}
+                  options={tables}
                 />
                 <FormInput
                   disabled={!!edit?.id}
@@ -140,13 +153,9 @@ export const FieldsPage = () => {
           (document) => (
             <div className="mt-6">
               <RestDocumentTag
-                label={
-                  customizableDocuments.find((a) => a.value === document)?.label
-                }
+                label={tableToIcons(document)?.label}
                 size="md"
-                icon={
-                  customizableDocuments.find((a) => a.value === document)?.icon
-                }
+                icon={tableToIcons(document)?.icon}
               />
               <Table
                 className="mt-2"

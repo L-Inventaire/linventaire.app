@@ -2,7 +2,7 @@ import currencies from "@assets/currencies.json";
 import languages from "@assets/languages.json";
 import { Button } from "@atoms/button/button";
 import { InputLabel } from "@atoms/input/input-decoration-label";
-import { Info, Section, Title } from "@atoms/text";
+import { Info, Title } from "@atoms/text";
 import { AddressInput } from "@components/address-input";
 import { CustomFieldsInput } from "@components/custom-fields-input";
 import { EditorInput } from "@components/editor-input";
@@ -21,6 +21,7 @@ import { PageBlock, PageColumns } from "@views/client/_layout/page";
 import _ from "lodash";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { RelationsInput } from "./relations-input";
 
 export const ContactsDetailsPage = ({
   readonly,
@@ -183,6 +184,7 @@ export const ContactsDetailsPage = ({
                         />
                       </>
                     )}
+                    <div className="grow w-full" />
                   </PageColumns>
 
                   {contact.type === "company" && (
@@ -226,6 +228,7 @@ export const ContactsDetailsPage = ({
                     type="boolean"
                     ctrl={ctrl("is_client")}
                   />
+                  <div className="grow w-full" />
                 </PageColumns>
                 <FormInput label="Étiquettes" type="tags" ctrl={ctrl("tags")} />
               </div>
@@ -254,7 +257,11 @@ export const ContactsDetailsPage = ({
                   input={
                     <EditorInput
                       key={readonly ? ctrl("notes").value : undefined}
-                      placeholder="Cliquez pour ajouter des notes"
+                      placeholder={
+                        readonly
+                          ? "Aucune note"
+                          : "Cliquez pour ajouter des notes"
+                      }
                       disabled={readonly}
                       value={ctrl("notes").value || ""}
                       onChange={(e) => ctrl("notes").onChange(e)}
@@ -279,8 +286,29 @@ export const ContactsDetailsPage = ({
               </div>
             </PageBlock>
             <PageBlock closable title="Relations">
-              <Section>Relations</Section>
+              <RelationsInput
+                id={contact.id}
+                readonly={readonly}
+                value={[
+                  ctrl("parents").value || [],
+                  ctrl("parents_roles").value || [],
+                ]}
+                onChange={(parents, roles) => {
+                  ctrl("parents").onChange(parents);
+                  ctrl("parents_roles").onChange(roles);
+                }}
+              />
             </PageBlock>
+            {readonly && (
+              <PageBlock title="Commentaires">
+                <Info>Bientôt disponible</Info>
+              </PageBlock>
+            )}
+            {readonly && (
+              <PageBlock title="Revisions">
+                <Info>Bientôt disponible</Info>
+              </PageBlock>
+            )}
           </div>
           <div className="grow lg:max-w-xl">
             <PageBlock closable title="Adresse de facturation">

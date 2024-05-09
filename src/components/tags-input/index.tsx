@@ -70,16 +70,18 @@ export const TagsInput = (props: {
         </Tag>
       ))}
       {props.disabled && !selectedTags.length && <Info>Aucune étiquette</Info>}
-      {!props.disabled && !focused && (
-        <Button
-          className="m-1"
-          size="sm"
-          theme="default"
-          onClick={() => setFocused(true)}
-        >
-          + Ajouter
-        </Button>
-      )}
+      {!props.disabled &&
+        !focused &&
+        props.value?.length < (props.max || 100) && (
+          <Button
+            className="m-1"
+            size="sm"
+            theme="default"
+            onClick={() => setFocused(true)}
+          >
+            + Ajouter
+          </Button>
+        )}
       {!props.disabled && focused && (
         <>
           <InputWithSuggestions
@@ -105,7 +107,7 @@ export const TagsInput = (props: {
               const tag = (tags.data?.list || [])?.find((a) => a.id === value);
               if (tag) {
                 props.onChange?.([
-                  ...props.value.slice(0, props.max || 100),
+                  ...props.value.slice(0, (props.max || 100) - 1),
                   tag.id,
                 ]);
               } else {

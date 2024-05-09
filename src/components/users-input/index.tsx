@@ -81,20 +81,22 @@ export const UsersInput = (props: {
       {props.disabled && !selectedUsers.length && (
         <Info>Aucun utilisateur</Info>
       )}
-      {!props.disabled && !focused && (
-        <Button
-          className="align-top m-1"
-          size="sm"
-          theme="default"
-          onClick={() => setFocused(true)}
-        >
-          + Ajouter
-        </Button>
-      )}
+      {!props.disabled &&
+        !focused &&
+        props.value?.length < (props.max || 100) && (
+          <Button
+            className="align-top m-1"
+            size="sm"
+            theme="default"
+            onClick={() => setFocused(true)}
+          >
+            + Ajouter
+          </Button>
+        )}
       {!props.disabled && focused && (
         <>
           <InputWithSuggestions
-            placeholder="Ajouter une utilisateur"
+            placeholder="Ajouter un utilisateur"
             autoFocus
             onBlur={() => setFocused(false)}
             size="sm"
@@ -112,7 +114,7 @@ export const UsersInput = (props: {
               const user = (users || [])?.find((a) => a.user_id === value);
               if (user) {
                 props.onChange?.([
-                  ...props.value.slice(0, props.max || 100),
+                  ...props.value.slice(0, (props.max || 100) - 1),
                   user.user_id,
                 ]);
               } else {

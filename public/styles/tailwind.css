@@ -1111,22 +1111,6 @@ select {
   margin-top: 2rem;
 }
 
-.-mr-1 {
-  margin-right: -0.25rem;
-}
-
-.ml-0 {
-  margin-left: 0px;
-}
-
-.ml-0\.5 {
-  margin-left: 0.125rem;
-}
-
-.mr-1\.5 {
-  margin-right: 0.375rem;
-}
-
 .block {
   display: block;
 }
@@ -1417,10 +1401,6 @@ select {
 
 .max-w-xs {
   max-width: 20rem;
-}
-
-.max-w-5 {
-  max-width: 1.25rem;
 }
 
 .flex-1 {
@@ -3094,6 +3074,10 @@ select {
   padding-right: 0.5rem;
 }
 
+.pr-3 {
+  padding-right: 0.75rem;
+}
+
 .pr-4 {
   padding-right: 1rem;
 }
@@ -3132,10 +3116,6 @@ select {
 
 .pt-8 {
   padding-top: 2rem;
-}
-
-.pr-3 {
-  padding-right: 0.75rem;
 }
 
 .text-left {
@@ -3828,6 +3808,11 @@ select {
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
+.outline-none {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
 .\!ring-2 {
   --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color) !important;
   --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color) !important;
@@ -4038,6 +4023,11 @@ input, select {
   background-color: rgb(225 29 72 / var(--tw-bg-opacity));
 }
 
+.hover\:bg-slate-50:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(243 243 241 / var(--tw-bg-opacity));
+}
+
 .hover\:bg-wood-100:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(233 228 216 / var(--tw-bg-opacity));
@@ -4066,11 +4056,6 @@ input, select {
 .hover\:bg-wood-600:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(133 98 73 / var(--tw-bg-opacity));
-}
-
-.hover\:bg-slate-50:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(243 243 241 / var(--tw-bg-opacity));
 }
 
 .hover\:bg-opacity-25:hover {
@@ -4142,6 +4127,11 @@ input, select {
   background-color: rgb(190 18 60 / var(--tw-bg-opacity));
 }
 
+.active\:bg-slate-200:active {
+  --tw-bg-opacity: 1;
+  background-color: rgb(200 199 192 / var(--tw-bg-opacity));
+}
+
 .active\:bg-wood-100:active {
   --tw-bg-opacity: 1;
   background-color: rgb(233 228 216 / var(--tw-bg-opacity));
@@ -4160,11 +4150,6 @@ input, select {
 .active\:bg-wood-700:active {
   --tw-bg-opacity: 1;
   background-color: rgb(107 76 61 / var(--tw-bg-opacity));
-}
-
-.active\:bg-slate-200:active {
-  --tw-bg-opacity: 1;
-  background-color: rgb(200 199 192 / var(--tw-bg-opacity));
 }
 
 .active\:text-wood-800:active {
@@ -4200,6 +4185,16 @@ input, select {
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
+.group\/rest_document:hover .group-hover\/rest_document\:translate-y-0 {
+  --tw-translate-y: 0px;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.group\/rest_document:hover .group-hover\/rest_document\:translate-y-full {
+  --tw-translate-y: 100%;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
 .group\/row:hover .group-hover\/row\:bg-wood-100 {
   --tw-bg-opacity: 1;
   background-color: rgb(233 228 216 / var(--tw-bg-opacity));
@@ -4210,6 +4205,10 @@ input, select {
 }
 
 .group\/user:hover .group-hover\/user\:opacity-100 {
+  opacity: 1;
+}
+
+.group\/rest_document:hover .group-hover\/rest_document\:opacity-100 {
   opacity: 1;
 }
 
@@ -5952,14 +5951,14 @@ input, select {
     opacity: 0.75;
   }
 
+  .dark\:hover\:bg-slate-700:hover {
+    --tw-bg-opacity: 1;
+    background-color: rgb(88 84 80 / var(--tw-bg-opacity));
+  }
+
   .dark\:hover\:bg-wood-500:hover {
     --tw-bg-opacity: 1;
     background-color: rgb(152 118 85 / var(--tw-bg-opacity));
-  }
-
-  .dark\:hover\:bg-wood-700:hover {
-    --tw-bg-opacity: 1;
-    background-color: rgb(107 76 61 / var(--tw-bg-opacity));
   }
 
   .dark\:hover\:bg-wood-800:hover {
@@ -5972,11 +5971,6 @@ input, select {
     background-color: rgb(80 57 51 / var(--tw-bg-opacity));
   }
 
-  .dark\:hover\:bg-slate-700:hover {
-    --tw-bg-opacity: 1;
-    background-color: rgb(88 84 80 / var(--tw-bg-opacity));
-  }
-
   .dark\:hover\:bg-wood-950:hover {
     --tw-bg-opacity: 1;
     background-color: rgb(36 30 27 / var(--tw-bg-opacity));
@@ -5986,19 +5980,14 @@ input, select {
     --tw-bg-opacity: 0.75;
   }
 
-  .dark\:active\:bg-wood-700:active {
+  .dark\:active\:bg-slate-700:active {
     --tw-bg-opacity: 1;
-    background-color: rgb(107 76 61 / var(--tw-bg-opacity));
+    background-color: rgb(88 84 80 / var(--tw-bg-opacity));
   }
 
   .dark\:active\:bg-wood-900:active {
     --tw-bg-opacity: 1;
     background-color: rgb(80 57 51 / var(--tw-bg-opacity));
-  }
-
-  .dark\:active\:bg-slate-700:active {
-    --tw-bg-opacity: 1;
-    background-color: rgb(88 84 80 / var(--tw-bg-opacity));
   }
 
   .dark\:active\:bg-opacity-10:active {

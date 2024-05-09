@@ -14,8 +14,8 @@ import {
 import { PlusIcon } from "@heroicons/react/outline";
 import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
-import { SearchBar } from "./components/search-bar";
-import { schemaToSearchFields } from "./components/search-bar/utils/utils";
+import { SearchBar } from "../../../../components/search-bar";
+import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
 
 export const ContactsPage = () => {
   const [options, setOptions] = useState<RestOptions<Contacts>>({

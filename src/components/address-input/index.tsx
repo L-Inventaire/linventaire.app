@@ -60,7 +60,7 @@ export const AddressInput = (props: {
     return (
       <div className="space-y-2">
         <Input
-          label="Address"
+          label="Adresse"
           inputComponent={
             <Base>
               {addressLine1 && <>{addressLine1}</>}
@@ -93,7 +93,7 @@ export const AddressInput = (props: {
       autoComplete={props.autoComplete === false ? "off" : undefined}
     >
       <Input
-        label="Address"
+        label="Adresse"
         inputComponent={
           <>
             <Input

@@ -4,6 +4,7 @@ import { RestDocumentTag } from "./components/document";
 import { RestTag as RestTagTag } from "./components/tag";
 import { RestUserTag } from "./components/user";
 import { ReactNode } from "react";
+import { tableToIcons } from "@views/client/settings/fields";
 
 export const RestTag = ({
   type,
@@ -31,7 +32,7 @@ export const RestTag = ({
     <RestDocumentTag
       size={size}
       label={label || "-"}
-      icon={(p) => <DocumentTextIcon {...p} />}
+      icon={tableToIcons(type)?.icon}
     />
   );
 };

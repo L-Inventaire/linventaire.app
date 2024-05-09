@@ -7,6 +7,10 @@ export type Contacts = {
   is_supplier: boolean; // Is this contact a supplier
   is_client: boolean; // Is this contact a user
 
+  has_parents: boolean; // Does this contact have parents
+  parents: string[]; // List of parent contact ids
+  parents_roles: { role: string; note: string }[]; // List of parent roles
+
   type: "person" | "company";
 
   business_name: string;
