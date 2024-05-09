@@ -9,7 +9,7 @@ export type Contacts = {
 
   has_parents: boolean; // Does this contact have parents
   parents: string[]; // List of parent contact ids
-  parents_roles: { role: string; note: string }[]; // List of parent roles
+  parents_roles: { [key: string]: { role: string } }; // List of parent roles
 
   type: "person" | "company";
 

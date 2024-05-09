@@ -13,7 +13,7 @@ import {
   InboxIcon,
   PlusIcon,
   ShoppingCartIcon,
-  TagIcon,
+  CubeIcon,
   UserIcon,
   ViewBoardsIcon,
   ViewGridIcon,
@@ -200,7 +200,7 @@ export const SideBar = () => {
         />
         <MenuItem
           to={getRoute(ROUTES.Products)}
-          icon={(p) => <TagIcon {...p} />}
+          icon={(p) => <CubeIcon {...p} />}
           menu={[
             {
               label: "Créer un article",

@@ -12,9 +12,9 @@ import { useFields } from "@features/fields/hooks/use-fields";
 import { Fields } from "@features/fields/types/types";
 import { normalizeStringToKey } from "@features/utils/format/strings";
 import {
+  CubeIcon,
   DocumentTextIcon,
   PencilIcon,
-  TagIcon,
   TrashIcon,
   UserIcon,
 } from "@heroicons/react/outline";
@@ -36,7 +36,7 @@ const tables = [
   {
     label: "Articles",
     value: "articles",
-    icon: (p: any) => <TagIcon {...p} />,
+    icon: (p: any) => <CubeIcon {...p} />,
   },
 ];
 

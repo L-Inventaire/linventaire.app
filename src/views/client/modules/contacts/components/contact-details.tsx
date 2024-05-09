@@ -296,6 +296,7 @@ export const ContactsDetailsPage = ({
                 onChange={(parents, roles) => {
                   ctrl("parents").onChange(parents);
                   ctrl("parents_roles").onChange(roles);
+                  ctrl("has_parents").onChange(!!parents.length);
                 }}
               />
             </PageBlock>

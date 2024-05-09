@@ -2,6 +2,7 @@ import { InputLabel } from "@atoms/input/input-decoration-label";
 import { FilesInput } from "@components/files-input";
 import { FormInput } from "@components/form/fields";
 import { FormControllerType } from "@components/form/formcontext";
+import { RestDocumentsInput } from "@components/rest-documents-input";
 import { TagsInput } from "@components/tags-input";
 import { UsersInput } from "@components/users-input";
 import { useTableFields } from "@features/fields/hooks/use-fields";
@@ -88,6 +89,23 @@ export const CustomFieldsInput = ({
                             [f.code]: users,
                           })
                         }
+                      />
+                    )}
+                    {!["type:users", "type:files", "type:tags"].includes(
+                      type
+                    ) && (
+                      <RestDocumentsInput
+                        disabled={readonly}
+                        max={isArray ? undefined : 1}
+                        value={value[f.code] || []}
+                        onChange={(users) =>
+                          onChange({
+                            ...value,
+                            [f.code]: users,
+                          })
+                        }
+                        table={f.type}
+                        column={"fields." + f.code}
                       />
                     )}
                   </>
