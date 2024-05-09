@@ -16,6 +16,8 @@ export const RestDocumentsInput = (props: {
   column: string;
   value: string[];
   className?: string;
+  theme?: "default" | "primary" | "secondary";
+  label?: string;
   size?: "sm" | "md";
   max?: number;
   onChange?: (value: string[]) => void;
@@ -87,16 +89,16 @@ export const RestDocumentsInput = (props: {
           <Button
             className="align-top m-1"
             size="sm"
-            theme="default"
+            theme={props.theme || "default"}
             onClick={() => setFocused(true)}
           >
-            + Ajouter
+            {props.label || "+ Ajouter"}
           </Button>
         )}
       {!props.disabled && focused && (
         <>
           <InputWithSuggestions
-            placeholder="Ajouter un élément"
+            placeholder={props.placeholder || "Ajouter un élément"}
             autoFocus
             onBlur={() => setFocused(false)}
             size="sm"

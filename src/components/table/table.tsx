@@ -242,7 +242,7 @@ export function RenderedTable<T>({
           "relative print:overflow-none " + (scrollable ? "h-full " : "")
         }
         style={{
-          minHeight: 60,
+          minHeight: 40,
         }}
       >
         {loading && (

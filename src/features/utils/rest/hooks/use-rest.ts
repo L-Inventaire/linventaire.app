@@ -91,7 +91,13 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
     queryKey: [table, id, options?.key || "default"],
     staleTime: 1000 * 60 * 5, // 5 minutes
     queryFn: () =>
-      restApiClient.list(id || "", options?.query, _.omit(options, "query")),
+      options?.limit === 0
+        ? { total: 0, list: [] }
+        : restApiClient.list(
+            id || "",
+            options?.query,
+            _.omit(options, "query")
+          ),
   });
 
   const refresh = () =>

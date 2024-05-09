@@ -1,8 +1,15 @@
-import { SectionSmall } from "@atoms/text";
+import { Button } from "@atoms/button/button";
+import { InputLabel } from "@atoms/input/input-decoration-label";
+import { Info, SectionSmall } from "@atoms/text";
+import { FormInput } from "@components/form/fields";
 import { RestDocumentsInput } from "@components/rest-documents-input";
+import { Table } from "@components/table";
 import { useContacts } from "@features/contacts/hooks/use-contacts";
-import { Contacts } from "@features/contacts/types/types";
+import { Contacts, getContactName } from "@features/contacts/types/types";
+import { ROUTES, getRoute } from "@features/routes";
+import { EyeIcon, TrashIcon } from "@heroicons/react/outline";
 import _ from "lodash";
+import { useEffect } from "react";
 
 export const RelationsInput = ({
   id,
@@ -15,33 +22,162 @@ export const RelationsInput = ({
   value: [string[], Contacts["parents_roles"]]; // parents, parents_roles
   onChange: (parents: string[], roles: Contacts["parents_roles"]) => void;
 }) => {
-  const { contacts } = useContacts({ query: [], key: "subcontacts+" + id });
+  const { contacts: children } = useContacts({
+    query: [
+      {
+        key: "parents",
+        values: [{ op: "equals", value: id }],
+      },
+    ],
+    key: "children_" + id,
+  });
+
+  const { contacts: parents, refresh } = useContacts({
+    query: [
+      {
+        key: "id",
+        values: value[0].map((id) => ({ op: "equals", value: id })),
+      },
+    ],
+    key: "parents_" + id,
+    limit: value[0].length,
+  });
+
+  useEffect(() => {
+    refresh();
+  }, [id]);
 
   return (
-    <>
-      <SectionSmall>Parents</SectionSmall>
+    <div className="space-y-4">
+      <div>
+        {!!parents?.data?.list?.length && readonly && (
+          <SectionSmall>Parents</SectionSmall>
+        )}
+        <Info>
+          Les contacts parents sont les contacts qui sont responsables,
+          employeurs ou encore sociétés de ce contact.
+        </Info>
+        {(!!parents.data?.list?.length || !readonly) && (
+          <div className="space-y-4 mt-2">
+            {!readonly &&
+              (parents?.data?.list || []).map((contact) => (
+                <div className="rounded border p-4">
+                  <Button
+                    icon={(p) => <TrashIcon {...p} />}
+                    size="sm"
+                    theme="danger"
+                    className="float-right"
+                    onClick={() => {
+                      const details = { ...value[1] };
+                      delete details[contact.id];
+                      onChange(
+                        value[0].filter((id) => id !== contact.id),
+                        details
+                      );
+                    }}
+                  />
+                  <SectionSmall>{getContactName(contact)}</SectionSmall>
+                  <FormInput
+                    label="Rôle"
+                    type="text"
+                    value={value[1][contact.id]?.role || ""}
+                    onChange={(role: string) => {
+                      onChange(value[0], {
+                        ...value[1],
+                        [contact.id]: {
+                          role,
+                        },
+                      });
+                    }}
+                    placeholder="Rôle"
+                  />
+                </div>
+              ))}
+            {!readonly && (
+              <div className="mt-2">
+                <RestDocumentsInput
+                  table="contacts"
+                  column="parents"
+                  theme="primary"
+                  label="+ Ajouter un contact parent"
+                  placeholder="Rechercher un contact"
+                  max={1}
+                  value={[]}
+                  onChange={(parents) => {
+                    if (parents[0]) {
+                      onChange(_.uniq([...value[0], parents[0]]), {
+                        ...value[1],
+                        [parents[0]]: {
+                          role: "",
+                        },
+                      });
+                    }
+                  }}
+                />
+              </div>
+            )}
 
-      {value[0].map((parent, i) => (
-        <>parent</>
-      ))}
+            {!!parents?.data?.list?.length && readonly && (
+              <>
+                <Table
+                  data={parents.data?.list || []}
+                  columns={[
+                    {
+                      render: (contact) => <>{getContactName(contact)}</>,
+                    },
+                    {
+                      render: (contact) => <>{value[1][contact.id]?.role}</>,
+                    },
+                    {
+                      cellClassName: "flex justify-end",
+                      render: (contact) => (
+                        <>
+                          <Button
+                            icon={(p) => <EyeIcon {...p} />}
+                            size="sm"
+                            to={getRoute(ROUTES.ContactsView, {
+                              id: contact.id,
+                            })}
+                          />
+                        </>
+                      ),
+                    },
+                  ]}
+                />
+              </>
+            )}
+          </div>
+        )}
+      </div>
 
-      <RestDocumentsInput
-        table="contacts"
-        column="parents"
-        max={1}
-        value={[]}
-        onChange={(parents) => {
-          if (parents[0]) {
-            onChange(_.uniq([...value[0], parents[0]]), {
-              ...value[1],
-              [parents[0]]: {
-                role: "",
+      {!!children?.data?.total && readonly && (
+        <div>
+          <SectionSmall>Autre contacts</SectionSmall>
+          <Table
+            data={children.data?.list || []}
+            columns={[
+              {
+                render: (contact) => <>{getContactName(contact)}</>,
               },
-            });
-          }
-        }}
-      />
-      <SectionSmall>Enfants</SectionSmall>
-    </>
+              {
+                render: (contact) => <>{value[1][contact.id]?.role}</>,
+              },
+              {
+                cellClassName: "flex justify-end",
+                render: (contact) => (
+                  <>
+                    <Button
+                      icon={(p) => <EyeIcon {...p} />}
+                      size="sm"
+                      to={getRoute(ROUTES.ContactsView, { id: contact.id })}
+                    />
+                  </>
+                ),
+              },
+            ]}
+          />
+        </div>
+      )}
+    </div>
   );
 };

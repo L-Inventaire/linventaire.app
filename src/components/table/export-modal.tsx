@@ -43,7 +43,6 @@ export const TableExportModal = (props: {
       data = [...data, ...res];
       data = _.uniqBy(data, "id");
       page += 1;
-      console.log(data.length, previousSize, maxItems);
     }
 
     data = data.slice(0, maxItems);
