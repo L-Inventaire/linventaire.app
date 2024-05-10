@@ -6,8 +6,7 @@ export type Shortcut =
   | ConcatenatedString<"ctrl+", ShortcutKeys>
   | ConcatenatedString<"alt+", ShortcutKeys>
   | ConcatenatedString<"shift+", ShortcutKeys>
-  | ConcatenatedString<"cmd+", ShortcutKeys>
-  | ConcatenatedString<"cmd+shift+", ShortcutKeys>
+  | ConcatenatedString<"alt+shift+", ShortcutKeys>
   | ConcatenatedString<"ctrl+shift+", ShortcutKeys>
   | ConcatenatedString<"ctrl+alt+", ShortcutKeys>
   | ConcatenatedString<"ctrl+alt+shift+", ShortcutKeys>;
@@ -15,6 +14,7 @@ export type Shortcut =
 type ConcatenatedString<T extends string, S extends string> = `${T}${S}`;
 
 type ShortcutKeys =
+  | "del"
   | "a"
   | "b"
   | "c"
@@ -60,30 +60,39 @@ type ShortcutKeys =
   | "down";
 
 //Store history of callbacks
-const shortcutsCallbacks: any = {};
+const shortcutsCallbacks: {
+  [key: string]: ((e: any, shortcut: Shortcut) => void)[];
+} = {};
 
 export const useListenForShortcuts = () => {
   useEffect(() => {
     const listener = (e: any) => {
       if (!e.key) return;
 
-      let shortcut = e.key.toLowerCase();
+      let shortcut = e.code
+        .toLocaleLowerCase()
+        .replace(/^key/, "")
+        .toLowerCase();
       if (shortcut === " ") shortcut = "space";
       if (shortcut === "escape") shortcut = "esc";
+      if (shortcut === "delete") shortcut = "del";
+      if (shortcut === "backspace") shortcut = "del";
       if (shortcut === "arrowright") shortcut = "right";
       if (shortcut === "arrowleft") shortcut = "left";
       if (shortcut === "arrowup") shortcut = "up";
       if (shortcut === "arrowdown") shortcut = "down";
 
-      if (e.ctrlKey) {
-        shortcut = "ctrl+" + shortcut;
+      if (e.shiftKey) {
+        shortcut = "shift+" + shortcut;
       }
       if (e.altKey) {
         shortcut = "alt+" + shortcut;
       }
-      if (e.shiftKey) {
-        shortcut = "shift+" + shortcut;
+      if (e.ctrlKey) {
+        shortcut = "ctrl+" + shortcut;
       }
+
+      console.log(shortcut, e.code, e.key, e.ctrlKey, e.altKey, e.shiftKey);
 
       //Ignore if input, textarea or select is focused
       if (
@@ -104,7 +113,8 @@ export const useListenForShortcuts = () => {
 
       if (shortcutsCallbacks[shortcut] && shortcutsCallbacks[shortcut].length) {
         shortcutsCallbacks[shortcut][shortcutsCallbacks[shortcut].length - 1](
-          e
+          e,
+          shortcut
         );
       }
     };
@@ -119,7 +129,7 @@ export const useListenForShortcuts = () => {
 
 export const useShortcuts = (
   shortcuts: Shortcut[],
-  callback: (e: React.MouseEvent) => void
+  callback: (e: React.MouseEvent, shortcut: Shortcut) => void
 ) => {
   const currentShortcuts = useRef<string[]>([]);
 

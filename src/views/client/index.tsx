@@ -28,6 +28,9 @@ import { ContactsEditPage } from "./modules/contacts/edit";
 import { twMerge } from "tailwind-merge";
 import { TagsPage } from "./settings/tags";
 import { FieldsPage } from "./settings/fields";
+import { ArticlesPage } from "./modules/articles";
+import { ArticlesViewPage } from "./modules/articles/view";
+import { ArticlesEditPage } from "./modules/articles/edit";
 
 export const BackOfficeRoutes = () => {
   return (
@@ -46,6 +49,10 @@ export const BackOfficeRoutes = () => {
         <Route path={ROUTES.Contacts} element={<ContactsPage />} />
         <Route path={ROUTES.ContactsView} element={<ContactsViewPage />} />
         <Route path={ROUTES.ContactsEdit} element={<ContactsEditPage />} />
+
+        <Route path={ROUTES.Products} element={<ArticlesPage />} />
+        <Route path={ROUTES.ProductsView} element={<ArticlesViewPage />} />
+        <Route path={ROUTES.ProductsEdit} element={<ArticlesEditPage />} />
 
         <Route
           path={ROUTES.Settings}

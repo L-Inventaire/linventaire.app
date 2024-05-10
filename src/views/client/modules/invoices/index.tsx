@@ -32,7 +32,7 @@ export const InvoicesPage = () => {
             menu: [
               {
                 label: "Créer une facture",
-                shortcut: ["shift+F"],
+                shortcut: ["shift+f"],
               },
             ],
           });
@@ -51,18 +51,18 @@ export const InvoicesPage = () => {
             menu: [
               {
                 label: "Créer une facture",
-                shortcut: ["shift+F"],
+                shortcut: ["shift+f"],
               },
               {
                 type: "divider",
               },
               {
                 label: "Factures",
-                shortcut: ["F"],
+                shortcut: ["f"],
               },
               {
                 label: "Devis",
-                shortcut: ["D"],
+                shortcut: ["d"],
               },
               {
                 label: "Archives",
@@ -73,7 +73,7 @@ export const InvoicesPage = () => {
               {
                 type: "danger",
                 label: "Logout",
-                shortcut: ["cmd+del", "ctrl+del"],
+                shortcut: ["ctrl+del"],
               },
             ],
           });

@@ -19,11 +19,12 @@ import {
   ViewGridIcon,
 } from "@heroicons/react/outline";
 import { StarIcon } from "@heroicons/react/solid";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import SimpleBar from "simplebar-react";
 import { Account } from "./account";
 import { ResponsiveMenuAtom } from "./header";
+import { Shortcut, useShortcuts } from "@features/utils/shortcuts";
 
 export const SideBar = () => {
   const hasAccess = useHasAccess();
@@ -71,24 +72,24 @@ export const SideBar = () => {
             {
               label: "Nouveau contact",
               icon: (p) => <PlusIcon {...p} />,
-              shortcut: ["shift+C"],
+              shortcut: ["ctrl+alt+c"],
               to: getRoute(ROUTES.ContactsEdit, { id: "new" }),
             },
             {
               type: "divider",
             },
             {
-              label: "Contacts",
-              shortcut: ["C"],
+              label: "Tous les contacts",
+              shortcut: ["alt+c"],
               to: getRoute(ROUTES.Contacts),
             },
             {
               label: "Fournisseurs",
-              to: getRoute(ROUTES.Contacts) + "?type=supplier",
+              to: getRoute(ROUTES.Contacts) + "?q=fournisseur%3A1+",
             },
             {
               label: "Clients",
-              to: getRoute(ROUTES.Contacts) + "?type=client",
+              to: getRoute(ROUTES.Contacts) + "?q=client%3A1+",
             },
           ]}
         />
@@ -99,13 +100,13 @@ export const SideBar = () => {
             {
               label: "Nouvelle facture",
               icon: (p) => <PlusIcon {...p} />,
-              shortcut: ["shift+F"],
+              shortcut: ["shift+f"],
               to: getRoute(ROUTES.InvoicesEdit, { id: "new" }),
             },
             {
               label: "Nouveau devis",
               icon: (p) => <PlusIcon {...p} />,
-              shortcut: ["shift+D"],
+              shortcut: ["shift+d"],
               to: getRoute(ROUTES.QuotesEdit, { id: "new" }),
             },
             {
@@ -113,17 +114,17 @@ export const SideBar = () => {
             },
             {
               label: "Factures",
-              shortcut: ["F"],
+              shortcut: ["f"],
               to: getRoute(ROUTES.Invoices),
             },
             {
               label: "Devis",
-              shortcut: ["D"],
+              shortcut: ["d"],
               to: getRoute(ROUTES.Quotes),
             },
             {
               label: "Abonnements",
-              shortcut: ["F"],
+              shortcut: ["f"],
               to: getRoute(ROUTES.Subscriptions),
             },
           ]}
@@ -135,7 +136,7 @@ export const SideBar = () => {
             {
               label: "Démarrer une commande",
               icon: (p) => <PlusIcon {...p} />,
-              shortcut: ["shift+S"],
+              shortcut: ["shift+s"],
               to: getRoute(ROUTES.OrdersEdit, { id: "new" }),
             },
             {
@@ -143,7 +144,7 @@ export const SideBar = () => {
             },
             {
               label: "Commandes",
-              shortcut: ["S"],
+              shortcut: ["s"],
               to: getRoute(ROUTES.Orders),
             },
           ]}
@@ -155,7 +156,7 @@ export const SideBar = () => {
             {
               label: "Démarrer la réception",
               icon: (p) => <PlusIcon {...p} />,
-              shortcut: ["shift+R"],
+              shortcut: ["shift+r"],
               to: getRoute(ROUTES.ReceiptsEdit, { id: "new" }),
             },
             {
@@ -163,7 +164,7 @@ export const SideBar = () => {
             },
             {
               label: "Réceptions",
-              shortcut: ["R"],
+              shortcut: ["r"],
               to: getRoute(ROUTES.Receipts),
             },
           ]}
@@ -185,7 +186,7 @@ export const SideBar = () => {
             {
               label: "Entrer un temps",
               icon: (p) => <PlusIcon {...p} />,
-              shortcut: ["shift+T"],
+              shortcut: ["shift+t"],
               to: getRoute(ROUTES.ConsultingEdit, { id: "new" }),
             },
             {
@@ -193,7 +194,7 @@ export const SideBar = () => {
             },
             {
               label: "Temps sur site",
-              shortcut: ["T"],
+              shortcut: ["t"],
               to: getRoute(ROUTES.Consulting),
             },
           ]}
@@ -205,7 +206,7 @@ export const SideBar = () => {
             {
               label: "Créer un article",
               icon: (p) => <PlusIcon {...p} />,
-              shortcut: ["shift+P"],
+              shortcut: ["shift+p"],
               to: getRoute(ROUTES.ProductsEdit, { id: "new" }),
             },
             {
@@ -213,7 +214,7 @@ export const SideBar = () => {
             },
             {
               label: "Articles",
-              shortcut: ["P"],
+              shortcut: ["p"],
               to: getRoute(ROUTES.Products),
             },
           ]}
@@ -299,11 +300,24 @@ const MenuItem = ({
   menu?: DropDownMenuType;
   to?: string;
 }) => {
+  const navigate = useNavigate();
   const location = useLocation();
   const setMenu = useSetRecoilState(DropDownAtom);
   if (to && location.pathname.indexOf(to) === 0) {
     active = true;
   }
+
+  useShortcuts(
+    ((menu || []).reduce(
+      (acc, m) => [...(m.shortcut || []), ...acc] as any,
+      []
+    ) || []) as Shortcut[],
+    (_e, shortcut) => {
+      const dest = menu?.find((m) => m.shortcut?.includes(shortcut))?.to || to;
+      if (dest) navigate(dest);
+    }
+  );
+
   return (
     <div
       className={

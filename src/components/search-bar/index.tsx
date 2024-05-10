@@ -11,6 +11,7 @@ import { SearchBarSuggestions } from "./suggestions";
 import { buildFilter } from "./utils/filter";
 import { OutputQuery, SearchField } from "./utils/types";
 import { extractFilters, generateQuery } from "./utils/utils";
+import { useLocation } from "react-router-dom";
 
 export const SearchBar = ({
   schema,
@@ -42,6 +43,12 @@ export const SearchBar = ({
   );
   const rendererRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const { search } = useLocation();
+  useEffect(() => {
+    const val = new URLSearchParams(window.location.search).get("q") || "";
+    if (val !== value) setValue(val);
+  }, [search]);
 
   const {
     suggestions,
@@ -116,7 +123,7 @@ export const SearchBar = ({
         input={({ className }) => (
           <Input
             disabled={loadingCustomFields}
-            shortcut={["ctrl+f", "cmd+shift+f"]}
+            shortcut={["ctrl+f"]}
             onMouseUp={getSuggestions}
             onKeyUp={getSuggestions}
             onKeyDown={onKeyDown}

@@ -35,7 +35,7 @@ export const SecurityPage = () => {
           rapidement. Vous pouvez toujours récupérer votre compte via l'envoi
           d'un code par email.
         </Info>
-        <div className="mt-4">
+        <div className="mt-2">
           <SecurityPassword mfa={getMfa("password")} />
         </div>
       </PageBlock>

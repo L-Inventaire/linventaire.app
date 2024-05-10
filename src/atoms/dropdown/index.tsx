@@ -2,6 +2,7 @@ import { Button, ButtonProps } from "@atoms/button/button";
 import Link from "@atoms/link";
 import { BaseSmall, Info, SectionSmall } from "@atoms/text";
 import { AnimatedHeight } from "@components/animated-height";
+import { Shortcut } from "@features/utils/shortcuts";
 import _ from "lodash";
 import React, { Fragment, useCallback, useEffect } from "react";
 import { useLocation } from "react-router-dom";
@@ -12,7 +13,7 @@ export type DropDownMenuType = {
   type?: "divider" | "danger" | "menu" | "label" | "title"; // default to menu
   icon?: (p: any) => React.ReactNode;
   label?: string | React.ReactNode;
-  shortcut?: string[];
+  shortcut?: Shortcut[];
   onClick?: () => void;
   to?: string;
   active?: boolean;
