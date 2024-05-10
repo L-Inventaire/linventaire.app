@@ -1,5 +1,4 @@
 import { Button } from "@atoms/button/button";
-import { InputLabel } from "@atoms/input/input-decoration-label";
 import { Info, SectionSmall } from "@atoms/text";
 import { FormInput } from "@components/form/fields";
 import { RestDocumentsInput } from "@components/rest-documents-input";
@@ -61,7 +60,7 @@ export const RelationsInput = ({
           <div className="space-y-4 mt-2">
             {!readonly &&
               (parents?.data?.list || []).map((contact) => (
-                <div className="rounded border p-4">
+                <div className="rounded border p-4" key={contact.id}>
                   <Button
                     icon={(p) => <TrashIcon {...p} />}
                     size="sm"

@@ -83,7 +83,7 @@ export const Button = (props: ButtonProps) => {
     <button
       type="button"
       className={
-        "whitespace-nowrap overflow-hidden text-ellipsis inline-flex items-center justify-center py-2 border text-sm font-medium rounded-md focus:outline-none " +
+        "align-top whitespace-nowrap overflow-hidden text-ellipsis inline-flex items-center justify-center py-2 border text-sm font-medium rounded-md focus:outline-none " +
         className +
         " " +
         props.className

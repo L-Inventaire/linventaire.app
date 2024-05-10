@@ -20,8 +20,9 @@ export type Articles = RestEntity & {
   price: number;
   cost: number;
 
-  stock: number;
-  stock_expected: number;
+  stock_available: number;
+  stock_reserved: number;
+  stock_delivered: number;
   stock_bought: number;
 
   notes: string;

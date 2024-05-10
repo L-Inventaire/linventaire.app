@@ -1,5 +1,6 @@
 import _ from "lodash";
 import { createContext, useContext, useRef, useState } from "react";
+import { atomFamily, useRecoilState } from "recoil";
 
 export const FormContextContext = createContext<{
   readonly: boolean;
@@ -47,12 +48,20 @@ export type FormControllerType = {
   onChange: (value: any) => void;
 };
 
+const FormControllerLockAtom = atomFamily<any, string>({
+  key: "FormControllerLockAtom",
+  default: false,
+});
+
 export function useFormController<T extends Object>(
   get: T,
-  set: (e: any) => void
+  set: (e: any) => void,
+  key?: string
 ) {
   const initial = useRef({ ...get });
-  const [lockNavigation, setLockNavigation] = useState(false);
+  const [lockNavigation, setLockNavigation] = useRecoilState(
+    FormControllerLockAtom(key || "default")
+  );
   return {
     lockNavigation,
     setLockNavigation,

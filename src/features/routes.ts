@@ -51,6 +51,9 @@ export const ROUTES = {
   ContactsView: "/:client/contacts/:id",
   ContactsEdit: "/:client/contacts/:id/form",
 
+  CreditNotes: "/:client/credit-notes",
+  CreditNotesView: "/:client/credit-notes/:id",
+  CreditNotesEdit: "/:client/credit-notes/:id/form",
   Invoices: "/:client/invoices",
   InvoicesView: "/:client/invoices/:id",
   InvoicesEdit: "/:client/invoices/:id/form",
@@ -61,9 +64,9 @@ export const ROUTES = {
   SubscriptionsView: "/:client/subscriptions/:id",
   SubscriptionsEdit: "/:client/subscriptions/:id/form",
 
-  Orders: "/:client/orders",
-  OrdersView: "/:client/orders/:id",
-  OrdersEdit: "/:client/orders/:id/form",
+  PurchaseOrders: "/:client/purchase-orders",
+  PurchaseOrdersView: "/:client/purchase-orders/:id",
+  PurchaseOrdersEdit: "/:client/purchase-orders/:id/form",
 
   Receipts: "/:client/deliveries",
   ReceiptsView: "/:client/deliveries/:id",

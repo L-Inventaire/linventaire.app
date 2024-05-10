@@ -113,39 +113,64 @@ export const SideBar = () => {
               type: "divider",
             },
             {
-              label: "Factures",
-              shortcut: ["f"],
-              to: getRoute(ROUTES.Invoices),
-            },
-            {
               label: "Devis",
               shortcut: ["d"],
               to: getRoute(ROUTES.Quotes),
+            },
+            {
+              label: "Factures",
+              shortcut: ["f"],
+              to: getRoute(ROUTES.Invoices),
             },
             {
               label: "Abonnements",
               shortcut: ["f"],
               to: getRoute(ROUTES.Subscriptions),
             },
+            {
+              label: "Avoirs",
+              shortcut: [],
+              to: getRoute(ROUTES.Invoices),
+            },
           ]}
         />
         <MenuItem
-          to={getRoute(ROUTES.Orders)}
-          icon={(p) => <ShoppingCartIcon {...p} />}
+          to={getRoute(ROUTES.Consulting)}
+          icon={(p) => <ClockIcon {...p} />}
           menu={[
             {
-              label: "Démarrer une commande",
+              label: "Entrer un temps",
               icon: (p) => <PlusIcon {...p} />,
-              shortcut: ["shift+s"],
-              to: getRoute(ROUTES.OrdersEdit, { id: "new" }),
+              shortcut: ["shift+t"],
+              to: getRoute(ROUTES.ConsultingEdit, { id: "new" }),
             },
             {
               type: "divider",
             },
             {
-              label: "Commandes",
+              label: "Temps sur site",
+              shortcut: ["t"],
+              to: getRoute(ROUTES.Consulting),
+            },
+          ]}
+        />
+        <MenuItem
+          to={getRoute(ROUTES.PurchaseOrders)}
+          icon={(p) => <ShoppingCartIcon {...p} />}
+          menu={[
+            {
+              label: "Créer une commande",
+              icon: (p) => <PlusIcon {...p} />,
+              shortcut: ["shift+s"],
+              to: getRoute(ROUTES.PurchaseOrdersEdit, { id: "new" }),
+            },
+            {
+              type: "divider",
+            },
+            {
+              label: "Bons de commande",
               shortcut: ["s"],
-              to: getRoute(ROUTES.Orders),
+              to: getRoute(ROUTES.PurchaseOrders),
             },
           ]}
         />
@@ -176,26 +201,6 @@ export const SideBar = () => {
             {
               label: "Stock",
               to: getRoute(ROUTES.Stock),
-            },
-          ]}
-        />
-        <MenuItem
-          to={getRoute(ROUTES.Consulting)}
-          icon={(p) => <ClockIcon {...p} />}
-          menu={[
-            {
-              label: "Entrer un temps",
-              icon: (p) => <PlusIcon {...p} />,
-              shortcut: ["shift+t"],
-              to: getRoute(ROUTES.ConsultingEdit, { id: "new" }),
-            },
-            {
-              type: "divider",
-            },
-            {
-              label: "Temps sur site",
-              shortcut: ["t"],
-              to: getRoute(ROUTES.Consulting),
             },
           ]}
         />

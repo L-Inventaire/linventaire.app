@@ -92,8 +92,6 @@ export const useListenForShortcuts = () => {
         shortcut = "ctrl+" + shortcut;
       }
 
-      console.log(shortcut, e.code, e.key, e.ctrlKey, e.altKey, e.shiftKey);
-
       //Ignore if input, textarea or select is focused
       if (
         document.activeElement &&

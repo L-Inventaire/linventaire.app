@@ -1,26 +1,22 @@
 import currencies from "@assets/currencies.json";
 import languages from "@assets/languages.json";
-import { Button } from "@atoms/button/button";
 import { InputLabel } from "@atoms/input/input-decoration-label";
-import { Info, Title } from "@atoms/text";
+import { Info } from "@atoms/text";
 import { AddressInput } from "@components/address-input";
 import { CustomFieldsInput } from "@components/custom-fields-input";
 import { EditorInput } from "@components/editor-input";
 import { FilesInput } from "@components/files-input";
 import { FormInput } from "@components/form/fields";
-import { FormContext, useFormController } from "@components/form/formcontext";
+import { FormContext } from "@components/form/formcontext";
 import { PageLoader } from "@components/page-loader";
 import { useClients } from "@features/clients/state/use-clients";
 import { ContactsApiClient } from "@features/contacts/api-client/contacts-api-client";
-import { useContact } from "@features/contacts/hooks/use-contacts";
-import { Contacts, getContactName } from "@features/contacts/types/types";
-import { ROUTES, getRoute } from "@features/routes";
+import { Contacts } from "@features/contacts/types/types";
 import { debounce } from "@features/utils/debounce";
-import { useNavigationPrompt } from "@features/utils/use-navigation-prompt";
+import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { PageBlock, PageColumns } from "@views/client/_layout/page";
 import _ from "lodash";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { RelationsInput } from "./relations-input";
 
 export const ContactsDetailsPage = ({
@@ -30,37 +26,14 @@ export const ContactsDetailsPage = ({
   readonly?: boolean;
   id: string;
 }) => {
-  const navigate = useNavigate();
   const { client } = useClients();
-  const { contact: existingContact, isPending, upsert } = useContact(id);
 
-  const [contact, setContact] = useState<Contacts>({
-    type: "company",
-    delivery_address: null,
-  } as Contacts);
-
-  const { lockNavigation, ctrl, setLockNavigation } = useFormController(
-    contact,
-    setContact
-  );
-  useNavigationPrompt(!readonly && lockNavigation);
-
-  useEffect(() => {
-    if (existingContact && (contact.id !== existingContact.id || readonly)) {
-      setContact(existingContact);
-    }
-  }, [existingContact]);
-
-  const save = async () => {
-    try {
-      setLockNavigation(false);
-      const ncontact = await upsert.mutateAsync(contact);
-      navigate(getRoute(ROUTES.ContactsView, { id: ncontact.id }));
-    } catch (e) {
-      setLockNavigation(true);
-      console.error(e);
-    }
-  };
+  const {
+    isPending,
+    ctrl,
+    draft: contact,
+    setDraft: setContact,
+  } = useReadDraftRest<Contacts>("contacts", id, readonly);
 
   useEffect(() => {
     if (contact.business_registered_id && contact.type === "company") {
@@ -99,48 +72,6 @@ export const ContactsDetailsPage = ({
 
   return (
     <>
-      <div className="float-right space-x-2">
-        {!readonly && (
-          <>
-            <Button
-              theme="outlined"
-              onClick={async () =>
-                navigate(
-                  !id
-                    ? getRoute(ROUTES.Contacts)
-                    : getRoute(ROUTES.ContactsView, { id })
-                )
-              }
-            >
-              Annuler
-            </Button>
-            <Button
-              disabled={!getContactName(contact)}
-              loading={upsert.isPending}
-              onClick={async () => await save()}
-            >
-              Sauvegarder
-            </Button>
-          </>
-        )}
-        {readonly && (
-          <Button
-            onClick={async () =>
-              navigate(getRoute(ROUTES.ContactsEdit, { id }))
-            }
-          >
-            Modifier
-          </Button>
-        )}
-      </div>
-      {!readonly && !id && (
-        <Title>Création de {getContactName(contact) || "<nouveau>"}</Title>
-      )}
-      {!readonly && id && (
-        <Title>Modification de {getContactName(contact) || ""}</Title>
-      )}
-      {readonly && <Title>{getContactName(contact) || ""}</Title>}
-      <div className="mt-4" />
       <FormContext readonly={readonly} alwaysVisible>
         <PageColumns>
           <div className="grow">
@@ -326,11 +257,8 @@ export const ContactsDetailsPage = ({
                 placeholder="Utiliser l'adresse de facturation"
                 onChange={(e) =>
                   e
-                    ? setContact({ ...contact, delivery_address: null })
-                    : setContact({
-                        ...contact,
-                        delivery_address: { ...contact.address },
-                      })
+                    ? ctrl("delivery_address").onChange(null)
+                    : ctrl("delivery_address").onChange({ ...contact.address })
                 }
                 value={contact.delivery_address === null}
               />

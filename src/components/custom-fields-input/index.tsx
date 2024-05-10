@@ -6,6 +6,7 @@ import { RestDocumentsInput } from "@components/rest-documents-input";
 import { TagsInput } from "@components/tags-input";
 import { UsersInput } from "@components/users-input";
 import { useTableFields } from "@features/fields/hooks/use-fields";
+import { Fragment } from "react/jsx-runtime";
 
 export const CustomFieldsInput = ({
   table,
@@ -27,7 +28,7 @@ export const CustomFieldsInput = ({
         const type = f.type.replace(/(^\[|\]$)/gm, "");
         const isArray = type.length !== f.type.length;
         return (
-          <>
+          <Fragment key={f.code}>
             {!["type:tags", "type:users", "type:files"].includes(type) && (
               <FormInput
                 label={f.name}
@@ -112,7 +113,7 @@ export const CustomFieldsInput = ({
                 }
               />
             )}
-          </>
+          </Fragment>
         );
       })}
     </div>
