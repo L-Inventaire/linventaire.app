@@ -13,12 +13,6 @@ export type Customer = {
   preferences: Preferences;
 };
 
-type MFA = {
-  id: string;
-  type: "email" | "phone" | "app" | "password";
-  value: string;
-};
-
 type Preferences = {
   avatar?: string;
   language?: string;

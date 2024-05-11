@@ -1,4 +1,3 @@
-import Avatar from "@atoms/avatar/avatar";
 import { Tag } from "@atoms/badge/tag";
 import { Button } from "@atoms/button/button";
 import { FilesApiClient } from "@features/files/api-client/files-api-client";
@@ -10,15 +9,10 @@ import {
   initializeFileTypeIcons,
 } from "@fluentui/react-file-type-icons";
 import { Icon } from "@fluentui/react/lib/Icon";
-import {
-  DownloadIcon,
-  EyeIcon,
-  TrashIcon,
-  XIcon,
-} from "@heroicons/react/outline";
+import { DownloadIcon, EyeIcon, XIcon } from "@heroicons/react/outline";
 import { CircularProgressbar } from "react-circular-progressbar";
-import { twMerge } from "tailwind-merge";
 import "react-circular-progressbar/dist/styles.css";
+import { twMerge } from "tailwind-merge";
 
 initializeFileTypeIcons();
 

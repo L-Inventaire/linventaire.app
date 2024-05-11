@@ -1,10 +1,9 @@
-import { DocumentTextIcon } from "@heroicons/react/outline";
+import { tableToIcons } from "@views/client/settings/fields";
+import { ReactNode } from "react";
 import { RestCompanyTag } from "./components/company";
 import { RestDocumentTag } from "./components/document";
 import { RestTag as RestTagTag } from "./components/tag";
 import { RestUserTag } from "./components/user";
-import { ReactNode } from "react";
-import { tableToIcons } from "@views/client/settings/fields";
 
 export const RestTag = ({
   type,

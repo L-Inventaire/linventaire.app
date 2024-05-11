@@ -124,13 +124,13 @@ export const ArticleSuppliersInput = ({
                     <FormInput
                       label="Délai de livraison (jours)"
                       type="number"
-                      value={value[1][contact.id]?.delivery_quantity || 1}
-                      onChange={(delivery_quantity: string) => {
+                      value={value[1][contact.id]?.delivery_time || 1}
+                      onChange={(delivery_time: string) => {
                         onChange(value[0], {
                           ...value[1],
                           [contact.id]: {
                             ...(value[1][contact.id] || {}),
-                            delivery_quantity: parseFloat(delivery_quantity),
+                            delivery_time: parseFloat(delivery_time),
                           },
                         });
                       }}
