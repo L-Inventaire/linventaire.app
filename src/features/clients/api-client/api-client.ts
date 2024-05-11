@@ -1,5 +1,6 @@
 import { fetchServer } from "@features/utils/fetch-server";
 import { Clients, ClientsUserWithUser, ClientsUsers } from "../types/clients";
+import _ from "lodash";
 
 export class ClientsApiClient {
   static getMine = async () => {
@@ -58,6 +59,9 @@ export class ClientsApiClient {
       `/api/clients/v1/clients/${clientId}/users`
     );
     const data = await response.json();
+    if (!_.isArray(data)) {
+      throw new Error("Error getting users");
+    }
     return data as ClientsUserWithUser[];
   };
 

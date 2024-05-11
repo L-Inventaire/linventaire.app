@@ -46,7 +46,7 @@ export const useClientUsers = (id: string) => {
 
   return {
     loading,
-    users: users.filter((u) => u.active),
+    users: (users || []).filter((u) => u.active),
     allUsers: users,
     add: add.mutate,
     remove: remove.mutate,

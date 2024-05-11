@@ -4,8 +4,9 @@ export type Articles = RestEntity & {
   favorite: boolean;
   assigned: string[];
 
+  type: "product" | "service" | "consumable";
   name: string;
-  type: string;
+  description: string;
   internal_reference: string;
   suppliers: string[];
   suppliers_details: {
@@ -18,7 +19,8 @@ export type Articles = RestEntity & {
   };
 
   price: number;
-  cost: number;
+  unit: string;
+  tva: string;
 
   stock_available: number;
   stock_reserved: number;

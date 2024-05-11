@@ -249,7 +249,7 @@ export const FormInput = memo(
                         props.max ?? Number.POSITIVE_INFINITY,
                         Math.max(
                           props.min ?? Number.NEGATIVE_INFINITY,
-                          parseInt(e.target.value)
+                          parseFloat(e.target.value)
                         )
                       )
                     );

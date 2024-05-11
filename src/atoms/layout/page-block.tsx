@@ -20,7 +20,7 @@ export const PageBlock = (props: React.HTMLAttributes<HTMLDivElement>) => {
 export const PageBlockHr = (props: React.HTMLAttributes<HTMLDivElement>) => {
   return (
     <hr
-      className={"my-4 -mx-4" + (props.className ? " " + props.className : "")}
+      className={"!my-4 -mx-4" + (props.className ? " " + props.className : "")}
       {..._.omit(props, "className", "children")}
     />
   );

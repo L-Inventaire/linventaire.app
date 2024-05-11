@@ -31,6 +31,25 @@ body .remove-first-line-hack .ce-block:first-child {
   height: 0px;
 }
 
+body .ce-paragraph[data-placeholder]:empty:before {
+  color: rgb(170 166 157 / var(--tw-text-opacity));
+  font-size: 0.875rem;
+}
+
+body .ce-popover.ce-popover--opened {
+  right: 0;
+  left: auto;
+}
+
+body .ce-toolbar__actions {
+  left: auto;
+  right: -16px;
+}
+
+body .ce-toolbar__actions--opened {
+  margin-right: 0px;
+}
+
 @media (min-width: 651px){
   body .codex-editor--narrow .ce-toolbar__actions {
     margin-right: 0px;

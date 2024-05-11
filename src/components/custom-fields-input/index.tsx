@@ -1,4 +1,5 @@
 import { InputLabel } from "@atoms/input/input-decoration-label";
+import { Info } from "@atoms/text";
 import { FilesInput } from "@components/files-input";
 import { FormInput } from "@components/form/fields";
 import { FormControllerType } from "@components/form/formcontext";
@@ -13,17 +14,21 @@ export const CustomFieldsInput = ({
   ctrl,
   entityId,
   readonly,
+  emptyText,
 }: {
   table: string;
   ctrl: FormControllerType;
   entityId: string;
   readonly?: boolean;
+  emptyText?: React.ReactNode;
 }) => {
   const { fields } = useTableFields(table);
   const { value: _value, onChange } = ctrl;
   const value = _value || {};
   return (
     <div className="space-y-4">
+      {fields.length === 0 &&
+        (emptyText || <Info>Aucun champ disponible</Info>)}
       {fields.map((f) => {
         const type = f.type.replace(/(^\[|\]$)/gm, "");
         const isArray = type.length !== f.type.length;

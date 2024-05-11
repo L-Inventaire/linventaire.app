@@ -18,6 +18,7 @@ import { PageBlock, PageColumns } from "@views/client/_layout/page";
 import _ from "lodash";
 import { useEffect } from "react";
 import { RelationsInput } from "./relations-input";
+import { PageBlockHr } from "@atoms/layout/page-block";
 
 export const ContactsDetailsPage = ({
   readonly,
@@ -33,7 +34,7 @@ export const ContactsDetailsPage = ({
     ctrl,
     draft: contact,
     setDraft: setContact,
-  } = useReadDraftRest<Contacts>("contacts", id, readonly);
+  } = useReadDraftRest<Contacts>("contacts", id || "new", readonly);
 
   useEffect(() => {
     if (contact.business_registered_id && contact.type === "company") {
@@ -161,11 +162,11 @@ export const ContactsDetailsPage = ({
                   />
                   <div className="grow w-full" />
                 </PageColumns>
+
                 <FormInput label="Étiquettes" type="tags" ctrl={ctrl("tags")} />
-              </div>
-            </PageBlock>
-            <PageBlock closable title="Contacts">
-              <div className="space-y-2">
+
+                <PageBlockHr />
+
                 <FormInput
                   type="formatted"
                   format="mail"

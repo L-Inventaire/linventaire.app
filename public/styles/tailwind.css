@@ -967,6 +967,11 @@ select {
   margin-bottom: 2rem;
 }
 
+.my-6 {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
 .\!mb-0 {
   margin-bottom: 0px !important;
 }
@@ -1109,6 +1114,14 @@ select {
 
 .mt-8 {
   margin-top: 2rem;
+}
+
+.\!mt-6 {
+  margin-top: 1.5rem !important;
+}
+
+.\!mt-8 {
+  margin-top: 2rem !important;
 }
 
 .block {
@@ -1347,6 +1360,14 @@ select {
 .w-max {
   width: -webkit-max-content;
   width: max-content;
+}
+
+.w-1\/4 {
+  width: 25%;
+}
+
+.w-24 {
+  width: 6rem;
 }
 
 .min-w-0 {
@@ -4390,6 +4411,10 @@ input, select {
     display: inline;
   }
 
+  .md\:w-1\/4 {
+    width: 25%;
+  }
+
   .md\:grid-cols-1 {
     grid-template-columns: repeat(1, minmax(0, 1fr));
   }
@@ -4430,6 +4455,10 @@ input, select {
 
   .lg\:inline-flex {
     display: inline-flex;
+  }
+
+  .lg\:w-1\/4 {
+    width: 25%;
   }
 
   .lg\:max-w-xl {

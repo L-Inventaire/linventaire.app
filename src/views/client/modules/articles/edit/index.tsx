@@ -18,9 +18,14 @@ export const ArticlesEditPage = ({ readonly }: { readonly?: boolean }) => {
     save,
     isPending,
     isInitiating,
-  } = useDraftRest<Articles>("articles", id || "new", async (item) => {
-    navigate(getRoute(ROUTES.ProductsView, { id: item.id }));
-  });
+  } = useDraftRest<Articles>(
+    "articles",
+    id || "new",
+    async (item) => {
+      navigate(getRoute(ROUTES.ProductsView, { id: item.id }));
+    },
+    { type: "product", tva: "20" }
+  );
 
   if (isInitiating) return <PageLoader />;
 

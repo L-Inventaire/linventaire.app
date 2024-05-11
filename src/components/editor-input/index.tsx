@@ -1,14 +1,15 @@
 import CheckList from "@editorjs/checklist";
 import Code from "@editorjs/code";
+import EditorJS from "@editorjs/editorjs";
 import Embed from "@editorjs/embed";
 import InlineCode from "@editorjs/inline-code";
 import List from "@editorjs/list";
 import Marker from "@editorjs/marker";
 import Table from "@editorjs/table";
 import Underline from "@editorjs/underline";
-import { createReactEditorJS } from "react-editor-js";
-import "./index.css";
+import { useEffect, useId, useRef } from "react";
 import { twMerge } from "tailwind-merge";
+import "./index.css";
 
 export const EDITOR_JS_TOOLS = {
   embed: Embed,
@@ -21,29 +22,59 @@ export const EDITOR_JS_TOOLS = {
   underline: Underline,
 };
 
-export const EditorInput = (props: {
+type EditorInputProps = {
   disabled?: boolean;
   placeholder?: string;
   value?: string;
   onChange?: (e: string) => void;
-}) => {
-  const ReactEditorJS = createReactEditorJS();
+};
+
+export const EditorInput = (props: EditorInputProps) => {
+  const holder = useId();
   return (
-    <div
-      className={twMerge("w-full", props.disabled && "remove-first-line-hack")}
-    >
-      <ReactEditorJS
-        readOnly={props.disabled}
-        onChange={async (e: any) => {
+    <EditorInputIn
+      key={holder + (props.disabled ? "disabled" : "")}
+      {...props}
+    />
+  );
+};
+
+export const EditorInputIn = (props: EditorInputProps) => {
+  const holder = useId();
+  const editor = useRef<EditorJS | null>(null);
+
+  useEffect(() => {
+    if (!editor.current) {
+      editor.current = new EditorJS({
+        data: JSON.parse(props.value || "{}"),
+        holder,
+        tools: EDITOR_JS_TOOLS,
+        placeholder: props.placeholder,
+        onChange: async (e) => {
           if (!props.disabled) {
             const val = JSON.stringify(await e.saver.save());
             props.onChange?.(val);
           }
-        }}
-        placeholder={props.placeholder}
-        defaultValue={JSON.parse(props.value || "{}")}
-        tools={EDITOR_JS_TOOLS}
-      />
+        },
+        readOnly: props.disabled,
+      });
+    }
+    return () => {
+      if (editor.current && editor.current.destroy) {
+        try {
+          editor.current.destroy();
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    };
+  }, []);
+
+  return (
+    <div
+      className={twMerge("w-full", props.disabled && "remove-first-line-hack")}
+    >
+      <div id={holder}></div>
     </div>
   );
 };

@@ -59,6 +59,9 @@ export const FilesInput = (props: {
       )}
     >
       <div className="w-full">
+        {props.value.length === 0 && props.disabled && (
+          <Info>Aucun document</Info>
+        )}
         {_.sortBy(existingFiles || [], "created_at").map((file) => (
           <RestFileTag
             className="m-1"
