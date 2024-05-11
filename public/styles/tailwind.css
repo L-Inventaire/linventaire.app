@@ -6011,3 +6011,13 @@ input, select {
     }
   }
 }
+
+@media print {
+  .print\:ml-0 {
+    margin-left: 0px;
+  }
+
+  .print\:hidden {
+    display: none;
+  }
+}

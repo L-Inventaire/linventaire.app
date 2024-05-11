@@ -109,7 +109,7 @@ export const Layout = () => {
         <SideBar />
         <div
           className={
-            "z-0 transition-all grow flex flex-col border-l sm:ml-20 dark:border-slate-950 " +
+            "z-0 transition-all grow flex flex-col border-l sm:ml-20 print:ml-0 dark:border-slate-950 " +
             (menuOpen
               ? " bg-slate-900 overflow-hidden "
               : "bg-white dark:bg-slate-950 ")

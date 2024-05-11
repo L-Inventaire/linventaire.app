@@ -33,7 +33,7 @@ export const SideBar = () => {
   return (
     <div
       className={
-        "sm:translate-x-0 z-10 transition-all sm:block bg-wood-50 dark:bg-wood-990 w-20 overflow-hidden fixed h-screen " +
+        "print:hidden sm:translate-x-0 z-10 transition-all sm:block bg-wood-50 dark:bg-wood-990 w-20 overflow-hidden fixed h-screen " +
         (menuOpen ? " translate-x-0 " : " -translate-x-full ")
       }
     >
