@@ -6,11 +6,11 @@ import _ from "lodash";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Input, InputProps } from "./input-text";
 
-export const InputFormat = (
-  props: InputProps & {
-    format: "price" | "percentage" | "mail" | "phone" | "iban" | "code";
-  }
-) => {
+export type InputFormatProps = InputProps & {
+  format: "price" | "percentage" | "mail" | "phone" | "iban" | "code" | "bic";
+};
+
+export const InputFormat = (props: InputFormatProps) => {
   const [isFocused, setIsFocused] = useState(false);
   const ref = useRef<HTMLInputElement>(null);
   const needUnfocus = props.format === "price" || props.format === "percentage";
@@ -18,7 +18,7 @@ export const InputFormat = (
 
   const extractRawValue = (val: string) => {
     if (!(val + "").trim()) return "";
-    if (props.format === "iban")
+    if (props.format === "iban" || props.format === "bic")
       return val.toLocaleUpperCase().replace(/[^A-Z0-9]/gm, "");
     if (isNumber && typeof val === "string")
       return (
@@ -40,6 +40,8 @@ export const InputFormat = (
         val = extractRawValue(val) + " %";
       } else if (props.format === "code") {
         val = normalizeStringToKey(val);
+      } else if (props.format === "bic") {
+        val = val.toLocaleUpperCase().replace(/[^A-Z0-9]/, "");
       } else if (props.format === "price") {
         val = "" + formatAmount(parseFloat(extractRawValue(val)));
       } else if (props.format === "iban") {
@@ -73,7 +75,11 @@ export const InputFormat = (
       {..._.omit(props, "value", "onChange")}
       value={value}
       onChange={(e) => {
-        setValue(applyFormat(e.target.value));
+        setValue(
+          !isFocused || !needUnfocus
+            ? applyFormat(e.target.value)
+            : e.target.value
+        );
         props.onChange &&
           props.onChange({
             target: { value: extractRawValue(e.target.value) },

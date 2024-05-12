@@ -76,7 +76,7 @@ export function useFormController<T extends Object>(
           ) {
             setLockNavigation(_.isEqual(initial.current, get) === false);
             set((prev: T) => {
-              return _.set({ ...prev }, key, value);
+              return _.set(_.cloneDeep(prev), key, value);
             });
           }
         },

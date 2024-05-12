@@ -64,6 +64,7 @@ export const FilesInput = (props: {
         )}
         {_.sortBy(existingFiles || [], "created_at").map((file) => (
           <RestFileTag
+            key={file.id}
             className="m-1"
             id={file.id}
             size={"lg"}
@@ -80,8 +81,9 @@ export const FilesInput = (props: {
         ))}
         {(newFiles || [])
           .filter((file) => file.progress >= 0)
-          .map((file) => (
+          .map((file, i) => (
             <RestFileTag
+              key={i}
               className="m-1"
               id={file.entity?.id || ""}
               size={"lg"}

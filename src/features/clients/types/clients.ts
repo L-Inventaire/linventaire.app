@@ -66,7 +66,7 @@ export type Clients = {
 };
 
 export type Payment = {
-  mode: string; // "bank_transfer", "credit_card", "paypal", "cash", "check"
+  mode: string[]; // "bank_transfer", "credit_card", "paypal", "cash", "check"
   delay: number; // In days
   bank_name: string;
   bank_iban: string;

@@ -6,7 +6,12 @@
  */
 export const formatTime = (
   time: number | string,
-  options: { keepTime?: boolean; keepSeconds?: boolean; keepDate?: boolean } = {
+  options: {
+    keepTime?: boolean;
+    keepSeconds?: boolean;
+    keepDate?: boolean;
+    hideTime?: boolean;
+  } = {
     keepTime: true,
   },
   locale?: string
@@ -24,8 +29,14 @@ export const formatTime = (
     year: nowYear !== year || options?.keepDate ? "numeric" : undefined,
     month: oneDayLater || options?.keepDate ? "short" : undefined,
     day: oneDayLater || options?.keepDate ? "numeric" : undefined,
-    hour: !oneDayLater || options?.keepTime ? "numeric" : undefined,
-    minute: !oneDayLater || options?.keepTime ? "numeric" : undefined,
+    hour:
+      (!oneDayLater || options?.keepTime) && !options?.hideTime
+        ? "numeric"
+        : undefined,
+    minute:
+      (!oneDayLater || options?.keepTime) && !options?.hideTime
+        ? "numeric"
+        : undefined,
     second: options?.keepSeconds ? "numeric" : undefined,
   }).format(new Date(time));
 };

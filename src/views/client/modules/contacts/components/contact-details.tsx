@@ -200,20 +200,15 @@ export const ContactsDetailsPage = ({
                     />
                   }
                 />
-                <InputLabel
+                <FormInput
+                  type="files"
                   label="Documents"
-                  input={
-                    <FilesInput
-                      disabled={readonly}
-                      value={ctrl("documents").value || ""}
-                      onChange={(e) => ctrl("documents").onChange(e)}
-                      rel={{
-                        table: "contacts",
-                        id: contact.id || "",
-                        field: "documents",
-                      }}
-                    />
-                  }
+                  ctrl={ctrl("documents")}
+                  rest={{
+                    table: "contacts",
+                    id: contact.id || "",
+                    column: "documents",
+                  }}
                 />
               </div>
             </PageBlock>

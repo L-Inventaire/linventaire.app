@@ -62,7 +62,8 @@ export const PageBlock = (props: {
     <div
       className={twMerge(
         "p-3 lg:p-4 sm:pt-3 lg:pt-4 pt-0 sm:border border-b sm:mx-0 -mx-4 rounded-md mb-4 bg-white dark:bg-slate-970 dark:sm:border-slate-970 dark:border-slate-950",
-        !isOpen && props.closable ? "cursor-pointer" : ""
+        !isOpen && props.closable ? "cursor-pointer" : "",
+        !props.title && "lg:pt-2 sm:pt-1 pt-1"
       )}
       onClick={() => props.closable && !isOpen && setIsOpen(!isOpen)}
     >

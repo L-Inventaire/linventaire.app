@@ -30,9 +30,9 @@ export type Invoices = {
   delivery_address: Address | null;
   delivery_date: number;
 
-  content: InvoiceLine[];
-  discount: InvoiceDiscount;
-  total: InvoiceTotal; // Precomputed values (for search mainly, do not use for calculations preferably)
+  content?: InvoiceLine[];
+  discount?: InvoiceDiscount;
+  total?: InvoiceTotal; // Precomputed values (for search mainly, do not use for calculations preferably)
 
   // This is automatically generated from the content
   articles: {
@@ -42,10 +42,10 @@ export type Invoices = {
 
   name: string;
   payment_information: Payment;
-  format: InvoiceFormat;
+  format?: InvoiceFormat;
 
-  reminders: InvoiceReminder;
-  subscription: InvoiceSubscription; // Available only for invoices
+  reminders?: InvoiceReminder;
+  subscription?: InvoiceSubscription; // Available only for invoices
 
   attachments: string[];
 
@@ -88,14 +88,14 @@ export type InvoiceLine = {
   quantity: number;
   unit_price: number;
   tva: number;
-  discount: InvoiceDiscount;
+  discount?: InvoiceDiscount;
 
   optional: boolean;
   optional_checked: boolean; // Checked by the client or by the agent (like a default checked option)
 };
 
 export type InvoiceDiscount = {
-  mode: string; // "percentage" | "amount"
+  mode: "percentage" | "amount" | null;
   value: number;
 };
 

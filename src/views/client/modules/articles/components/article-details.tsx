@@ -152,50 +152,20 @@ export const ArticlesDetailsPage = ({
                     />
                   }
                 />
-                <InputLabel
+                <FormInput
+                  type="files"
                   label="Documents"
-                  input={
-                    <FilesInput
-                      disabled={readonly}
-                      value={ctrl("documents").value || ""}
-                      onChange={(e) => ctrl("documents").onChange(e)}
-                      rel={{
-                        table: "contacts",
-                        id: draft.id || "",
-                        field: "documents",
-                      }}
-                    />
-                  }
+                  ctrl={ctrl("documents")}
+                  rest={{
+                    table: "articles",
+                    id: draft.id || "",
+                    column: "documents",
+                  }}
                 />
               </div>
             </PageBlock>
           </div>
           <div className="grow lg:max-w-xl">
-            <PageBlock title="Stock" closable>
-              <div className="space-y-4">
-                <FormInput
-                  ctrl={ctrl("stock_available")}
-                  label="Stock disponible"
-                  type="number"
-                  size="lg"
-                />
-                <FormInput
-                  ctrl={ctrl("stock_bought")}
-                  label="Commandé"
-                  type="number"
-                />
-                <FormInput
-                  ctrl={ctrl("stock_reserved")}
-                  label="Reservé"
-                  type="number"
-                />
-                <FormInput
-                  ctrl={ctrl("stock_delivered")}
-                  label="Livré"
-                  type="number"
-                />
-              </div>
-            </PageBlock>
             <PageBlock closable title="Information complémentaire">
               <CustomFieldsInput
                 table={"articles"}
