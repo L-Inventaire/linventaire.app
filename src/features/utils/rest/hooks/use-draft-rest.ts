@@ -19,13 +19,13 @@ export const useReadDraftRest = <T extends { id: string }>(
 
 export const useDraftRest = <T extends { id: string }>(
   table: string,
-  id: string,
+  id: string | "new",
   onSaved: (item: T) => Promise<void>,
   defaultValue: Partial<T> = {},
   readonly = false
 ) => {
   const { items, upsert } = useRest<T>(table, { query: { id } as any });
-  const existingItem = items?.data?.list?.[0];
+  const existingItem = id && id !== "new" ? items?.data?.list?.[0] : null;
 
   const [draft, setDraft] = useRecoilState<T>(RestDraftAtom([table, id]));
 

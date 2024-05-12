@@ -1,174 +1,171 @@
 import { Button } from "@atoms/button/button";
-import { DropDownAtom } from "@atoms/dropdown";
+import InputDate from "@atoms/input/input-date";
+import Select from "@atoms/input/input-select";
+import { Info, Title } from "@atoms/text";
+import { Table } from "@components/table";
+import { TagsInput } from "@components/tags-input";
+import { useInvoices } from "@features/invoices/hooks/use-invoices";
+import { Invoices } from "@features/invoices/types/types";
+import { ROUTES, getRoute } from "@features/routes";
+import {
+  RestOptions,
+  useRestSchema,
+} from "@features/utils/rest/hooks/use-rest";
+import { PlusIcon, ReplyIcon } from "@heroicons/react/outline";
 import { Page } from "@views/client/_layout/page";
-import { useTranslation } from "react-i18next";
-import { useSetRecoilState } from "recoil";
+import { useState } from "react";
+import { SearchBar } from "../../../../components/search-bar";
+import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
+import Tabs from "@atoms/tabs";
 
 export const InvoicesPage = () => {
-  const { t } = useTranslation();
-  const setState = useSetRecoilState(DropDownAtom);
+  const [options, setOptions] = useState<RestOptions<Invoices>>({
+    limit: 10,
+    offset: 0,
+    query: [],
+  });
+  const { invoices } = useInvoices(options);
+  const schema = useRestSchema("invoices");
 
   return (
-    <Page
-      actions={
-        <>
-          <Button size="sm">Créer une facture</Button>
-          <Button size="sm" theme="secondary">
-            Créer un devis
-          </Button>
-        </>
-      }
-      title={[
-        {
-          label: "Les Factures",
-        },
-      ]}
-    >
-      <Button
-        onClick={(e) => {
-          setState({
-            target: e.currentTarget,
-            position: "bottom",
-            menu: [
-              {
-                label: "Créer une facture",
-                shortcut: ["shift+f"],
+    <Page title={[{ label: "Invoices" }]}>
+      <div className="float-right space-x-2 ml-4">
+        <Button
+          size="sm"
+          to={getRoute(ROUTES.InvoicesEdit, { id: "new" })}
+          icon={(p) => <PlusIcon {...p} />}
+        >
+          Devis
+        </Button>
+        <Button
+          size="sm"
+          to={getRoute(ROUTES.InvoicesEdit, { id: "new" })}
+          icon={(p) => <PlusIcon {...p} />}
+        >
+          Facture
+        </Button>
+        <Button
+          size="sm"
+          theme="outlined"
+          to={getRoute(ROUTES.InvoicesEdit, { id: "new" })}
+          icon={(p) => <ReplyIcon {...p} />}
+        >
+          Avoir
+        </Button>
+      </div>
+      <Title>Toutes les factures</Title>
+
+      <Tabs
+        tabs={[
+          { value: "", label: "Tous" },
+          { value: "quote", label: "Devis" },
+          { value: "invoice", label: "Factures" },
+          { value: "subscription", label: "Abonnements" },
+          { value: "credit_note", label: "Avoirs" },
+        ]}
+        value={""}
+        onChange={console.log}
+      />
+      <div className="mb-4" />
+
+      <div className="flex flex-row space-x-2">
+        {false && (
+          <>
+            <Select className="w-max">
+              <option>Tous</option>
+              <option>Clients</option>
+              <option>Fournisseurs</option>
+              <option>Aucun</option>
+            </Select>
+            <div className="flex flex-row relative">
+              <InputDate
+                className="rounded-r-none -mr-px hover:z-10"
+                placeholder="From"
+              />
+              <InputDate
+                className="rounded-l-none -ml-px hover:z-10"
+                placeholder="To"
+              />
+            </div>
+          </>
+        )}
+        <SearchBar
+          schema={{
+            table: "invoices",
+            fields: schemaToSearchFields(schema.data, {
+              tags: {
+                label: "Étiquettes",
+                keywords: "tags étiquettes label",
               },
-            ],
+              updated_at: "Date de mise à jour",
+              updated_by: {
+                label: "Mis à jour par",
+                keywords: "updated_by mis à jour par auteur utilisateur user",
+              },
+              email: "Email",
+              phone: "Téléphone",
+              is_supplier: "Fournisseur",
+              is_client: "Client",
+            }),
+          }}
+          onChange={(q) =>
+            q.valid && setOptions({ ...options, query: q.fields })
+          }
+        />
+      </div>
+      <div className="mb-4" />
+
+      <Table
+        loading={invoices.isPending}
+        data={invoices?.data?.list || []}
+        total={invoices?.data?.total || 0}
+        showPagination="full"
+        rowIndex="id"
+        onSelect={(items) => false && console.log(items)}
+        onRequestData={async (page) => {
+          setOptions({
+            ...options,
+            limit: page.perPage,
+            offset: (page.page - 1) * page.perPage,
+            asc: page.order === "ASC",
+            index:
+              page.orderBy === undefined
+                ? undefined
+                : [
+                    "business_name,person_first_name,person_last_name,business_registered_name",
+                    "tags",
+                  ][page.orderBy],
           });
         }}
-      >
-        Test 1
-      </Button>
-      <br />
-      <br />
-      <br />
-      <Button
-        onClick={(e) => {
-          setState({
-            target: e.currentTarget,
-            position: "right",
-            menu: [
-              {
-                label: "Créer une facture",
-                shortcut: ["shift+f"],
-              },
-              {
-                type: "divider",
-              },
-              {
-                label: "Factures",
-                shortcut: ["f"],
-              },
-              {
-                label: "Devis",
-                shortcut: ["d"],
-              },
-              {
-                label: "Archives",
-              },
-              {
-                type: "divider",
-              },
-              {
-                type: "danger",
-                label: "Logout",
-                shortcut: ["ctrl+del"],
-              },
-            ],
-          });
-        }}
-      >
-        {t("demo.button")}
-      </Button>
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
-      <br />
-      HEY
+        columns={[
+          {
+            title: "Name",
+            orderable: true,
+            render: (invoice) => invoice.name,
+          },
+          {
+            title: "Invoices",
+            orderable: true,
+            render: (invoice) => <Info>e</Info>,
+          },
+          {
+            title: "Tags",
+            orderable: true,
+            render: (invoice) => <TagsInput value={invoice.tags} disabled />,
+          },
+          {
+            title: "Actions",
+            thClassName: "w-1",
+            render: ({ id }) => (
+              <>
+                <Button size="sm" to={getRoute(ROUTES.InvoicesView, { id })}>
+                  View
+                </Button>
+              </>
+            ),
+          },
+        ]}
+      />
     </Page>
   );
 };

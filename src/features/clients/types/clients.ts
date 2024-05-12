@@ -62,6 +62,17 @@ export type Clients = {
   company: Company;
   preferences: Preferences;
   configuration: Configuration;
+  payment: Payment;
+};
+
+export type Payment = {
+  mode: string; // "bank_transfer", "credit_card", "paypal", "cash", "check"
+  delay: number; // In days
+  bank_name: string;
+  bank_iban: string;
+  bank_bic: string;
+  late_penalty: string;
+  recovery_fee: string;
 };
 
 export type Address = {

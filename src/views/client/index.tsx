@@ -31,6 +31,11 @@ import { FieldsPage } from "./settings/fields";
 import { ArticlesPage } from "./modules/articles";
 import { ArticlesViewPage } from "./modules/articles/view";
 import { ArticlesEditPage } from "./modules/articles/edit";
+import { OrdersPage } from "./modules/orders";
+import { OrdersViewPage } from "./modules/orders/view";
+import { OrdersEditPage } from "./modules/orders/edit";
+import { InvoicesViewPage } from "./modules/invoices/view";
+import { InvoicesEditPage } from "./modules/invoices/edit";
 
 export const BackOfficeRoutes = () => {
   return (
@@ -53,6 +58,14 @@ export const BackOfficeRoutes = () => {
         <Route path={ROUTES.Products} element={<ArticlesPage />} />
         <Route path={ROUTES.ProductsView} element={<ArticlesViewPage />} />
         <Route path={ROUTES.ProductsEdit} element={<ArticlesEditPage />} />
+
+        <Route path={ROUTES.Orders} element={<OrdersPage />} />
+        <Route path={ROUTES.OrdersView} element={<OrdersViewPage />} />
+        <Route path={ROUTES.OrdersEdit} element={<OrdersEditPage />} />
+
+        <Route path={ROUTES.Invoices} element={<InvoicesPage />} />
+        <Route path={ROUTES.InvoicesView} element={<InvoicesViewPage />} />
+        <Route path={ROUTES.InvoicesEdit} element={<InvoicesEditPage />} />
 
         <Route
           path={ROUTES.Settings}

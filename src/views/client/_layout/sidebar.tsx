@@ -107,7 +107,7 @@ export const SideBar = () => {
               label: "Nouveau devis",
               icon: (p) => <PlusIcon {...p} />,
               shortcut: ["shift+d"],
-              to: getRoute(ROUTES.QuotesEdit, { id: "new" }),
+              to: getRoute(ROUTES.InvoicesEdit, { id: "new" }),
             },
             {
               type: "divider",
@@ -115,22 +115,24 @@ export const SideBar = () => {
             {
               label: "Devis",
               shortcut: ["d"],
-              to: getRoute(ROUTES.Quotes),
+              to: getRoute(ROUTES.Invoices) + '?q=type%3A"quote"+',
             },
             {
               label: "Factures",
               shortcut: ["f"],
-              to: getRoute(ROUTES.Invoices),
+              to: getRoute(ROUTES.Invoices) + '?q=type%3A"invoice"+',
             },
             {
               label: "Abonnements",
               shortcut: ["f"],
-              to: getRoute(ROUTES.Subscriptions),
+              to:
+                getRoute(ROUTES.Invoices) +
+                '?q=type%3A"invoice"+subscription_enabled%3A1+',
             },
             {
               label: "Avoirs",
               shortcut: [],
-              to: getRoute(ROUTES.Invoices),
+              to: getRoute(ROUTES.Invoices) + '?q=type%3A"credit_note"+',
             },
           ]}
         />
@@ -155,14 +157,14 @@ export const SideBar = () => {
           ]}
         />
         <MenuItem
-          to={getRoute(ROUTES.PurchaseOrders)}
+          to={getRoute(ROUTES.Orders)}
           icon={(p) => <ShoppingCartIcon {...p} />}
           menu={[
             {
               label: "Créer une commande",
               icon: (p) => <PlusIcon {...p} />,
               shortcut: ["shift+s"],
-              to: getRoute(ROUTES.PurchaseOrdersEdit, { id: "new" }),
+              to: getRoute(ROUTES.OrdersEdit, { id: "new" }),
             },
             {
               type: "divider",
@@ -170,7 +172,7 @@ export const SideBar = () => {
             {
               label: "Bons de commande",
               shortcut: ["s"],
-              to: getRoute(ROUTES.PurchaseOrders),
+              to: getRoute(ROUTES.Orders),
             },
           ]}
         />

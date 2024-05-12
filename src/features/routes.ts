@@ -64,9 +64,9 @@ export const ROUTES = {
   SubscriptionsView: "/:client/subscriptions/:id",
   SubscriptionsEdit: "/:client/subscriptions/:id/form",
 
-  PurchaseOrders: "/:client/purchase-orders",
-  PurchaseOrdersView: "/:client/purchase-orders/:id",
-  PurchaseOrdersEdit: "/:client/purchase-orders/:id/form",
+  Orders: "/:client/orders",
+  OrdersView: "/:client/orders/:id",
+  OrdersEdit: "/:client/orders/:id/form",
 
   Receipts: "/:client/deliveries",
   ReceiptsView: "/:client/deliveries/:id",

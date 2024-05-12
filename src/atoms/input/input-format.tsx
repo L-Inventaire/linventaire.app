@@ -11,6 +11,27 @@ export const InputFormat = (
     format: "price" | "percentage" | "mail" | "phone" | "iban" | "code";
   }
 ) => {
+  const [isFocused, setIsFocused] = useState(false);
+  const ref = useRef<HTMLInputElement>(null);
+  const needUnfocus = props.format === "price" || props.format === "percentage";
+  const isNumber = props.format === "price" || props.format === "percentage";
+
+  const extractRawValue = (val: string) => {
+    if (!(val + "").trim()) return "";
+    if (props.format === "iban")
+      return val.toLocaleUpperCase().replace(/[^A-Z0-9]/gm, "");
+    if (isNumber && typeof val === "string")
+      return (
+        parseFloat(
+          (val || "0")
+            .replace(",", ".")
+            .replace(/[^0-9.-]/gm, "")
+            .replace(/(.)-/gm, "$1")
+        ) + ""
+      );
+    return val;
+  };
+
   const applyFormat = useCallback(
     (val: string) => {
       if (!(val + "").trim()) return "";
@@ -40,26 +61,6 @@ export const InputFormat = (
   );
 
   const [value, setValue] = useState(applyFormat(props.value as string));
-  const [isFocused, setIsFocused] = useState(false);
-  const ref = useRef<HTMLInputElement>(null);
-  const needUnfocus = props.format === "price" || props.format === "percentage";
-  const isNumber = props.format === "price" || props.format === "percentage";
-
-  const extractRawValue = (val: string) => {
-    if (!(val + "").trim()) return "";
-    if (props.format === "iban")
-      return val.toLocaleUpperCase().replace(/[^A-Z0-9]/gm, "");
-    if (isNumber)
-      return (
-        parseFloat(
-          val
-            .replace(",", ".")
-            .replace(/[^0-9.-]/gm, "")
-            .replace(/(.)-/gm, "$1")
-        ) + ""
-      );
-    return val;
-  };
 
   useEffect(() => {
     if (!isFocused || !needUnfocus) {

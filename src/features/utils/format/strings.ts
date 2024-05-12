@@ -27,14 +27,14 @@ export const ellipsis = (str: string, length: number) => {
 };
 
 export const formatAmount = (number: number) => {
-  return number.toLocaleString("fr-FR", {
+  return (number || 0).toLocaleString("fr-FR", {
     style: "currency",
     currency: "EUR",
   });
 };
 
 export const formatNumber = (number: number) => {
-  return number.toLocaleString("fr-FR");
+  return (number || 0).toLocaleString("fr-FR");
 };
 
 export const applySearchFilter = (search: string, item: string) => {

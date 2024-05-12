@@ -26,7 +26,9 @@ export const TagsInput = (props: {
   const [focused, setFocused] = useState(false);
   const { tags, create } = useTags();
   const selectedTags = _.sortBy(
-    (tags.data?.list || []).filter((tag) => props.value.includes(tag.id)),
+    (tags.data?.list || []).filter((tag) =>
+      (props.value || []).includes(tag.id)
+    ),
     "name"
   );
 

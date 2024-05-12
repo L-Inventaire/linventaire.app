@@ -1,33 +1,30 @@
 import { Button } from "@atoms/button/button";
 import { Title } from "@atoms/text";
-import { Contacts, getContactName } from "@features/contacts/types/types";
+import { Invoices } from "@features/invoices/types/types";
 import { ROUTES, getRoute } from "@features/routes";
 import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { Page } from "@views/client/_layout/page";
 import { useNavigate, useParams } from "react-router-dom";
-import { ContactsDetailsPage } from "../components/contact-details";
+import { InvoicesDetailsPage } from "../components/invoices-details";
 import { PageLoader } from "@components/page-loader";
 
-export const ContactsEditPage = ({ readonly }: { readonly?: boolean }) => {
+export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
   let { id } = useParams();
   id = id === "new" ? "" : id || "";
   const navigate = useNavigate();
 
   const {
-    draft: contact,
+    draft: invoice,
     isPending,
     isInitiating,
     save,
-  } = useDraftRest<Contacts>(
-    "contacts",
+  } = useDraftRest<Invoices>(
+    "invoices",
     id || "new",
     async (item) => {
-      navigate(getRoute(ROUTES.ContactsView, { id: item.id }));
+      navigate(getRoute(ROUTES.InvoicesView, { id: item.id }));
     },
-    {
-      type: "company",
-      delivery_address: null,
-    } as Contacts
+    {} as Invoices
   );
 
   if (isInitiating) return <PageLoader />;
@@ -35,7 +32,7 @@ export const ContactsEditPage = ({ readonly }: { readonly?: boolean }) => {
   return (
     <Page
       title={[
-        { label: "Contacts", to: getRoute(ROUTES.Contacts) },
+        { label: "Invoices", to: getRoute(ROUTES.Invoices) },
         { label: id ? "Modifier" : "Créer" },
       ]}
     >
@@ -45,8 +42,8 @@ export const ContactsEditPage = ({ readonly }: { readonly?: boolean }) => {
           onClick={async () =>
             navigate(
               !id
-                ? getRoute(ROUTES.Contacts)
-                : getRoute(ROUTES.ContactsView, { id })
+                ? getRoute(ROUTES.Invoices)
+                : getRoute(ROUTES.InvoicesView, { id })
             )
           }
           size="sm"
@@ -54,7 +51,7 @@ export const ContactsEditPage = ({ readonly }: { readonly?: boolean }) => {
           Annuler
         </Button>
         <Button
-          disabled={!getContactName(contact)}
+          disabled={!invoice.name}
           loading={isPending}
           onClick={async () => await save()}
           size="sm"
@@ -62,12 +59,10 @@ export const ContactsEditPage = ({ readonly }: { readonly?: boolean }) => {
           Sauvegarder
         </Button>
       </div>
-      {!id && (
-        <Title>Création de {getContactName(contact) || "<nouveau>"}</Title>
-      )}
-      {id && <Title>Modification de {getContactName(contact) || ""}</Title>}
+      {!id && <Title>Création de {invoice.name || "<nouveau>"}</Title>}
+      {id && <Title>Modification de {invoice.name || ""}</Title>}
       <div className="mt-4" />
-      <ContactsDetailsPage readonly={false} id={id} />
+      <InvoicesDetailsPage readonly={false} id={id} />
     </Page>
   );
 };

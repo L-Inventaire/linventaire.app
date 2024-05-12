@@ -21,7 +21,11 @@ export class ContactsApiClient {
     if (siret.length < 14) return {};
     return await (
       await fetchServer(
-        `/api/contacts/v1/clients/${clientId}/sirene/` + siret.slice(0, 14)
+        `/api/contacts/v1/clients/${clientId}/sirene/` +
+          siret
+            .toLocaleUpperCase()
+            .replace(/[^A-Z0-9]/gm, "")
+            .slice(0, 14)
       )
     ).json();
   };

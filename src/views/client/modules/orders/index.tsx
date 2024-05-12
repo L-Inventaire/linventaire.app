@@ -4,8 +4,8 @@ import Select from "@atoms/input/input-select";
 import { Info, Title } from "@atoms/text";
 import { Table } from "@components/table";
 import { TagsInput } from "@components/tags-input";
-import { useContacts } from "@features/contacts/hooks/use-contacts";
-import { Contacts, getContactName } from "@features/contacts/types/types";
+import { useOrders } from "@features/orders/hooks/use-orders";
+import { Orders } from "@features/orders/types/types";
 import { ROUTES, getRoute } from "@features/routes";
 import {
   RestOptions,
@@ -16,40 +16,29 @@ import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
-import Tabs from "@atoms/tabs";
 
-export const ContactsPage = () => {
-  const [options, setOptions] = useState<RestOptions<Contacts>>({
+export const OrdersPage = () => {
+  const [options, setOptions] = useState<RestOptions<Orders>>({
     limit: 10,
     offset: 0,
     query: [],
   });
-  const { contacts } = useContacts(options);
-  const schema = useRestSchema("contacts");
+  const { orders } = useOrders(options);
+  const schema = useRestSchema("orders");
 
   return (
-    <Page title={[{ label: "Contacts" }]}>
+    <Page title={[{ label: "Orders" }]}>
       <div className="float-right">
         <Button
           className="ml-4"
           size="sm"
-          to={getRoute(ROUTES.ContactsEdit, { id: "new" })}
+          to={getRoute(ROUTES.OrdersEdit, { id: "new" })}
           icon={(p) => <PlusIcon {...p} />}
         >
-          Ajouter un contact
+          Créer une commande
         </Button>
       </div>
-      <Title>Tous les contacts</Title>
-
-      <Tabs
-        tabs={[
-          { value: "", label: "Tous" },
-          { value: "clients", label: "Clients" },
-          { value: "suppliers", label: "Fournisseurs" },
-        ]}
-        value={""}
-        onChange={console.log}
-      />
+      <Title>Toutes les commandes</Title>
       <div className="mb-4" />
 
       <div className="flex flex-row space-x-2">
@@ -75,7 +64,7 @@ export const ContactsPage = () => {
         )}
         <SearchBar
           schema={{
-            table: "contacts",
+            table: "orders",
             fields: schemaToSearchFields(schema.data, {
               tags: {
                 label: "Étiquettes",
@@ -100,9 +89,9 @@ export const ContactsPage = () => {
       <div className="mb-4" />
 
       <Table
-        loading={contacts.isPending}
-        data={contacts?.data?.list || []}
-        total={contacts?.data?.total || 0}
+        loading={orders.isPending}
+        data={orders?.data?.list || []}
+        total={orders?.data?.total || 0}
         showPagination="full"
         rowIndex="id"
         onSelect={(items) => false && console.log(items)}
@@ -125,26 +114,24 @@ export const ContactsPage = () => {
           {
             title: "Name",
             orderable: true,
-            render: (contact) => getContactName(contact),
+            render: (order) => order.reference,
           },
           {
-            title: "Contacts",
+            title: "Orders",
             orderable: true,
-            render: (contact) => (
-              <Info>{[contact.email, contact.phone].join(" ")}</Info>
-            ),
+            render: (order) => <Info>z</Info>,
           },
           {
             title: "Tags",
             orderable: true,
-            render: (contact) => <TagsInput value={contact.tags} disabled />,
+            render: (order) => <TagsInput value={order.tags} disabled />,
           },
           {
             title: "Actions",
             thClassName: "w-1",
             render: ({ id }) => (
               <>
-                <Button size="sm" to={getRoute(ROUTES.ContactsView, { id })}>
+                <Button size="sm" to={getRoute(ROUTES.OrdersView, { id })}>
                   View
                 </Button>
               </>

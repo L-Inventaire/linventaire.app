@@ -1,33 +1,30 @@
 import { Button } from "@atoms/button/button";
 import { Title } from "@atoms/text";
-import { Contacts, getContactName } from "@features/contacts/types/types";
+import { Orders } from "@features/orders/types/types";
 import { ROUTES, getRoute } from "@features/routes";
 import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { Page } from "@views/client/_layout/page";
 import { useNavigate, useParams } from "react-router-dom";
-import { ContactsDetailsPage } from "../components/contact-details";
+import { OrdersDetailsPage } from "../components/order-details";
 import { PageLoader } from "@components/page-loader";
 
-export const ContactsEditPage = ({ readonly }: { readonly?: boolean }) => {
+export const OrdersEditPage = ({ readonly }: { readonly?: boolean }) => {
   let { id } = useParams();
   id = id === "new" ? "" : id || "";
   const navigate = useNavigate();
 
   const {
-    draft: contact,
+    draft: order,
     isPending,
     isInitiating,
     save,
-  } = useDraftRest<Contacts>(
-    "contacts",
+  } = useDraftRest<Orders>(
+    "orders",
     id || "new",
     async (item) => {
-      navigate(getRoute(ROUTES.ContactsView, { id: item.id }));
+      navigate(getRoute(ROUTES.OrdersView, { id: item.id }));
     },
-    {
-      type: "company",
-      delivery_address: null,
-    } as Contacts
+    {} as Orders
   );
 
   if (isInitiating) return <PageLoader />;
@@ -35,7 +32,7 @@ export const ContactsEditPage = ({ readonly }: { readonly?: boolean }) => {
   return (
     <Page
       title={[
-        { label: "Contacts", to: getRoute(ROUTES.Contacts) },
+        { label: "Orders", to: getRoute(ROUTES.Orders) },
         { label: id ? "Modifier" : "Créer" },
       ]}
     >
@@ -45,8 +42,8 @@ export const ContactsEditPage = ({ readonly }: { readonly?: boolean }) => {
           onClick={async () =>
             navigate(
               !id
-                ? getRoute(ROUTES.Contacts)
-                : getRoute(ROUTES.ContactsView, { id })
+                ? getRoute(ROUTES.Orders)
+                : getRoute(ROUTES.OrdersView, { id })
             )
           }
           size="sm"
@@ -54,7 +51,7 @@ export const ContactsEditPage = ({ readonly }: { readonly?: boolean }) => {
           Annuler
         </Button>
         <Button
-          disabled={!getContactName(contact)}
+          disabled={!order.articles?.length}
           loading={isPending}
           onClick={async () => await save()}
           size="sm"
@@ -62,12 +59,10 @@ export const ContactsEditPage = ({ readonly }: { readonly?: boolean }) => {
           Sauvegarder
         </Button>
       </div>
-      {!id && (
-        <Title>Création de {getContactName(contact) || "<nouveau>"}</Title>
-      )}
-      {id && <Title>Modification de {getContactName(contact) || ""}</Title>}
+      {!id && <Title>Création de {order.reference || "<nouveau>"}</Title>}
+      {id && <Title>Modification de {order.reference || ""}</Title>}
       <div className="mt-4" />
-      <ContactsDetailsPage readonly={false} id={id} />
+      <OrdersDetailsPage readonly={false} id={id} />
     </Page>
   );
 };
