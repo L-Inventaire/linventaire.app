@@ -75,13 +75,10 @@ export const SearchForm = (props: FiltersProps) => {
   const advancedValuesChanged = props.fields
     .filter(
       (e) =>
-        (e.position === "advanced" ||
-          (e.position?.split(":")?.[0] &&
-            e.position?.split(":")?.[0] ===
-              props.fields.find(
-                (e) => e.position === "advanced" && e.type === "group"
-              )?.key)) &&
-        e.type !== "group"
+        e.position === "advanced" ||
+        (e.position?.split(":")?.[0] &&
+          e.position?.split(":")?.[0] ===
+            props.fields.find((e) => e.position === "advanced")?.key)
     )
     .some((e) => props.value[e.key]);
   const advancedFilters = _advancedFilters || advancedValuesChanged;
@@ -301,12 +298,12 @@ export const SearchForm = (props: FiltersProps) => {
 const buildDisplayObject = (
   propsFields: SearchFormFieldType[]
 ): SearchFormDiplayType => {
-  const groups = propsFields.filter((e) => e.type === "group");
-  const fields = propsFields.filter((e) => e.type !== "group");
+  const groups = [] as any;
+  const fields = propsFields;
   const baseFields = fields.filter((e) => e.position === undefined);
-  const baseGroup = groups.filter((e) => e.position === undefined)[0];
-  const advFields = fields.filter((e) => e.position === "advanced");
-  const advGroup = groups.filter((e) => e.position === "advanced")[0];
+  const baseGroup = groups.filter((e: any) => e.position === undefined)[0];
+  const advFields = fields.filter((e: any) => e.position === "advanced");
+  const advGroup = groups.filter((e: any) => e.position === "advanced")[0];
   const display: SearchFormDiplayType = {
     default: baseFields?.length ? baseFields.map((e) => e.key) : undefined,
     groups: baseGroup
@@ -315,7 +312,7 @@ const buildDisplayObject = (
           items: (baseGroup.type === "group"
             ? baseGroup.options
             : undefined || []
-          ).map((o) => ({
+          ).map((o: any) => ({
             ...o,
             fields: fields
               .filter((e) => e.position === baseGroup?.key + ":" + o.value)
@@ -335,7 +332,7 @@ const buildDisplayObject = (
                   items: (advGroup.type === "group"
                     ? advGroup.options
                     : undefined || []
-                  ).map((o) => ({
+                  ).map((o: any) => ({
                     ...o,
                     fields: fields
                       .filter(

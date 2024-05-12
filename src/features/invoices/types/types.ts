@@ -27,10 +27,9 @@ export type Invoices = {
   language: string;
   currency: string;
 
-  delivery_address: Address;
+  delivery_address: Address | null;
   delivery_date: number;
 
-  name: string;
   content: InvoiceLine[];
   discount: InvoiceDiscount;
   total: InvoiceTotal; // Precomputed values (for search mainly, do not use for calculations preferably)
@@ -41,6 +40,7 @@ export type Invoices = {
     accepted: string[]; // List of articles accepted by the client (in case of options)
   };
 
+  name: string;
   payment_information: Payment;
   format: InvoiceFormat;
 

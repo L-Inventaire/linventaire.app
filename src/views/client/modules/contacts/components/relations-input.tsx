@@ -101,12 +101,12 @@ export const RelationsInput = ({
                   label="+ Ajouter un contact parent"
                   placeholder="Rechercher un contact"
                   max={1}
-                  value={[]}
-                  onChange={(parents) => {
-                    if (parents[0]) {
-                      onChange(_.uniq([...value[0], parents[0]]), {
+                  value={""}
+                  onChange={(parent) => {
+                    if (parent && typeof parent === "string") {
+                      onChange(_.uniq([...value[0], parent]), {
                         ...value[1],
-                        [parents[0]]: {
+                        [parent]: {
                           role: "",
                         },
                       });

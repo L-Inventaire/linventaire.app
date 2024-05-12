@@ -5,52 +5,69 @@ import { Info } from "@atoms/text";
 import { RestDocumentTag } from "@components/rest-tags/components/document";
 import {
   useRest,
+  useRestSchema,
   useRestSuggestions,
 } from "@features/utils/rest/hooks/use-rest";
 import { tableToIcons } from "@views/client/settings/fields";
+import _ from "lodash";
 import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
 
 export const RestDocumentsInput = (props: {
   table: string;
   column: string;
-  value: string[];
+  value?: string[] | string | null;
   className?: string;
   theme?: "default" | "primary" | "secondary";
   label?: string;
   size?: "sm" | "md";
   max?: number;
-  onChange?: (value: string[]) => void;
+  onChange?: (value: string[] | string | null) => void;
   placeholder?: string;
   disabled?: boolean;
 }) => {
+  const value: string[] =
+    props.max === 1
+      ? props.value
+        ? [props.value as string]
+        : []
+      : (props.value as string[]) || [];
+
+  const onChange = (value: string[]) => {
+    props.onChange?.(props.max === 1 ? value?.[0] || null : value);
+  };
+
   const [focused, setFocused] = useState(false);
 
   const [query, setQuery] = useState("");
+  const schema = useRestSchema(props.table);
   const { suggestions } = useRestSuggestions(props.table, props.column, query);
 
-  const { items, refresh } = useRest<{ id: string; _label: string }>(
-    props.table,
-    {
-      query: [
-        {
-          key: "id",
-          values: (props.value || []).map((value) => ({
-            op: "equals",
-            value,
-          })),
-        },
-      ],
-      key: props.table + "_" + props.column + "_selector",
-      limit: props.value.length || 1,
-    }
-  );
+  const refType = _.get(schema.data, props.column);
+  const refTable =
+    (typeof refType === "string" ? refType : refType?.[0] || "")
+      .split("type:")
+      .pop() || props.table;
+
+  const { items, refresh } = useRest<{ id: string; _label: string }>(refTable, {
+    query: [
+      {
+        key: "id",
+        values: (value || []).map((value) => ({
+          op: "equals",
+          value,
+        })),
+      },
+    ],
+    key: props.table + "_" + props.column + "_selector",
+    limit: (value || []).length || 1,
+  });
   const loading = items.isPending;
-  const documents = (items?.data?.list || [])?.slice(0, props.value?.length);
+  const documents = (items?.data?.list || [])?.slice(0, value?.length);
 
   useEffect(() => {
     refresh();
-  }, [props.value]);
+  }, [value]);
 
   const size = props.size || "md";
 
@@ -66,7 +83,7 @@ export const RestDocumentsInput = (props: {
       {documents.map((doc) => (
         <RestDocumentTag
           size={size}
-          icon={tableToIcons(props.table)?.icon}
+          icon={tableToIcons(refTable)?.icon}
           label={doc._label}
           className={twMerge(
             !props.disabled ? "cursor-pointer inline-flex items-center" : "",
@@ -76,7 +93,7 @@ export const RestDocumentsInput = (props: {
           )}
           onClick={() =>
             !props.disabled &&
-            props.onChange?.(props.value.filter((a) => a !== doc.id))
+            onChange?.((value || []).filter((a) => a !== doc.id))
           }
           key={doc.id}
           dataTooltip={!props.disabled ? "Retirer" : undefined}
@@ -85,7 +102,7 @@ export const RestDocumentsInput = (props: {
       {props.disabled && !documents.length && <Info>Aucun</Info>}
       {!props.disabled &&
         !focused &&
-        props.value?.length < (props.max || 100) && (
+        (value || []).length < (props.max || 100) && (
           <Button
             className="align-top m-1"
             size="sm"
@@ -108,16 +125,16 @@ export const RestDocumentsInput = (props: {
             onChange={(e) => setQuery(e.target.value)}
             options={[
               ...(suggestions?.data || [])
-                .filter((a) => !props.value.includes(a.value))
+                .filter((a) => !(value || []).includes(a.value))
                 .map((a) => ({
                   label: a.label as string,
                   value: a.value as string,
                 })),
             ]}
-            onSelect={async (value: string) => {
-              props.onChange?.([
-                ...props.value.slice(0, (props.max || 100) - 1),
-                value,
+            onSelect={async (v: string) => {
+              onChange?.([
+                ...(value || []).slice(0, (props.max || 100) - 1),
+                v,
               ]);
             }}
             render={(e) => (
@@ -125,7 +142,7 @@ export const RestDocumentsInput = (props: {
                 size="md"
                 className="-mx-1"
                 label={e.label}
-                icon={tableToIcons(props.table)?.icon}
+                icon={tableToIcons(refTable)?.icon}
               />
             )}
           />

@@ -1245,6 +1245,10 @@ select {
   height: 100vh;
 }
 
+.h-80 {
+  height: 20rem;
+}
+
 .max-h-0 {
   max-height: 0px;
 }
@@ -2952,6 +2956,10 @@ select {
 
 .p-4 {
   padding: 1rem;
+}
+
+.p-8 {
+  padding: 2rem;
 }
 
 .\!px-1 {

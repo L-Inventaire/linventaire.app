@@ -7,6 +7,9 @@ import { memo } from "react";
 import { SearchFormFieldType } from "./types";
 import { TagsInput } from "@components/tags-input";
 import InputPhone from "@atoms/input/input-phone";
+import { UsersInput } from "@components/users-input";
+import { FilesInput } from "@components/files-input";
+import { RestDocumentsInput } from "@components/rest-documents-input";
 
 export const FormReadonly = memo(
   (
@@ -22,16 +25,6 @@ export const FormReadonly = memo(
       values: any;
     }
   ) => {
-    if (props.type === "custom") {
-      return (
-        <>
-          {(props as any).node({
-            value: props.value,
-          })}
-        </>
-      );
-    }
-
     if (!props.value && !props.alwaysVisible) return <></>;
 
     if (!props.value && props.alwaysVisible)
@@ -65,6 +58,30 @@ export const FormReadonly = memo(
                 className="w-full"
                 value={(props.value as string[]) || []}
                 disabled={true}
+              />
+            )}
+            {props.type === "users" && (
+              <UsersInput
+                className="w-full"
+                value={(props.value as string[]) || []}
+                disabled={true}
+              />
+            )}
+            {props.type === "files" && (
+              <FilesInput
+                className="w-full"
+                value={(props.value as string[]) || []}
+                disabled={true}
+              />
+            )}
+            {props.type === "rest_documents" && (
+              <RestDocumentsInput
+                className="w-full"
+                value={(props.value as string[]) || []}
+                disabled={true}
+                max={props.max}
+                table={props.rest?.table || ""}
+                column={props.rest?.column || ""}
               />
             )}
             {props.type === "phone" && (

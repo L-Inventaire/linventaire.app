@@ -22,6 +22,9 @@ import { twMerge } from "tailwind-merge";
 import InputPhone from "@atoms/input/input-phone";
 import InputColor from "@atoms/input/input-color";
 import { TagsInput } from "@components/tags-input";
+import { UsersInput } from "@components/users-input";
+import { FilesInput } from "@components/files-input";
+import { RestDocumentsInput } from "@components/rest-documents-input";
 
 export const FormInput = memo(
   (
@@ -113,17 +116,6 @@ export const FormInput = memo(
       _onChange?.(value);
     };
 
-    if (props.type === "custom") {
-      return (
-        <>
-          {(props as any).node({
-            value: _value,
-            onChange: _onChange,
-          })}
-        </>
-      );
-    }
-
     if (
       props.main &&
       (!props.type || props.type === "text" || props.type === "scan")
@@ -199,6 +191,36 @@ export const FormInput = memo(
                 value={(_value as string[]) || []}
                 onChange={(e) => onChange(e)}
                 disabled={disabled}
+              />
+            )}
+            {props.type === "users" && (
+              <UsersInput
+                className="w-full"
+                value={(_value as string[]) || []}
+                onChange={(e) => onChange(e)}
+                disabled={disabled}
+              />
+            )}
+            {props.type === "files" && (
+              <FilesInput
+                className="w-full"
+                value={(_value as string[]) || []}
+                onChange={(e) => onChange(e)}
+                disabled={disabled}
+              />
+            )}
+            {props.type === "rest_documents" && (
+              <RestDocumentsInput
+                className="w-full"
+                value={
+                  (_value as string[] | string | null) ||
+                  ((props.max || 0) > 1 ? [] : null)
+                }
+                max={props.max}
+                onChange={(e) => onChange(e)}
+                disabled={disabled}
+                table={props.rest?.table || ""}
+                column={props.rest?.column || ""}
               />
             )}
             {props.type === "formatted" && (

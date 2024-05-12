@@ -148,12 +148,12 @@ export const ArticleSuppliersInput = ({
                   label="+ Ajouter un fournisseur"
                   placeholder="Rechercher un fournisseur..."
                   max={1}
-                  value={[]}
-                  onChange={(suppliers) => {
-                    if (suppliers[0]) {
-                      onChange(_.uniq([...value[0], suppliers[0]]), {
+                  value={""}
+                  onChange={(supplier) => {
+                    if (supplier && typeof supplier === "string") {
+                      onChange(_.uniq([...value[0], supplier]), {
                         ...value[1],
-                        [suppliers[0]]: {
+                        [supplier]: {
                           reference: "",
                           price: 0,
                           delivery_time: 0,

@@ -4,7 +4,7 @@ import _ from "lodash";
 export class RestApiClient<T> {
   constructor(private table: string) {}
 
-  schema = async (clientId: string): Promise<T[]> => {
+  schema = async (clientId: string): Promise<{ [key: string]: any }> => {
     return await (
       await fetchServer(`/api/rest/v1/${clientId}/${this.table}/schema`)
     ).json();

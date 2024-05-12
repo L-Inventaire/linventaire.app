@@ -3,8 +3,8 @@ export type Comments = {
   item_id: string;
   id: string;
   owner_id: string;
-  created_at: Date;
-  edited_at: Date;
+  created_at: number;
+  edited_at: number;
   content: string;
   type: "event" | "comment";
 };
