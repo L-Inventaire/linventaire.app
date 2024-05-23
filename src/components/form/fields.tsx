@@ -314,9 +314,7 @@ export const FormInput = memo(
               <SelectMultiple
                 className="w-full"
                 highlight={highlight}
-                value={
-                  _value ? [_value as { label: string; value: string }] : []
-                }
+                value={_value || []}
                 onChange={(e) => onChange(e)}
                 onSearch={(e) => suggest(e)}
                 size={size}
@@ -329,9 +327,7 @@ export const FormInput = memo(
               <SelectMultiple
                 className="w-full"
                 highlight={highlight}
-                value={
-                  _value ? [_value as { label: string; value: string }] : []
-                }
+                value={_value || []}
                 onChange={(e) => onChange(e)}
                 onSearch={(e) => suggest(e)}
                 size={size}

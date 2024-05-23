@@ -131,7 +131,7 @@ export function RenderedTable<T>({
 }: PropsType<T>) {
   const [selected, setSelected] = useState<T[]>([]);
   const parentRef = useRef<HTMLDivElement>(null);
-  const [parentWidth, setParentWidth] = useState(0);
+  const [parentWidth, setParentWidth] = useState(document.body.clientWidth);
   const [exportModal, setExportModal] = useState(false);
   const [optionsModal, setOptionsModal] = useState(false);
 
@@ -526,7 +526,10 @@ export function RenderedTable<T>({
                     )}
                   >
                     {onSelect && (
-                      <td className="w-8 m-0 p-0 height-table-hack overflow-hidden">
+                      <td
+                        className="w-8 m-0 p-0 height-table-hack overflow-hidden group/checkbox"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <div
                           className={defaultCellClassName({
                             selected: isSelected,
@@ -539,7 +542,10 @@ export function RenderedTable<T>({
                           })}
                         >
                           <Checkbox
-                            className="ml-1"
+                            className={twMerge(
+                              "ml-1 group-hover/checkbox:opacity-100 opacity-0",
+                              isSelected && "opacity-100"
+                            )}
                             size="sm"
                             value={isSelected}
                             onChange={(a, e) => onClickCheckbox(row, a, e)}

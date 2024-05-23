@@ -23,6 +23,7 @@ export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
     >
       <div className="float-right space-x-2">
         <Button
+          size="sm"
           onClick={async () => navigate(getRoute(ROUTES.InvoicesEdit, { id }))}
         >
           Modifier

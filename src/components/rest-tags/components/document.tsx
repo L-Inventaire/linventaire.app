@@ -20,7 +20,9 @@ export const RestDocumentTag = ({
   return (
     <Tag
       icon={
-        icon ? icon({ className: "mr-1 -ml-1 h-4 w-4 text-slate-500" }) : ""
+        icon
+          ? icon({ className: "mr-1 -ml-1 h-4 w-4 text-slate-500 shrink-0" })
+          : ""
       }
       size={size}
       noColor

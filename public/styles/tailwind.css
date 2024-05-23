@@ -967,11 +967,6 @@ select {
   margin-bottom: 2rem;
 }
 
-.my-6 {
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
 .\!mb-0 {
   margin-bottom: 0px !important;
 }
@@ -1014,6 +1009,10 @@ select {
 
 .-mr-px {
   margin-right: -1px;
+}
+
+.-mt-1 {
+  margin-top: -0.25rem;
 }
 
 .-mt-2 {
@@ -1116,18 +1115,6 @@ select {
   margin-top: 2rem;
 }
 
-.\!mt-6 {
-  margin-top: 1.5rem !important;
-}
-
-.\!mt-8 {
-  margin-top: 2rem !important;
-}
-
-.-mt-1 {
-  margin-top: -0.25rem;
-}
-
 .block {
   display: block;
 }
@@ -1224,6 +1211,10 @@ select {
   height: 2rem;
 }
 
+.h-80 {
+  height: 20rem;
+}
+
 .h-9 {
   height: 2.25rem;
 }
@@ -1247,10 +1238,6 @@ select {
 
 .h-screen {
   height: 100vh;
-}
-
-.h-80 {
-  height: 20rem;
 }
 
 .max-h-0 {
@@ -1301,6 +1288,10 @@ select {
   width: 50%;
 }
 
+.w-1\/3 {
+  width: 33.333333%;
+}
+
 .w-10 {
   width: 2.5rem;
 }
@@ -1319,6 +1310,10 @@ select {
 
 .w-20 {
   width: 5rem;
+}
+
+.w-24 {
+  width: 6rem;
 }
 
 .w-28 {
@@ -1370,24 +1365,20 @@ select {
   width: max-content;
 }
 
-.w-1\/4 {
-  width: 25%;
-}
-
-.w-24 {
-  width: 6rem;
-}
-
-.w-1\/3 {
-  width: 33.333333%;
-}
-
 .min-w-0 {
   min-width: 0px;
 }
 
 .min-w-32 {
   min-width: 8rem;
+}
+
+.min-w-64 {
+  min-width: 16rem;
+}
+
+.min-w-80 {
+  min-width: 20rem;
 }
 
 .min-w-\[25\%\] {
@@ -1402,10 +1393,6 @@ select {
 
 .min-w-full {
   min-width: 100%;
-}
-
-.min-w-64 {
-  min-width: 16rem;
 }
 
 .max-w-24 {
@@ -1692,6 +1679,12 @@ select {
   --tw-space-y-reverse: 0;
   margin-top: calc(1rem * calc(1 - var(--tw-space-y-reverse)));
   margin-bottom: calc(1rem * var(--tw-space-y-reverse));
+}
+
+.space-x-1 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 0;
+  margin-right: calc(0.25rem * var(--tw-space-x-reverse));
+  margin-left: calc(0.25rem * calc(1 - var(--tw-space-x-reverse)));
 }
 
 .overflow-auto {
@@ -3163,6 +3156,10 @@ select {
   padding-top: 2rem;
 }
 
+.\!pr-0 {
+  padding-right: 0px !important;
+}
+
 .text-left {
   text-align: left;
 }
@@ -3230,6 +3227,10 @@ select {
   font-size: 9px;
 }
 
+.text-\[0px\] {
+  font-size: 0px;
+}
+
 .font-bold {
   font-weight: 700;
 }
@@ -3256,6 +3257,10 @@ select {
 
 .lowercase {
   text-transform: lowercase;
+}
+
+.leading-5 {
+  line-height: 1.25rem;
 }
 
 .leading-6 {
@@ -4238,6 +4243,10 @@ input, select {
   opacity: 1;
 }
 
+.group\/checkbox:hover .group-hover\/checkbox\:opacity-100 {
+  opacity: 1;
+}
+
 @media (min-width: 640px) {
   .sm\:relative {
     position: relative;
@@ -4408,16 +4417,12 @@ input, select {
     padding-bottom: 2rem;
   }
 
-  .sm\:pt-3 {
-    padding-top: 0.75rem;
-  }
-
-  .sm\:pt-2 {
-    padding-top: 0.5rem;
-  }
-
   .sm\:pt-1 {
     padding-top: 0.25rem;
+  }
+
+  .sm\:pt-3 {
+    padding-top: 0.75rem;
   }
 
   .sm\:text-left {
@@ -4441,10 +4446,6 @@ input, select {
 
   .md\:inline {
     display: inline;
-  }
-
-  .md\:w-1\/4 {
-    width: 25%;
   }
 
   .md\:grid-cols-1 {
@@ -4525,20 +4526,12 @@ input, select {
     padding: 1rem;
   }
 
-  .lg\:pt-4 {
-    padding-top: 1rem;
-  }
-
-  .lg\:pt-0 {
-    padding-top: 0px;
-  }
-
-  .lg\:pt-3 {
-    padding-top: 0.75rem;
-  }
-
   .lg\:pt-2 {
     padding-top: 0.5rem;
+  }
+
+  .lg\:pt-4 {
+    padding-top: 1rem;
   }
 
   .lg\:text-left {

@@ -17,8 +17,8 @@ interface InputProps
   hasError?: boolean;
   size?: "md" | "lg" | "sm";
   className?: string;
-  value?: { label: string; value: string }[];
-  onChange?: (e: { label: string; value: string }[]) => void;
+  value?: string[];
+  onChange?: (e: string[]) => void;
   onSearch?: (e: string) => void;
   options: { label: string; value: string }[];
   selectionLimit?: number;
@@ -65,12 +65,14 @@ export function SelectMultiple(props: InputProps) {
           ((props.value?.length || 0) > 0 ? " pr-12 " : " pr-8 ")
         }
         {..._.omit(props, "label", "className", "size", "value", "onChange")}
-        selectedValues={props.value}
-        onSelect={(e: { label: string; value: string }[]) =>
-          props.onChange && props.onChange(e.map((a) => a))
+        selectedValues={props.options.filter((o) =>
+          (props.value || []).includes(o.value)
+        )}
+        onSelect={(e: { value: string }[]) =>
+          props.onChange && props.onChange(e.map((a) => a.value))
         }
-        onRemove={(e: { label: string; value: string }[]) =>
-          props.onChange && props.onChange(e.map((a) => a))
+        onRemove={(e: { value: string }[]) =>
+          props.onChange && props.onChange(e.map((a) => a.value))
         }
         onSearch={(e: string) => {
           props.onSearch && props.onSearch(e);

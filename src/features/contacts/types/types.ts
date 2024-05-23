@@ -2,6 +2,7 @@ import { Address } from "@features/clients/types/clients";
 
 export type Contacts = {
   client_id: string;
+  updated_by: string;
   id: string;
 
   is_supplier: boolean; // Is this contact a supplier

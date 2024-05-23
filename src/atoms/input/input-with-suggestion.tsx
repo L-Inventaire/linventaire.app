@@ -15,6 +15,7 @@ type InputSuggestionProps = {
   loading?: boolean;
   autoFocus?: "scan" | "keyboard" | boolean;
   render?: (e: { label: string; value: string }) => React.ReactNode;
+  float?: boolean;
 } & Omit<InputProps, "autoFocus" | "onSelect">;
 
 export const InputWithSuggestions = (props: InputSuggestionProps) => {
@@ -22,6 +23,7 @@ export const InputWithSuggestions = (props: InputSuggestionProps) => {
   const [focus, setFocus] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const ref = useRef<HTMLInputElement>(null);
+  const float = props.float !== false;
 
   useEffect(() => {
     setValue((props.value as string) || "");
@@ -60,7 +62,6 @@ export const InputWithSuggestions = (props: InputSuggestionProps) => {
           ref.current?.matches(":focus")
         ) {
           const i = Math.max(selectedIndex, 0);
-          setValue("");
           props.onSelect && props.onSelect(filteredOptions[i].value);
           props.onChange &&
             props.onChange({
@@ -99,7 +100,13 @@ export const InputWithSuggestions = (props: InputSuggestionProps) => {
   }, [value]);
 
   return (
-    <div className={twMerge("relative w-full", props.wrapperClassName)}>
+    <div
+      className={twMerge(
+        "relative w-full",
+        props.wrapperClassName,
+        focus && float && "box-shadow-lg dark:box-shadow-none min-w-80"
+      )}
+    >
       <Input
         value={value}
         onChange={(e) => setValue(e.target.value)}
@@ -127,18 +134,14 @@ export const InputWithSuggestions = (props: InputSuggestionProps) => {
           onKeyDown(e);
           setFocus(true);
         }}
-        className={
-          focus && !!filteredOptions?.length && value.length > 0
-            ? "rounded-b-none"
-            : ""
-        }
+        className={focus && !!filteredOptions?.length ? "rounded-b-none" : ""}
       />
       {props.loading && (
         <div className="absolute top-1/2 right-2 transform -translate-y-1/2 h-full flex items-center">
           <Loader />
         </div>
       )}
-      {focus && !!filteredOptions?.length && value.length > 0 && (
+      {focus && !!filteredOptions?.length && (
         <div className="absolute z-10 top-full left-0 w-full bg-white shadow-md max-h-lg overflow-auto dark:bg-wood-950 border ring-1 border-wood-500 ring-wood-500 rounded-b-md border-t-none">
           {_.uniqBy(filteredOptions, "value").map((e: any, index: number) => (
             <div
@@ -147,7 +150,6 @@ export const InputWithSuggestions = (props: InputSuggestionProps) => {
                 selectedIndex === index ? "bg-gray-200" : ""
               }`}
               onMouseDown={() => {
-                setValue("");
                 props.onSelect && props.onSelect(e.value);
                 props.onChange &&
                   props.onChange({ target: { value: e.value } } as any);

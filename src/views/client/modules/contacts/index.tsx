@@ -17,6 +17,8 @@ import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
 import Tabs from "@atoms/tabs";
+import { useNavigate } from "react-router-dom";
+import { UsersInput } from "@components/users-input";
 
 export const ContactsPage = () => {
   const [options, setOptions] = useState<RestOptions<Contacts>>({
@@ -26,6 +28,7 @@ export const ContactsPage = () => {
   });
   const { contacts } = useContacts(options);
   const schema = useRestSchema("contacts");
+  const navigate = useNavigate();
 
   return (
     <Page title={[{ label: "Contacts" }]}>
@@ -86,6 +89,10 @@ export const ContactsPage = () => {
                 label: "Mis à jour par",
                 keywords: "updated_by mis à jour par auteur utilisateur user",
               },
+              has_parents: {
+                label: "A un parent",
+                keywords: "parent ayant un parent",
+              },
               email: "Email",
               phone: "Téléphone",
               is_supplier: "Fournisseur",
@@ -100,6 +107,7 @@ export const ContactsPage = () => {
       <div className="mb-4" />
 
       <Table
+        onClick={({ id }) => navigate(getRoute(ROUTES.ContactsView, { id }))}
         loading={contacts.isPending}
         data={contacts?.data?.list || []}
         total={contacts?.data?.total || 0}
@@ -123,31 +131,19 @@ export const ContactsPage = () => {
         }}
         columns={[
           {
-            title: "Name",
-            orderable: true,
-            render: (contact) => getContactName(contact),
-          },
-          {
-            title: "Contacts",
-            orderable: true,
             render: (contact) => (
-              <Info>{[contact.email, contact.phone].join(" ")}</Info>
+              <div>
+                {getContactName(contact)}{" "}
+                <Info>{[contact.email, contact.phone].join(" ")}</Info>
+              </div>
             ),
           },
           {
-            title: "Tags",
-            orderable: true,
-            render: (contact) => <TagsInput value={contact.tags} disabled />,
-          },
-          {
-            title: "Actions",
-            thClassName: "w-1",
-            render: ({ id }) => (
-              <>
-                <Button size="sm" to={getRoute(ROUTES.ContactsView, { id })}>
-                  View
-                </Button>
-              </>
+            render: (contact) => (
+              <div className="w-full text-right flex space-x-1 justify-end">
+                <TagsInput value={contact.tags} disabled />
+                <UsersInput value={[contact.updated_by]} disabled heads />
+              </div>
             ),
           },
         ]}

@@ -21,6 +21,7 @@ export const UsersInput = (props: {
   onChange?: (value: string[]) => void;
   placeholder?: string;
   disabled?: boolean;
+  heads?: boolean;
 }) => {
   const { client } = useClients();
   const { users: _users, loading } = useClientUsers(client?.client_id || "");
@@ -76,6 +77,7 @@ export const UsersInput = (props: {
           }
           key={user.user_id}
           dataTooltip={!props.disabled ? "Retirer l'utilisateur" : undefined}
+          heads={props.heads}
         />
       ))}
       {props.disabled && !selectedUsers.length && (

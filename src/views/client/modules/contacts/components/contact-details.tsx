@@ -1,11 +1,11 @@
 import currencies from "@assets/currencies.json";
 import languages from "@assets/languages.json";
 import { InputLabel } from "@atoms/input/input-decoration-label";
+import { PageBlockHr } from "@atoms/layout/page-block";
 import { Info } from "@atoms/text";
 import { AddressInput } from "@components/address-input";
 import { CustomFieldsInput } from "@components/custom-fields-input";
 import { EditorInput } from "@components/editor-input";
-import { FilesInput } from "@components/files-input";
 import { FormInput } from "@components/form/fields";
 import { FormContext } from "@components/form/formcontext";
 import { PageLoader } from "@components/page-loader";
@@ -18,7 +18,6 @@ import { PageBlock, PageColumns } from "@views/client/_layout/page";
 import _ from "lodash";
 import { useEffect } from "react";
 import { RelationsInput } from "./relations-input";
-import { PageBlockHr } from "@atoms/layout/page-block";
 
 export const ContactsDetailsPage = ({
   readonly,
@@ -277,27 +276,23 @@ export const ContactsDetailsPage = ({
               <div className="space-y-2 mt-4">
                 <FormInput
                   label="IBAN"
-                  ctrl={ctrl(["billing", "iban"])}
+                  ctrl={ctrl("billing.iban")}
                   type="formatted"
                   format="iban"
                 />
                 <PageColumns>
-                  <FormInput
-                    value=""
-                    label="BIC"
-                    ctrl={ctrl(["billing", "bic"])}
-                  />
+                  <FormInput value="" label="BIC" ctrl={ctrl("billing.bic")} />
                   <FormInput
                     value=""
                     label="Titulaire"
-                    ctrl={ctrl(["billing", "name"])}
+                    ctrl={ctrl("billing.name")}
                   />
                 </PageColumns>
                 <br />
                 <FormInput
                   label="Méthode de paiement par défaut"
                   type="select"
-                  ctrl={ctrl(["billing", "payment_method"])}
+                  ctrl={ctrl("billing.payment_method")}
                   options={[
                     {
                       label: "Aucun",

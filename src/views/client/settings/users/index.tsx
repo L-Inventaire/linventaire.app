@@ -66,8 +66,8 @@ export const CompanyUsersPage = () => {
             disabled={loading}
             className="grow"
             placeholder="Rôles"
-            value={updatingRoles.map((a) => ({ value: a, label: a }))}
-            onChange={(e) => setUpdatingRoles(e.map((a) => a.value))}
+            value={updatingRoles}
+            onChange={(e) => setUpdatingRoles(e)}
             options={getRoles()}
           />
           <Button
@@ -122,8 +122,8 @@ export const CompanyUsersPage = () => {
                 <SelectMultiple
                   className="grow"
                   placeholder="Rôles"
-                  value={inviteesRoles.map((a) => ({ value: a, label: a }))}
-                  onChange={(e) => setInviteesRoles(e.map((a) => a.value))}
+                  value={inviteesRoles}
+                  onChange={(e) => setInviteesRoles(e)}
                   options={getRoles()}
                 />
                 <Button

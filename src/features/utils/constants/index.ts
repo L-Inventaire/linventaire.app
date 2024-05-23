@@ -83,3 +83,29 @@ export const unitOptions = [
     label: "Autre",
   },
 ];
+
+export const currencyOptions = [
+  {
+    label: "EUR (Euro)",
+    value: "EUR",
+  },
+  {
+    label: "USD (Dollar américain)",
+    value: "USD",
+  },
+];
+
+export const paymentOptions = [
+  {
+    label: "Virement",
+    value: "bank_transfer",
+  },
+  {
+    label: "Chèque",
+    value: "check",
+  },
+  {
+    label: "Espèces",
+    value: "cash",
+  },
+];
