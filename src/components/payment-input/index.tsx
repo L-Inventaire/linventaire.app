@@ -4,7 +4,6 @@ import {
   FormControllerType,
   useFormController,
 } from "@components/form/formcontext";
-import { useClients } from "@features/clients/state/use-clients";
 import { Payment } from "@features/clients/types/clients";
 import { paymentOptions } from "@features/utils/constants";
 import { PageBlockHr, PageColumns } from "@views/client/_layout/page";

@@ -207,6 +207,7 @@ export const FormInput = memo(
                 value={(_value as string[]) || []}
                 onChange={(e) => onChange(e)}
                 disabled={disabled}
+                max={props.max}
                 rel={{
                   table: props.rest?.table || "",
                   field: props.rest?.column || "",

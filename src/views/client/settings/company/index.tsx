@@ -23,7 +23,7 @@ export const CompanyPage = () => {
   const { users, remove } = useClientUsers(clientUser?.client?.id || "");
   const client = clientUser?.client;
   const hasAccess = useHasAccess();
-  const readOnly = !hasAccess("CLIENT_MANAGE");
+  const readonly = !hasAccess("CLIENT_MANAGE");
 
   const [company, setCompany] = useState<Partial<Clients["company"]>>({});
   const [address, setAddress] = useState<Partial<Clients["address"]>>({});
@@ -41,7 +41,7 @@ export const CompanyPage = () => {
         <Section>Affichage</Section>
         <div className="max-w-xs">
           <Form
-            readonly={readOnly}
+            readonly={readonly}
             value={company}
             onChange={(value: ValuesObjectType) => {
               setCompany(value);
@@ -67,7 +67,7 @@ export const CompanyPage = () => {
             }
           />
 
-          {!readOnly &&
+          {!readonly &&
             !_.isEqual(
               { company, imageBase64 },
               {
@@ -101,7 +101,7 @@ export const CompanyPage = () => {
         <Section>Informations légales</Section>
         <div className="max-w-xs">
           <Form
-            readonly={readOnly}
+            readonly={readonly}
             value={company}
             onChange={(value: ValuesObjectType) => {
               setCompany(value);
@@ -124,7 +124,7 @@ export const CompanyPage = () => {
               },
             ]}
           />
-          {!readOnly && !_.isEqual(company, client?.company) && (
+          {!readonly && !_.isEqual(company, client?.company) && (
             <Button
               className="mt-4"
               theme="primary"
@@ -147,7 +147,7 @@ export const CompanyPage = () => {
         <Section>Adresse</Section>
         <div className="max-w-xs">
           <Form
-            readonly={readOnly}
+            readonly={readonly}
             value={address}
             onChange={(value: ValuesObjectType) => {
               setAddress(value);
@@ -190,7 +190,7 @@ export const CompanyPage = () => {
               },
             ]}
           />
-          {!readOnly && !_.isEqual(address, client?.address) && (
+          {!readonly && !_.isEqual(address, client?.address) && (
             <Button
               className="mt-4"
               theme="primary"

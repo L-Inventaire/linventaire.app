@@ -42,6 +42,29 @@
     "continue": "Continue",
     "tables": {
       "empty": "No data"
+    },
+    "save": "Save"
+  },
+  "settings": {
+    "preferences": {
+      "currency": "Main currency",
+      "title": "General",
+      "language": "Company language"
+    },
+    "payments": {
+      "title": "Payments"
+    },
+    "invoices": {
+      "branding": "Show \"L'inventaire\" logo",
+      "color": "Main color",
+      "logo": "Company logo",
+      "footer_logo": "Footer logo",
+      "template": "Template",
+      "heading": "Heading notes",
+      "footer": "Footnotes",
+      "tva": "VAT notice",
+      "payment_terms": "Terms of Sales",
+      "branding_placeholder": "Show the inventory.app logo on invoices"
     }
   }
 }

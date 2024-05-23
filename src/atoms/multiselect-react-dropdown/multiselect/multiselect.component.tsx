@@ -465,7 +465,7 @@ export class Multiselect extends React.Component<IMultiselectProps, any> {
                   <input
                     type="checkbox"
                     className={"checkbox"}
-                    readOnly
+                    readonly
                     checked={isSelected}
                   />
                 )}
@@ -506,7 +506,7 @@ export class Multiselect extends React.Component<IMultiselectProps, any> {
           {showCheckbox && !singleSelect && (
             <input
               type="checkbox"
-              readOnly
+              readonly
               className={`checkbox`}
               checked={isSelected}
             />

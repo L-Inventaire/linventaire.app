@@ -1,7 +1,6 @@
 import currencies from "@assets/currencies.json";
 import languages from "@assets/languages.json";
 import { InputLabel } from "@atoms/input/input-decoration-label";
-import { PageBlockHr } from "@atoms/layout/page-block";
 import { Info } from "@atoms/text";
 import { AddressInput } from "@components/address-input";
 import { CustomFieldsInput } from "@components/custom-fields-input";
@@ -14,7 +13,11 @@ import { ContactsApiClient } from "@features/contacts/api-client/contacts-api-cl
 import { Contacts } from "@features/contacts/types/types";
 import { debounce } from "@features/utils/debounce";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
-import { PageBlock, PageColumns } from "@views/client/_layout/page";
+import {
+  PageBlock,
+  PageBlockHr,
+  PageColumns,
+} from "@views/client/_layout/page";
 import _ from "lodash";
 import { useEffect } from "react";
 import { RelationsInput } from "./relations-input";

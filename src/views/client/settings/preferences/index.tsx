@@ -12,12 +12,16 @@ import { useEffect, useState } from "react";
 import { Page, PageBlock, PageColumns } from "../../_layout/page";
 import { getFormattedNumerotation } from "@features/utils/format/numerotation";
 import _ from "lodash";
+import { useTranslation } from "react-i18next";
+import { InvoiceFormatInput } from "@components/invoice-format-input";
 
 export const PreferencesPage = () => {
+  const { t } = useTranslation();
+
   const { update, client: clientUser, loading } = useClients();
   const client = clientUser?.client;
   const hasAccess = useHasAccess();
-  const readOnly = !hasAccess("CLIENT_MANAGE");
+  const readonly = !hasAccess("CLIENT_MANAGE");
 
   const [preferences, setPreferences] = useState<
     Partial<Clients["preferences"]>
@@ -56,14 +60,14 @@ export const PreferencesPage = () => {
   return (
     <Page title={[{ label: "Paramètres" }, { label: "L'inventaire" }]}>
       <PageBlock>
-        <Section>Général</Section>
+        <Section>{t("settings.preferences.title")}</Section>
         <div className="max-w-lg">
           <InputLabel
             className="mb-4"
-            label="Langue de l'entreprise"
+            label={t("settings.preferences.language")}
             input={
               <Select
-                disabled={readOnly}
+                disabled={readonly}
                 value={preferences?.language || "en"}
                 onChange={(e) =>
                   setPreferences({ ...preferences, language: e.target.value })
@@ -77,15 +81,15 @@ export const PreferencesPage = () => {
           <FormInput
             type="select"
             className="mb-4"
-            label="Devise principale"
-            disabled={readOnly}
+            label={t("settings.preferences.currency")}
+            disabled={readonly}
             value={preferences?.currency?.toLocaleUpperCase() || "EUR"}
             onChange={(e) =>
               setPreferences({ ...preferences, currency: e.target.value })
             }
             options={currencyOptions}
           />
-          {!readOnly && (
+          {!readonly && (
             <Button
               theme="primary"
               onClick={() =>
@@ -99,23 +103,23 @@ export const PreferencesPage = () => {
               }
               loading={loading}
             >
-              Enregistrer
+              {t("general.save")}
             </Button>
           )}
         </div>
       </PageBlock>
       <PageBlock>
-        <Section>Paiements</Section>
+        <Section>{t("settings.payments.title")}</Section>
         <Info>Informations par défaut pour les paiements</Info>
         <div className="mt-4 space-y-4">
           <PaymentInput
-            readonly={readOnly}
+            readonly={readonly}
             ctrl={{
               value: payment,
               onChange: setPayment,
             }}
           />
-          {!readOnly && (
+          {!readonly && (
             <Button
               theme="primary"
               onClick={() =>
@@ -137,7 +141,14 @@ export const PreferencesPage = () => {
         <Section>Format des factures</Section>
         <Info>Informations par défaut à afficher sur les factures</Info>
         <div className="mt-4 space-y-4">
-          {!readOnly && (
+          <InvoiceFormatInput
+            readonly={readonly}
+            ctrl={{
+              value: invoices,
+              onChange: setInvoices,
+            }}
+          />
+          {!readonly && (
             <Button
               className="mt-4"
               theme="primary"
@@ -276,7 +287,7 @@ export const PreferencesPage = () => {
           )}
           <br />
         </InfoSmall>
-        {!readOnly && (
+        {!readonly && (
           <Button
             className="mt-4"
             theme="primary"

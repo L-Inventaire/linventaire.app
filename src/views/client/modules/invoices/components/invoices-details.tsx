@@ -5,12 +5,13 @@ import { CustomFieldsInput } from "@components/custom-fields-input";
 import { EditorInput } from "@components/editor-input";
 import { FormInput } from "@components/form/fields";
 import { FormContext } from "@components/form/formcontext";
+import { InvoiceFormatInput } from "@components/invoice-format-input";
 import { PageLoader } from "@components/page-loader";
 import { PaymentInput } from "@components/payment-input";
 import { useClients } from "@features/clients/state/use-clients";
 import { useContact } from "@features/contacts/hooks/use-contacts";
 import { Invoices } from "@features/invoices/types/types";
-import { currencyOptions } from "@features/utils/constants";
+import { currencyOptions, languageOptions } from "@features/utils/constants";
 import { formatAmount } from "@features/utils/format/strings";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import {
@@ -274,9 +275,15 @@ export const InvoicesDetailsPage = ({
               />
             </PageBlock>
             <PageBlock closable title="Format">
-              Langue
-              <br />
-              Format
+              <FormInput
+                label="Langue"
+                className="w-max mb-4"
+                ctrl={ctrl("language")}
+                type="select"
+                options={languageOptions}
+              />
+              <PageBlockHr />
+              <InvoiceFormatInput readonly={readonly} ctrl={ctrl("format")} />
             </PageBlock>
             {draft.type === "invoice" && (
               <PageBlock closable title="Rappels">
