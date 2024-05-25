@@ -89,6 +89,7 @@ export const useAuth = () => {
       authorization: "",
       user: null,
     };
+    setAuth(updated);
     saveAuth(updated);
     document.location.replace("/");
   });
