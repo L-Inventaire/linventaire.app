@@ -24,7 +24,7 @@
         }
     }
 
-    .react-datepicker__day--keyboard-selected, .react-datepicker__month-text--keyboard-selected, .react-datepicker__quarter-text--keyboard-selected, .react-datepicker__year-text--keyboard-selected {
+    .react-datepicker__month-text--keyboard-selected, .react-datepicker__quarter-text--keyboard-selected, .react-datepicker__year-text--keyboard-selected {
         background-color: rgb(59, 130, 246) !important;
     }
 
@@ -91,7 +91,6 @@
 
         li {
             padding: .25rem .5rem !important;
-            text-transform: capitalize;
         }
 
         .option.highlightOption, .option:hover {

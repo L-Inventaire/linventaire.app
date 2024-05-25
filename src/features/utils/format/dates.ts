@@ -13,6 +13,7 @@ export const formatTime = (
     hideTime?: boolean;
   } = {
     keepTime: true,
+    keepDate: true,
   },
   locale?: string
 ) => {

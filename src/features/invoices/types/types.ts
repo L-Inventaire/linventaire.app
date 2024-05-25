@@ -30,7 +30,7 @@ export type Invoices = {
 
   client: string;
   contact: string; // Nullable, the person in the client we discuss with
-  emit_date: number;
+  emit_date: Date;
   language: string;
   currency: string;
 
@@ -81,6 +81,7 @@ export type InvoiceSubscription = {
   frequency: string; // "daily" | "weekly" | "monthly" | "yearly"
   start: number;
   end: number;
+  as_draft: boolean;
 };
 
 export type InvoiceLine = {

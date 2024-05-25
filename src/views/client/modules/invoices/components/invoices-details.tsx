@@ -1,5 +1,6 @@
 import { Badge } from "@atoms/badge";
 import { Dot } from "@atoms/badge/dot";
+import { Tag } from "@atoms/badge/tag";
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import { Info, SectionSmall } from "@atoms/text";
 import { AddressInput } from "@components/address-input";
@@ -14,6 +15,7 @@ import { useClients } from "@features/clients/state/use-clients";
 import { useContact } from "@features/contacts/hooks/use-contacts";
 import { Invoices } from "@features/invoices/types/types";
 import { currencyOptions, languageOptions } from "@features/utils/constants";
+import { formatTime } from "@features/utils/format/dates";
 import { formatAmount } from "@features/utils/format/strings";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import {
@@ -22,6 +24,7 @@ import {
   PageColumns,
 } from "@views/client/_layout/page";
 import _ from "lodash";
+import { useEffect } from "react";
 
 export const InvoicesDetailsPage = ({
   type,
@@ -43,8 +46,6 @@ export const InvoicesDetailsPage = ({
 
   const { contact } = useContact(draft.contact);
 
-  if (isPending || (id && draft.id !== id) || !client) return <PageLoader />;
-
   const quotesStatus: { [key: string]: [string, string] } = {
     draft: ["Brouillon", "bg-red-500"],
     sent: ["Envoyé", "bg-yellow-500"],
@@ -52,6 +53,12 @@ export const InvoicesDetailsPage = ({
     completed: ["Complété", "bg-green-500"],
     canceled: ["Annulé", "bg-slate-500"],
   };
+
+  useEffect(() => {
+    if (!draft.emit_date) setDraft({ ...draft, emit_date: new Date() });
+  }, [draft]);
+
+  if (isPending || (id && draft.id !== id) || !client) return <PageLoader />;
 
   return (
     <>
@@ -299,12 +306,182 @@ export const InvoicesDetailsPage = ({
                 </PageBlock>
                 {draft.type === "invoices" && (
                   <PageBlock closable title="Rappels">
-                    Rappels (TODO)
+                    <Info>
+                      Envoyez un rappel toutes les semaines lorsque votre
+                      facture passe en attente de paiement tant que le paiement
+                      n'est pas effectué.
+                    </Info>
+                    <FormInput
+                      type="boolean"
+                      placeholder="Activer les rappels"
+                      ctrl={ctrl("reminders.enabled")}
+                    />
+                    {ctrl("reminders.enabled").value && (
+                      <div className="space-y-2">
+                        <FormInput
+                          type="number"
+                          label="Nombre de rappels"
+                          ctrl={ctrl("reminders.repetitions")}
+                        />
+                        <FormInput
+                          type="multiselect"
+                          label="Destinataires"
+                          onChange={(e) =>
+                            ctrl("reminders.recipients").onChange(e)
+                          }
+                          value={ctrl("reminders.recipients").value}
+                          options={async (query: string) => [
+                            ...(ctrl("reminders.recipients").value || []).map(
+                              (r: string) => ({
+                                value: r as string,
+                                label: r as string,
+                              })
+                            ),
+                            ...(query
+                              .toLocaleLowerCase()
+                              .match(
+                                /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/g
+                              )
+                              ? [{ value: query, label: query }]
+                              : []),
+                          ]}
+                        />
+                      </div>
+                    )}
                   </PageBlock>
                 )}
                 {draft.type === "invoices" && (
                   <PageBlock closable title="Récurrence">
-                    Récurrence (TODO)
+                    <Info>
+                      Activez la récurrence pour dupliquer cette facture
+                      automatiquement.
+                    </Info>
+                    <FormInput
+                      type="boolean"
+                      placeholder="Activer la récurrence"
+                      onChange={(e) => {
+                        setDraft({
+                          ...draft,
+                          subscription: {
+                            enabled: e,
+                            frequency:
+                              draft?.subscription?.frequency || "monthly",
+                            start: draft?.subscription?.start || Date.now(),
+                            end:
+                              draft?.subscription?.end ||
+                              Date.now() + 1000 * 60 * 60 * 24 * 365,
+                            as_draft: true,
+                          },
+                        });
+                      }}
+                      value={ctrl("subscription.enabled").value}
+                    />
+                    {ctrl("subscription.enabled").value && (
+                      <>
+                        <PageColumns>
+                          <FormInput
+                            type="select"
+                            label="Fréquence"
+                            ctrl={ctrl("subscription.frequency")}
+                            options={[
+                              { value: "weekly", label: "Hebdomadaire" },
+                              { value: "monthly", label: "Mensuelle" },
+                              { value: "yearly", label: "Annuelle" },
+                            ]}
+                          />
+                          <FormInput
+                            type="date"
+                            label="Début (inclus)"
+                            ctrl={ctrl("subscription.start")}
+                          />
+                          <FormInput
+                            type="date"
+                            label="Fin (inclus)"
+                            ctrl={ctrl("subscription.end")}
+                          />
+                        </PageColumns>
+
+                        <div className="mt-2" />
+                        <Info>
+                          Prochaines factures:{" "}
+                          {(() => {
+                            let hasMore = false;
+                            const dates = [];
+                            let date = Math.max(
+                              new Date(draft.emit_date).getTime(),
+                              new Date(draft.subscription?.start || 0).getTime()
+                            );
+                            let end = Math.max(
+                              new Date(draft.emit_date).getTime(),
+                              new Date(draft.subscription?.end || 0).getTime() +
+                                1000 * 60 * 60 * 24 // Add a day for time zones issues
+                            );
+                            while (date <= end) {
+                              dates.push(date);
+                              const nextDate = new Date(date);
+                              if (draft.subscription?.frequency === "weekly")
+                                nextDate.setDate(nextDate.getDate() + 7);
+                              else if (
+                                draft.subscription?.frequency === "monthly"
+                              )
+                                nextDate.setMonth(nextDate.getMonth() + 1);
+                              else
+                                nextDate.setFullYear(
+                                  nextDate.getFullYear() + 1
+                                );
+                              if (dates.length > 25) {
+                                hasMore = true;
+                                break;
+                              }
+                              date = nextDate.getTime();
+                              console.log(
+                                new Date(date).toISOString().split("T")[0],
+                                new Date(end).toISOString().split("T")[0],
+                                new Date(end)
+                              );
+                            }
+                            return [
+                              ...dates.map((d) => (
+                                <Tag
+                                  icon={<></>}
+                                  key={d}
+                                  noColor
+                                  className="bg-white mr-1 mb-1 text-slate-800"
+                                >
+                                  {formatTime(d, {
+                                    keepDate: true,
+                                    hideTime: true,
+                                  })}
+                                </Tag>
+                              )),
+                              ...(hasMore
+                                ? [
+                                    <Tag
+                                      icon={<></>}
+                                      key={"..."}
+                                      noColor
+                                      className="bg-white mr-1 mb-1 text-slate-800"
+                                    >
+                                      ...
+                                    </Tag>,
+                                  ]
+                                : []),
+                            ];
+                          })()}
+                        </Info>
+
+                        <PageBlockHr />
+                        <FormInput
+                          type="boolean"
+                          placeholder="Dupliquer en tant que brouillon"
+                          ctrl={ctrl("subscription.as_draft")}
+                        />
+                        <Info>
+                          Par défaut les factures son dupliquées et envoyées au
+                          client pour paiement (tacite reconduction).
+                        </Info>
+                      </>
+                    )}
                   </PageBlock>
                 )}
                 <PageBlock closable title="Notes et documents">
