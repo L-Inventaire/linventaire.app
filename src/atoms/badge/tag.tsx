@@ -11,7 +11,7 @@ export const Tag = ({
   icon,
   style,
   onClick,
-  dataTooltip,
+  ...props
 }: {
   color?: string;
   className?: string;
@@ -21,7 +21,7 @@ export const Tag = ({
   icon?: ReactNode;
   style?: CSSProperties;
   onClick?: () => void;
-  dataTooltip?: string;
+  "data-tooltip"?: string;
 }) => {
   if (!children) return <></>;
 
@@ -34,7 +34,7 @@ export const Tag = ({
   return (
     <div
       data-tooltip={
-        dataTooltip || (typeof children === "string" ? children : "")
+        props["data-tooltip"] || (typeof children === "string" ? children : "")
       }
       onClick={onClick}
       style={{ ...(style || {}), minWidth: "21px" }}

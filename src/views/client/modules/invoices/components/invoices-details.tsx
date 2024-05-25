@@ -36,6 +36,7 @@ import {
 } from "@views/client/_layout/page";
 import _ from "lodash";
 import { useEffect } from "react";
+import { computePricesFromInvoice } from "../utils";
 
 export const InvoicesDetailsPage = ({
   type,
@@ -66,8 +67,13 @@ export const InvoicesDetailsPage = ({
   };
 
   useEffect(() => {
-    if (!draft.emit_date) setDraft({ ...draft, emit_date: new Date() });
-  }, [draft]);
+    setDraft((draft) => {
+      draft = _.cloneDeep(draft);
+      if (!draft.emit_date) draft.emit_date = new Date();
+      draft.total = computePricesFromInvoice(draft);
+      return draft;
+    });
+  }, [JSON.stringify(draft)]);
 
   if (isPending || (id && draft.id !== id) || !client) return <PageLoader />;
 
@@ -111,62 +117,69 @@ export const InvoicesDetailsPage = ({
                   <div className="space-y-2">
                     <div className="space-y-2 mb-4">
                       {draft.content?.map((item, index) => (
-                        <PageBlock key={index}>
-                          <div className="flex flex-row space-x-2 float-right">
-                            <Button
-                              disabled={index === 0}
-                              theme="default"
-                              size="sm"
-                              onClick={() => {
-                                const content = _.cloneDeep(
-                                  draft.content || []
-                                );
-                                const temp = content[index];
-                                content[index] = content[index - 1];
-                                content[index - 1] = temp;
-                                setDraft({
-                                  ...draft,
-                                  content,
-                                });
-                              }}
-                              icon={(p) => <ArrowUpIcon {...p} />}
-                            />
-                            <Button
-                              disabled={
-                                index === (draft.content?.length || 0) - 1
-                              }
-                              theme="default"
-                              size="sm"
-                              onClick={() => {
-                                const content = _.cloneDeep(
-                                  draft.content || []
-                                );
-                                const temp = content[index];
-                                content[index] = content[index + 1];
-                                content[index + 1] = temp;
-                                setDraft({
-                                  ...draft,
-                                  content,
-                                });
-                              }}
-                              icon={(p) => <ArrowDownIcon {...p} />}
-                            />
-                            <Button
-                              theme="danger"
-                              size="sm"
-                              onClick={() =>
-                                setDraft({
-                                  ...draft,
-                                  content: draft.content?.filter(
-                                    (e, i) => i !== index
-                                  ),
-                                })
-                              }
-                              icon={(p) => <TrashIcon {...p} />}
-                            />
-                          </div>
+                        <PageBlock
+                          key={index}
+                          closable
+                          title={item?.name || `Ligne #${index + 1}`}
+                          actions={
+                            !readonly && (
+                              <>
+                                <Button
+                                  disabled={index === 0}
+                                  theme="default"
+                                  size="sm"
+                                  onClick={() => {
+                                    const content = _.cloneDeep(
+                                      draft.content || []
+                                    );
+                                    const temp = content[index];
+                                    content[index] = content[index - 1];
+                                    content[index - 1] = temp;
+                                    setDraft({
+                                      ...draft,
+                                      content,
+                                    });
+                                  }}
+                                  icon={(p) => <ArrowUpIcon {...p} />}
+                                />
+                                <Button
+                                  disabled={
+                                    index === (draft.content?.length || 0) - 1
+                                  }
+                                  theme="default"
+                                  size="sm"
+                                  onClick={() => {
+                                    const content = _.cloneDeep(
+                                      draft.content || []
+                                    );
+                                    const temp = content[index];
+                                    content[index] = content[index + 1];
+                                    content[index + 1] = temp;
+                                    setDraft({
+                                      ...draft,
+                                      content,
+                                    });
+                                  }}
+                                  icon={(p) => <ArrowDownIcon {...p} />}
+                                />
+                                <Button
+                                  theme="danger"
+                                  size="sm"
+                                  onClick={() =>
+                                    setDraft({
+                                      ...draft,
+                                      content: draft.content?.filter(
+                                        (e, i) => i !== index
+                                      ),
+                                    })
+                                  }
+                                  icon={(p) => <TrashIcon {...p} />}
+                                />
+                              </>
+                            )
+                          }
+                        >
                           <div className="space-y-2">
-                            <SectionSmall>Ligne #{index + 1}</SectionSmall>
                             <PageColumns>
                               <FormInput
                                 className="w-max shrink-0"
@@ -210,7 +223,7 @@ export const InvoicesDetailsPage = ({
                                     type="formatted"
                                     format="price"
                                     ctrl={ctrl(`content.${index}.unit_price`)}
-                                    label="Prix unitaire"
+                                    label="Prix unitaire HT"
                                   />
                                   <FormInput
                                     type="number"
@@ -255,7 +268,8 @@ export const InvoicesDetailsPage = ({
                                       label="Valeur"
                                       type="formatted"
                                       format={
-                                        draft.discount?.mode === "amount"
+                                        draft.content?.[index]?.discount
+                                          ?.mode === "amount"
                                           ? "price"
                                           : "percentage"
                                       }

@@ -106,7 +106,7 @@ export const RestDocumentsInput = (props: {
             onChange?.((value || []).filter((a) => a !== doc.id))
           }
           key={doc.id}
-          dataTooltip={!props.disabled ? "Retirer" : undefined}
+          data-tooltip={!props.disabled ? "Retirer" : undefined}
         />
       ))}
       {props.disabled && !documents.length && <Info>Aucun</Info>}

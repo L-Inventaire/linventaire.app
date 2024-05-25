@@ -52,6 +52,7 @@ export const PageBlock = (props: {
   closable?: boolean;
   open?: boolean;
   initOpen?: boolean;
+  actions?: ReactNode;
 }) => {
   const [isOpen, setIsOpen] = useState<boolean>(
     props.open ?? props.initOpen ?? true
@@ -70,17 +71,23 @@ export const PageBlock = (props: {
       )}
       onClick={() => props.closable && !isOpen && setIsOpen(!isOpen)}
     >
-      {props.closable && (
-        <Button
-          className="float-right"
-          size="sm"
-          theme="invisible"
-          onClick={() => setIsOpen(!isOpen)}
-          icon={(p) =>
-            isOpen ? <ChevronUpIcon {...p} /> : <ChevronDownIcon {...p} />
-          }
-        />
-      )}
+      <div
+        className="float-right space-x-2"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {props.actions}
+        {props.closable && (
+          <Button
+            data-tooltip="Plier / Déplier"
+            size="sm"
+            theme="invisible"
+            onClick={() => setIsOpen(!isOpen)}
+            icon={(p) =>
+              isOpen ? <ChevronUpIcon {...p} /> : <ChevronDownIcon {...p} />
+            }
+          />
+        )}
+      </div>
       {props.title && <Section className="!mb-0">{props.title}</Section>}
       <div
         className={twMerge(

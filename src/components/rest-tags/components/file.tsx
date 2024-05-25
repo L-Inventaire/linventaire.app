@@ -76,7 +76,7 @@ const FileTagRender = ({
         !!(file?.id || progress !== undefined) && "pr-1",
         progress !== undefined && "opacity-75 animate-pulse"
       )}
-      dataTooltip={dataTooltip}
+      data-tooltip={dataTooltip}
       {...props}
     >
       <span className="flex items-center">

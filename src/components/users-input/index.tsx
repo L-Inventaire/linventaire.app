@@ -79,7 +79,7 @@ export const UsersInput = (props: {
             ) : undefined
           }
           key={user.user_id}
-          dataTooltip={!props.disabled ? "Retirer l'utilisateur" : undefined}
+          data-tooltip={!props.disabled ? "Retirer l'utilisateur" : undefined}
         />
       ))}
       {props.disabled && !selectedUsers.length && (

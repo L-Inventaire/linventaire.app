@@ -19,6 +19,7 @@ export interface ButtonProps
   to?: string;
   target?: string;
   icon?: (props: React.SVGProps<SVGSVGElement>) => JSX.Element;
+  "data-tooltip"?: string;
 }
 
 export const Button = (props: ButtonProps) => {
