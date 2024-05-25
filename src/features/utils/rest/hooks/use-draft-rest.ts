@@ -1,12 +1,32 @@
 import { useFormController } from "@components/form/formcontext";
 import { useNavigationPrompt } from "@features/utils/use-navigation-prompt";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { atomFamily, useRecoilState } from "recoil";
 import { useRest } from "./use-rest";
 
-const RestDraftAtom = atomFamily<any, [string, string]>({
+const RestDraftAtom = atomFamily<any, [string, string | "new"]>({
   key: "RestDraftAtom",
-  default: {},
+  default: (key: any) =>
+    key[1] === "new"
+      ? JSON.parse(localStorage.getItem("drafts_" + key.join("_")) || "{}")
+      : {},
+  effects_UNSTABLE: (key) => [
+    ({ onSet }) => {
+      onSet((newVal) => {
+        if (key[1] === "new") {
+          localStorage.setItem(
+            "drafts_" + key.join("_"),
+            JSON.stringify(newVal)
+          );
+        }
+      });
+    },
+  ],
+});
+
+const RestDraftReadyAtom = atomFamily<boolean, [string, string]>({
+  key: "RestDraftReadyAtom",
+  default: false,
 });
 
 export const useReadDraftRest = <T extends { id: string }>(
@@ -27,6 +47,9 @@ export const useDraftRest = <T extends { id: string }>(
   const { items, upsert } = useRest<T>(table, { query: { id } as any });
   const existingItem = id && id !== "new" ? items?.data?.list?.[0] : null;
 
+  const [defaultWasSet, setDefaultWasSet] = useRecoilState(
+    RestDraftReadyAtom([table, id])
+  );
   const [draft, setDraft] = useRecoilState<T>(RestDraftAtom([table, id]));
 
   const { lockNavigation, ctrl, setLockNavigation } = useFormController(
@@ -42,6 +65,7 @@ export const useDraftRest = <T extends { id: string }>(
         ? draft
         : (defaultValue as T)
     );
+    setDefaultWasSet(true);
   }, [defaultValue]);
 
   useEffect(() => {
@@ -63,7 +87,7 @@ export const useDraftRest = <T extends { id: string }>(
 
   return {
     save,
-    isInitiating: items.isPending && !items.data,
+    isInitiating: (items.isPending && !items.data) || !defaultWasSet,
     isPending: upsert.isPending,
     ctrl,
     draft,

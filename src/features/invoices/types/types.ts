@@ -85,21 +85,21 @@ export type InvoiceSubscription = {
 };
 
 export type InvoiceLine = {
-  article: string; // Nullable
+  article?: string; // Nullable
 
-  type: string; // product, service, consumable, separation
-  name: string;
-  description: string;
+  type: "product" | "service" | "consumable" | "separation"; // product, service, consumable, separation
+  name?: string;
+  description?: string;
 
-  reference: string;
-  unit: string;
-  quantity: number;
-  unit_price: number;
-  tva: number;
+  reference?: string;
+  unit?: string;
+  quantity?: number;
+  unit_price?: number;
+  tva?: string;
   discount?: InvoiceDiscount;
 
-  optional: boolean;
-  optional_checked: boolean; // Checked by the client or by the agent (like a default checked option)
+  optional?: boolean;
+  optional_checked?: boolean; // Checked by the client or by the agent (like a default checked option)
 };
 
 export type InvoiceDiscount = {

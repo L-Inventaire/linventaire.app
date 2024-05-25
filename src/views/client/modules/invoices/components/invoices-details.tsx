@@ -1,6 +1,6 @@
-import { Badge } from "@atoms/badge";
 import { Dot } from "@atoms/badge/dot";
 import { Tag } from "@atoms/badge/tag";
+import { Button } from "@atoms/button/button";
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import { Info, SectionSmall } from "@atoms/text";
 import { AddressInput } from "@components/address-input";
@@ -11,13 +11,24 @@ import { FormContext } from "@components/form/formcontext";
 import { InvoiceFormatInput } from "@components/invoice-format-input";
 import { PageLoader } from "@components/page-loader";
 import { PaymentInput } from "@components/payment-input";
+import { Articles } from "@features/articles/types/types";
 import { useClients } from "@features/clients/state/use-clients";
 import { useContact } from "@features/contacts/hooks/use-contacts";
 import { Invoices } from "@features/invoices/types/types";
-import { currencyOptions, languageOptions } from "@features/utils/constants";
+import {
+  currencyOptions,
+  languageOptions,
+  tvaOptions,
+  unitOptions,
+} from "@features/utils/constants";
 import { formatTime } from "@features/utils/format/dates";
 import { formatAmount } from "@features/utils/format/strings";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  TrashIcon,
+} from "@heroicons/react/outline";
 import {
   PageBlock,
   PageBlockHr,
@@ -96,9 +107,247 @@ export const InvoicesDetailsPage = ({
             </PageBlock>
             {draft.client && (
               <>
-                <PageBlock title="Prestation">
-                  Lignes
-                  <PageBlockHr />
+                <PageBlock title="Prestations">
+                  <div className="space-y-2">
+                    <div className="space-y-2 mb-4">
+                      {draft.content?.map((item, index) => (
+                        <PageBlock key={index}>
+                          <div className="flex flex-row space-x-2 float-right">
+                            <Button
+                              disabled={index === 0}
+                              theme="default"
+                              size="sm"
+                              onClick={() => {
+                                const content = _.cloneDeep(
+                                  draft.content || []
+                                );
+                                const temp = content[index];
+                                content[index] = content[index - 1];
+                                content[index - 1] = temp;
+                                setDraft({
+                                  ...draft,
+                                  content,
+                                });
+                              }}
+                              icon={(p) => <ArrowUpIcon {...p} />}
+                            />
+                            <Button
+                              disabled={
+                                index === (draft.content?.length || 0) - 1
+                              }
+                              theme="default"
+                              size="sm"
+                              onClick={() => {
+                                const content = _.cloneDeep(
+                                  draft.content || []
+                                );
+                                const temp = content[index];
+                                content[index] = content[index + 1];
+                                content[index + 1] = temp;
+                                setDraft({
+                                  ...draft,
+                                  content,
+                                });
+                              }}
+                              icon={(p) => <ArrowDownIcon {...p} />}
+                            />
+                            <Button
+                              theme="danger"
+                              size="sm"
+                              onClick={() =>
+                                setDraft({
+                                  ...draft,
+                                  content: draft.content?.filter(
+                                    (e, i) => i !== index
+                                  ),
+                                })
+                              }
+                              icon={(p) => <TrashIcon {...p} />}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <SectionSmall>Ligne #{index + 1}</SectionSmall>
+                            <PageColumns>
+                              <FormInput
+                                className="w-max shrink-0"
+                                type="select"
+                                ctrl={ctrl(`content.${index}.type`)}
+                                label="Type"
+                                options={[
+                                  { label: "Séparation", value: "separation" },
+                                  { label: "Produit", value: "product" },
+                                  { label: "Service", value: "service" },
+                                  { label: "Consommable", value: "consumable" },
+                                ]}
+                              />
+                              {ctrl(`content.${index}.type`).value !==
+                                "separation" && (
+                                <FormInput
+                                  className="w-max"
+                                  ctrl={ctrl(`content.${index}.reference`)}
+                                  label="Référence"
+                                />
+                              )}
+                              <FormInput
+                                ctrl={ctrl(`content.${index}.name`)}
+                                label="Titre"
+                              />
+                            </PageColumns>
+                            <FormInput
+                              ctrl={ctrl(`content.${index}.description`)}
+                              label="Description"
+                            />
+                            {ctrl(`content.${index}.type`).value !==
+                              "separation" && (
+                              <>
+                                <PageColumns>
+                                  <FormInput
+                                    ctrl={ctrl(`content.${index}.unit`)}
+                                    label="Unité"
+                                    options={unitOptions}
+                                  />
+                                  <FormInput
+                                    type="formatted"
+                                    format="price"
+                                    ctrl={ctrl(`content.${index}.unit_price`)}
+                                    label="Prix unitaire"
+                                  />
+                                  <FormInput
+                                    type="number"
+                                    ctrl={ctrl(`content.${index}.quantity`)}
+                                    label="Quantité"
+                                  />
+                                  <FormInput
+                                    type="select"
+                                    ctrl={ctrl(`content.${index}.tva`)}
+                                    label="TVA"
+                                    options={tvaOptions}
+                                  />
+                                </PageColumns>
+                                <FormInput
+                                  type="boolean"
+                                  ctrl={ctrl(`content.${index}.discount.mode`)}
+                                  placeholder="Réduction"
+                                />
+                                {!!ctrl(`content.${index}.discount.mode`)
+                                  ?.value && (
+                                  <PageColumns>
+                                    <FormInput
+                                      className="w-max"
+                                      ctrl={ctrl(
+                                        `content.${index}.discount.mode`
+                                      )}
+                                      label="Type de remise"
+                                      type="select"
+                                      options={[
+                                        { label: "Montant", value: "amount" },
+                                        {
+                                          label: "Pourcentage",
+                                          value: "percentage",
+                                        },
+                                      ]}
+                                    />
+                                    <FormInput
+                                      className="w-max"
+                                      ctrl={ctrl(
+                                        `content.${index}.discount.value`
+                                      )}
+                                      label="Valeur"
+                                      type="formatted"
+                                      format={
+                                        draft.discount?.mode === "amount"
+                                          ? "price"
+                                          : "percentage"
+                                      }
+                                    />
+                                    <div className="grow" />
+                                  </PageColumns>
+                                )}
+                                <div>
+                                  <PageBlockHr />
+                                  <PageColumns>
+                                    <FormInput
+                                      type="boolean"
+                                      ctrl={ctrl(`content.${index}.optional`)}
+                                      placeholder="Optionnel"
+                                    />
+                                    {ctrl(`content.${index}.optional`)
+                                      ?.value && (
+                                      <FormInput
+                                        type="boolean"
+                                        ctrl={ctrl(
+                                          `content.${index}.optional_checked`
+                                        )}
+                                        placeholder="Option sélectionnée"
+                                      />
+                                    )}
+                                  </PageColumns>
+                                  <Info>
+                                    Un article optionnel peut être coché par le
+                                    client ou non une fois le devis envoyé.
+                                  </Info>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </PageBlock>
+                      ))}
+                    </div>
+
+                    {!readonly && (
+                      <PageColumns>
+                        <InputLabel
+                          label="Ajouter une ligne"
+                          input={
+                            <Button
+                              size="sm"
+                              theme="default"
+                              onClick={() =>
+                                setDraft({
+                                  ...draft,
+                                  content: [
+                                    ...(draft.content || []),
+                                    {
+                                      type: "separation",
+                                    },
+                                  ],
+                                })
+                              }
+                            >
+                              + Ajouter une ligne
+                            </Button>
+                          }
+                        />
+                        <FormInput
+                          className="w-max"
+                          type="rest_documents"
+                          rest={{ table: "invoices", column: "articles.all" }}
+                          label="Ajouter un article"
+                          max={1}
+                          onChange={(_id, e: Articles) => {
+                            setDraft({
+                              ...draft,
+                              content: [
+                                ...(draft.content || []),
+                                {
+                                  article: e.id,
+                                  type: e.type,
+                                  name: e.name,
+                                  description: e.description,
+                                  reference: e.internal_reference,
+                                  unit: e.unit,
+                                  quantity: 1,
+                                  unit_price: e.price,
+                                  tva: e.tva,
+                                },
+                              ],
+                            });
+                          }}
+                        />
+                      </PageColumns>
+                    )}
+                  </div>
+                  {(!readonly || !!draft.discount?.mode) && <PageBlockHr />}
                   <div className="space-y-2">
                     {!readonly && (
                       <FormInput

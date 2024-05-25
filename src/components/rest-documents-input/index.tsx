@@ -22,7 +22,10 @@ export const RestDocumentsInput = (props: {
   label?: string;
   size?: "sm" | "md";
   max?: number;
-  onChange?: (value: string[] | string | null) => void;
+  onChange?: (
+    value: string[] | string | null,
+    objects: any[] | any | null
+  ) => void;
   placeholder?: string;
   disabled?: boolean;
 }) => {
@@ -34,7 +37,14 @@ export const RestDocumentsInput = (props: {
       : (props.value as string[]) || [];
 
   const onChange = (value: string[]) => {
-    props.onChange?.(props.max === 1 ? value?.[0] || null : value);
+    const objects = [
+      ...documents,
+      ...(suggestions?.data?.map((a) => a.item) || []),
+    ].filter((doc) => value.includes(doc.id));
+    props.onChange?.(
+      props.max === 1 ? value?.[0] || null : value,
+      props.max === 1 ? objects?.[0] || null : objects
+    );
   };
 
   const [focused, setFocused] = useState(false);
@@ -67,7 +77,7 @@ export const RestDocumentsInput = (props: {
 
   useEffect(() => {
     refresh();
-  }, [value]);
+  }, [JSON.stringify(value)]);
 
   const size = props.size || "md";
 
