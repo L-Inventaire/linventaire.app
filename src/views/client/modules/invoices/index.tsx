@@ -17,6 +17,7 @@ import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
 import Tabs from "@atoms/tabs";
+import { useNavigate } from "react-router-dom";
 
 export const InvoicesPage = () => {
   const [options, setOptions] = useState<RestOptions<Invoices>>({
@@ -26,6 +27,7 @@ export const InvoicesPage = () => {
   });
   const { invoices } = useInvoices(options);
   const schema = useRestSchema("invoices");
+  const navigate = useNavigate();
 
   return (
     <Page title={[{ label: "Invoices" }]}>
@@ -116,6 +118,7 @@ export const InvoicesPage = () => {
       <div className="mb-4" />
 
       <Table
+        onClick={({ id }) => navigate(getRoute(ROUTES.InvoicesView, { id }))}
         loading={invoices.isPending}
         data={invoices?.data?.list || []}
         total={invoices?.data?.total || 0}
@@ -139,30 +142,16 @@ export const InvoicesPage = () => {
         }}
         columns={[
           {
-            title: "Name",
             orderable: true,
             render: (invoice) => invoice.name,
           },
           {
-            title: "Invoices",
             orderable: true,
-            render: (invoice) => <Info>e</Info>,
+            render: (invoice) => <Info>{invoice.reference}</Info>,
           },
           {
-            title: "Tags",
             orderable: true,
             render: (invoice) => <TagsInput value={invoice.tags} disabled />,
-          },
-          {
-            title: "Actions",
-            thClassName: "w-1",
-            render: ({ id }) => (
-              <>
-                <Button size="sm" to={getRoute(ROUTES.InvoicesView, { id })}>
-                  View
-                </Button>
-              </>
-            ),
           },
         ]}
       />

@@ -1,9 +1,9 @@
 import { Button } from "@atoms/button/button";
-import { Title } from "@atoms/text";
+import { Section, Title } from "@atoms/text";
 import { PageLoader } from "@components/page-loader";
 import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { ROUTES, getRoute } from "@features/routes";
-import { Page } from "@views/client/_layout/page";
+import { Page, PageBlockHr } from "@views/client/_layout/page";
 import { useNavigate, useParams } from "react-router-dom";
 import { InvoicesDetailsPage } from "../components/invoices-details";
 
@@ -18,7 +18,7 @@ export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
     <Page
       title={[
         { label: "Invoices", to: getRoute(ROUTES.Invoices) },
-        { label: invoice.name || "" },
+        { label: invoice.reference || "" },
       ]}
     >
       <div className="float-right space-x-2">
@@ -29,9 +29,9 @@ export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
           Modifier
         </Button>
       </div>
-      <Title>{invoice.name || ""}</Title>
+      <Section>{invoice.reference || ""}</Section>
       <div className="mt-4" />
-      <InvoicesDetailsPage readonly={true} id={id || ""} />
+      <InvoicesDetailsPage type="quotes" readonly={true} id={id || ""} />
     </Page>
   );
 };

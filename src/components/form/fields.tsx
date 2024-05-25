@@ -164,7 +164,7 @@ export const FormInput = memo(
     return (
       <InputLabel
         className={twMerge("w-full", props.className || "")}
-        label={props.label || " "}
+        label={props.label}
         input={
           <>
             {(!props.type ||

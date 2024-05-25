@@ -63,7 +63,7 @@ const Text = (props: TextProps) => {
       defaultClassName =
         "text-2xl font-semibold block " +
         " " +
-        (props.noColor ? "" : "text-slate-800 dark:text-white");
+        (props.noColor ? "" : "text-black dark:text-white");
       break;
     case "subtitle":
       defaultClassName =
@@ -75,43 +75,43 @@ const Text = (props: TextProps) => {
       defaultClassName =
         "text-xl font-semibold block mb-2 " +
         " " +
-        (props.noColor ? "" : "text-slate-800 dark:text-white");
+        (props.noColor ? "" : "text-black dark:text-white");
       break;
     case "section-small":
       defaultClassName =
         "text-lg font-semibold block " +
         " " +
-        (props.noColor ? "" : "text-slate-800 dark:text-white");
+        (props.noColor ? "" : "text-black dark:text-white");
       break;
     case "menu":
       defaultClassName =
         "text-base font-semibold" +
         " " +
-        (props.noColor ? "" : "text-slate-800 dark:text-white");
+        (props.noColor ? "" : "text-black dark:text-white");
       break;
     case "value-main":
       defaultClassName =
         "text-3xl font-semibold" +
         " " +
-        (props.noColor ? "" : "text-slate-800 dark:text-white");
+        (props.noColor ? "" : "text-black dark:text-white");
       break;
     case "value-secondary":
       defaultClassName =
         "text-xl font-semibold" +
         " " +
-        (props.noColor ? "" : "text-slate-800 dark:text-white");
+        (props.noColor ? "" : "text-black dark:text-white");
       break;
     case "base":
       defaultClassName =
         "text-base font-normal" +
         " " +
-        (props.noColor ? "" : "text-slate-800 dark:text-white");
+        (props.noColor ? "" : "text-black dark:text-white");
       break;
     case "base-small":
       defaultClassName =
         "text-sm font-normal" +
         " " +
-        (props.noColor ? "" : "text-slate-800 dark:text-white");
+        (props.noColor ? "" : "text-black dark:text-white");
       break;
     case "info":
       defaultClassName =

@@ -142,7 +142,7 @@ export const ContactsPage = () => {
             render: (contact) => (
               <div className="w-full text-right flex space-x-1 justify-end">
                 <TagsInput value={contact.tags} disabled />
-                <UsersInput value={[contact.updated_by]} disabled heads />
+                <UsersInput value={[contact.updated_by]} disabled />
               </div>
             ),
           },

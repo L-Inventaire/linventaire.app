@@ -89,15 +89,16 @@ const defaultCellClassName = ({
   className?: string;
 }) => {
   return twMerge(
-    "h-full w-full flex items-center min-h-10 border-t border-wood-100 dark:border-wood-700 bg-wood-50",
+    "h-full w-full flex items-center min-h-10 border-t border-slate-200 dark:border-slate-700 bg-wood-50",
     rowOdd
       ? selected
         ? "dark:bg-opacity-90 bg-opacity-90 "
         : "dark:bg-opacity-25 bg-opacity-25 "
       : "",
-    (colFirst && " border-l ") || "",
-    (colLast && " border-r ") || "",
-    (rowLast && " border-b ") || "",
+    !rowFirst && "border-t-slate-100",
+    (colFirst && "border-l ") || "",
+    (colLast && "border-r ") || "",
+    (rowLast && "border-b ") || "",
     (rowFirst && colFirst && " rounded-tl ") || "",
     (rowFirst && colLast && " rounded-tr ") || "",
     (rowLast && colFirst && " rounded-bl ") || "",
@@ -218,7 +219,7 @@ export function RenderedTable<T>({
     <div
       ref={parentRef}
       className={
-        "not-prose text-left border-wood-200 dark:border-wood-700 relative overflow-auto " +
+        "not-prose text-left border-slate-200 dark:border-slate-700 relative overflow-auto " +
         (className || "")
       }
     >
@@ -247,7 +248,7 @@ export function RenderedTable<T>({
       >
         {loading && (
           <div className="absolute m-auto left-0 top-0 right-0 bottom-0 w-6 h-6 text-center z-10">
-            <Loader color="text-wood-500" />
+            <Loader color="text-slate-500" />
           </div>
         )}
 
@@ -405,7 +406,7 @@ export function RenderedTable<T>({
                       >
                         <div
                           className={
-                            "items-center flex text-wood-500 table-hover-sort-container  " +
+                            "items-center flex text-slate-500 table-hover-sort-container  " +
                             (column.headClassName || "")
                           }
                         >
@@ -419,15 +420,15 @@ export function RenderedTable<T>({
                             <div className="w-8 flex items-center ml-1">
                               {pagination?.orderBy === i &&
                                 pagination.order === "DESC" && (
-                                  <ArrowSmUpIcon className="h-4 w-4 text-wood-500 inline" />
+                                  <ArrowSmUpIcon className="h-4 w-4 text-slate-500 inline" />
                                 )}
                               {pagination?.orderBy === i &&
                                 pagination.order !== "DESC" && (
-                                  <ArrowSmDownIcon className="h-4 w-4 text-wood-500 inline" />
+                                  <ArrowSmDownIcon className="h-4 w-4 text-slate-500 inline" />
                                 )}
                               {pagination?.orderBy !== i &&
                                 column.orderable && (
-                                  <ArrowSmDownIcon className="table-hover-sort h-4 w-4 text-wood-500 opacity-50 inline" />
+                                  <ArrowSmDownIcon className="table-hover-sort h-4 w-4 text-slate-500 opacity-50 inline" />
                                 )}
                             </div>
                           )}
@@ -450,7 +451,7 @@ export function RenderedTable<T>({
                       " p-4 text-center" +
                       (scrollable
                         ? ""
-                        : "bg-white dark:bg-wood-700 border border-wood-100")
+                        : "bg-white dark:bg-wood-700 border border-slate-100")
                     }
                   >
                     <Info>{t("general.tables.empty")}</Info>
@@ -527,7 +528,7 @@ export function RenderedTable<T>({
                   >
                     {onSelect && (
                       <td
-                        className="w-8 m-0 p-0 height-table-hack overflow-hidden group/checkbox"
+                        className="w-6 m-0 p-0 height-table-hack overflow-hidden group/checkbox"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <div
@@ -648,7 +649,7 @@ export function RenderedTable<T>({
                     columns.filter((a) => !a.hidden).length + (onSelect ? 1 : 0)
                   }
                   className={
-                    "items-center py-1 pr-0 text-wood-500 dark:text-wood-400 " +
+                    "items-center py-1 pr-0 text-slate-500 dark:text-slate-400 " +
                     (scrollable ? " sticky bottom-0 z-10 " : "")
                   }
                 >

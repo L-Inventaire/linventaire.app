@@ -12,13 +12,13 @@ interface TabsProps extends React.InputHTMLAttributes<HTMLInputElement> {
 const defaultTabClassName =
   " text-sm cursor-pointer h-10 px-3 flex items-center border-b-2 border-transparent hover:text-wood-500 transition-colors";
 const activeTabClassName = " text-wood-400 border-wood-400 ";
-const inactiveTabClassName = " text-zinc-500 ";
+const inactiveTabClassName = " text-slate-500 ";
 
 export default function Tabs(props: TabsProps) {
   return (
     <>
       <div
-        className={`overflow-auto flex w-100 border-b border-zinc-200 dark:border-zinc-800 transition-all select-none ${props.className}`}
+        className={`overflow-auto flex w-100 border-b border-slate-200 dark:border-slate-800 transition-all select-none ${props.className}`}
       >
         {props.tabs.map((tab) => {
           const cl =

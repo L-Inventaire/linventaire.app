@@ -1,14 +1,21 @@
 import { Button } from "@atoms/button/button";
-import { Title } from "@atoms/text";
+import { Section, Title } from "@atoms/text";
 import { Invoices } from "@features/invoices/types/types";
 import { ROUTES, getRoute } from "@features/routes";
 import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
-import { Page } from "@views/client/_layout/page";
+import { Page, PageBlockHr } from "@views/client/_layout/page";
 import { useNavigate, useParams } from "react-router-dom";
 import { InvoicesDetailsPage } from "../components/invoices-details";
 import { PageLoader } from "@components/page-loader";
+import { useClients } from "@features/clients/state/use-clients";
+import { getFormattedNumerotation } from "@features/utils/format/numerotation";
 
 export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
+  const type = "quotes";
+
+  const { client: clientUser } = useClients();
+  const client = clientUser!.client!;
+
   let { id } = useParams();
   id = id === "new" ? "" : id || "";
   const navigate = useNavigate();
@@ -24,7 +31,18 @@ export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
     async (item) => {
       navigate(getRoute(ROUTES.InvoicesView, { id: item.id }));
     },
-    {} as Invoices
+    {
+      type,
+      state: "draft",
+      reference: getFormattedNumerotation(
+        client.invoices_counters[type]?.format,
+        client.invoices_counters[type]?.counter
+      ),
+      language: client.preferences?.language || "fr",
+      currency: client.preferences?.currency || "EUR",
+      format: client.invoices,
+      payment_information: client.payment,
+    } as Invoices
   );
 
   if (isInitiating) return <PageLoader />;
@@ -51,7 +69,7 @@ export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
           Annuler
         </Button>
         <Button
-          disabled={!invoice.name}
+          disabled={!invoice.client}
           loading={isPending}
           onClick={async () => await save()}
           size="sm"
@@ -59,10 +77,10 @@ export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
           Sauvegarder
         </Button>
       </div>
-      {!id && <Title>Création de {invoice.name || "<nouveau>"}</Title>}
-      {id && <Title>Modification de {invoice.name || ""}</Title>}
+      {!id && <Title>Création de {invoice.reference}</Title>}
+      {id && <Title>Modification de {invoice.reference || ""}</Title>}
       <div className="mt-4" />
-      <InvoicesDetailsPage readonly={false} id={id} />
+      <InvoicesDetailsPage type={type} readonly={false} id={id} />
     </Page>
   );
 };

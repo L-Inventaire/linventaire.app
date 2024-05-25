@@ -21,7 +21,6 @@ export const UsersInput = (props: {
   onChange?: (value: string[]) => void;
   placeholder?: string;
   disabled?: boolean;
-  heads?: boolean;
 }) => {
   const { client } = useClients();
   const { users: _users, loading } = useClientUsers(client?.client_id || "");
@@ -62,7 +61,11 @@ export const UsersInput = (props: {
           }
           icon={
             !props.disabled ? (
-              <div className="w-4 h-4 relative mr-1 overflow-hidden shrink-0">
+              <div
+                className={twMerge(
+                  "-left-0.5 w-4 h-4 relative mr-0.5 overflow-hidden shrink-0"
+                )}
+              >
                 <TrashIcon className="w-3 h-3 top-0.5 left-0.5 opacity-0 absolute group-hover/user:translate-y-0 group-hover/user:opacity-100 -translate-y-full transition-all" />
                 <Avatar
                   className={twMerge(
@@ -77,7 +80,6 @@ export const UsersInput = (props: {
           }
           key={user.user_id}
           dataTooltip={!props.disabled ? "Retirer l'utilisateur" : undefined}
-          heads={props.heads}
         />
       ))}
       {props.disabled && !selectedUsers.length && (

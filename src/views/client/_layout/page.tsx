@@ -51,17 +51,20 @@ export const PageBlock = (props: {
   title?: string;
   closable?: boolean;
   open?: boolean;
+  initOpen?: boolean;
 }) => {
-  const [isOpen, setIsOpen] = useState<boolean>(props.open ?? true);
+  const [isOpen, setIsOpen] = useState<boolean>(
+    props.open ?? props.initOpen ?? true
+  );
 
   useEffect(() => {
-    setIsOpen(props.open ?? true);
+    if (props.open !== undefined) setIsOpen(props.open ?? true);
   }, [props.open]);
 
   return (
     <div
       className={twMerge(
-        "p-3 lg:p-4 sm:pt-3 lg:pt-4 pt-0 sm:border border-b sm:mx-0 -mx-4 rounded-md mb-4 bg-white dark:bg-slate-970 dark:sm:border-slate-970 dark:border-slate-950",
+        "p-3 lg:p-4 sm:pt-3 lg:pt-4 pt-0 sm:border border-b sm:mx-0 -mx-4 rounded-md mb-4 bg-slate-50 bg-opacity-50 dark:bg-slate-970 border-slate-100 dark:sm:border-slate-970 dark:border-slate-950",
         !isOpen && props.closable ? "cursor-pointer" : "",
         !props.title && "lg:pt-2 sm:pt-1 pt-1"
       )}
