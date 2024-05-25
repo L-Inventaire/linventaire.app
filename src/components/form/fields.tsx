@@ -207,6 +207,7 @@ export const FormInput = memo(
                 value={(_value as string[]) || []}
                 onChange={(e) => onChange(e)}
                 disabled={disabled}
+                max={props.max}
                 rel={{
                   table: props.rest?.table || "",
                   field: props.rest?.column || "",
@@ -314,9 +315,7 @@ export const FormInput = memo(
               <SelectMultiple
                 className="w-full"
                 highlight={highlight}
-                value={
-                  _value ? [_value as { label: string; value: string }] : []
-                }
+                value={_value || []}
                 onChange={(e) => onChange(e)}
                 onSearch={(e) => suggest(e)}
                 size={size}
@@ -329,9 +328,7 @@ export const FormInput = memo(
               <SelectMultiple
                 className="w-full"
                 highlight={highlight}
-                value={
-                  _value ? [_value as { label: string; value: string }] : []
-                }
+                value={_value || []}
                 onChange={(e) => onChange(e)}
                 onSearch={(e) => suggest(e)}
                 size={size}

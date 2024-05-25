@@ -5,8 +5,13 @@ import { CustomFieldsInput } from "@components/custom-fields-input";
 import { EditorInput } from "@components/editor-input";
 import { FormInput } from "@components/form/fields";
 import { FormContext } from "@components/form/formcontext";
+import { InvoiceFormatInput } from "@components/invoice-format-input";
 import { PageLoader } from "@components/page-loader";
+import { PaymentInput } from "@components/payment-input";
+import { useClients } from "@features/clients/state/use-clients";
+import { useContact } from "@features/contacts/hooks/use-contacts";
 import { Invoices } from "@features/invoices/types/types";
+import { currencyOptions, languageOptions } from "@features/utils/constants";
 import { formatAmount } from "@features/utils/format/strings";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import {
@@ -14,6 +19,7 @@ import {
   PageBlockHr,
   PageColumns,
 } from "@views/client/_layout/page";
+import { useEffect } from "react";
 import { InvoicesPreviewPage } from "./invoices-preview/invoices-preview";
 import { Button } from "@atoms/button/button";
 
@@ -29,13 +35,29 @@ export const InvoicesDetailsPage = ({
   readonly?: boolean;
   id: string;
 }) => {
+  const { client: clientUser } = useClients();
+  const client = clientUser?.client;
+
   const { isPending, ctrl, draft, setDraft } = useReadDraftRest<Invoices>(
     "invoices",
     id || "new",
     readonly
   );
 
-  if (isPending || (id && draft.id !== id)) return <PageLoader />;
+  const { contact } = useContact(draft.contact);
+
+  useEffect(() => {
+    if (client && !id) {
+      setDraft({
+        ...draft,
+        currency: client.preferences?.currency || "EUR",
+        format: client.invoices,
+        payment_information: client.payment,
+      });
+    }
+  }, [client]);
+
+  if (isPending || (id && draft.id !== id) || !client) return <PageLoader />;
 
   return (
     <>
@@ -119,7 +141,7 @@ export const InvoicesDetailsPage = ({
                   <PageColumns>
                     <FormInput
                       className="w-max"
-                      ctrl={ctrl(["discount", "mode"])}
+                      ctrl={ctrl("discount.mode")}
                       label="Type de remise"
                       type="select"
                       options={[
@@ -129,7 +151,7 @@ export const InvoicesDetailsPage = ({
                     />
                     <FormInput
                       className="w-max"
-                      ctrl={ctrl(["discount", "value"])}
+                      ctrl={ctrl("discount.value")}
                       label="Valeur"
                       type="formatted"
                       format={
@@ -196,19 +218,19 @@ export const InvoicesDetailsPage = ({
 
                 <PageBlockHr />
 
-                {!ctrl(["delivery_date"]).value && !readonly && (
+                {!ctrl("delivery_date").value && !readonly && (
                   <FormInput
                     placeholder="Ajouter une date de livraison"
                     type="boolean"
-                    value={ctrl(["delivery_date"]).value}
+                    value={ctrl("delivery_date").value}
                     onChange={(e) =>
-                      ctrl(["delivery_date"]).onChange(
+                      ctrl("delivery_date").onChange(
                         e ? Date.now() + 1000 * 60 * 60 * 24 * 7 : 0
                       )
                     }
                   />
                 )}
-                {!!ctrl(["delivery_date"]).value && (
+                {!!ctrl("delivery_date").value && (
                   <FormInput
                     type="date"
                     label="Date de livraison"
@@ -220,13 +242,26 @@ export const InvoicesDetailsPage = ({
                   <FormInput
                     placeholder="Ajouter une adresse de livraison"
                     type="boolean"
-                    value={ctrl(["delivery_address"]).value}
+                    value={ctrl("delivery_address").value}
                     onChange={(e) =>
-                      ctrl(["delivery_address"]).onChange(e ? {} : null)
+                      ctrl("delivery_address").onChange(
+                        e
+                          ? ({
+                              address_line_1:
+                                contact?.address.address_line_1 || "",
+                              address_line_2:
+                                contact?.address.address_line_2 || "",
+                              region: contact?.address.region || "",
+                              country: contact?.address.country || "",
+                              zip: contact?.address.zip || "",
+                              city: contact?.address.city || "",
+                            } as Invoices["delivery_address"])
+                          : null
+                      )
                     }
                   />
                 )}
-                {ctrl(["delivery_address"]).value !== null && (
+                {ctrl("delivery_address").value !== null && (
                   <>
                     <AddressInput ctrl={ctrl("delivery_address")} />
                   </>
@@ -234,105 +269,28 @@ export const InvoicesDetailsPage = ({
               </div>
             </PageBlock>
             <PageBlock closable title="Paiement">
-              <div className="space-y-2">
-                <PageColumns>
-                  <FormInput
-                    label="Devise"
-                    className="w-max"
-                    ctrl={ctrl("currency")}
-                    type="select"
-                    options={[
-                      {
-                        label: "EUR (Euro)",
-                        value: "EUR",
-                      },
-                      {
-                        label: "USD (Dollar américain)",
-                        value: "USD",
-                      },
-                    ]}
-                  />
-                  {false &&
-                    "it breaks the readonly mode, and edition mode doesn't work either" && (
-                      <FormInput
-                        label="Moyens de paiement"
-                        ctrl={ctrl(["payment_information", "mode"])}
-                        type="multiselect"
-                        options={[
-                          {
-                            label: "Virement",
-                            value: "bank_transfer",
-                          },
-                          {
-                            label: "Chèque",
-                            value: "check",
-                          },
-                          {
-                            label: "Espèces",
-                            value: "cash",
-                          },
-                        ]}
-                      />
-                    )}
-                </PageColumns>
-
-                {(draft.payment_information?.mode || ([] as string[])).includes(
-                  "virement"
-                ) && (
-                  <div>
-                    <PageBlock>
-                      {" "}
-                      <div className="space-y-2">
-                        <PageColumns>
-                          <FormInput
-                            label="Banque"
-                            ctrl={ctrl(["payment_information", "bank_name"])}
-                            placeholder="Nom de la banque"
-                          />
-                          <FormInput
-                            label="BIC"
-                            ctrl={ctrl(["payment_information", "bank_bic"])}
-                            placeholder="BXITITMM"
-                            type="formatted"
-                            format="bic"
-                          />
-                        </PageColumns>
-                        <FormInput
-                          label="IBAN"
-                          ctrl={ctrl(["payment_information", "bank_iban"])}
-                          placeholder="FR76 3000 4000 0312 3456 7890 143"
-                          type="formatted"
-                          format="iban"
-                        />{" "}
-                      </div>
-                    </PageBlock>
-                  </div>
-                )}
-
-                <PageBlockHr />
-
-                <FormInput
-                  className="w-max"
-                  label="Délai de paiement (jours)"
-                  ctrl={ctrl(["payment_information", "delay"])}
-                  type="number"
-                />
-                <FormInput
-                  label="Pénalité de retard"
-                  ctrl={ctrl(["payment_information", "late_penalty"])}
-                  options={[
-                    {
-                      label: "3 fois le taux légal",
-                      value: "3 fois le taux légal",
-                    },
-                  ]}
-                />
-              </div>
+              <FormInput
+                label="Devise"
+                className="w-max mb-4"
+                ctrl={ctrl("currency")}
+                type="select"
+                options={currencyOptions}
+              />
+              <PaymentInput
+                readonly={readonly}
+                ctrl={ctrl("payment_information")}
+              />
             </PageBlock>
             <PageBlock closable title="Format">
-              Langue
-              <br />
-              Format
+              <FormInput
+                label="Langue"
+                className="w-max mb-4"
+                ctrl={ctrl("language")}
+                type="select"
+                options={languageOptions}
+              />
+              <PageBlockHr />
+              <InvoiceFormatInput readonly={readonly} ctrl={ctrl("format")} />
             </PageBlock>
             {draft.type === "invoice" && (
               <PageBlock closable title="Rappels">

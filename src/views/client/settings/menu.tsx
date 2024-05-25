@@ -5,11 +5,26 @@ export const SettingsMenu: MenuIndex = (hasAccess) => ({
   menu: [
     {
       type: "title",
-      label: "Paramètres",
+      label: "Entreprise",
+    },
+    {
+      label: "Votre entreprise",
+      to: getRoute(ROUTES.SettingsCompany),
     },
     {
       label: "Préférences",
       to: getRoute(ROUTES.SettingsPreferences),
+    },
+    {
+      label: "Collaborateurs",
+      to: getRoute(ROUTES.SettingsUsers),
+    },
+    {
+      type: "divider",
+    },
+    {
+      type: "title",
+      label: "Paramètres",
     },
     {
       label: "Étiquettes",
@@ -22,21 +37,6 @@ export const SettingsMenu: MenuIndex = (hasAccess) => ({
     {
       label: "Développeurs",
       to: getRoute(ROUTES.SettingsApi),
-    },
-    {
-      type: "divider",
-    },
-    {
-      type: "title",
-      label: "Entreprise",
-    },
-    {
-      label: "Votre entreprise",
-      to: getRoute(ROUTES.SettingsCompany),
-    },
-    {
-      label: "Collaborateurs",
-      to: getRoute(ROUTES.SettingsUsers),
     },
     {
       type: "divider",

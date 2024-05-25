@@ -53,6 +53,8 @@ const FormControllerLockAtom = atomFamily<any, string>({
   default: false,
 });
 
+type NestedKey<T extends string, P extends string> = `${T}.${P}`;
+
 export function useFormController<T extends Object>(
   get: T,
   set: (e: any) => void,
@@ -65,7 +67,7 @@ export function useFormController<T extends Object>(
   return {
     lockNavigation,
     setLockNavigation,
-    ctrl: (key: keyof T | string[]) => {
+    ctrl: (key: keyof T | NestedKey<string, string>) => {
       return {
         value: _.get(get, key),
         onChange: (value: keyof T | any) => {

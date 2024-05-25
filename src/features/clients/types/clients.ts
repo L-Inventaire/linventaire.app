@@ -63,6 +63,36 @@ export type Clients = {
   preferences: Preferences;
   configuration: Configuration;
   payment: Payment;
+  invoices: Invoices;
+  invoices_counters: InvoiceCounters;
+};
+
+export type InvoiceCounters = {
+  quotes: {
+    format: string;
+    counter: number;
+  };
+  invoices: {
+    format: string;
+    counter: number;
+  };
+  credit_notes: {
+    format: string;
+    counter: number;
+  };
+};
+
+export type Invoices = {
+  heading: string;
+  footer: string;
+  payment_terms: string;
+  tva: string;
+
+  branding: boolean;
+  color: string;
+  logo: string;
+  footer_logo: string;
+  template: string;
 };
 
 export type Payment = {

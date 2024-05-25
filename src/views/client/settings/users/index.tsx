@@ -26,7 +26,7 @@ export const CompanyUsersPage = () => {
   const { user: me } = useAuth();
   const { client, inviteUsers, loading } = useClients();
   const hasAccess = useHasAccess();
-  const readOnly = !hasAccess("USERS_WRITE");
+  const readonly = !hasAccess("USERS_WRITE");
 
   const { users, refresh, remove, update } = useClientUsers(client!.client_id);
 
@@ -66,8 +66,8 @@ export const CompanyUsersPage = () => {
             disabled={loading}
             className="grow"
             placeholder="Rôles"
-            value={updatingRoles.map((a) => ({ value: a, label: a }))}
-            onChange={(e) => setUpdatingRoles(e.map((a) => a.value))}
+            value={updatingRoles}
+            onChange={(e) => setUpdatingRoles(e)}
             options={getRoles()}
           />
           <Button
@@ -122,8 +122,8 @@ export const CompanyUsersPage = () => {
                 <SelectMultiple
                   className="grow"
                   placeholder="Rôles"
-                  value={inviteesRoles.map((a) => ({ value: a, label: a }))}
-                  onChange={(e) => setInviteesRoles(e.map((a) => a.value))}
+                  value={inviteesRoles}
+                  onChange={(e) => setInviteesRoles(e)}
                   options={getRoles()}
                 />
                 <Button
@@ -164,7 +164,7 @@ export const CompanyUsersPage = () => {
           <Table
             rowIndex="user_id"
             onSelect={
-              readOnly
+              readonly
                 ? undefined
                 : [
                     {
@@ -203,7 +203,7 @@ export const CompanyUsersPage = () => {
               },
               {
                 title: "Actions",
-                hidden: readOnly,
+                hidden: readonly,
                 thClassName: "w-1",
                 render: (user) => (
                   <>
@@ -236,7 +236,7 @@ export const CompanyUsersPage = () => {
           )}
           rowIndex="user_id"
           onSelect={
-            readOnly
+            readonly
               ? undefined
               : [
                   {
@@ -275,7 +275,7 @@ export const CompanyUsersPage = () => {
             {
               title: "Actions",
               thClassName: "w-20",
-              hidden: readOnly,
+              hidden: readonly,
               render: (user) =>
                 user.user.id === me?.id ? (
                   <Info>It's you</Info>

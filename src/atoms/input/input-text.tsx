@@ -113,6 +113,11 @@ export const Input = (props: InputProps) => {
               " " +
               props.className
             }
+            onFocus={(e) => {
+              if (props?.type === "number" && e.target.value === "0") {
+                e.target.select();
+              }
+            }}
             {..._.omit(props, "label", "inputClassName", "className", "size")}
           />
         ))}

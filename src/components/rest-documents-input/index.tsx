@@ -121,7 +121,6 @@ export const RestDocumentsInput = (props: {
             size="sm"
             wrapperClassName="align-top m-1 inline-block w-max"
             className="max-w-24"
-            value={query}
             onChange={(e) => setQuery(e.target.value)}
             options={[
               ...(suggestions?.data || [])
@@ -132,6 +131,7 @@ export const RestDocumentsInput = (props: {
                 })),
             ]}
             onSelect={async (v: string) => {
+              setQuery("");
               onChange?.([
                 ...(value || []).slice(0, (props.max || 100) - 1),
                 v,

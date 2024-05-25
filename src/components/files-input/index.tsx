@@ -100,63 +100,65 @@ export const FilesInput = (props: {
             />
           ))}
       </div>
-      {!props.disabled && (
-        <div className="w-full relative p-1">
-          <DroppableFilesInput
-            disabled={loading}
-            onChange={async (f) => {
-              setLoading(true);
-              await Promise.all(
-                f.map(async (file) => {
-                  const index = newFilesRef.current.length;
-                  newFilesRef.current.push({ progress: 0, file });
-                  setNewFiles([...newFilesRef.current]);
-
-                  try {
-                    const entity = await FilesApiClient.upload(
-                      client?.client_id || "",
-                      {
-                        name: file.name,
-                        size: file.size,
-                        mime: file.type,
-
-                        rel_table: props.rel?.table || "",
-                        rel_field: props.rel?.field || "",
-
-                        // File starts unreferenced until we save the entity
-                        // When saved, the file gets referenced by a trigger in backend (detects file:ididid pattern in the entity)
-                        rel_id: "",
-                        rel_unreferenced: true,
-                      },
-                      file,
-                      (progress) => {
-                        newFilesRef.current[index].progress = progress;
-                        setNewFiles([...newFilesRef.current]);
-                      }
-                    );
-
-                    newFilesRef.current[index].progress = 1;
-                    newFilesRef.current[index].entity = entity;
+      {!props.disabled &&
+        (props.max || 100) >
+          (existingFiles || []).length + (newFiles || []).length && (
+          <div className="w-full relative p-1">
+            <DroppableFilesInput
+              disabled={loading}
+              onChange={async (f) => {
+                setLoading(true);
+                await Promise.all(
+                  f.map(async (file) => {
+                    const index = newFilesRef.current.length;
+                    newFilesRef.current.push({ progress: 0, file });
                     setNewFiles([...newFilesRef.current]);
-                  } catch (e) {
-                    toast.error("Failed to upload file");
-                    newFilesRef.current[index].progress = -1;
-                  }
-                })
-              );
-              setNewFiles([]);
-              props.onChange?.([
-                ...props.value,
-                ...(newFilesRef.current || [])
-                  .filter((a) => a.entity?.id)
-                  .map((a) => `files:${a.entity?.id}`),
-              ]);
-              newFilesRef.current = [];
-              setLoading(false);
-            }}
-          />
-        </div>
-      )}
+
+                    try {
+                      const entity = await FilesApiClient.upload(
+                        client?.client_id || "",
+                        {
+                          name: file.name,
+                          size: file.size,
+                          mime: file.type,
+
+                          rel_table: props.rel?.table || "",
+                          rel_field: props.rel?.field || "",
+
+                          // File starts unreferenced until we save the entity
+                          // When saved, the file gets referenced by a trigger in backend (detects file:ididid pattern in the entity)
+                          rel_id: "",
+                          rel_unreferenced: true,
+                        },
+                        file,
+                        (progress) => {
+                          newFilesRef.current[index].progress = progress;
+                          setNewFiles([...newFilesRef.current]);
+                        }
+                      );
+
+                      newFilesRef.current[index].progress = 1;
+                      newFilesRef.current[index].entity = entity;
+                      setNewFiles([...newFilesRef.current]);
+                    } catch (e) {
+                      toast.error("Failed to upload file");
+                      newFilesRef.current[index].progress = -1;
+                    }
+                  })
+                );
+                setNewFiles([]);
+                props.onChange?.([
+                  ...props.value,
+                  ...(newFilesRef.current || [])
+                    .filter((a) => a.entity?.id)
+                    .map((a) => `files:${a.entity?.id}`),
+                ]);
+                newFilesRef.current = [];
+                setLoading(false);
+              }}
+            />
+          </div>
+        )}
     </div>
   );
 };

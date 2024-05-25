@@ -49,9 +49,9 @@ export const InputFormat = (props: InputFormatProps) => {
           "" +
           val
             .toLocaleUpperCase()
-            .replace(/[^A-Z0-9]/, "")
+            .replace(/[^A-Z0-9]/gm, "")
             .replace(/([A-Z0-9]{4})/g, "$1 ")
-            .replace(/ $/, "");
+            .replace(/ $/gm, "");
       } else if (props.format === "phone") {
         val = val.replace(/[^0-9+]/gm, "");
       } else if (props.format === "mail") {

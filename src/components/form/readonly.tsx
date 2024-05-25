@@ -153,6 +153,9 @@ export const FormReadonly = memo(
               props.type === "select" ||
               props.type === "searchselect") && (
               <Base>
+                {(() => {
+                  return false;
+                })()}
                 {props.render?.(props.value, props.values) ||
                   (
                     (typeof props.options === "object" ? props.options : []) ||

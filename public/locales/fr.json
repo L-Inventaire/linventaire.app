@@ -15,6 +15,29 @@
   "general": {
     "tables": {
       "empty": "Aucune donnée"
+    },
+    "save": "Enregistrer"
+  },
+  "settings": {
+    "preferences": {
+      "currency": "Devise principale",
+      "title": "Général",
+      "language": "Langue de l'entreprise"
+    },
+    "payments": {
+      "title": "Paiements"
+    },
+    "invoices": {
+      "branding": "Logo de L'Inventaire",
+      "color": "Couleur principale",
+      "logo": "Logo de l'entreprise",
+      "footer_logo": "Logo de pied de page",
+      "template": "Modèle",
+      "heading": "Notes en haut de page",
+      "footer": "Notes de bas de page",
+      "payment_terms": "Conditions Générales de Vente",
+      "tva": "Mention de TVA",
+      "branding_placeholder": "Afficher le logo de linventaire.app sur les factures"
     }
   }
 }

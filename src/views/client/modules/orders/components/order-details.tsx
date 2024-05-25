@@ -11,7 +11,7 @@ export const OrdersDetailsPage = ({
   readonly?: boolean;
   id: string;
 }) => {
-  const { isPending, ctrl, draft, setDraft } = useReadDraftRest<Orders>(
+  const { isPending, draft } = useReadDraftRest<Orders>(
     "orders",
     id || "new",
     readonly

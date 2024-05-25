@@ -19,6 +19,7 @@ export const RestUserTag = ({
   className?: string;
   icon?: React.ReactNode;
   onClick?: () => void;
+  heads?: boolean;
 }) => {
   if (user) {
     return <UserTagRender {...props} size={size} user={user} />;
@@ -38,6 +39,7 @@ const UserTagRender = ({
   className?: string;
   icon?: React.ReactNode;
   onClick?: () => void;
+  heads?: boolean;
 }) => {
   const name = user?.full_name ? getFullName(user) : user.email || "-";
   const avatar = user?.avatar;
@@ -57,8 +59,12 @@ const UserTagRender = ({
       }
       size={size}
       noColor
-      className="bg-white dark:bg-slate-900 rounded-full"
       {...props}
+      className={twMerge(
+        "bg-white dark:bg-slate-900 rounded-full",
+        props.heads && "pr-0 text-[0px]",
+        props.className
+      )}
     >
       {name}
     </Tag>
