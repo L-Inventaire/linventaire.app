@@ -14,7 +14,7 @@ export const Account = () => {
   const setMenu = useSetRecoilState(DropDownAtom);
 
   return (
-    <div className="absolute top-0 w-full pt-6 pb-3 bg-wood-50 dark:bg-wood-990">
+    <div className="absolute top-0 w-full pt-5 pb-3 bg-wood-50 dark:bg-wood-990">
       <Link
         onClick={(e: any) =>
           setMenu({

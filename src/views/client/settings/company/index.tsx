@@ -67,33 +67,27 @@ export const CompanyPage = () => {
             }
           />
 
-          {!readonly &&
-            !_.isEqual(
-              { company, imageBase64 },
-              {
-                company: client?.company,
-                imageBase64: client?.preferences.logo,
+          {!readonly && (
+            <Button
+              className="mt-4"
+              theme="primary"
+              size="sm"
+              onClick={() =>
+                update(client?.id || "", {
+                  company: {
+                    ...client!.company,
+                    ...company,
+                  },
+                  preferences: {
+                    ...client!.preferences,
+                    logo: imageBase64 || "",
+                  },
+                })
               }
-            ) && (
-              <Button
-                className="mt-4"
-                theme="primary"
-                onClick={() =>
-                  update(client?.id || "", {
-                    company: {
-                      ...client!.company,
-                      ...company,
-                    },
-                    preferences: {
-                      ...client!.preferences,
-                      logo: imageBase64 || "",
-                    },
-                  })
-                }
-              >
-                Enregistrer
-              </Button>
-            )}
+            >
+              Enregistrer
+            </Button>
+          )}
         </div>
       </PageBlock>
 
@@ -124,10 +118,11 @@ export const CompanyPage = () => {
               },
             ]}
           />
-          {!readonly && !_.isEqual(company, client?.company) && (
+          {!readonly && (
             <Button
               className="mt-4"
               theme="primary"
+              size="sm"
               onClick={() =>
                 update(client?.id || "", {
                   company: {
@@ -190,8 +185,9 @@ export const CompanyPage = () => {
               },
             ]}
           />
-          {!readonly && !_.isEqual(address, client?.address) && (
+          {!readonly && (
             <Button
+              size="sm"
               className="mt-4"
               theme="primary"
               onClick={() =>
@@ -224,6 +220,7 @@ export const CompanyPage = () => {
           <ButtonConfirm
             disabled={users.length > 1}
             theme="danger"
+            size="sm"
             className="mt-4"
             confirmButtonTheme="danger"
             confirmButtonText="Détruire l'entreprise"

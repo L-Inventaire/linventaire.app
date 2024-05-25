@@ -5,6 +5,7 @@ import { SettingsMenu } from "../settings/menu";
 import { AccountMenu } from "../account/menu";
 import { useRecoilValue } from "recoil";
 import { ResponsiveMenuAtom } from "./header";
+import { DefaultScrollbars } from "@features/utils/scrollbars";
 
 const isPrefix = (location: string, prefix: string) => {
   return (
@@ -41,11 +42,17 @@ export const SecondSideBar = () => {
     >
       <div
         className={
-          "sm:translate-x-0 z-10 absolute sm:relative top-0 h-full transition-all border-r border-slate-500 border-opacity-15 w-64 grow shrink-0 p-2 bg-wood-25 dark:bg-slate-950 " +
-          (menuOpen ? " translate-x-0 " : " -translate-x-full ")
+          "sm:translate-x-0 z-10 absolute sm:relative top-0 h-full transition-all border-r border-slate-500 border-opacity-15 w-64 grow shrink-0 bg-wood-25 dark:bg-slate-950 " +
+          (menuOpen
+            ? " translate-x-0 bg-wood-50 border-l "
+            : " -translate-x-full ")
         }
       >
-        <Menu menu={menu} />
+        <DefaultScrollbars>
+          <div className="p-2">
+            <Menu menu={menu} />
+          </div>
+        </DefaultScrollbars>
       </div>
     </div>
   );

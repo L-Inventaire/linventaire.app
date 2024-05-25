@@ -854,6 +854,18 @@ select {
   top: 100%;
 }
 
+.bottom-1 {
+  bottom: 0.25rem;
+}
+
+.right-1 {
+  right: 0.25rem;
+}
+
+.top-1 {
+  top: 0.25rem;
+}
+
 .z-0 {
   z-index: 0;
 }
@@ -1365,6 +1377,10 @@ select {
   width: max-content;
 }
 
+.w-2 {
+  width: 0.5rem;
+}
+
 .min-w-0 {
   min-width: 0px;
 }
@@ -1645,6 +1661,12 @@ select {
   margin-bottom: calc(-1px * var(--tw-space-y-reverse));
 }
 
+.space-x-1 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 0;
+  margin-right: calc(0.25rem * var(--tw-space-x-reverse));
+  margin-left: calc(0.25rem * calc(1 - var(--tw-space-x-reverse)));
+}
+
 .space-x-2 > :not([hidden]) ~ :not([hidden]) {
   --tw-space-x-reverse: 0;
   margin-right: calc(0.5rem * var(--tw-space-x-reverse));
@@ -1679,12 +1701,6 @@ select {
   --tw-space-y-reverse: 0;
   margin-top: calc(1rem * calc(1 - var(--tw-space-y-reverse)));
   margin-bottom: calc(1rem * var(--tw-space-y-reverse));
-}
-
-.space-x-1 > :not([hidden]) ~ :not([hidden]) {
-  --tw-space-x-reverse: 0;
-  margin-right: calc(0.25rem * var(--tw-space-x-reverse));
-  margin-left: calc(0.25rem * calc(1 - var(--tw-space-x-reverse)));
 }
 
 .overflow-auto {
@@ -2384,6 +2400,11 @@ select {
 .border-zinc-200 {
   --tw-border-opacity: 1;
   border-color: rgb(228 228 231 / var(--tw-border-opacity));
+}
+
+.border-gray-300 {
+  --tw-border-opacity: 1;
+  border-color: rgb(209 213 219 / var(--tw-border-opacity));
 }
 
 .border-opacity-10 {
@@ -3156,10 +3177,6 @@ select {
   padding-top: 2rem;
 }
 
-.\!pr-0 {
-  padding-right: 0px !important;
-}
-
 .text-left {
   text-align: left;
 }
@@ -3198,6 +3215,10 @@ select {
   line-height: 2.25rem;
 }
 
+.text-\[0px\] {
+  font-size: 0px;
+}
+
 .text-base {
   font-size: 1rem;
   line-height: 1.5rem;
@@ -3225,10 +3246,6 @@ select {
 
 .text-xxs {
   font-size: 9px;
-}
-
-.text-\[0px\] {
-  font-size: 0px;
 }
 
 .font-bold {
@@ -4235,6 +4252,10 @@ input, select {
   background-color: rgb(233 228 216 / var(--tw-bg-opacity));
 }
 
+.group\/checkbox:hover .group-hover\/checkbox\:opacity-100 {
+  opacity: 1;
+}
+
 .group\/item:hover .group-hover\/item\:opacity-100 {
   opacity: 1;
 }
@@ -4243,7 +4264,7 @@ input, select {
   opacity: 1;
 }
 
-.group\/checkbox:hover .group-hover\/checkbox\:opacity-100 {
+.group\/scrollbars:hover .group-hover\/scrollbars\:opacity-100 {
   opacity: 1;
 }
 
@@ -4261,6 +4282,11 @@ input, select {
     margin-right: 0px;
   }
 
+  .sm\:mx-2 {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+  }
+
   .sm\:mx-auto {
     margin-left: auto;
     margin-right: auto;
@@ -4275,12 +4301,20 @@ input, select {
     margin-bottom: 3rem;
   }
 
+  .sm\:mb-2 {
+    margin-bottom: 0.5rem;
+  }
+
   .sm\:ml-20 {
     margin-left: 5rem;
   }
 
   .sm\:ml-4 {
     margin-left: 1rem;
+  }
+
+  .sm\:ml-64 {
+    margin-left: 16rem;
   }
 
   .sm\:mt-0 {
@@ -4293,6 +4327,26 @@ input, select {
 
   .sm\:mt-8 {
     margin-top: 2rem;
+  }
+
+  .sm\:mr-2 {
+    margin-right: 0.5rem;
+  }
+
+  .sm\:-ml-2 {
+    margin-left: -0.5rem;
+  }
+
+  .sm\:ml-16 {
+    margin-left: 4rem;
+  }
+
+  .sm\:-mr-2 {
+    margin-right: -0.5rem;
+  }
+
+  .sm\:ml-0 {
+    margin-left: 0px;
   }
 
   .sm\:block {
@@ -4395,6 +4449,10 @@ input, select {
     border-width: 1px;
   }
 
+  .sm\:border-none {
+    border-style: none;
+  }
+
   .sm\:bg-transparent {
     background-color: transparent;
   }
@@ -4408,9 +4466,9 @@ input, select {
     padding-right: 2.5rem;
   }
 
-  .sm\:px-4 {
-    padding-left: 1rem;
-    padding-right: 1rem;
+  .sm\:px-2 {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
   }
 
   .sm\:pb-8 {
@@ -4423,6 +4481,14 @@ input, select {
 
   .sm\:pt-3 {
     padding-top: 0.75rem;
+  }
+
+  .sm\:pl-0 {
+    padding-left: 0px;
+  }
+
+  .sm\:pr-2 {
+    padding-right: 0.5rem;
   }
 
   .sm\:text-left {
@@ -4524,6 +4590,11 @@ input, select {
 
   .lg\:p-4 {
     padding: 1rem;
+  }
+
+  .lg\:py-2 {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
   }
 
   .lg\:pt-2 {
@@ -6050,6 +6121,11 @@ input, select {
 }
 
 @media print {
+  .print\:mx-0 {
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+
   .print\:ml-0 {
     margin-left: 0px;
   }

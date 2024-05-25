@@ -36,6 +36,8 @@ import { OrdersViewPage } from "./modules/orders/view";
 import { OrdersEditPage } from "./modules/orders/edit";
 import { InvoicesViewPage } from "./modules/invoices/view";
 import { InvoicesEditPage } from "./modules/invoices/edit";
+import { Scrollbars } from "react-custom-scrollbars";
+import { DefaultScrollbars } from "@features/utils/scrollbars";
 
 export const BackOfficeRoutes = () => {
   return (
@@ -122,10 +124,7 @@ export const Layout = () => {
         <SideBar />
         <div
           className={
-            "z-0 transition-all grow flex flex-col border-l sm:ml-20 print:ml-0 dark:border-slate-950 " +
-            (menuOpen
-              ? " bg-slate-900 overflow-hidden "
-              : "bg-white dark:bg-slate-950 ")
+            "z-0 transition-all grow flex flex-col sm:ml-20 print:ml-0"
           }
           style={{
             transform: menuOpen ? "translateX(80px)" : "translateX(0)",
@@ -133,17 +132,22 @@ export const Layout = () => {
         >
           <Header />
           <div
-            className="grow flex min-h-0 "
+            className={twMerge(
+              "grow flex min-h-0 border-t sm:border shadow-sm border-slate-100 dark:border-slate-950 print:mx-0 sm:mb-2 rounded-md overflow-hidden",
+              menuOpen ? "sm:ml-64" : "sm:mr-2 sm:ml-0"
+            )}
             onClick={() => setMenuOpen(false)}
           >
             <SecondSideBar />
             <div
               className={
-                "grow min-h-0 overflow-auto bg-wood-25 dark:bg-slate-950 transition-all " +
+                "grow min-h-0 overflow-auto bg-white dark:bg-slate-950 transition-all " +
                 (menuOpen ? " opacity-25 pointer-events-none " : "opacity-100 ")
               }
             >
-              <Outlet />
+              <DefaultScrollbars>
+                <Outlet />
+              </DefaultScrollbars>
             </div>
           </div>
         </div>

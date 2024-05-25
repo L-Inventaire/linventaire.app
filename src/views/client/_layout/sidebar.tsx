@@ -1,19 +1,20 @@
 import { DropDownAtom, DropDownMenuType } from "@atoms/dropdown";
 import Link from "@atoms/link";
-import { InfoSmall } from "@atoms/text";
 import Env from "@config/environment";
 import { useHasAccess } from "@features/access";
 import { ROUTES, getRoute } from "@features/routes";
+import { DefaultScrollbars } from "@features/utils/scrollbars";
+import { Shortcut, useShortcuts } from "@features/utils/shortcuts";
 import {
   AdjustmentsIcon,
   ChartSquareBarIcon,
   ClockIcon,
+  CubeIcon,
   DocumentIcon,
   DownloadIcon,
   InboxIcon,
   PlusIcon,
   ShoppingCartIcon,
-  CubeIcon,
   UserIcon,
   ViewBoardsIcon,
   ViewGridIcon,
@@ -21,10 +22,8 @@ import {
 import { StarIcon } from "@heroicons/react/solid";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import SimpleBar from "simplebar-react";
 import { Account } from "./account";
 import { ResponsiveMenuAtom } from "./header";
-import { Shortcut, useShortcuts } from "@features/utils/shortcuts";
 
 export const SideBar = () => {
   const hasAccess = useHasAccess();
@@ -33,13 +32,13 @@ export const SideBar = () => {
   return (
     <div
       className={
-        "print:hidden sm:translate-x-0 z-10 transition-all sm:block bg-wood-50 dark:bg-wood-990 w-20 overflow-hidden fixed h-screen " +
+        "print:hidden sm:translate-x-0 z-10 py-2 sm:border-none border-r dark:border-r-950 transition-all sm:block w-20 overflow-hidden fixed h-screen " +
         (menuOpen ? " translate-x-0 " : " -translate-x-full ")
       }
     >
-      <SimpleBar style={{ maxHeight: "100%" }}>
+      <DefaultScrollbars>
         {/* Space for avatar */}
-        <div className="h-16 mb-2" />
+        <div className="h-16" />
 
         <MenuItem
           to={getRoute(ROUTES.Home)}
@@ -280,12 +279,12 @@ export const SideBar = () => {
         )}
 
         {/* Space for logo */}
-        <div className="h-20" />
-      </SimpleBar>
+        <div className="h-16" />
+      </DefaultScrollbars>
 
       <Account />
 
-      <div className="absolute bottom-0 w-full h-20 bg-wood-50 dark:bg-wood-990">
+      <div className="absolute bottom-0 w-full h-16 bg-wood-50 dark:bg-wood-990">
         <div className="w-20 h-16 flex items-center justify-center">
           <Logo />
         </div>
@@ -366,15 +365,18 @@ const Logo = () => (
     className="flex-col space-y-2 items-center mx-auto flex"
   >
     <img
+      data-tooltip={"L'inventaire v" + Env.version}
+      data-position="right"
       src="/medias/logo-black.svg"
-      className="dark:hidden block h-7"
+      className="dark:hidden block h-5"
       alt="L'inventaire"
     />
     <img
+      data-tooltip={"L'inventaire v" + Env.version}
+      data-position="right"
       src="/medias/logo.svg"
-      className="dark:block hidden h-7"
+      className="dark:block hidden h-5"
       alt="L'inventaire"
     />
-    <InfoSmall>v{Env.version}</InfoSmall>
   </Link>
 );

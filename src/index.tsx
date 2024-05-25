@@ -3,7 +3,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import ReactDOM from "react-dom/client";
 import initReactFastclick from "react-fastclick";
 import { RecoilRoot } from "recoil";
-import "simplebar-react/dist/simplebar.min.css";
 import "tippy.js/dist/tippy.css";
 import reportWebVitals from "./reportWebVitals";
 import InitialRouter from "./views";
