@@ -55,6 +55,7 @@ export type Invoices = {
 
   fields: any;
 };
+
 export type InvoiceTotal = {
   initial: number;
   discount: number;

@@ -14,6 +14,13 @@ import {
   PageBlockHr,
   PageColumns,
 } from "@views/client/_layout/page";
+import { InvoicesPreviewPage } from "./invoices-preview/invoices-preview";
+import { Button } from "@atoms/button/button";
+
+// @ts-expect-error No TS types package
+import html2pdf from "html2pdf.js";
+
+import { jsPDF } from "jspdf";
 
 export const InvoicesDetailsPage = ({
   readonly,
@@ -383,7 +390,25 @@ export const InvoicesDetailsPage = ({
               related items
             </PageBlock>
             <div className="p-8">
-              <div className="w-full bg-white shadow-md h-80"></div>
+              <Button
+                onClick={() => {
+                  let element = document.getElementById("invoice-preview");
+                  const doc = new jsPDF();
+
+                  doc.html(element ?? "<div>ERROR</div>", {
+                    callback: function (doc) {
+                      doc.save();
+                    },
+                    x: 10,
+                    y: 10,
+                  });
+                }}
+              >
+                Télécharger
+              </Button>
+              <div className="w-full bg-white shadow-md h-80">
+                <InvoicesPreviewPage invoice={draft} />
+              </div>
             </div>
           </div>
         </PageColumns>
