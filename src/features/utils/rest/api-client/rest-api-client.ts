@@ -1,13 +1,14 @@
 import { fetchServer } from "@features/utils/fetch-server";
 import _ from "lodash";
+import { SchemaType } from "../types/types";
 
 export class RestApiClient<T> {
   constructor(private table: string) {}
 
   schema = async (clientId: string): Promise<{ [key: string]: any }> => {
-    return await (
+    return (await (
       await fetchServer(`/api/rest/v1/${clientId}/${this.table}/schema`)
-    ).json();
+    ).json()) as SchemaType;
   };
 
   suggestions = async (

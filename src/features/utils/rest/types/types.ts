@@ -6,3 +6,9 @@ export type RestEntity = {
   updated_at: string; // Stringified timestamp in ms
   updated_by: string;
 };
+
+type SchemaKeyTypes = "text" | "date" | "boolean" | "number" | `type:${string}`;
+
+export type SchemaType = {
+  [key: string]: SchemaType | SchemaKeyTypes | [SchemaKeyTypes];
+};

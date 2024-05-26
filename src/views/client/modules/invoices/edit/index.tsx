@@ -1,24 +1,27 @@
 import { Button } from "@atoms/button/button";
-import { Section, Title } from "@atoms/text";
+import { Title } from "@atoms/text";
+import { PageLoader } from "@components/page-loader";
+import { useClients } from "@features/clients/state/use-clients";
 import { Invoices } from "@features/invoices/types/types";
 import { ROUTES, getRoute } from "@features/routes";
 import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
-import { Page, PageBlockHr } from "@views/client/_layout/page";
+import { Page } from "@views/client/_layout/page";
+import _ from "lodash";
 import { useNavigate, useParams } from "react-router-dom";
 import { InvoicesDetailsPage } from "../components/invoices-details";
-import { PageLoader } from "@components/page-loader";
-import { useClients } from "@features/clients/state/use-clients";
-import { getFormattedNumerotation } from "@features/utils/format/numerotation";
 
 export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
-  const type = "quotes";
-
   const { client: clientUser } = useClients();
   const client = clientUser!.client!;
 
   let { id } = useParams();
   id = id === "new" ? "" : id || "";
   const navigate = useNavigate();
+
+  // TODO this must not execute if we're in a modal /!\
+  const initialModel = JSON.parse(
+    new URLSearchParams(window.location.search).get("model") || "{}"
+  ) as Invoices;
 
   const {
     draft: invoice,
@@ -31,18 +34,17 @@ export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
     async (item) => {
       navigate(getRoute(ROUTES.InvoicesView, { id: item.id }));
     },
-    {
-      type,
-      state: "draft",
-      reference: getFormattedNumerotation(
-        client.invoices_counters[type]?.format,
-        client.invoices_counters[type]?.counter
-      ),
-      language: client.preferences?.language || "fr",
-      currency: client.preferences?.currency || "EUR",
-      format: client.invoices,
-      payment_information: client.payment,
-    } as Invoices
+    _.merge(
+      {
+        type: "quotes",
+        state: "draft",
+        language: client.preferences?.language || "fr",
+        currency: client.preferences?.currency || "EUR",
+        format: client.invoices,
+        payment_information: client.payment,
+      } as Invoices,
+      initialModel
+    ) as Invoices
   );
 
   if (isInitiating) return <PageLoader />;
@@ -80,7 +82,7 @@ export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
       {!id && <Title>Création de {invoice.reference}</Title>}
       {id && <Title>Modification de {invoice.reference || ""}</Title>}
       <div className="mt-4" />
-      <InvoicesDetailsPage type={type} readonly={false} id={id} />
+      <InvoicesDetailsPage readonly={false} id={id} />
     </Page>
   );
 };

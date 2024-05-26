@@ -1,21 +1,20 @@
 import countries from "@assets/countries.json";
+import { Button } from "@atoms/button/button";
+import { ButtonConfirm } from "@atoms/button/confirm";
+import { InputLabel } from "@atoms/input/input-decoration-label";
+import { InputImage } from "@atoms/input/input-image";
 import { Info, Section } from "@atoms/text";
 import { Form } from "@components/form";
 import { ValuesObjectType } from "@components/form/types";
+import { useHasAccess } from "@features/access";
+import { useAuth } from "@features/auth/state/use-auth";
+import { useClientUsers } from "@features/clients/state/use-client-users";
 import { useClients } from "@features/clients/state/use-clients";
 import { Clients } from "@features/clients/types/clients";
-import { useEffect, useState } from "react";
-import { Page, PageBlock } from "../../_layout/page";
-import { Button } from "@atoms/button/button";
-import { useHasAccess } from "@features/access";
-import _ from "lodash";
-import { InputLabel } from "@atoms/input/input-decoration-label";
-import { InputImage } from "@atoms/input/input-image";
 import { getServerUri } from "@features/utils/format/strings";
-import { ButtonConfirm } from "@atoms/button/confirm";
-import { useClientUsers } from "@features/clients/state/use-client-users";
-import { useAuth } from "@features/auth/state/use-auth";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { Page, PageBlock } from "../../_layout/page";
 
 export const CompanyPage = () => {
   const { user } = useAuth();

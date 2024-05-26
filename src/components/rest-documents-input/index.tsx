@@ -55,7 +55,10 @@ export const RestDocumentsInput = (props: {
 
   const refType = _.get(schema.data, props.column);
   const refTable =
-    (typeof refType === "string" ? refType : refType?.[0] || "")
+    (typeof refType === "string"
+      ? (refType as string)
+      : (refType?.[0] as string) || ""
+    )
       .split("type:")
       .pop() || props.table;
 

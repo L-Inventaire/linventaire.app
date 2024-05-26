@@ -1,9 +1,9 @@
 import { Button } from "@atoms/button/button";
-import { Section, Title } from "@atoms/text";
+import { Section } from "@atoms/text";
 import { PageLoader } from "@components/page-loader";
 import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { ROUTES, getRoute } from "@features/routes";
-import { Page, PageBlockHr } from "@views/client/_layout/page";
+import { Page } from "@views/client/_layout/page";
 import { useNavigate, useParams } from "react-router-dom";
 import { InvoicesDetailsPage } from "../components/invoices-details";
 
@@ -31,7 +31,7 @@ export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
       </div>
       <Section>{invoice.reference || ""}</Section>
       <div className="mt-4" />
-      <InvoicesDetailsPage type="quotes" readonly={true} id={id || ""} />
+      <InvoicesDetailsPage readonly={true} id={id || ""} />
     </Page>
   );
 };

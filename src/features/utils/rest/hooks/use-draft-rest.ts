@@ -6,10 +6,7 @@ import { useRest } from "./use-rest";
 
 const RestDraftAtom = atomFamily<any, [string, string | "new"]>({
   key: "RestDraftAtom",
-  default: (key: any) =>
-    key[1] === "new"
-      ? JSON.parse(localStorage.getItem("drafts_" + key.join("_")) || "{}")
-      : {},
+  default: {},
   effects_UNSTABLE: (key) => [
     ({ onSet }) => {
       onSet((newVal) => {
@@ -24,32 +21,25 @@ const RestDraftAtom = atomFamily<any, [string, string | "new"]>({
   ],
 });
 
-const RestDraftReadyAtom = atomFamily<boolean, [string, string]>({
-  key: "RestDraftReadyAtom",
-  default: false,
-});
-
 export const useReadDraftRest = <T extends { id: string }>(
   table: string,
   id: string,
   readonly = false
 ) => {
-  return useDraftRest<T>(table, id, async () => {}, {}, readonly);
+  return useDraftRest<T>(table, id, async () => {}, undefined, readonly);
 };
 
 export const useDraftRest = <T extends { id: string }>(
   table: string,
   id: string | "new",
   onSaved: (item: T) => Promise<void>,
-  defaultValue: Partial<T> = {},
+  defaultValue?: Partial<T>,
   readonly = false
 ) => {
   const { items, upsert } = useRest<T>(table, { query: { id } as any });
   const existingItem = id && id !== "new" ? items?.data?.list?.[0] : null;
 
-  const [defaultWasSet, setDefaultWasSet] = useRecoilState(
-    RestDraftReadyAtom([table, id])
-  );
+  const [defaultWasSet, setDefaultWasSet] = useState(false);
   const [draft, setDraft] = useRecoilState<T>(RestDraftAtom([table, id]));
 
   const { lockNavigation, ctrl, setLockNavigation } = useFormController(
@@ -60,13 +50,14 @@ export const useDraftRest = <T extends { id: string }>(
   useNavigationPrompt(!readonly && lockNavigation);
 
   useEffect(() => {
-    setDraft((draft) =>
-      Object.keys(draft).length || !Object.keys(defaultValue).length
-        ? draft
-        : (defaultValue as T)
-    );
+    // TODO see bellow
+    // 1/ For now we wont load the last draft, it should instead be in an other atom to store drafts and allow
+    // user to load it back -> JSON.parse(localStorage.getItem("drafts_" + key.join("_")) || "{}"
+    // 2/ Auto loading draft at loading page is great when reloading page but not when navigating from button "create new"
+    // Maybe we can detect if it's a reload or not ?
+    if (defaultValue) setDraft(defaultValue as T);
     setDefaultWasSet(true);
-  }, [defaultValue]);
+  }, [JSON.stringify(defaultValue)]);
 
   useEffect(() => {
     if (existingItem && (draft.id !== existingItem.id || readonly)) {
@@ -87,7 +78,8 @@ export const useDraftRest = <T extends { id: string }>(
 
   return {
     save,
-    isInitiating: (items.isPending && !items.data) || !defaultWasSet,
+    isInitiating:
+      (items.isPending && !items.data) || (defaultValue && !defaultWasSet),
     isPending: upsert.isPending,
     ctrl,
     draft,

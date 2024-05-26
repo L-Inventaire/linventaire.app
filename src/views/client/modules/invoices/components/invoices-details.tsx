@@ -17,6 +17,7 @@ import { useContact } from "@features/contacts/hooks/use-contacts";
 import { Invoices } from "@features/invoices/types/types";
 import {
   currencyOptions,
+  invoicesAlikeStatus,
   languageOptions,
   tvaOptions,
   unitOptions,
@@ -37,18 +38,17 @@ import {
 import _ from "lodash";
 import { useEffect } from "react";
 import { computePricesFromInvoice } from "../utils";
+import { getFormattedNumerotation } from "@features/utils/format/numerotation";
 
 export const InvoicesDetailsPage = ({
-  type,
   readonly,
   id,
 }: {
-  type: "invoices" | "quotes" | "credit_notes";
   readonly?: boolean;
   id: string;
 }) => {
   const { client: clientUser } = useClients();
-  const client = clientUser?.client;
+  const client = clientUser!.client!;
 
   const { isPending, ctrl, draft, setDraft } = useReadDraftRest<Invoices>(
     "invoices",
@@ -58,18 +58,18 @@ export const InvoicesDetailsPage = ({
 
   const { contact } = useContact(draft.contact);
 
-  const quotesStatus: { [key: string]: [string, string] } = {
-    draft: ["Brouillon", "bg-red-500"],
-    sent: ["Envoyé", "bg-yellow-500"],
-    accepted: ["Accepté", "bg-blue-500"],
-    completed: ["Complété", "bg-green-500"],
-    canceled: ["Annulé", "bg-slate-500"],
-  };
+  const status = invoicesAlikeStatus;
 
   useEffect(() => {
     setDraft((draft) => {
       draft = _.cloneDeep(draft);
       if (!draft.emit_date) draft.emit_date = new Date();
+      if (!draft.reference) {
+        draft.reference = getFormattedNumerotation(
+          client.invoices_counters[draft.type]?.format,
+          client.invoices_counters[draft.type]?.counter
+        );
+      }
       draft.total = computePricesFromInvoice(draft);
       return draft;
     });
@@ -568,7 +568,7 @@ export const InvoicesDetailsPage = ({
                   />
                 </PageBlock>
                 {draft.type === "invoices" && (
-                  <PageBlock closable title="Rappels">
+                  <PageBlock closable title="Rappels" initOpen={false}>
                     <Info>
                       Envoyez un rappel toutes les semaines lorsque votre
                       facture passe en attente de paiement tant que le paiement
@@ -614,7 +614,7 @@ export const InvoicesDetailsPage = ({
                   </PageBlock>
                 )}
                 {draft.type === "invoices" && (
-                  <PageBlock closable title="Récurrence">
+                  <PageBlock closable title="Récurrence" initOpen={false}>
                     <Info>
                       Activez la récurrence pour dupliquer cette facture
                       automatiquement.
@@ -792,14 +792,16 @@ export const InvoicesDetailsPage = ({
             <div className="grow lg:w-2/5 shrink-0">
               <PageBlock title="Status">
                 <div className="inline-flex items-center space-x-2 w-full">
-                  <Dot className={quotesStatus[draft.state || "draft"][1]} />
+                  <Dot
+                    className={status[draft.type][draft.state || "draft"][1]}
+                  />
                   <FormInput
                     className="grow"
                     ctrl={ctrl("state")}
                     type="select"
-                    options={Object.keys(quotesStatus).map((k) => ({
+                    options={Object.keys(status[draft.type]).map((k) => ({
                       value: k as string,
-                      label: quotesStatus[k][0] as string,
+                      label: status[draft.type][k][0] as string,
                     }))}
                   />
                 </div>

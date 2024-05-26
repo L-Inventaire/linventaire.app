@@ -114,24 +114,24 @@ export const SideBar = () => {
             {
               label: "Devis",
               shortcut: ["d"],
-              to: getRoute(ROUTES.Invoices) + '?q=type%3A"quote"+',
+              to: getRoute(ROUTES.Invoices) + '?q=type%3A"quotes"+',
             },
             {
               label: "Factures",
               shortcut: ["f"],
-              to: getRoute(ROUTES.Invoices) + '?q=type%3A"invoice"+',
+              to: getRoute(ROUTES.Invoices) + '?q=type%3A"invoices"+',
             },
             {
               label: "Abonnements",
               shortcut: ["f"],
               to:
                 getRoute(ROUTES.Invoices) +
-                '?q=type%3A"invoice"+subscription_enabled%3A1+',
+                '?q=type%3A"invoices"+subscription_enabled%3A1+',
             },
             {
               label: "Avoirs",
               shortcut: [],
-              to: getRoute(ROUTES.Invoices) + '?q=type%3A"credit_note"+',
+              to: getRoute(ROUTES.Invoices) + '?q=type%3A"credit_notes"+',
             },
           ]}
         />

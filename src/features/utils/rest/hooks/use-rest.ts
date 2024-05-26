@@ -4,6 +4,7 @@ import _ from "lodash";
 import { useEffect, useState } from "react";
 import { useDebounceValue } from "usehooks-ts";
 import { RestApiClient } from "../api-client/rest-api-client";
+import { SchemaType } from "../types/types";
 
 const restApiClients: { [key: string]: RestApiClient<any> } = {};
 
@@ -150,7 +151,7 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
 
 export const useRestSchema = (table: string) => {
   const { id } = useCurrentClient();
-  return useQuery({
+  return useQuery<SchemaType>({
     queryKey: [table + "_schema", id],
     queryFn: () => restApiClients[table].schema(id || ""),
   });
