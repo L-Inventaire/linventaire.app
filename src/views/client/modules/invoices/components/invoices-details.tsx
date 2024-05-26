@@ -359,6 +359,9 @@ export const InvoicesDetailsPage = ({
                     callback: function (doc) {
                       doc.save();
                     },
+                    html2canvas: {
+                      letterRendering: true,
+                    },
                     x: 10,
                     y: 10,
                   });
