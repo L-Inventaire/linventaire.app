@@ -347,11 +347,13 @@ export const InvoicesDetailsPage = ({
               <br />
               related items
             </PageBlock>
-            <div className="p-8">
+            <div>
               <Button
                 onClick={() => {
                   let element = document.getElementById("invoice-preview");
                   const doc = new jsPDF();
+                  doc.setFont("Inter", "bold");
+                  doc.setCharSpace(0);
 
                   doc.html(element ?? "<div>ERROR</div>", {
                     callback: function (doc) {
@@ -364,8 +366,16 @@ export const InvoicesDetailsPage = ({
               >
                 Télécharger
               </Button>
-              <div className="w-full bg-white shadow-md h-80">
-                <InvoicesPreviewPage invoice={draft} />
+              <div className="w-full bg-white shadow-md h-80 p-9 m-0">
+                <InvoicesPreviewPage invoice={draft} preview={true} />
+
+                <div className="invisible h-0">
+                  <InvoicesPreviewPage
+                    id="invoice-preview"
+                    invoice={draft}
+                    preview={false}
+                  />
+                </div>
               </div>
             </div>
           </div>

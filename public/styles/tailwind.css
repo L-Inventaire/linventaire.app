@@ -1240,6 +1240,10 @@ select {
   height: 100vh;
 }
 
+.h-0 {
+  height: 0px;
+}
+
 .max-h-0 {
   max-height: 0px;
 }
@@ -1377,6 +1381,10 @@ select {
   min-width: 16rem;
 }
 
+.min-w-80 {
+  min-width: 20rem;
+}
+
 .min-w-\[25\%\] {
   min-width: 25%;
 }
@@ -1389,10 +1397,6 @@ select {
 
 .min-w-full {
   min-width: 100%;
-}
-
-.min-w-80 {
-  min-width: 20rem;
 }
 
 .max-w-24 {
@@ -1645,6 +1649,12 @@ select {
   margin-bottom: calc(-1px * var(--tw-space-y-reverse));
 }
 
+.space-x-1 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 0;
+  margin-right: calc(0.25rem * var(--tw-space-x-reverse));
+  margin-left: calc(0.25rem * calc(1 - var(--tw-space-x-reverse)));
+}
+
 .space-x-2 > :not([hidden]) ~ :not([hidden]) {
   --tw-space-x-reverse: 0;
   margin-right: calc(0.5rem * var(--tw-space-x-reverse));
@@ -1679,12 +1689,6 @@ select {
   --tw-space-y-reverse: 0;
   margin-top: calc(1rem * calc(1 - var(--tw-space-y-reverse)));
   margin-bottom: calc(1rem * var(--tw-space-y-reverse));
-}
-
-.space-x-1 > :not([hidden]) ~ :not([hidden]) {
-  --tw-space-x-reverse: 0;
-  margin-right: calc(0.25rem * var(--tw-space-x-reverse));
-  margin-left: calc(0.25rem * calc(1 - var(--tw-space-x-reverse)));
 }
 
 .overflow-auto {
@@ -2967,8 +2971,8 @@ select {
   padding: 1rem;
 }
 
-.p-8 {
-  padding: 2rem;
+.p-9 {
+  padding: 2.25rem;
 }
 
 .\!px-1 {
@@ -3194,6 +3198,10 @@ select {
   line-height: 2.25rem;
 }
 
+.text-\[0px\] {
+  font-size: 0px;
+}
+
 .text-base {
   font-size: 1rem;
   line-height: 1.5rem;
@@ -3223,8 +3231,32 @@ select {
   font-size: 9px;
 }
 
-.text-\[0px\] {
-  font-size: 0px;
+.text-\[0\.8rem\] {
+  font-size: 0.8rem;
+}
+
+.text-\[0\.4rem\] {
+  font-size: 0.4rem;
+}
+
+.text-\[0\.7rem\] {
+  font-size: 0.7rem;
+}
+
+.text-\[0\.6rem\] {
+  font-size: 0.6rem;
+}
+
+.text-\[0\.5rem\] {
+  font-size: 0.5rem;
+}
+
+.text-\[0\.3rem\] {
+  font-size: 0.3rem;
+}
+
+.text-\[0\.2rem\] {
+  font-size: 0.2rem;
 }
 
 .font-bold {
@@ -3247,6 +3279,10 @@ select {
   font-weight: 600;
 }
 
+.font-\[0\.2rem\] {
+  font-weight: 0.2rem;
+}
+
 .uppercase {
   text-transform: uppercase;
 }
@@ -3255,12 +3291,12 @@ select {
   text-transform: lowercase;
 }
 
-.leading-6 {
-  line-height: 1.5rem;
-}
-
 .leading-5 {
   line-height: 1.25rem;
+}
+
+.leading-6 {
+  line-height: 1.5rem;
 }
 
 .\!text-transparent {
@@ -4231,15 +4267,15 @@ input, select {
   background-color: rgb(233 228 216 / var(--tw-bg-opacity));
 }
 
+.group\/checkbox:hover .group-hover\/checkbox\:opacity-100 {
+  opacity: 1;
+}
+
 .group\/item:hover .group-hover\/item\:opacity-100 {
   opacity: 1;
 }
 
 .group\/user:hover .group-hover\/user\:opacity-100 {
-  opacity: 1;
-}
-
-.group\/checkbox:hover .group-hover\/checkbox\:opacity-100 {
   opacity: 1;
 }
 
