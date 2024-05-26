@@ -100,13 +100,19 @@ export const SideBar = () => {
               label: "Nouvelle facture",
               icon: (p) => <PlusIcon {...p} />,
               shortcut: ["shift+f"],
-              to: getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+              to:
+                getRoute(ROUTES.InvoicesEdit, { id: "new" }) +
+                "?model=" +
+                encodeURIComponent(JSON.stringify({ type: "invoices" })),
             },
             {
               label: "Nouveau devis",
               icon: (p) => <PlusIcon {...p} />,
               shortcut: ["shift+d"],
-              to: getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+              to:
+                getRoute(ROUTES.InvoicesEdit, { id: "new" }) +
+                "?model=" +
+                encodeURIComponent(JSON.stringify({ type: "quotes" })),
             },
             {
               type: "divider",

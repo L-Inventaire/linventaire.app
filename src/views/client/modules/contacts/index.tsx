@@ -1,9 +1,10 @@
 import { Button } from "@atoms/button/button";
-import InputDate from "@atoms/input/input-date";
-import Select from "@atoms/input/input-select";
+import Tabs from "@atoms/tabs";
 import { Info, Title } from "@atoms/text";
+import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { Table } from "@components/table";
 import { TagsInput } from "@components/tags-input";
+import { UsersInput } from "@components/users-input";
 import { useContacts } from "@features/contacts/hooks/use-contacts";
 import { Contacts, getContactName } from "@features/contacts/types/types";
 import { ROUTES, getRoute } from "@features/routes";
@@ -14,11 +15,9 @@ import {
 import { PlusIcon } from "@heroicons/react/outline";
 import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
-import Tabs from "@atoms/tabs";
-import { useNavigate } from "react-router-dom";
-import { UsersInput } from "@components/users-input";
 
 export const ContactsPage = () => {
   const [options, setOptions] = useState<RestOptions<Contacts>>({
@@ -26,7 +25,29 @@ export const ContactsPage = () => {
     offset: 0,
     query: [],
   });
-  const { contacts } = useContacts(options);
+  const [type, setType] = useState("");
+  const { contacts } = useContacts({
+    ...options,
+    query: [
+      ...((options?.query as any) || []),
+      ...(type === "clients"
+        ? [
+            {
+              key: "is_client",
+              values: [{ op: "equals", value: true }],
+            },
+          ]
+        : []),
+      ...(type === "suppliers"
+        ? [
+            {
+              key: "is_supplier",
+              values: [{ op: "equals", value: true }],
+            },
+          ]
+        : []),
+    ],
+  });
   const schema = useRestSchema("contacts");
   const navigate = useNavigate();
 
@@ -36,7 +57,10 @@ export const ContactsPage = () => {
         <Button
           className="ml-4"
           size="sm"
-          to={getRoute(ROUTES.ContactsEdit, { id: "new" })}
+          to={withSearchAsModel(
+            getRoute(ROUTES.ContactsEdit, { id: "new" }),
+            schema.data
+          )}
           icon={(p) => <PlusIcon {...p} />}
         >
           Ajouter un contact
@@ -50,32 +74,12 @@ export const ContactsPage = () => {
           { value: "clients", label: "Clients" },
           { value: "suppliers", label: "Fournisseurs" },
         ]}
-        value={""}
-        onChange={console.log}
+        value={type}
+        onChange={(v) => setType(v as string)}
       />
       <div className="mb-4" />
 
       <div className="flex flex-row space-x-2">
-        {false && (
-          <>
-            <Select className="w-max">
-              <option>Tous</option>
-              <option>Clients</option>
-              <option>Fournisseurs</option>
-              <option>Aucun</option>
-            </Select>
-            <div className="flex flex-row relative">
-              <InputDate
-                className="rounded-r-none -mr-px hover:z-10"
-                placeholder="From"
-              />
-              <InputDate
-                className="rounded-l-none -ml-px hover:z-10"
-                placeholder="To"
-              />
-            </div>
-          </>
-        )}
         <SearchBar
           schema={{
             table: "contacts",

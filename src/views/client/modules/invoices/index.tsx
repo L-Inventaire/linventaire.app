@@ -30,6 +30,7 @@ export const InvoicesPage = () => {
   });
   const { invoices } = useInvoices({
     ...options,
+    // TODO maybe create a util function for that
     query: [
       ...((options?.query as any) || []),
       ...(type
