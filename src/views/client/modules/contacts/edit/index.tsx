@@ -7,11 +7,17 @@ import { Page } from "@views/client/_layout/page";
 import { useNavigate, useParams } from "react-router-dom";
 import { ContactsDetailsPage } from "../components/contact-details";
 import { PageLoader } from "@components/page-loader";
+import _ from "lodash";
 
 export const ContactsEditPage = ({ readonly }: { readonly?: boolean }) => {
   let { id } = useParams();
   id = id === "new" ? "" : id || "";
   const navigate = useNavigate();
+
+  // TODO this must not execute if we're in a modal /!\
+  const initialModel = JSON.parse(
+    new URLSearchParams(window.location.search).get("model") || "{}"
+  ) as Contacts;
 
   const {
     draft: contact,
@@ -24,10 +30,13 @@ export const ContactsEditPage = ({ readonly }: { readonly?: boolean }) => {
     async (item) => {
       navigate(getRoute(ROUTES.ContactsView, { id: item.id }));
     },
-    {
-      type: "company",
-      delivery_address: null,
-    } as Contacts
+    _.merge(
+      {
+        type: "company",
+        delivery_address: null,
+      },
+      initialModel
+    ) as Contacts
   );
 
   if (isInitiating) return <PageLoader />;
