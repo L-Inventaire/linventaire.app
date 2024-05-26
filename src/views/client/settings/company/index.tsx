@@ -18,7 +18,7 @@ import { Page, PageBlock } from "../../_layout/page";
 
 export const CompanyPage = () => {
   const { user } = useAuth();
-  const { update, client: clientUser } = useClients();
+  const { update, client: clientUser, refresh } = useClients();
   const { users, remove } = useClientUsers(clientUser?.client?.id || "");
   const client = clientUser?.client;
   const hasAccess = useHasAccess();
@@ -27,6 +27,10 @@ export const CompanyPage = () => {
   const [company, setCompany] = useState<Partial<Clients["company"]>>({});
   const [address, setAddress] = useState<Partial<Clients["address"]>>({});
   const [imageBase64, setImageBase64] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    refresh();
+  }, []);
 
   useEffect(() => {
     setCompany({ ...client?.company });

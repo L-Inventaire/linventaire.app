@@ -7,12 +7,17 @@ import { ROUTES, getRoute } from "@features/routes";
 import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { Page } from "@views/client/_layout/page";
 import _ from "lodash";
+import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { InvoicesDetailsPage } from "../components/invoices-details";
 
 export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
-  const { client: clientUser } = useClients();
+  const { client: clientUser, refresh, loading } = useClients();
   const client = clientUser!.client!;
+
+  useEffect(() => {
+    refresh();
+  }, []);
 
   let { id } = useParams();
   id = id === "new" ? "" : id || "";
@@ -47,7 +52,7 @@ export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
     ) as Invoices
   );
 
-  if (isInitiating) return <PageLoader />;
+  if (isInitiating || loading) return <PageLoader />;
 
   return (
     <Page

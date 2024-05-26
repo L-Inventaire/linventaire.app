@@ -18,10 +18,14 @@ import { InvoiceFormatInput } from "@components/invoice-format-input";
 export const PreferencesPage = () => {
   const { t } = useTranslation();
 
-  const { update, client: clientUser, loading } = useClients();
+  const { update, client: clientUser, loading, refresh } = useClients();
   const client = clientUser?.client;
   const hasAccess = useHasAccess();
   const readonly = !hasAccess("CLIENT_MANAGE");
+
+  useEffect(() => {
+    refresh();
+  }, []);
 
   const [preferences, setPreferences] = useState<
     Partial<Clients["preferences"]>
