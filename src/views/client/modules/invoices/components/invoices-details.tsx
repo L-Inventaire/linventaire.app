@@ -369,7 +369,7 @@ export const InvoicesDetailsPage = ({
               >
                 Télécharger
               </Button>
-              <div className="w-full bg-white shadow-md h-80 p-9 m-0">
+              <div className="w-full h-max bg-white shadow-md p-9 m-0">
                 <InvoicesPreviewPage invoice={draft} preview={true} />
 
                 <div className="invisible h-0">

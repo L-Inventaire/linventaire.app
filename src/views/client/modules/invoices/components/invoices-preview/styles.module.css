@@ -1,5 +1,6 @@
-.root {
-    font-family: Inter, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+.font {
+    font-family: Arial, Inter, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    letter-spacing: 0;
 }
 
 .table caption, .table tbody, .table tfoot, .table thead, .table tr, .table th, .table td {
@@ -11,6 +12,5 @@
     border: 0;
     outline: 0;
     font-size: 100%;
-    vertical-align: baseline;
-    background: transparent;
+    /* vertical-align: baseline; */
 }
