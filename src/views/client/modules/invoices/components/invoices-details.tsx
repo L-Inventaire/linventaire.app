@@ -1,3 +1,4 @@
+import { Button } from "@atoms/button/button";
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import { SectionSmall } from "@atoms/text";
 import { AddressInput } from "@components/address-input";
@@ -20,11 +21,7 @@ import {
   PageColumns,
 } from "@views/client/_layout/page";
 import { useEffect } from "react";
-import { InvoicesPreviewPage } from "./invoices-preview/invoices-preview";
-import { Button } from "@atoms/button/button";
-
-// @ts-expect-error No TS types package
-import html2pdf from "html2pdf.js";
+import { InvoicesPreview } from "./invoices-preview/invoices-preview";
 
 import { jsPDF } from "jspdf";
 
@@ -341,44 +338,40 @@ export const InvoicesDetailsPage = ({
               />
             </PageBlock>
           </div>
-          <div className="grow">
+          <div className="flex flex-col grow">
             <PageBlock title="Status">
               state
               <br />
               related items
             </PageBlock>
-            <div>
-              <Button
-                onClick={() => {
-                  let element = document.getElementById("invoice-preview");
-                  const doc = new jsPDF();
-                  doc.setFont("Inter", "bold");
-                  doc.setCharSpace(0);
+            <div className="flex flex-col grow">
+              <div className="w-max h-max bg-white shadow-md p-9 m-0">
+                <Button
+                  className="w-full"
+                  onClick={() => {
+                    let element = document.getElementById("invoice-preview");
+                    const doc = new jsPDF({
+                      orientation: "portrait",
+                      unit: "pt",
+                      format: [842, 595],
+                    });
+                    doc.setCharSpace(0);
 
-                  doc.html(element ?? "<div>ERROR</div>", {
-                    callback: function (doc) {
-                      doc.save();
-                    },
-                    html2canvas: {
-                      letterRendering: true,
-                    },
-                    x: 10,
-                    y: 10,
-                  });
-                }}
-              >
-                Télécharger
-              </Button>
-              <div className="w-full h-max bg-white shadow-md p-9 m-0">
-                <InvoicesPreviewPage invoice={draft} preview={true} />
-
-                <div className="invisible h-0">
-                  <InvoicesPreviewPage
-                    id="invoice-preview"
-                    invoice={draft}
-                    preview={false}
-                  />
-                </div>
+                    doc.html(element ?? "<div>ERROR</div>", {
+                      callback: function (doc) {
+                        doc.save();
+                      },
+                      html2canvas: {
+                        letterRendering: true,
+                      },
+                      x: 10,
+                      y: 10,
+                    });
+                  }}
+                >
+                  Télécharger
+                </Button>
+                <InvoicesPreview invoice={draft} />
               </div>
             </div>
           </div>
