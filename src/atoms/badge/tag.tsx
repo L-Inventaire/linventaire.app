@@ -11,7 +11,7 @@ export const Tag = ({
   icon,
   style,
   onClick,
-  dataTooltip,
+  ...props
 }: {
   color?: string;
   className?: string;
@@ -21,7 +21,7 @@ export const Tag = ({
   icon?: ReactNode;
   style?: CSSProperties;
   onClick?: () => void;
-  dataTooltip?: string;
+  "data-tooltip"?: string;
 }) => {
   if (!children) return <></>;
 
@@ -34,7 +34,7 @@ export const Tag = ({
   return (
     <div
       data-tooltip={
-        dataTooltip || (typeof children === "string" ? children : "")
+        props["data-tooltip"] || (typeof children === "string" ? children : "")
       }
       onClick={onClick}
       style={{ ...(style || {}), minWidth: "21px" }}
@@ -44,7 +44,7 @@ export const Tag = ({
           : size === "lg"
           ? "h-9 pl-2 pr-3"
           : "h-7 px-2",
-        "text-left rounded inline-block inline-flex items-center text-sm text-center border border-opacity-10 dark:border-opacity-10 dark:border-slate-500 border-box border-black border-inside " +
+        "text-left rounded-full inline-block inline-flex items-center text-sm text-center border border-opacity-10 dark:border-opacity-10 dark:border-slate-500 border-box border-black border-inside " +
           (!noColor
             ? "bg-wood-300 text-wood-800 dark:bg-wood-600 dark:text-wood-100 "
             : ""),

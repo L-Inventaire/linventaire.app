@@ -5,7 +5,7 @@ import {
   useFormController,
 } from "@components/form/formcontext";
 import { Invoices as InvoiceFormat } from "@features/clients/types/clients";
-import { tvaMentionOptions, tvaOptions } from "@features/utils/constants";
+import { tvaMentionOptions } from "@features/utils/constants";
 import { PageBlockHr } from "@views/client/_layout/page";
 import { useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";

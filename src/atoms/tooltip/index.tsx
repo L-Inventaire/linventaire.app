@@ -126,13 +126,13 @@ export const Tooltip = () => {
           transform: translateX(-50%) rotate(180deg);
         }
         .tooltip-left::before {
-          border-right: 5px solid black;
+          border-left: 5px solid black;
           right: -10px;
           top: 50%;
           transform: translateY(-50%);
         }
         .tooltip-right::before {
-          border-left: 5px solid black;
+          border-right: 5px solid black;
           left: -10px;
           top: 50%;
           transform: translateY(-50%);

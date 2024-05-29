@@ -83,13 +83,7 @@ export const useAuth = () => {
 
   const logout = useRecoilCallback(({ snapshot }) => () => {
     AuthJWT.token = "";
-    const updated = {
-      ...snapshot.getLoadable(AuthState).contents,
-      isLoggedIn: false,
-      authorization: "",
-      user: null,
-    };
-    saveAuth(updated);
+    localStorage.clear();
     document.location.replace("/");
   });
 

@@ -211,7 +211,7 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
             </td>
             <td>
               {(invoice.emit_date &&
-                formatTime(invoice.emit_date, {
+                formatTime(invoice.emit_date.getTime(), {
                   hideTime: true,
                   keepDate: true,
                   numeric: true,
@@ -227,7 +227,7 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
               {(invoice.emit_date &&
                 invoice?.payment_information?.delay &&
                 formatTime(
-                  DateTime.fromMillis(invoice.emit_date)
+                  DateTime.fromMillis(invoice.emit_date.getTime())
                     .plus({
                       days: invoice.payment_information.delay,
                     })

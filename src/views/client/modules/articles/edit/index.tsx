@@ -7,11 +7,17 @@ import { Page } from "@views/client/_layout/page";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArticlesDetailsPage } from "../components/article-details";
 import { PageLoader } from "@components/page-loader";
+import _ from "lodash";
 
 export const ArticlesEditPage = ({ readonly }: { readonly?: boolean }) => {
   let { id } = useParams();
   id = id === "new" ? "" : id || "";
   const navigate = useNavigate();
+
+  // TODO this must not execute if we're in a modal /!\
+  const initialModel = JSON.parse(
+    new URLSearchParams(window.location.search).get("model") || "{}"
+  ) as Articles;
 
   const {
     draft: article,
@@ -24,7 +30,7 @@ export const ArticlesEditPage = ({ readonly }: { readonly?: boolean }) => {
     async (item) => {
       navigate(getRoute(ROUTES.ProductsView, { id: item.id }));
     },
-    { type: "product", tva: "20" }
+    _.merge({ type: "product", tva: "20" }, initialModel) as Articles
   );
 
   if (isInitiating) return <PageLoader />;

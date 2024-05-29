@@ -5,12 +5,19 @@ export type Invoices = {
   id: string;
 
   assigned: string[];
-  type: string; // invoice, quote, credit_note
+  type: "invoices" | "quotes" | "credit_notes"; // invoice, quote, credit_note
 
   // Quotes: “created”, “sent”, “accepted”, "completed", “canceled”, “discontinued”
   // Invoices: “created”, “sent”, “paid”
   // Credit Notes: “created”, “sent”, “paid”
-  state: string;
+  state:
+    | "draft"
+    | "sent"
+    | "accepted"
+    | "completed"
+    | "canceled"
+    | "discontinued"
+    | "paid";
   // For invoices: invoices cancelled and refunded by this credit note
   related_credit_notes: string[]; // Nullable
   // For credit notes: invoice refunded by this credit note
@@ -23,7 +30,7 @@ export type Invoices = {
 
   client: string;
   contact: string; // Nullable, the person in the client we discuss with
-  emit_date: number;
+  emit_date: Date;
   language: string;
   currency: string;
 
@@ -75,24 +82,25 @@ export type InvoiceSubscription = {
   frequency: string; // "daily" | "weekly" | "monthly" | "yearly"
   start: number;
   end: number;
+  as_draft: boolean;
 };
 
 export type InvoiceLine = {
-  article: string; // Nullable
+  article?: string; // Nullable
 
-  type: string; // product, service, consumable, separation
-  name: string;
-  description: string;
+  type: "product" | "service" | "consumable" | "separation"; // product, service, consumable, separation
+  name?: string;
+  description?: string;
 
-  reference: string;
-  unit: string;
-  quantity: number;
-  unit_price: number;
-  tva: number;
+  reference?: string;
+  unit?: string;
+  quantity?: number;
+  unit_price?: number;
+  tva?: string;
   discount?: InvoiceDiscount;
 
-  optional: boolean;
-  optional_checked: boolean; // Checked by the client or by the agent (like a default checked option)
+  optional?: boolean;
+  optional_checked?: boolean; // Checked by the client or by the agent (like a default checked option)
 };
 
 export type InvoiceDiscount = {

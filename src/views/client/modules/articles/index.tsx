@@ -1,7 +1,6 @@
 import { Button } from "@atoms/button/button";
-import InputDate from "@atoms/input/input-date";
-import Select from "@atoms/input/input-select";
 import { Info, Title } from "@atoms/text";
+import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { Table } from "@components/table";
 import { TagsInput } from "@components/tags-input";
 import { useArticles } from "@features/articles/hooks/use-articles";
@@ -32,7 +31,10 @@ export const ArticlesPage = () => {
         <Button
           className="ml-4"
           size="sm"
-          to={getRoute(ROUTES.ProductsEdit, { id: "new" })}
+          to={withSearchAsModel(
+            getRoute(ROUTES.ProductsEdit, { id: "new" }),
+            schema.data
+          )}
           icon={(p) => <PlusIcon {...p} />}
         >
           Ajouter un article
@@ -42,26 +44,6 @@ export const ArticlesPage = () => {
       <div className="mb-4" />
 
       <div className="flex flex-row space-x-2">
-        {false && (
-          <>
-            <Select className="w-max">
-              <option>Tous</option>
-              <option>Clients</option>
-              <option>Fournisseurs</option>
-              <option>Aucun</option>
-            </Select>
-            <div className="flex flex-row relative">
-              <InputDate
-                className="rounded-r-none -mr-px hover:z-10"
-                placeholder="From"
-              />
-              <InputDate
-                className="rounded-l-none -ml-px hover:z-10"
-                placeholder="To"
-              />
-            </div>
-          </>
-        )}
         <SearchBar
           schema={{
             table: "articles",
@@ -75,10 +57,6 @@ export const ArticlesPage = () => {
                 label: "Mis à jour par",
                 keywords: "updated_by mis à jour par auteur utilisateur user",
               },
-              email: "Email",
-              phone: "Téléphone",
-              is_supplier: "Fournisseur",
-              is_client: "Client",
             }),
           }}
           onChange={(q) =>

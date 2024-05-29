@@ -40,7 +40,7 @@ export const Header = () => {
   return (
     <div
       className={
-        "relative bg-wood-50 dark:bg-wood-950 border-b border-opacity-10 border-slate-500 lg:pt-4 flex flex-row justify-center lg:items-center px-16 sm:px-4 min-h-0 shrink-0 z-60 transition-all " +
+        "relative lg:py-2 flex flex-row justify-center lg:items-center px-16 sm:pr-2 sm:pl-0 min-h-0 shrink-0 z-60 transition-all " +
         (menuOpen ? "pointer-events-none opacity-25 " : "opacity-100")
       }
     >

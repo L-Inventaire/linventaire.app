@@ -1,25 +1,24 @@
 import countries from "@assets/countries.json";
+import { Button } from "@atoms/button/button";
+import { ButtonConfirm } from "@atoms/button/confirm";
+import { InputLabel } from "@atoms/input/input-decoration-label";
+import { InputImage } from "@atoms/input/input-image";
 import { Info, Section } from "@atoms/text";
 import { Form } from "@components/form";
 import { ValuesObjectType } from "@components/form/types";
+import { useHasAccess } from "@features/access";
+import { useAuth } from "@features/auth/state/use-auth";
+import { useClientUsers } from "@features/clients/state/use-client-users";
 import { useClients } from "@features/clients/state/use-clients";
 import { Clients } from "@features/clients/types/clients";
-import { useEffect, useState } from "react";
-import { Page, PageBlock } from "../../_layout/page";
-import { Button } from "@atoms/button/button";
-import { useHasAccess } from "@features/access";
-import _ from "lodash";
-import { InputLabel } from "@atoms/input/input-decoration-label";
-import { InputImage } from "@atoms/input/input-image";
 import { getServerUri } from "@features/utils/format/strings";
-import { ButtonConfirm } from "@atoms/button/confirm";
-import { useClientUsers } from "@features/clients/state/use-client-users";
-import { useAuth } from "@features/auth/state/use-auth";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { Page, PageBlock } from "../../_layout/page";
 
 export const CompanyPage = () => {
   const { user } = useAuth();
-  const { update, client: clientUser } = useClients();
+  const { update, client: clientUser, refresh } = useClients();
   const { users, remove } = useClientUsers(clientUser?.client?.id || "");
   const client = clientUser?.client;
   const hasAccess = useHasAccess();
@@ -28,6 +27,10 @@ export const CompanyPage = () => {
   const [company, setCompany] = useState<Partial<Clients["company"]>>({});
   const [address, setAddress] = useState<Partial<Clients["address"]>>({});
   const [imageBase64, setImageBase64] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    refresh();
+  }, []);
 
   useEffect(() => {
     setCompany({ ...client?.company });
@@ -67,33 +70,27 @@ export const CompanyPage = () => {
             }
           />
 
-          {!readonly &&
-            !_.isEqual(
-              { company, imageBase64 },
-              {
-                company: client?.company,
-                imageBase64: client?.preferences.logo,
+          {!readonly && (
+            <Button
+              className="mt-4"
+              theme="primary"
+              size="sm"
+              onClick={() =>
+                update(client?.id || "", {
+                  company: {
+                    ...client!.company,
+                    ...company,
+                  },
+                  preferences: {
+                    ...client!.preferences,
+                    logo: imageBase64 || "",
+                  },
+                })
               }
-            ) && (
-              <Button
-                className="mt-4"
-                theme="primary"
-                onClick={() =>
-                  update(client?.id || "", {
-                    company: {
-                      ...client!.company,
-                      ...company,
-                    },
-                    preferences: {
-                      ...client!.preferences,
-                      logo: imageBase64 || "",
-                    },
-                  })
-                }
-              >
-                Enregistrer
-              </Button>
-            )}
+            >
+              Enregistrer
+            </Button>
+          )}
         </div>
       </PageBlock>
 
@@ -124,10 +121,11 @@ export const CompanyPage = () => {
               },
             ]}
           />
-          {!readonly && !_.isEqual(company, client?.company) && (
+          {!readonly && (
             <Button
               className="mt-4"
               theme="primary"
+              size="sm"
               onClick={() =>
                 update(client?.id || "", {
                   company: {
@@ -190,8 +188,9 @@ export const CompanyPage = () => {
               },
             ]}
           />
-          {!readonly && !_.isEqual(address, client?.address) && (
+          {!readonly && (
             <Button
+              size="sm"
               className="mt-4"
               theme="primary"
               onClick={() =>
@@ -224,6 +223,7 @@ export const CompanyPage = () => {
           <ButtonConfirm
             disabled={users.length > 1}
             theme="danger"
+            size="sm"
             className="mt-4"
             confirmButtonTheme="danger"
             confirmButtonText="Détruire l'entreprise"

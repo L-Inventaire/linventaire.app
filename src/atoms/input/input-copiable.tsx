@@ -3,14 +3,11 @@ import { CheckIcon, ClipboardCopyIcon } from "@heroicons/react/outline";
 import _ from "lodash";
 import { useCallback, useState } from "react";
 import { Button } from "../button/button";
-import { Input } from "./input-text";
+import { Input, defaultInputClassName } from "./input-text";
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   className?: string;
 }
-
-export const defaultInputClassName =
-  "shadow-sm focus:ring-wood-500 focus:border-wood-500 block w-full sm:text-sm border-wood-200 rounded-lg";
 
 let copiedTimeout: any = 0;
 
@@ -36,7 +33,7 @@ export default function InputCopiable(props: InputProps) {
       <div className="relative flex items-stretch flex-grow focus-within:z-10">
         <Input
           className={
-            defaultInputClassName +
+            defaultInputClassName() +
             " rounded-r-none border px-2 " +
             props.className
           }

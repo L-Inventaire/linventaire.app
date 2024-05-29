@@ -19,6 +19,7 @@ export interface ButtonProps
   to?: string;
   target?: string;
   icon?: (props: React.SVGProps<SVGSVGElement>) => JSX.Element;
+  "data-tooltip"?: string;
 }
 
 export const Button = (props: ButtonProps) => {
@@ -66,16 +67,16 @@ export const Button = (props: ButtonProps) => {
 
   let className = colors;
 
-  if (props.size === "xl") className = className + " text-base h-14 px-14 ";
-  else if (props.size === "lg") className = className + " text-base h-11 px-8 ";
-  else if (props.size === "sm") className = className + " px-3 text-sm h-7";
+  const size = props.size || "md";
+
+  if (size === "xl") className = className + " text-base h-14 px-14 ";
+  else if (size === "lg") className = className + " text-base h-11 px-8 ";
+  else if (size === "sm") className = className + " px-3 text-sm h-7";
   else className = className + " px-4 text-base h-9";
 
   if (!props.children) {
-    if (props.size === "lg")
-      className = className + " w-11 !p-0 justify-center";
-    else if (props.size === "sm")
-      className = className + " w-7 !p-0 justify-center";
+    if (size === "lg") className = className + " w-11 !p-0 justify-center";
+    else if (size === "sm") className = className + " w-7 !p-0 justify-center";
     else className = className + " w-12 !p-0 justify-center";
   }
 

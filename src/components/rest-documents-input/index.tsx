@@ -22,7 +22,10 @@ export const RestDocumentsInput = (props: {
   label?: string;
   size?: "sm" | "md";
   max?: number;
-  onChange?: (value: string[] | string | null) => void;
+  onChange?: (
+    value: string[] | string | null,
+    objects: any[] | any | null
+  ) => void;
   placeholder?: string;
   disabled?: boolean;
 }) => {
@@ -34,7 +37,14 @@ export const RestDocumentsInput = (props: {
       : (props.value as string[]) || [];
 
   const onChange = (value: string[]) => {
-    props.onChange?.(props.max === 1 ? value?.[0] || null : value);
+    const objects = [
+      ...documents,
+      ...(suggestions?.data?.map((a) => a.item) || []),
+    ].filter((doc) => value.includes(doc.id));
+    props.onChange?.(
+      props.max === 1 ? value?.[0] || null : value,
+      props.max === 1 ? objects?.[0] || null : objects
+    );
   };
 
   const [focused, setFocused] = useState(false);
@@ -45,7 +55,10 @@ export const RestDocumentsInput = (props: {
 
   const refType = _.get(schema.data, props.column);
   const refTable =
-    (typeof refType === "string" ? refType : refType?.[0] || "")
+    (typeof refType === "string"
+      ? (refType as string)
+      : (refType?.[0] as string) || ""
+    )
       .split("type:")
       .pop() || props.table;
 
@@ -67,7 +80,7 @@ export const RestDocumentsInput = (props: {
 
   useEffect(() => {
     refresh();
-  }, [value]);
+  }, [JSON.stringify(value)]);
 
   const size = props.size || "md";
 
@@ -96,7 +109,7 @@ export const RestDocumentsInput = (props: {
             onChange?.((value || []).filter((a) => a !== doc.id))
           }
           key={doc.id}
-          dataTooltip={!props.disabled ? "Retirer" : undefined}
+          data-tooltip={!props.disabled ? "Retirer" : undefined}
         />
       ))}
       {props.disabled && !documents.length && <Info>Aucun</Info>}

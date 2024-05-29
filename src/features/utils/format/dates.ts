@@ -14,6 +14,7 @@ export const formatTime = (
     numeric?: boolean;
   } = {
     keepTime: true,
+    keepDate: true,
   },
   locale?: string
 ) => {

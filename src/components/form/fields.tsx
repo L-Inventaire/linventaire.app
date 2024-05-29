@@ -42,7 +42,7 @@ export const FormInput = memo(
         | Date
         | string[]
         | { label: string; value: string };
-      onChange?: (value: any) => void;
+      onChange?: (value: any, object?: any) => void;
       onSearch?: () => void;
       disabled?: boolean;
       values?: any;
@@ -108,12 +108,13 @@ export const FormInput = memo(
         | string[]
         | { label: string; value: string }[]
         | null,
-      suggestionQuery?: string
+      suggestionQuery?: string,
+      objects?: any
     ) => {
       if (suggestionQuery && typeof props.options === "function") {
         suggest(suggestionQuery || (value as string));
       }
-      _onChange?.(value);
+      _onChange?.(value, objects);
     };
 
     if (
@@ -164,7 +165,7 @@ export const FormInput = memo(
     return (
       <InputLabel
         className={twMerge("w-full", props.className || "")}
-        label={props.label || " "}
+        label={props.label}
         input={
           <>
             {(!props.type ||
@@ -223,7 +224,7 @@ export const FormInput = memo(
                   ((props.max || 0) > 1 ? [] : null)
                 }
                 max={props.max}
-                onChange={(e) => onChange(e)}
+                onChange={(e, object) => onChange(e, undefined, object)}
                 disabled={disabled}
                 table={props.rest?.table || ""}
                 column={props.rest?.column || ""}

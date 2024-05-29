@@ -66,7 +66,7 @@ export const TagsInput = (props: {
             ) : undefined
           }
           key={tag.id}
-          dataTooltip={!props.disabled ? "Retirer l'étiquette" : undefined}
+          data-tooltip={!props.disabled ? "Retirer l'étiquette" : undefined}
         >
           {tag.name}
         </Tag>

@@ -25,7 +25,7 @@ export interface InputProps
 }
 
 export const defaultInputClassName = (theme: "plain" = "plain") => {
-  return "shadow-sm focus:ring-wood-500 focus:border-wood-500 block text-sm border-gray-200 dark:bg-slate-990 dark:border-slate-900 dark:text-white rounded-md";
+  return "shadow-sm focus:ring-wood-500 focus:border-wood-500 block text-sm border-slate-200 dark:bg-slate-990 dark:border-slate-900 dark:text-white rounded-md";
 };
 
 export const errorInputClassName = (theme: "plain" = "plain") => {

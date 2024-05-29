@@ -18,10 +18,14 @@ import { InvoiceFormatInput } from "@components/invoice-format-input";
 export const PreferencesPage = () => {
   const { t } = useTranslation();
 
-  const { update, client: clientUser, loading } = useClients();
+  const { update, client: clientUser, loading, refresh } = useClients();
   const client = clientUser?.client;
   const hasAccess = useHasAccess();
   const readonly = !hasAccess("CLIENT_MANAGE");
+
+  useEffect(() => {
+    refresh();
+  }, []);
 
   const [preferences, setPreferences] = useState<
     Partial<Clients["preferences"]>
@@ -92,6 +96,7 @@ export const PreferencesPage = () => {
           {!readonly && (
             <Button
               theme="primary"
+              size="sm"
               onClick={() =>
                 update(client?.id || "", {
                   preferences: {
@@ -122,6 +127,7 @@ export const PreferencesPage = () => {
           {!readonly && (
             <Button
               theme="primary"
+              size="sm"
               onClick={() =>
                 update(client?.id || "", {
                   payment: {
@@ -152,6 +158,7 @@ export const PreferencesPage = () => {
             <Button
               className="mt-4"
               theme="primary"
+              size="sm"
               onClick={() =>
                 update(client?.id || "", {
                   invoices: {
@@ -291,6 +298,7 @@ export const PreferencesPage = () => {
           <Button
             className="mt-4"
             theme="primary"
+            size="sm"
             disabled={
               _.uniq(
                 [

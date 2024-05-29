@@ -1,45 +1,85 @@
 import { Button } from "@atoms/button/button";
-import InputDate from "@atoms/input/input-date";
-import Select from "@atoms/input/input-select";
+import Tabs from "@atoms/tabs";
 import { Info, Title } from "@atoms/text";
+import { FormInput } from "@components/form/fields";
+import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { Table } from "@components/table";
 import { TagsInput } from "@components/tags-input";
 import { useInvoices } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
 import { ROUTES, getRoute } from "@features/routes";
+import { invoicesAlikeStatus } from "@features/utils/constants";
 import {
   RestOptions,
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
 import { PlusIcon, ReplyIcon } from "@heroicons/react/outline";
 import { Page } from "@views/client/_layout/page";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
-import Tabs from "@atoms/tabs";
 
 export const InvoicesPage = () => {
+  const [type, setType] = useState("");
+  const [state, setState] = useState([]);
   const [options, setOptions] = useState<RestOptions<Invoices>>({
     limit: 10,
     offset: 0,
     query: [],
   });
-  const { invoices } = useInvoices(options);
+  const { invoices } = useInvoices({
+    ...options,
+    // TODO maybe create a util function for that
+    query: [
+      ...((options?.query as any) || []),
+      ...(type
+        ? [
+            {
+              key: "type",
+              values: [{ op: "equals", value: type }],
+            },
+          ]
+        : []),
+      ...(state.length
+        ? [
+            {
+              key: "state",
+              values: state.map((s) => ({ op: "equals", value: s })),
+            },
+          ]
+        : []),
+    ],
+  });
+
   const schema = useRestSchema("invoices");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    setState([]);
+  }, [type]);
 
   return (
     <Page title={[{ label: "Invoices" }]}>
       <div className="float-right space-x-2 ml-4">
         <Button
           size="sm"
-          to={getRoute(ROUTES.InvoicesEdit, { id: "new" })}
+          to={withSearchAsModel(
+            getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+            schema.data,
+            { type: "quotes" }
+          )}
           icon={(p) => <PlusIcon {...p} />}
         >
           Devis
         </Button>
         <Button
           size="sm"
-          to={getRoute(ROUTES.InvoicesEdit, { id: "new" })}
+          to={withSearchAsModel(
+            getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+            schema.data,
+            { type: "invoices" }
+          )}
           icon={(p) => <PlusIcon {...p} />}
         >
           Facture
@@ -47,7 +87,11 @@ export const InvoicesPage = () => {
         <Button
           size="sm"
           theme="outlined"
-          to={getRoute(ROUTES.InvoicesEdit, { id: "new" })}
+          to={withSearchAsModel(
+            getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+            schema.data,
+            { type: "credit_notes" }
+          )}
           icon={(p) => <ReplyIcon {...p} />}
         >
           Avoir
@@ -58,36 +102,28 @@ export const InvoicesPage = () => {
       <Tabs
         tabs={[
           { value: "", label: "Tous" },
-          { value: "quote", label: "Devis" },
-          { value: "invoice", label: "Factures" },
-          { value: "subscription", label: "Abonnements" },
-          { value: "credit_note", label: "Avoirs" },
+          { value: "quotes", label: "Devis" },
+          { value: "invoices", label: "Factures" },
+          { value: "credit_notes", label: "Avoirs" },
         ]}
-        value={""}
-        onChange={console.log}
+        value={type}
+        onChange={(e) => setType(e as string)}
       />
       <div className="mb-4" />
 
       <div className="flex flex-row space-x-2">
-        {false && (
-          <>
-            <Select className="w-max">
-              <option>Tous</option>
-              <option>Clients</option>
-              <option>Fournisseurs</option>
-              <option>Aucun</option>
-            </Select>
-            <div className="flex flex-row relative">
-              <InputDate
-                className="rounded-r-none -mr-px hover:z-10"
-                placeholder="From"
-              />
-              <InputDate
-                className="rounded-l-none -ml-px hover:z-10"
-                placeholder="To"
-              />
-            </div>
-          </>
+        {["quotes", "invoices", "credit_notes"].includes(type) && (
+          <FormInput
+            type="multiselect"
+            className="w-48 shrink-0"
+            placeholder="Status"
+            onChange={(e) => setState(e as any)}
+            value={state}
+            options={Object.keys(invoicesAlikeStatus[type]).map((e) => ({
+              label: invoicesAlikeStatus[type][e][0],
+              value: e,
+            }))}
+          />
         )}
         <SearchBar
           schema={{
@@ -102,10 +138,10 @@ export const InvoicesPage = () => {
                 label: "Mis à jour par",
                 keywords: "updated_by mis à jour par auteur utilisateur user",
               },
-              email: "Email",
-              phone: "Téléphone",
-              is_supplier: "Fournisseur",
-              is_client: "Client",
+              type: {
+                label: "Type",
+                keywords: "type devis avoirs factures",
+              },
             }),
           }}
           onChange={(q) =>
@@ -116,6 +152,7 @@ export const InvoicesPage = () => {
       <div className="mb-4" />
 
       <Table
+        onClick={({ id }) => navigate(getRoute(ROUTES.InvoicesView, { id }))}
         loading={invoices.isPending}
         data={invoices?.data?.list || []}
         total={invoices?.data?.total || 0}
@@ -139,30 +176,16 @@ export const InvoicesPage = () => {
         }}
         columns={[
           {
-            title: "Name",
             orderable: true,
             render: (invoice) => invoice.name,
           },
           {
-            title: "Invoices",
             orderable: true,
-            render: (invoice) => <Info>e</Info>,
+            render: (invoice) => <Info>{invoice.reference}</Info>,
           },
           {
-            title: "Tags",
             orderable: true,
             render: (invoice) => <TagsInput value={invoice.tags} disabled />,
-          },
-          {
-            title: "Actions",
-            thClassName: "w-1",
-            render: ({ id }) => (
-              <>
-                <Button size="sm" to={getRoute(ROUTES.InvoicesView, { id })}>
-                  View
-                </Button>
-              </>
-            ),
           },
         ]}
       />
