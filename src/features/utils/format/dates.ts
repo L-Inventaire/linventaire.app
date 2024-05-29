@@ -11,6 +11,7 @@ export const formatTime = (
     keepSeconds?: boolean;
     keepDate?: boolean;
     hideTime?: boolean;
+    numeric?: boolean;
   } = {
     keepTime: true,
   },
@@ -25,9 +26,15 @@ export const formatTime = (
   nowDay.setHours(0);
   nowDay.setMinutes(0);
   const oneDayLater = time < nowDay.getTime();
+
   return new Intl.DateTimeFormat(locale, {
     year: nowYear !== year || options?.keepDate ? "numeric" : undefined,
-    month: oneDayLater || options?.keepDate ? "short" : undefined,
+    month:
+      oneDayLater || options?.keepDate
+        ? options?.numeric
+          ? "numeric"
+          : "short"
+        : undefined,
     day: oneDayLater || options?.keepDate ? "numeric" : undefined,
     hour:
       (!oneDayLater || options?.keepTime) && !options?.hideTime

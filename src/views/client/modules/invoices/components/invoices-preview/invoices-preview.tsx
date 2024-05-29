@@ -1,10 +1,23 @@
+import { useClients } from "@features/clients/state/use-clients";
+import { useContact } from "@features/contacts/hooks/use-contacts";
 import { Invoices } from "@features/invoices/types/types";
+import { paymentOptions } from "@features/utils/constants";
+import { AddressLength, formatAddress } from "@features/utils/format/address";
+import { formatTime } from "@features/utils/format/dates";
+import _ from "lodash";
+
+import { DateTime } from "luxon";
 
 type InvoicesPreviewProps = {
   invoice: Invoices;
 };
 
 export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
+  const { client: clientUser } = useClients();
+
+  const user = clientUser?.client;
+  const invoiceClient = useContact(invoice?.client ?? "")?.contact;
+
   return (
     <>
       <style>
@@ -104,26 +117,89 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
         <div className="marginxdiv"></div>
         <table className="table" style={{ width: "500px" }}>
           <tr style={{ textAlign: "left" }}>
-            <th className="contrast">Romaric Mourgues</th>
-            <th className="contrast">Praxiel</th>
+            <th className="contrast">{user?.company.legal_name}</th>
+            <th className="contrast">
+              {invoiceClient?.business_name ??
+              (invoiceClient?.person_last_name &&
+                invoiceClient?.person_first_name)
+                ? invoiceClient?.person_last_name +
+                  " " +
+                  invoiceClient?.person_first_name
+                : "# Préciser le client #"}
+            </th>
           </tr>
           <tr>
-            <td>303 route de la Wantzenau</td>
-            <td>5 PL COLONEL FABIEN</td>
+            <td>
+              <span
+                style={{
+                  color: _.isEmpty(user?.address?.address_line_1)
+                    ? "red"
+                    : undefined,
+                }}
+              >
+                {formatAddress(
+                  user?.address,
+                  AddressLength.part1,
+                  "# Précisez l'adresse de l'entreprise #"
+                )}
+              </span>
+            </td>
+            <td>
+              <span
+                style={{
+                  color: _.isEmpty(invoiceClient?.address?.address_line_1)
+                    ? "red"
+                    : undefined,
+                }}
+              >
+                {formatAddress(
+                  invoiceClient?.address,
+                  AddressLength.part1,
+                  "# Précisez l'adresse du client #"
+                )}
+              </span>
+            </td>
           </tr>
           <tr>
-            <td>romaric&#46;mollard&#64;gmail&#46;com</td>
-            <td>75010 PARIS 10 France</td>
+            <td>
+              <span
+                style={{
+                  color: _.isEmpty(user?.address?.city) ? "red" : undefined,
+                }}
+              >
+                {formatAddress(
+                  user?.address,
+                  AddressLength.part2,
+                  "# Précisez l'adresse de l'entreprise #"
+                )}
+              </span>
+            </td>
+            <td>
+              <span
+                style={{
+                  color: _.isEmpty(invoiceClient?.address?.city)
+                    ? "red"
+                    : undefined,
+                }}
+              >
+                {formatAddress(
+                  invoiceClient?.address,
+                  AddressLength.part2,
+                  "# Précisez l'adresse du client #"
+                )}
+              </span>
+            </td>
           </tr>
           <tr>
-            <td>67000 STRASBOURG France</td>
-            <td>N° SIRET : 34333687100037</td>
+            <td>N° SIRET : {user?.company?.registration_number}</td>
+            <td>
+              {invoiceClient?.business_tax_id
+                ? "N° SIRET : " + invoiceClient?.business_tax_id
+                : ""}
+            </td>
           </tr>
           <tr>
-            <td>N° SIRET : 81196859300012</td>
-          </tr>
-          <tr>
-            <td>N° TVA : FR81811968593</td>
+            <td>N° TVA : {user?.company?.tax_number}</td>
           </tr>
         </table>
         <div className="marginxdiv"></div>
@@ -133,20 +209,46 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
             <td className="whitened" style={{ fontWeight: "800" }}>
               Date d'émission
             </td>
-            <td>05/01/2024</td>
+            <td>
+              {(invoice.emit_date &&
+                formatTime(invoice.emit_date, {
+                  hideTime: true,
+                  keepDate: true,
+                  numeric: true,
+                })) ??
+                "#"}
+            </td>
           </tr>
           <tr>
             <td className="whitened" style={{ fontWeight: "800" }}>
               Date d'exigibilité du paiement
             </td>
-            <td>04/02/2024</td>
-          </tr>
-          <tr>
-            <td className="whitened" style={{ fontWeight: "800" }}>
-              Date de paiement
+            <td>
+              {(invoice.emit_date &&
+                invoice?.payment_information?.delay &&
+                formatTime(
+                  DateTime.fromMillis(invoice.emit_date)
+                    .plus({
+                      days: invoice.payment_information.delay,
+                    })
+                    .toMillis(),
+                  {
+                    hideTime: true,
+                    numeric: true,
+                    keepDate: true,
+                  }
+                )) ??
+                "#"}
             </td>
-            <td>05/01/2024</td>
           </tr>
+          {false && (
+            <tr>
+              <td className="whitened" style={{ fontWeight: "800" }}>
+                Date de paiement
+              </td>
+              <td>05/01/2024</td>
+            </tr>
+          )}
         </table>
 
         <div className="marginxdiv"></div>
@@ -237,7 +339,7 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
                 </td>
               </tr>
               <tr>
-                <td>30 jours</td>
+                <td>{invoice?.payment_information?.delay ?? "#"} jours</td>
               </tr>
               <tr>
                 <td className="contrast" style={{ fontWeight: "800" }}>
@@ -245,7 +347,10 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
                 </td>
               </tr>
               <tr>
-                <td>3 fois le taux légal</td>
+                <td>
+                  {invoice?.payment_information?.late_penalty ?? "#"} fois le
+                  taux légal
+                </td>
               </tr>
               <tr>
                 <td className="contrast" style={{ fontWeight: "800" }}>
@@ -253,7 +358,7 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
                 </td>
               </tr>
               <tr>
-                <td>40 €</td>
+                <td>{invoice?.payment_information?.recovery_fee ?? "#"} €</td>
               </tr>
               <tr>
                 <td className="contrast" style={{ fontWeight: "800" }}>
@@ -269,7 +374,18 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
                 </td>
               </tr>
               <tr>
-                <td>Virement</td>
+                <td>
+                  {(invoice?.payment_information?.mode ?? []).length === 0 && (
+                    <span>Aucun</span>
+                  )}
+                  {(invoice?.payment_information?.mode ?? [])
+                    .map(
+                      (mode) =>
+                        paymentOptions.find((option) => option.value === mode)
+                          ?.label
+                    )
+                    .join(", ") ?? "#"}
+                </td>
               </tr>
             </tbody>
           </table>
