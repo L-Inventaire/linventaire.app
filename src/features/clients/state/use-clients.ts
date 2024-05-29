@@ -28,8 +28,6 @@ export const useClients = () => {
   const { client: clientId } = useParams();
   const client = clients.find((c) => c.client.id === clientId);
 
-  console.log("clients", clients);
-
   const refresh = async () => {
     setLoading(true);
     const clients = await ClientsApiClient.getMine();
@@ -54,7 +52,7 @@ export const useClients = () => {
     const client = await ClientsApiClient.get(clientId);
     await refresh();
     return client;
-  }
+  };
 
   const create = async (client: Partial<Clients>) => {
     setLoading(true);

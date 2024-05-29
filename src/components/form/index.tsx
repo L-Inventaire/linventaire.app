@@ -96,10 +96,7 @@ export const SearchForm = (props: FiltersProps) => {
     change("_advanced", advancedFilters);
   }, [advancedFilters]);
 
-  //console.log(props.fields.map((a) => ({ position: a.position, key: a.key })));
-
   const getFieldProps = (key: string, position?: string) => {
-    //console.log(key, position);
     return props.fields.find((e) => e.key === key)
       ? _.omit(
           props.fields.find(

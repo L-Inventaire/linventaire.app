@@ -23,6 +23,7 @@ import {
   unitOptions,
 } from "@features/utils/constants";
 import { formatTime } from "@features/utils/format/dates";
+import { getFormattedNumerotation } from "@features/utils/format/numerotation";
 import { formatAmount } from "@features/utils/format/strings";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import {
@@ -35,12 +36,11 @@ import {
   PageBlockHr,
   PageColumns,
 } from "@views/client/_layout/page";
+import { jsPDF } from "jspdf";
 import _ from "lodash";
 import { useEffect } from "react";
 import { computePricesFromInvoice } from "../utils";
-import { getFormattedNumerotation } from "@features/utils/format/numerotation";
 import { InvoicesPreview } from "./invoices-preview/invoices-preview";
-import { jsPDF } from "jspdf";
 
 export const InvoicesDetailsPage = ({
   readonly,
@@ -673,11 +673,11 @@ export const InvoicesDetailsPage = ({
                             let hasMore = false;
                             const dates = [];
                             let date = Math.max(
-                              new Date(draft.emit_date).getTime(),
+                              draft.emit_date.getTime(),
                               new Date(draft.subscription?.start || 0).getTime()
                             );
                             let end = Math.max(
-                              new Date(draft.emit_date).getTime(),
+                              draft.emit_date.getTime(),
                               new Date(draft.subscription?.end || 0).getTime() +
                                 1000 * 60 * 60 * 24 // Add a day for time zones issues
                             );
@@ -699,11 +699,6 @@ export const InvoicesDetailsPage = ({
                                 break;
                               }
                               date = nextDate.getTime();
-                              console.log(
-                                new Date(date).toISOString().split("T")[0],
-                                new Date(end).toISOString().split("T")[0],
-                                new Date(end)
-                              );
                             }
                             return [
                               ...dates.map((d) => (

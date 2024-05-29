@@ -1,9 +1,10 @@
 import { useClients } from "@features/clients/state/use-clients";
 import { useContact } from "@features/contacts/hooks/use-contacts";
 import { Invoices } from "@features/invoices/types/types";
-import { paymentOptions } from "@features/utils/constants";
+import { paymentOptions, unitOptions } from "@features/utils/constants";
 import { AddressLength, formatAddress } from "@features/utils/format/address";
 import { formatTime } from "@features/utils/format/dates";
+import { formatAmount } from "@features/utils/format/strings";
 import _ from "lodash";
 
 import { DateTime } from "luxon";
@@ -211,7 +212,7 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
             </td>
             <td>
               {(invoice.emit_date &&
-                formatTime(invoice.emit_date.getTime(), {
+                formatTime(new Date(invoice.emit_date).getTime(), {
                   hideTime: true,
                   keepDate: true,
                   numeric: true,
@@ -227,7 +228,7 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
               {(invoice.emit_date &&
                 invoice?.payment_information?.delay &&
                 formatTime(
-                  DateTime.fromMillis(invoice.emit_date.getTime())
+                  DateTime.fromMillis(new Date(invoice.emit_date).getTime())
                     .plus({
                       days: invoice.payment_information.delay,
                     })
@@ -285,45 +286,53 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
             </tr>
           </thead>
           <tbody>
-            <tr style={{ textAlign: "center" }}>
-              <td>1</td>
-              <td style={{ textAlign: "left" }}>
-                <div className="margindiv"></div>Service et conseil en
-                informatique (jour)
-              </td>
-              <td>unité</td>
-              <td>2.5</td>
-              <td>600,00 €</td>
-              <td>20 %</td>
-              <td>1 500,00 €</td>
-              <td>1 800,00 €</td>
-            </tr>
-            <tr style={{ textAlign: "center" }}>
-              <td>1</td>
-              <td style={{ textAlign: "left" }}>
-                <div className="margindiv"></div>Service et conseil en
-                informatique (jour)
-              </td>
-              <td>unité</td>
-              <td>2.5</td>
-              <td>600,00 €</td>
-              <td>20 %</td>
-              <td>1 500,00 €</td>
-              <td>1 800,00 €</td>
-            </tr>
-            <tr style={{ textAlign: "center" }}>
-              <td>1</td>
-              <td style={{ textAlign: "left" }}>
-                <div className="margindiv"></div>Service et conseil en
-                informatique (jour)
-              </td>
-              <td>unité</td>
-              <td>2.5</td>
-              <td>600,00 €</td>
-              <td>20 %</td>
-              <td>1 500,00 €</td>
-              <td>1 800,00 €</td>
-            </tr>
+            {(invoice.content ?? []).map((line, index) => {
+              const separation = line.type === "separation";
+
+              let unitPrice = line.unit_price ?? 0;
+
+              if (line.discount && line.unit_price) {
+                unitPrice =
+                  line.discount?.mode === "percentage"
+                    ? (line.unit_price * (100 - line.discount.value)) / 100
+                    : line.unit_price - line.discount.value;
+              }
+              let linePrice = unitPrice * (line.quantity ?? 0);
+
+              const linePriceWithTaxes =
+                linePrice * (1 + parseInt(line.tva ?? "") / 100) ?? 0;
+
+              return (
+                <tr style={{ textAlign: "center" }}>
+                  <td>
+                    {line.optional && (
+                      <input
+                        type="checkbox"
+                        disabled
+                        checked={line.optional_checked ?? false}
+                      />
+                    )}{" "}
+                    {!separation && index + 1}
+                  </td>
+                  <td style={{ textAlign: "left" }}>
+                    <div className="margindiv"></div>
+                    <p>{line.name}</p>
+                    <span className="whitened">{line.description}</span>
+                  </td>
+                  <td>
+                    {
+                      unitOptions.find((option) => option.value === line.unit)
+                        ?.label
+                    }
+                  </td>
+                  <td>{line.quantity}</td>
+                  <td>{!separation && formatAmount(unitPrice)}</td>
+                  <td>{!separation && line.tva + " %"}</td>
+                  <td>{!separation && formatAmount(linePrice)}</td>
+                  <td>{!separation && formatAmount(linePriceWithTaxes)}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
 
@@ -402,7 +411,8 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
                   <div className="marginxdiv_small"></div>
                 </td>
                 <td style={{ textAlign: "end" }}>
-                  1 500,00 €<div className="margindiv_right_small"></div>
+                  {formatAmount(invoice.total?.total ?? 0)}
+                  <div className="margindiv_right_small"></div>
                 </td>
               </tr>
               <tr>
@@ -410,7 +420,8 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
                   <div className="margindiv_small"></div>TVA
                 </td>
                 <td style={{ textAlign: "end" }}>
-                  300,00 €<div className="margindiv_right_small"></div>
+                  {formatAmount(invoice.total?.taxes ?? 0)}
+                  <div className="margindiv_right_small"></div>
                 </td>
               </tr>
               <tr>
@@ -418,7 +429,8 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
                   <div className="margindiv_small"></div>Dont 20 %
                 </td>
                 <td style={{ textAlign: "end" }}>
-                  300,00 €<div className="margindiv_right_small"></div>
+                  {formatAmount(invoice.total?.taxes ?? 0)}
+                  <div className="margindiv_right_small"></div>
                 </td>
               </tr>
               <tr>
@@ -427,7 +439,8 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
                   <div className="marginxdiv"></div>
                 </td>
                 <td style={{ textAlign: "end" }}>
-                  1 800,00 €<div className="margindiv_right_small"></div>
+                  {formatAmount(invoice.total?.total_with_taxes ?? 0)}
+                  <div className="margindiv_right_small"></div>
                   <div className="marginxdiv"></div>
                 </td>
               </tr>

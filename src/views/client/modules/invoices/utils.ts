@@ -19,7 +19,6 @@ export const computePricesFromInvoice = (
       (parseFloat(item.unit_price as any) || 0) *
       (parseFloat(item.quantity as any) || 0);
     let itemsDiscount = 0;
-    console.log(itemsDiscount);
     if (item.discount?.mode === "percentage") {
       itemsDiscount =
         itemsPrice * (parseFloat(item.discount.value as any) / 100);
