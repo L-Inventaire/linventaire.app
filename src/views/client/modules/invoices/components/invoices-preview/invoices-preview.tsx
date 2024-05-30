@@ -4,7 +4,7 @@ import { Invoices } from "@features/invoices/types/types";
 import { paymentOptions, unitOptions } from "@features/utils/constants";
 import { AddressLength, formatAddress } from "@features/utils/format/address";
 import { formatTime } from "@features/utils/format/dates";
-import { formatAmount } from "@features/utils/format/strings";
+import { formatAmount as realFormatAmount } from "@features/utils/format/strings";
 import _ from "lodash";
 
 import { DateTime } from "luxon";
@@ -18,6 +18,12 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
 
   const user = clientUser?.client;
   const invoiceClient = useContact(invoice?.client ?? "")?.contact;
+
+  const formatAmount = (amount: number) => {
+    const formatted = realFormatAmount(amount);
+    // Remove unbreakable spaces
+    return formatted.replace(/\s/g, " ");
+  };
 
   return (
     <>
