@@ -120,19 +120,19 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
 
       <div id="invoice-preview" style={{ margin: "20px 30px" }}>
         <h1 className="header">Facture</h1>
-        <h2 className="subheader whitened">N° F-2024-0086 TEST</h2>
+        <h2 className="subheader whitened">N° {invoice?.reference}</h2>
         <div className="marginxdiv"></div>
         <table className="table" style={{ width: "500px" }}>
           <tr style={{ textAlign: "left" }}>
             <th className="contrast">{user?.company.legal_name}</th>
             <th className="contrast">
               {invoiceClient?.business_name ??
-              (invoiceClient?.person_last_name &&
-                invoiceClient?.person_first_name)
-                ? invoiceClient?.person_last_name +
-                  " " +
-                  invoiceClient?.person_first_name
-                : "# Préciser le client #"}
+                (invoiceClient?.person_last_name &&
+                invoiceClient?.person_first_name
+                  ? invoiceClient?.person_last_name +
+                    " " +
+                    invoiceClient?.person_first_name
+                  : "# Préciser le client #")}
             </th>
           </tr>
           <tr>
