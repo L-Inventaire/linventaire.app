@@ -11,7 +11,7 @@ import {
   RestOptions,
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
-import { PlusIcon } from "@heroicons/react/outline";
+import { PlusIcon } from "@heroicons/react/24/outline";
 import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
@@ -27,41 +27,9 @@ export const OrdersPage = () => {
   const schema = useRestSchema("orders");
 
   return (
-    <Page title={[{ label: "Orders" }]}>
-      <div className="float-right">
-        <Button
-          className="ml-4"
-          size="sm"
-          to={getRoute(ROUTES.OrdersEdit, { id: "new" })}
-          icon={(p) => <PlusIcon {...p} />}
-        >
-          Créer une commande
-        </Button>
-      </div>
-      <Title>Toutes les commandes</Title>
-      <div className="mb-4" />
-
-      <div className="flex flex-row space-x-2">
-        {false && (
-          <>
-            <Select className="w-max">
-              <option>Tous</option>
-              <option>Clients</option>
-              <option>Fournisseurs</option>
-              <option>Aucun</option>
-            </Select>
-            <div className="flex flex-row relative">
-              <InputDate
-                className="rounded-r-none -mr-px hover:z-10"
-                placeholder="From"
-              />
-              <InputDate
-                className="rounded-l-none -ml-px hover:z-10"
-                placeholder="To"
-              />
-            </div>
-          </>
-        )}
+    <Page
+      title={[{ label: "Orders" }]}
+      bar={
         <SearchBar
           schema={{
             table: "orders",
@@ -84,8 +52,18 @@ export const OrdersPage = () => {
           onChange={(q) =>
             q.valid && setOptions({ ...options, query: q.fields })
           }
+          suffix={
+            <Button
+              size="xs"
+              to={getRoute(ROUTES.OrdersEdit, { id: "new" })}
+              icon={(p) => <PlusIcon {...p} />}
+            >
+              Créer une commande
+            </Button>
+          }
         />
-      </div>
+      }
+    >
       <div className="mb-4" />
 
       <Table

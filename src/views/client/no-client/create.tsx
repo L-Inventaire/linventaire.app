@@ -13,7 +13,7 @@ import { Clients } from "@features/clients/types/clients";
 import { ROUTES, getRoute } from "@features/routes";
 import { validateEmail } from "@features/utils/format/strings";
 import { useControlledEffect } from "@features/utils/hooks/use-controlled-effect";
-import { MailIcon } from "@heroicons/react/outline";
+import { EnvelopeIcon } from "@heroicons/react/24/outline";
 import _ from "lodash";
 import { useState } from "react";
 import toast from "react-hot-toast";
@@ -228,7 +228,7 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
                 className="rounded-l-none"
                 shortcut={["enter"]}
                 disabled={!validateEmail(newInvitationEmail)}
-                icon={(p) => <MailIcon {...p} />}
+                icon={(p) => <EnvelopeIcon {...p} />}
                 onClick={(e) => {
                   e.preventDefault();
                   setNewInvitationEmail("");

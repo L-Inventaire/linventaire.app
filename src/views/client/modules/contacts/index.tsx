@@ -12,7 +12,12 @@ import {
   RestOptions,
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
-import { PlusIcon } from "@heroicons/react/outline";
+import {
+  PlusIcon,
+  FunnelIcon,
+  ChevronUpDownIcon,
+  ArrowDownTrayIcon,
+} from "@heroicons/react/24/outline";
 import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -52,34 +57,9 @@ export const ContactsPage = () => {
   const navigate = useNavigate();
 
   return (
-    <Page title={[{ label: "Contacts" }]}>
-      <div className="float-right">
-        <Button
-          className="ml-4"
-          size="sm"
-          to={withSearchAsModel(
-            getRoute(ROUTES.ContactsEdit, { id: "new" }),
-            schema.data
-          )}
-          icon={(p) => <PlusIcon {...p} />}
-        >
-          Ajouter un contact
-        </Button>
-      </div>
-      <Title>Tous les contacts</Title>
-
-      <Tabs
-        tabs={[
-          { value: "", label: "Tous" },
-          { value: "clients", label: "Clients" },
-          { value: "suppliers", label: "Fournisseurs" },
-        ]}
-        value={type}
-        onChange={(v) => setType(v as string)}
-      />
-      <div className="mb-4" />
-
-      <div className="flex flex-row space-x-2">
+    <Page
+      title={[{ label: "Contacts" }]}
+      bar={
         <SearchBar
           schema={{
             table: "contacts",
@@ -106,8 +86,32 @@ export const ContactsPage = () => {
           onChange={(q) =>
             q.valid && setOptions({ ...options, query: q.fields })
           }
+          suffix={
+            <Button
+              className="shrink-0"
+              size="xs"
+              to={withSearchAsModel(
+                getRoute(ROUTES.ContactsEdit, { id: "new" }),
+                schema.data
+              )}
+              icon={(p) => <PlusIcon {...p} />}
+            >
+              Ajouter un contact
+            </Button>
+          }
         />
-      </div>
+      }
+    >
+      <Tabs
+        tabs={[
+          { value: "", label: "Tous" },
+          { value: "clients", label: "Clients" },
+          { value: "suppliers", label: "Fournisseurs" },
+        ]}
+        value={type}
+        onChange={(v) => setType(v as string)}
+      />
+
       <div className="mb-4" />
 
       <Table

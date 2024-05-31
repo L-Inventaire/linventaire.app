@@ -10,7 +10,7 @@ import { Page, PageBlock } from "../../_layout/page";
 import { FormInput } from "@components/form/fields";
 import { useFormController } from "@components/form/formcontext";
 import { Tag } from "@atoms/badge/tag";
-import { PencilIcon, TrashIcon } from "@heroicons/react/outline";
+import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import _ from "lodash";
 import { useHasAccess } from "@features/access";
 

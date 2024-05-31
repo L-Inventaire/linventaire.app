@@ -4,7 +4,7 @@ import * as Text from "@atoms/text";
 import { MFAVerificationModal } from "@components/auth/mfa-verification-modal";
 import { MethodType } from "@features/customers/api-client/mfa-api-client";
 import { useCustomerMfa } from "@features/customers/state/hooks";
-import { InformationCircleIcon } from "@heroicons/react/outline";
+import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { QRCodeCanvas } from "qrcode.react";
 import { useState } from "react";
 import { TOTP } from "totp-generator";

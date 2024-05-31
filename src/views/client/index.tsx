@@ -36,6 +36,7 @@ import { CompanyPlanPage } from "./settings/plan";
 import { PreferencesPage } from "./settings/preferences";
 import { TagsPage } from "./settings/tags";
 import { CompanyUsersPage } from "./settings/users";
+import { DevPage } from "./_dev";
 
 export const BackOfficeRoutes = () => {
   return (
@@ -83,6 +84,8 @@ export const BackOfficeRoutes = () => {
 
         <Route path={ROUTES.Home} element={<DashboardHomePage />} />
         <Route path={ROUTES.Invoices} element={<InvoicesPage />} />
+
+        <Route path={ROUTES.DevPage} element={<DevPage />} />
       </Route>
     </>
   );
@@ -115,14 +118,14 @@ export const Layout = () => {
       {afterSignupOrNewCompany && <Confetti />}
       <div
         className={twMerge(
-          "sm:overflow-auto overflow-hidden relative flex w-full grow flex-row bg-slate-50 dark:bg-slate-990 h-screen intro-animated-root z-10",
+          "sm:overflow-auto overflow-hidden relative flex w-full grow flex-row bg-slate-50 dark:bg-slate-800 h-screen intro-animated-root z-10",
           afterSignupOrNewCompany ? "fade-in-slow" : ""
         )}
       >
         <SideBar />
         <div
           className={
-            "z-0 transition-all grow flex flex-col sm:ml-20 print:ml-0"
+            "z-0 transition-all grow flex flex-col sm:ml-64 print:ml-0"
           }
           style={{
             transform: menuOpen ? "translateX(80px)" : "translateX(0)",
@@ -131,7 +134,7 @@ export const Layout = () => {
           <Header />
           <div
             className={twMerge(
-              "grow flex min-h-0 border-t sm:border shadow-sm border-slate-100 dark:border-slate-950 print:mx-0 sm:mb-2 rounded-md overflow-hidden",
+              "grow flex min-h-0 border-t sm:border shadow-sm bg-white border-slate-100 dark:border-slate-950 print:mx-0 sm:mb-2 rounded",
               menuOpen ? "sm:ml-64" : "sm:mr-2 sm:ml-0"
             )}
             onClick={() => setMenuOpen(false)}
@@ -139,13 +142,11 @@ export const Layout = () => {
             <SecondSideBar />
             <div
               className={
-                "grow min-h-0 overflow-auto bg-white dark:bg-slate-950 transition-all " +
+                "grow flex min-h-0 dark:bg-slate-950 transition-all " +
                 (menuOpen ? " opacity-25 pointer-events-none " : "opacity-100 ")
               }
             >
-              <DefaultScrollbars>
-                <Outlet />
-              </DefaultScrollbars>
+              <Outlet />
             </div>
           </div>
         </div>

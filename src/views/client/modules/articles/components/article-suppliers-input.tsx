@@ -8,7 +8,7 @@ import { useContacts } from "@features/contacts/hooks/use-contacts";
 import { getContactName } from "@features/contacts/types/types";
 import { ROUTES, getRoute } from "@features/routes";
 import { formatAmount, formatNumber } from "@features/utils/format/strings";
-import { EyeIcon, TrashIcon } from "@heroicons/react/outline";
+import { EyeIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { PageColumns } from "@views/client/_layout/page";
 import _ from "lodash";
 import { useEffect } from "react";

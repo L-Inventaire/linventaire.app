@@ -7,7 +7,7 @@ import {
   ChevronDoubleRightIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-} from "@heroicons/react/outline";
+} from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
 
 type PropsType = {

@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import * as Text from "@atoms/text";
 import Card from ".";
-import { InformationCircleIcon } from "@heroicons/react/outline";
+import { InformationCircleIcon } from "@heroicons/react/24/outline";
 
 export const GetStartedCard = (props: {
   show?: boolean;

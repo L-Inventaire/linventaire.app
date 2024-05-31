@@ -1,10 +1,8 @@
 import { Button } from "@atoms/button/button";
 import { Section } from "@atoms/text";
-import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/outline";
-import {
-  LayoutActionsAtom,
-  LayoutTitleAtom,
-} from "@views/client/_layout/header";
+import { DefaultScrollbars } from "@features/utils/scrollbars";
+import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
+import { LayoutTitleAtom } from "@views/client/_layout/header";
 import { ErrorBoundary } from "@views/error-boundary";
 import { ReactNode, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -13,28 +11,29 @@ import { twMerge } from "tailwind-merge";
 
 export const Page = (props: {
   children: ReactNode;
-  actions?: ReactNode;
+  bar?: ReactNode;
   title?: {
     label?: string;
     to?: string;
     href?: string;
   }[];
 }) => {
-  const setActions = useSetRecoilState(LayoutActionsAtom);
   const setTitle = useSetRecoilState(LayoutTitleAtom);
   const location = useParams();
 
   useEffect(() => {
-    setActions(props.actions || null);
     setTitle(props.title || []);
     // Set title on window
     document.title = (props.title || []).map((t) => t.label).join(" - ");
-  }, [location.pathname, props.actions, props.title]);
+  }, [location.pathname, props.title]);
 
   return (
     <ErrorBoundary>
-      <div className="p-4 w-full mx-auto text-black dark:text-white min-h-full sm:bg-transparent bg-white dark:bg-slate-970">
-        {props.children}
+      <div className="flex flex-col grow w-full text-black dark:text-white min-h-full sm:bg-transparent">
+        {props.bar && <div className="border-b flex min-h-12">{props.bar}</div>}
+        <DefaultScrollbars className="p-4 grow">
+          {props.children}
+        </DefaultScrollbars>
       </div>
     </ErrorBoundary>
   );

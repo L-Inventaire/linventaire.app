@@ -60,7 +60,7 @@ export default function Avatar(props: {
         <Info
           noColor
           className={
-            "text-black " +
+            "text-white " +
             (size < 8
               ? "text-xxs"
               : size < 14

@@ -6,7 +6,7 @@ import { Info } from "@atoms/text";
 import { useHasAccess } from "@features/access";
 import { useTags } from "@features/tags/hooks/use-tags";
 import { getRandomHexColor } from "@features/utils/format/strings";
-import { TagIcon, TrashIcon } from "@heroicons/react/solid";
+import { TagIcon, TrashIcon } from "@heroicons/react/24/solid";
 import _ from "lodash";
 import { useState } from "react";
 import { twMerge } from "tailwind-merge";

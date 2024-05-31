@@ -1,5 +1,5 @@
 import { Base } from "@atoms/text";
-import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/outline";
+import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";

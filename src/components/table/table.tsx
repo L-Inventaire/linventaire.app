@@ -6,12 +6,11 @@ import { Loader } from "@atoms/loader";
 import { Modal } from "@atoms/modal/modal";
 import { Base, Info } from "@atoms/text";
 import {
-  ArrowSmDownIcon,
-  ArrowSmUpIcon,
   ChevronDownIcon,
   CogIcon,
-  DownloadIcon,
-} from "@heroicons/react/outline";
+  ArrowDownTrayIcon,
+} from "@heroicons/react/24/outline";
+import { ArrowDownIcon, ArrowUpIcon } from "@heroicons/react/16/solid";
 import _ from "lodash";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -19,6 +18,7 @@ import { TableExportModal } from "./export-modal";
 import { TableOptionsModal } from "./options-modal";
 import { TablePagination, TablePaginationSimple } from "./pagination";
 import { twMerge } from "tailwind-merge";
+import { useShortcuts } from "@features/utils/shortcuts";
 
 export type RenderOptions = {
   responsive?: boolean;
@@ -213,6 +213,11 @@ export function RenderedTable<T>({
     return () => window.removeEventListener("resize", resizeEvent);
   }, [resizeEvent]);
 
+  useShortcuts(["cmd+a"], () => {
+    if (data.length === selected.length) setSelected([]);
+    else setSelected(data);
+  });
+
   const responsiveMode = useResponsiveMode && parentWidth < 600; //Work in progress for responsive mode
 
   return (
@@ -307,7 +312,7 @@ export function RenderedTable<T>({
               className="my-2"
               theme="default"
               size="sm"
-              icon={(p) => <DownloadIcon {...p} />}
+              icon={(p) => <ArrowDownTrayIcon {...p} />}
               onClick={() => setExportModal(true)}
             >
               Export
@@ -420,15 +425,15 @@ export function RenderedTable<T>({
                             <div className="w-8 flex items-center ml-1">
                               {pagination?.orderBy === i &&
                                 pagination.order === "DESC" && (
-                                  <ArrowSmUpIcon className="h-4 w-4 text-slate-500 inline" />
+                                  <ArrowUpIcon className="h-4 w-4 text-slate-500 inline" />
                                 )}
                               {pagination?.orderBy === i &&
                                 pagination.order !== "DESC" && (
-                                  <ArrowSmDownIcon className="h-4 w-4 text-slate-500 inline" />
+                                  <ArrowDownIcon className="h-4 w-4 text-slate-500 inline" />
                                 )}
                               {pagination?.orderBy !== i &&
                                 column.orderable && (
-                                  <ArrowSmDownIcon className="table-hover-sort h-4 w-4 text-slate-500 opacity-50 inline" />
+                                  <ArrowDownIcon className="table-hover-sort h-4 w-4 text-slate-500 opacity-50 inline" />
                                 )}
                             </div>
                           )}

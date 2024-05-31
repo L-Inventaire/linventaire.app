@@ -1,27 +1,31 @@
-import { DropDownAtom, DropDownMenuType } from "@atoms/dropdown";
+import { Button } from "@atoms/button/button";
+import { MenuItem, MenuSection } from "@atoms/dropdown/components";
 import Link from "@atoms/link";
 import Env from "@config/environment";
 import { useHasAccess } from "@features/access";
 import { ROUTES, getRoute } from "@features/routes";
 import { DefaultScrollbars } from "@features/utils/scrollbars";
-import { Shortcut, useShortcuts } from "@features/utils/shortcuts";
+import { DocumentIcon, PlusIcon } from "@heroicons/react/24/outline";
 import {
-  AdjustmentsIcon,
-  ChartSquareBarIcon,
-  ClockIcon,
+  BookOpenIcon,
+  BuildingStorefrontIcon,
+  CalendarDaysIcon,
+  ChartBarIcon,
+  ClipboardDocumentListIcon,
+  Cog6ToothIcon,
   CubeIcon,
-  DocumentIcon,
-  DownloadIcon,
+  DocumentCheckIcon,
+  HomeIcon,
   InboxIcon,
-  PlusIcon,
+  ReceiptRefundIcon,
   ShoppingCartIcon,
   UserIcon,
-  ViewBoardsIcon,
-  ViewGridIcon,
-} from "@heroicons/react/outline";
-import { StarIcon } from "@heroicons/react/solid";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+  UsersIcon,
+  ViewColumnsIcon,
+  WalletIcon,
+  CodeBracketIcon,
+} from "@heroicons/react/24/solid";
+import { useRecoilValue } from "recoil";
 import { Account } from "./account";
 import { ResponsiveMenuAtom } from "./header";
 
@@ -32,334 +36,186 @@ export const SideBar = () => {
   return (
     <div
       className={
-        "print:hidden sm:translate-x-0 z-10 py-2 sm:border-none border-r dark:border-r-950 transition-all sm:block w-20 overflow-hidden fixed h-screen " +
+        "print:hidden sm:translate-x-0 z-10 sm:border-none border-r dark:border-r-950 transition-all sm:block w-64 overflow-hidden fixed h-screen " +
         (menuOpen ? " translate-x-0 " : " -translate-x-full ")
       }
     >
       <DefaultScrollbars>
         {/* Space for avatar */}
-        <div className="h-16" />
+        <div className="h-14 px-2 flex items-center">
+          <Account />
+        </div>
 
-        <MenuItem
-          to={getRoute(ROUTES.Home)}
-          icon={(p) => <ViewGridIcon {...p} />}
-          menu={[
-            {
-              label: "Tableau de bord",
-              to: getRoute(ROUTES.Home),
-            },
-          ]}
-        />
-        <MenuItem
-          to={getRoute(ROUTES.Notifications)}
-          icon={(p) => <InboxIcon {...p} />}
-          menu={[
-            {
-              label: "Notifications",
-              to: getRoute(ROUTES.Notifications),
-            },
-            {
-              label: "Évènements",
-              to: getRoute(ROUTES.Events),
-            },
-          ]}
-        />
-        <MenuItem
-          to={getRoute(ROUTES.Contacts)}
-          icon={(p) => <UserIcon {...p} />}
-          menu={[
-            {
-              label: "Nouveau contact",
-              icon: (p) => <PlusIcon {...p} />,
-              shortcut: ["ctrl+alt+c"],
-              to: getRoute(ROUTES.ContactsEdit, { id: "new" }),
-            },
-            {
-              type: "divider",
-            },
-            {
-              label: "Tous les contacts",
-              shortcut: ["alt+c"],
-              to: getRoute(ROUTES.Contacts),
-            },
-            {
-              label: "Fournisseurs",
-              to: getRoute(ROUTES.Contacts) + "?q=fournisseur%3A1+",
-            },
-            {
-              label: "Clients",
-              to: getRoute(ROUTES.Contacts) + "?q=client%3A1+",
-            },
-          ]}
-        />
-        <MenuItem
-          to={getRoute(ROUTES.Invoices)}
-          icon={(p) => <DocumentIcon {...p} />}
-          menu={[
-            {
-              label: "Nouvelle facture",
-              icon: (p) => <PlusIcon {...p} />,
-              shortcut: ["shift+f"],
-              to:
-                getRoute(ROUTES.InvoicesEdit, { id: "new" }) +
-                "?model=" +
-                encodeURIComponent(JSON.stringify({ type: "invoices" })),
-            },
-            {
-              label: "Nouveau devis",
-              icon: (p) => <PlusIcon {...p} />,
-              shortcut: ["shift+d"],
-              to:
-                getRoute(ROUTES.InvoicesEdit, { id: "new" }) +
-                "?model=" +
-                encodeURIComponent(JSON.stringify({ type: "quotes" })),
-            },
-            {
-              type: "divider",
-            },
-            {
-              label: "Devis",
-              shortcut: ["d"],
-              to: getRoute(ROUTES.Invoices) + '?q=type%3A"quotes"+',
-            },
-            {
-              label: "Factures",
-              shortcut: ["f"],
-              to: getRoute(ROUTES.Invoices) + '?q=type%3A"invoices"+',
-            },
-            {
-              label: "Abonnements",
-              shortcut: ["f"],
-              to:
-                getRoute(ROUTES.Invoices) +
-                '?q=type%3A"invoices"+subscription_enabled%3A1+',
-            },
-            {
-              label: "Avoirs",
-              shortcut: [],
-              to: getRoute(ROUTES.Invoices) + '?q=type%3A"credit_notes"+',
-            },
-          ]}
-        />
-        <MenuItem
-          to={getRoute(ROUTES.Consulting)}
-          icon={(p) => <ClockIcon {...p} />}
-          menu={[
-            {
-              label: "Entrer un temps",
-              icon: (p) => <PlusIcon {...p} />,
-              shortcut: ["shift+t"],
-              to: getRoute(ROUTES.ConsultingEdit, { id: "new" }),
-            },
-            {
-              type: "divider",
-            },
-            {
-              label: "Temps sur site",
-              shortcut: ["t"],
-              to: getRoute(ROUTES.Consulting),
-            },
-          ]}
-        />
-        <MenuItem
-          to={getRoute(ROUTES.Orders)}
-          icon={(p) => <ShoppingCartIcon {...p} />}
-          menu={[
-            {
-              label: "Créer une commande",
-              icon: (p) => <PlusIcon {...p} />,
-              shortcut: ["shift+s"],
-              to: getRoute(ROUTES.OrdersEdit, { id: "new" }),
-            },
-            {
-              type: "divider",
-            },
-            {
-              label: "Bons de commande",
-              shortcut: ["s"],
-              to: getRoute(ROUTES.Orders),
-            },
-          ]}
-        />
-        <MenuItem
-          to={getRoute(ROUTES.Receipts)}
-          icon={(p) => <DownloadIcon {...p} />}
-          menu={[
-            {
-              label: "Démarrer la réception",
-              icon: (p) => <PlusIcon {...p} />,
-              shortcut: ["shift+r"],
-              to: getRoute(ROUTES.ReceiptsEdit, { id: "new" }),
-            },
-            {
-              type: "divider",
-            },
-            {
-              label: "Réceptions",
-              shortcut: ["r"],
-              to: getRoute(ROUTES.Receipts),
-            },
-          ]}
-        />
-        <MenuItem
-          to={getRoute(ROUTES.Stock)}
-          icon={(p) => <ViewBoardsIcon {...p} />}
-          menu={[
-            {
-              label: "Stock",
-              to: getRoute(ROUTES.Stock),
-            },
-          ]}
-        />
-        <MenuItem
-          to={getRoute(ROUTES.Products)}
-          icon={(p) => <CubeIcon {...p} />}
-          menu={[
-            {
-              label: "Créer un article",
-              icon: (p) => <PlusIcon {...p} />,
-              shortcut: ["shift+p"],
-              to: getRoute(ROUTES.ProductsEdit, { id: "new" }),
-            },
-            {
-              type: "divider",
-            },
-            {
-              label: "Articles",
-              shortcut: ["p"],
-              to: getRoute(ROUTES.Products),
-            },
-          ]}
-        />
-        <MenuItem
-          to={getRoute(ROUTES.Statistics)}
-          icon={(p) => <ChartSquareBarIcon {...p} />}
-          menu={[
-            {
-              label: "Statistiques",
-              to: getRoute(ROUTES.Statistics),
-            },
-          ]}
-        />
-        {(hasAccess("CLIENT_READ") || hasAccess("USERS_READ")) && (
+        <div className="px-2 space-y-1">
           <MenuItem
-            icon={(p) => <AdjustmentsIcon {...p} />}
-            to={getRoute(ROUTES.Settings)}
-            menu={[
-              ...(hasAccess("CLIENT_READ")
-                ? ([
-                    {
-                      label: "Tous les paramètres",
-                      to: getRoute(ROUTES.SettingsPreferences),
-                    },
-                    {
-                      label: "Votre entreprise",
-                      to: getRoute(ROUTES.SettingsCompany),
-                    },
-                  ] as DropDownMenuType)
-                : []),
-              ...(hasAccess("USERS_READ")
-                ? ([
-                    {
-                      label: "Collaborateurs",
-                      to: getRoute(ROUTES.SettingsUsers),
-                    },
-                  ] as DropDownMenuType)
-                : []),
-              ...(hasAccess("CLIENT_READ")
-                ? ([
-                    {
-                      type: "divider",
-                    },
-                    {
-                      label: "Paiements et plans",
-                      to: getRoute(ROUTES.SettingsBilling),
-                      icon: () => (
-                        <StarIcon className="h-4 w-h-4 text-orange-500 mr-1" />
-                      ),
-                    },
-                  ] as DropDownMenuType)
-                : []),
-            ]}
+            to={getRoute(ROUTES.Home)}
+            label="Tableau de bord"
+            icon={(p) => <HomeIcon {...p} />}
           />
-        )}
+          <MenuItem
+            to={getRoute(ROUTES.Notifications)}
+            label="Notifications"
+            icon={(p) => <InboxIcon {...p} />}
+          />
+          <MenuItem
+            to={getRoute(ROUTES.Statistics)}
+            label="Statistiques"
+            icon={(p) => <ChartBarIcon {...p} />}
+          />
+
+          <MenuSection
+            className="!mt-6"
+            label="Contacts"
+            suffix={
+              <Button
+                size="sm"
+                theme="invisible"
+                icon={(p) => <PlusIcon {...p} />}
+              />
+            }
+            show={hasAccess("CONTACTS_READ")}
+          >
+            <MenuItem
+              to={getRoute(ROUTES.Contacts)}
+              label="Tous les contacts"
+              icon={(p) => <WalletIcon {...p} />}
+            />
+            <MenuItem
+              to={getRoute(ROUTES.Contacts) + "?q=client%3A1+"}
+              label="Clients"
+              icon={(p) => <UserIcon {...p} />}
+            />
+            <MenuItem
+              to={getRoute(ROUTES.Contacts) + "?q=fournisseur%3A1+"}
+              label="Fournisseurs"
+              icon={(p) => <BuildingStorefrontIcon {...p} />}
+            />
+          </MenuSection>
+
+          <MenuSection
+            className="!mt-6"
+            label="Documents"
+            suffix={
+              <Button
+                size="sm"
+                theme="invisible"
+                icon={(p) => <PlusIcon {...p} />}
+              />
+            }
+            show={hasAccess("INVOICES_READ")}
+          >
+            <MenuItem
+              to={getRoute(ROUTES.Invoices) + "?type=quotes"}
+              label="Devis"
+              icon={(p) => <DocumentIcon {...p} />}
+            />
+            <MenuItem
+              to={getRoute(ROUTES.Invoices) + "?type=invoices"}
+              label="Factures"
+              icon={(p) => <DocumentCheckIcon {...p} />}
+            />
+            <MenuItem
+              to={
+                getRoute(ROUTES.Invoices) +
+                "?type=invoices&q=subscription_enabled%3A1+&map=%7B%7D"
+              }
+              label="Abonnements"
+              icon={(p) => <CalendarDaysIcon {...p} />}
+            />
+            <MenuItem
+              to={getRoute(ROUTES.Invoices) + "?type=credit_notes"}
+              label="Avoirs"
+              icon={(p) => <ReceiptRefundIcon {...p} />}
+            />
+          </MenuSection>
+
+          <MenuSection
+            className="!mt-6"
+            label="Service"
+            show={hasAccess("ONSITE_READ")}
+          >
+            <MenuItem
+              to={getRoute(ROUTES.Contacts)}
+              label="Service sur site"
+              icon={(p) => <ClipboardDocumentListIcon {...p} />}
+              show={hasAccess("ONSITE_READ")}
+            />
+          </MenuSection>
+
+          <MenuSection
+            className="!mt-6"
+            label="Stock"
+            show={
+              hasAccess("ARTICLES_READ") ||
+              hasAccess("ORDERS_READ") ||
+              hasAccess("STOCK_READ")
+            }
+          >
+            <MenuItem
+              to={getRoute(ROUTES.Orders)}
+              label="Commandes"
+              icon={(p) => <ShoppingCartIcon {...p} />}
+              show={hasAccess("ORDERS_READ")}
+            />
+            <MenuItem
+              to={getRoute(ROUTES.Stock)}
+              label="Stock"
+              icon={(p) => <ViewColumnsIcon {...p} />}
+              show={hasAccess("STOCK_READ")}
+            />
+            <MenuItem
+              to={getRoute(ROUTES.Products)}
+              label="Articles"
+              icon={(p) => <CubeIcon {...p} />}
+              show={hasAccess("ARTICLES_READ")}
+            />
+          </MenuSection>
+
+          <MenuSection className="!mt-6" label="Comptabilité">
+            <MenuItem
+              to={getRoute(ROUTES.Contacts)}
+              label="Comptes"
+              icon={(p) => <BookOpenIcon {...p} />}
+            />
+          </MenuSection>
+
+          <MenuSection
+            className="!mt-6"
+            label="Entreprise"
+            show={hasAccess("CLIENT_READ") || hasAccess("USERS_READ")}
+          >
+            <MenuItem
+              to={getRoute(ROUTES.SettingsUsers)}
+              label="Utilisateurs"
+              icon={(p) => <UsersIcon {...p} />}
+              show={hasAccess("USERS_READ")}
+            />
+            <MenuItem
+              to={getRoute(ROUTES.Settings)}
+              label="Paramètres"
+              icon={(p) => <Cog6ToothIcon {...p} />}
+              show={hasAccess("CLIENT_READ")}
+            />
+            <MenuItem
+              to={getRoute(ROUTES.DevPage)}
+              label="DevPage"
+              icon={(p) => <CodeBracketIcon {...p} />}
+              show={document.location.host.indexOf("localhost") > -1}
+            />
+          </MenuSection>
+        </div>
 
         {/* Space for logo */}
         <div className="h-16" />
       </DefaultScrollbars>
 
-      <Account />
-
-      <div className="absolute bottom-0 w-full h-16 bg-wood-50 dark:bg-wood-990">
-        <div className="w-20 h-16 flex items-center justify-center">
-          <Logo />
+      {false && (
+        <div className="absolute bottom-0 w-full h-16 bg-slate-50 dark:bg-slate-950">
+          <div className="w-64 h-16 flex items-center justify-center">
+            <Logo />
+          </div>
         </div>
-      </div>
-    </div>
-  );
-};
-
-const MenuItem = ({
-  active,
-  icon,
-  className,
-  menu,
-  to,
-}: {
-  active?: boolean;
-  className?: string;
-  icon: (p: any) => React.ReactNode;
-  menu?: DropDownMenuType;
-  to?: string;
-}) => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const setMenu = useSetRecoilState(DropDownAtom);
-  if (to && location.pathname.indexOf(to) === 0) {
-    active = true;
-  }
-
-  useShortcuts(
-    ((menu || []).reduce(
-      (acc, m) => [...(m.shortcut || []), ...acc] as any,
-      []
-    ) || []) as Shortcut[],
-    (_e, shortcut) => {
-      const dest = menu?.find((m) => m.shortcut?.includes(shortcut))?.to || to;
-      if (dest) navigate(dest);
-    }
-  );
-
-  return (
-    <div
-      className={
-        "inline-flex items-center justify-center w-20 h-14 " + (className || "")
-      }
-    >
-      <Link
-        to={to}
-        noColor
-        onMouseEnter={(e: any) => {
-          setMenu({
-            target: menu ? e.currentTarget : null,
-            position: "right",
-            menu: menu || [],
-          });
-        }}
-        onClick={(e: any) => {
-          to && setMenu({ target: menu ? e.currentTarget : null, menu: [] });
-        }}
-        className={
-          "cursor-pointer w-12 h-12 flex items-center justify-center hover:bg-wood-100 dark:hover:bg-wood-800 rounded-lg " +
-          (active
-            ? "bg-wood-100 dark:bg-wood-800 "
-            : "opacity-75 hover:opacity-100 ")
-        }
-      >
-        {icon({
-          className: "w-6 h-6 text-slate-900 dark:text-slate-100 ",
-        })}
-      </Link>
+      )}
     </div>
   );
 };

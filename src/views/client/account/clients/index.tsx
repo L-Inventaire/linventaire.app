@@ -8,7 +8,7 @@ import {
   useClients,
 } from "@features/clients/state/use-clients";
 import { getServerUri } from "@features/utils/format/strings";
-import { PlusIcon } from "@heroicons/react/outline";
+import { PlusIcon } from "@heroicons/react/24/outline";
 import { Page, PageBlock } from "../../_layout/page";
 import { ClientsApiClient } from "@features/clients/api-client/api-client";
 import { useAuth } from "@features/auth/state/use-auth";

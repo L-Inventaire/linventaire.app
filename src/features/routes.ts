@@ -90,4 +90,6 @@ export const ROUTES = {
   SettingsUsers: "/:client/settings/users",
   SettingsApi: "/:client/settings/api",
   SettingsBilling: "/:client/settings/billing",
+
+  DevPage: "/:client/dev",
 };

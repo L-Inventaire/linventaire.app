@@ -13,7 +13,7 @@ export const Badge = ({
     <div
       style={{ minWidth: "21px" }}
       className={
-        "bg-orange-400 rounded-full px-1.5 py-px text-sm text-white text-center " +
+        "bg-yellow-400 rounded-full px-1.5 py-px text-sm text-white text-center " +
         (className || "")
       }
     >

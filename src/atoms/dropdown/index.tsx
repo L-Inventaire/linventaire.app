@@ -1,13 +1,18 @@
 import { Button, ButtonProps } from "@atoms/button/button";
 import Link from "@atoms/link";
-import { BaseSmall, Info, SectionSmall } from "@atoms/text";
+import { Base, BaseSmall, Info, SectionSmall } from "@atoms/text";
 import { AnimatedHeight } from "@components/animated-height";
-import { Shortcut } from "@features/utils/shortcuts";
+import {
+  Shortcut,
+  showShortCut,
+  useShortcuts,
+} from "@features/utils/shortcuts";
 import _ from "lodash";
 import React, { Fragment, useCallback, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { atom, useRecoilState, useSetRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
+import { MenuItem, MenuSection } from "./components";
 
 export type DropDownMenuType = {
   type?: "divider" | "danger" | "menu" | "label" | "title"; // default to menu
@@ -151,6 +156,10 @@ export const DropDownMenu = () => {
     };
   }, [updatePosition, clickOutside]);
 
+  useShortcuts(["esc"], () => {
+    clickOutside();
+  });
+
   return (
     <div
       ref={ref}
@@ -158,7 +167,7 @@ export const DropDownMenu = () => {
         pointerEvents: state.target ? "all" : "none",
         opacity: state.target && state.menu.length > 0 ? 1 : 0,
       }}
-      className="z-50 transition-all fixed sm:bottom-auto bottom-0 h-auto shadow-xl border border-slate-500 border-opacity-10 sm:rounded-lg max-w-2xl w-full sm:w-64 bg-white dark:bg-wood-900 overflow-hidden"
+      className="z-50 transition-all fixed sm:bottom-auto bottom-0 h-auto shadow-xl border border-slate-500 border-opacity-10 sm:rounded-lg max-w-2xl w-full sm:w-64 bg-white dark:bg-slate-900 overflow-hidden"
     >
       <AnimatedHeight
         trigger={(cb) => (autoHeightTrigger = cb)}
@@ -190,37 +199,24 @@ export const Menu = ({
         ) : m.type === "label" ? (
           <Fragment key={i}>{m.label}</Fragment>
         ) : m.type === "title" ? (
-          <SectionSmall key={i} className="p-2 -mb-1">
-            {m.label}
-          </SectionSmall>
+          <MenuSection key={i} label={m.label} />
         ) : (
-          <Link
-            noColor
+          <MenuItem
+            className={twMerge(
+              "my-1",
+              m.type === "danger" && "bg-red-500 text-red-500"
+            )}
             key={i}
+            active={active}
             onClick={() => {
               m.onClick?.();
               clickItem?.();
             }}
             to={m.to}
-            className={twMerge(
-              "h-7 my-1 items-center hover:bg-opacity-25 hover:bg-opacity-25 px-2 py-1 rounded-md select-none cursor-pointer flex " +
-                (m.type === "danger"
-                  ? "text-red-500 hover:bg-red-300 "
-                  : "hover:bg-wood-300 ") +
-                (active ? " bg-wood-100 dark:bg-wood-800 " : ""),
-              m.className
-            )}
-          >
-            {m.icon?.({
-              className: "w-4 h-4 mr-1 text-slate-900 dark:text-slate-100",
-            })}
-            <BaseSmall noColor={m.type === "danger"} className="grow">
-              {m.label}
-            </BaseSmall>
-            {m.shortcut && (
-              <Info className="opacity-50">{showShortCut(m.shortcut)}</Info>
-            )}
-          </Link>
+            icon={m.icon}
+            label={m.label}
+            suffix={m.shortcut && <Info>{showShortCut(m.shortcut)}</Info>}
+          />
         );
       })}
     </>
@@ -230,26 +226,3 @@ export const Menu = ({
 const Divider = () => (
   <div className="my-2 -mx-2 h-px bg-slate-500 bg-opacity-10" />
 );
-
-const showShortCut = (shortcut: string[]) => {
-  return shortcut
-    .filter((a) =>
-      navigator.userAgent.indexOf("Mac OS X") !== -1
-        ? true
-        : a.indexOf("cmd") === -1
-    )
-    .map((a) =>
-      a
-        .replace("cmd", "⌘")
-        .replace("ctrl", "ctrl+")
-        .replace("alt", "⌥")
-        .replace("enter", "↵")
-        .replace("up", "↑")
-        .replace("down", "↓")
-        .replace("left", "←")
-        .replace("right", "→")
-        .replace("shift", "⇧")
-        .replace("del", "⌫")
-        .replace(/\+/g, "")
-    )[0];
-};

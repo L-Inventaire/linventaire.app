@@ -9,7 +9,10 @@ import { InputWithSuggestions } from "@atoms/input/input-with-suggestion";
 import Select from "@atoms/input/input-select";
 import { debounce } from "@features/utils/debounce";
 import { useControlledEffect } from "@features/utils/hooks/use-controlled-effect";
-import { ArrowsExpandIcon, SearchIcon } from "@heroicons/react/outline";
+import {
+  ArrowsPointingOutIcon,
+  MagnifyingGlassIcon,
+} from "@heroicons/react/24/outline";
 import { nanoid } from "nanoid";
 import { memo, useContext, useRef, useState } from "react";
 import { SearchFormFieldType } from "./types";
@@ -141,7 +144,7 @@ export const FormInput = memo(
             disabled={disabled}
           />
           <Button onClick={props.onSearch} size="lg" shortcut={["enter"]}>
-            <SearchIcon className="h-6 w-6 -mx-2" />
+            <MagnifyingGlassIcon className="h-6 w-6 -mx-2" />
           </Button>
         </div>
       );
@@ -374,7 +377,7 @@ export const FormInput = memo(
             )}
             {props.type === "modal" && (
               <InputDecorationIcon
-                suffix={(p) => <ArrowsExpandIcon {...p} />}
+                suffix={(p) => <ArrowsPointingOutIcon {...p} />}
                 onClick={() => {
                   if (disabled) return;
                   props.onClick &&

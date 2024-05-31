@@ -6,7 +6,7 @@ function showTooltip(that: any) {
   const tooltipText = that.getAttribute("data-tooltip");
   const position = that.getAttribute("data-position") || "top";
   const tooltip = document.createElement("div");
-  tooltip.className = `tooltip text-sm tooltip-${position}`;
+  tooltip.className = `tooltip shadow-sm text-sm tooltip-${position}`;
 
   tooltip.textContent =
     `${tooltipText}` === "true" ? that.innerText : tooltipText;
@@ -97,12 +97,13 @@ export const Tooltip = () => {
         .tooltip {
           position: absolute;
           padding: 3px 6px;
-          background: black;
-          color: white;
+          background: white;
+          color: black;
           border-radius: 5px;
           pointer-events: none;
           transition: opacity 0.1s ease-in-out;
           z-index: 9999;
+          border: 0.5px solid #00000022;
         }
         .tooltip::before {
           content: "";
@@ -114,25 +115,25 @@ export const Tooltip = () => {
           border-style: solid;
         }
         .tooltip-top::before {
-          border-bottom: 5px solid black;
+          border-bottom: 5px solid white;
           left: 50%;
           bottom: -10px;
           transform: translateX(-50%) rotate(180deg);
         }
         .tooltip-bottom::before {
-          border-top: 5px solid black;
+          border-top: 5px solid white;
           left: 50%;
           top: -10px;
           transform: translateX(-50%) rotate(180deg);
         }
         .tooltip-left::before {
-          border-left: 5px solid black;
+          border-left: 5px solid white;
           right: -10px;
           top: 50%;
           transform: translateY(-50%);
         }
         .tooltip-right::before {
-          border-right: 5px solid black;
+          border-right: 5px solid white;
           left: -10px;
           top: 50%;
           transform: translateY(-50%);

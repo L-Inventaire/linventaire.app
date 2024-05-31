@@ -9,7 +9,11 @@ import {
   initializeFileTypeIcons,
 } from "@fluentui/react-file-type-icons";
 import { Icon } from "@fluentui/react/lib/Icon";
-import { DownloadIcon, EyeIcon, XIcon } from "@heroicons/react/outline";
+import {
+  ArrowDownTrayIcon,
+  EyeIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { twMerge } from "tailwind-merge";
@@ -107,7 +111,7 @@ const FileTagRender = ({
                 theme="invisible"
                 className="inline-block"
                 size="sm"
-                icon={(p) => <DownloadIcon {...p} />}
+                icon={(p) => <ArrowDownTrayIcon {...p} />}
                 to={FilesApiClient.getDownloadUrl(file)}
                 target="_blank"
               />
@@ -118,7 +122,7 @@ const FileTagRender = ({
                 theme="invisible"
                 className="inline-block"
                 size="sm"
-                icon={() => <XIcon className="h-4 w-4 text-red-500" />}
+                icon={() => <XMarkIcon className="h-4 w-4 text-red-500" />}
                 onClick={props.onDelete}
               />
             )}

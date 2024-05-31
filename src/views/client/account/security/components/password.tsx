@@ -8,7 +8,7 @@ import { MFAVerificationModal } from "@components/auth/mfa-verification-modal";
 import { PageLoader } from "@components/page-loader";
 import { MethodType } from "@features/customers/api-client/mfa-api-client";
 import { useCustomerMfa } from "@features/customers/state/hooks";
-import { ExclamationCircleIcon } from "@heroicons/react/outline";
+import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 
 export const SecurityPassword = (props: { mfa?: MethodType }) => {

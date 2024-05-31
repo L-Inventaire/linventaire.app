@@ -2,7 +2,7 @@ import { twMerge } from "tailwind-merge";
 import { MatchedStringFilter, SearchField } from "./types";
 import { labelToVariable } from "./utils";
 import reactStringReplace from "react-string-replace";
-import { CheckCircleIcon, XCircleIcon } from "@heroicons/react/outline";
+import { CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/outline";
 
 export const buildFilter = (
   fields: SearchField[],

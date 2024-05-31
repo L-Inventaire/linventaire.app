@@ -2,7 +2,7 @@ import { Button } from "@atoms/button/button";
 import { DynamicGrid } from "@atoms/layout/dynamic-grid";
 import Tabs from "@atoms/tabs";
 import { useControlledEffect } from "@features/utils/hooks/use-controlled-effect";
-import { MinusCircleIcon, PlusCircleIcon } from "@heroicons/react/outline";
+import { MinusCircleIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
 import _ from "lodash";
 import { Fragment, useState } from "react";
 import { FormInput } from "./fields";

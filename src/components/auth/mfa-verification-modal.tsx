@@ -1,7 +1,7 @@
 import { Modal, ModalContent } from "@atoms/modal/modal";
 import { useAuth } from "@features/auth/state/use-auth";
 import { MethodType } from "@features/customers/api-client/mfa-api-client";
-import { ClipboardCheckIcon } from "@heroicons/react/outline";
+import { ClipboardDocumentCheckIcon } from "@heroicons/react/24/outline";
 import { useEffect, useRef } from "react";
 import { MfaList } from "./mfa-list";
 
@@ -41,7 +41,7 @@ export const MFAVerificationModal = (props: {
   return (
     <Modal open={props.open} onClose={props.onClose}>
       <ModalContent
-        icon={ClipboardCheckIcon}
+        icon={ClipboardDocumentCheckIcon}
         theme="warning"
         title="Verify this action"
         text={props.text}

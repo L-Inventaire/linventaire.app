@@ -1,7 +1,7 @@
 import { Section } from "@atoms/text";
 import { useShortcuts } from "@features/utils/shortcuts";
 import { Dialog, Transition } from "@headlessui/react";
-import { XIcon } from "@heroicons/react/outline";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 import { ErrorBoundary } from "@views/error-boundary";
 import {
   Fragment,
@@ -152,7 +152,7 @@ export const Modal = (props: {
                       className="bg-wood-300 dark:bg-wood-600 rounded-full p-1 text-wood-600 dark:text-wood-300 hover:opacity-75 focus:outline-none "
                       onClick={() => props.onClose && props.onClose()}
                     >
-                      <XIcon className="h-5 w-5" aria-hidden="true" />
+                      <XMarkIcon className="h-5 w-5" aria-hidden="true" />
                     </button>
                   </div>
                 )}

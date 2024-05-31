@@ -10,7 +10,7 @@ import {
   RestOptions,
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
-import { PlusIcon } from "@heroicons/react/outline";
+import { PlusIcon } from "@heroicons/react/24/outline";
 import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
@@ -26,24 +26,9 @@ export const ArticlesPage = () => {
   const schema = useRestSchema("articles");
 
   return (
-    <Page title={[{ label: "Articles" }]}>
-      <div className="float-right">
-        <Button
-          className="ml-4"
-          size="sm"
-          to={withSearchAsModel(
-            getRoute(ROUTES.ProductsEdit, { id: "new" }),
-            schema.data
-          )}
-          icon={(p) => <PlusIcon {...p} />}
-        >
-          Ajouter un article
-        </Button>
-      </div>
-      <Title>Tous les articles</Title>
-      <div className="mb-4" />
-
-      <div className="flex flex-row space-x-2">
+    <Page
+      title={[{ label: "Articles" }]}
+      bar={
         <SearchBar
           schema={{
             table: "articles",
@@ -62,8 +47,21 @@ export const ArticlesPage = () => {
           onChange={(q) =>
             q.valid && setOptions({ ...options, query: q.fields })
           }
+          suffix={
+            <Button
+              size="xs"
+              to={withSearchAsModel(
+                getRoute(ROUTES.ProductsEdit, { id: "new" }),
+                schema.data
+              )}
+              icon={(p) => <PlusIcon {...p} />}
+            >
+              Ajouter un article
+            </Button>
+          }
         />
-      </div>
+      }
+    >
       <div className="mb-4" />
 
       <Table

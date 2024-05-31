@@ -13,7 +13,7 @@ import {
   RestOptions,
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
-import { PlusIcon, ReplyIcon } from "@heroicons/react/outline";
+import { PlusIcon, ArrowUturnLeftIcon } from "@heroicons/react/24/outline";
 import { Page } from "@views/client/_layout/page";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -21,7 +21,9 @@ import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
 
 export const InvoicesPage = () => {
-  const [type, setType] = useState("");
+  const [type, setType] = useState(
+    new URLSearchParams(document.location.search).get("type") || ""
+  );
   const [state, setState] = useState([]);
   const [options, setOptions] = useState<RestOptions<Invoices>>({
     limit: 10,
@@ -60,45 +62,72 @@ export const InvoicesPage = () => {
   }, [type]);
 
   return (
-    <Page title={[{ label: "Invoices" }]}>
-      <div className="float-right space-x-2 ml-4">
-        <Button
-          size="sm"
-          to={withSearchAsModel(
-            getRoute(ROUTES.InvoicesEdit, { id: "new" }),
-            schema.data,
-            { type: "quotes" }
-          )}
-          icon={(p) => <PlusIcon {...p} />}
-        >
-          Devis
-        </Button>
-        <Button
-          size="sm"
-          to={withSearchAsModel(
-            getRoute(ROUTES.InvoicesEdit, { id: "new" }),
-            schema.data,
-            { type: "invoices" }
-          )}
-          icon={(p) => <PlusIcon {...p} />}
-        >
-          Facture
-        </Button>
-        <Button
-          size="sm"
-          theme="outlined"
-          to={withSearchAsModel(
-            getRoute(ROUTES.InvoicesEdit, { id: "new" }),
-            schema.data,
-            { type: "credit_notes" }
-          )}
-          icon={(p) => <ReplyIcon {...p} />}
-        >
-          Avoir
-        </Button>
-      </div>
-      <Title>Toutes les factures</Title>
-
+    <Page
+      title={[{ label: "Invoices" }]}
+      bar={
+        <SearchBar
+          schema={{
+            table: "invoices",
+            fields: schemaToSearchFields(schema.data, {
+              tags: {
+                label: "Étiquettes",
+                keywords: "tags étiquettes label",
+              },
+              updated_at: "Date de mise à jour",
+              updated_by: {
+                label: "Mis à jour par",
+                keywords: "updated_by mis à jour par auteur utilisateur user",
+              },
+              type: {
+                label: "Type",
+                keywords: "type devis avoirs factures",
+              },
+            }),
+          }}
+          onChange={(q) =>
+            q.valid && setOptions({ ...options, query: q.fields })
+          }
+          suffix={
+            <>
+              <Button
+                size="xs"
+                theme="outlined"
+                to={withSearchAsModel(
+                  getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+                  schema.data,
+                  { type: "credit_notes" }
+                )}
+                icon={(p) => <ArrowUturnLeftIcon {...p} />}
+              >
+                Avoir
+              </Button>
+              <Button
+                size="xs"
+                to={withSearchAsModel(
+                  getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+                  schema.data,
+                  { type: "quotes" }
+                )}
+                icon={(p) => <PlusIcon {...p} />}
+              >
+                Devis
+              </Button>
+              <Button
+                size="xs"
+                to={withSearchAsModel(
+                  getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+                  schema.data,
+                  { type: "invoices" }
+                )}
+                icon={(p) => <PlusIcon {...p} />}
+              >
+                Facture
+              </Button>
+            </>
+          }
+        />
+      }
+    >
       <Tabs
         tabs={[
           { value: "", label: "Tous" },
@@ -125,29 +154,6 @@ export const InvoicesPage = () => {
             }))}
           />
         )}
-        <SearchBar
-          schema={{
-            table: "invoices",
-            fields: schemaToSearchFields(schema.data, {
-              tags: {
-                label: "Étiquettes",
-                keywords: "tags étiquettes label",
-              },
-              updated_at: "Date de mise à jour",
-              updated_by: {
-                label: "Mis à jour par",
-                keywords: "updated_by mis à jour par auteur utilisateur user",
-              },
-              type: {
-                label: "Type",
-                keywords: "type devis avoirs factures",
-              },
-            }),
-          }}
-          onChange={(q) =>
-            q.valid && setOptions({ ...options, query: q.fields })
-          }
-        />
       </div>
       <div className="mb-4" />
 

@@ -2,6 +2,7 @@ import _ from "lodash";
 import { ReactNode, useCallback, useEffect, useState } from "react";
 import "./index.scss";
 import { Column, Pagination, RenderOptions, RenderedTable } from "./table";
+import { useShortcuts } from "@features/utils/shortcuts";
 
 type PropsType<T> = {
   name?: string;

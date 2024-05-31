@@ -17,7 +17,7 @@ import {
   PencilIcon,
   TrashIcon,
   UserIcon,
-} from "@heroicons/react/outline";
+} from "@heroicons/react/24/outline";
 import _ from "lodash";
 import { useState } from "react";
 import { Page, PageBlock } from "../../_layout/page";

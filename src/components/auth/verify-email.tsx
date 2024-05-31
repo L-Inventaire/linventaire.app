@@ -7,7 +7,7 @@ import { Loader } from "@atoms/loader";
 import environment from "@config/environment";
 import { AuthApiClient } from "@features/auth/api-client/api-client";
 import { Transition } from "@headlessui/react";
-import { ArrowRightIcon } from "@heroicons/react/outline";
+import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import { Trans } from "react-i18next";
 

@@ -42,9 +42,9 @@ export const SecondSideBar = () => {
     >
       <div
         className={
-          "sm:translate-x-0 z-10 absolute sm:relative top-0 h-full transition-all border-r border-slate-500 border-opacity-15 w-64 grow shrink-0 bg-wood-25 dark:bg-slate-950 " +
+          "sm:translate-x-0 z-10 absolute sm:relative top-0 h-full transition-all border-r border-slate-500 border-opacity-15 w-64 grow shrink-0 bg-white dark:bg-slate-950 " +
           (menuOpen
-            ? " translate-x-0 bg-wood-50 border-l "
+            ? " translate-x-0 bg-white border-l "
             : " -translate-x-full ")
         }
       >

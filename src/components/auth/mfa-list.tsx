@@ -5,7 +5,7 @@ import { VerifyEmail } from "@components/auth/verify-email";
 import { VerifyPhone } from "@components/auth/verify-phone";
 import { AuthApiClient } from "@features/auth/api-client/api-client";
 import { useAuth } from "@features/auth/state/use-auth";
-import { ArrowRightIcon } from "@heroicons/react/outline";
+import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { VerifyApp } from "./verify-app";

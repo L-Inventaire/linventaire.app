@@ -1,7 +1,7 @@
 import Multiselect from "@atoms/multiselect-react-dropdown";
 import { useControlledEffect } from "@features/utils/hooks/use-controlled-effect";
-import { XIcon } from "@heroicons/react/outline";
-import { ChevronDownIcon } from "@heroicons/react/solid";
+import { XMarkIcon } from "@heroicons/react/24/outline";
+import { ChevronDownIcon } from "@heroicons/react/24/solid";
 import _ from "lodash";
 import { useState } from "react";
 import { defaultInputClassName, errorInputClassName } from "./input-text";
@@ -87,7 +87,7 @@ export function SelectMultiple(props: InputProps) {
         }}
       />
       {(props.value?.length || 0) > 0 && (
-        <XIcon
+        <XMarkIcon
           onClick={() => {
             props.onChange && props.onChange([]);
           }}

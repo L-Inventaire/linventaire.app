@@ -1,5 +1,5 @@
 import { copyToClipboard } from "@features/utils/clipboard";
-import { CheckIcon, ClipboardCopyIcon } from "@heroicons/react/outline";
+import { CheckIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
 import _ from "lodash";
 import { useCallback, useState } from "react";
 import { Button } from "../button/button";
@@ -54,7 +54,7 @@ export default function InputCopiable(props: InputProps) {
       >
         {copied && <CheckIcon className="h-4 w-4" aria-hidden="true" />}
         {!copied && (
-          <ClipboardCopyIcon className="h-4 w-4" aria-hidden="true" />
+          <DocumentDuplicateIcon className="h-4 w-4" aria-hidden="true" />
         )}
         <span>{copied ? "Copied" : "Copy"}</span>
       </Button>

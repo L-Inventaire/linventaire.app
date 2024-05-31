@@ -1,6 +1,11 @@
 import Link from "@atoms/link";
-import { Shortcut, useShortcuts } from "@features/utils/shortcuts";
+import {
+  Shortcut,
+  showShortCut,
+  useShortcuts,
+} from "@features/utils/shortcuts";
 import _ from "lodash";
+import { twMerge } from "tailwind-merge";
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -11,14 +16,14 @@ export interface ButtonProps
     | "default"
     | "outlined"
     | "invisible";
-  size?: "md" | "lg" | "xl" | "sm";
+  size?: "md" | "lg" | "xl" | "sm" | "xs";
   loading?: boolean;
   disabled?: boolean;
   shortcut?: Shortcut[];
   children?: React.ReactNode;
   to?: string;
   target?: string;
-  icon?: (props: React.SVGProps<SVGSVGElement>) => JSX.Element;
+  icon?: (props: { className: string }) => JSX.Element;
   "data-tooltip"?: string;
 }
 
@@ -41,27 +46,27 @@ export const Button = (props: ButtonProps) => {
   }
 
   let colors =
-    "text-white bg-wood-500 hover:bg-wood-600 active:bg-wood-700 border-px border-opacity-10 border-box border-black border-inside ";
+    "shadow-sm text-white bg-wood-500 hover:bg-wood-600 active:bg-wood-700 border-[0.5px] border-wood-600 hover:border-wood-700 ";
 
   if (props.theme === "secondary")
     colors =
-      "text-wood-500 bg-wood-100 hover:bg-wood-200 active:bg-wood-300 dark:bg-wood-900 dark:active:bg-wood-900 dark:hover:bg-wood-900 dark:text-slate-200 dark:hover:bg-opacity-75 dark:active:bg-opacity-10 border-px border-opacity-50 border-box border-black border-inside ";
+      "shadow-sm text-wood-500 bg-wood-100 hover:bg-wood-200 active:bg-wood-300 dark:bg-wood-900 dark:active:bg-wood-900 dark:hover:bg-wood-900 dark:text-slate-200 dark:hover:bg-opacity-75 dark:active:bg-opacity-10 border-[0.5px] border-wood-200 hover:border-wood-300 dark:border-wood-900 dark:hover:border-wood-800";
 
   if (props.theme === "danger")
     colors =
-      "text-white bg-rose-500 hover:bg-rose-600 active:bg-rose-700 border-px border-opacity-10 border-box border-black border-inside  ";
+      "shadow-sm text-white bg-rose-500 hover:bg-rose-600 active:bg-rose-700 border-[0.5px] border-red-600 hover:border-red-700";
 
   if (props.theme === "default")
     colors =
-      "text-black bg-white border-slate-200 hover:bg-slate-50 active:bg-slate-200 dark:bg-slate-950 dark:hover:bg-slate-700 dark:active:bg-slate-700 dark:text-white dark:border-slate-900 border-px border-opacity-50 border-box border-black border-inside ";
+      "shadow-sm text-black bg-white border-slate-200 hover:bg-slate-50 active:bg-slate-200 dark:bg-slate-950 dark:hover:bg-slate-700 dark:active:bg-slate-700 dark:text-white dark:border-slate-900 border-[0.5px] border-black border-opacity-15 border-solid border-inside ";
 
   if (props.theme === "outlined")
     colors =
-      "text-wood-400 bg-white dark:bg-wood-990 dark:hover:bg-wood-800 dark:active:bg-wood-900 hover:bg-wood-50 active:bg-wood-200 border-wood-400 border-solid	";
+      "shadow-sm text-black text-opacity-80 bg-white dark:bg-slate-990 dark:hover:bg-slate-800 hover:bg-gray-100 active:bg-gray-200 border-[0.5px] border-black border-opacity-15 border-solid  border-inside	";
 
   if (props.theme === "invisible")
     colors =
-      "text-wood-400 bg-transparent dark:hover:bg-wood-800 dark:active:bg-wood-900 hover:bg-wood-50 active:bg-wood-100 border-none";
+      "shadow-none text-black text-opacity-80 bg-transparent dark:hover:bg-white dark:hover:bg-opacity-5 dark:active:bg-opacity-10 hover:bg-black hover:bg-opacity-5 active:bg-opacity-10 border-none";
 
   if (disabled) colors += " opacity-50 pointer-events-none";
 
@@ -71,24 +76,30 @@ export const Button = (props: ButtonProps) => {
 
   if (size === "xl") className = className + " text-base h-14 px-14 ";
   else if (size === "lg") className = className + " text-base h-11 px-8 ";
-  else if (size === "sm") className = className + " px-3 text-sm h-7";
+  else if (size === "sm") className = className + " px-3 text-base h-7";
+  else if (size === "xs") className = className + " px-2 text-base h-6";
   else className = className + " px-4 text-base h-9";
 
   if (!props.children) {
     if (size === "lg") className = className + " w-11 !p-0 justify-center";
     else if (size === "sm") className = className + " w-7 !p-0 justify-center";
+    else if (size === "xs") className = className + " w-6 !p-0 justify-center";
     else className = className + " w-12 !p-0 justify-center";
   }
 
   return (
     <button
-      type="button"
-      className={
-        "print:hidden align-top whitespace-nowrap overflow-hidden text-ellipsis inline-flex items-center justify-center py-2 border text-sm font-medium rounded-md focus:outline-none " +
-        className +
-        " " +
-        props.className
+      data-tooltip={
+        (props["data-tooltip"] || "") +
+          (props.shortcut ? `\`${showShortCut(props.shortcut)}\`` : "") ||
+        undefined
       }
+      type="button"
+      className={twMerge(
+        "print:hidden align-top whitespace-nowrap overflow-hidden text-ellipsis inline-flex items-center justify-center py-2 border text-sm font-medium rounded-md focus:outline-none",
+        className,
+        props.className
+      )}
       disabled={disabled}
       {..._.omit(props, "loading", "children", "className", "icon")}
     >
@@ -118,9 +129,17 @@ export const Button = (props: ButtonProps) => {
       )}
       {props.icon &&
         props.icon({
-          className: "h-4 w-4 " + (props.children ? "-ml-1 mr-2" : "-mx-2"),
+          className:
+            "h-4 w-4 " +
+            (props.children
+              ? size === "xs"
+                ? "-ml-1 mr-0.5"
+                : size === "sm"
+                ? "-ml-1 mr-1"
+                : "-ml-1 mr-2"
+              : "-mx-2"),
         })}
-      {props.children}
+      <span className="mt-[2px]">{props.children}</span>
     </button>
   );
 };

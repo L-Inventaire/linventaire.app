@@ -8,7 +8,7 @@ import { getFullName } from "@features/auth/utils";
 import { useClientUsers } from "@features/clients/state/use-client-users";
 import { useClients } from "@features/clients/state/use-clients";
 import { PublicCustomer } from "@features/customers/types/customers";
-import { TrashIcon } from "@heroicons/react/solid";
+import { TrashIcon } from "@heroicons/react/24/solid";
 import _ from "lodash";
 import { useState } from "react";
 import { twMerge } from "tailwind-merge";

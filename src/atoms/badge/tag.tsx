@@ -1,4 +1,4 @@
-import { TagIcon } from "@heroicons/react/solid";
+import { TagIcon } from "@heroicons/react/24/solid";
 import { CSSProperties, ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
 

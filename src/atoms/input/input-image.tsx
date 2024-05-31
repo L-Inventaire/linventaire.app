@@ -3,7 +3,7 @@ import { Info, Title } from "@atoms/text";
 import { debounce } from "@features/utils/debounce";
 import { stringToColor } from "@features/utils/format/strings";
 import { useControlledEffect } from "@features/utils/hooks/use-controlled-effect";
-import { PhotographIcon } from "@heroicons/react/solid";
+import { PhotoIcon } from "@heroicons/react/24/solid";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -84,7 +84,7 @@ export const InputImage = ({
         ) : photoName ? (
           <Title>{photoName}</Title>
         ) : (
-          <PhotographIcon className="w-8 h-8 text-wood-500 dark:text-wood-400" />
+          <PhotoIcon className="w-8 h-8 text-wood-500 dark:text-wood-400" />
         )}
         <input
           type="file"

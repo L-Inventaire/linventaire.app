@@ -6,7 +6,7 @@ import { Table } from "@components/table";
 import { useContacts } from "@features/contacts/hooks/use-contacts";
 import { Contacts, getContactName } from "@features/contacts/types/types";
 import { ROUTES, getRoute } from "@features/routes";
-import { EyeIcon, TrashIcon } from "@heroicons/react/outline";
+import { EyeIcon, TrashIcon } from "@heroicons/react/24/outline";
 import _ from "lodash";
 import { useEffect } from "react";
 

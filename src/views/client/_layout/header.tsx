@@ -1,12 +1,13 @@
+import { Button } from "@atoms/button/button";
 import Link from "@atoms/link";
-import { BaseSmall, Info, Title } from "@atoms/text";
+import { Base } from "@atoms/text";
 import { ROUTES } from "@features/routes";
-import { useTranslation } from "react-i18next";
+import { Bars3Icon, BookOpenIcon, StarIcon } from "@heroicons/react/24/outline";
+import { LifebuoyIcon } from "@heroicons/react/24/solid";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { atom, useRecoilState, useRecoilValue } from "recoil";
 import { Search } from "./search";
-import { MenuIcon } from "@heroicons/react/outline";
-import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
 
 export const LayoutTitleAtom = atom<
   {
@@ -19,11 +20,6 @@ export const LayoutTitleAtom = atom<
   default: [{}],
 });
 
-export const LayoutActionsAtom = atom<React.ReactNode | null>({
-  key: "LayoutActionsAtom",
-  default: null,
-});
-
 export const ResponsiveMenuAtom = atom<boolean>({
   key: "ResponsiveMenuAtom",
   default: false,
@@ -31,7 +27,6 @@ export const ResponsiveMenuAtom = atom<boolean>({
 
 export const Header = () => {
   const title = useRecoilValue(LayoutTitleAtom);
-  const actions = useRecoilValue(LayoutActionsAtom);
   const [menuOpen, setMenuOpen] = useRecoilState(ResponsiveMenuAtom);
   const location = useLocation();
 
@@ -40,7 +35,7 @@ export const Header = () => {
   return (
     <div
       className={
-        "relative lg:py-2 flex flex-row justify-center lg:items-center px-16 sm:pr-2 sm:pl-0 min-h-0 shrink-0 z-60 transition-all " +
+        "relative flex flex-row justify-center lg:items-center px-16 sm:pr-2 sm:pl-0 min-h-12 shrink-0 z-60 transition-all " +
         (menuOpen ? "pointer-events-none opacity-25 " : "opacity-100")
       }
     >
@@ -49,68 +44,66 @@ export const Header = () => {
           "z-10 sm:hidden absolute transition-all h-full flex items-center justify-center left-4  "
         }
       >
-        <MenuIcon
+        <Bars3Icon
           onClick={() => setMenuOpen(true)}
           className="h-6 w-6 dark:text-white"
         />
       </div>
 
-      <div className="lg:mr-4 transition-all text-center sm:mt-4 lg:text-left lg:mt-0 min-h-11 ">
-        <div className="my-2 inline-block text-center sm:text-left lg:mr-4 relative -bottom-1 min-h-8">
+      <div className="transition-all text-center lg:text-left min-h-11 w-full">
+        <div className="my-2 inline-block text-center sm:text-left relative -bottom-1 min-h-8">
           <Link to={ROUTES.Home} noColor>
-            <Info className="inline">
+            <Base className="inline opacity-50 font-medium">
               L'inventaire{title.length ? " / " : ""}
-            </Info>
+            </Base>
           </Link>
           {title.map((t, i) => (
             <Link to={t.to} href={t.href} noColor key={i}>
               {i === title.length - 1 ? (
-                <Title className="inline">{t.label}</Title>
+                <div className="inline-flex space-x-1 items-center">
+                  <Base className="inline font-semibold">{t.label}</Base>
+                  <Button
+                    data-tooltip="Ajouter/Retirer des favoris"
+                    data-position="right"
+                    className="opacity-50 -mt-0.5"
+                    size="sm"
+                    theme="invisible"
+                    icon={(p) => <StarIcon {...p} />}
+                  />
+                </div>
               ) : (
-                <Info className="inline">
+                <Base className="inline opacity-50 font-medium">
                   {t.label || "L'inventaire"}
                   {title.length > 1 ? " / " : ""}
-                </Info>
+                </Base>
               )}
             </Link>
           ))}
         </div>
-        {actions && (
-          <div className="flex my-2 lg:inline-flex space-x-2 justify-center">
-            {actions}
-          </div>
-        )}
       </div>
 
-      <div className="hidden lg:inline-flex grow flex items-start justify-center"></div>
-
-      <div className="hidden lg:inline-flex flex flex-row items-center justify-center ml-4">
-        <Links />
-      </div>
-
-      <div className="hidden lg:inline max-w-md w-full">
+      <div className="hidden lg:inline-flex flex items-start justify-center w-96 shrink-0">
         <Search />
+      </div>
+
+      <div className="hidden lg:inline w-full text-right space-x-2 mr-1">
+        <Button
+          data-tooltip="Support"
+          data-position="left"
+          className="rounded-lg"
+          size="sm"
+          theme="outlined"
+          icon={(p) => <LifebuoyIcon {...p} />}
+        />
+        <Button
+          data-tooltip="Guides"
+          data-position="left"
+          className="rounded-lg"
+          size="sm"
+          theme="outlined"
+          icon={(p) => <BookOpenIcon {...p} />}
+        />
       </div>
     </div>
   );
 };
-
-const Links = () => {
-  const { t } = useTranslation();
-  return (
-    <>
-      <Link target="_BLANK" href="https://google.com" className="flex-row">
-        <BaseSmall noColor>{t("header.guides")}</BaseSmall>
-      </Link>
-      <Separator />
-      <Link target="_BLANK" href="mailto:" className="flex-row">
-        <BaseSmall noColor>{t("header.support")}</BaseSmall>
-      </Link>
-      <Separator />
-    </>
-  );
-};
-
-const Separator = () => (
-  <div className="hidden md:inline h-5 mx-4 border-solid border-r border-slate-500 opacity-25 inline-block"></div>
-);

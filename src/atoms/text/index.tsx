@@ -61,7 +61,7 @@ const Text = (props: TextProps) => {
   switch (props.type) {
     case "title":
       defaultClassName =
-        "text-2xl font-semibold block " +
+        "text-xl font-semibold block " +
         " " +
         (props.noColor ? "" : "text-black dark:text-white");
       break;

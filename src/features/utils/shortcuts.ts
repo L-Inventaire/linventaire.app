@@ -3,13 +3,21 @@ import { useControlledEffect } from "@features/utils/hooks/use-controlled-effect
 
 export type Shortcut =
   | ShortcutKeys
+  | ConcatenatedString<"shift+", ShortcutKeys>
+  | ConcatenatedString<"cmd+", ShortcutKeys>
+  | ConcatenatedString<"cmd+shift+", ShortcutKeys>;
+
+/* Do not use preferably
   | ConcatenatedString<"ctrl+", ShortcutKeys>
   | ConcatenatedString<"alt+", ShortcutKeys>
-  | ConcatenatedString<"shift+", ShortcutKeys>
+  | ConcatenatedString<"ctrl+shift+", ShortcutKeys>
+  | ConcatenatedString<"ctrl+alt+", ShortcutKeys>
+  | ConcatenatedString<"ctrl+alt+shift+", ShortcutKeys>
   | ConcatenatedString<"alt+shift+", ShortcutKeys>
   | ConcatenatedString<"ctrl+shift+", ShortcutKeys>
   | ConcatenatedString<"ctrl+alt+", ShortcutKeys>
-  | ConcatenatedString<"ctrl+alt+shift+", ShortcutKeys>;
+  | ConcatenatedString<"ctrl+alt+shift+", ShortcutKeys>
+  */
 
 type ConcatenatedString<T extends string, S extends string> = `${T}${S}`;
 
@@ -69,7 +77,7 @@ export const useListenForShortcuts = () => {
     const listener = (e: any) => {
       if (!e.key) return;
 
-      let shortcut = e.code
+      let shortcut = e.key
         .toLocaleLowerCase()
         .replace(/^key/, "")
         .toLowerCase();
@@ -88,39 +96,51 @@ export const useListenForShortcuts = () => {
       if (e.altKey) {
         shortcut = "alt+" + shortcut;
       }
-      if (e.ctrlKey) {
-        shortcut = "ctrl+" + shortcut;
+
+      const activeShortcuts = [shortcut];
+
+      if (e.ctrlKey || e.metaKey) {
+        activeShortcuts[0] = "ctrl+" + shortcut;
+        activeShortcuts.push("cmd+" + shortcut);
       }
 
-      //Ignore if input, textarea or select is focused
-      if (
-        document.activeElement &&
-        ["input", "textarea", "select"].includes(
-          document.activeElement.tagName?.toLowerCase()
-        ) &&
-        !(
-          shortcut === "enter" &&
-          document.activeElement.tagName?.toLowerCase() !== "textarea"
-        )
-      ) {
-        if (shortcut === "esc") {
-          (document.activeElement as any)?.blur();
+      for (const shortcut of activeShortcuts) {
+        //Ignore if input, textarea or select is focused
+        if (
+          document.activeElement &&
+          ["input", "textarea", "select"].includes(
+            document.activeElement.tagName?.toLowerCase()
+          ) &&
+          !(
+            shortcut === "enter" &&
+            document.activeElement.tagName?.toLowerCase() !== "textarea"
+          )
+        ) {
+          if (shortcut === "esc") {
+            (document.activeElement as any)?.blur();
+            return;
+          }
+          return;
         }
-        return;
-      }
 
-      if (shortcutsCallbacks[shortcut] && shortcutsCallbacks[shortcut].length) {
-        shortcutsCallbacks[shortcut][shortcutsCallbacks[shortcut].length - 1](
-          e,
-          shortcut
-        );
+        if (
+          shortcutsCallbacks[shortcut] &&
+          shortcutsCallbacks[shortcut].length
+        ) {
+          e.preventDefault();
+          shortcutsCallbacks[shortcut][shortcutsCallbacks[shortcut].length - 1](
+            e,
+            shortcut
+          );
+          return;
+        }
       }
     };
 
-    document.addEventListener("keyup", listener);
+    document.addEventListener("keydown", listener);
 
     return () => {
-      document.removeEventListener("keyup", listener);
+      document.removeEventListener("keydown", listener);
     };
   }, []);
 };
@@ -162,4 +182,29 @@ export const useShortcuts = (
       }
     };
   }, []);
+};
+
+export const showShortCut = (shortcut: string[]) => {
+  const hasCmdKey = navigator.userAgent.indexOf("Mac OS X") !== -1;
+  return shortcut
+    .filter((a) =>
+      navigator.userAgent.indexOf("Mac OS X") !== -1
+        ? true
+        : a.indexOf("cmd") === -1
+    )
+    .map((a) =>
+      a
+        .replace("cmd", hasCmdKey ? "⌘" : "ctrl+")
+        .replace("ctrl", "ctrl+")
+        .replace("alt", "⌥")
+        .replace("enter", "↵")
+        .replace("up", "↑")
+        .replace("down", "↓")
+        .replace("left", "←")
+        .replace("right", "→")
+        .replace("shift", "⇧")
+        .replace("del", "⌫")
+        .replace(/\+/g, "")
+        .toLocaleUpperCase()
+    )[0];
 };

@@ -1,7 +1,7 @@
 import { twMerge } from "tailwind-merge";
 import { InputDecorationIcon } from "./input-decoration-icon";
 import { Input, defaultInputClassName } from "./input-text";
-import { RefreshIcon } from "@heroicons/react/solid";
+import { ArrowPathIcon } from "@heroicons/react/24/solid";
 import { useEffect } from "react";
 import { getRandomHexColor } from "@features/utils/format/strings";
 
@@ -36,7 +36,7 @@ export default function InputColor(props: {
           }}
           onClick={() => props.onChange(getRandomHexColor())}
         >
-          <RefreshIcon className="w-3 h-3 text-white" />
+          <ArrowPathIcon className="w-3 h-3 text-white" />
         </div>
       )}
       input={(p) => (

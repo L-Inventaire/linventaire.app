@@ -2,7 +2,7 @@ import { Button } from "@atoms/button/button";
 import { ButtonConfirm } from "@atoms/button/confirm";
 import { Input } from "@atoms/input/input-text";
 import { Shortcut } from "@features/utils/shortcuts";
-import { MinusIcon, PlusIcon, TrashIcon } from "@heroicons/react/outline";
+import { MinusIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 
 export const InputCounter = (props: {

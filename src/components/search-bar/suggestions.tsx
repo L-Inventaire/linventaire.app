@@ -5,7 +5,10 @@ import { Loader } from "@atoms/loader";
 import { Info, InfoSmall } from "@atoms/text";
 import { RestTag } from "@components/rest-tags";
 import { formatTime } from "@features/utils/format/dates";
-import { InformationCircleIcon, SearchIcon } from "@heroicons/react/outline";
+import {
+  InformationCircleIcon,
+  MagnifyingGlassIcon,
+} from "@heroicons/react/24/outline";
 import { ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
 import { CaretPositionType } from "./hooks/use-caret";
@@ -54,7 +57,7 @@ export const SearchBarSuggestions = ({
                     <Info className="block my-2 flex items-center">
                       {searching && !!currentField && (
                         <>
-                          <SearchIcon className="w-4 h-4 inline-block mr-1" />
+                          <MagnifyingGlassIcon className="w-4 h-4 inline-block mr-1" />
                           <span>
                             Recherchez dans les valeurs de{" "}
                             <b>{currentField?.label}</b>
