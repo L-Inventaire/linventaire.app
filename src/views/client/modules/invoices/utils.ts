@@ -26,7 +26,6 @@ export const computePricesFromInvoice = (
       itemsDiscount = parseFloat(item.discount.value as any);
     }
     initial += itemsPrice;
-    discount += itemsDiscount;
     taxes += (itemsPrice - itemsDiscount) * getTvaValue(item.tva || "");
   });
 
