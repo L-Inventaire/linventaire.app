@@ -1,4 +1,4 @@
-import { Button } from "@atoms/button/button";
+import { DocumentBar } from "@components/document-bar";
 import { PageLoader } from "@components/page-loader";
 import { useContact } from "@features/contacts/hooks/use-contacts";
 import { getContactName } from "@features/contacts/types/types";
@@ -6,23 +6,13 @@ import { ROUTES, getRoute } from "@features/routes";
 import { Page } from "@views/client/_layout/page";
 import { useNavigate, useParams } from "react-router-dom";
 import { ContactsDetailsPage } from "../components/contact-details";
-import {
-  EllipsisHorizontalIcon,
-  DocumentDuplicateIcon,
-  LinkIcon,
-  PrinterIcon,
-  ClockIcon,
-} from "@heroicons/react/24/outline";
-import {
-  ArrowLeftIcon,
-  ChevronUpIcon,
-  ChevronDownIcon,
-} from "@heroicons/react/20/solid";
+import { Button } from "@atoms/button/button";
 
 export const ContactsViewPage = ({ readonly }: { readonly?: boolean }) => {
+  const navigate = useNavigate();
+
   const { id } = useParams();
   const { contact } = useContact(id || "");
-  const navigate = useNavigate();
 
   if (!contact) return <PageLoader />;
 
@@ -33,65 +23,35 @@ export const ContactsViewPage = ({ readonly }: { readonly?: boolean }) => {
         { label: getContactName(contact || {}) },
       ]}
       bar={
-        <div className="items-center flex grow space-x-2 px-3">
-          <div className="flex items-center space-x-1">
-            <Button
-              data-tooltip="Retour"
-              size="xs"
-              theme="outlined"
-              shortcut={["esc"]}
-              icon={(p) => <ArrowLeftIcon {...p} />}
-            />
-            <Button
-              data-tooltip="Précédent"
-              size="xs"
-              theme="outlined"
-              shortcut={["k"]}
-              icon={(p) => <ChevronUpIcon {...p} />}
-            />
-            <Button
-              data-tooltip="Suivant"
-              size="xs"
-              theme="outlined"
-              shortcut={["j"]}
-              icon={(p) => <ChevronDownIcon {...p} />}
-            />
-          </div>
-          <div className="grow" />
-          <Button
-            size="xs"
-            theme="invisible"
-            icon={(p) => <DocumentDuplicateIcon {...p} />}
-          />
-          <Button
-            size="xs"
-            theme="invisible"
-            icon={(p) => <LinkIcon {...p} />}
-          />
-          <Button
-            size="xs"
-            theme="invisible"
-            icon={(p) => <PrinterIcon {...p} />}
-          />
-          <Button
-            size="xs"
-            theme="invisible"
-            icon={(p) => <ClockIcon {...p} />}
-          />
-          <Button
-            size="xs"
-            theme="invisible"
-            icon={(p) => <EllipsisHorizontalIcon {...p} />}
-          />
-          <Button
-            size="xs"
-            onClick={async () =>
-              navigate(getRoute(ROUTES.ContactsEdit, { id }))
-            }
-          >
-            Modifier
-          </Button>
-        </div>
+        <DocumentBar
+          document={{ id }}
+          mode={"read"}
+          backRoute={ROUTES.Contacts}
+          editRoute={ROUTES.ContactsEdit}
+          suffix={
+            <>
+              <Button
+                theme="outlined"
+                size="xs"
+                shortcut={["d"]}
+                onClick={async () =>
+                  navigate(getRoute(ROUTES.ContactsEdit || "", { id }))
+                }
+              >
+                Créer un devis
+              </Button>
+              <Button
+                size="xs"
+                shortcut={["f"]}
+                onClick={async () =>
+                  navigate(getRoute(ROUTES.ContactsEdit || "", { id }))
+                }
+              >
+                Créer une facture
+              </Button>
+            </>
+          }
+        />
       }
     >
       <ContactsDetailsPage readonly={true} id={id || ""} />

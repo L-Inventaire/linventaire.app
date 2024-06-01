@@ -5,6 +5,7 @@ import {
   useShortcuts,
 } from "@features/utils/shortcuts";
 import _ from "lodash";
+import { useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 
 export interface ButtonProps
@@ -29,6 +30,10 @@ export interface ButtonProps
 
 export const Button = (props: ButtonProps) => {
   const disabled = props.disabled || props.loading;
+
+  // Used to show a loader depending on the onClick promise function
+  const asyncTimoutRef = useRef<any>(null);
+  const [asyncLoading, setAsyncLoading] = useState(false);
 
   useShortcuts(
     !disabled && props.shortcut?.length ? [...props.shortcut] : [],
@@ -56,11 +61,7 @@ export const Button = (props: ButtonProps) => {
     colors =
       "shadow-sm text-white bg-rose-500 hover:bg-rose-600 active:bg-rose-700 border-[0.5px] border-red-600 hover:border-red-700";
 
-  if (props.theme === "default")
-    colors =
-      "shadow-sm text-black bg-white border-slate-200 hover:bg-slate-50 active:bg-slate-200 dark:bg-slate-950 dark:hover:bg-slate-700 dark:active:bg-slate-700 dark:text-white dark:border-slate-900 border-[0.5px] border-black border-opacity-15 border-solid border-inside ";
-
-  if (props.theme === "outlined")
+  if (props.theme === "outlined" || props.theme === "default")
     colors =
       "shadow-sm text-black text-opacity-80 bg-white dark:bg-slate-990 dark:hover:bg-slate-800 hover:bg-gray-100 active:bg-gray-200 border-[0.5px] border-black border-opacity-15 border-solid  border-inside	";
 
@@ -100,9 +101,22 @@ export const Button = (props: ButtonProps) => {
         className,
         props.className
       )}
+      onClick={
+        props.onClick
+          ? async (e) => {
+              asyncTimoutRef.current = setTimeout(() => {
+                setAsyncLoading(true);
+              }, 500);
+              await props.onClick!(e);
+              setAsyncLoading(false);
+              asyncTimoutRef.current && clearTimeout(asyncTimoutRef.current);
+            }
+          : undefined
+      }
       disabled={disabled}
       {..._.omit(
         props,
+        "onClick",
         "loading",
         "children",
         "className",
@@ -110,7 +124,7 @@ export const Button = (props: ButtonProps) => {
         "data-tooltip"
       )}
     >
-      {props.loading && (
+      {(props.loading || asyncLoading) && (
         <>
           <svg
             className="animate-spin -ml-1 mr-3 h-5 w-5"

@@ -1,6 +1,5 @@
 import { Button } from "@atoms/button/button";
-import Tabs from "@atoms/tabs";
-import { Info, Title } from "@atoms/text";
+import { Info } from "@atoms/text";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { Table } from "@components/table";
 import { TagsInput } from "@components/tags-input";
@@ -12,12 +11,7 @@ import {
   RestOptions,
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
-import {
-  PlusIcon,
-  FunnelIcon,
-  ChevronUpDownIcon,
-  ArrowDownTrayIcon,
-} from "@heroicons/react/24/outline";
+import { PlusIcon } from "@heroicons/react/24/outline";
 import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -30,28 +24,9 @@ export const ContactsPage = () => {
     offset: 0,
     query: [],
   });
-  const [type, setType] = useState("");
   const { contacts } = useContacts({
     ...options,
-    query: [
-      ...((options?.query as any) || []),
-      ...(type === "clients"
-        ? [
-            {
-              key: "is_client",
-              values: [{ op: "equals", value: true }],
-            },
-          ]
-        : []),
-      ...(type === "suppliers"
-        ? [
-            {
-              key: "is_supplier",
-              values: [{ op: "equals", value: true }],
-            },
-          ]
-        : []),
-    ],
+    query: (options?.query as any) || [],
   });
   const schema = useRestSchema("contacts");
   const navigate = useNavigate();
@@ -102,18 +77,6 @@ export const ContactsPage = () => {
         />
       }
     >
-      <Tabs
-        tabs={[
-          { value: "", label: "Tous" },
-          { value: "clients", label: "Clients" },
-          { value: "suppliers", label: "Fournisseurs" },
-        ]}
-        value={type}
-        onChange={(v) => setType(v as string)}
-      />
-
-      <div className="mb-4" />
-
       <Table
         onClick={({ id }) => navigate(getRoute(ROUTES.ContactsView, { id }))}
         loading={contacts.isPending}

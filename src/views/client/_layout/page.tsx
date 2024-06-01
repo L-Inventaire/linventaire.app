@@ -31,7 +31,7 @@ export const Page = (props: {
     <ErrorBoundary>
       <div className="flex flex-col grow w-full text-black dark:text-white min-h-full sm:bg-transparent">
         {props.bar && <div className="border-b flex min-h-12">{props.bar}</div>}
-        <DefaultScrollbars className="p-4 grow">
+        <DefaultScrollbars className="p-3 grow">
           {props.children}
         </DefaultScrollbars>
       </div>
@@ -104,7 +104,7 @@ export const PageBlock = (props: {
 
 export const PageColumns = (props: { children: ReactNode }) => {
   return (
-    <div className="flex flex-col sm:space-y-4 lg:flex-row lg:space-x-4 lg:space-y-0 w-full">
+    <div className="flex flex-col sm:space-y-3 lg:flex-row lg:space-x-3 lg:space-y-0 w-full">
       {props.children}
     </div>
   );

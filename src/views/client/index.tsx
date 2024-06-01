@@ -5,11 +5,11 @@ import { useWebsockets } from "@features/auth/state/use-sockets";
 import { DidCreateCompanyOrSignupAtom } from "@features/clients/state/store";
 import { useClients } from "@features/clients/state/use-clients";
 import { ROUTES, getRoute, useRoutes } from "@features/routes";
-import { DefaultScrollbars } from "@features/utils/scrollbars";
 import { Modals } from "@views/modals";
 import { Navigate, Outlet, Route, useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { twMerge } from "tailwind-merge";
+import { DevPage } from "./_dev";
 import { Header, ResponsiveMenuAtom } from "./_layout/header";
 import { SecondSideBar } from "./_layout/second-sidebar";
 import { SideBar } from "./_layout/sidebar";
@@ -26,9 +26,11 @@ import { DashboardHomePage } from "./modules/dashboard";
 import { InvoicesPage } from "./modules/invoices";
 import { InvoicesEditPage } from "./modules/invoices/edit";
 import { InvoicesViewPage } from "./modules/invoices/view";
+import { NotificationsPage } from "./modules/notifications";
 import { OrdersPage } from "./modules/orders";
 import { OrdersEditPage } from "./modules/orders/edit";
 import { OrdersViewPage } from "./modules/orders/view";
+import { StatisticsPage } from "./modules/statistics";
 import { NoClientView } from "./no-client";
 import { CompanyPage } from "./settings/company";
 import { FieldsPage } from "./settings/fields";
@@ -36,9 +38,6 @@ import { CompanyPlanPage } from "./settings/plan";
 import { PreferencesPage } from "./settings/preferences";
 import { TagsPage } from "./settings/tags";
 import { CompanyUsersPage } from "./settings/users";
-import { DevPage } from "./_dev";
-import { NotificationsPage } from "./modules/notifications";
-import { StatisticsPage } from "./modules/statistics";
 
 export const BackOfficeRoutes = () => {
   return (

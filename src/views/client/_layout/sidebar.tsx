@@ -1,7 +1,6 @@
 import { Button } from "@atoms/button/button";
 import { MenuItem, MenuSection } from "@atoms/dropdown/components";
-import Link from "@atoms/link";
-import Env from "@config/environment";
+import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { useHasAccess } from "@features/access";
 import { ROUTES, getRoute } from "@features/routes";
 import { DefaultScrollbars } from "@features/utils/scrollbars";
@@ -12,6 +11,7 @@ import {
   CalendarDaysIcon,
   ChartBarIcon,
   ClipboardDocumentListIcon,
+  CodeBracketIcon,
   Cog6ToothIcon,
   CubeIcon,
   DocumentCheckIcon,
@@ -23,11 +23,10 @@ import {
   UsersIcon,
   ViewColumnsIcon,
   WalletIcon,
-  CodeBracketIcon,
 } from "@heroicons/react/24/solid";
+import { useLocation } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { Account } from "./account";
-import { useLocation } from "react-router-dom";
 import { ResponsiveMenuAtom } from "./header";
 
 export const SideBar = () => {
@@ -73,6 +72,7 @@ export const SideBar = () => {
                 size="sm"
                 theme="invisible"
                 icon={(p) => <PlusIcon {...p} />}
+                to={getRoute(ROUTES.ContactsEdit, { id: "new" })}
               />
             }
             show={hasAccess("CONTACTS_READ")}
@@ -115,6 +115,13 @@ export const SideBar = () => {
                 size="sm"
                 theme="invisible"
                 icon={(p) => <PlusIcon {...p} />}
+                to={withSearchAsModel(
+                  getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+                  undefined,
+                  {
+                    type: "invoices",
+                  }
+                )}
               />
             }
             show={hasAccess("INVOICES_READ")}
@@ -242,39 +249,8 @@ export const SideBar = () => {
         </div>
 
         {/* Space for logo */}
-        <div className="h-16" />
+        <div className="h-2" />
       </DefaultScrollbars>
-
-      {false && (
-        <div className="absolute bottom-0 w-full h-16 bg-slate-50 dark:bg-slate-950">
-          <div className="w-64 h-16 flex items-center justify-center">
-            <Logo />
-          </div>
-        </div>
-      )}
     </div>
   );
 };
-
-const Logo = () => (
-  <Link
-    to={getRoute(ROUTES.Home)}
-    noColor
-    className="flex-col space-y-2 items-center mx-auto flex"
-  >
-    <img
-      data-tooltip={"L'inventaire v" + Env.version}
-      data-position="right"
-      src="/medias/logo-black.svg"
-      className="dark:hidden block h-5"
-      alt="L'inventaire"
-    />
-    <img
-      data-tooltip={"L'inventaire v" + Env.version}
-      data-position="right"
-      src="/medias/logo.svg"
-      className="dark:block hidden h-5"
-      alt="L'inventaire"
-    />
-  </Link>
-);

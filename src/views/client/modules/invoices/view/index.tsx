@@ -6,6 +6,7 @@ import { ROUTES, getRoute } from "@features/routes";
 import { Page } from "@views/client/_layout/page";
 import { useNavigate, useParams } from "react-router-dom";
 import { InvoicesDetailsPage } from "../components/invoices-details";
+import { DocumentBar } from "@components/document-bar";
 
 export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
   const { id } = useParams();
@@ -20,17 +21,42 @@ export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
         { label: "Invoices", to: getRoute(ROUTES.Invoices) },
         { label: invoice.reference || "" },
       ]}
+      bar={
+        <DocumentBar
+          document={{ id }}
+          mode={"read"}
+          backRoute={ROUTES.Invoices}
+          editRoute={ROUTES.InvoicesEdit}
+          suffix={
+            <>
+              {invoice.type === "quotes" && (
+                <Button
+                  size="xs"
+                  shortcut={["f"]}
+                  onClick={async () =>
+                    navigate(getRoute(ROUTES.ContactsEdit || "", { id }))
+                  }
+                >
+                  Facturer
+                </Button>
+              )}
+              {invoice.type === "invoices" && (
+                <Button
+                  size="xs"
+                  theme="outlined"
+                  shortcut={["shift+a"]}
+                  onClick={async () =>
+                    navigate(getRoute(ROUTES.ContactsEdit || "", { id }))
+                  }
+                >
+                  Créer un avoir
+                </Button>
+              )}
+            </>
+          }
+        />
+      }
     >
-      <div className="float-right space-x-2">
-        <Button
-          size="sm"
-          onClick={async () => navigate(getRoute(ROUTES.InvoicesEdit, { id }))}
-        >
-          Modifier
-        </Button>
-      </div>
-      <Section>{invoice.reference || ""}</Section>
-      <div className="mt-4" />
       <InvoicesDetailsPage readonly={true} id={id || ""} />
     </Page>
   );

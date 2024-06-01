@@ -818,6 +818,10 @@ select {
   left: 0.25rem;
 }
 
+.left-1\.5 {
+  left: 0.375rem;
+}
+
 .left-2 {
   left: 0.5rem;
 }
@@ -862,24 +866,16 @@ select {
   top: 0.25rem;
 }
 
+.top-1\.5 {
+  top: 0.375rem;
+}
+
 .top-1\/2 {
   top: 50%;
 }
 
 .top-full {
   top: 100%;
-}
-
-.top-2 {
-  top: 0.5rem;
-}
-
-.left-1\.5 {
-  left: 0.375rem;
-}
-
-.top-1\.5 {
-  top: 0.375rem;
 }
 
 .z-0 {
@@ -1162,12 +1158,12 @@ select {
   margin-top: 2rem;
 }
 
-.mt-px {
-  margin-top: 1px;
-}
-
 .mt-\[2px\] {
   margin-top: 2px;
+}
+
+.mt-px {
+  margin-top: 1px;
 }
 
 .block {
@@ -1319,8 +1315,8 @@ select {
   min-height: 2.75rem;
 }
 
-.min-h-14 {
-  min-height: 3.5rem;
+.min-h-12 {
+  min-height: 3rem;
 }
 
 .min-h-8 {
@@ -1333,14 +1329,6 @@ select {
 
 .min-h-screen {
   min-height: 100vh;
-}
-
-.min-h-16 {
-  min-height: 4rem;
-}
-
-.min-h-12 {
-  min-height: 3rem;
 }
 
 .\!w-auto {
@@ -3166,8 +3154,8 @@ select {
   padding-left: 0px;
 }
 
-.pl-10 {
-  padding-left: 2.5rem;
+.pl-1 {
+  padding-left: 0.25rem;
 }
 
 .pl-2 {
@@ -3244,10 +3232,6 @@ select {
 
 .pt-8 {
   padding-top: 2rem;
-}
-
-.pl-1 {
-  padding-left: 0.25rem;
 }
 
 .text-left {
@@ -4119,10 +4103,6 @@ input, select {
   z-index: 10;
 }
 
-.hover\:z-10:hover {
-  z-index: 10;
-}
-
 .hover\:block:hover {
   display: block;
 }
@@ -4496,6 +4476,12 @@ input, select {
     margin-bottom: calc(1rem * var(--tw-space-y-reverse));
   }
 
+  .sm\:space-y-3 > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-y-reverse: 0;
+    margin-top: calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));
+    margin-bottom: calc(0.75rem * var(--tw-space-y-reverse));
+  }
+
   .sm\:overflow-auto {
     overflow: auto;
   }
@@ -4631,6 +4617,12 @@ input, select {
     --tw-space-y-reverse: 0;
     margin-top: calc(0px * calc(1 - var(--tw-space-y-reverse)));
     margin-bottom: calc(0px * var(--tw-space-y-reverse));
+  }
+
+  .lg\:space-x-3 > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-x-reverse: 0;
+    margin-right: calc(0.75rem * var(--tw-space-x-reverse));
+    margin-left: calc(0.75rem * calc(1 - var(--tw-space-x-reverse)));
   }
 
   .lg\:p-4 {
@@ -5031,6 +5023,11 @@ input, select {
     border-color: rgb(0 0 0 / var(--tw-border-opacity));
   }
 
+  .dark\:border-white {
+    --tw-border-opacity: 1;
+    border-color: rgb(255 255 255 / var(--tw-border-opacity));
+  }
+
   .dark\:border-wood-100 {
     --tw-border-opacity: 1;
     border-color: rgb(233 228 216 / var(--tw-border-opacity));
@@ -5131,17 +5128,8 @@ input, select {
     border-color: rgb(113 63 18 / var(--tw-border-opacity));
   }
 
-  .dark\:border-white {
-    --tw-border-opacity: 1;
-    border-color: rgb(255 255 255 / var(--tw-border-opacity));
-  }
-
   .dark\:border-opacity-10 {
     --tw-border-opacity: 0.1;
-  }
-
-  .dark\:border-opacity-15 {
-    --tw-border-opacity: 0.15;
   }
 
   .dark\:border-opacity-50 {

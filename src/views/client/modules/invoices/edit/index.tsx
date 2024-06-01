@@ -10,6 +10,8 @@ import _ from "lodash";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { InvoicesDetailsPage } from "../components/invoices-details";
+import { DocumentBar } from "@components/document-bar";
+import Select from "@atoms/input/input-select";
 
 export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
   const { client: clientUser, refresh, loading } = useClients();
@@ -60,33 +62,29 @@ export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
         { label: "Invoices", to: getRoute(ROUTES.Invoices) },
         { label: id ? "Modifier" : "Créer" },
       ]}
-    >
-      <div className="float-right space-x-2">
-        <Button
-          theme="outlined"
-          onClick={async () =>
-            navigate(
-              !id
-                ? getRoute(ROUTES.Invoices)
-                : getRoute(ROUTES.InvoicesView, { id })
-            )
+      bar={
+        <DocumentBar
+          document={{ id }}
+          mode={"write"}
+          onSave={async () => await save()}
+          backRoute={ROUTES.Invoices}
+          viewRoute={ROUTES.InvoicesView}
+          prefix={
+            <>
+              <span>Créer un</span>
+              <Select size="sm" className="w-max">
+                <option value="quotes">Devis</option>
+                <option value="invoices">Invoices</option>
+                <option value="credit_notes">Avoir</option>
+              </Select>
+              <Select size="sm" className="w-max">
+                <option value="quotes">Brouillon</option>
+              </Select>
+            </>
           }
-          size="sm"
-        >
-          Annuler
-        </Button>
-        <Button
-          disabled={!invoice.client}
-          loading={isPending}
-          onClick={async () => await save()}
-          size="sm"
-        >
-          Sauvegarder
-        </Button>
-      </div>
-      {!id && <Title>Création de {invoice.reference}</Title>}
-      {id && <Title>Modification de {invoice.reference || ""}</Title>}
-      <div className="mt-4" />
+        />
+      }
+    >
       <InvoicesDetailsPage readonly={false} id={id} />
     </Page>
   );

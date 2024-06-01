@@ -8,6 +8,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ArticlesDetailsPage } from "../components/article-details";
 import { PageLoader } from "@components/page-loader";
 import _ from "lodash";
+import { DocumentBar } from "@components/document-bar";
 
 export const ArticlesEditPage = ({ readonly }: { readonly?: boolean }) => {
   let { id } = useParams();
@@ -41,6 +42,16 @@ export const ArticlesEditPage = ({ readonly }: { readonly?: boolean }) => {
         { label: "Articles", to: getRoute(ROUTES.Products) },
         { label: id ? "Modifier" : "Créer" },
       ]}
+      bar={
+        <DocumentBar
+          document={{ id }}
+          mode={"write"}
+          onSave={async () => await save()}
+          backRoute={ROUTES.Products}
+          viewRoute={ROUTES.ProductsView}
+          prefix={<span>Créer un article</span>}
+        />
+      }
     >
       {article && (
         <>

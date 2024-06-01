@@ -8,6 +8,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ContactsDetailsPage } from "../components/contact-details";
 import { PageLoader } from "@components/page-loader";
 import _ from "lodash";
+import { DocumentBar } from "@components/document-bar";
 
 export const ContactsEditPage = ({ readonly }: { readonly?: boolean }) => {
   let { id } = useParams();
@@ -47,35 +48,17 @@ export const ContactsEditPage = ({ readonly }: { readonly?: boolean }) => {
         { label: "Contacts", to: getRoute(ROUTES.Contacts) },
         { label: id ? "Modifier" : "Créer" },
       ]}
+      bar={
+        <DocumentBar
+          document={{ id }}
+          mode={"write"}
+          onSave={async () => await save()}
+          backRoute={ROUTES.Contacts}
+          viewRoute={ROUTES.ContactsView}
+          prefix={<span>Créer un contact</span>}
+        />
+      }
     >
-      <div className="float-right space-x-2">
-        <Button
-          theme="outlined"
-          onClick={async () =>
-            navigate(
-              !id
-                ? getRoute(ROUTES.Contacts)
-                : getRoute(ROUTES.ContactsView, { id })
-            )
-          }
-          size="sm"
-        >
-          Annuler
-        </Button>
-        <Button
-          disabled={!getContactName(contact)}
-          loading={isPending}
-          onClick={async () => await save()}
-          size="sm"
-        >
-          Sauvegarder
-        </Button>
-      </div>
-      {!id && (
-        <Title>Création de {getContactName(contact) || "<nouveau>"}</Title>
-      )}
-      {id && <Title>Modification de {getContactName(contact) || ""}</Title>}
-      <div className="mt-4" />
       <ContactsDetailsPage readonly={false} id={id} />
     </Page>
   );

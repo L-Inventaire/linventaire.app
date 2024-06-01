@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ArticlesDetailsPage } from "../components/article-details";
 import { Button } from "@atoms/button/button";
 import { Title } from "@atoms/text";
+import { DocumentBar } from "@components/document-bar";
 
 export const ArticlesViewPage = ({ readonly }: { readonly?: boolean }) => {
   const { id } = useParams();
@@ -17,6 +18,14 @@ export const ArticlesViewPage = ({ readonly }: { readonly?: boolean }) => {
         { label: "Articles", to: getRoute(ROUTES.Products) },
         { label: article?.name || "Article" },
       ]}
+      bar={
+        <DocumentBar
+          document={{ id }}
+          mode={"read"}
+          backRoute={ROUTES.Products}
+          editRoute={ROUTES.ProductsEdit}
+        />
+      }
     >
       <div className="float-right space-x-2">
         <Button
