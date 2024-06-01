@@ -38,7 +38,7 @@ export default function SingleCenterCard(props: {
         style={{ zIndex: 1 }}
         className="mt-0 mb-0 h-full sm:mb-12 sm:mt-8 mx-auto sm:w-full sm:max-w-md"
       >
-        <div className="py-8 px-4 sm:pb-8 pb-12 rounded-t-lg sm:rounded-lg sm:px-10 bg-white dark:bg-slate-950 shadow-lg">
+        <div className="py-8 px-4 sm:pb-8 pb-12 rounded-t-lg sm:rounded sm:px-10 bg-white dark:bg-slate-900 shadow-lg border-[0.5px] border-slate-100 dark:border-slate-700">
           {props.insetLogo && (
             <>
               <img
