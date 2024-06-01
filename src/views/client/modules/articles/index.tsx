@@ -1,5 +1,5 @@
 import { Button } from "@atoms/button/button";
-import { Info, Title } from "@atoms/text";
+import { Info } from "@atoms/text";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { Table } from "@components/table";
 import { TagsInput } from "@components/tags-input";

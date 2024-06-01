@@ -1,16 +1,16 @@
+import { Button } from "@atoms/button/button";
 import { DocumentBar } from "@components/document-bar";
 import { PageLoader } from "@components/page-loader";
+import { withModel } from "@components/search-bar/utils/as-model";
 import { useContact } from "@features/contacts/hooks/use-contacts";
 import { getContactName } from "@features/contacts/types/types";
+import { Invoices } from "@features/invoices/types/types";
 import { ROUTES, getRoute } from "@features/routes";
 import { Page } from "@views/client/_layout/page";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { ContactsDetailsPage } from "../components/contact-details";
-import { Button } from "@atoms/button/button";
 
 export const ContactsViewPage = ({ readonly }: { readonly?: boolean }) => {
-  const navigate = useNavigate();
-
   const { id } = useParams();
   const { contact } = useContact(id || "");
 
@@ -34,18 +34,26 @@ export const ContactsViewPage = ({ readonly }: { readonly?: boolean }) => {
                 theme="outlined"
                 size="xs"
                 shortcut={["d"]}
-                onClick={async () =>
-                  navigate(getRoute(ROUTES.ContactsEdit || "", { id }))
-                }
+                to={withModel<Invoices>(
+                  getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+                  {
+                    type: "quotes",
+                    client: contact?.id,
+                  }
+                )}
               >
                 Créer un devis
               </Button>
               <Button
                 size="xs"
                 shortcut={["f"]}
-                onClick={async () =>
-                  navigate(getRoute(ROUTES.ContactsEdit || "", { id }))
-                }
+                to={withModel<Invoices>(
+                  getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+                  {
+                    type: "invoices",
+                    client: contact?.id,
+                  }
+                )}
               >
                 Créer une facture
               </Button>

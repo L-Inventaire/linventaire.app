@@ -1,7 +1,5 @@
 import { Button } from "@atoms/button/button";
-import InputDate from "@atoms/input/input-date";
-import Select from "@atoms/input/input-select";
-import { Info, Title } from "@atoms/text";
+import { Info } from "@atoms/text";
 import { Table } from "@components/table";
 import { TagsInput } from "@components/tags-input";
 import { useOrders } from "@features/orders/hooks/use-orders";

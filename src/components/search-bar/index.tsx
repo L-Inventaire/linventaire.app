@@ -18,6 +18,7 @@ import { extractFilters, generateQuery } from "./utils/utils";
 import { useLocation } from "react-router-dom";
 import { Button } from "@atoms/button/button";
 import { getFromUrl, setToUrl } from "./utils/url";
+import { showShortCut } from "@features/utils/shortcuts";
 
 export const SearchBar = ({
   schema,
@@ -110,9 +111,8 @@ export const SearchBar = ({
   return (
     <div
       className={twMerge(
-        "grow relative w-full group rounded z-10 pl-1 pr-3 flex items-center space-x-2 transition-all",
-        className,
-        suggestions.length > 0 && "shadow-lg"
+        "grow relative w-full group rounded z-10 pl-1 pr-3 flex items-center space-x-2 transition-all focus-within:shadow-lg",
+        className
       )}
     >
       <div className="grow relative">
@@ -146,13 +146,13 @@ export const SearchBar = ({
           input={({ className }) => (
             <Input
               disabled={loadingCustomFields}
-              shortcut={["cmd+shift+f"]}
+              shortcut={["cmd+f"]}
               onMouseUp={getSuggestions}
               onKeyUp={getSuggestions}
               onKeyDown={onKeyDown}
               onBlur={() => cleanValue()}
               style={{ resize: "none", lineHeight: "1.8" }}
-              placeholder="Recherche globale, tags:factures, updated_at:2024-01-01..."
+              placeholder={"Filtrer " + showShortCut(["cmd+f"])}
               inputRef={inputRef}
               spellCheck={false}
               multiline

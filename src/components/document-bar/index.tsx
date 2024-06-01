@@ -11,7 +11,6 @@ import {
   DocumentDuplicateIcon,
   EllipsisHorizontalIcon,
   LinkIcon,
-  PencilSquareIcon,
   PrinterIcon,
 } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
@@ -36,6 +35,8 @@ export const DocumentBar = ({
   const navigate = useNavigate();
 
   const cancel = async () => {
+    // Get previous route
+
     navigate(
       !document.id || mode === "read"
         ? getRoute(props.backRoute || "/")

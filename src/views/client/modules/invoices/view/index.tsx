@@ -1,12 +1,11 @@
 import { Button } from "@atoms/button/button";
-import { Section } from "@atoms/text";
+import { DocumentBar } from "@components/document-bar";
 import { PageLoader } from "@components/page-loader";
 import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { ROUTES, getRoute } from "@features/routes";
 import { Page } from "@views/client/_layout/page";
 import { useNavigate, useParams } from "react-router-dom";
 import { InvoicesDetailsPage } from "../components/invoices-details";
-import { DocumentBar } from "@components/document-bar";
 
 export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
   const { id } = useParams();

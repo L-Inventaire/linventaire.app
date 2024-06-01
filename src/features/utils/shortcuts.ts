@@ -107,6 +107,8 @@ export const useListenForShortcuts = () => {
       for (const shortcut of activeShortcuts) {
         //Ignore if input, textarea or select is focused
         if (
+          // Cmd+S is an exception, we still want to enable save on document while input is focused
+          !activeShortcuts.includes("cmd+s") &&
           document.activeElement &&
           ["input", "textarea", "select"].includes(
             document.activeElement.tagName?.toLowerCase()

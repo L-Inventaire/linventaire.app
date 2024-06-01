@@ -1,6 +1,6 @@
 import { Button } from "@atoms/button/button";
 import Tabs from "@atoms/tabs";
-import { Info, Title } from "@atoms/text";
+import { Info } from "@atoms/text";
 import { FormInput } from "@components/form/fields";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { Table } from "@components/table";
@@ -13,7 +13,7 @@ import {
   RestOptions,
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
-import { PlusIcon, ArrowUturnLeftIcon } from "@heroicons/react/24/outline";
+import { ArrowUturnLeftIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { Page } from "@views/client/_layout/page";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";

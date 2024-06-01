@@ -1,5 +1,5 @@
-import { Button } from "@atoms/button/button";
-import { Title } from "@atoms/text";
+import Select from "@atoms/input/input-select";
+import { DocumentBar } from "@components/document-bar";
 import { PageLoader } from "@components/page-loader";
 import { useClients } from "@features/clients/state/use-clients";
 import { Invoices } from "@features/invoices/types/types";
@@ -10,8 +10,6 @@ import _ from "lodash";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { InvoicesDetailsPage } from "../components/invoices-details";
-import { DocumentBar } from "@components/document-bar";
-import Select from "@atoms/input/input-select";
 
 export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
   const { client: clientUser, refresh, loading } = useClients();
@@ -30,12 +28,7 @@ export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as Invoices;
 
-  const {
-    draft: invoice,
-    isPending,
-    isInitiating,
-    save,
-  } = useDraftRest<Invoices>(
+  const { isInitiating, save } = useDraftRest<Invoices>(
     "invoices",
     id || "new",
     async (item) => {

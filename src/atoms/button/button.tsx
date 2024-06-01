@@ -88,13 +88,20 @@ export const Button = (props: ButtonProps) => {
     else className = className + " w-12 !p-0 justify-center";
   }
 
+  const tooltip = [
+    props["data-tooltip"] || "",
+    props.shortcut &&
+      !props["data-tooltip"] &&
+      typeof props.children === "string" &&
+      props.children,
+    props.shortcut ? `\`${showShortCut(props.shortcut)}\`` : "",
+  ]
+    .filter((a) => a)
+    .join(" ");
+
   return (
     <button
-      data-tooltip={
-        (props["data-tooltip"] || "") +
-          (props.shortcut ? ` \`${showShortCut(props.shortcut)}\`` : "") ||
-        undefined
-      }
+      data-tooltip={tooltip.length ? tooltip : undefined}
       type="button"
       className={twMerge(
         "print:hidden align-top whitespace-nowrap overflow-hidden text-ellipsis inline-flex items-center justify-center py-2 border text-sm font-medium rounded-md focus:outline-none",

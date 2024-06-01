@@ -1,14 +1,12 @@
-import { Button } from "@atoms/button/button";
-import { Title } from "@atoms/text";
-import { Contacts, getContactName } from "@features/contacts/types/types";
+import { DocumentBar } from "@components/document-bar";
+import { PageLoader } from "@components/page-loader";
+import { Contacts } from "@features/contacts/types/types";
 import { ROUTES, getRoute } from "@features/routes";
 import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { Page } from "@views/client/_layout/page";
+import _ from "lodash";
 import { useNavigate, useParams } from "react-router-dom";
 import { ContactsDetailsPage } from "../components/contact-details";
-import { PageLoader } from "@components/page-loader";
-import _ from "lodash";
-import { DocumentBar } from "@components/document-bar";
 
 export const ContactsEditPage = ({ readonly }: { readonly?: boolean }) => {
   let { id } = useParams();
@@ -20,12 +18,7 @@ export const ContactsEditPage = ({ readonly }: { readonly?: boolean }) => {
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as Contacts;
 
-  const {
-    draft: contact,
-    isPending,
-    isInitiating,
-    save,
-  } = useDraftRest<Contacts>(
+  const { isInitiating, save } = useDraftRest<Contacts>(
     "contacts",
     id || "new",
     async (item) => {

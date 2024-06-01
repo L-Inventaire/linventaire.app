@@ -9,10 +9,10 @@ import { getFromUrl } from "./url";
  * @param model part of the model we'll force
  * @param search
  */
-export const withSearchAsModel = (
+export const withSearchAsModel = <T>(
   route: string,
   schema?: SchemaType,
-  model?: any,
+  model?: Partial<T>,
   search?: string
 ) => {
   const parts = route.split("?");
@@ -62,4 +62,8 @@ export const withSearchAsModel = (
     "model=" +
     encodeURIComponent(JSON.stringify(model))
   );
+};
+
+export const withModel = <T>(route: string, model?: Partial<T>) => {
+  return withSearchAsModel(route, undefined, model);
 };
