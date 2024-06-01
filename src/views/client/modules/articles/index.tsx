@@ -62,59 +62,62 @@ export const ArticlesPage = () => {
         />
       }
     >
-      <div className="mb-4" />
-
-      <Table
-        loading={articles.isPending}
-        data={articles?.data?.list || []}
-        total={articles?.data?.total || 0}
-        showPagination="simple"
-        rowIndex="id"
-        onSelect={(items) => false && console.log(items)}
-        onRequestData={async (page) => {
-          setOptions({
-            ...options,
-            limit: page.perPage,
-            offset: (page.page - 1) * page.perPage,
-            asc: page.order === "ASC",
-            index:
-              page.orderBy === undefined
-                ? undefined
-                : [
-                    "business_name,person_first_name,person_last_name,business_registered_name",
-                    "tags",
-                  ][page.orderBy],
-          });
-        }}
-        columns={[
-          {
-            title: "Name",
-            orderable: true,
-            render: (article) => article.name,
-          },
-          {
-            title: "Price",
-            orderable: true,
-            render: (article) => <Info>{article.price}</Info>,
-          },
-          {
-            title: "Tags",
-            orderable: true,
-            render: (article) => <TagsInput value={article.tags} disabled />,
-          },
-          {
-            title: "Actions",
-            thClassName: "w-1",
-            render: ({ id }) => (
-              <>
-                <Button size="sm" to={getRoute(ROUTES.ProductsView, { id })}>
-                  View
-                </Button>
-              </>
-            ),
-          },
-        ]}
-      />
+      <div className="-m-3">
+        <div className="px-3 h-7 w-full bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700">
+          <Info>Some additional content</Info>
+        </div>
+        <Table
+          loading={articles.isPending}
+          data={articles?.data?.list || []}
+          total={articles?.data?.total || 0}
+          showPagination="simple"
+          rowIndex="id"
+          onSelect={(items) => false && console.log(items)}
+          onRequestData={async (page) => {
+            setOptions({
+              ...options,
+              limit: page.perPage,
+              offset: (page.page - 1) * page.perPage,
+              asc: page.order === "ASC",
+              index:
+                page.orderBy === undefined
+                  ? undefined
+                  : [
+                      "business_name,person_first_name,person_last_name,business_registered_name",
+                      "tags",
+                    ][page.orderBy],
+            });
+          }}
+          columns={[
+            {
+              title: "Name",
+              orderable: true,
+              render: (article) => article.name,
+            },
+            {
+              title: "Price",
+              orderable: true,
+              render: (article) => <Info>{article.price}</Info>,
+            },
+            {
+              title: "Tags",
+              orderable: true,
+              render: (article) => <TagsInput value={article.tags} disabled />,
+            },
+            {
+              title: "Actions",
+              thClassName: "w-1",
+              render: ({ id }) => (
+                <>
+                  <Button size="sm" to={getRoute(ROUTES.ProductsView, { id })}>
+                    View
+                  </Button>
+                </>
+              ),
+            },
+          ]}
+        />
+      </div>
     </Page>
   );
 };

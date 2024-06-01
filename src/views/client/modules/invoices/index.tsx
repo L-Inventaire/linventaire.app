@@ -128,73 +128,49 @@ export const InvoicesPage = () => {
         />
       }
     >
-      <Tabs
-        tabs={[
-          { value: "", label: "Tous" },
-          { value: "quotes", label: "Devis" },
-          { value: "invoices", label: "Factures" },
-          { value: "credit_notes", label: "Avoirs" },
-        ]}
-        value={type}
-        onChange={(e) => setType(e as string)}
-      />
-      <div className="mb-4" />
-
-      <div className="flex flex-row space-x-2">
-        {["quotes", "invoices", "credit_notes"].includes(type) && (
-          <FormInput
-            type="multiselect"
-            className="w-48 shrink-0"
-            placeholder="Status"
-            onChange={(e) => setState(e as any)}
-            value={state}
-            options={Object.keys(invoicesAlikeStatus[type]).map((e) => ({
-              label: invoicesAlikeStatus[type][e][0],
-              value: e,
-            }))}
-          />
-        )}
+      <div className="-m-3">
+        <div className="px-3 h-7 w-full bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700">
+          <Info>Some additional content</Info>
+        </div>
+        <Table
+          onClick={({ id }) => navigate(getRoute(ROUTES.InvoicesView, { id }))}
+          loading={invoices.isPending}
+          data={invoices?.data?.list || []}
+          total={invoices?.data?.total || 0}
+          showPagination="simple"
+          rowIndex="id"
+          onSelect={(items) => false && console.log(items)}
+          onRequestData={async (page) => {
+            setOptions({
+              ...options,
+              limit: page.perPage,
+              offset: (page.page - 1) * page.perPage,
+              asc: page.order === "ASC",
+              index:
+                page.orderBy === undefined
+                  ? undefined
+                  : [
+                      "business_name,person_first_name,person_last_name,business_registered_name",
+                      "tags",
+                    ][page.orderBy],
+            });
+          }}
+          columns={[
+            {
+              orderable: true,
+              render: (invoice) => invoice.name,
+            },
+            {
+              orderable: true,
+              render: (invoice) => <Info>{invoice.reference}</Info>,
+            },
+            {
+              orderable: true,
+              render: (invoice) => <TagsInput value={invoice.tags} disabled />,
+            },
+          ]}
+        />
       </div>
-      <div className="mb-4" />
-
-      <Table
-        onClick={({ id }) => navigate(getRoute(ROUTES.InvoicesView, { id }))}
-        loading={invoices.isPending}
-        data={invoices?.data?.list || []}
-        total={invoices?.data?.total || 0}
-        showPagination="simple"
-        rowIndex="id"
-        onSelect={(items) => false && console.log(items)}
-        onRequestData={async (page) => {
-          setOptions({
-            ...options,
-            limit: page.perPage,
-            offset: (page.page - 1) * page.perPage,
-            asc: page.order === "ASC",
-            index:
-              page.orderBy === undefined
-                ? undefined
-                : [
-                    "business_name,person_first_name,person_last_name,business_registered_name",
-                    "tags",
-                  ][page.orderBy],
-          });
-        }}
-        columns={[
-          {
-            orderable: true,
-            render: (invoice) => invoice.name,
-          },
-          {
-            orderable: true,
-            render: (invoice) => <Info>{invoice.reference}</Info>,
-          },
-          {
-            orderable: true,
-            render: (invoice) => <TagsInput value={invoice.tags} disabled />,
-          },
-        ]}
-      />
     </Page>
   );
 };
