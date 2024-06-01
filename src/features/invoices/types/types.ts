@@ -62,6 +62,7 @@ export type Invoices = {
 
   fields: any;
 };
+
 export type InvoiceTotal = {
   initial: number;
   discount: number;
@@ -100,6 +101,14 @@ export type InvoiceLine = {
 
   optional?: boolean;
   optional_checked?: boolean; // Checked by the client or by the agent (like a default checked option)
+
+  total?: {
+    total: number;
+    discount: number;
+    initial: number;
+    taxes: number;
+    total_with_taxes: number;
+  };
 };
 
 export type InvoiceDiscount = {

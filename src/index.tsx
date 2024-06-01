@@ -6,6 +6,7 @@ import { RecoilRoot } from "recoil";
 import "tippy.js/dist/tippy.css";
 import reportWebVitals from "./reportWebVitals";
 import InitialRouter from "./views";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 initReactFastclick();
 
@@ -17,6 +18,7 @@ const App = () => {
       <RecoilRoot>
         <InitialRouter />
       </RecoilRoot>
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 };
