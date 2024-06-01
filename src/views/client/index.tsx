@@ -22,7 +22,7 @@ import { ArticlesViewPage } from "./modules/articles/view";
 import { ContactsPage } from "./modules/contacts";
 import { ContactsEditPage } from "./modules/contacts/edit";
 import { ContactsViewPage } from "./modules/contacts/view";
-import { DashboardHomePage } from "./modules/dashboard/home";
+import { DashboardHomePage } from "./modules/dashboard";
 import { InvoicesPage } from "./modules/invoices";
 import { InvoicesEditPage } from "./modules/invoices/edit";
 import { InvoicesViewPage } from "./modules/invoices/view";
@@ -37,6 +37,8 @@ import { PreferencesPage } from "./settings/preferences";
 import { TagsPage } from "./settings/tags";
 import { CompanyUsersPage } from "./settings/users";
 import { DevPage } from "./_dev";
+import { NotificationsPage } from "./modules/notifications";
+import { StatisticsPage } from "./modules/statistics";
 
 export const BackOfficeRoutes = () => {
   return (
@@ -52,9 +54,16 @@ export const BackOfficeRoutes = () => {
         <Route path={ROUTES.AccountClients} element={<AccountClientsPage />} />
         <Route path={ROUTES.AccountSecurity} element={<SecurityPage />} />
 
+        <Route path={ROUTES.Home} element={<DashboardHomePage />} />
+        <Route path={ROUTES.Notifications} element={<NotificationsPage />} />
+        <Route path={ROUTES.Statistics} element={<StatisticsPage />} />
+
         <Route path={ROUTES.Contacts} element={<ContactsPage />} />
         <Route path={ROUTES.ContactsView} element={<ContactsViewPage />} />
         <Route path={ROUTES.ContactsEdit} element={<ContactsEditPage />} />
+
+        <Route path={ROUTES.Consulting} element={<DevPage />} />
+        <Route path={ROUTES.Accounting} element={<DevPage />} />
 
         <Route path={ROUTES.Products} element={<ArticlesPage />} />
         <Route path={ROUTES.ProductsView} element={<ArticlesViewPage />} />
@@ -63,6 +72,8 @@ export const BackOfficeRoutes = () => {
         <Route path={ROUTES.Orders} element={<OrdersPage />} />
         <Route path={ROUTES.OrdersView} element={<OrdersViewPage />} />
         <Route path={ROUTES.OrdersEdit} element={<OrdersEditPage />} />
+
+        <Route path={ROUTES.Stock} element={<DevPage />} />
 
         <Route path={ROUTES.Invoices} element={<InvoicesPage />} />
         <Route path={ROUTES.InvoicesView} element={<InvoicesViewPage />} />
@@ -81,9 +92,8 @@ export const BackOfficeRoutes = () => {
         <Route path={ROUTES.SettingsCompany} element={<CompanyPage />} />
         <Route path={ROUTES.SettingsUsers} element={<CompanyUsersPage />} />
         <Route path={ROUTES.SettingsBilling} element={<CompanyPlanPage />} />
-
-        <Route path={ROUTES.Home} element={<DashboardHomePage />} />
-        <Route path={ROUTES.Invoices} element={<InvoicesPage />} />
+        <Route path={ROUTES.SettingsImport} element={<DevPage />} />
+        <Route path={ROUTES.SettingsApi} element={<DevPage />} />
 
         <Route path={ROUTES.DevPage} element={<DevPage />} />
       </Route>

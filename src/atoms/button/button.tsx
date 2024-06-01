@@ -66,7 +66,7 @@ export const Button = (props: ButtonProps) => {
 
   if (props.theme === "invisible")
     colors =
-      "shadow-none text-black text-opacity-80 bg-transparent dark:hover:bg-white dark:hover:bg-opacity-5 dark:active:bg-opacity-10 hover:bg-black hover:bg-opacity-5 active:bg-opacity-10 border-none";
+      "shadow-none text-black dark:text-white text-opacity-80 bg-transparent dark:hover:bg-white dark:hover:bg-opacity-5 dark:active:bg-opacity-10 hover:bg-black hover:bg-opacity-5 active:bg-opacity-10 border-none";
 
   if (disabled) colors += " opacity-50 pointer-events-none";
 
@@ -91,7 +91,7 @@ export const Button = (props: ButtonProps) => {
     <button
       data-tooltip={
         (props["data-tooltip"] || "") +
-          (props.shortcut ? `\`${showShortCut(props.shortcut)}\`` : "") ||
+          (props.shortcut ? ` \`${showShortCut(props.shortcut)}\`` : "") ||
         undefined
       }
       type="button"
@@ -101,7 +101,14 @@ export const Button = (props: ButtonProps) => {
         props.className
       )}
       disabled={disabled}
-      {..._.omit(props, "loading", "children", "className", "icon")}
+      {..._.omit(
+        props,
+        "loading",
+        "children",
+        "className",
+        "icon",
+        "data-tooltip"
+      )}
     >
       {props.loading && (
         <>

@@ -101,7 +101,7 @@ export const SearchBar = ({
   useEffect(() => {
     if (rendererRef.current && inputRef.current) {
       inputRef.current.style.height = `${Math.max(
-        36,
+        37,
         rendererRef.current.scrollHeight + 2
       )}px`;
     }

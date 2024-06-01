@@ -12,12 +12,12 @@ export const SettingsMenu: MenuIndex = (hasAccess) => ({
       to: getRoute(ROUTES.SettingsCompany),
     },
     {
-      label: "Préférences",
-      to: getRoute(ROUTES.SettingsPreferences),
-    },
-    {
       label: "Collaborateurs",
       to: getRoute(ROUTES.SettingsUsers),
+    },
+    {
+      label: "Préférences",
+      to: getRoute(ROUTES.SettingsPreferences),
     },
     {
       type: "divider",
@@ -35,7 +35,11 @@ export const SettingsMenu: MenuIndex = (hasAccess) => ({
       to: getRoute(ROUTES.SettingsCustomFields),
     },
     {
-      label: "Développeurs",
+      label: "Importations",
+      to: getRoute(ROUTES.SettingsImport),
+    },
+    {
+      label: "Développeurs et API",
       to: getRoute(ROUTES.SettingsApi),
     },
     {

@@ -3,13 +3,18 @@ import { useCallback, useEffect } from "react";
 let currentTarget: null | Element = null;
 
 function showTooltip(that: any) {
-  const tooltipText = that.getAttribute("data-tooltip");
+  let tooltipText = that.getAttribute("data-tooltip");
   const position = that.getAttribute("data-position") || "top";
   const tooltip = document.createElement("div");
-  tooltip.className = `tooltip shadow-sm text-sm tooltip-${position}`;
+  tooltip.className = `tooltip bg-white text-black dark:bg-slate-900 dark:text-white shadow-lg text-sm border-[0.5px] dark:border-white dark:border-opacity-50 border-black border-opacity-15 rounded tooltip-${position}`;
 
-  tooltip.textContent =
-    `${tooltipText}` === "true" ? that.innerText : tooltipText;
+  // Apply some markdown-like formatting
+  tooltipText = tooltipText.replace(/`([^`]+)`/gm, (_: any, p1: string) => {
+    return `<span class='font-mono border-[0.5px] dark:border-white dark:border-opacity-50 border-black border-opacity-15 rounded px-1 shadow-sm'>${p1}</span>`;
+  });
+
+  tooltip.innerHTML =
+    `${tooltipText}` === "true" ? that.innerHTML : tooltipText;
 
   that.addEventListener("click", () => {
     const clickedText = that.getAttribute("data-click");
@@ -21,21 +26,21 @@ function showTooltip(that: any) {
   switch (position) {
     case "top":
       tooltip.style.left = (rect.left + rect.right) / 2 + "px";
-      tooltip.style.top = rect.top - 8 + "px";
+      tooltip.style.top = rect.top - 4 + "px";
       tooltip.style.transform = "translate(-50%, -100%)";
       break;
     case "bottom":
       tooltip.style.left = (rect.left + rect.right) / 2 + "px";
-      tooltip.style.top = rect.bottom + 8 + "px";
+      tooltip.style.top = rect.bottom + 4 + "px";
       tooltip.style.transform = "translate(-50%, 0)";
       break;
     case "left":
-      tooltip.style.left = rect.left - 10 + "px";
+      tooltip.style.left = rect.left - 6 + "px";
       tooltip.style.top = rect.top + "px";
       tooltip.style.transform = "translate(-100%, 0)";
       break;
     case "right":
-      tooltip.style.left = rect.right + 10 + "px";
+      tooltip.style.left = rect.right + 6 + "px";
       tooltip.style.top = rect.top + "px";
       tooltip.style.transform = "translate(0, 0)";
       break;
@@ -64,6 +69,12 @@ function hideTooltips() {
   });
 }
 
+// The first time the tooltip is shown, it will be shown with a delay
+// This is to prevent the tooltip from being shown when the user is just scrolling
+// But then all the other tooltips will be shown instantly
+let inTooltipRoll = false;
+let inTooltipRollTimeout: any;
+
 export const Tooltip = () => {
   const updatePosition = useCallback(() => {
     if (currentTarget) showTooltip(currentTarget);
@@ -86,7 +97,20 @@ export const Tooltip = () => {
       if (target && target === currentTarget) return;
       currentTarget = target;
       hideTooltips();
-      if (target) showTooltip(target);
+      if (inTooltipRollTimeout) clearTimeout(inTooltipRollTimeout);
+      if (target) {
+        inTooltipRollTimeout = setTimeout(
+          () => {
+            inTooltipRoll = true;
+            showTooltip(target);
+          },
+          inTooltipRoll ? 0 : 500
+        );
+      } else {
+        inTooltipRollTimeout = setTimeout(() => {
+          inTooltipRoll = false;
+        }, 1000);
+      }
     });
 
     // CSS part
@@ -97,48 +121,10 @@ export const Tooltip = () => {
         .tooltip {
           position: absolute;
           padding: 3px 6px;
-          background: white;
-          color: black;
-          border-radius: 5px;
           pointer-events: none;
           transition: opacity 0.1s ease-in-out;
           z-index: 9999;
-          border: 0.5px solid #00000022;
         }
-        .tooltip::before {
-          content: "";
-          position: absolute;
-          width: 0;
-          height: 0;
-          border-width: 5px;
-          border-color: transparent;
-          border-style: solid;
-        }
-        .tooltip-top::before {
-          border-bottom: 5px solid white;
-          left: 50%;
-          bottom: -10px;
-          transform: translateX(-50%) rotate(180deg);
-        }
-        .tooltip-bottom::before {
-          border-top: 5px solid white;
-          left: 50%;
-          top: -10px;
-          transform: translateX(-50%) rotate(180deg);
-        }
-        .tooltip-left::before {
-          border-left: 5px solid white;
-          right: -10px;
-          top: 50%;
-          transform: translateY(-50%);
-        }
-        .tooltip-right::before {
-          border-right: 5px solid white;
-          left: -10px;
-          top: 50%;
-          transform: translateY(-50%);
-        }
-        
       </style>
       `
     );

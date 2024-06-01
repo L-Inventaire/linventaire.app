@@ -27,11 +27,13 @@ import {
 } from "@heroicons/react/24/solid";
 import { useRecoilValue } from "recoil";
 import { Account } from "./account";
+import { useLocation } from "react-router-dom";
 import { ResponsiveMenuAtom } from "./header";
 
 export const SideBar = () => {
   const hasAccess = useHasAccess();
   const menuOpen = useRecoilValue(ResponsiveMenuAtom);
+  const location = useLocation();
 
   return (
     <div
@@ -79,16 +81,29 @@ export const SideBar = () => {
               to={getRoute(ROUTES.Contacts)}
               label="Tous les contacts"
               icon={(p) => <WalletIcon {...p} />}
+              active={
+                location.pathname.indexOf(getRoute(ROUTES.Contacts)) === 0 &&
+                location.search.indexOf("is_client%3A1") === -1 &&
+                location.search.indexOf("is_supplier%3A1") === -1
+              }
             />
             <MenuItem
-              to={getRoute(ROUTES.Contacts) + "?q=is_client%3A1+"}
+              to={getRoute(ROUTES.Contacts) + "?q=is_client%3A1"}
               label="Clients"
               icon={(p) => <UserIcon {...p} />}
+              active={
+                location.pathname.indexOf(getRoute(ROUTES.Contacts)) === 0 &&
+                location.search.indexOf("is_client%3A1") !== -1
+              }
             />
             <MenuItem
-              to={getRoute(ROUTES.Contacts) + "?q=is_supplier%3A1+"}
+              to={getRoute(ROUTES.Contacts) + "?q=is_supplier%3A1"}
               label="Fournisseurs"
               icon={(p) => <BuildingStorefrontIcon {...p} />}
+              active={
+                location.pathname.indexOf(getRoute(ROUTES.Contacts)) === 0 &&
+                location.search.indexOf("is_supplier%3A1") !== -1
+              }
             />
           </MenuSection>
 
@@ -105,27 +120,44 @@ export const SideBar = () => {
             show={hasAccess("INVOICES_READ")}
           >
             <MenuItem
-              to={getRoute(ROUTES.Invoices) + "?type=quotes"}
+              to={getRoute(ROUTES.Invoices) + '?q=type%3A"quotes"'}
               label="Devis"
               icon={(p) => <DocumentIcon {...p} />}
+              active={
+                location.pathname.indexOf(getRoute(ROUTES.Invoices)) === 0 &&
+                location.search.indexOf("type%3A%22quotes%22") !== -1
+              }
             />
             <MenuItem
-              to={getRoute(ROUTES.Invoices) + "?type=invoices"}
+              to={getRoute(ROUTES.Invoices) + '?q=type%3A"invoices"'}
               label="Factures"
               icon={(p) => <DocumentCheckIcon {...p} />}
+              active={
+                location.pathname.indexOf(getRoute(ROUTES.Invoices)) === 0 &&
+                location.search.indexOf("type%3A%22invoices%22") !== -1 &&
+                location.search.indexOf("subscription_enabled%3A1") === -1
+              }
             />
             <MenuItem
               to={
                 getRoute(ROUTES.Invoices) +
-                "?type=invoices&q=subscription_enabled%3A1+&map=%7B%7D"
+                '?q=type%3A"invoices"+subscription_enabled%3A1'
               }
               label="Abonnements"
               icon={(p) => <CalendarDaysIcon {...p} />}
+              active={
+                location.pathname.indexOf(getRoute(ROUTES.Invoices)) === 0 &&
+                location.search.indexOf("subscription_enabled%3A1") !== -1
+              }
             />
             <MenuItem
-              to={getRoute(ROUTES.Invoices) + "?type=credit_notes"}
+              to={getRoute(ROUTES.Invoices) + '?q=type%3A"credit_notes"'}
               label="Avoirs"
               icon={(p) => <ReceiptRefundIcon {...p} />}
+              active={
+                location.pathname.indexOf(getRoute(ROUTES.Invoices)) === 0 &&
+                location.search.indexOf("type%3A%22credit_notes%22") !== -1
+              }
             />
           </MenuSection>
 
@@ -135,7 +167,7 @@ export const SideBar = () => {
             show={hasAccess("ONSITE_READ")}
           >
             <MenuItem
-              to={getRoute(ROUTES.Contacts)}
+              to={getRoute(ROUTES.Consulting)}
               label="Service sur site"
               icon={(p) => <ClipboardDocumentListIcon {...p} />}
               show={hasAccess("ONSITE_READ")}
@@ -173,7 +205,7 @@ export const SideBar = () => {
 
           <MenuSection className="!mt-6" label="Comptabilité">
             <MenuItem
-              to={getRoute(ROUTES.Contacts)}
+              to={getRoute(ROUTES.Accounting)}
               label="Comptes"
               icon={(p) => <BookOpenIcon {...p} />}
             />
@@ -195,6 +227,10 @@ export const SideBar = () => {
               label="Paramètres"
               icon={(p) => <Cog6ToothIcon {...p} />}
               show={hasAccess("CLIENT_READ")}
+              active={
+                location.pathname.indexOf(getRoute(ROUTES.Settings)) === 0 &&
+                location.pathname.indexOf(getRoute(ROUTES.SettingsUsers)) !== 0
+              }
             />
             <MenuItem
               to={getRoute(ROUTES.DevPage)}

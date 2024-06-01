@@ -5,7 +5,7 @@ export const DashboardHomePage = () => {
     <Page
       title={[
         {
-          label: "Dashboard",
+          label: "Tableau de bord",
         },
       ]}
     >

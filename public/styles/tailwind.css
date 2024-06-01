@@ -5131,8 +5131,21 @@ input, select {
     border-color: rgb(113 63 18 / var(--tw-border-opacity));
   }
 
+  .dark\:border-white {
+    --tw-border-opacity: 1;
+    border-color: rgb(255 255 255 / var(--tw-border-opacity));
+  }
+
   .dark\:border-opacity-10 {
     --tw-border-opacity: 0.1;
+  }
+
+  .dark\:border-opacity-15 {
+    --tw-border-opacity: 0.15;
+  }
+
+  .dark\:border-opacity-50 {
+    --tw-border-opacity: 0.5;
   }
 
   .dark\:\!bg-wood-900 {

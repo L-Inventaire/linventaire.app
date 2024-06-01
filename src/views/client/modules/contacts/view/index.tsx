@@ -36,18 +36,21 @@ export const ContactsViewPage = ({ readonly }: { readonly?: boolean }) => {
         <div className="items-center flex grow space-x-2 px-3">
           <div className="flex items-center space-x-1">
             <Button
+              data-tooltip="Retour"
               size="xs"
               theme="outlined"
               shortcut={["esc"]}
               icon={(p) => <ArrowLeftIcon {...p} />}
             />
             <Button
+              data-tooltip="Précédent"
               size="xs"
               theme="outlined"
               shortcut={["k"]}
               icon={(p) => <ChevronUpIcon {...p} />}
             />
             <Button
+              data-tooltip="Suivant"
               size="xs"
               theme="outlined"
               shortcut={["j"]}

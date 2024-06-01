@@ -74,6 +74,8 @@ export const ROUTES = {
 
   Stock: "/:client/stock",
 
+  Accounting: "/:client/accounting",
+
   Consulting: "/:client/consulting",
   ConsultingView: "/:client/consulting/:id",
   ConsultingEdit: "/:client/consulting/:id/form",
@@ -88,6 +90,7 @@ export const ROUTES = {
   SettingsCustomFields: "/:client/settings/custom-fields",
   SettingsCompany: "/:client/settings/company",
   SettingsUsers: "/:client/settings/users",
+  SettingsImport: "/:client/settings/import",
   SettingsApi: "/:client/settings/api",
   SettingsBilling: "/:client/settings/billing",
 
