@@ -1,6 +1,7 @@
 import { SchemaType } from "@features/utils/rest/types/types";
 import _ from "lodash";
 import { extractFilters, generateQuery, schemaToSearchFields } from "./utils";
+import { getFromUrl } from "./url";
 
 /**
  * Will convert search filters to a model in url to start the new object
@@ -17,8 +18,7 @@ export const withSearchAsModel = (
   const parts = route.split("?");
 
   if (schema) {
-    const currentFilters =
-      search || new URLSearchParams(window.location.search).get("q") || "";
+    const currentFilters = search || getFromUrl([]);
     const filters = generateQuery(
       schemaToSearchFields(schema),
       extractFilters(currentFilters),

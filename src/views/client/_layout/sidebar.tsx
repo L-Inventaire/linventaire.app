@@ -81,12 +81,12 @@ export const SideBar = () => {
               icon={(p) => <WalletIcon {...p} />}
             />
             <MenuItem
-              to={getRoute(ROUTES.Contacts) + "?q=client%3A1+"}
+              to={getRoute(ROUTES.Contacts) + "?q=is_client%3A1+"}
               label="Clients"
               icon={(p) => <UserIcon {...p} />}
             />
             <MenuItem
-              to={getRoute(ROUTES.Contacts) + "?q=fournisseur%3A1+"}
+              to={getRoute(ROUTES.Contacts) + "?q=is_supplier%3A1+"}
               label="Fournisseurs"
               icon={(p) => <BuildingStorefrontIcon {...p} />}
             />

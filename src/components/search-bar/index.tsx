@@ -17,6 +17,7 @@ import { OutputQuery, SearchField } from "./utils/types";
 import { extractFilters, generateQuery } from "./utils/utils";
 import { useLocation } from "react-router-dom";
 import { Button } from "@atoms/button/button";
+import { getFromUrl, setToUrl } from "./utils/url";
 
 export const SearchBar = ({
   schema,
@@ -47,15 +48,13 @@ export const SearchBar = ({
   });
   const fields = schema.fields;
 
-  const [value, setValue] = useState(
-    new URLSearchParams(window.location.search).get("q") || ""
-  );
+  const [value, setValue] = useState(getFromUrl(schema.fields));
   const rendererRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { search } = useLocation();
   useEffect(() => {
-    const val = new URLSearchParams(window.location.search).get("q") || "";
+    const val = getFromUrl(schema.fields);
     if (val !== value) setValue(val);
   }, [search]);
 
@@ -81,7 +80,7 @@ export const SearchBar = ({
   useEffect(() => {
     if (!loadingCustomFields) {
       const url = new URL(window.location.href);
-      url.searchParams.set("q", value);
+      setToUrl(url, value, schema.fields);
       url.searchParams.set("map", JSON.stringify(displayToValueMap));
       window.history.replaceState({}, "", url.toString());
       delayCall(
