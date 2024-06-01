@@ -61,18 +61,19 @@ export const InvoicesDetailsPage = ({
   const status = invoicesAlikeStatus;
 
   useEffect(() => {
-    setDraft((draft) => {
-      draft = _.cloneDeep(draft);
-      if (!draft.emit_date) draft.emit_date = new Date();
-      if (!draft.reference) {
-        draft.reference = getFormattedNumerotation(
-          client.invoices_counters[draft.type]?.format,
-          client.invoices_counters[draft.type]?.counter
-        );
-      }
-      draft.total = computePricesFromInvoice(draft);
-      return draft;
-    });
+    if (!isPending && draft)
+      setDraft((draft) => {
+        draft = _.cloneDeep(draft);
+        if (!draft.emit_date) draft.emit_date = new Date();
+        if (!draft.reference && draft.type) {
+          draft.reference = getFormattedNumerotation(
+            client.invoices_counters[draft.type]?.format,
+            client.invoices_counters[draft.type]?.counter
+          );
+        }
+        draft.total = computePricesFromInvoice(draft);
+        return draft;
+      });
   }, [JSON.stringify(draft)]);
 
   if (isPending || (id && draft.id !== id) || !client) return <PageLoader />;

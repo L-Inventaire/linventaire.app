@@ -1,16 +1,16 @@
 import { Button } from "@atoms/button/button";
 import { DocumentBar } from "@components/document-bar";
 import { PageLoader } from "@components/page-loader";
+import { withModel } from "@components/search-bar/utils/as-model";
 import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { ROUTES, getRoute } from "@features/routes";
 import { Page } from "@views/client/_layout/page";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { InvoicesDetailsPage } from "../components/invoices-details";
 
 export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
   const { id } = useParams();
   const { invoice } = useInvoice(id || "");
-  const navigate = useNavigate();
 
   if (!invoice) return <PageLoader />;
 
@@ -32,9 +32,10 @@ export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
                 <Button
                   size="xs"
                   shortcut={["f"]}
-                  onClick={async () =>
-                    navigate(getRoute(ROUTES.ContactsEdit || "", { id }))
-                  }
+                  to={withModel(getRoute(ROUTES.InvoicesEdit, { id: "new" }), {
+                    ...invoice,
+                    type: "invoices",
+                  })}
                 >
                   Facturer
                 </Button>
@@ -44,9 +45,10 @@ export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
                   size="xs"
                   theme="outlined"
                   shortcut={["shift+a"]}
-                  onClick={async () =>
-                    navigate(getRoute(ROUTES.ContactsEdit || "", { id }))
-                  }
+                  to={withModel(getRoute(ROUTES.InvoicesEdit, { id: "new" }), {
+                    ...invoice,
+                    type: "credit_notes",
+                  })}
                 >
                   Créer un avoir
                 </Button>

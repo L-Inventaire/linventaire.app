@@ -34,16 +34,19 @@ export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
     async (item) => {
       navigate(getRoute(ROUTES.InvoicesView, { id: item.id }));
     },
-    _.merge(
-      {
-        type: "quotes",
-        state: "draft",
-        language: client.preferences?.language || "fr",
-        currency: client.preferences?.currency || "EUR",
-        format: client.invoices,
-        payment_information: client.payment,
-      } as Invoices,
-      initialModel
+    _.omit(
+      _.merge(
+        {
+          type: "quotes",
+          state: "draft",
+          language: client.preferences?.language || "fr",
+          currency: client.preferences?.currency || "EUR",
+          format: client.invoices,
+          payment_information: client.payment,
+        } as Invoices,
+        initialModel
+      ),
+      "reference"
     ) as Invoices
   );
 
