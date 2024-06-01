@@ -17,7 +17,7 @@ export const Tag = ({
   className?: string;
   noColor?: boolean;
   children: ReactNode;
-  size?: "sm" | "md" | "lg";
+  size?: "xs" | "sm" | "md" | "lg";
   icon?: ReactNode;
   style?: CSSProperties;
   onClick?: () => void;
@@ -40,7 +40,9 @@ export const Tag = ({
       style={{ ...(style || {}), minWidth: "21px" }}
       className={twMerge(
         size === "sm"
-          ? "h-5 px-1"
+          ? "h-6 px-1"
+          : size === "xs"
+          ? "h-5 px-2"
           : size === "lg"
           ? "h-9 pl-2 pr-3"
           : "h-7 px-2",

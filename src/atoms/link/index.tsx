@@ -48,7 +48,8 @@ export default function Link(
   return (
     <L
       to={(!props.onClick && props.href) || "#"}
-      onClick={() => {
+      onClick={(e) => {
+        e.stopPropagation();
         if (props.onClick) props.onClick();
       }}
       className={colors + " " + (props.className || "")}

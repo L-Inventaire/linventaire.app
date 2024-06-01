@@ -73,13 +73,13 @@ const Text = (props: TextProps) => {
       break;
     case "section":
       defaultClassName =
-        "text-xl font-semibold block mb-2 " +
+        "text-lg font-semibold block mb-2 " +
         " " +
         (props.noColor ? "" : "text-black dark:text-white");
       break;
     case "section-small":
       defaultClassName =
-        "text-lg font-semibold block " +
+        "text-base font-semibold block " +
         " " +
         (props.noColor ? "" : "text-black dark:text-white");
       break;
@@ -117,13 +117,13 @@ const Text = (props: TextProps) => {
       defaultClassName =
         "text-sm font-normal" +
         " " +
-        (props.noColor ? "" : "text-slate-300 dark:text-white dark:opacity-50");
+        (props.noColor ? "" : "text-slate-300 dark:text-slate-600");
       break;
     case "info-small":
       defaultClassName =
         "text-xs font-normal" +
         " " +
-        (props.noColor ? "" : "text-slate-300 dark:text-white dark:opacity-50");
+        (props.noColor ? "" : "text-slate-300 dark:text-slate-600");
       break;
   }
 

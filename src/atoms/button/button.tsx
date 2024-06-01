@@ -63,7 +63,7 @@ export const Button = (props: ButtonProps) => {
 
   if (props.theme === "outlined" || props.theme === "default")
     colors =
-      "shadow-sm text-black text-opacity-80 bg-white dark:bg-slate-990 dark:hover:bg-slate-800 hover:bg-gray-100 active:bg-gray-200 border-[0.5px] border-black border-opacity-15 border-solid  border-inside	";
+      "shadow-sm text-black dark:text-white text-opacity-80 bg-white dark:bg-slate-900 dark:hover:bg-slate-800 hover:bg-gray-100 active:bg-gray-200 border-[0.5px] border-black border-opacity-15 border-solid border-inside dark:border-slate-700 dark:hover:border-slate-700 dark:active:bg-slate-700";
 
   if (props.theme === "invisible")
     colors =

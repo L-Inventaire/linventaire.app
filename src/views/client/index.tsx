@@ -127,7 +127,7 @@ export const Layout = () => {
       {afterSignupOrNewCompany && <Confetti />}
       <div
         className={twMerge(
-          "sm:overflow-auto overflow-hidden relative flex w-full grow flex-row bg-slate-50 dark:bg-slate-800 h-screen intro-animated-root z-10",
+          "sm:overflow-auto overflow-hidden relative flex w-full grow flex-row bg-slate-50 dark:bg-slate-950 h-screen intro-animated-root z-10",
           afterSignupOrNewCompany ? "fade-in-slow" : ""
         )}
       >
@@ -143,7 +143,7 @@ export const Layout = () => {
           <Header />
           <div
             className={twMerge(
-              "grow flex min-h-0 border-t sm:border shadow-sm bg-white border-slate-100 dark:border-slate-950 print:mx-0 sm:mb-2 rounded",
+              "grow flex min-h-0 border-t sm:border shadow-sm bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-700 print:mx-0 sm:mb-2 rounded",
               menuOpen ? "sm:ml-64" : "sm:mr-2 sm:ml-0"
             )}
             onClick={() => setMenuOpen(false)}
@@ -151,7 +151,7 @@ export const Layout = () => {
             <SecondSideBar />
             <div
               className={
-                "grow flex min-h-0 dark:bg-slate-950 transition-all " +
+                "grow flex min-h-0 transition-all " +
                 (menuOpen ? " opacity-25 pointer-events-none " : "opacity-100 ")
               }
             >

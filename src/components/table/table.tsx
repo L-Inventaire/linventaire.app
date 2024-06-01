@@ -89,23 +89,14 @@ const defaultCellClassName = ({
   className?: string;
 }) => {
   return twMerge(
-    "h-full w-full flex items-center min-h-10 border-t border-slate-200 dark:border-slate-700 bg-wood-50",
-    rowOdd
-      ? selected
-        ? "dark:bg-opacity-90 bg-opacity-90 "
-        : "dark:bg-opacity-25 bg-opacity-25 "
-      : "",
-    !rowFirst && "border-t-slate-100",
-    (colFirst && "border-l ") || "",
-    (colLast && "border-r ") || "",
-    (rowLast && "border-b ") || "",
-    (rowFirst && colFirst && " rounded-tl ") || "",
-    (rowFirst && colLast && " rounded-tr ") || "",
-    (rowLast && colFirst && " rounded-bl ") || "",
-    (rowLast && colLast && " rounded-br ") || "",
+    "h-full w-full flex items-center min-h-12 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800",
+    colFirst && "pl-1",
+    colLast && "pr-1",
     selected
-      ? " bg-wood-200 dark:bg-wood-950 "
-      : " bg-wood-50 dark:bg-wood-700 group-hover/row:bg-wood-100",
+      ? " bg-opacity-20 dark:bg-opacity-20 bg-wood-500 dark:bg-wood-500 group-hover/row:bg-opacity-15 dark:group-hover/row:bg-opacity-15"
+      : rowOdd
+      ? "dark:bg-opacity-15 bg-opacity-15 group-hover/row:bg-opacity-0 dark:group-hover/row:bg-opacity-0"
+      : "dark:bg-opacity-50 bg-opacity-50 group-hover/row:bg-opacity-25 dark:group-hover/row:bg-opacity-25",
     className || ""
   );
 };
@@ -456,7 +447,7 @@ export function RenderedTable<T>({
                       " p-4 text-center" +
                       (scrollable
                         ? ""
-                        : "bg-white dark:bg-wood-700 border border-slate-100")
+                        : "bg-white dark:bg-slate-700 border border-slate-100")
                     }
                   >
                     <Info>{t("general.tables.empty")}</Info>
@@ -494,8 +485,8 @@ export function RenderedTable<T>({
                           className={
                             "w-full " +
                             (isSelected
-                              ? " bg-wood-200 dark:bg-wood-950 "
-                              : " bg-wood-200 dark:bg-wood-700 ") +
+                              ? " bg-slate-200 dark:bg-slate-950 "
+                              : " bg-slate-200 dark:bg-slate-700 ") +
                             (onClick
                               ? "cursor-pointer hover:bg-opacity-75 "
                               : "") +
@@ -533,7 +524,7 @@ export function RenderedTable<T>({
                   >
                     {onSelect && (
                       <td
-                        className="w-6 m-0 p-0 height-table-hack overflow-hidden group/checkbox"
+                        className="w-8 m-0 p-0 height-table-hack overflow-hidden group/checkbox"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <div
@@ -544,7 +535,7 @@ export function RenderedTable<T>({
                             rowOdd: i % 2 === 0,
                             colFirst: true,
                             colLast: false,
-                            className: "flex justify-center items-center",
+                            className: "pl-0 flex justify-center items-center",
                           })}
                         >
                           <Checkbox
@@ -562,17 +553,17 @@ export function RenderedTable<T>({
                     {responsiveMode && (
                       <td className="m-0 p-0 height-table-hack sm:w-auto w-full">
                         <div
-                          className={
-                            "mb-2 m-0 p-0 border rounded-md p-2 " +
-                            (i % 2
+                          className={twMerge(
+                            "mb-2 m-0 p-0 border rounded-md p-2",
+                            i % 2
                               ? isSelected
                                 ? "dark:bg-opacity-90 bg-opacity-90 "
                                 : "dark:bg-opacity-25 bg-opacity-25 "
-                              : "") +
-                            (isSelected
-                              ? " bg-wood-200 dark:bg-wood-950 "
-                              : " bg-white dark:bg-wood-700 ")
-                          }
+                              : "",
+                            isSelected
+                              ? " bg-slate-200 dark:bg-slate-950 "
+                              : " bg-white dark:bg-slate-700 "
+                          )}
                         >
                           {columns
                             .filter((a) => !a.hidden)
@@ -613,7 +604,9 @@ export function RenderedTable<T>({
                           return (
                             <td
                               key={j}
-                              className="m-0 p-0 height-table-hack overflow-hidden"
+                              className={twMerge(
+                                "m-0 p-0 height-table-hack overflow-hidden"
+                              )}
                             >
                               <div
                                 className={defaultCellClassName({

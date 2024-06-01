@@ -6,11 +6,11 @@ function showTooltip(that: any) {
   let tooltipText = that.getAttribute("data-tooltip");
   const position = that.getAttribute("data-position") || "top";
   const tooltip = document.createElement("div");
-  tooltip.className = `tooltip bg-white text-black dark:bg-slate-900 dark:text-white shadow-lg text-sm border-[0.5px] dark:border-white dark:border-opacity-50 border-black border-opacity-15 rounded tooltip-${position}`;
+  tooltip.className = `tooltip bg-white text-black dark:bg-slate-900 dark:text-white shadow-lg text-sm border-[0.5px] border-slate-100 dark:border-slate-700 rounded tooltip-${position}`;
 
   // Apply some markdown-like formatting
   tooltipText = tooltipText.replace(/`([^`]+)`/gm, (_: any, p1: string) => {
-    return `<span class='font-mono border-[0.5px] dark:border-white dark:border-opacity-50 border-black border-opacity-15 rounded px-1 shadow-sm'>${p1}</span>`;
+    return `<span class='font-mono border-[0.5px] border-slate-100 dark:border-slate-800 rounded px-1 shadow-sm'>${p1}</span>`;
   });
 
   tooltip.innerHTML =

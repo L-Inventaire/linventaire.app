@@ -10,7 +10,7 @@ import {
   RestOptions,
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
-import { PlusIcon } from "@heroicons/react/24/outline";
+import { PlusIcon } from "@heroicons/react/20/solid";
 import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
@@ -68,7 +68,7 @@ export const ArticlesPage = () => {
         loading={articles.isPending}
         data={articles?.data?.list || []}
         total={articles?.data?.total || 0}
-        showPagination="full"
+        showPagination="simple"
         rowIndex="id"
         onSelect={(items) => false && console.log(items)}
         onRequestData={async (page) => {

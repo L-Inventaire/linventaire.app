@@ -205,7 +205,7 @@ export const SearchBarSuggestions = ({
                 label: (
                   <span>
                     <Tag
-                      size="sm"
+                      size="xs"
                       noColor
                       className="bg-wood-500 text-white -ml-1 font-mono"
                     >

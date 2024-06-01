@@ -68,7 +68,7 @@ export const OrdersPage = () => {
         loading={orders.isPending}
         data={orders?.data?.list || []}
         total={orders?.data?.total || 0}
-        showPagination="full"
+        showPagination="simple"
         rowIndex="id"
         onSelect={(items) => false && console.log(items)}
         onRequestData={async (page) => {

@@ -15,7 +15,7 @@ export const TagsInput = (props: {
   value: string[];
   className?: string;
   max?: number;
-  size?: "sm" | "md";
+  size?: "xs" | "sm" | "md";
   onChange?: (value: string[]) => void;
   placeholder?: string;
   disabled?: boolean;

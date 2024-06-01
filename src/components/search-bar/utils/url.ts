@@ -5,6 +5,8 @@ import { labelToVariable } from "./utils";
  * This two function ensure query saved in url is language agnostic
  */
 
+// TODO this seems not to be working all the time (seen is_is_client)
+
 export const getFromUrl = (fields: SearchField[]) => {
   let tmp = new URLSearchParams(window.location.search).get("q") || "";
   for (const field of fields) {

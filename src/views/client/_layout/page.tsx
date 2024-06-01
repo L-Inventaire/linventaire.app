@@ -30,7 +30,11 @@ export const Page = (props: {
   return (
     <ErrorBoundary>
       <div className="flex flex-col grow w-full text-black dark:text-white min-h-full sm:bg-transparent">
-        {props.bar && <div className="border-b flex min-h-12">{props.bar}</div>}
+        {props.bar && (
+          <div className="border-b flex min-h-12 border-slate-100 dark:border-slate-700">
+            {props.bar}
+          </div>
+        )}
         <DefaultScrollbars className="p-3 grow">
           {props.children}
         </DefaultScrollbars>
@@ -41,7 +45,7 @@ export const Page = (props: {
 
 export const PageBlockHr = () => {
   return (
-    <div className="-mx-4 border-solid border-b dark:border-slate-900 !my-4" />
+    <div className="-mx-4 border-solid border-b dark:border-slate-700 !my-4" />
   );
 };
 
@@ -64,7 +68,7 @@ export const PageBlock = (props: {
   return (
     <div
       className={twMerge(
-        "p-3 lg:p-4 sm:pt-3 lg:pt-4 pt-0 sm:border border-b sm:mx-0 -mx-4 rounded-md mb-4 bg-slate-50 bg-opacity-50 dark:bg-slate-970 border-slate-100 dark:sm:border-slate-970 dark:border-slate-950",
+        "p-3 lg:p-4 sm:pt-3 lg:pt-4 pt-0 sm:border border-b sm:mx-0 -mx-4 rounded-md mb-4 bg-slate-50 bg-opacity-50 dark:bg-slate-800 border-slate-100 dark:sm:border-slate-700 dark:border-slate-700",
         !isOpen && props.closable ? "cursor-pointer" : "",
         !props.title && "lg:pt-2 sm:pt-1 pt-1"
       )}

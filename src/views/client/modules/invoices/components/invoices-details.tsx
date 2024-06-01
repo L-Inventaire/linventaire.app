@@ -674,11 +674,11 @@ export const InvoicesDetailsPage = ({
                             let hasMore = false;
                             const dates = [];
                             let date = Math.max(
-                              draft.emit_date.getTime(),
+                              new Date(draft.emit_date || 0).getTime(),
                               new Date(draft.subscription?.start || 0).getTime()
                             );
                             let end = Math.max(
-                              draft.emit_date.getTime(),
+                              new Date(draft.emit_date || 0).getTime(),
                               new Date(draft.subscription?.end || 0).getTime() +
                                 1000 * 60 * 60 * 24 // Add a day for time zones issues
                             );
