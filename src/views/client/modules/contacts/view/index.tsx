@@ -12,9 +12,7 @@ import { ContactsDetailsPage } from "../components/contact-details";
 
 export const ContactsViewPage = ({ readonly }: { readonly?: boolean }) => {
   const { id } = useParams();
-  const { contact } = useContact(id || "");
-
-  if (!contact) return <PageLoader />;
+  const { contact, isPending } = useContact(id || "");
 
   return (
     <Page
@@ -24,7 +22,8 @@ export const ContactsViewPage = ({ readonly }: { readonly?: boolean }) => {
       ]}
       bar={
         <DocumentBar
-          document={{ id }}
+          loading={isPending && !contact}
+          document={contact || { id }}
           mode={"read"}
           backRoute={ROUTES.Contacts}
           editRoute={ROUTES.ContactsEdit}

@@ -14,17 +14,10 @@ export default function Link(
 ) {
   const navigate = useNavigate();
 
-  useShortcuts(
-    props.shortcut
-      ? [...props.shortcut, ...props.shortcut.map((s: string) => "shift+" + s)]
-      : [],
-    (e) => {
-      if (props.onClick) props.onClick();
-      if (props.href || (props.to && e.shiftKey))
-        window.open(props.href || props.to, e.shiftKey ? "_blank" : "_self");
-      if (props.to && !e.shiftKey) navigate(props.to);
-    }
-  );
+  useShortcuts(props.shortcut || [], () => {
+    if (props.onClick) props.onClick();
+    if (props.href || props.to) navigate(props.href || props.to);
+  });
 
   const colors = props.noColor
     ? ""

@@ -21,8 +21,10 @@ export const DocumentBar = ({
   onSave,
   prefix,
   suffix,
+  loading,
   ...props
 }: {
+  loading?: boolean;
   mode: "read" | "write";
   document: any & RestEntity;
   prefix?: React.ReactNode;
@@ -36,7 +38,6 @@ export const DocumentBar = ({
 
   const cancel = async () => {
     // Get previous route
-
     navigate(
       !document.id || mode === "read"
         ? getRoute(props.backRoute || "/")
@@ -74,49 +75,61 @@ export const DocumentBar = ({
           </>
         )}
       </div>
-      {mode === "read" && (
-        <Button
-          data-tooltip="Modifier"
-          size="xs"
-          theme="outlined"
-          shortcut={["e"]}
-          onClick={async () =>
-            navigate(getRoute(props.editRoute || "", { id: document.id }))
-          }
-        >
-          Modifier
-        </Button>
-      )}
-      {prefix}
-      <div className="grow" />
-      <Button
-        size="xs"
-        theme="invisible"
-        icon={(p) => <DocumentDuplicateIcon {...p} />}
-      />
-      <Button size="xs" theme="invisible" icon={(p) => <LinkIcon {...p} />} />
-      <Button
-        size="xs"
-        theme="invisible"
-        icon={(p) => <PrinterIcon {...p} />}
-      />
-      <Button size="xs" theme="invisible" icon={(p) => <ClockIcon {...p} />} />
-      <Button
-        size="xs"
-        theme="invisible"
-        icon={(p) => <EllipsisHorizontalIcon {...p} />}
-      />
-      {mode === "write" && (
+      {!loading && (
         <>
-          <Button size="xs" theme="outlined" onClick={cancel}>
-            Annuler
-          </Button>
-          <Button size="xs" onClick={onSave} shortcut={["cmd+s"]}>
-            Sauvegarder
-          </Button>
+          {mode === "read" && (
+            <Button
+              data-tooltip="Modifier"
+              size="xs"
+              theme="outlined"
+              shortcut={["e"]}
+              onClick={async () =>
+                navigate(getRoute(props.editRoute || "", { id: document.id }))
+              }
+            >
+              Modifier
+            </Button>
+          )}
+          {prefix}
+          <div className="grow" />
+          <Button
+            size="xs"
+            theme="invisible"
+            icon={(p) => <DocumentDuplicateIcon {...p} />}
+          />
+          <Button
+            size="xs"
+            theme="invisible"
+            icon={(p) => <LinkIcon {...p} />}
+          />
+          <Button
+            size="xs"
+            theme="invisible"
+            icon={(p) => <PrinterIcon {...p} />}
+          />
+          <Button
+            size="xs"
+            theme="invisible"
+            icon={(p) => <ClockIcon {...p} />}
+          />
+          <Button
+            size="xs"
+            theme="invisible"
+            icon={(p) => <EllipsisHorizontalIcon {...p} />}
+          />
+          {mode === "write" && (
+            <>
+              <Button size="xs" theme="outlined" onClick={cancel}>
+                Annuler
+              </Button>
+              <Button size="xs" onClick={onSave} shortcut={["cmd+s"]}>
+                Sauvegarder
+              </Button>
+            </>
+          )}
+          {suffix}
         </>
       )}
-      {suffix}
     </div>
   );
 };

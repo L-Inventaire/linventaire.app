@@ -44,7 +44,12 @@ export const Button = (props: ButtonProps) => {
 
   if (props.to) {
     return (
-      <Link to={props.to} target={props.target} noColor>
+      <Link
+        to={props.to}
+        target={props.target}
+        noColor
+        shortcut={props.shortcut}
+      >
         <Button {..._.omit(props, "to")} />
       </Link>
     );

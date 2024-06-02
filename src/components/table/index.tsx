@@ -18,7 +18,7 @@ type PropsType<T> = {
   loading?: boolean;
   onRequestData?: (pagination: Pagination) => Promise<void>;
   onFetchExportData?: (pagination: Pagination) => Promise<any[]>;
-  onClick?: (item: T) => void;
+  onClick?: (item: T, e: MouseEvent) => void;
   onSelect?:
     | {
         icon?: (props: any) => JSX.Element;

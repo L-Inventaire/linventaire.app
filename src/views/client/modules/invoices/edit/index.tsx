@@ -50,8 +50,6 @@ export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
     ) as Invoices
   );
 
-  if (isInitiating || loading) return <PageLoader />;
-
   return (
     <Page
       title={[
@@ -60,6 +58,7 @@ export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
       ]}
       bar={
         <DocumentBar
+          loading={isInitiating || loading}
           document={{ id }}
           mode={"write"}
           onSave={async () => await save()}
@@ -81,7 +80,11 @@ export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
         />
       }
     >
-      <InvoicesDetailsPage readonly={false} id={id} />
+      {isInitiating ? (
+        <PageLoader />
+      ) : (
+        <InvoicesDetailsPage readonly={false} id={id} />
+      )}
     </Page>
   );
 };

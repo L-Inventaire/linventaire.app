@@ -28,6 +28,7 @@ export const RestDocumentsInput = (props: {
   ) => void;
   placeholder?: string;
   disabled?: boolean;
+  icon?: (props: { className: string }) => JSX.Element;
 }) => {
   const value: string[] =
     props.max === 1
@@ -72,8 +73,8 @@ export const RestDocumentsInput = (props: {
         })),
       },
     ],
-    key: props.table + "_" + props.column + "_selector",
-    limit: (value || []).length || 1,
+    key: props.table + "_" + props.column + "_selector_" + value.join("_"),
+    limit: (value || []).length,
   });
   const loading = items.isPending;
   const documents = (items?.data?.list || [])?.slice(0, value?.length);
@@ -96,7 +97,7 @@ export const RestDocumentsInput = (props: {
       {documents.map((doc) => (
         <RestDocumentTag
           size={size}
-          icon={tableToIcons(refTable)?.icon}
+          icon={props.icon || tableToIcons(refTable)?.icon}
           label={doc._label}
           className={twMerge(
             !props.disabled ? "cursor-pointer inline-flex items-center" : "",

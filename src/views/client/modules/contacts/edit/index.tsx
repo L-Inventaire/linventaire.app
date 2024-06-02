@@ -33,8 +33,6 @@ export const ContactsEditPage = ({ readonly }: { readonly?: boolean }) => {
     ) as Contacts
   );
 
-  if (isInitiating) return <PageLoader />;
-
   return (
     <Page
       title={[
@@ -43,6 +41,7 @@ export const ContactsEditPage = ({ readonly }: { readonly?: boolean }) => {
       ]}
       bar={
         <DocumentBar
+          loading={isInitiating}
           document={{ id }}
           mode={"write"}
           onSave={async () => await save()}
@@ -52,7 +51,11 @@ export const ContactsEditPage = ({ readonly }: { readonly?: boolean }) => {
         />
       }
     >
-      <ContactsDetailsPage readonly={false} id={id} />
+      {isInitiating ? (
+        <PageLoader />
+      ) : (
+        <ContactsDetailsPage readonly={false} id={id} />
+      )}
     </Page>
   );
 };

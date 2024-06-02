@@ -1,16 +1,13 @@
+import { DocumentBar } from "@components/document-bar";
 import { useArticle } from "@features/articles/hooks/use-articles";
 import { ROUTES, getRoute } from "@features/routes";
 import { Page } from "@views/client/_layout/page";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { ArticlesDetailsPage } from "../components/article-details";
-import { Button } from "@atoms/button/button";
-import { Title } from "@atoms/text";
-import { DocumentBar } from "@components/document-bar";
 
 export const ArticlesViewPage = ({ readonly }: { readonly?: boolean }) => {
   const { id } = useParams();
-  const { article } = useArticle(id || "");
-  const navigate = useNavigate();
+  const { article, isPending } = useArticle(id || "");
 
   return (
     <Page
@@ -20,23 +17,14 @@ export const ArticlesViewPage = ({ readonly }: { readonly?: boolean }) => {
       ]}
       bar={
         <DocumentBar
-          document={{ id }}
+          loading={isPending && !article}
+          document={article}
           mode={"read"}
           backRoute={ROUTES.Products}
           editRoute={ROUTES.ProductsEdit}
         />
       }
     >
-      <div className="float-right space-x-2">
-        <Button
-          size="sm"
-          onClick={async () => navigate(getRoute(ROUTES.ProductsEdit, { id }))}
-        >
-          Modifier
-        </Button>
-      </div>
-      <Title>{article?.name || ""}</Title>
-      <div className="mt-4" />
       <ArticlesDetailsPage readonly={true} id={id || ""} />
     </Page>
   );

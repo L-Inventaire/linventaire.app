@@ -10,7 +10,7 @@ import { InvoicesDetailsPage } from "../components/invoices-details";
 
 export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
   const { id } = useParams();
-  const { invoice } = useInvoice(id || "");
+  const { invoice, isPending } = useInvoice(id || "");
 
   if (!invoice) return <PageLoader />;
 
@@ -22,7 +22,8 @@ export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
       ]}
       bar={
         <DocumentBar
-          document={{ id }}
+          loading={isPending && !invoice}
+          document={invoice || { id }}
           mode={"read"}
           backRoute={ROUTES.Invoices}
           editRoute={ROUTES.InvoicesEdit}

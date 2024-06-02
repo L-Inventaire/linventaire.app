@@ -64,7 +64,7 @@ type PropsType<T> = {
         callback: (items: T[]) => void;
       }[]
     | ((items: T[]) => void);
-  onClick?: (item: T) => void;
+  onClick?: (item: T, e: MouseEvent) => void;
   onChangeOrder?: (columnIndex: number, direction: "ASC" | "DESC") => void;
   onChangePage?: (page: number) => void;
   onChangePageSize?: (size: number) => void;
@@ -442,14 +442,7 @@ export function RenderedTable<T>({
                     columns.filter((a) => !a.hidden).length + (onSelect ? 1 : 0)
                   }
                 >
-                  <div
-                    className={
-                      " p-4 text-center" +
-                      (scrollable
-                        ? ""
-                        : "bg-white dark:bg-slate-700 border border-slate-100")
-                    }
-                  >
+                  <div className="p-4 text-center">
                     <Info>{t("general.tables.empty")}</Info>
                   </div>
                 </td>
@@ -492,7 +485,7 @@ export function RenderedTable<T>({
                               : "") +
                             (cellClassName?.(row) || "")
                           }
-                          onClick={() => onClick && onClick(row)}
+                          onClick={(e) => onClick && onClick(row, e as any)}
                         >
                           {columns[0].render(row, { responsive: false })}
                         </div>
@@ -516,7 +509,7 @@ export function RenderedTable<T>({
                 return (
                   <tr
                     key={i}
-                    onClick={() => onClick && onClick(row)}
+                    onClick={(e) => onClick && onClick(row, e as any)}
                     className={twMerge(
                       "group/row",
                       onClick && "cursor-pointer"
@@ -605,7 +598,8 @@ export function RenderedTable<T>({
                             <td
                               key={j}
                               className={twMerge(
-                                "m-0 p-0 height-table-hack overflow-hidden"
+                                "m-0 p-0 height-table-hack overflow-hidden",
+                                !cell.title && cell.thClassName
                               )}
                             >
                               <div

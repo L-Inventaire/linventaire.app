@@ -1,6 +1,6 @@
 import { Button } from "@atoms/button/button";
 import Tabs from "@atoms/tabs";
-import { Info } from "@atoms/text";
+import { Base, Info } from "@atoms/text";
 import { FormInput } from "@components/form/fields";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { Table } from "@components/table";
@@ -19,6 +19,9 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
+import { useNavigateAlt } from "@features/utils/navigate";
+import { formatAmount } from "@features/utils/format/strings";
+import { Tag } from "@atoms/badge/tag";
 
 export const InvoicesPage = () => {
   const [type, setType] = useState(
@@ -55,7 +58,7 @@ export const InvoicesPage = () => {
   });
 
   const schema = useRestSchema("invoices");
-  const navigate = useNavigate();
+  const navigate = useNavigateAlt();
 
   useEffect(() => {
     setState([]);
@@ -130,10 +133,12 @@ export const InvoicesPage = () => {
     >
       <div className="-m-3">
         <div className="px-3 h-7 w-full bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700">
-          <Info>Some additional content</Info>
+          <Info>{invoices?.data?.total || 0} documents trouvés</Info>
         </div>
         <Table
-          onClick={({ id }) => navigate(getRoute(ROUTES.InvoicesView, { id }))}
+          onClick={({ id }, event) =>
+            navigate(getRoute(ROUTES.InvoicesView, { id }), { event })
+          }
           loading={invoices.isPending}
           data={invoices?.data?.list || []}
           total={invoices?.data?.total || 0}
@@ -146,27 +151,67 @@ export const InvoicesPage = () => {
               limit: page.perPage,
               offset: (page.page - 1) * page.perPage,
               asc: page.order === "ASC",
-              index:
-                page.orderBy === undefined
-                  ? undefined
-                  : [
-                      "business_name,person_first_name,person_last_name,business_registered_name",
-                      "tags",
-                    ][page.orderBy],
             });
           }}
           columns={[
             {
-              orderable: true,
+              thClassName: "w-1",
+              render: (invoice) => (
+                <Base className="opacity-50 whitespace-nowrap">
+                  {invoice.reference}
+                </Base>
+              ),
+            },
+            {
               render: (invoice) => invoice.name,
             },
             {
-              orderable: true,
-              render: (invoice) => <Info>{invoice.reference}</Info>,
+              thClassName: "w-1",
+              cellClassName: "justify-end",
+              render: (invoice) => (
+                <TagsInput value={invoice.tags} disabled hideEmpty />
+              ),
             },
             {
-              orderable: true,
-              render: (invoice) => <TagsInput value={invoice.tags} disabled />,
+              thClassName: "w-1",
+              cellClassName: "justify-end",
+              render: (invoice) => (
+                <Button size="xs" theme="outlined">
+                  {formatAmount(invoice.total?.total || 0)} HT
+                </Button>
+              ),
+            },
+            {
+              thClassName: "w-1",
+              cellClassName: "justify-end",
+              render: (invoice) => (
+                <Button size="xs" theme="outlined">
+                  {formatAmount(invoice.total?.total_with_taxes || 0)} TTC
+                </Button>
+              ),
+            },
+            {
+              thClassName: "w-1",
+              cellClassName: "justify-end",
+              render: (invoice) => (
+                <>
+                  {invoice.state === "draft" && (
+                    <Tag size="sm" color="gray">
+                      Brouillon
+                    </Tag>
+                  )}
+                  {invoice.state === "paid" && (
+                    <Tag size="sm" color="green">
+                      Payée
+                    </Tag>
+                  )}
+                  {invoice.state === "accepted" && (
+                    <Tag size="sm" color="green">
+                      Acceptée
+                    </Tag>
+                  )}
+                </>
+              ),
             },
           ]}
         />

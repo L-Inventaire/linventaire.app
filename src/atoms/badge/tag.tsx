@@ -40,7 +40,7 @@ export const Tag = ({
       style={{ ...(style || {}), minWidth: "21px" }}
       className={twMerge(
         size === "sm"
-          ? "h-6 px-1"
+          ? "h-6 px-2"
           : size === "xs"
           ? "h-5 px-2"
           : size === "lg"

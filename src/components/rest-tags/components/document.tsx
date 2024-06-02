@@ -10,7 +10,7 @@ export const RestDocumentTag = ({
   onClick,
   ...props
 }: {
-  size: "md" | "sm";
+  size: "md" | "sm" | "xs";
   label: string | ReactNode;
   icon?: (p: { className: string }) => ReactNode;
   className?: string;
@@ -27,7 +27,7 @@ export const RestDocumentTag = ({
       size={size}
       noColor
       onClick={onClick}
-      className={twMerge("bg-white dark:bg-slate-900 pr-1", className)}
+      className={twMerge("rounded bg-white dark:bg-slate-900 pr-1", className)}
       data-tooltip={props["data-tooltip"]}
     >
       {label}

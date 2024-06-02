@@ -14,7 +14,9 @@
   },
   "general": {
     "tables": {
-      "empty": "Aucune donnée"
+      "empty": "Aucune donnée",
+      "more": "Charger plus",
+      "pagination": "Affichage de {{current}} sur {{total}} éléments"
     },
     "save": "Enregistrer"
   },

@@ -1,11 +1,13 @@
 import { Button } from "@atoms/button/button";
-import { Info } from "@atoms/text";
+import { Base, Info } from "@atoms/text";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { Table } from "@components/table";
 import { TagsInput } from "@components/tags-input";
 import { useArticles } from "@features/articles/hooks/use-articles";
 import { Articles } from "@features/articles/types/types";
 import { ROUTES, getRoute } from "@features/routes";
+import { formatAmount } from "@features/utils/format/strings";
+import { useNavigateAlt } from "@features/utils/navigate";
 import {
   RestOptions,
   useRestSchema,
@@ -15,6 +17,7 @@ import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
+import { getTvaValue } from "../invoices/utils";
 
 export const ArticlesPage = () => {
   const [options, setOptions] = useState<RestOptions<Articles>>({
@@ -24,6 +27,7 @@ export const ArticlesPage = () => {
   });
   const { articles } = useArticles(options);
   const schema = useRestSchema("articles");
+  const navigate = useNavigateAlt();
 
   return (
     <Page
@@ -55,6 +59,7 @@ export const ArticlesPage = () => {
                 schema.data
               )}
               icon={(p) => <PlusIcon {...p} />}
+              shortcut={["shift+a"]}
             >
               Ajouter un article
             </Button>
@@ -64,9 +69,12 @@ export const ArticlesPage = () => {
     >
       <div className="-m-3">
         <div className="px-3 h-7 w-full bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700">
-          <Info>Some additional content</Info>
+          <Info>{articles?.data?.total || 0} articles trouvés</Info>
         </div>
         <Table
+          onClick={({ id }, event) =>
+            navigate(getRoute(ROUTES.ProductsView, { id }), { event })
+          }
           loading={articles.isPending}
           data={articles?.data?.list || []}
           total={articles?.data?.total || 0}
@@ -90,29 +98,56 @@ export const ArticlesPage = () => {
           }}
           columns={[
             {
-              title: "Name",
-              orderable: true,
+              thClassName: "w-1 whitespace-nowrap",
+              render: (article) => (
+                <Base className="opacity-50">{article.internal_reference}</Base>
+              ),
+            },
+            {
               render: (article) => article.name,
             },
             {
-              title: "Price",
-              orderable: true,
-              render: (article) => <Info>{article.price}</Info>,
-            },
-            {
-              title: "Tags",
-              orderable: true,
-              render: (article) => <TagsInput value={article.tags} disabled />,
-            },
-            {
-              title: "Actions",
               thClassName: "w-1",
-              render: ({ id }) => (
-                <>
-                  <Button size="sm" to={getRoute(ROUTES.ProductsView, { id })}>
-                    View
-                  </Button>
-                </>
+              cellClassName: "justify-end",
+              render: (article) => (
+                <Button size="xs" theme="outlined">
+                  Coût{" "}
+                  {Object.values(article.suppliers_details || {})
+                    .filter((a) => a.price)
+                    .map((a) => formatAmount(a.price))
+                    // Keep only min and max
+                    .sort()
+                    .filter((_, i, arr) => i === 0 || i === arr.length - 1)
+                    .join("-")}{" "}
+                  HT
+                </Button>
+              ),
+            },
+            {
+              thClassName: "w-1",
+              cellClassName: "justify-end",
+              render: (article) => (
+                <Button size="xs" theme="outlined">
+                  {formatAmount(article.price)} HT
+                </Button>
+              ),
+            },
+            {
+              thClassName: "w-1",
+              cellClassName: "justify-end",
+              render: (article) => (
+                <Button size="xs" theme="outlined">
+                  {formatAmount(article.price * (1 + getTvaValue(article.tva)))}{" "}
+                  TTC
+                </Button>
+              ),
+            },
+            {
+              thClassName: "w-1",
+              render: (article) => (
+                <div className="w-full text-right flex space-x-1 justify-end items-center whitespace-nowrap">
+                  <TagsInput value={article.tags} disabled />
+                </div>
               ),
             },
           ]}

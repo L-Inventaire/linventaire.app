@@ -19,6 +19,7 @@ export const TagsInput = (props: {
   onChange?: (value: string[]) => void;
   placeholder?: string;
   disabled?: boolean;
+  hideEmpty?: boolean;
 }) => {
   const hasAccess = useHasAccess();
   const [nextColor, setNextColor] = useState(getRandomHexColor());
@@ -71,7 +72,9 @@ export const TagsInput = (props: {
           {tag.name}
         </Tag>
       ))}
-      {props.disabled && !selectedTags.length && <Info>Aucune étiquette</Info>}
+      {props.disabled && !selectedTags.length && !props.hideEmpty && (
+        <Info>Aucune étiquette</Info>
+      )}
       {!props.disabled &&
         !focused &&
         props.value?.length < (props.max || 100) && (
