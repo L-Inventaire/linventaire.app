@@ -64,13 +64,14 @@ export const InvoicesDetailsPage = ({
 
   useEffect(() => {
     if (!isPending && draft)
-      setDraft((draft) => {
+      setDraft((draft: Invoices) => {
         draft = _.cloneDeep(draft);
         if (!draft.emit_date) draft.emit_date = new Date();
-        if (!draft.reference && draft.type) {
+        if (draft.type) {
           draft.reference = getFormattedNumerotation(
             client.invoices_counters[draft.type]?.format,
-            client.invoices_counters[draft.type]?.counter
+            client.invoices_counters[draft.type]?.counter,
+            draft.state === "draft"
           );
         }
         draft.total = computePricesFromInvoice(draft);

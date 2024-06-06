@@ -172,7 +172,7 @@ export const Button = (props: ButtonProps) => {
                 : "-ml-1 mr-2"
               : "-mx-2"),
         })}
-      <span className="mt-[2px]">{props.children}</span>
+      <span>{props.children}</span>
     </button>
   );
 };

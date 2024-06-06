@@ -1162,10 +1162,6 @@ select {
   margin-top: 2rem;
 }
 
-.mt-\[2px\] {
-  margin-top: 2px;
-}
-
 .mt-px {
   margin-top: 1px;
 }
@@ -1381,10 +1377,6 @@ select {
 
 .w-4 {
   width: 1rem;
-}
-
-.w-48 {
-  width: 12rem;
 }
 
 .w-5 {
