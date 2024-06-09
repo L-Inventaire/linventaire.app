@@ -30,15 +30,22 @@ export interface ButtonProps
 
 export const Button = (props: ButtonProps) => {
   const disabled = props.disabled || props.loading;
+  const btnRef = useRef<HTMLButtonElement>(null);
 
   // Used to show a loader depending on the onClick promise function
   const asyncTimoutRef = useRef<any>(null);
   const [asyncLoading, setAsyncLoading] = useState(false);
 
   useShortcuts(
-    !disabled && props.shortcut?.length ? [...props.shortcut] : [],
+    !props.to && !disabled && props.shortcut?.length ? [...props.shortcut] : [],
     (e) => {
-      if (props.onClick) props.onClick(e as any);
+      if (props.onClick)
+        props.onClick({
+          ...e,
+          currentTarget: btnRef.current,
+          preventDefault: () => {},
+          stopPropagation: () => {},
+        } as any);
     }
   );
 
@@ -50,7 +57,7 @@ export const Button = (props: ButtonProps) => {
         noColor
         shortcut={props.shortcut}
       >
-        <Button {..._.omit(props, "to")} />
+        <Button {..._.omit(props, "to", "shortcut")} />
       </Link>
     );
   }
@@ -106,6 +113,7 @@ export const Button = (props: ButtonProps) => {
 
   return (
     <button
+      ref={btnRef}
       data-tooltip={tooltip.length ? tooltip : undefined}
       type="button"
       className={twMerge(

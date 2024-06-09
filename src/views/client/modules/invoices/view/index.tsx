@@ -27,7 +27,7 @@ export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
           loading={isPending && !invoice}
           document={invoice || { id }}
           mode={"read"}
-          backRoute={ROUTES.Invoices}
+          backRoute={ROUTES.Invoices + '?q=type%3A"' + invoice.type + '"'}
           editRoute={ROUTES.InvoicesEdit}
           onPrint={async () => getPdfPreview()}
           prefix={
