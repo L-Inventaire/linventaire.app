@@ -779,7 +779,7 @@ export const InvoicesDetailsPage = ({
                           ctrl={ctrl("subscription.as_draft")}
                         />
                         <Info>
-                          Par défaut les factures son dupliquées et envoyées au
+                          Par défaut les factures sont dupliquées et envoyées au
                           client pour paiement (tacite reconduction).
                         </Info>
                       </>

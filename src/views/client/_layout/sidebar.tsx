@@ -109,7 +109,7 @@ export const SideBar = () => {
 
           <MenuSection
             className="!mt-6"
-            label="Documents"
+            label="Ventes"
             suffix={
               <Button
                 size="sm"
@@ -183,7 +183,7 @@ export const SideBar = () => {
 
           <MenuSection
             className="!mt-6"
-            label="Stock"
+            label="Achats"
             show={
               hasAccess("ARTICLES_READ") ||
               hasAccess("ORDERS_READ") ||

@@ -12,7 +12,11 @@ import {
   RestOptions,
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
-import { ArrowUturnLeftIcon, PlusIcon } from "@heroicons/react/24/outline";
+import {
+  ArrowUturnLeftIcon,
+  PlusIcon,
+  ArrowPathIcon,
+} from "@heroicons/react/24/outline";
 import { Page } from "@views/client/_layout/page";
 import { useEffect, useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
@@ -163,6 +167,14 @@ export const InvoicesPage = () => {
             {
               render: (invoice) => (
                 <div className="flex items-center space-x-2">
+                  {invoice.subscription?.enabled && (
+                    <Button
+                      data-tooltip="Abonnement"
+                      size="xs"
+                      theme="invisible"
+                      icon={(p) => <ArrowPathIcon {...p} />}
+                    />
+                  )}
                   {!!invoice.name && <span>{invoice.name}</span>}
                   {invoice.content
                     ?.filter((c) => c.article && c.name)

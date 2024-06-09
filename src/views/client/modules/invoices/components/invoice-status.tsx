@@ -4,6 +4,7 @@ import { DropDownAtom, DropDownMenuType } from "@atoms/dropdown";
 import { Base, Info } from "@atoms/text";
 import { Invoices } from "@features/invoices/types/types";
 import { ChevronDownIcon, ChevronRightIcon } from "@heroicons/react/16/solid";
+import { useEffect } from "react";
 import { useSetRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
 
@@ -34,26 +35,28 @@ export const InvoiceStatus = ({
     partial_paid: "Paiment partiel",
     paid: "Payé",
     closed: "Fermé",
+    completed: "Complété",
   };
 
   const statusColor = {
     draft: "gray",
     sent: "blue",
     accounted: "blue",
-    purchase_order: "green",
+    purchase_order: "orange",
     partial_paid: "orange",
     paid: "green",
     closed: "red",
+    completed: "green",
   };
 
   const statusPerType = {
-    quotes: ["draft", "sent", "purchase_order", "closed"],
+    quotes: ["draft", "sent", "purchase_order", "completed", "closed"],
     invoices: ["draft", "accounted", "partial_paid", "paid", "closed"],
     credit_notes: ["draft", "accounted", "partial_paid", "paid", "closed"],
   };
 
   const statusPerTypeGrouped = {
-    quotes: [["draft"], ["sent"], ["purchase_order", "closed"]],
+    quotes: [["draft"], ["sent"], ["purchase_order", "closed", "completed"]],
     invoices: [["draft"], ["accounted"], ["paid", "partial_paid", "closed"]],
     credit_notes: [
       ["draft"],
@@ -63,6 +66,14 @@ export const InvoiceStatus = ({
   };
 
   const setMenu = useSetRecoilState(DropDownAtom);
+
+  useEffect(() => {
+    if (readonly) return;
+    const defStatus = statusPerType?.[type]?.[0] || "draft";
+    if (!statusPerType[type]?.includes(value) && value !== defStatus) {
+      onChange && onChange(defStatus as any);
+    }
+  }, [type, value]);
 
   if (!statusPerType[type]?.includes(value)) return <></>;
 

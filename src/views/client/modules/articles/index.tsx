@@ -111,7 +111,7 @@ export const ArticlesPage = () => {
               cellClassName: "justify-end",
               render: (article) => (
                 <Button size="xs" theme="outlined">
-                  Coût{" "}
+                  Achat{" "}
                   {Object.values(article.suppliers_details || {})
                     .filter((a) => a.price)
                     .map((a) => formatAmount(a.price))
@@ -128,7 +128,7 @@ export const ArticlesPage = () => {
               cellClassName: "justify-end",
               render: (article) => (
                 <Button size="xs" theme="outlined">
-                  {formatAmount(article.price)} HT
+                  Vente {formatAmount(article.price)} HT
                 </Button>
               ),
             },

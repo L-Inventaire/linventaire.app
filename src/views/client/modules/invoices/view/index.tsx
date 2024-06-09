@@ -68,6 +68,7 @@ export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
                       {
                         ...invoice,
                         type: "invoices",
+                        state: "draft",
                       }
                     )}
                   >
@@ -83,6 +84,7 @@ export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
                   to={withModel(getRoute(ROUTES.InvoicesEdit, { id: "new" }), {
                     ...invoice,
                     type: "credit_notes",
+                    state: "draft",
                   })}
                 >
                   Créer un avoir
