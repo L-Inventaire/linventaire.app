@@ -193,7 +193,12 @@ export const InvoicesPage = () => {
               cellClassName: "justify-end whitespace-nowrap",
               render: (invoice) => (
                 <div className="space-x-2 whitespace-nowrap flex">
-                  <TagsInput value={invoice.tags} disabled hideEmpty />
+                  <TagsInput
+                    size="sm"
+                    value={invoice.tags}
+                    disabled
+                    hideEmpty
+                  />
                   <RestDocumentsInput
                     disabled
                     value={invoice.client}

@@ -100,7 +100,9 @@ export const OrdersPage = () => {
           {
             title: "Tags",
             orderable: true,
-            render: (order) => <TagsInput value={order.tags} disabled />,
+            render: (order) => (
+              <TagsInput size="sm" value={order.tags} disabled />
+            ),
           },
           {
             title: "Actions",

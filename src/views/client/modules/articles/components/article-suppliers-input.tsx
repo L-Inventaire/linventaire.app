@@ -37,7 +37,7 @@ export const ArticleSuppliersInput = ({
       },
     ],
     key: "suppliers_" + id,
-    limit: value[0].length,
+    limit: value[0].filter((a) => a !== "custom").length,
   });
 
   useEffect(() => {
@@ -72,7 +72,10 @@ export const ArticleSuppliersInput = ({
           <div className="space-y-4 mt-2">
             {!readonly &&
               (suppliersList || []).map((contact) => (
-                <div className="rounded border p-4" key={contact.id}>
+                <div
+                  className="rounded border dark:border-slate-700 p-4"
+                  key={contact.id}
+                >
                   <Button
                     icon={(p) => <TrashIcon {...p} />}
                     size="sm"
@@ -138,7 +141,9 @@ export const ArticleSuppliersInput = ({
                     <FormInput
                       label="Délai de livraison (jours)"
                       type="number"
-                      value={value[1][contact.id]?.delivery_time || 1}
+                      min={0}
+                      max={500}
+                      value={value[1][contact.id]?.delivery_time ?? 1}
                       onChange={(delivery_time: string) => {
                         onChange(value[0], {
                           ...value[1],

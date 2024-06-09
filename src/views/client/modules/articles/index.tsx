@@ -141,7 +141,7 @@ export const ArticlesPage = () => {
               thClassName: "w-1",
               render: (article) => (
                 <div className="w-full text-right flex space-x-1 justify-end items-center whitespace-nowrap">
-                  <TagsInput value={article.tags} disabled />
+                  <TagsInput size="sm" value={article.tags} disabled />
                 </div>
               ),
             },

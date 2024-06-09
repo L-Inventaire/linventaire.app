@@ -266,7 +266,7 @@ export const FormInput = memo(
               <Input
                 className="w-full"
                 highlight={highlight}
-                value={(_value as number) || 0}
+                value={_value as number}
                 onChange={(e) => onChange(e.target.value)}
                 size={size}
                 type="number"
@@ -274,6 +274,7 @@ export const FormInput = memo(
                 disabled={disabled}
                 min={props.min}
                 max={props.max}
+                step={props.step}
                 onBlur={(e) => {
                   if (e.target.value) {
                     onChange(

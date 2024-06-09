@@ -207,10 +207,14 @@ export const Menu = ({
             )}
             key={i}
             active={active}
-            onClick={() => {
-              m.onClick?.();
-              clickItem?.();
-            }}
+            onClick={
+              m.onClick
+                ? () => {
+                    m.onClick?.();
+                    clickItem?.();
+                  }
+                : undefined
+            }
             to={m.to}
             icon={m.icon}
             label={m.label}
