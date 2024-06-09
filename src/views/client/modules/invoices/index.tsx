@@ -19,6 +19,7 @@ import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
 import { InvoiceStatus } from "./components/invoice-status";
 import { RestDocumentsInput } from "@components/rest-documents-input";
+import { Tag } from "@atoms/badge/tag";
 
 export const InvoicesPage = () => {
   const [type, setType] = useState(
@@ -161,7 +162,18 @@ export const InvoicesPage = () => {
             },
             {
               render: (invoice) => (
-                <>{invoice.name ? `${invoice.name} - ` : ""}</>
+                <div className="flex items-center space-x-2">
+                  {!!invoice.name && <span>{invoice.name}</span>}
+                  {invoice.content
+                    ?.filter((c) => c.article && c.name)
+                    ?.map((c) => (
+                      <Tag size="xs">
+                        {(c.quantity || 0) > 1 &&
+                          [c.quantity, c.unit].filter(Boolean).join(" ")}{" "}
+                        {c.name}
+                      </Tag>
+                    ))}
+                </div>
               ),
             },
             {

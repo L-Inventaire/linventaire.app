@@ -14,7 +14,12 @@ export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
   const { id } = useParams();
   const { invoice, isPending, update } = useInvoice(id || "");
 
-  if (!invoice) return <PageLoader />;
+  if (!invoice)
+    return (
+      <div className="flex justify-center items-center h-full w-full dark:bg-wood-990 bg-white">
+        <PageLoader />
+      </div>
+    );
 
   return (
     <Page
