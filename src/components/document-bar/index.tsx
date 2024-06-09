@@ -1,5 +1,9 @@
 import { Button } from "@atoms/button/button";
+import { DropDownAtom, DropDownMenuType } from "@atoms/dropdown";
+import { withModel } from "@components/search-bar/utils/as-model";
 import { getRoute } from "@features/routes";
+import { copyToClipboard } from "@features/utils/clipboard";
+import { useNavigateAlt } from "@features/utils/navigate";
 import { RestEntity } from "@features/utils/rest/types/types";
 import {
   ArrowLeftIcon,
@@ -11,9 +15,11 @@ import {
   DocumentDuplicateIcon,
   EllipsisHorizontalIcon,
   LinkIcon,
+  PencilSquareIcon,
   PrinterIcon,
 } from "@heroicons/react/24/outline";
-import { useNavigate } from "react-router-dom";
+import _ from "lodash";
+import { useSetRecoilState } from "recoil";
 
 export const DocumentBar = ({
   mode,
@@ -32,9 +38,13 @@ export const DocumentBar = ({
   backRoute?: string;
   viewRoute?: string;
   editRoute?: string;
+  onPrint?: () => Promise<void>;
   onSave?: () => Promise<void>;
+  onRemove?: () => Promise<void>;
 }) => {
-  const navigate = useNavigate();
+  const setMenu = useSetRecoilState(DropDownAtom);
+
+  const navigate = useNavigateAlt();
 
   const cancel = async () => {
     // Get previous route
@@ -44,6 +54,18 @@ export const DocumentBar = ({
         : getRoute(props.viewRoute || "/", { id: document.id })
     );
   };
+
+  const actionMenu = [
+    ...(props.onRemove
+      ? [
+          {
+            type: "danger",
+            label: "Supprimer",
+            onClick: props.onRemove,
+          },
+        ]
+      : []),
+  ] as DropDownMenuType;
 
   return (
     <div className="items-center flex grow space-x-2 px-3 text-base">
@@ -77,46 +99,81 @@ export const DocumentBar = ({
       </div>
       {!loading && (
         <>
-          {mode === "read" && (
-            <Button
-              data-tooltip="Modifier"
-              size="xs"
-              theme="outlined"
-              shortcut={["e"]}
-              onClick={async () =>
-                navigate(getRoute(props.editRoute || "", { id: document.id }))
-              }
-            >
-              Modifier
-            </Button>
-          )}
           {prefix}
           <div className="grow" />
+          {props.editRoute && (
+            <Button
+              data-tooltip="Dupliquer"
+              size="xs"
+              theme="invisible"
+              shortcut={["cmd+d"]}
+              icon={(p) => <DocumentDuplicateIcon {...p} />}
+              onClick={(e: any) =>
+                navigate(
+                  withModel(getRoute(props.editRoute || "", { id: "new" }), {
+                    ..._.omit(document, "id"),
+                  }),
+                  {
+                    event: e,
+                  }
+                )
+              }
+            />
+          )}
           <Button
+            data-tooltip="Copier le lien"
             size="xs"
             theme="invisible"
-            icon={(p) => <DocumentDuplicateIcon {...p} />}
-          />
-          <Button
-            size="xs"
-            theme="invisible"
+            shortcut={["shift+u"]}
             icon={(p) => <LinkIcon {...p} />}
+            onClick={() =>
+              copyToClipboard(
+                window.location.href,
+                "Lien copié dans le presse-papier"
+              )
+            }
           />
+          {props.onPrint && (
+            <Button
+              data-tooltip="Imprimer"
+              size="xs"
+              theme="invisible"
+              icon={(p) => <PrinterIcon {...p} />}
+              onClick={props.onPrint}
+            />
+          )}
           <Button
-            size="xs"
-            theme="invisible"
-            icon={(p) => <PrinterIcon {...p} />}
-          />
-          <Button
+            data-tooltip="Historique"
             size="xs"
             theme="invisible"
             icon={(p) => <ClockIcon {...p} />}
           />
-          <Button
-            size="xs"
-            theme="invisible"
-            icon={(p) => <EllipsisHorizontalIcon {...p} />}
-          />
+          {mode === "read" && (
+            <Button
+              data-tooltip="Modifier"
+              size="xs"
+              theme="invisible"
+              shortcut={["e"]}
+              onClick={async () =>
+                navigate(getRoute(props.editRoute || "", { id: document.id }))
+              }
+              icon={(p) => <PencilSquareIcon {...p} />}
+            />
+          )}
+          {!!actionMenu.length && (
+            <Button
+              size="xs"
+              theme="invisible"
+              icon={(p) => <EllipsisHorizontalIcon {...p} />}
+              onClick={(e) => {
+                setMenu({
+                  target: e.currentTarget,
+                  position: "bottom",
+                  menu: actionMenu,
+                });
+              }}
+            />
+          )}
           {mode === "write" && (
             <>
               <Button size="xs" theme="outlined" onClick={cancel}>

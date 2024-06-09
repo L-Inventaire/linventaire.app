@@ -114,37 +114,46 @@ export const ContactsPage = () => {
               thClassName: "w-1",
               render: (contact) => (
                 <div className="space-x-2 flex items-center">
-                  {(contact.is_supplier || contact.is_client) && (
-                    <Button
-                      size="xs"
-                      theme="outlined"
-                      data-tooltip={
-                        contact.is_supplier && contact.is_client
-                          ? "Fournisseur et client"
-                          : contact.is_supplier
-                          ? "Fournisseur"
-                          : "Client"
-                      }
-                      icon={(p) =>
-                        contact.is_supplier && contact.is_client ? (
-                          <>
-                            <UserIconSolid {...p} />
-                            <BuildingStorefrontIcon {...p} />
-                          </>
-                        ) : contact.is_supplier ? (
-                          <UserIconSolid {...p} />
-                        ) : (
-                          <BuildingStorefrontIcon {...p} />
-                        )
-                      }
-                    >
-                      {contact.is_supplier && contact.is_client
-                        ? "Tous"
+                  <Button
+                    className={
+                      !contact.is_supplier && !contact.is_client
+                        ? "opacity-50"
+                        : ""
+                    }
+                    size="xs"
+                    theme="outlined"
+                    data-tooltip={
+                      contact.is_supplier && contact.is_client
+                        ? "Fournisseur et client"
                         : contact.is_supplier
-                        ? "Fourn."
-                        : "Client"}
-                    </Button>
-                  )}
+                        ? "Fournisseur"
+                        : contact.is_client
+                        ? "Client"
+                        : "Aucun"
+                    }
+                    icon={(p) =>
+                      contact.is_supplier && contact.is_client ? (
+                        <>
+                          <UserIconSolid {...p} />
+                          <BuildingStorefrontIcon {...p} />
+                        </>
+                      ) : contact.is_supplier ? (
+                        <UserIconSolid {...p} />
+                      ) : contact.is_client ? (
+                        <BuildingStorefrontIcon {...p} />
+                      ) : (
+                        <></>
+                      )
+                    }
+                  >
+                    {contact.is_supplier && contact.is_client
+                      ? "Tous"
+                      : contact.is_supplier
+                      ? "Fourn."
+                      : contact.is_client
+                      ? "Client"
+                      : "Aucun"}
+                  </Button>
                 </div>
               ),
             },

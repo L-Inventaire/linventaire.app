@@ -6,11 +6,13 @@ import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { ROUTES, getRoute } from "@features/routes";
 import { Page } from "@views/client/_layout/page";
 import { useParams } from "react-router-dom";
+import { InvoiceStatus } from "../components/invoice-status";
 import { InvoicesDetailsPage } from "../components/invoices-details";
+import { getPdfPreview } from "../components/invoices-preview/invoices-preview";
 
 export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
   const { id } = useParams();
-  const { invoice, isPending } = useInvoice(id || "");
+  const { invoice, isPending, update } = useInvoice(id || "");
 
   if (!invoice) return <PageLoader />;
 
@@ -27,19 +29,46 @@ export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
           mode={"read"}
           backRoute={ROUTES.Invoices}
           editRoute={ROUTES.InvoicesEdit}
+          onPrint={async () => getPdfPreview()}
+          prefix={
+            <>
+              <InvoiceStatus
+                size="lg"
+                readonly={update.isPending}
+                value={invoice.state}
+                type={invoice.type}
+                onChange={(e) => update.mutate({ ...invoice, state: e })}
+              />
+            </>
+          }
           suffix={
             <>
               {invoice.type === "quotes" && (
-                <Button
-                  size="xs"
-                  shortcut={["f"]}
-                  to={withModel(getRoute(ROUTES.InvoicesEdit, { id: "new" }), {
-                    ...invoice,
-                    type: "invoices",
-                  })}
-                >
-                  Facturer
-                </Button>
+                <>
+                  <Button
+                    theme="outlined"
+                    size="xs"
+                    shortcut={["c"]}
+                    to={withModel(getRoute(ROUTES.OrdersEdit, { id: "new" }), {
+                      //TODO
+                    })}
+                  >
+                    Créer une commande
+                  </Button>
+                  <Button
+                    size="xs"
+                    shortcut={["f"]}
+                    to={withModel(
+                      getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+                      {
+                        ...invoice,
+                        type: "invoices",
+                      }
+                    )}
+                  >
+                    Facturer
+                  </Button>
+                </>
               )}
               {invoice.type === "invoices" && (
                 <Button

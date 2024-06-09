@@ -1,4 +1,3 @@
-import { TagIcon } from "@heroicons/react/24/solid";
 import { CSSProperties, ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
 
@@ -20,41 +19,57 @@ export const Tag = ({
   size?: "xs" | "sm" | "md" | "lg";
   icon?: ReactNode;
   style?: CSSProperties;
-  onClick?: () => void;
+  onClick?: (e: MouseEvent) => void;
   "data-tooltip"?: string;
 }) => {
   if (!children) return <></>;
 
-  if (color) {
-    noColor = true;
-    style = { ...style, backgroundColor: color };
-    className = (className || "") + " text-white";
-  }
-
   return (
     <div
       data-tooltip={
-        props["data-tooltip"] || (typeof children === "string" ? children : "")
+        props["data-tooltip"] === undefined
+          ? typeof children === "string"
+            ? children
+            : ""
+          : props["data-tooltip"]
       }
-      onClick={onClick}
-      style={{ ...(style || {}), minWidth: "21px" }}
+      onClick={(e: any) => onClick && onClick(e)}
+      style={{
+        ...(style || {}),
+        minWidth: "21px",
+        ...(color && color.indexOf("#") === 0
+          ? { backgroundColor: color + "33" }
+          : {}),
+      }}
       className={twMerge(
         size === "sm"
-          ? "h-6 px-2"
+          ? "h-6 px-2 pr-2.5"
           : size === "xs"
-          ? "h-5 px-2"
+          ? "h-5 pr-1.5 pl-1"
           : size === "lg"
           ? "h-9 pl-2 pr-3"
-          : "h-7 px-2",
-        "text-left rounded-full inline-block inline-flex items-center text-sm text-center border border-opacity-10 dark:border-opacity-10 dark:border-slate-500 border-box border-black border-inside " +
-          (!noColor
-            ? "bg-wood-300 text-wood-800 dark:bg-wood-600 dark:text-wood-100 "
-            : ""),
+          : "h-7 px-2 pr-2.5",
+        "text-center rounded-full shadow-sm inline-flex items-center text-sm border-box",
+        "text-black dark:text-white text-opacity-80 bg-white dark:bg-slate-900 border-[0.5px] border-black border-opacity-15 border-solid border-inside dark:border-slate-700",
+        onClick &&
+          "cursor-pointer dark:hover:bg-slate-800 hover:bg-gray-100 active:bg-gray-200 dark:hover:border-slate-700 dark:active:bg-slate-700",
         "align-top text-ellipsis whitespace-nowrap overflow-hidden min-w-0 max-w-full shrink-0",
+        color && color.indexOf("#") !== 0 && `bg-${color}-200`,
         className
       )}
     >
-      {icon || <TagIcon className="w-3 h-3 mr-1 shrink-0" />}
+      {icon ||
+        (color ? (
+          <div
+            className={twMerge(
+              "w-2.5 h-2.5 rounded-full mr-1.5",
+              color.indexOf("#") !== 0 && `bg-${color}-500`
+            )}
+            style={color.indexOf("#") === 0 ? { backgroundColor: color } : {}}
+          />
+        ) : (
+          ""
+        ))}
       <span className="grow text-ellipsis whitespace-nowrap overflow-hidden min-w-0 shrink-0">
         {children}
       </span>

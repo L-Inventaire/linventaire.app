@@ -1,26 +1,3 @@
-export const invoicesAlikeStatus: {
-  [key: string]: { [key: string]: [string, string] };
-} = {
-  quotes: {
-    draft: ["Brouillon", "bg-red-500"],
-    sent: ["Envoyé", "bg-yellow-500"],
-    accepted: ["Accepté", "bg-blue-500"],
-    completed: ["Complété", "bg-green-500"],
-    canceled: ["Annulé", "bg-slate-500"],
-  },
-  invoices: {
-    draft: ["Brouillon", "bg-red-500"],
-    sent: ["Envoyée", "bg-blue-500"],
-    late: ["En retard", "bg-yellow-500"],
-    accepted: ["Payée", "bg-green-500"],
-  },
-  credit_notes: {
-    draft: ["Brouillon", "bg-red-500"],
-    sent: ["Envoyé", "bg-blue-500"],
-    accepted: ["Payé", "bg-green-500"],
-  },
-};
-
 export const tvaOptions = [
   {
     value: "outside_eu",

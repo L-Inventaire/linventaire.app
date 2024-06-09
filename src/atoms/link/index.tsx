@@ -1,6 +1,7 @@
 import { Shortcut, useShortcuts } from "@features/utils/shortcuts";
 import _ from "lodash";
 import { Link as L, useNavigate } from "react-router-dom";
+import { twMerge } from "tailwind-merge";
 
 export default function Link(
   props: any & {
@@ -38,17 +39,29 @@ export default function Link(
     );
   }
 
+  if (!props.onClick && (props.href || props.to)) {
+    return (
+      <L
+        to={props.href || props.to}
+        className={twMerge(colors, props.className || "")}
+        {..._.omit(props, "children", "className", "noColor", "to", "href")}
+      >
+        {props.children}
+      </L>
+    );
+  }
+
   return (
-    <L
-      to={(!props.onClick && props.href) || "#"}
+    <span
       onClick={(e) => {
+        e.preventDefault();
         e.stopPropagation();
         if (props.onClick) props.onClick();
       }}
-      className={colors + " " + (props.className || "")}
-      {..._.omit(props, "children", "className", "noColor")}
+      className={twMerge(colors, props.className || "")}
+      {..._.omit(props, "children", "className", "noColor", "to", "href")}
     >
       {props.children}
-    </L>
+    </span>
   );
 }

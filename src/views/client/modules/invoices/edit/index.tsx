@@ -9,7 +9,9 @@ import { Page } from "@views/client/_layout/page";
 import _ from "lodash";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { InvoiceStatus } from "../components/invoice-status";
 import { InvoicesDetailsPage } from "../components/invoices-details";
+import { getPdfPreview } from "../components/invoices-preview/invoices-preview";
 
 export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
   const { client: clientUser, refresh, loading } = useClients();
@@ -28,7 +30,7 @@ export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as Invoices;
 
-  const { isInitiating, save } = useDraftRest<Invoices>(
+  const { isInitiating, save, draft, setDraft } = useDraftRest<Invoices>(
     "invoices",
     id || "new",
     async (item) => {
@@ -64,17 +66,37 @@ export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
           onSave={async () => await save()}
           backRoute={ROUTES.Invoices}
           viewRoute={ROUTES.InvoicesView}
+          editRoute={ROUTES.InvoicesEdit}
+          onPrint={async () => getPdfPreview()}
           prefix={
             <>
-              <span>Créer un</span>
-              <Select size="sm" className="w-max">
-                <option value="quotes">Devis</option>
-                <option value="invoices">Invoices</option>
-                <option value="credit_notes">Avoir</option>
-              </Select>
-              <Select size="sm" className="w-max">
-                <option value="quotes">Brouillon</option>
-              </Select>
+              {!draft.id && (
+                <>
+                  <span>Création d'un</span>
+                  <Select
+                    size="sm"
+                    className="w-max"
+                    value={draft.type}
+                    onChange={(e) =>
+                      setDraft({
+                        ...draft,
+                        type: e.target.value as Invoices["type"],
+                      })
+                    }
+                  >
+                    <option value="quotes">Devis</option>
+                    <option value="invoices">Facture</option>
+                    <option value="credit_notes">Avoir</option>
+                  </Select>
+                  <span>en</span>
+                </>
+              )}
+              <InvoiceStatus
+                size="lg"
+                value={draft.state}
+                type={draft.type}
+                onChange={(value) => setDraft({ ...draft, state: value })}
+              />
             </>
           }
         />

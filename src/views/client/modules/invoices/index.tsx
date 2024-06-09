@@ -1,14 +1,13 @@
 import { Button } from "@atoms/button/button";
-import Tabs from "@atoms/tabs";
 import { Base, Info } from "@atoms/text";
-import { FormInput } from "@components/form/fields";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { Table } from "@components/table";
 import { TagsInput } from "@components/tags-input";
 import { useInvoices } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
 import { ROUTES, getRoute } from "@features/routes";
-import { invoicesAlikeStatus } from "@features/utils/constants";
+import { formatAmount } from "@features/utils/format/strings";
+import { useNavigateAlt } from "@features/utils/navigate";
 import {
   RestOptions,
   useRestSchema,
@@ -16,12 +15,10 @@ import {
 import { ArrowUturnLeftIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { Page } from "@views/client/_layout/page";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
-import { useNavigateAlt } from "@features/utils/navigate";
-import { formatAmount } from "@features/utils/format/strings";
-import { Tag } from "@atoms/badge/tag";
+import { InvoiceStatus } from "./components/invoice-status";
+import { RestDocumentsInput } from "@components/rest-documents-input";
 
 export const InvoicesPage = () => {
   const [type, setType] = useState(
@@ -163,13 +160,24 @@ export const InvoicesPage = () => {
               ),
             },
             {
-              render: (invoice) => invoice.name,
+              render: (invoice) => (
+                <>{invoice.name ? `${invoice.name} - ` : ""}</>
+              ),
             },
             {
               thClassName: "w-1",
-              cellClassName: "justify-end",
+              cellClassName: "justify-end whitespace-nowrap",
               render: (invoice) => (
-                <TagsInput value={invoice.tags} disabled hideEmpty />
+                <div className="space-x-2 whitespace-nowrap flex">
+                  <TagsInput value={invoice.tags} disabled hideEmpty />
+                  <RestDocumentsInput
+                    disabled
+                    value={invoice.client}
+                    table={"invoices"}
+                    column="client"
+                    max={1}
+                  />
+                </div>
               ),
             },
             {
@@ -194,23 +202,12 @@ export const InvoicesPage = () => {
               thClassName: "w-1",
               cellClassName: "justify-end",
               render: (invoice) => (
-                <>
-                  {invoice.state === "draft" && (
-                    <Tag size="sm" color="gray">
-                      Brouillon
-                    </Tag>
-                  )}
-                  {invoice.state === "paid" && (
-                    <Tag size="sm" color="green">
-                      Payée
-                    </Tag>
-                  )}
-                  {invoice.state === "accepted" && (
-                    <Tag size="sm" color="green">
-                      Acceptée
-                    </Tag>
-                  )}
-                </>
+                <InvoiceStatus
+                  size="xs"
+                  readonly
+                  value={invoice.state}
+                  type={invoice.type}
+                />
               ),
             },
           ]}

@@ -1166,6 +1166,30 @@ select {
   margin-top: 1px;
 }
 
+.mr-1\.5 {
+  margin-right: 0.375rem;
+}
+
+.-mb-px {
+  margin-bottom: -1px;
+}
+
+.mt-\[2px\] {
+  margin-top: 2px;
+}
+
+.\!mr-1 {
+  margin-right: 0.25rem !important;
+}
+
+.\!ml-1 {
+  margin-left: 0.25rem !important;
+}
+
+.\!ml-1\.5 {
+  margin-left: 0.375rem !important;
+}
+
 .block {
   display: block;
 }
@@ -1204,6 +1228,14 @@ select {
 
 .hidden {
   display: none;
+}
+
+.aspect-\[7\/5\] {
+  aspect-ratio: 7/5;
+}
+
+.aspect-\[5\/7\] {
+  aspect-ratio: 5/7;
 }
 
 .h-10 {
@@ -1285,6 +1317,10 @@ select {
 
 .h-screen {
   height: 100vh;
+}
+
+.h-2\.5 {
+  height: 0.625rem;
 }
 
 .max-h-0 {
@@ -1420,6 +1456,10 @@ select {
   width: max-content;
 }
 
+.w-2\.5 {
+  width: 0.625rem;
+}
+
 .min-w-0 {
   min-width: 0px;
 }
@@ -1476,6 +1516,10 @@ select {
 
 .max-w-xs {
   max-width: 20rem;
+}
+
+.max-w-\[560px\] {
+  max-width: 560px;
 }
 
 .flex-1 {
@@ -3206,6 +3250,18 @@ select {
   padding-top: 2rem;
 }
 
+.pr-1\.5 {
+  padding-right: 0.375rem;
+}
+
+.pr-2\.5 {
+  padding-right: 0.625rem;
+}
+
+.pt-6 {
+  padding-top: 1.5rem;
+}
+
 .text-left {
   text-align: left;
 }
@@ -4559,6 +4615,10 @@ input, select {
 
   .lg\:inline-flex {
     display: inline-flex;
+  }
+
+  .lg\:aspect-\[5\/7\] {
+    aspect-ratio: 5/7;
   }
 
   .lg\:w-1\/4 {

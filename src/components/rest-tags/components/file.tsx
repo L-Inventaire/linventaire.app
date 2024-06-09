@@ -97,9 +97,9 @@ const FileTagRender = ({
         {file?.id && progress === undefined && (
           <div className="group/file ml-1 flex items-center">
             <Button
-              data-tooltip="Télécharger"
+              data-tooltip="Visualiser"
               theme="invisible"
-              className="inline-block"
+              className="inline-flex"
               size="sm"
               icon={(p) => <EyeIcon {...p} />}
               to={FilesApiClient.getDownloadUrl(file, true)}
@@ -109,7 +109,7 @@ const FileTagRender = ({
               <Button
                 data-tooltip="Télécharger"
                 theme="invisible"
-                className="inline-block"
+                className="inline-flex"
                 size="sm"
                 icon={(p) => <ArrowDownTrayIcon {...p} />}
                 to={FilesApiClient.getDownloadUrl(file)}
@@ -120,7 +120,7 @@ const FileTagRender = ({
               <Button
                 data-tooltip="Supprimer"
                 theme="invisible"
-                className="inline-block"
+                className="inline-flex"
                 size="sm"
                 icon={() => <XMarkIcon className="h-4 w-4 text-red-500" />}
                 onClick={props.onDelete}

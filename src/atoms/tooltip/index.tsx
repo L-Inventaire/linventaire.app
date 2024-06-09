@@ -98,7 +98,7 @@ export const Tooltip = () => {
       currentTarget = target;
       hideTooltips();
       if (inTooltipRollTimeout) clearTimeout(inTooltipRollTimeout);
-      if (target) {
+      if (target && target?.getAttribute("data-tooltip")) {
         inTooltipRollTimeout = setTimeout(
           () => {
             inTooltipRoll = true;

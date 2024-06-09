@@ -89,7 +89,7 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
   const queryClient = useQueryClient();
 
   const items = useQuery({
-    queryKey: [table, id, options?.key || "default"],
+    queryKey: [table, id, options?.key || "default", options?.query || ""],
     staleTime: 1000 * 60 * 5, // 5 minutes
     queryFn: () =>
       options?.limit === 0

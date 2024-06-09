@@ -1,3 +1,4 @@
+import { iconBase64 } from "@assets/icon-b64";
 import { useClients } from "@features/clients/state/use-clients";
 import { useContact } from "@features/contacts/hooks/use-contacts";
 import { Invoices } from "@features/invoices/types/types";
@@ -5,6 +6,7 @@ import { paymentOptions, unitOptions } from "@features/utils/constants";
 import { AddressLength, formatAddress } from "@features/utils/format/address";
 import { formatTime } from "@features/utils/format/dates";
 import { formatAmount as realFormatAmount } from "@features/utils/format/strings";
+import jsPDF from "jspdf";
 import _ from "lodash";
 
 import { DateTime } from "luxon";
@@ -457,3 +459,38 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
     </>
   );
 }
+
+export const getPdfPreview = () => {
+  let element = document.getElementById("invoice-preview");
+  const doc = new jsPDF({
+    orientation: "portrait",
+    unit: "pt",
+    format: [842, 595],
+  });
+  doc.setCharSpace(0);
+
+  doc.html(element ?? "<div>ERROR</div>", {
+    callback: function (doc) {
+      async function addFooters() {
+        const pageCount = doc.getNumberOfPages();
+        for (var i = 1; i <= pageCount; i++) {
+          doc.addImage(iconBase64, "PNG", 550, 800, 20, 20);
+
+          doc.textWithLink("linventaire.app", 475, 814, {
+            url: "https://linventaire.app",
+          });
+
+          doc.text("Page " + String(i) + "/" + pageCount, 20, 820);
+        }
+      }
+
+      addFooters();
+      window.open(doc.output("bloburl"));
+    },
+    html2canvas: {
+      letterRendering: true,
+    },
+    x: 10,
+    y: 10,
+  });
+};
