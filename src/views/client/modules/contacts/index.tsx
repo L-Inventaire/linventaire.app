@@ -98,7 +98,7 @@ export const ContactsPage = () => {
           loading={contacts.isPending}
           data={contacts?.data?.list || []}
           total={contacts?.data?.total || 0}
-          showPagination="simple"
+          showPagination="full"
           rowIndex="id"
           onSelect={(items) => false && console.log(items)}
           onRequestData={async (page) => {

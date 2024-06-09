@@ -641,7 +641,7 @@ export function RenderedTable<T>({
                     columns.filter((a) => !a.hidden).length + (onSelect ? 1 : 0)
                   }
                   className={
-                    "items-center py-1 pr-0 text-slate-500 dark:text-slate-400 " +
+                    "items-center py-3 px-3 text-slate-500 dark:text-slate-400 " +
                     (scrollable ? " sticky bottom-0 z-10 " : "")
                   }
                 >

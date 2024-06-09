@@ -144,7 +144,7 @@ export const InvoicesPage = () => {
           loading={invoices.isPending}
           data={invoices?.data?.list || []}
           total={invoices?.data?.total || 0}
-          showPagination="simple"
+          showPagination="full"
           rowIndex="id"
           onSelect={(items) => false && console.log(items)}
           onRequestData={async (page) => {
