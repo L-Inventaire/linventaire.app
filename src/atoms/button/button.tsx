@@ -90,7 +90,7 @@ export const Button = (props: ButtonProps) => {
   if (size === "xl") className = className + " text-base h-14 px-14 ";
   else if (size === "lg") className = className + " text-base h-11 px-8 ";
   else if (size === "sm") className = className + " px-3 text-base h-7";
-  else if (size === "xs") className = className + " px-2 text-base h-6";
+  else if (size === "xs") className = className + " pl-2 pr-1.5 text-base h-6";
   else className = className + " px-4 text-base h-9";
 
   if (!props.children) {

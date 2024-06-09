@@ -18,6 +18,11 @@ import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
 import { getTvaValue } from "../invoices/utils";
+import {
+  BriefcaseIcon,
+  CubeIcon,
+  CubeTransparentIcon,
+} from "@heroicons/react/24/solid";
 
 export const ArticlesPage = () => {
   const [options, setOptions] = useState<RestOptions<Articles>>({
@@ -98,13 +103,47 @@ export const ArticlesPage = () => {
           }}
           columns={[
             {
-              thClassName: "w-1 whitespace-nowrap",
+              thClassName: "w-1",
+              cellClassName: "justify-start",
               render: (article) => (
-                <Base className="opacity-50">{article.internal_reference}</Base>
+                <Button
+                  size="xs"
+                  theme="outlined"
+                  icon={(p) =>
+                    article.type === "product" ? (
+                      <CubeIcon {...p} />
+                    ) : article.type === "service" ? (
+                      <BriefcaseIcon {...p} />
+                    ) : (
+                      <CubeTransparentIcon {...p} />
+                    )
+                  }
+                >
+                  {article.type === "consumable" && "Consommable"}
+                  {article.type === "service" && "Service"}
+                  {article.type === "product" && "Stockable"}
+                </Button>
               ),
             },
             {
-              render: (article) => article.name,
+              render: (article) => (
+                <>
+                  {!!article.internal_reference && (
+                    <span className="font-mono mr-2 text-wood-800 dark:text-wood-500">
+                      {article.internal_reference}
+                    </span>
+                  )}
+                  {article.name}
+                </>
+              ),
+            },
+            {
+              thClassName: "w-1",
+              render: (article) => (
+                <div className="w-full text-right flex space-x-1 justify-end items-center whitespace-nowrap">
+                  <TagsInput value={article.tags} disabled />
+                </div>
+              ),
             },
             {
               thClassName: "w-1",
@@ -140,14 +179,6 @@ export const ArticlesPage = () => {
                   {formatAmount(article.price * (1 + getTvaValue(article.tva)))}{" "}
                   TTC
                 </Button>
-              ),
-            },
-            {
-              thClassName: "w-1",
-              render: (article) => (
-                <div className="w-full text-right flex space-x-1 justify-end items-center whitespace-nowrap">
-                  <TagsInput value={article.tags} disabled />
-                </div>
               ),
             },
           ]}

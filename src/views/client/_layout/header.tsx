@@ -2,12 +2,28 @@ import { Button } from "@atoms/button/button";
 import Link from "@atoms/link";
 import { Base } from "@atoms/text";
 import { ROUTES } from "@features/routes";
-import { Bars3Icon, BookOpenIcon, StarIcon } from "@heroicons/react/24/outline";
-import { LifebuoyIcon } from "@heroicons/react/24/solid";
+import {
+  Bars3Icon,
+  BookOpenIcon,
+  ComputerDesktopIcon,
+  StarIcon,
+} from "@heroicons/react/24/outline";
+import { LifebuoyIcon, MoonIcon, SunIcon } from "@heroicons/react/24/solid";
+import {
+  MoonIcon as MoonIconOutline,
+  SunIcon as SunIconOutline,
+} from "@heroicons/react/24/outline";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { atom, useRecoilState, useRecoilValue } from "recoil";
+import {
+  atom,
+  useRecoilState,
+  useRecoilValue,
+  useSetRecoilState,
+} from "recoil";
 import { Search } from "./search";
+import { DropDownAtom } from "@atoms/dropdown";
+import { useTheme } from "@features/utils/theme";
 
 export const LayoutTitleAtom = atom<
   {
@@ -27,6 +43,8 @@ export const ResponsiveMenuAtom = atom<boolean>({
 
 export const Header = () => {
   const title = useRecoilValue(LayoutTitleAtom);
+  const setMenu = useSetRecoilState(DropDownAtom);
+  const { setTheme, theme } = useTheme();
   const [menuOpen, setMenuOpen] = useRecoilState(ResponsiveMenuAtom);
   const location = useLocation();
 
@@ -102,6 +120,39 @@ export const Header = () => {
           size="sm"
           theme="outlined"
           icon={(p) => <BookOpenIcon {...p} />}
+        />
+        <Button
+          data-tooltip="Mode sombre/clair"
+          data-position="left"
+          className="rounded-lg"
+          size="sm"
+          theme="outlined"
+          icon={(p) =>
+            theme === "dark" ? <MoonIcon {...p} /> : <SunIcon {...p} />
+          }
+          onClick={(e) =>
+            setMenu({
+              target: e.currentTarget,
+              position: "bottom",
+              menu: [
+                {
+                  label: "Mode sombre",
+                  icon: (p) => <MoonIconOutline {...p} />,
+                  onClick: () => setTheme("dark"),
+                },
+                {
+                  label: "Mode clair",
+                  icon: (p) => <SunIconOutline {...p} />,
+                  onClick: () => setTheme("light"),
+                },
+                {
+                  label: "Automatique",
+                  icon: (p) => <ComputerDesktopIcon {...p} />,
+                  onClick: () => setTheme(""),
+                },
+              ],
+            })
+          }
         />
       </div>
     </div>

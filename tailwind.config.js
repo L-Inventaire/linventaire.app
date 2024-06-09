@@ -24,6 +24,7 @@ let shades = [];
 
 module.exports = {
   content: ["./src/**/*.{html,js,ts,tsx}"],
+  darkMode: "selector",
   theme: {
     extend: {
       fontFamily: {

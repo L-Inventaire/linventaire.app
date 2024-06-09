@@ -7,6 +7,7 @@ import { DefaultScrollbars } from "@features/utils/scrollbars";
 import { DocumentIcon, PlusIcon } from "@heroicons/react/24/outline";
 import {
   BookOpenIcon,
+  BriefcaseIcon,
   BuildingStorefrontIcon,
   CalendarDaysIcon,
   ChartBarIcon,
@@ -176,7 +177,7 @@ export const SideBar = () => {
             <MenuItem
               to={getRoute(ROUTES.Consulting)}
               label="Service sur site"
-              icon={(p) => <ClipboardDocumentListIcon {...p} />}
+              icon={(p) => <BriefcaseIcon {...p} />}
               show={hasAccess("ONSITE_READ")}
             />
           </MenuSection>

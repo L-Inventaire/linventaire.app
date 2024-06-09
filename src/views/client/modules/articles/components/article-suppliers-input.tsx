@@ -31,7 +31,9 @@ export const ArticleSuppliersInput = ({
     query: [
       {
         key: "id",
-        values: value[0].map((id) => ({ op: "equals", value: id })),
+        values: value[0]
+          .filter((a) => a !== "custom")
+          .map((id) => ({ op: "equals", value: id })),
       },
     ],
     key: "suppliers_" + id,
@@ -41,6 +43,18 @@ export const ArticleSuppliersInput = ({
   useEffect(() => {
     refresh();
   }, [id]);
+
+  const suppliersList = [
+    ...(suppliers?.data?.list || []),
+    ...(value[0].includes("custom")
+      ? [
+          {
+            id: "custom",
+            business_name: "Aucun fournisseur",
+          },
+        ]
+      : []),
+  ];
 
   return (
     <div className="space-y-4">
@@ -54,10 +68,10 @@ export const ArticleSuppliersInput = ({
             références et autres informations.
           </Info>
         )}
-        {(!!suppliers.data?.list?.length || !readonly) && (
+        {(!!suppliersList?.length || !readonly) && (
           <div className="space-y-4 mt-2">
             {!readonly &&
-              (suppliers?.data?.list || []).map((contact) => (
+              (suppliersList || []).map((contact) => (
                 <div className="rounded border p-4" key={contact.id}>
                   <Button
                     icon={(p) => <TrashIcon {...p} />}
@@ -140,7 +154,7 @@ export const ArticleSuppliersInput = ({
                 </div>
               ))}
             {!readonly && (
-              <div className="mt-2">
+              <div className="mt-2 flex space-x-2">
                 <RestDocumentsInput
                   table="articles"
                   column="suppliers"
@@ -158,18 +172,36 @@ export const ArticleSuppliersInput = ({
                           price: 0,
                           delivery_time: 0,
                           delivery_quantity: 0,
+                          ...((value[1][supplier] || {}) as any),
                         },
                       });
                     }
                   }}
                 />
+                <Button
+                  theme="outlined"
+                  size="sm"
+                  onClick={() => {
+                    onChange(_.uniq([...value[0], "custom"]), {
+                      ...value[1],
+                      custom: {
+                        reference: "",
+                        price: 0,
+                        delivery_time: 0,
+                        delivery_quantity: 0,
+                      },
+                    });
+                  }}
+                >
+                  Ajouter un coût sans fournisseur
+                </Button>
               </div>
             )}
 
-            {!!suppliers?.data?.list?.length && readonly && (
+            {!!suppliersList?.length && readonly && (
               <>
                 <Table
-                  data={suppliers.data?.list || []}
+                  data={suppliersList || []}
                   columns={[
                     {
                       title: "Fournisseur",

@@ -229,7 +229,7 @@ export const InvoicesDetailsPage = ({
                                 label="Type"
                                 options={[
                                   { label: "Séparation", value: "separation" },
-                                  { label: "Produit", value: "product" },
+                                  { label: "Stockable", value: "product" },
                                   { label: "Service", value: "service" },
                                   { label: "Consommable", value: "consumable" },
                                 ]}
