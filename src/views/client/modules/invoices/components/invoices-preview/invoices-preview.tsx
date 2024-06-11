@@ -47,7 +47,7 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
 
   return (
     <div className="invoice-preview-root" id="invoice-preview">
-      <div style={{ margin: "20px 30px" }}>
+      <div style={{ margin: "15px 20px" }}>
         {!!logo && (
           <img
             src={FilesApiClient.getDownloadUrl(logo)}
@@ -630,13 +630,12 @@ export const getPdfPreview = () => {
       async function addFooters() {
         const pageCount = doc.getNumberOfPages();
         for (var i = 1; i <= pageCount; i++) {
-          doc.addImage(iconBase64, "PNG", 550, 800, 16, 16);
-
-          doc.textWithLink("linventaire.app", 475, 814, {
+          doc.addImage(iconBase64, "PNG", 540, 800, 16, 16);
+          doc.textWithLink("linventaire.app", 470, 812, {
             url: "https://linventaire.app",
           });
 
-          doc.text("Page " + String(i) + " sur " + pageCount, 20, 820);
+          doc.text("Page " + String(i) + " sur " + pageCount, 40, 812);
         }
       }
 
@@ -648,5 +647,7 @@ export const getPdfPreview = () => {
     },
     x: 10,
     y: 10,
+    width: element?.offsetWidth || 0,
+    margin: 8,
   });
 };
