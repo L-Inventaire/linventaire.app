@@ -280,8 +280,16 @@ export const InvoicesDetailsPage = ({
                                 </PageColumns>
                                 <FormInput
                                   type="boolean"
-                                  ctrl={ctrl(`content.${index}.discount.mode`)}
                                   placeholder="Réduction"
+                                  onChange={(e) =>
+                                    ctrl(
+                                      `content.${index}.discount.mode`
+                                    ).onChange(e ? "amount" : null)
+                                  }
+                                  value={
+                                    !!ctrl(`content.${index}.discount.mode`)
+                                      .value
+                                  }
                                 />
                                 {!!ctrl(`content.${index}.discount.mode`)
                                   ?.value && (
@@ -310,9 +318,9 @@ export const InvoicesDetailsPage = ({
                                       type="formatted"
                                       format={
                                         draft.content?.[index]?.discount
-                                          ?.mode === "amount"
-                                          ? "price"
-                                          : "percentage"
+                                          ?.mode === "percentage"
+                                          ? "percentage"
+                                          : "price"
                                       }
                                     />
                                     <div className="grow" />
@@ -409,16 +417,9 @@ export const InvoicesDetailsPage = ({
                         className="-mt-1"
                         type="boolean"
                         placeholder="Appliquer une remise globale"
-                        value={!!draft.discount?.mode}
+                        value={!!ctrl("discount.mode").value}
                         onChange={(e) =>
-                          setDraft({
-                            ...draft,
-                            discount: {
-                              value: 0,
-                              ...(draft.discount || {}),
-                              mode: e ? "amount" : null,
-                            },
-                          })
+                          ctrl("discount.mode").onChange(e ? "amount" : null)
                         }
                       />
                     )}
@@ -828,11 +829,16 @@ export const InvoicesDetailsPage = ({
             )}
           </div>
           {draft.client && (
-            <div className="grow lg:w-2/5 shrink-0 flex items-start justify-center pt-6">
-              <div className="w-full flex flex-col grow shadow-lg border overflow-x-auto max-w-[560px] lg:aspect-[5/7]">
-                <InvoicesPreview invoice={draft} />
+            <>
+              {/* Clearly this fixed isn't right for all screens, we should use js probably ? */}
+              <div className="grow lg:w-2/5 shrink-0 flex items-start justify-center pt-6">
+                <div className="fixed grow shrink-0">
+                  <div className="w-full flex flex-col grow shadow-lg border overflow-x-auto max-w-[560px] lg:aspect-[5/7] bg-white">
+                    <InvoicesPreview invoice={draft} />
+                  </div>
+                </div>
               </div>
-            </div>
+            </>
           )}
         </PageColumns>
       </FormContext>

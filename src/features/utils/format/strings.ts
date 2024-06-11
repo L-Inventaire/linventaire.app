@@ -26,8 +26,16 @@ export const ellipsis = (str: string, length: number) => {
   return str.length > length ? str.substring(0, length) + "..." : str;
 };
 
+export const formatIBAN = (iban: string) => {
+  return iban
+    .toLocaleUpperCase()
+    .replace(/[^A-Z0-9]/gm, "")
+    .replace(/([A-Z0-9]{4})/g, "$1 ")
+    .replace(/ $/gm, "");
+};
+
 export const formatAmount = (number: number) => {
-  return (number || 0).toLocaleString("fr-FR", {
+  return (parseFloat(number as any) || 0).toLocaleString("fr-FR", {
     style: "currency",
     currency: "EUR",
   });

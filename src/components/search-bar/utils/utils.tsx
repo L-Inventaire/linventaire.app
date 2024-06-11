@@ -1,7 +1,11 @@
-import { RestSearchQueryOp } from "@features/utils/rest/hooks/use-rest";
+import {
+  RestSearchQuery,
+  RestSearchQueryOp,
+} from "@features/utils/rest/hooks/use-rest";
 import { MatchedStringFilter, OutputQuery, SearchField } from "./types";
 import { flattenKeys } from "@features/utils/flatten";
 import { getPeriodEnd } from "@features/utils/format/dates";
+import _ from "lodash";
 
 export const schemaToSearchFields = (
   schema: any,
@@ -179,4 +183,28 @@ export const generateQuery = (
     valid,
     fields: result,
   };
+};
+
+/**
+ * Transform a map to the correct query format
+ * @param map
+ * @returns
+ */
+export const buildQueryFromMap = (map: { [key: string]: any }) => {
+  return Object.keys(map)
+    .filter(
+      (k) => map[k] !== undefined && !(_.isArray(map[k]) && map[k].length === 0)
+    )
+    .map(
+      (key) =>
+        ({
+          key,
+          values: ((_.isArray(map[key]) ? map[key] : [map[key]]) as any[]).map(
+            (v: any) => ({
+              op: "equals" as RestSearchQueryOp,
+              value: v,
+            })
+          ),
+        } as RestSearchQuery)
+    );
 };

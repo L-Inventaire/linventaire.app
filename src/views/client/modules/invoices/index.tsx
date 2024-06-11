@@ -179,10 +179,11 @@ export const InvoicesPage = () => {
                   {invoice.content
                     ?.filter((c) => c.article && c.name)
                     ?.map((c) => (
-                      <Tag size="xs">
+                      <Tag size="xs" data-tooltip={c.name}>
                         {(c.quantity || 0) > 1 &&
                           [c.quantity, c.unit].filter(Boolean).join(" ")}{" "}
-                        {c.name}
+                        {c.name?.slice(0, 20) +
+                          ((c.name?.length || 0) > 20 ? "..." : "")}
                       </Tag>
                     ))}
                 </div>

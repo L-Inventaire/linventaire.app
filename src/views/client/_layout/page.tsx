@@ -68,7 +68,7 @@ export const PageBlock = (props: {
   return (
     <div
       className={twMerge(
-        "p-3 lg:p-4 sm:pt-3 lg:pt-4 pt-0 sm:border border-b sm:mx-0 -mx-4 rounded-md mb-4 bg-slate-50 bg-opacity-50 dark:bg-slate-800 border-slate-100 dark:sm:border-slate-700 dark:border-slate-700",
+        "text-base p-3 lg:p-4 sm:pt-3 lg:pt-4 pt-0 sm:border border-b sm:mx-0 -mx-4 rounded-md mb-4 bg-slate-50 bg-opacity-50 dark:bg-slate-800 border-slate-100 dark:sm:border-slate-700 dark:border-slate-700",
         !isOpen && props.closable ? "cursor-pointer" : "",
         !props.title && "lg:pt-2 sm:pt-1 pt-1"
       )}
@@ -95,9 +95,7 @@ export const PageBlock = (props: {
       <div
         className={twMerge(
           "transition-all",
-          isOpen
-            ? "max-h-screen mt-2 opacity-1"
-            : "max-h-0 opacity-0 overflow-hidden"
+          isOpen ? "mt-2 opacity-1" : "max-h-0 opacity-0 overflow-hidden"
         )}
       >
         {props.children}

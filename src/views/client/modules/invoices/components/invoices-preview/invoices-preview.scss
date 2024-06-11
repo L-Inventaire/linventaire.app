@@ -1,0 +1,122 @@
+.invoice-preview-root {
+  all: initial;
+  font-family: Arial, Inter, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  letter-spacing: 0;
+  background: #FFF;
+
+  * {
+    padding: 0;
+  }
+
+  p {
+    margin: 0;
+    padding: 0;
+  }
+
+  .header {
+    font-weight: bold;
+    font-size: 1.5rem; /* 24px */
+    line-height: 2rem; /* 32px */
+    color: black;
+    margin: 0px;
+  }
+
+  .subheader {
+    color: rgb(94, 94, 94);
+    font-weight: bold;
+    font-size: 1rem; /* 16px */
+    line-height: 1.5rem; /* 24px */
+    margin: 0px;
+  }
+
+  .margindiv {
+    float: left; 
+    width: 8px;
+    height: 20px;
+  }
+  .margindiv_small {
+    float: left; 
+    width: 8px;
+    height: 5px;
+  }
+  .margindiv_right_small {
+    float: right; 
+    width: 8px;
+    height: 5px;
+  }
+  .marginxdiv {
+    width: 1px;
+    height: 16px;
+  }
+
+  .marginxdiv_small {
+    width: 1px;
+    height: 8px;
+  }
+
+  .table-prestations th, .table-prestations td {
+    overflow: hidden;
+    text-align: left;
+    vertical-align: top;
+    padding: 6px;
+    border-radius: 1px; // Avoid jspdf issue when rendering
+
+    &:first-child {
+      border-radius: 4px 0 0 4px;
+    }
+    &:last-child {
+      border-radius: 0 4px 4px 0;
+    }
+  }
+
+  .table-prestations th {
+    white-space: nowrap;
+  }
+
+  .table-total {
+    border-radius: 4px;
+  }
+
+  .table-total td {
+    overflow: hidden;
+    text-align: left;
+    vertical-align: top;
+    white-space: nowrap;
+    padding: 4px 6px;
+  }
+
+  .table caption, .table tbody, .table tfoot, .table thead, .table tr, .table th, .table td, .table-prestations caption, .table-prestations tbody, .table-prestations tfoot, .table-prestations thead, .table-prestations tr, .table-prestations th, .table-prestations td {
+    font-family: Arial, Inter, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    letter-spacing: 0;
+    margin: 0;
+    outline: 0;
+
+    font-size: 0.55rem;
+    line-height: 0.65rem;
+  }
+  .table-prestations thead tr {
+    color: white;
+  }
+  .table-prestations th {
+    background-color: black;
+    vertical-align: middle;
+  }
+  .strong {
+    font-weight: bold;
+  }
+
+  .separator {
+    height: 1px;
+    width: 100%;
+    border-top: 1px solid rgb(239, 239, 239);
+  }
+  .contrast {
+    color: rgb(58, 58, 58);
+  }
+  .light {
+    color: rgb(94, 94, 94);
+  }
+  .bglight {
+    background: rgb(239, 239, 239);
+  }
+}

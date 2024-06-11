@@ -1,5 +1,6 @@
 import {
   formatAmount,
+  formatIBAN,
   normalizeStringToKey,
 } from "@features/utils/format/strings";
 import _ from "lodash";
@@ -45,13 +46,7 @@ export const InputFormat = (props: InputFormatProps) => {
       } else if (props.format === "price") {
         val = "" + formatAmount(parseFloat(extractRawValue(val)));
       } else if (props.format === "iban") {
-        val =
-          "" +
-          val
-            .toLocaleUpperCase()
-            .replace(/[^A-Z0-9]/gm, "")
-            .replace(/([A-Z0-9]{4})/g, "$1 ")
-            .replace(/ $/gm, "");
+        val = "" + formatIBAN(val);
       } else if (props.format === "phone") {
         val = val.replace(/[^0-9+]/gm, "");
       } else if (props.format === "mail") {

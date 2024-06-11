@@ -5,11 +5,20 @@ import { Invoices } from "@features/invoices/types/types";
 import { paymentOptions, unitOptions } from "@features/utils/constants";
 import { AddressLength, formatAddress } from "@features/utils/format/address";
 import { formatTime } from "@features/utils/format/dates";
-import { formatAmount as realFormatAmount } from "@features/utils/format/strings";
+import {
+  formatAmount as formatAmountOriginal,
+  formatIBAN,
+  formatNumber,
+} from "@features/utils/format/strings";
 import jsPDF from "jspdf";
 import _ from "lodash";
+import "./invoices-preview.scss";
 
 import { DateTime } from "luxon";
+import { getTvaValue } from "../../utils";
+import { useFile, useFiles } from "@features/files/hooks/use-files";
+import { buildQueryFromMap } from "@components/search-bar/utils/utils";
+import { FilesApiClient } from "@features/files/api-client/files-api-client";
 
 type InvoicesPreviewProps = {
   invoice: Invoices;
@@ -20,113 +29,55 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
 
   const user = clientUser?.client;
   const invoiceClient = useContact(invoice?.client ?? "")?.contact;
+  const logo = useFile(
+    (invoice?.format?.logo[0] || "").split(":").pop() || ""
+  ).file;
+  const footerLogo = useFile(
+    (invoice?.format?.footer_logo[0] || "").split(":").pop() || ""
+  ).file;
+  const attachments = useFiles({
+    query: buildQueryFromMap({
+      id: invoice?.attachments?.map((a) => a.split(":").pop()),
+    }),
+    limit: invoice?.attachments?.length || 0,
+  }).files;
 
-  const formatAmount = (amount: number) => {
-    const formatted = realFormatAmount(amount);
-    // Remove unbreakable spaces
-    return formatted.replace(/\s/g, " ");
-  };
+  const formatAmount = (amount: number) =>
+    formatAmountOriginal(amount).replace(/\s/gm, " "); // JS PDF incompatible with non-breaking space
 
   return (
-    <>
-      <style>
-        {`
-                            :root {
-                                    font-family: Arial, Inter, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-                                    letter-spacing: 0;
-                            }
+    <div className="invoice-preview-root" id="invoice-preview">
+      <div style={{ margin: "20px 30px" }}>
+        {!!logo && (
+          <img
+            src={FilesApiClient.getDownloadUrl(logo)}
+            style={{
+              maxWidth: "30%",
+              maxHeight: "40px",
+              float: "right",
+              marginTop: "8px",
+            }}
+            alt={user?.company.legal_name}
+          />
+        )}
 
-                            .header {
-                                    font-size: 1.5rem; /* 24px */
-                                    line-height: 2rem; /* 32px */
-                                    color: black;
-                                    margin: 0px;
-                            }
-
-                            .subheader {
-                                    font-size: 1rem; /* 16px */
-                                    line-height: 1.5rem; /* 24px */
-                                    color: rgb(120, 120, 120);
-                                    margin: 0px;
-                            }
-
-                            .margindiv {
-                                    float: left; 
-                                    width: 8px;
-                                    height: 20px;
-                            }
-                            .margindiv_small {
-                                    float: left; 
-                                    width: 8px;
-                                    height: 5px;
-                            }
-                            .margindiv_right_small {
-                                    float: right; 
-                                    width: 8px;
-                                    height: 5px;
-                            }
-                            .marginxdiv {
-                                    width: 1px;
-                                    height: 16px;
-                            }
-
-                            .marginxdiv_small {
-                                width: 1px;
-                                height: 8px;
-                            }
-
-                            .table caption, .table tbody, .table tfoot, .table thead, .table tr, .table th, .table td {
-                                    font-family: Arial, Inter, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-                                    letter-spacing: 0;
-                                    margin: 0;
-                                    padding: 0;
-                                    border: 0;
-                                    outline: 0;
-
-                                    font-size: 0.65rem;
-                                    line-height: 0.85rem;
-                            }
-                            .tablecolor caption, .tablecolor tbody, .tablecolor tfoot, .tablecolor thead, .tablecolor tr, .tablecolor th, .tablecolor td {
-                                    font-family: Arial, Inter, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-                                    letter-spacing: 0;
-                                    margin: 0;
-                                    padding: 0;
-                                    outline: 0;
-
-                                    font-size: 0.65rem;
-                                    line-height: 0.85rem;
-                            }
-                            .tablecolor thead tr {
-                                    height: 30px;
-                                    color: white;
-                            }
-                            .tablecolor th {
-                                    background-color: black;
-                            }
-                            .separator {
-                                    height: 8px;
-                                    width: 510px;
-                                    border-bottom: 1px solid rgb(216, 216, 216);
-                            }
-                            .contrast {
-                                    color: rgb(55, 58, 60);
-                            }
-                            .whitened {
-                                    color: rgb(132, 150, 163);
-                            }
-                            .bgwhitened {
-                                    background: rgb(236, 240, 243);
-                            }
-                            `}
-      </style>
-
-      <div id="invoice-preview" style={{ margin: "20px 30px" }}>
-        <h1 className="header">Facture</h1>
-        <h2 className="subheader whitened">N° {invoice?.reference}</h2>
+        <h1
+          className="header"
+          style={{ color: invoice?.format?.color || "black" }}
+        >
+          {invoice?.type === "quotes"
+            ? "Devis"
+            : invoice?.type === "invoices"
+            ? "Facture"
+            : "Avoir"}
+        </h1>
+        <h2 className="subheader light">N° {invoice?.reference}</h2>
         <div className="marginxdiv"></div>
-        <table className="table" style={{ width: "500px" }}>
+        <table className="table" style={{ width: "100%" }}>
           <tr style={{ textAlign: "left" }}>
-            <th className="contrast">{user?.company.legal_name}</th>
+            <th className="contrast" style={{ width: "50%" }}>
+              {user?.company.legal_name}
+            </th>
             <th className="contrast">
               {invoiceClient?.business_name ??
                 (invoiceClient?.person_last_name &&
@@ -134,7 +85,7 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
                   ? invoiceClient?.person_last_name +
                     " " +
                     invoiceClient?.person_first_name
-                  : "# Préciser le client #")}
+                  : "Client")}
             </th>
           </tr>
           <tr>
@@ -146,11 +97,7 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
                     : undefined,
                 }}
               >
-                {formatAddress(
-                  user?.address,
-                  AddressLength.part1,
-                  "# Précisez l'adresse de l'entreprise #"
-                )}
+                {formatAddress(user?.address, AddressLength.part1, "")}
               </span>
             </td>
             <td>
@@ -161,11 +108,7 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
                     : undefined,
                 }}
               >
-                {formatAddress(
-                  invoiceClient?.address,
-                  AddressLength.part1,
-                  "# Précisez l'adresse du client #"
-                )}
+                {formatAddress(invoiceClient?.address, AddressLength.part1, "")}
               </span>
             </td>
           </tr>
@@ -176,11 +119,7 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
                   color: _.isEmpty(user?.address?.city) ? "red" : undefined,
                 }}
               >
-                {formatAddress(
-                  user?.address,
-                  AddressLength.part2,
-                  "# Précisez l'adresse de l'entreprise #"
-                )}
+                {formatAddress(user?.address, AddressLength.part2, "")}
               </span>
             </td>
             <td>
@@ -191,68 +130,75 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
                     : undefined,
                 }}
               >
-                {formatAddress(
-                  invoiceClient?.address,
-                  AddressLength.part2,
-                  "# Précisez l'adresse du client #"
-                )}
+                {formatAddress(invoiceClient?.address, AddressLength.part2, "")}
               </span>
             </td>
           </tr>
-          <tr>
-            <td>N° SIRET : {user?.company?.registration_number}</td>
-            <td>
-              {invoiceClient?.business_tax_id
-                ? "N° SIRET : " + invoiceClient?.business_tax_id
-                : ""}
-            </td>
-          </tr>
-          <tr>
-            <td>N° TVA : {user?.company?.tax_number}</td>
-          </tr>
+          {invoiceClient?.business_tax_id && (
+            <tr>
+              <td>N° SIRET : {user?.company?.registration_number}</td>
+              <td>
+                {invoiceClient?.business_tax_id
+                  ? "N° SIRET : " + invoiceClient?.business_tax_id
+                  : ""}
+              </td>
+            </tr>
+          )}
+          {user?.company?.tax_number && (
+            <tr>
+              <td>N° TVA : {user?.company?.tax_number}</td>
+            </tr>
+          )}
         </table>
         <div className="marginxdiv"></div>
 
-        <table className="table" style={{ width: "350px" }}>
+        <table className="table" style={{ width: "100%" }}>
           <tr>
-            <td className="whitened" style={{ fontWeight: "800" }}>
-              Date d'émission
+            <td style={{ whiteSpace: "nowrap" }}>
+              <span className="light strong">Date d'émission</span>
             </td>
             <td>
-              {(invoice.emit_date &&
-                formatTime(new Date(invoice.emit_date).getTime(), {
+              <span className="strong" style={{ paddingLeft: "16px" }}>
+                {formatTime(new Date(invoice.emit_date || null).getTime(), {
                   hideTime: true,
                   keepDate: true,
                   numeric: true,
-                })) ??
-                "#"}
+                })}
+              </span>
             </td>
+            <td style={{ width: "100%" }}></td>
           </tr>
-          <tr>
-            <td className="whitened" style={{ fontWeight: "800" }}>
-              Date d'exigibilité du paiement
-            </td>
-            <td>
-              {(invoice.emit_date &&
-                invoice?.payment_information?.delay &&
-                formatTime(
-                  DateTime.fromMillis(new Date(invoice.emit_date).getTime())
-                    .plus({
-                      days: invoice.payment_information.delay,
-                    })
-                    .toMillis(),
-                  {
-                    hideTime: true,
-                    numeric: true,
-                    keepDate: true,
-                  }
-                )) ??
-                "#"}
-            </td>
-          </tr>
+          {!!invoice?.payment_information?.delay && (
+            <tr>
+              <td style={{ whiteSpace: "nowrap" }}>
+                <span className="light strong">
+                  Date d'exigibilité du paiement
+                </span>
+              </td>
+              <td>
+                <span className="strong" style={{ paddingLeft: "16px" }}>
+                  {formatTime(
+                    DateTime.fromMillis(
+                      new Date(invoice.emit_date || null).getTime()
+                    )
+                      .plus({
+                        days: invoice.payment_information.delay,
+                      })
+                      .toMillis(),
+                    {
+                      hideTime: true,
+                      numeric: true,
+                      keepDate: true,
+                    }
+                  )}
+                </span>
+              </td>
+              <td />
+            </tr>
+          )}
           {false && (
             <tr>
-              <td className="whitened" style={{ fontWeight: "800" }}>
+              <td className="light" style={{ fontWeight: "800" }}>
                 Date de paiement
               </td>
               <td>05/01/2024</td>
@@ -260,203 +206,413 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
           )}
         </table>
 
+        {!!invoice.format?.heading && (
+          <>
+            <div className="marginxdiv"></div>
+            <table className="table">
+              <tr>
+                <td>{invoice.format?.heading}</td>
+              </tr>
+            </table>
+          </>
+        )}
+
         <div className="marginxdiv"></div>
         <table
-          className="tablecolor"
+          className="table-prestations"
           style={{
-            width: "510px",
+            width: "100%",
             borderCollapse: "separate",
             borderSpacing: "2px",
           }}
         >
           <colgroup>
-            <col width="5%" />
-            <col width="30%" />
-            <col width="10%" />
-            <col width="10%" />
-            <col width="10%" />
-            <col width="10%" />
-            <col width="10%" />
-            <col width="10%" />
+            <col width="0%" />
+            <col width="1%" />
+            <col />
+            <col width="1%" />
+            <col width="1%" />
+            <col width="1%" />
+            <col width="1%" />
+            <col width="1%" />
+            <col width="1%" />
           </colgroup>
           <thead>
             <tr>
-              <th>#</th>
-              <th style={{ whiteSpace: "nowrap", textAlign: "center" }}>
+              <th
+                style={{
+                  background: invoice?.format?.color || "black",
+                  textAlign: "right",
+                }}
+                colSpan={2}
+              >
+                #
+              </th>
+              <th style={{ background: invoice?.format?.color || "black" }}>
                 Désignation et description
               </th>
-              <th>Unité</th>
-              <th>Quantité</th>
-              <th style={{ whiteSpace: "nowrap" }}>Prix u. HT</th>
-              <th>TVA</th>
-              <th style={{ whiteSpace: "nowrap" }}>Montant HT</th>
-              <th style={{ whiteSpace: "nowrap" }}>Montant TTC</th>
+              <th
+                style={{
+                  background: invoice?.format?.color || "black",
+                  textAlign: "left",
+                }}
+              >
+                Unité
+              </th>
+              <th
+                style={{
+                  background: invoice?.format?.color || "black",
+                  textAlign: "right",
+                }}
+              >
+                Qté
+              </th>
+              <th
+                style={{
+                  background: invoice?.format?.color || "black",
+                  textAlign: "right",
+                }}
+              >
+                Prix u. HT
+              </th>
+              <th
+                style={{
+                  background: invoice?.format?.color || "black",
+                  textAlign: "right",
+                }}
+              >
+                TVA
+              </th>
+              <th
+                style={{
+                  background: invoice?.format?.color || "black",
+                  textAlign: "right",
+                }}
+              >
+                Montant HT
+              </th>
+              <th
+                style={{
+                  background: invoice?.format?.color || "black",
+                  textAlign: "right",
+                }}
+              >
+                Montant TTC
+              </th>
             </tr>
           </thead>
           <tbody>
-            {(invoice.content ?? []).map((line, index) => {
+            {(invoice.content ?? []).map((line, i) => {
+              const index = (invoice.content || [])
+                .slice(0, i)
+                .filter((l) => l.type !== "separation").length;
               const separation = line.type === "separation";
 
               let unitPrice = line.unit_price ?? 0;
+              let linePrice = unitPrice * (line.quantity ?? 0);
+              let discount = 0;
 
               if (line.discount && line.unit_price) {
-                unitPrice =
+                discount =
                   line.discount?.mode === "percentage"
-                    ? (line.unit_price * (100 - line.discount.value)) / 100
-                    : line.unit_price - line.discount.value;
+                    ? (linePrice * line.discount.value) / 100
+                    : line.discount.value;
+                linePrice = linePrice - discount;
               }
-              let linePrice = unitPrice * (line.quantity ?? 0);
-
-              const linePriceWithTaxes =
-                linePrice * (1 + parseInt(line.tva ?? "") / 100) ?? 0;
 
               return (
-                <tr style={{ textAlign: "center" }}>
-                  <td>
-                    {line.optional && (
-                      <input
-                        type="checkbox"
-                        disabled
-                        checked={line.optional_checked ?? false}
-                      />
-                    )}{" "}
-                    {!separation && index + 1}
-                  </td>
-                  <td style={{ textAlign: "left" }}>
-                    <div className="margindiv"></div>
-                    <p>{line.name}</p>
-                    <span className="whitened">{line.description}</span>
-                  </td>
-                  <td>
-                    {
-                      unitOptions.find((option) => option.value === line.unit)
-                        ?.label
-                    }
-                  </td>
-                  <td>{line.quantity}</td>
-                  <td>{!separation && formatAmount(unitPrice)}</td>
-                  <td>{!separation && line.tva + " %"}</td>
-                  <td>{!separation && formatAmount(linePrice)}</td>
-                  <td>{!separation && formatAmount(linePriceWithTaxes)}</td>
-                </tr>
+                <>
+                  <tr>
+                    <td
+                      style={{
+                        textAlign: "center",
+                        paddingLeft: "0",
+                        paddingRight: "0",
+                      }}
+                    >
+                      {line.optional && (
+                        <input
+                          type="checkbox"
+                          disabled
+                          checked={line.optional_checked ?? false}
+                          style={{ width: "16px", height: "16px" }}
+                        />
+                      )}
+                    </td>
+                    <td style={{ textAlign: "center" }}>
+                      <span className="strong">{!separation && index + 1}</span>
+                    </td>
+                    <td
+                      style={{ textAlign: "left" }}
+                      colSpan={separation ? 7 : 1}
+                    >
+                      <p className="strong">{line.name}</p>
+                      <span className="contrast">{line.description}</span>
+                    </td>
+                    {!separation && (
+                      <>
+                        <td>
+                          {unitOptions.find(
+                            (option) => option.value === line.unit
+                          )?.label || "Unité"}
+                        </td>
+                        <td
+                          style={{ textAlign: "right", whiteSpace: "nowrap" }}
+                        >
+                          {formatNumber(line.quantity || 1).replace(/ /gm, " ")}
+                        </td>
+                        <td
+                          style={{ textAlign: "right", whiteSpace: "nowrap" }}
+                        >
+                          {formatAmount(unitPrice)}
+                        </td>
+                        <td
+                          style={{ textAlign: "right", whiteSpace: "nowrap" }}
+                        >
+                          {getTvaValue(line.tva || "") > 0
+                            ? getTvaValue(line.tva || "") * 100 + "%"
+                            : ""}
+                        </td>
+                        <td
+                          style={{ textAlign: "right", whiteSpace: "nowrap" }}
+                        >
+                          {formatAmount(
+                            parseFloat(linePrice as any) +
+                              parseFloat(discount as any)
+                          )}
+                          {line.discount && line.unit_price && (
+                            <div className="light">
+                              -{formatAmount(discount)}
+                            </div>
+                          )}
+                        </td>
+                        <td
+                          style={{ textAlign: "right", whiteSpace: "nowrap" }}
+                        >
+                          {formatAmount(
+                            (getTvaValue(line.tva || "0") + 1) * linePrice
+                          )}
+                        </td>
+                      </>
+                    )}
+                  </tr>
+                  <tr>
+                    <td
+                      colSpan={9}
+                      className="separator"
+                      style={{ height: 0, padding: 0 }}
+                    />
+                  </tr>
+                </>
               );
             })}
           </tbody>
         </table>
+        {!!invoice?.attachments?.length && (
+          <>
+            <div className="marginxdiv"></div>
+            <table className="table">
+              <tr>
+                <td>
+                  <span className="contrast strong">Documents joints</span>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  {attachments?.data?.list?.map((a) => a.name)?.join(", ")}
+                </td>
+              </tr>
+            </table>
+          </>
+        )}
 
-        <div className="separator"></div>
         <div className="marginxdiv"></div>
 
-        <div style={{ width: "510px" }}>
+        <div style={{ width: "100%" }}>
           <table className="table" style={{ width: "50%", float: "left" }}>
             <tbody>
-              <tr>
-                <td className="contrast" style={{ fontWeight: "800" }}>
-                  Délai de paiement
-                </td>
-              </tr>
-              <tr>
-                <td>{invoice?.payment_information?.delay ?? "#"} jours</td>
-              </tr>
-              <tr>
-                <td className="contrast" style={{ fontWeight: "800" }}>
-                  Pénalité de retard
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  {invoice?.payment_information?.late_penalty ?? "#"} fois le
-                  taux légal
-                </td>
-              </tr>
-              <tr>
-                <td className="contrast" style={{ fontWeight: "800" }}>
-                  Indemnité forfaitaire pour frais de recouvrement
-                </td>
-              </tr>
-              <tr>
-                <td>{invoice?.payment_information?.recovery_fee ?? "#"} €</td>
-              </tr>
-              <tr>
-                <td className="contrast" style={{ fontWeight: "800" }}>
-                  Escompte
-                </td>
-              </tr>
-              <tr>
-                <td>Aucun</td>
-              </tr>
-              <tr>
-                <td className="contrast" style={{ fontWeight: "800" }}>
-                  Moyens de paiement
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  {(invoice?.payment_information?.mode ?? []).length === 0 && (
-                    <span>Aucun</span>
-                  )}
-                  {(invoice?.payment_information?.mode ?? [])
-                    .map(
-                      (mode) =>
-                        paymentOptions.find((option) => option.value === mode)
-                          ?.label
-                    )
-                    .join(", ") ?? "#"}
-                </td>
-              </tr>
+              {(invoice?.payment_information?.delay || 0) > 0 && (
+                <>
+                  <tr>
+                    <td className="contrast strong">Délai de paiement</td>
+                  </tr>
+                  <tr>
+                    <td>{invoice?.payment_information?.delay} jours</td>
+                  </tr>
+                  <tr style={{ height: 8 }}></tr>
+                </>
+              )}
+              {invoice?.payment_information?.late_penalty && (
+                <>
+                  <tr>
+                    <td className="contrast strong">Pénalité de retard</td>
+                  </tr>
+                  <tr>
+                    <td>{invoice?.payment_information?.late_penalty}</td>
+                  </tr>
+                  <tr style={{ height: 8 }}></tr>
+                </>
+              )}
+              {!!invoice?.payment_information?.recovery_fee && (
+                <>
+                  {" "}
+                  <tr>
+                    <td className="contrast strong">
+                      Indemnité forfaitaire pour frais de recouvrement
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>{invoice?.payment_information?.recovery_fee} €</td>
+                  </tr>
+                  <tr style={{ height: 8 }}></tr>
+                </>
+              )}
+              {!!invoice?.payment_information?.mode?.length && (
+                <>
+                  {" "}
+                  <tr>
+                    <td className="contrast strong">Moyens de paiement</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      {(invoice?.payment_information?.mode ?? [])
+                        .map(
+                          (mode) =>
+                            paymentOptions.find(
+                              (option) => option.value === mode
+                            )?.label
+                        )
+                        .join(", ")}
+                    </td>
+                  </tr>
+                  {invoice?.payment_information?.mode?.includes(
+                    "bank_transfer"
+                  ) &&
+                    invoice?.payment_information?.bank_iban &&
+                    invoice?.type === "invoices" && (
+                      <>
+                        {" "}
+                        <tr style={{ height: 8 }}></tr>
+                        <tr>
+                          <td>
+                            <span className="contrast strong">
+                              Informations bancaires:
+                            </span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <table>
+                              <tr>
+                                <td>
+                                  <span className="light strong">BIC</span>
+                                </td>
+                                <td style={{ width: 16 }} />
+                                <td>
+                                  {invoice?.payment_information?.bank_bic?.toLocaleUpperCase()}
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>
+                                  <span className="light strong">IBAN</span>
+                                </td>{" "}
+                                <td style={{ width: 16 }} />
+                                <td>
+                                  {formatIBAN(
+                                    invoice?.payment_information?.bank_iban
+                                  )}{" "}
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>{" "}
+                      </>
+                    )}
+                  <tr style={{ height: 8 }}></tr>
+                </>
+              )}
             </tbody>
           </table>
-
           <table
-            className="table bgwhitened"
-            style={{ float: "left", width: "50%", fontWeight: "800" }}
+            className="table table-total bglight"
+            style={{ width: "50%", fontWeight: "bold" }}
           >
             <tbody>
               <tr>
-                <td style={{ verticalAlign: "middle" }}>
-                  <div className="margindiv_small"></div>
-                  Total HT<div className="marginxdiv_small"></div>
-                  <div className="marginxdiv_small"></div>
-                </td>
-                <td style={{ textAlign: "end" }}>
-                  {formatAmount(invoice.total?.total ?? 0)}
-                  <div className="margindiv_right_small"></div>
+                <td style={{ verticalAlign: "middle" }}>Total HT</td>
+                <td style={{ textAlign: "right" }}>
+                  {formatAmount(invoice.total?.initial ?? 0)}
                 </td>
               </tr>
-              <tr>
-                <td>
-                  <div className="margindiv_small"></div>TVA
-                </td>
-                <td style={{ textAlign: "end" }}>
-                  {formatAmount(invoice.total?.taxes ?? 0)}
-                  <div className="margindiv_right_small"></div>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <div className="margindiv_small"></div>Dont 20 %
-                </td>
-                <td style={{ textAlign: "end" }}>
-                  {formatAmount(invoice.total?.taxes ?? 0)}
-                  <div className="margindiv_right_small"></div>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <div className="margindiv_small"></div>Total TTC
-                  <div className="marginxdiv"></div>
-                </td>
-                <td style={{ textAlign: "end" }}>
-                  {formatAmount(invoice.total?.total_with_taxes ?? 0)}
-                  <div className="margindiv_right_small"></div>
-                  <div className="marginxdiv"></div>
-                </td>
-              </tr>
+              {!!parseFloat(invoice.total?.discount as any) && (
+                <>
+                  <tr>
+                    <td style={{ verticalAlign: "middle" }}>Remise</td>
+                    <td style={{ textAlign: "right" }}>
+                      {formatAmount(invoice.total?.discount ?? 0)}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ verticalAlign: "middle" }}>
+                      Total HT après remise
+                    </td>
+                    <td style={{ textAlign: "right" }}>
+                      {formatAmount(invoice.total?.total ?? 0)}
+                    </td>
+                  </tr>
+                </>
+              )}
+              {!!parseFloat(invoice.total?.taxes as any) && (
+                <>
+                  <tr>
+                    <td>TVA</td>
+                    <td style={{ textAlign: "right" }}>
+                      {formatAmount(invoice.total?.taxes ?? 0)}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Total TTC</td>
+                    <td style={{ textAlign: "right" }}>
+                      {formatAmount(invoice.total?.total_with_taxes ?? 0)}
+                    </td>
+                  </tr>
+                </>
+              )}
             </tbody>
           </table>
+          <div className="marginxdiv"></div>
+          <table className="table">
+            <tr>
+              <td>{invoice.format?.tva}</td>
+            </tr>
+          </table>
         </div>
+
+        {!!invoice.format?.footer && (
+          <>
+            <div className="marginxdiv"></div>
+            <table className="table">
+              <tr>
+                <td>{invoice.format?.footer}</td>
+              </tr>
+            </table>
+          </>
+        )}
+
+        {!!invoice.format?.payment_terms && (
+          <>
+            <div className="marginxdiv"></div>
+            <div className="separator"></div>
+            <div className="marginxdiv"></div>
+            <table className="table">
+              <tr>
+                <td>{invoice.format?.payment_terms}</td>
+              </tr>
+            </table>
+          </>
+        )}
       </div>
-    </>
+    </div>
   );
 }
 
@@ -474,13 +630,13 @@ export const getPdfPreview = () => {
       async function addFooters() {
         const pageCount = doc.getNumberOfPages();
         for (var i = 1; i <= pageCount; i++) {
-          doc.addImage(iconBase64, "PNG", 550, 800, 20, 20);
+          doc.addImage(iconBase64, "PNG", 550, 800, 16, 16);
 
           doc.textWithLink("linventaire.app", 475, 814, {
             url: "https://linventaire.app",
           });
 
-          doc.text("Page " + String(i) + "/" + pageCount, 20, 820);
+          doc.text("Page " + String(i) + " sur " + pageCount, 20, 820);
         }
       }
 

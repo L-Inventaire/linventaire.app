@@ -619,6 +619,10 @@ select {
   outline: 1px auto -webkit-focus-ring-color;
 }
 
+img {
+  display: inline-block;
+}
+
 *, ::before, ::after {
   --tw-border-spacing-x: 0;
   --tw-border-spacing-y: 0;
@@ -1305,10 +1309,6 @@ select {
 
 .max-h-0 {
   max-height: 0px;
-}
-
-.max-h-screen {
-  max-height: 100vh;
 }
 
 .min-h-0 {
@@ -3120,6 +3120,11 @@ select {
   padding-bottom: 0.5rem;
 }
 
+.py-3 {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
 .py-8 {
   padding-top: 2rem;
   padding-bottom: 2rem;
@@ -3128,11 +3133,6 @@ select {
 .py-px {
   padding-top: 1px;
   padding-bottom: 1px;
-}
-
-.py-3 {
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
 }
 
 .pb-1 {
@@ -3941,10 +3941,6 @@ select {
   --tw-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
-}
-
-.outline {
-  outline-style: solid;
 }
 
 .\!ring-0 {
