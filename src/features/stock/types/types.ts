@@ -1,8 +1,14 @@
-export type Stock = {
+export type StockItems = {
   client_id: string;
   id: string;
 
-  state: "bought" | "stock" | "reserved" | "in_transit" | "delivered"; // In stock, Reserved, Delivered, Bought
+  state:
+    | "bought"
+    | "stock"
+    | "reserved"
+    | "in_transit"
+    | "delivered"
+    | "depleted"; // In stock, Reserved, Delivered, Bought
 
   article: string;
   serial_number: string;

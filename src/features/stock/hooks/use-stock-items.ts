@@ -1,9 +1,9 @@
 import { RestOptions, useRest } from "@features/utils/rest/hooks/use-rest";
-import { Stock } from "../types/types";
+import { StockItems } from "../types/types";
 import { useEffect } from "react";
 
-export const useStockItems = (options?: RestOptions<Stock>) => {
-  const rest = useRest<Stock>("stock_items", options);
+export const useStockItems = (options?: RestOptions<StockItems>) => {
+  const rest = useRest<StockItems>("stock_items", options);
 
   useEffect(() => {
     rest.refresh();

@@ -64,7 +64,7 @@ export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
           document={{ id }}
           mode={"write"}
           onSave={async () => await save()}
-          backRoute={ROUTES.Invoices + '?q=type%3A"' + draft.type + '"'}
+          backRoute={getRoute(ROUTES.Invoices, { type: draft.type })}
           viewRoute={ROUTES.InvoicesView}
           editRoute={ROUTES.InvoicesEdit}
           onPrint={async () => getPdfPreview()}

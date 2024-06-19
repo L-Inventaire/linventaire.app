@@ -15,6 +15,7 @@ import {
   CodeBracketIcon,
   Cog6ToothIcon,
   CubeIcon,
+  DocumentArrowDownIcon,
   DocumentCheckIcon,
   HomeIcon,
   InboxIcon,
@@ -128,44 +129,39 @@ export const SideBar = () => {
             show={hasAccess("INVOICES_READ")}
           >
             <MenuItem
-              to={getRoute(ROUTES.Invoices) + '?q=type%3A"quotes"'}
+              to={getRoute(ROUTES.Invoices, { type: "quotes" })}
               label="Devis"
               icon={(p) => <DocumentIcon {...p} />}
-              active={
-                location.pathname.indexOf(getRoute(ROUTES.Invoices)) === 0 &&
-                location.search.indexOf("type%3A%22quotes%22") !== -1
-              }
             />
             <MenuItem
-              to={getRoute(ROUTES.Invoices) + '?q=type%3A"invoices"'}
+              to={getRoute(ROUTES.Invoices, { type: "invoices" })}
               label="Factures"
               icon={(p) => <DocumentCheckIcon {...p} />}
               active={
-                location.pathname.indexOf(getRoute(ROUTES.Invoices)) === 0 &&
-                location.search.indexOf("type%3A%22invoices%22") !== -1 &&
+                location.pathname.indexOf(
+                  getRoute(ROUTES.Invoices, { type: "invoices" })
+                ) === 0 &&
                 location.search.indexOf("subscription_enabled%3A1") === -1
               }
             />
             <MenuItem
               to={
-                getRoute(ROUTES.Invoices) +
-                '?q=type%3A"invoices"+subscription_enabled%3A1'
+                getRoute(ROUTES.Invoices, { type: "invoices" }) +
+                "?q=subscription_enabled%3A1"
               }
               label="Abonnements"
               icon={(p) => <CalendarDaysIcon {...p} />}
               active={
-                location.pathname.indexOf(getRoute(ROUTES.Invoices)) === 0 &&
+                location.pathname.indexOf(
+                  getRoute(ROUTES.Invoices, { type: "invoices" })
+                ) === 0 &&
                 location.search.indexOf("subscription_enabled%3A1") !== -1
               }
             />
             <MenuItem
-              to={getRoute(ROUTES.Invoices) + '?q=type%3A"credit_notes"'}
+              to={getRoute(ROUTES.Invoices, { type: "credit_notes" })}
               label="Avoirs"
               icon={(p) => <ReceiptRefundIcon {...p} />}
-              active={
-                location.pathname.indexOf(getRoute(ROUTES.Invoices)) === 0 &&
-                location.search.indexOf("type%3A%22credit_notes%22") !== -1
-              }
             />
           </MenuSection>
 
@@ -187,15 +183,15 @@ export const SideBar = () => {
             label="Achats"
             show={
               hasAccess("ARTICLES_READ") ||
-              hasAccess("ORDERS_READ") ||
+              hasAccess("INVOICES_READ") ||
               hasAccess("STOCK_READ")
             }
           >
             <MenuItem
-              to={getRoute(ROUTES.Orders)}
+              to={getRoute(ROUTES.Invoices, { type: "supplier_quotes" })}
               label="Commandes"
               icon={(p) => <ShoppingCartIcon {...p} />}
-              show={hasAccess("ORDERS_READ")}
+              show={hasAccess("INVOICES_READ")}
             />
             <MenuItem
               to={getRoute(ROUTES.Stock)}
@@ -212,6 +208,13 @@ export const SideBar = () => {
           </MenuSection>
 
           <MenuSection className="!mt-6" label="Comptabilité">
+            <MenuItem
+              to={getRoute(ROUTES.Invoices, {
+                type: "supplier_invoices+supplier_credit_notes",
+              })}
+              label="Factures fournisseurs"
+              icon={(p) => <DocumentArrowDownIcon {...p} />}
+            />
             <MenuItem
               to={getRoute(ROUTES.Accounting)}
               label="Comptes"

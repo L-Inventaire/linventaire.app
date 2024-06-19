@@ -20,15 +20,17 @@ import {
 import { Page } from "@views/client/_layout/page";
 import { useEffect, useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
-import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
+import {
+  buildQueryFromMap,
+  schemaToSearchFields,
+} from "../../../../components/search-bar/utils/utils";
 import { InvoiceStatus } from "./components/invoice-status";
 import { RestDocumentsInput } from "@components/rest-documents-input";
 import { Tag } from "@atoms/badge/tag";
+import { useParams } from "react-router-dom";
 
 export const InvoicesPage = () => {
-  const [type, setType] = useState(
-    new URLSearchParams(document.location.search).get("type") || ""
-  );
+  const type = useParams().type?.split("+") || "invoices";
   const [state, setState] = useState([]);
   const [options, setOptions] = useState<RestOptions<Invoices>>({
     limit: 10,
@@ -37,25 +39,9 @@ export const InvoicesPage = () => {
   });
   const { invoices } = useInvoices({
     ...options,
-    // TODO maybe create a util function for that
     query: [
       ...((options?.query as any) || []),
-      ...(type
-        ? [
-            {
-              key: "type",
-              values: [{ op: "equals", value: type }],
-            },
-          ]
-        : []),
-      ...(state.length
-        ? [
-            {
-              key: "state",
-              values: state.map((s) => ({ op: "equals", value: s })),
-            },
-          ]
-        : []),
+      ...buildQueryFromMap({ type, state }),
     ],
   });
 

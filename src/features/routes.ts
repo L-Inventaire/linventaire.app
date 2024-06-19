@@ -51,28 +51,17 @@ export const ROUTES = {
   ContactsView: "/:client/contacts/:id",
   ContactsEdit: "/:client/contacts/:id/form",
 
-  CreditNotes: "/:client/credit-notes",
-  CreditNotesView: "/:client/credit-notes/:id",
-  CreditNotesEdit: "/:client/credit-notes/:id/form",
-  Invoices: "/:client/invoices",
-  InvoicesView: "/:client/invoices/:id",
-  InvoicesEdit: "/:client/invoices/:id/form",
-  Quotes: "/:client/quotes",
-  QuotesView: "/:client/quotes/:id",
-  QuotesEdit: "/:client/quotes/:id/form",
-  Subscriptions: "/:client/subscriptions",
-  SubscriptionsView: "/:client/subscriptions/:id",
-  SubscriptionsEdit: "/:client/subscriptions/:id/form",
-
-  Orders: "/:client/orders",
-  OrdersView: "/:client/orders/:id",
-  OrdersEdit: "/:client/orders/:id/form",
+  Invoices: "/:client/i/:type",
+  InvoicesView: "/:client/i/all/:id",
+  InvoicesEdit: "/:client/i/all/:id/form",
 
   Receipts: "/:client/deliveries",
   ReceiptsView: "/:client/deliveries/:id",
   ReceiptsEdit: "/:client/deliveries/:id/form",
 
   Stock: "/:client/stock",
+  StockView: "/:client/stock/:id",
+  StockEdit: "/:client/stock/:id/form",
 
   Accounting: "/:client/accounting",
 

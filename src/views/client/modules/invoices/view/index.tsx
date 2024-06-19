@@ -32,7 +32,7 @@ export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
           loading={isPending && !invoice}
           document={invoice || { id }}
           mode={"read"}
-          backRoute={ROUTES.Invoices + '?q=type%3A"' + invoice.type + '"'}
+          backRoute={getRoute(ROUTES.Invoices, { type: invoice.type })}
           editRoute={ROUTES.InvoicesEdit}
           onPrint={async () => getPdfPreview()}
           prefix={
@@ -54,9 +54,12 @@ export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
                     theme="outlined"
                     size="xs"
                     shortcut={["c"]}
-                    to={withModel(getRoute(ROUTES.OrdersEdit, { id: "new" }), {
-                      //TODO
-                    })}
+                    to={withModel(
+                      getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+                      {
+                        //TODO
+                      }
+                    )}
                   >
                     Créer une commande
                   </Button>

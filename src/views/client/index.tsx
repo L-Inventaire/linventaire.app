@@ -27,10 +27,10 @@ import { InvoicesPage } from "./modules/invoices";
 import { InvoicesEditPage } from "./modules/invoices/edit";
 import { InvoicesViewPage } from "./modules/invoices/view";
 import { NotificationsPage } from "./modules/notifications";
-import { OrdersPage } from "./modules/orders";
-import { OrdersEditPage } from "./modules/orders/edit";
-import { OrdersViewPage } from "./modules/orders/view";
 import { StatisticsPage } from "./modules/statistics";
+import { StockPage } from "./modules/stock";
+import { StockItemsEditPage } from "./modules/stock/edit";
+import { StockItemsViewPage } from "./modules/stock/view";
 import { NoClientView } from "./no-client";
 import { CompanyPage } from "./settings/company";
 import { FieldsPage } from "./settings/fields";
@@ -68,11 +68,9 @@ export const BackOfficeRoutes = () => {
         <Route path={ROUTES.ProductsView} element={<ArticlesViewPage />} />
         <Route path={ROUTES.ProductsEdit} element={<ArticlesEditPage />} />
 
-        <Route path={ROUTES.Orders} element={<OrdersPage />} />
-        <Route path={ROUTES.OrdersView} element={<OrdersViewPage />} />
-        <Route path={ROUTES.OrdersEdit} element={<OrdersEditPage />} />
-
-        <Route path={ROUTES.Stock} element={<DevPage />} />
+        <Route path={ROUTES.Stock} element={<StockPage />} />
+        <Route path={ROUTES.StockView} element={<StockItemsViewPage />} />
+        <Route path={ROUTES.StockEdit} element={<StockItemsEditPage />} />
 
         <Route path={ROUTES.Invoices} element={<InvoicesPage />} />
         <Route path={ROUTES.InvoicesView} element={<InvoicesViewPage />} />
