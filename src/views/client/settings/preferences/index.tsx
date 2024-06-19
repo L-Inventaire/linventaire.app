@@ -44,15 +44,15 @@ export const PreferencesPage = () => {
   }, [client]);
 
   const countersDefaults = {
-    invoices: {
-      format: "F-@YYYY-@C",
-      name: "Factures",
-      prefix: "F",
-    },
     quotes: {
       format: "D-@YYYY-@C",
       name: "Devis",
       prefix: "D",
+    },
+    invoices: {
+      format: "F-@YYYY-@C",
+      name: "Factures",
+      prefix: "F",
     },
     credit_notes: {
       format: "AV-@YYYY-@C",
@@ -69,7 +69,7 @@ export const PreferencesPage = () => {
       name: "Avoirs fournisseurs",
       prefix: "AVF",
     },
-    orders: {
+    supplier_quotes: {
       format: "C@C",
       name: "Commandes",
       prefix: "C",

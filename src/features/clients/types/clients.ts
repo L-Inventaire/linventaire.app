@@ -97,7 +97,7 @@ export type InvoiceCounters = {
     format: string;
     counter: number;
   };
-  orders: {
+  supplier_quotes: {
     format: string;
     counter: number;
   };

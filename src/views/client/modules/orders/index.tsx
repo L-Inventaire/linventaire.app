@@ -2,8 +2,6 @@ import { Button } from "@atoms/button/button";
 import { Info } from "@atoms/text";
 import { Table } from "@components/table";
 import { TagsInput } from "@components/tags-input";
-import { useOrders } from "@features/orders/hooks/use-orders";
-import { Orders } from "@features/orders/types/types";
 import { ROUTES, getRoute } from "@features/routes";
 import {
   RestOptions,
@@ -14,14 +12,16 @@ import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
+import { useInvoices } from "@features/invoices/hooks/use-invoices";
+import { Invoices } from "@features/invoices/types/types";
 
 export const OrdersPage = () => {
-  const [options, setOptions] = useState<RestOptions<Orders>>({
+  const [options, setOptions] = useState<RestOptions<Invoices>>({
     limit: 10,
     offset: 0,
     query: [],
   });
-  const { orders } = useOrders(options);
+  const { invoices } = useInvoices(options);
   const schema = useRestSchema("orders");
 
   return (
@@ -65,9 +65,9 @@ export const OrdersPage = () => {
       <div className="mb-4" />
 
       <Table
-        loading={orders.isPending}
-        data={orders?.data?.list || []}
-        total={orders?.data?.total || 0}
+        loading={invoices.isPending}
+        data={invoices?.data?.list || []}
+        total={invoices?.data?.total || 0}
         showPagination="full"
         rowIndex="id"
         onSelect={(items) => false && console.log(items)}

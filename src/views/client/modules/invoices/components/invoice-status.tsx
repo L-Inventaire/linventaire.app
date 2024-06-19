@@ -52,6 +52,7 @@ export const InvoiceStatus = ({
     quotes: ["draft", "sent", "purchase_order", "completed", "closed"],
     invoices: ["draft", "accounted", "partial_paid", "paid", "closed"],
     credit_notes: ["draft", "accounted", "partial_paid", "paid", "closed"],
+    supplier_quotes: ["draft", "sent", "purchase_order", "completed", "closed"],
     supplier_invoices: ["draft", "accounted", "partial_paid", "paid", "closed"],
     supplier_credit_notes: [
       "draft",
@@ -69,6 +70,11 @@ export const InvoiceStatus = ({
       ["draft"],
       ["accounted"],
       ["paid", "partial_paid", "closed"],
+    ],
+    supplier_quotes: [
+      ["draft"],
+      ["sent"],
+      ["purchase_order", "closed", "completed"],
     ],
     supplier_invoices: [
       ["draft"],

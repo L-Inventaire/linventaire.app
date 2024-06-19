@@ -6,9 +6,10 @@ export type Invoices = {
 
   assigned: string[];
   type:
-    | "invoices"
     | "quotes"
+    | "invoices"
     | "credit_notes"
+    | "supplier_quotes"
     | "supplier_invoices"
     | "supplier_credit_notes"; // invoice, quote, credit_note
 
@@ -23,17 +24,20 @@ export type Invoices = {
     | "paid"
     | "closed"
     | "completed";
-  // For invoices: invoices cancelled and refunded by this credit note
-  related_credit_notes: string[]; // Nullable
-  // For credit notes: invoice refunded by this credit note
-  // For quotes: invoices generated from this quote
-  related_invoice: string; // Nullable
-  // For invoices: quotes completed and transformed into invoices
-  related_quote: string; // Nullable
 
+  // For credit notes or supplier credit note: invoices refunded by this credit note
+  from_rel_invoice: string[]; // Nullable
+  rel_credit_note: string[]; // Automatically set by a trigger, list of credit notes generated from this invoice
+  // For invoices or supplier invoice: quotes completed and transformed into this invoice
+  from_rel_quote: string[]; // Nullable
+  rel_invoice: string[]; // Automatically set by a trigger, list of invoices generated from this quote
+
+  name: string;
   reference: string;
 
-  client: string;
+  supplier: string; // For supplier invoices/quotes/credit_notes
+  client: string; // For client invoices/quotes/credit_notes
+
   contact: string; // Nullable, the person in the client we discuss with
   emit_date: Date;
   language: string;
@@ -44,6 +48,7 @@ export type Invoices = {
 
   content?: InvoiceLine[];
   discount?: InvoiceDiscount;
+
   total?: InvoiceTotal; // Precomputed values (for search mainly, do not use for calculations preferably)
 
   // This is automatically generated from the content
@@ -52,7 +57,10 @@ export type Invoices = {
     accepted: string[]; // List of articles accepted by the client (in case of options)
   };
 
-  name: string;
+  // For partially paid invoices or credit notes, list of payments
+  payments_total: 0; // This one is automatically generated from the payments_executed
+  payments_executed: InvoicePaymentExecuted[]; // List of payments executed
+
   payment_information: Payment;
   format?: InvoiceFormat;
 
@@ -66,6 +74,14 @@ export type Invoices = {
   tags: string[];
 
   fields: any;
+};
+
+export type InvoicePaymentExecuted = {
+  date: number;
+  mode: Payment["mode"];
+  reference: string;
+  amount: 0;
+  notes: string;
 };
 
 export type InvoiceTotal = {
@@ -104,16 +120,10 @@ export type InvoiceLine = {
   tva?: string;
   discount?: InvoiceDiscount;
 
+  quantity_ready?: number; //Quantity received or sent to determine if the line is ready to be invoices
+
   optional?: boolean;
   optional_checked?: boolean; // Checked by the client or by the agent (like a default checked option)
-
-  total?: {
-    total: number;
-    discount: number;
-    initial: number;
-    taxes: number;
-    total_with_taxes: number;
-  };
 };
 
 export type InvoiceDiscount = {

@@ -1,6 +1,6 @@
 import { FormContext } from "@components/form/formcontext";
 import { PageLoader } from "@components/page-loader";
-import { Orders } from "@features/orders/types/types";
+import { Invoices } from "@features/invoices/types/types";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { PageColumns } from "@views/client/_layout/page";
 
@@ -11,7 +11,7 @@ export const OrdersDetailsPage = ({
   readonly?: boolean;
   id: string;
 }) => {
-  const { isPending, draft } = useReadDraftRest<Orders>(
+  const { isPending, draft } = useReadDraftRest<Invoices>(
     "orders",
     id || "new",
     readonly

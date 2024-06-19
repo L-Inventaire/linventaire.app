@@ -1,12 +1,12 @@
 import { Button } from "@atoms/button/button";
 import { Title } from "@atoms/text";
-import { Orders } from "@features/orders/types/types";
 import { ROUTES, getRoute } from "@features/routes";
 import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { Page } from "@views/client/_layout/page";
 import { useNavigate, useParams } from "react-router-dom";
 import { OrdersDetailsPage } from "../components/order-details";
 import { PageLoader } from "@components/page-loader";
+import { Invoices } from "@features/invoices/types/types";
 
 export const OrdersEditPage = ({ readonly }: { readonly?: boolean }) => {
   let { id } = useParams();
@@ -18,13 +18,13 @@ export const OrdersEditPage = ({ readonly }: { readonly?: boolean }) => {
     isPending,
     isInitiating,
     save,
-  } = useDraftRest<Orders>(
+  } = useDraftRest<Invoices>(
     "orders",
     id || "new",
     async (item) => {
       navigate(getRoute(ROUTES.OrdersView, { id: item.id }));
     },
-    {} as Orders
+    {} as Invoices
   );
 
   if (isInitiating) return <PageLoader />;
@@ -51,7 +51,7 @@ export const OrdersEditPage = ({ readonly }: { readonly?: boolean }) => {
           Annuler
         </Button>
         <Button
-          disabled={!order.articles?.length}
+          disabled={!order.articles?.all?.length}
           loading={isPending}
           onClick={async () => await save()}
           size="sm"
