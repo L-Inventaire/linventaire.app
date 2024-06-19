@@ -107,7 +107,6 @@ export const SignUp = () => {
 
           <div className="text-right mt-6">
             <Button
-              size="lg"
               loading={loading}
               disabled={!name.trim()}
               onClick={async () => {

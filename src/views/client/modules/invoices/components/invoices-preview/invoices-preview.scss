@@ -1,11 +1,12 @@
 .invoice-preview-root {
   all: initial;
-  font-family: Arial, Inter, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  letter-spacing: 0;
+  font-family: Arial;
   background: #FFF;
-
+  
   * {
+    letter-spacing: 0.01px;
     padding: 0;
+    font-family: Arial !important;
   }
 
   p {

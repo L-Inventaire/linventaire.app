@@ -89,6 +89,18 @@ export type InvoiceCounters = {
     format: string;
     counter: number;
   };
+  supplier_invoices: {
+    format: string;
+    counter: number;
+  };
+  supplier_credit_notes: {
+    format: string;
+    counter: number;
+  };
+  orders: {
+    format: string;
+    counter: number;
+  };
 };
 
 export type Invoices = {

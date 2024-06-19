@@ -1,4 +1,3 @@
-import { Tag } from "@atoms/badge/tag";
 import { Button } from "@atoms/button/button";
 import { DropDownAtom, DropDownMenuType } from "@atoms/dropdown";
 import { Base, Info } from "@atoms/text";
@@ -16,7 +15,7 @@ export const InvoiceStatus = ({
   size,
 }: {
   readonly?: boolean;
-  type: "invoices" | "quotes" | "credit_notes";
+  type: Invoices["type"];
   value: Invoices["state"];
   onChange?: (value: Invoices["state"]) => void;
   size?: "xs" | "sm" | "md" | "lg";
@@ -24,7 +23,7 @@ export const InvoiceStatus = ({
   // Quotes:
   // draft / sent / purchase_order / closed
 
-  // Invoices / Credit notes:
+  // Invoices / Credit notes / Supplier invoices:
   // draft / accounted / partial_paid / paid / closed
 
   const statusName = {
@@ -53,12 +52,30 @@ export const InvoiceStatus = ({
     quotes: ["draft", "sent", "purchase_order", "completed", "closed"],
     invoices: ["draft", "accounted", "partial_paid", "paid", "closed"],
     credit_notes: ["draft", "accounted", "partial_paid", "paid", "closed"],
+    supplier_invoices: ["draft", "accounted", "partial_paid", "paid", "closed"],
+    supplier_credit_notes: [
+      "draft",
+      "accounted",
+      "partial_paid",
+      "paid",
+      "closed",
+    ],
   };
 
   const statusPerTypeGrouped = {
     quotes: [["draft"], ["sent"], ["purchase_order", "closed", "completed"]],
     invoices: [["draft"], ["accounted"], ["paid", "partial_paid", "closed"]],
     credit_notes: [
+      ["draft"],
+      ["accounted"],
+      ["paid", "partial_paid", "closed"],
+    ],
+    supplier_invoices: [
+      ["draft"],
+      ["accounted"],
+      ["paid", "partial_paid", "closed"],
+    ],
+    supplier_credit_notes: [
       ["draft"],
       ["accounted"],
       ["paid", "partial_paid", "closed"],

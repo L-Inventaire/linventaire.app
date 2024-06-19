@@ -273,7 +273,6 @@ export const Login = () => {
               )}
             </div>
             <Button
-              size="lg"
               loading={loading}
               shortcut={["enter"]}
               disabled={

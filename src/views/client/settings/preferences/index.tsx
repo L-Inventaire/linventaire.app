@@ -55,9 +55,24 @@ export const PreferencesPage = () => {
       prefix: "D",
     },
     credit_notes: {
-      format: "A-@YYYY-@C",
+      format: "AV-@YYYY-@C",
       name: "Avoirs",
-      prefix: "A",
+      prefix: "AV",
+    },
+    supplier_invoices: {
+      format: "FF-@YYYY-@C",
+      name: "Factures fournisseurs",
+      prefix: "FF",
+    },
+    supplier_credit_notes: {
+      format: "AVF-@YYYY-@C",
+      name: "Avoirs fournisseurs",
+      prefix: "AVF",
+    },
+    orders: {
+      format: "C@C",
+      name: "Commandes",
+      prefix: "C",
     },
   };
 
@@ -186,6 +201,8 @@ export const PreferencesPage = () => {
               "invoices",
               "quotes",
               "credit_notes",
+              "supplier_invoices",
+              "orders",
             ] as (keyof typeof countersDefaults)[]
           ).map((type) => (
             <PageColumns>

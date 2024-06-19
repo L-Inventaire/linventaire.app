@@ -5,17 +5,24 @@ export type Invoices = {
   id: string;
 
   assigned: string[];
-  type: "invoices" | "quotes" | "credit_notes"; // invoice, quote, credit_note
+  type:
+    | "invoices"
+    | "quotes"
+    | "credit_notes"
+    | "supplier_invoices"
+    | "supplier_credit_notes"; // invoice, quote, credit_note
 
   // Quotes: “created”, “sent”, purchase_order, "closed”
   // Invoices and Credit Notes: “created”, “sent”, "partial", “paid”, "closed"
   state:
     | "draft"
     | "sent"
+    | "accounted"
     | "purchase_order"
     | "partial_paid"
     | "paid"
-    | "closed";
+    | "closed"
+    | "completed";
   // For invoices: invoices cancelled and refunded by this credit note
   related_credit_notes: string[]; // Nullable
   // For credit notes: invoice refunded by this credit note
