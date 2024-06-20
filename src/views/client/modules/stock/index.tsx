@@ -22,7 +22,6 @@ import { StockItemStatus } from "./components/stock-item-status";
 import { RestDocumentsInput } from "@components/rest-documents-input";
 
 export const StockPage = () => {
-  const [state, setState] = useState([]);
   const [options, setOptions] = useState<RestOptions<StockItems>>({
     limit: 10,
     offset: 0,
@@ -30,10 +29,7 @@ export const StockPage = () => {
   });
   const { stock_items } = useStockItems({
     ...options,
-    query: [
-      ...((options?.query as any) || []),
-      ...buildQueryFromMap({ state }),
-    ],
+    query: [...((options?.query as any) || [])],
   });
 
   const schema = useRestSchema("stock_items");
