@@ -19,6 +19,7 @@ import { getTvaValue } from "../../utils";
 import { useFile, useFiles } from "@features/files/hooks/use-files";
 import { buildQueryFromMap } from "@components/search-bar/utils/utils";
 import { FilesApiClient } from "@features/files/api-client/files-api-client";
+import { getDocumentName } from "@features/invoices/utils";
 
 type InvoicesPreviewProps = {
   invoice: Invoices;
@@ -65,11 +66,7 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
           className="header"
           style={{ color: invoice?.format?.color || "black" }}
         >
-          {invoice?.type === "quotes"
-            ? "Devis"
-            : invoice?.type === "invoices"
-            ? "Facture"
-            : "Avoir"}
+          {getDocumentName(invoice?.type)}
         </h1>
         <h2 className="subheader light">N° {invoice?.reference}</h2>
         <div className="marginxdiv"></div>

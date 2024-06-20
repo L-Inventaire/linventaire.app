@@ -12,6 +12,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { InvoiceStatus } from "../components/invoice-status";
 import { InvoicesDetailsPage } from "../components/invoices-details";
 import { getPdfPreview } from "../components/invoices-preview/invoices-preview";
+import { getDocumentName, getDocumentNamePlurial } from "@features/invoices/utils";
 
 export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
   const { client: clientUser, refresh, loading } = useClients();
@@ -55,7 +56,10 @@ export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
   return (
     <Page
       title={[
-        { label: "Invoices", to: getRoute(ROUTES.Invoices) },
+        {
+          label: getDocumentNamePlurial(draft.type),
+          to: getRoute(ROUTES.Invoices, { type: draft.type }),
+        },
         { label: id ? "Modifier" : "Créer" },
       ]}
       bar={

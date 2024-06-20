@@ -39,6 +39,7 @@ import _ from "lodash";
 import { useEffect } from "react";
 import { computePricesFromInvoice } from "../utils";
 import { InvoicesPreview } from "./invoices-preview/invoices-preview";
+import { getDocumentName } from "@features/invoices/utils";
 
 export const InvoicesDetailsPage = ({
   readonly,
@@ -77,6 +78,15 @@ export const InvoicesDetailsPage = ({
 
   if (isPending || (id && draft.id !== id) || !client) return <PageLoader />;
 
+  const isSupplierInvoice =
+    draft.type === "supplier_credit_notes" ||
+    draft.type === "supplier_invoices";
+  const isSupplierQuote = draft.type === "supplier_quotes";
+  const isSupplierRelated = isSupplierInvoice || isSupplierQuote;
+  const hasClientOrSupplier =
+    (draft.client && !isSupplierRelated) ||
+    (draft.supplier && isSupplierRelated);
+
   return (
     <>
       <FormContext readonly={readonly} alwaysVisible>
@@ -84,13 +94,7 @@ export const InvoicesDetailsPage = ({
           <div className="grow lg:w-3/5">
             <PageBlock
               title={
-                (draft.type === "quotes"
-                  ? "Devis"
-                  : draft.type === "invoices"
-                  ? "Facture"
-                  : "Avoir") +
-                " " +
-                ctrl("reference").value
+                getDocumentName(draft.type) + " " + ctrl("reference").value
               }
             >
               <div className="space-y-2">
@@ -104,22 +108,34 @@ export const InvoicesDetailsPage = ({
                   </PageColumns>
                 </div>
                 <PageColumns>
-                  <FormInput
-                    type="rest_documents"
-                    rest={{ table: "invoices", column: "client" }}
-                    label="Client"
-                    ctrl={ctrl("client")}
-                    max={1}
-                  />
-                  <FormInput
-                    type="rest_documents"
-                    rest={{ table: "invoices", column: "contact" }}
-                    label="Contact (optionnel)"
-                    ctrl={ctrl("contact")}
-                    max={1}
-                  />
+                  {!isSupplierInvoice && !isSupplierQuote && (
+                    <>
+                      <FormInput
+                        type="rest_documents"
+                        rest={{ table: "invoices", column: "client" }}
+                        label="Client"
+                        ctrl={ctrl("client")}
+                        max={1}
+                      />
+                      <FormInput
+                        type="rest_documents"
+                        rest={{ table: "invoices", column: "contact" }}
+                        label="Contacts (optionnel)"
+                        ctrl={ctrl("contact")}
+                      />
+                    </>
+                  )}
+                  {(isSupplierInvoice || isSupplierQuote) && (
+                    <FormInput
+                      type="rest_documents"
+                      rest={{ table: "invoices", column: "supplier" }}
+                      label="Fournisseur"
+                      ctrl={ctrl("supplier")}
+                      max={1}
+                    />
+                  )}
                 </PageColumns>
-                {draft.client && (
+                {hasClientOrSupplier && (
                   <>
                     <PageBlockHr />
                     <PageColumns>
@@ -138,7 +154,7 @@ export const InvoicesDetailsPage = ({
                 )}
               </div>
             </PageBlock>
-            {draft.client && (
+            {hasClientOrSupplier && (
               <>
                 <PageBlock title="Prestations">
                   <div className="space-y-2">
@@ -501,13 +517,16 @@ export const InvoicesDetailsPage = ({
                       ctrl={ctrl("emit_date")}
                     />
 
-                    <PageBlockHr />
-
-                    <FormInput
-                      type="files"
-                      label="Documents partagés avec le client"
-                      ctrl={ctrl("attachments")}
-                    />
+                    {!isSupplierInvoice && !isSupplierQuote && (
+                      <>
+                        <PageBlockHr />
+                        <FormInput
+                          type="files"
+                          label="Documents partagés avec le client"
+                          ctrl={ctrl("attachments")}
+                        />
+                      </>
+                    )}
                   </div>
                   <div className="">
                     <PageBlockHr />
@@ -562,56 +581,62 @@ export const InvoicesDetailsPage = ({
                     )}
                   </div>
                 </PageBlock>
-                <PageBlock
-                  closable
-                  title="Paiement"
-                  initOpen={
-                    !!(
-                      !_.isEqual(
-                        ctrl("payment_information").value,
-                        client.payment
-                      ) ||
-                      (client.preferences?.currency &&
-                        ctrl("currency").value !== client.preferences?.currency)
-                    )
-                  }
-                >
-                  <FormInput
-                    label="Devise"
-                    className="w-max mb-4"
-                    ctrl={ctrl("currency")}
-                    type="select"
-                    options={currencyOptions}
-                  />
-                  <PaymentInput
-                    readonly={readonly}
-                    ctrl={ctrl("payment_information")}
-                  />
-                </PageBlock>
-                <PageBlock
-                  closable
-                  title="Format"
-                  initOpen={
-                    !!(
-                      !_.isEqual(ctrl("format").value, client.invoices) ||
-                      (client.preferences?.language &&
-                        ctrl("language").value !== client.preferences?.language)
-                    )
-                  }
-                >
-                  <FormInput
-                    label="Langue"
-                    className="w-max mb-4"
-                    ctrl={ctrl("language")}
-                    type="select"
-                    options={languageOptions}
-                  />
-                  <PageBlockHr />
-                  <InvoiceFormatInput
-                    readonly={readonly}
-                    ctrl={ctrl("format")}
-                  />
-                </PageBlock>
+                {!isSupplierInvoice && !isSupplierQuote && (
+                  <PageBlock
+                    closable
+                    title="Paiement"
+                    initOpen={
+                      !!(
+                        !_.isEqual(
+                          ctrl("payment_information").value,
+                          client.payment
+                        ) ||
+                        (client.preferences?.currency &&
+                          ctrl("currency").value !==
+                            client.preferences?.currency)
+                      )
+                    }
+                  >
+                    <FormInput
+                      label="Devise"
+                      className="w-max mb-4"
+                      ctrl={ctrl("currency")}
+                      type="select"
+                      options={currencyOptions}
+                    />
+                    <PaymentInput
+                      readonly={readonly}
+                      ctrl={ctrl("payment_information")}
+                    />
+                  </PageBlock>
+                )}
+                {!isSupplierInvoice && !isSupplierQuote && (
+                  <PageBlock
+                    closable
+                    title="Format"
+                    initOpen={
+                      !!(
+                        !_.isEqual(ctrl("format").value, client.invoices) ||
+                        (client.preferences?.language &&
+                          ctrl("language").value !==
+                            client.preferences?.language)
+                      )
+                    }
+                  >
+                    <FormInput
+                      label="Langue"
+                      className="w-max mb-4"
+                      ctrl={ctrl("language")}
+                      type="select"
+                      options={languageOptions}
+                    />
+                    <PageBlockHr />
+                    <InvoiceFormatInput
+                      readonly={readonly}
+                      ctrl={ctrl("format")}
+                    />
+                  </PageBlock>
+                )}
                 {draft.type === "invoices" && (
                   <PageBlock closable title="Rappels" initOpen={false}>
                     <Info>
@@ -828,7 +853,7 @@ export const InvoicesDetailsPage = ({
               </>
             )}
           </div>
-          {draft.client && (
+          {hasClientOrSupplier && !isSupplierInvoice && !isSupplierQuote && (
             <>
               {/* Clearly this fixed isn't right for all screens, we should use js probably ? */}
               <div className="grow lg:w-2/5 shrink-0 flex items-start justify-center pt-6">

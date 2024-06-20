@@ -91,6 +91,7 @@ export const StockPage = () => {
           }}
           columns={[
             {
+              thClassName: "w-1",
               render: (item) => (
                 <Base className="opacity-50 whitespace-nowrap">
                   {item.serial_number}
@@ -98,7 +99,6 @@ export const StockPage = () => {
               ),
             },
             {
-              thClassName: "w-1",
               render: (item) => (
                 <RestDocumentsInput
                   disabled
@@ -107,17 +107,6 @@ export const StockPage = () => {
                   column="article"
                   max={1}
                 />
-              ),
-            },
-            {
-              thClassName: "w-1",
-              cellClassName: "justify-end",
-              render: (item) => (
-                <Button size="xs" theme="outlined">
-                  {formatNumber(item.quantity || 0)}
-                  {" / "}
-                  {formatNumber(item.original_quantity || 0)}
-                </Button>
               ),
             },
             {
@@ -133,6 +122,17 @@ export const StockPage = () => {
                     max={1}
                   />
                 </>
+              ),
+            },
+            {
+              thClassName: "w-1",
+              cellClassName: "justify-end",
+              render: (item) => (
+                <Button size="xs" theme="outlined">
+                  {formatNumber(item.quantity || 0)}
+                  {" / "}
+                  {formatNumber(item.original_quantity || 0)}
+                </Button>
               ),
             },
             {

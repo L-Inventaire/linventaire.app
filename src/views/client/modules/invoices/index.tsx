@@ -28,33 +28,33 @@ import { InvoiceStatus } from "./components/invoice-status";
 import { RestDocumentsInput } from "@components/rest-documents-input";
 import { Tag } from "@atoms/badge/tag";
 import { useParams } from "react-router-dom";
+import _ from "lodash";
+import {
+  getDocumentName,
+  getDocumentNamePlurial,
+} from "@features/invoices/utils";
 
 export const InvoicesPage = () => {
-  const type = useParams().type?.split("+") || "invoices";
-  const [state, setState] = useState([]);
+  const type: Invoices["type"][] = (useParams().type?.split("+") || [
+    "invoices",
+  ]) as any;
   const [options, setOptions] = useState<RestOptions<Invoices>>({
     limit: 10,
     offset: 0,
     query: [],
   });
+
   const { invoices } = useInvoices({
     ...options,
-    query: [
-      ...((options?.query as any) || []),
-      ...buildQueryFromMap({ type, state }),
-    ],
+    query: [...((options?.query as any) || []), ...buildQueryFromMap({ type })],
   });
 
   const schema = useRestSchema("invoices");
   const navigate = useNavigateAlt();
 
-  useEffect(() => {
-    setState([]);
-  }, [type]);
-
   return (
     <Page
-      title={[{ label: "Invoices" }]}
+      title={[{ label: getDocumentNamePlurial(type[0]) }]}
       bar={
         <SearchBar
           schema={{
@@ -79,42 +79,84 @@ export const InvoicesPage = () => {
             q.valid && setOptions({ ...options, query: q.fields })
           }
           suffix={
-            <>
-              <Button
-                size="xs"
-                theme="outlined"
-                to={withSearchAsModel(
-                  getRoute(ROUTES.InvoicesEdit, { id: "new" }),
-                  schema.data,
-                  { type: "credit_notes" }
-                )}
-                icon={(p) => <ArrowUturnLeftIcon {...p} />}
-              >
-                Avoir
-              </Button>
-              <Button
-                size="xs"
-                to={withSearchAsModel(
-                  getRoute(ROUTES.InvoicesEdit, { id: "new" }),
-                  schema.data,
-                  { type: "quotes" }
-                )}
-                icon={(p) => <PlusIcon {...p} />}
-              >
-                Devis
-              </Button>
-              <Button
-                size="xs"
-                to={withSearchAsModel(
-                  getRoute(ROUTES.InvoicesEdit, { id: "new" }),
-                  schema.data,
-                  { type: "invoices" }
-                )}
-                icon={(p) => <PlusIcon {...p} />}
-              >
-                Facture
-              </Button>
-            </>
+            ["supplier_invoices", "supplier_credit_notes"].includes(type[0]) ? (
+              <>
+                <Button
+                  size="xs"
+                  theme="outlined"
+                  to={withSearchAsModel(
+                    getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+                    schema.data,
+                    { type: "supplier_credit_notes" }
+                  )}
+                  icon={(p) => <ArrowUturnLeftIcon {...p} />}
+                >
+                  Avoir fournisseur
+                </Button>
+                <Button
+                  size="xs"
+                  to={withSearchAsModel(
+                    getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+                    schema.data,
+                    { type: "supplier_invoices" }
+                  )}
+                  icon={(p) => <PlusIcon {...p} />}
+                >
+                  Facture fournisseur
+                </Button>
+              </>
+            ) : ["supplier_quotes"].includes(type[0]) ? (
+              <>
+                <Button
+                  size="xs"
+                  to={withSearchAsModel(
+                    getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+                    schema.data,
+                    { type: "supplier_quotes" }
+                  )}
+                  icon={(p) => <PlusIcon {...p} />}
+                >
+                  Commande
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  size="xs"
+                  theme="outlined"
+                  to={withSearchAsModel(
+                    getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+                    schema.data,
+                    { type: "credit_notes" }
+                  )}
+                  icon={(p) => <ArrowUturnLeftIcon {...p} />}
+                >
+                  Avoir
+                </Button>
+                <Button
+                  size="xs"
+                  to={withSearchAsModel(
+                    getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+                    schema.data,
+                    { type: "quotes" }
+                  )}
+                  icon={(p) => <PlusIcon {...p} />}
+                >
+                  Devis
+                </Button>
+                <Button
+                  size="xs"
+                  to={withSearchAsModel(
+                    getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+                    schema.data,
+                    { type: "invoices" }
+                  )}
+                  icon={(p) => <PlusIcon {...p} />}
+                >
+                  Facture
+                </Button>
+              </>
+            )
           }
         />
       }

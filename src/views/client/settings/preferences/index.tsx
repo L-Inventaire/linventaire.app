@@ -61,12 +61,12 @@ export const PreferencesPage = () => {
     },
     supplier_invoices: {
       format: "FF-@YYYY-@C",
-      name: "Factures fournisseurs",
+      name: "Factures Fournisseurs",
       prefix: "FF",
     },
     supplier_credit_notes: {
       format: "AVF-@YYYY-@C",
-      name: "Avoirs fournisseurs",
+      name: "Avoirs Fournisseurs",
       prefix: "AVF",
     },
     supplier_quotes: {
@@ -202,7 +202,8 @@ export const PreferencesPage = () => {
               "quotes",
               "credit_notes",
               "supplier_invoices",
-              "orders",
+              "supplier_credit_notes",
+              "supplier_quotes",
             ] as (keyof typeof countersDefaults)[]
           ).map((type) => (
             <PageColumns>

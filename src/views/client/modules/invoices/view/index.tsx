@@ -9,6 +9,10 @@ import { useParams } from "react-router-dom";
 import { InvoiceStatus } from "../components/invoice-status";
 import { InvoicesDetailsPage } from "../components/invoices-details";
 import { getPdfPreview } from "../components/invoices-preview/invoices-preview";
+import {
+  getDocumentName,
+  getDocumentNamePlurial,
+} from "@features/invoices/utils";
 
 export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
   const { id } = useParams();
@@ -24,7 +28,10 @@ export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
   return (
     <Page
       title={[
-        { label: "Invoices", to: getRoute(ROUTES.Invoices) },
+        {
+          label: getDocumentNamePlurial(invoice.type),
+          to: getRoute(ROUTES.Invoices, { type: invoice.type }),
+        },
         { label: invoice.reference || "" },
       ]}
       bar={
@@ -57,7 +64,10 @@ export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
                     to={withModel(
                       getRoute(ROUTES.InvoicesEdit, { id: "new" }),
                       {
-                        //TODO
+                        ...invoice,
+                        type: "supplier_quotes",
+                        state: "draft",
+                        id: "",
                       }
                     )}
                   >
@@ -72,6 +82,7 @@ export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
                         ...invoice,
                         type: "invoices",
                         state: "draft",
+                        id: "",
                       }
                     )}
                   >
@@ -88,6 +99,7 @@ export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
                     ...invoice,
                     type: "credit_notes",
                     state: "draft",
+                    id: "",
                   })}
                 >
                   Créer un avoir

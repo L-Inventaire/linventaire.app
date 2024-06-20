@@ -1502,10 +1502,6 @@ img {
   max-width: 20rem;
 }
 
-.max-w-40 {
-  max-width: 10rem;
-}
-
 .flex-1 {
   flex: 1 1 0%;
 }

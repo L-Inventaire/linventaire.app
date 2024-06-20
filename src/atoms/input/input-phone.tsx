@@ -46,7 +46,7 @@ export default function InputPhone(props: {
       disabled={props.disabled || props.readonly}
       className={twMerge(
         inputClassName,
-        "shadow-sm bg-white rounded-md border overflow-hidden pl-3",
+        "shadow-sm rounded-md border overflow-hidden pl-3",
         props.disabled ? "opacity-50" : "",
         props.readonly ? "PhoneReadonly border-none shadow-none pl-0" : ""
       )}
