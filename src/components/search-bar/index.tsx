@@ -19,6 +19,7 @@ import { useLocation } from "react-router-dom";
 import { Button } from "@atoms/button/button";
 import { getFromUrl, setToUrl } from "./utils/url";
 import { Shortcut, showShortCut } from "@features/utils/shortcuts";
+import { DefaultScrollbars } from "@features/utils/scrollbars";
 
 export const SearchBar = ({
   schema,
@@ -33,9 +34,10 @@ export const SearchBar = ({
   autoFocus,
   inlineSuggestions,
   shortcuts,
+  urlSync,
 }: {
   schema: { table: string; fields: SearchField[] };
-  onChange: (str: OutputQuery) => void;
+  onChange: (str: OutputQuery, raw: string) => void;
   debounce?: number;
   suggestions?: Suggestions;
   className?: string;
@@ -46,6 +48,7 @@ export const SearchBar = ({
   autoFocus?: boolean;
   inlineSuggestions?: boolean;
   shortcuts?: Shortcut[];
+  urlSync?: boolean;
 }) => {
   const { fields: customFields, loading: loadingCustomFields } = useTableFields(
     schema.table
@@ -63,14 +66,18 @@ export const SearchBar = ({
   });
   const fields = schema.fields;
 
-  const [value, setValue] = useState(getFromUrl(schema.fields));
+  const [value, setValue] = useState(
+    urlSync !== false ? getFromUrl(schema.fields) : ""
+  );
   const rendererRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { search } = useLocation();
   useEffect(() => {
-    const val = getFromUrl(schema.fields);
-    if (val !== value) setValue(val);
+    if (urlSync !== false) {
+      const val = getFromUrl(schema.fields);
+      if (val !== value) setValue(val);
+    }
   }, [search]);
 
   const {
@@ -95,14 +102,17 @@ export const SearchBar = ({
   // When value change, set it to url querystring ?q=
   useEffect(() => {
     if (!loadingCustomFields) {
-      const url = new URL(window.location.href);
-      setToUrl(url, value, schema.fields);
-      url.searchParams.set("map", JSON.stringify(displayToValueMap));
-      window.history.replaceState({}, "", url.toString());
+      if (urlSync !== false) {
+        const url = new URL(window.location.href);
+        setToUrl(url, value, schema.fields);
+        url.searchParams.set("map", JSON.stringify(displayToValueMap));
+        window.history.replaceState({}, "", url.toString());
+      }
       delayCall(
         () => {
           onChange(
-            generateQuery(fields, extractFilters(value), displayToValueMap)
+            generateQuery(fields, extractFilters(value), displayToValueMap),
+            value
           );
         },
         {
@@ -126,10 +136,11 @@ export const SearchBar = ({
   return (
     <div
       className={twMerge(
-        "grow relative w-full group rounded z-10 transition-all",
+        "grow relative w-full group rounded z-10 transition-all flex-col",
         !inlineSuggestions && "focus-within:shadow-lg",
         className
       )}
+      style={{ maxHeight: "inherit" }}
     >
       <div
         className={twMerge(
@@ -234,19 +245,25 @@ export const SearchBar = ({
           className={twMerge(
             "hidden hover:block text-base z-10 right-0 top-full w-full h-max flex items-center bg-white dark:bg-wood-990 border-t rounded rounded-t-none px-2 py-1",
             inlineSuggestions
-              ? "relative block"
-              : "group-focus-within:block  absolute shadow-lg"
+              ? "grow relative block overflow-visible shrink-0"
+              : "group-focus-within:block absolute shadow-lg"
           )}
         >
-          <SearchBarSuggestions
-            suggestions={suggestions}
-            selected={selectionIndex}
-            afterOnClick={afterApplySelection}
-            caret={caret}
-            searching={searching}
-            schema={schema}
-            loadingSuggestionsValues={loadingSuggestionsValues}
-          />
+          <DefaultScrollbars
+            className="block shrink-0 h-max"
+            autoHeight
+            autoHeightMax={"50vh"}
+          >
+            <SearchBarSuggestions
+              suggestions={suggestions}
+              selected={selectionIndex}
+              afterOnClick={afterApplySelection}
+              caret={caret}
+              searching={searching}
+              schema={schema}
+              loadingSuggestionsValues={loadingSuggestionsValues}
+            />
+          </DefaultScrollbars>
         </div>
       )}
     </div>

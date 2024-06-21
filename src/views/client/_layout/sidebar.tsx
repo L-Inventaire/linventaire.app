@@ -30,6 +30,7 @@ import { useLocation } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { Account } from "./account";
 import { ResponsiveMenuAtom } from "./header";
+import { registerRootNavigation } from "@components/ctrl-k";
 
 export const SideBar = () => {
   const hasAccess = useHasAccess();
@@ -50,17 +51,17 @@ export const SideBar = () => {
         </div>
 
         <div className="px-2 space-y-1">
-          <MenuItem
+          <SideMenuItem
             to={getRoute(ROUTES.Home)}
             label="Tableau de bord"
             icon={(p) => <HomeIcon {...p} />}
           />
-          <MenuItem
+          <SideMenuItem
             to={getRoute(ROUTES.Notifications)}
             label="Notifications"
             icon={(p) => <InboxIcon {...p} />}
           />
-          <MenuItem
+          <SideMenuItem
             to={getRoute(ROUTES.Statistics)}
             label="Statistiques"
             icon={(p) => <ChartBarIcon {...p} />}
@@ -79,7 +80,7 @@ export const SideBar = () => {
             }
             show={hasAccess("CONTACTS_READ")}
           >
-            <MenuItem
+            <SideMenuItem
               to={getRoute(ROUTES.Contacts)}
               label="Tous les contacts"
               icon={(p) => <WalletIcon {...p} />}
@@ -89,7 +90,7 @@ export const SideBar = () => {
                 location.search.indexOf("is_supplier%3A1") === -1
               }
             />
-            <MenuItem
+            <SideMenuItem
               to={getRoute(ROUTES.Contacts) + "?q=is_client%3A1"}
               label="Clients"
               icon={(p) => <UserIcon {...p} />}
@@ -98,7 +99,7 @@ export const SideBar = () => {
                 location.search.indexOf("is_client%3A1") !== -1
               }
             />
-            <MenuItem
+            <SideMenuItem
               to={getRoute(ROUTES.Contacts) + "?q=is_supplier%3A1"}
               label="Fournisseurs"
               icon={(p) => <BuildingStorefrontIcon {...p} />}
@@ -128,12 +129,12 @@ export const SideBar = () => {
             }
             show={hasAccess("INVOICES_READ")}
           >
-            <MenuItem
+            <SideMenuItem
               to={getRoute(ROUTES.Invoices, { type: "quotes" })}
               label="Devis"
               icon={(p) => <DocumentIcon {...p} />}
             />
-            <MenuItem
+            <SideMenuItem
               to={getRoute(ROUTES.Invoices, { type: "invoices" })}
               label="Factures"
               icon={(p) => <DocumentCheckIcon {...p} />}
@@ -144,7 +145,7 @@ export const SideBar = () => {
                 location.search.indexOf("subscription_enabled%3A1") === -1
               }
             />
-            <MenuItem
+            <SideMenuItem
               to={
                 getRoute(ROUTES.Invoices, { type: "invoices" }) +
                 "?q=subscription_enabled%3A1"
@@ -158,7 +159,7 @@ export const SideBar = () => {
                 location.search.indexOf("subscription_enabled%3A1") !== -1
               }
             />
-            <MenuItem
+            <SideMenuItem
               to={getRoute(ROUTES.Invoices, { type: "credit_notes" })}
               label="Avoirs"
               icon={(p) => <ReceiptRefundIcon {...p} />}
@@ -170,7 +171,7 @@ export const SideBar = () => {
             label="Service"
             show={hasAccess("ONSITE_READ")}
           >
-            <MenuItem
+            <SideMenuItem
               to={getRoute(ROUTES.Consulting)}
               label="Service sur site"
               icon={(p) => <BriefcaseIcon {...p} />}
@@ -187,19 +188,19 @@ export const SideBar = () => {
               hasAccess("STOCK_READ")
             }
           >
-            <MenuItem
+            <SideMenuItem
               to={getRoute(ROUTES.Invoices, { type: "supplier_quotes" })}
               label="Commandes"
               icon={(p) => <ShoppingCartIcon {...p} />}
               show={hasAccess("INVOICES_READ")}
             />
-            <MenuItem
+            <SideMenuItem
               to={getRoute(ROUTES.Stock)}
               label="Stock"
               icon={(p) => <ViewColumnsIcon {...p} />}
               show={hasAccess("STOCK_READ")}
             />
-            <MenuItem
+            <SideMenuItem
               to={getRoute(ROUTES.Products)}
               label="Articles"
               icon={(p) => <CubeIcon {...p} />}
@@ -208,14 +209,14 @@ export const SideBar = () => {
           </MenuSection>
 
           <MenuSection className="!mt-6" label="Comptabilité">
-            <MenuItem
+            <SideMenuItem
               to={getRoute(ROUTES.Invoices, {
                 type: "supplier_invoices+supplier_credit_notes",
               })}
               label="Factures fournisseurs"
               icon={(p) => <DocumentArrowDownIcon {...p} />}
             />
-            <MenuItem
+            <SideMenuItem
               to={getRoute(ROUTES.Accounting)}
               label="Comptes"
               icon={(p) => <BookOpenIcon {...p} />}
@@ -227,13 +228,13 @@ export const SideBar = () => {
             label="Entreprise"
             show={hasAccess("CLIENT_READ") || hasAccess("USERS_READ")}
           >
-            <MenuItem
+            <SideMenuItem
               to={getRoute(ROUTES.SettingsUsers)}
               label="Utilisateurs"
               icon={(p) => <UsersIcon {...p} />}
               show={hasAccess("USERS_READ")}
             />
-            <MenuItem
+            <SideMenuItem
               to={getRoute(ROUTES.Settings)}
               label="Paramètres"
               icon={(p) => <Cog6ToothIcon {...p} />}
@@ -243,7 +244,7 @@ export const SideBar = () => {
                 location.pathname.indexOf(getRoute(ROUTES.SettingsUsers)) !== 0
               }
             />
-            <MenuItem
+            <SideMenuItem
               to={getRoute(ROUTES.DevPage)}
               label="DevPage"
               icon={(p) => <CodeBracketIcon {...p} />}
@@ -256,5 +257,30 @@ export const SideBar = () => {
         <div className="h-2" />
       </DefaultScrollbars>
     </div>
+  );
+};
+
+const SideMenuItem = ({
+  to,
+  label,
+  icon,
+  active,
+  show,
+}: {
+  to: string;
+  label: string;
+  icon: (p: any) => React.ReactNode;
+  active?: boolean;
+  show?: boolean;
+}) => {
+  if (show !== false) {
+    registerRootNavigation({
+      label,
+      keywords: [],
+      to,
+    });
+  }
+  return (
+    <MenuItem to={to} label={label} icon={icon} active={active} show={show} />
   );
 };

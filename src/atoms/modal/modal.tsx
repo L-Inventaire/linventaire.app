@@ -1,5 +1,6 @@
+import { DropDownAtom } from "@atoms/dropdown";
 import { Section } from "@atoms/text";
-import { useShortcuts } from "@features/utils/shortcuts";
+import { useShortcuts, useShortcutsContext } from "@features/utils/shortcuts";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { ErrorBoundary } from "@views/error-boundary";
@@ -11,7 +12,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { atom, useRecoilState } from "recoil";
+import { atom, useRecoilState, useSetRecoilState } from "recoil";
 
 const ModalsCountState = atom({
   key: "ModalsState",
@@ -19,6 +20,15 @@ const ModalsCountState = atom({
 });
 
 const visibleModals = { value: 0 };
+
+export const ModalContext = (props: { level: string }) => {
+  const setMenu = useSetRecoilState(DropDownAtom);
+  useEffect(() => {
+    setMenu({ target: null, menu: [] });
+  }, []);
+  useShortcutsContext("modal_" + props.level);
+  return <></>;
+};
 
 export const Modal = (props: {
   open?: boolean;
@@ -68,8 +78,8 @@ export const Modal = (props: {
   const zIndex = "z-" + level + "0";
 
   useShortcuts(
-    ["esc"],
-    () => props.closable !== false && props.onClose && props.onClose()
+    props.closable !== false ? ["esc"] : [],
+    () => props.onClose && props.onClose()
   );
 
   return (
@@ -83,7 +93,7 @@ export const Modal = (props: {
       >
         <Transition.Child
           as={Fragment}
-          enter="ease-out duration-300"
+          enter="ease-out duration-200"
           enterFrom="opacity-0 pointer-events-none"
           enterTo="opacity-100"
           leave="ease-in duration-200"
@@ -126,7 +136,7 @@ export const Modal = (props: {
             }
             <Transition.Child
               as={Fragment}
-              enter="ease-out duration-300"
+              enter="ease-out duration-200"
               enterFrom={
                 "opacity-0 pointer-events-none sm:translate-y-0 translate-y-4 sm:scale-95"
               }
@@ -156,6 +166,7 @@ export const Modal = (props: {
                     </button>
                   </div>
                 )}
+                {open && <ModalContext level={level.toString()} />}
                 <ErrorBoundary>{props.children}</ErrorBoundary>
               </Dialog.Panel>
             </Transition.Child>

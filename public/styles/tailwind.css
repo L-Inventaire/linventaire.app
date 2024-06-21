@@ -1337,8 +1337,21 @@ img {
   height: 100vh;
 }
 
+.h-24 {
+  height: 6rem;
+}
+
 .max-h-0 {
   max-height: 0px;
+}
+
+.max-h-max {
+  max-height: -webkit-max-content;
+  max-height: max-content;
+}
+
+.max-h-40 {
+  max-height: 10rem;
 }
 
 .min-h-0 {
@@ -1811,6 +1824,10 @@ img {
 
 .overflow-hidden {
   overflow: hidden;
+}
+
+.overflow-visible {
+  overflow: visible;
 }
 
 .overflow-x-auto {

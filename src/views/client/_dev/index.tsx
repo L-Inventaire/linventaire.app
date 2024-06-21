@@ -5,6 +5,7 @@ import { Info, SectionSmall } from "@atoms/text";
 import { Button } from "@atoms/button/button";
 import { ShoppingCartIcon } from "@heroicons/react/20/solid";
 import { PlusIcon } from "@heroicons/react/16/solid";
+import { DefaultScrollbars } from "@features/utils/scrollbars";
 
 export const DevPage = () => {
   const [stepperVal, setStepperVal] = useState("bought");

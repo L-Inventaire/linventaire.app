@@ -199,33 +199,6 @@ export const DropDownMenu = () => {
         trigger={(cb) => (autoHeightTrigger = cb)}
         className="px-2 py-1"
       >
-        {!!state.target && !!menu.length && (
-          <Button
-            className="hidden"
-            shortcut={["esc"]}
-            onClick={() => {
-              clickOutside();
-            }}
-          />
-        )}
-        {typeof state.menu === "function" && (
-          <Input
-            inputRef={searchRef}
-            size="sm"
-            autoFocus
-            className="w-full p-2 mt-1"
-            placeholder="Search..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Escape") {
-                e.preventDefault();
-                e.stopPropagation();
-                clickOutside();
-              }
-            }}
-          />
-        )}
         <Menu menu={menu} clickItem={() => clickOutside()} />
       </AnimatedHeight>
     </div>

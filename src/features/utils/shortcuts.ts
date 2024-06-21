@@ -67,14 +67,79 @@ type ShortcutKeys =
   | "up"
   | "down";
 
-//Store history of callbacks
+//Store history of callbacks, per context
 const shortcutsCallbacks: {
-  [key: string]: ((e: any, shortcut: Shortcut) => void)[];
+  [key: string]: {
+    [key: string]: { id: string; cb: (e: any, shortcut: Shortcut) => void }[];
+  };
 } = {};
+
+(window as any).shortcutsCallbacks = shortcutsCallbacks;
+
+// Isolate contexts for instance when in modal everything behind should not be able to listen to shortcuts
+const contextsStack: string[] = ["default"];
+export const useShortcutsContext = (context: string) => {
+  useEffect(() => {
+    contextsStack.push(context);
+    return () => {
+      contextsStack.pop();
+    };
+  }, []);
+};
+
+let scids = 0;
+export const useShortcuts = (
+  shortcuts: Shortcut[],
+  callback: (e: React.MouseEvent, shortcut: Shortcut) => void
+) => {
+  const componentId = useRef(scids++);
+  const currentShortcuts = useRef<string[]>([]);
+
+  const removeShortcuts = () => {
+    for (const context of Object.keys(shortcutsCallbacks)) {
+      for (const shortcut of currentShortcuts.current) {
+        if (shortcutsCallbacks?.[context]?.[shortcut]?.length > 0) {
+          // Remove the callback from the list at the current index
+          shortcutsCallbacks[context][shortcut] = shortcutsCallbacks[context][
+            shortcut
+          ].filter((a) => a.id !== componentId.current.toString());
+        }
+      }
+    }
+    currentShortcuts.current = [];
+  };
+
+  useControlledEffect(() => {
+    if (shortcuts.length > 0) console.log("useShortcuts", shortcuts);
+
+    //Remove old shortcuts
+    removeShortcuts();
+
+    const context = contextsStack[contextsStack.length - 1];
+    for (const shortcut of shortcuts) {
+      if (!shortcutsCallbacks[context]) shortcutsCallbacks[context] = {};
+      shortcutsCallbacks[context][shortcut] =
+        shortcutsCallbacks[context][shortcut] || [];
+      shortcutsCallbacks[context][shortcut].push({
+        cb: callback,
+        id: componentId.current.toString(),
+      });
+    }
+
+    currentShortcuts.current = shortcuts;
+  }, [shortcuts.join(",")]);
+
+  useEffect(() => {
+    return () => {
+      removeShortcuts();
+    };
+  }, []);
+};
 
 export const useListenForShortcuts = () => {
   useEffect(() => {
     const listener = (e: any) => {
+      const context = contextsStack[contextsStack.length - 1];
       if (!e.key) return;
 
       let shortcut = e.key
@@ -133,14 +198,14 @@ export const useListenForShortcuts = () => {
         }
 
         if (
-          shortcutsCallbacks[shortcut] &&
-          shortcutsCallbacks[shortcut].length
+          shortcutsCallbacks[context] &&
+          shortcutsCallbacks[context][shortcut] &&
+          shortcutsCallbacks[context][shortcut].length
         ) {
           e.preventDefault();
-          shortcutsCallbacks[shortcut][shortcutsCallbacks[shortcut].length - 1](
-            e,
-            shortcut
-          );
+          shortcutsCallbacks[context][shortcut][
+            shortcutsCallbacks[context][shortcut].length - 1
+          ].cb(e, shortcut);
           return;
         }
       }
@@ -150,45 +215,6 @@ export const useListenForShortcuts = () => {
 
     return () => {
       document.removeEventListener("keydown", listener);
-    };
-  }, []);
-};
-
-export const useShortcuts = (
-  shortcuts: Shortcut[],
-  callback: (e: React.MouseEvent, shortcut: Shortcut) => void
-) => {
-  const currentShortcuts = useRef<string[]>([]);
-
-  useControlledEffect(() => {
-    //Remove old shortcuts
-    for (const shortcut of currentShortcuts.current) {
-      if (
-        shortcutsCallbacks[shortcut] &&
-        shortcutsCallbacks[shortcut].length > 0
-      ) {
-        shortcutsCallbacks[shortcut].pop();
-      }
-    }
-
-    for (const shortcut of shortcuts) {
-      shortcutsCallbacks[shortcut] = shortcutsCallbacks[shortcut] || [];
-      shortcutsCallbacks[shortcut].push(callback);
-    }
-
-    currentShortcuts.current = shortcuts;
-  }, [shortcuts]);
-
-  useEffect(() => {
-    return () => {
-      for (const shortcut of currentShortcuts.current) {
-        if (
-          shortcutsCallbacks[shortcut] &&
-          shortcutsCallbacks[shortcut].length > 0
-        ) {
-          shortcutsCallbacks[shortcut].pop();
-        }
-      }
     };
   }, []);
 };

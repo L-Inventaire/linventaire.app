@@ -46,19 +46,35 @@ export function renderThumbVerticalDefault({ style, ...props }: any) {
 export const DefaultScrollbars = ({
   children,
   className,
+  style,
+  autoHeight,
+  autoHeightMax,
 }: {
   children: ReactNode;
   className?: string;
+  style?: React.CSSProperties;
+  autoHeight?: boolean;
+  autoHeightMax?: number | string;
 }) => {
   return (
     <Scrollbars
-      renderView={({ className: initialClassNames, ...props }) => (
-        <div {...props} className={twMerge(initialClassNames, className)} />
+      renderView={({
+        className: initialClassNames,
+        style: initialStyles,
+        ...props
+      }) => (
+        <div
+          {...props}
+          className={twMerge(initialClassNames, className)}
+          style={{ ...initialStyles, ...(style || {}) }}
+        />
       )}
       renderTrackVertical={(props) => renderTrackVerticalDefault(props)}
       renderTrackHorizontal={(props) => renderTrackHorizontalDefault(props)}
       renderThumbVertical={(props) => renderThumbVerticalDefault(props)}
       renderThumbHorizontal={(props) => renderThumbHorizontalDefault(props)}
+      autoHeight={autoHeight}
+      autoHeightMax={autoHeightMax}
     >
       {children}
     </Scrollbars>
