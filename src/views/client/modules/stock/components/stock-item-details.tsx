@@ -78,11 +78,6 @@ export const StockItemsDetailsPage = ({
           type="text"
           ctrl={ctrl("serial_number")}
         />
-        <FormInput
-          label="Quantité à réception"
-          type="number"
-          ctrl={ctrl("original_quantity")}
-        />
         <PageBlockHr />
         <SectionSmall>Usage</SectionSmall>
         <FormInput label="Quantité" type="number" ctrl={ctrl("quantity")} />

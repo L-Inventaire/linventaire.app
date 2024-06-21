@@ -10,7 +10,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { useSuggestions } from "./hooks/use-suggestions";
+import { Suggestions, useSuggestions } from "./hooks/use-suggestions";
 import { SearchBarSuggestions } from "./suggestions";
 import { buildFilter } from "./utils/filter";
 import { OutputQuery, SearchField } from "./utils/types";
@@ -18,20 +18,34 @@ import { extractFilters, generateQuery } from "./utils/utils";
 import { useLocation } from "react-router-dom";
 import { Button } from "@atoms/button/button";
 import { getFromUrl, setToUrl } from "./utils/url";
-import { showShortCut } from "@features/utils/shortcuts";
+import { Shortcut, showShortCut } from "@features/utils/shortcuts";
 
 export const SearchBar = ({
   schema,
   onChange,
   debounce = 300,
+  suggestions: additionalSuggestions,
   className,
+  inputClassName,
   suffix,
+  showExport,
+  placeholder,
+  autoFocus,
+  inlineSuggestions,
+  shortcuts,
 }: {
   schema: { table: string; fields: SearchField[] };
   onChange: (str: OutputQuery) => void;
   debounce?: number;
+  suggestions?: Suggestions;
   className?: string;
+  inputClassName?: string;
   suffix?: JSX.Element;
+  showExport?: boolean;
+  placeholder?: string;
+  autoFocus?: boolean;
+  inlineSuggestions?: boolean;
+  shortcuts?: Shortcut[];
 }) => {
   const { fields: customFields, loading: loadingCustomFields } = useTableFields(
     schema.table
@@ -74,7 +88,8 @@ export const SearchBar = ({
     schema,
     inputRef,
     setValue,
-    JSON.parse(new URLSearchParams(window.location.search).get("map") || "{}")
+    JSON.parse(new URLSearchParams(window.location.search).get("map") || "{}"),
+    additionalSuggestions
   );
 
   // When value change, set it to url querystring ?q=
@@ -111,91 +126,118 @@ export const SearchBar = ({
   return (
     <div
       className={twMerge(
-        "grow relative w-full group rounded z-10 pl-1 pr-3 flex items-center space-x-2 transition-all focus-within:shadow-lg",
+        "grow relative w-full group rounded z-10 transition-all",
+        !inlineSuggestions && "focus-within:shadow-lg",
         className
       )}
     >
-      <div className="grow relative">
+      <div
+        className={twMerge(
+          "pl-1 pr-3 flex items-center space-x-2 py-2",
+          inputClassName
+        )}
+      >
+        <div className="grow relative">
+          <div
+            ref={rendererRef}
+            style={{
+              zIndex: -1,
+              lineHeight: "1.8",
+            }}
+            className={twMerge(
+              "break-all",
+              "translate-y-px pointer-events-none select-none absolute w-full h-max left-0 top-0 text-base px-3 py-1.5",
+              value && "font-mono",
+              fields.length === 0 ? "pl-4" : "pl-9"
+            )}
+          >
+            {extractFilters(value).map((filter, i) => {
+              return <Fragment key={i}>{buildFilter(fields, filter)}</Fragment>;
+            })}
+          </div>
+          <InputDecorationIcon
+            prefix={
+              fields.length === 0
+                ? undefined
+                : () => (
+                    <Button
+                      data-tooltip="Filtrer"
+                      className={"absolute left-1.5 top-1.5"}
+                      size="xs"
+                      theme="invisible"
+                      icon={(p) => <FunnelIcon {...p} />}
+                    />
+                  )
+            }
+            input={({ className }) => (
+              <Input
+                data-release-escape
+                autoFocus={autoFocus}
+                disabled={loadingCustomFields}
+                shortcut={shortcuts || ["cmd+f"]}
+                onMouseUp={getSuggestions}
+                onKeyUp={getSuggestions}
+                onKeyDown={onKeyDown}
+                onBlur={() => cleanValue()}
+                style={{ resize: "none", lineHeight: !value ? "1.9" : "1.8" }}
+                placeholder={
+                  placeholder || "Filtrer " + showShortCut(["cmd+f"])
+                }
+                inputRef={inputRef}
+                spellCheck={false}
+                multiline
+                className={twMerge(
+                  "break-all !border-none !shadow-none !ring-0",
+                  "z-10 !bg-transparent !dark:bg-transparent !text-transparent !dark:text-transparent caret-black dark:caret-white w-full py-1.5",
+                  suggestions.length > 0 && "focus:rounded-b-none",
+                  value && "font-mono",
+                  className,
+                  fields.length === 0 ? "pl-4" : "pl-9"
+                )}
+                value={value}
+                onChange={(e) =>
+                  setValue(
+                    e.target.value
+                      ?.replace(/\n/g, "")
+                      .replace(/ +/g, " ")
+                      .replace(/^ +/, "") || ""
+                  )
+                }
+              />
+            )}
+          />
+        </div>
+        {fields.length > 0 && (
+          <Button
+            className="shrink-0"
+            size="xs"
+            theme="invisible"
+            icon={(p) => <ChevronUpDownIcon {...p} />}
+          >
+            Affichage
+          </Button>
+        )}
+        {showExport !== false && (
+          <Button
+            className="shrink-0"
+            size="xs"
+            theme="invisible"
+            icon={(p) => <ArrowDownTrayIcon {...p} />}
+          >
+            Export
+          </Button>
+        )}
+        {suffix}
+      </div>
+      {suggestions.length > 0 && (
         <div
-          ref={rendererRef}
-          style={{
-            zIndex: -1,
-            lineHeight: "1.8",
-          }}
           className={twMerge(
-            "break-all",
-            "translate-y-px pointer-events-none select-none absolute w-full h-max left-0 top-0 text-base px-3 py-1.5",
-            value && "font-mono",
-            "pl-9"
+            "hidden hover:block text-base z-10 right-0 top-full w-full h-max flex items-center bg-white dark:bg-wood-990 border-t rounded rounded-t-none px-2 py-1",
+            inlineSuggestions
+              ? "relative block"
+              : "group-focus-within:block  absolute shadow-lg"
           )}
         >
-          {extractFilters(value).map((filter, i) => {
-            return <Fragment key={i}>{buildFilter(fields, filter)}</Fragment>;
-          })}
-        </div>
-        <InputDecorationIcon
-          prefix={() => (
-            <Button
-              data-tooltip="Filtrer"
-              className={"absolute left-1.5 top-1.5"}
-              size="xs"
-              theme="invisible"
-              icon={(p) => <FunnelIcon {...p} />}
-            />
-          )}
-          input={({ className }) => (
-            <Input
-              disabled={loadingCustomFields}
-              shortcut={["cmd+f"]}
-              onMouseUp={getSuggestions}
-              onKeyUp={getSuggestions}
-              onKeyDown={onKeyDown}
-              onBlur={() => cleanValue()}
-              style={{ resize: "none", lineHeight: "1.8" }}
-              placeholder={"Filtrer " + showShortCut(["cmd+f"])}
-              inputRef={inputRef}
-              spellCheck={false}
-              multiline
-              className={twMerge(
-                "break-all !border-none !shadow-none !ring-0",
-                "z-10 !bg-transparent !dark:bg-transparent !text-transparent !dark:text-transparent caret-black dark:caret-white w-full py-1.5",
-                suggestions.length > 0 && "focus:rounded-b-none",
-                value && "font-mono",
-                className,
-                "pl-9"
-              )}
-              value={value}
-              onChange={(e) =>
-                setValue(
-                  e.target.value
-                    ?.replace(/\n/g, "")
-                    .replace(/ +/g, " ")
-                    .replace(/^ +/, "") || ""
-                )
-              }
-            />
-          )}
-        />
-      </div>
-      <Button
-        className="shrink-0"
-        size="xs"
-        theme="invisible"
-        icon={(p) => <ChevronUpDownIcon {...p} />}
-      >
-        Affichage
-      </Button>
-      <Button
-        className="shrink-0"
-        size="xs"
-        theme="invisible"
-        icon={(p) => <ArrowDownTrayIcon {...p} />}
-      >
-        Export
-      </Button>
-      {suffix}
-      {suggestions.length > 0 && (
-        <div className="hidden group-focus-within:block hover:block text-base z-10 absolute right-0 top-full w-full h-max shadow-lg flex items-center bg-white dark:bg-wood-990 border-t rounded rounded-t-none px-2 py-1">
           <SearchBarSuggestions
             suggestions={suggestions}
             selected={selectionIndex}

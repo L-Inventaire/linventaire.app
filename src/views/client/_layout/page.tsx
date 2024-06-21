@@ -31,7 +31,7 @@ export const Page = (props: {
     <ErrorBoundary>
       <div className="flex flex-col grow w-full text-black dark:text-white min-h-full sm:bg-transparent">
         {props.bar && (
-          <div className="border-b flex min-h-12 border-slate-100 dark:border-slate-700">
+          <div className="border-b flex min-h-12 border-slate-100 dark:border-slate-700 shrink-0">
             {props.bar}
           </div>
         )}

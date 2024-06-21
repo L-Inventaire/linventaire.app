@@ -7,18 +7,19 @@ import {
   useShortcuts,
 } from "@features/utils/shortcuts";
 import _ from "lodash";
-import React, { Fragment, useCallback, useEffect } from "react";
+import React, { Fragment, useCallback, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { atom, useRecoilState, useSetRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
 import { MenuItem, MenuSection } from "./components";
+import { Input } from "@atoms/input/input-text";
 
 export type DropDownMenuType = {
   type?: "divider" | "danger" | "menu" | "label" | "title"; // default to menu
   icon?: (p: any) => React.ReactNode;
   label?: string | React.ReactNode;
   shortcut?: Shortcut[];
-  onClick?: () => void;
+  onClick?: (e: MouseEvent) => void;
   to?: string;
   active?: boolean;
   className?: string;
@@ -26,7 +27,7 @@ export type DropDownMenuType = {
 
 export const DropDownAtom = atom<{
   target: HTMLElement | null;
-  menu: DropDownMenuType;
+  menu: DropDownMenuType | ((query: string) => Promise<DropDownMenuType>);
   position?: "bottom" | "left" | "right"; //Default to bottom
 }>({
   key: "dropdown",
@@ -63,7 +64,12 @@ let autoHeightTrigger: (() => void) | null = null;
 let timeout: any = 0;
 
 export const DropDownMenu = () => {
+  const searchRef = React.useRef<HTMLInputElement>(null);
+  const [query, setQuery] = useState("");
   const [state, setState] = useRecoilState(DropDownAtom);
+  const [menu, setMenu] = useState<DropDownMenuType>(
+    typeof state.menu === "function" ? [] : state.menu
+  );
   const ref = React.useRef<HTMLDivElement>(null);
 
   const updatePosition = useCallback(() => {
@@ -159,12 +165,23 @@ export const DropDownMenu = () => {
     clickOutside();
   });
 
+  useEffect(() => {
+    if (typeof state.menu === "function") {
+      searchRef.current?.focus();
+      state.menu(query).then((m) => {
+        setMenu(m);
+      });
+    } else {
+      setMenu(state.menu);
+    }
+  }, [query, state.menu]);
+
   return (
     <div
       ref={ref}
       style={{
         pointerEvents: state.target ? "all" : "none",
-        opacity: state.target && state.menu.length > 0 ? 1 : 0,
+        opacity: state.target && menu.length > 0 ? 1 : 0,
       }}
       className="z-50 transition-all fixed sm:bottom-auto bottom-0 h-auto shadow-xl border border-slate-50 dark:border-slate-700 sm:rounded-lg max-w-2xl w-full sm:w-64 bg-white dark:bg-slate-900 overflow-hidden"
     >
@@ -172,7 +189,34 @@ export const DropDownMenu = () => {
         trigger={(cb) => (autoHeightTrigger = cb)}
         className="px-2 py-1"
       >
-        <Menu menu={state.menu} clickItem={() => clickOutside()} />
+        {!!state.target && !!menu.length && (
+          <Button
+            className="hidden"
+            shortcut={["esc"]}
+            onClick={() => {
+              clickOutside();
+            }}
+          />
+        )}
+        {typeof state.menu === "function" && (
+          <Input
+            inputRef={searchRef}
+            size="sm"
+            autoFocus
+            className="w-full p-2 mt-1"
+            placeholder="Search..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                e.preventDefault();
+                e.stopPropagation();
+                clickOutside();
+              }
+            }}
+          />
+        )}
+        <Menu menu={menu} clickItem={() => clickOutside()} />
       </AnimatedHeight>
     </div>
   );
@@ -209,8 +253,8 @@ export const Menu = ({
             active={active}
             onClick={
               m.onClick
-                ? () => {
-                    m.onClick?.();
+                ? (e: MouseEvent) => {
+                    m.onClick?.(e);
                     clickItem?.();
                   }
                 : undefined

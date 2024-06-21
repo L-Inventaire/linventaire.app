@@ -56,6 +56,21 @@ const useRedirectToApp = () => {
 const PublicPage = (props: { children: ReactNode }) => {
   const { user } = useRedirectToApp();
 
+  useEffect(() => {
+    if (user?.id) {
+      return;
+    }
+    const script = document.createElement("script");
+    script.src =
+      "https://www.google.com/recaptcha/enterprise.js?render=6Lf5LxopAAAAALXErlTeGxlWy_x6M8RlKlJzZ4RB";
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
   if (user?.id) {
     return <></>;
   }

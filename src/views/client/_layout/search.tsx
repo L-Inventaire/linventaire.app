@@ -1,45 +1,18 @@
+import { Button } from "@atoms/button/button";
 import { InputDecorationIcon } from "@atoms/input/input-decoration-icon";
 import { Input } from "@atoms/input/input-text";
 import { Info } from "@atoms/text";
-import { debounce } from "@features/utils/debounce";
+import { CtrlKAtom } from "@components/ctrl-k";
 import { showShortCut } from "@features/utils/shortcuts";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { useTranslation } from "react-i18next";
-
-type SearchResult = {}; //TODO
+import { useSetRecoilState } from "recoil";
 
 export const Search = () => {
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const { t } = useTranslation();
-  const [, setFocused] = useState(false);
-  const [query, setQuery] = useState("");
-  const requestId = useRef<number>(0);
-  const [, setLoading] = useState(false);
-  const [, setResult] = useState<{ data: SearchResult[]; total: number }>({
-    data: [],
-    total: 0,
-  });
-
-  useEffect(() => {
-    if (query) {
-      setLoading(true);
-      requestId.current++;
-      const id = requestId.current;
-      debounce(
-        async () => {
-          //TODO
-          setResult({
-            data: [],
-            total: 0,
-          });
-          if (id === requestId.current) {
-            setLoading(false);
-          }
-        },
-        { key: "search" }
-      );
-    }
-  }, [query]);
+  const openCtrlK = useSetRecoilState(CtrlKAtom);
 
   return (
     <div className="md:relative z-10 w-full">
@@ -55,15 +28,33 @@ export const Search = () => {
           <Input
             className="w-full"
             size="md"
-            onFocus={() => setFocused(true)}
-            onBlur={() => setTimeout(() => setFocused(false), 200)}
-            onChange={(e) => setQuery(e.target.value)}
+            onFocus={(e) => {
+              e.preventDefault();
+              buttonRef.current?.click();
+            }}
             inputClassName={"!rounded-md text-black " + className}
             placeholder={t("header.search.placeholder")}
-            shortcut={["cmd+k"]}
           />
         )}
       />
+      <Button
+        btnRef={buttonRef}
+        className="hidden"
+        shortcut={["cmd+k"]}
+        onClick={() => {
+          openCtrlK({
+            path: [
+              {
+                mode: "action",
+                options: [{ label: "Search contacts", keywords: [] }],
+              },
+            ],
+            selection: [],
+          });
+        }}
+      >
+        .
+      </Button>
     </div>
   );
 };

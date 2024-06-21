@@ -107,8 +107,9 @@ export const useListenForShortcuts = () => {
       for (const shortcut of activeShortcuts) {
         //Ignore if input, textarea or select is focused
         if (
-          // Cmd+S is an exception, we still want to enable save on document while input is focused
+          // Cmd+S and cmd+K are exceptions, we still want to enable save on document while input is focused
           !activeShortcuts.includes("cmd+s") &&
+          !activeShortcuts.includes("cmd+k") &&
           document.activeElement &&
           ["input", "textarea", "select"].includes(
             document.activeElement.tagName?.toLowerCase()
@@ -119,10 +120,16 @@ export const useListenForShortcuts = () => {
           )
         ) {
           if (shortcut === "esc") {
-            (document.activeElement as any)?.blur();
+            // If active elements has a data-release-escape then we want to allow the escape key
+            if (!document.activeElement.getAttribute("data-release-escape")) {
+              (document.activeElement as any)?.blur();
+              return;
+            } else {
+              (document.activeElement as any)?.blur();
+            }
+          } else {
             return;
           }
-          return;
         }
 
         if (

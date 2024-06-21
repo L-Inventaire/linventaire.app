@@ -1,25 +1,22 @@
+import { Button } from "@atoms/button/button";
 import { Base, Info } from "@atoms/text";
+import { RestDocumentsInput } from "@components/rest-documents-input";
 import { Table } from "@components/table";
 import { ROUTES, getRoute } from "@features/routes";
 import { useStockItems } from "@features/stock/hooks/use-stock-items";
 import { StockItems } from "@features/stock/types/types";
+import { formatNumber } from "@features/utils/format/strings";
 import { useNavigateAlt } from "@features/utils/navigate";
 import {
   RestOptions,
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
+import { PlusIcon } from "@heroicons/react/16/solid";
 import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
-import {
-  buildQueryFromMap,
-  schemaToSearchFields,
-} from "../../../../components/search-bar/utils/utils";
-import { Button } from "@atoms/button/button";
-import { PlusIcon } from "@heroicons/react/16/solid";
-import { formatNumber } from "@features/utils/format/strings";
+import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
 import { StockItemStatus } from "./components/stock-item-status";
-import { RestDocumentsInput } from "@components/rest-documents-input";
 
 export const StockPage = () => {
   const [options, setOptions] = useState<RestOptions<StockItems>>({

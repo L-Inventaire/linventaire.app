@@ -10,6 +10,7 @@ import { twMerge } from "tailwind-merge";
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  btnRef?: any;
   theme?:
     | "primary"
     | "secondary"
@@ -30,7 +31,8 @@ export interface ButtonProps
 
 export const Button = (props: ButtonProps) => {
   const disabled = props.disabled || props.loading;
-  const btnRef = useRef<HTMLButtonElement>(null);
+  const internalRef = useRef<HTMLButtonElement>(null);
+  const btnRef = props.btnRef || internalRef;
 
   // Used to show a loader depending on the onClick promise function
   const asyncTimoutRef = useRef<any>(null);
@@ -85,12 +87,16 @@ export const Button = (props: ButtonProps) => {
 
   let className = colors;
 
-  const size = props.size || "md";
+  // We wont use the md / lg sizes
+  const size =
+    props.size === "lg" || props.size === "md"
+      ? "sm"
+      : props.size || ("sm" as ButtonProps["size"]);
 
   if (size === "xl") className = className + " text-base h-14 px-14 ";
   else if (size === "lg") className = className + " text-base h-11 px-8 ";
   else if (size === "sm") className = className + " px-3 text-base h-7";
-  else if (size === "xs") className = className + " pl-2 pr-1.5 text-base h-6";
+  else if (size === "xs") className = className + " px-2 text-base h-6";
   else className = className + " px-4 text-base h-9";
 
   if (!props.children) {
@@ -144,10 +150,15 @@ export const Button = (props: ButtonProps) => {
         "data-tooltip"
       )}
     >
-      {(props.loading || asyncLoading) && (
+      {
         <>
           <svg
-            className="animate-spin -ml-1 mr-3 h-5 w-5"
+            className={twMerge(
+              "animate-spin",
+              "overflow-hidden opacity-1 transition-all",
+              size === "xs" ? "-ml-1 mr-1 h-4 w-4" : "-ml-1.5 mr-1.5 h-4 w-4",
+              !(props.loading || asyncLoading) && "w-0 opacity-0"
+            )}
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -167,18 +178,21 @@ export const Button = (props: ButtonProps) => {
             ></path>
           </svg>{" "}
         </>
-      )}
+      }
       {props.icon &&
         props.icon({
-          className:
-            "h-4 w-4 " +
-            (props.children
+          className: twMerge(
+            "overflow-hidden opacity-1 transition-all",
+            "h-4 w-4",
+            (props.loading || asyncLoading) && "w-0 opacity-0",
+            props.children
               ? size === "xs"
-                ? "-ml-1 mr-0.5"
+                ? "-ml-1 mr-1"
                 : size === "sm"
                 ? "-ml-1 mr-1"
                 : "-ml-1 mr-2"
-              : "-mx-2"),
+              : "-mx-2"
+          ),
         })}
       <span>{props.children}</span>
     </button>

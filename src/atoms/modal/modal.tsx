@@ -92,7 +92,7 @@ export const Modal = (props: {
         >
           <div
             className={
-              "fixed inset-0 bg-opacity-25 dark:bg-opacity-75 transition-opacity " +
+              "fixed inset-0 bg-opacity-10 dark:bg-opacity-50 transition-opacity " +
               (level === 1 ? "bg-black" : "bg-transparent")
             }
           />

@@ -16,11 +16,11 @@ import { useCaret } from "./use-caret";
 // - Popular complete searches
 
 export type Suggestions = {
-  type: "operator" | "field" | "value";
+  type: "operator" | "field" | "value" | "navigation";
   field?: SearchField;
 
   value: string; // Goes to next filter (finish values and add space)
-  onClick?: () => void;
+  onClick?: (event: MouseEvent) => void;
 
   render?: string | ReactNode; // A special rendered item
 
@@ -35,7 +35,8 @@ export const useSuggestions = (
   schema: { table: string; fields: SearchField[] },
   inputRef: React.RefObject<HTMLInputElement>,
   setValue: (value: string) => void,
-  initialDisplayToValueMap: any
+  initialDisplayToValueMap: any,
+  additionalSuggestions?: Suggestions
 ) => {
   const fields = schema.fields;
   const { getCaretPosition, replaceAtCursor } = useCaret(inputRef, setValue);
@@ -94,7 +95,7 @@ export const useSuggestions = (
 
   useEffect(() => {
     setSelectionIndex(0);
-  }, [_suggestions.length]); // Keep position if we just added a value
+  }, [_suggestions.length, additionalSuggestions?.length]); // Keep position if we just added a value
 
   const suggestions = [
     ...(mode === "value"
@@ -158,6 +159,7 @@ export const useSuggestions = (
         })) as Suggestions)
       : []),
     ..._suggestions,
+    ...(additionalSuggestions || []),
   ];
 
   // This function will clean the value input
@@ -271,7 +273,7 @@ export const useSuggestions = (
       e.preventDefault();
       e.stopPropagation();
       if (suggestions[selectionIndex] && suggestions[selectionIndex].onClick) {
-        suggestions[selectionIndex].onClick?.();
+        suggestions[selectionIndex].onClick?.(e);
       }
       afterApplySelection();
       return;

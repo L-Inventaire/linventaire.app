@@ -42,6 +42,7 @@ export const SearchBarSuggestions = ({
   const operators = suggestions.filter((a) => a.type === "operator");
   const fields = suggestions.filter((a) => a.type === "field");
   const values = suggestions.filter((a) => a.type === "value");
+  const navigation = suggestions.filter((a) => a.type === "navigation");
   searching =
     searching &&
     !["boolean", "date", "number"].includes(currentField?.type || "");
@@ -185,8 +186,8 @@ export const SearchBarSuggestions = ({
                 ),
                 shortcut: i === selected ? ["enter"] : [],
                 active: i === selected,
-                onClick: () => {
-                  a.onClick?.();
+                onClick: (e: MouseEvent) => {
+                  a.onClick?.(e);
                   afterOnClick();
                 },
               })),
@@ -216,8 +217,8 @@ export const SearchBarSuggestions = ({
                 ),
                 shortcut: i + values.length === selected ? ["enter"] : [],
                 active: i + values.length === selected,
-                onClick: () => {
-                  onClick?.();
+                onClick: (e: MouseEvent) => {
+                  onClick?.(e);
                   afterOnClick();
                 },
               })),
@@ -243,8 +244,37 @@ export const SearchBarSuggestions = ({
                     ? ["enter"]
                     : [],
                 active: i + fields.length + values.length === selected,
-                onClick: () => {
-                  a.onClick?.();
+                onClick: (e: MouseEvent) => {
+                  a.onClick?.(e);
+                  afterOnClick();
+                },
+              })),
+            ] as DropDownMenuType)
+          : []),
+        ...(navigation.length
+          ? ([
+              {
+                type: "label",
+                label: <Info>Navigation</Info>,
+                onClick: () => {},
+              },
+              ...navigation.map((a, i) => ({
+                type: "menu",
+                label: (
+                  <span>
+                    {((a as any).render || a.value) as string | ReactNode}
+                  </span>
+                ),
+                shortcut:
+                  i + fields.length + values.length + operators.length ===
+                  selected
+                    ? ["enter"]
+                    : [],
+                active:
+                  i + fields.length + values.length + operators.length ===
+                  selected,
+                onClick: (e: MouseEvent) => {
+                  a.onClick?.(e);
                   afterOnClick();
                 },
               })),

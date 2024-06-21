@@ -51,7 +51,7 @@ export const MenuItem = ({
   active?: boolean;
   icon?: (p: any) => React.ReactNode;
   to?: string;
-  onClick?: () => void;
+  onClick?: (e: MouseEvent) => void;
   label?: string | React.ReactNode;
   show?: boolean;
   className?: string;
