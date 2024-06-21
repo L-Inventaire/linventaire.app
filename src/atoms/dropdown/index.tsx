@@ -62,6 +62,7 @@ export const DropdownButton = (
 let lastTarget: HTMLElement | null = null;
 let autoHeightTrigger: (() => void) | null = null;
 let timeout: any = 0;
+let backToInitialSizeTimeout: any = 0;
 
 export const DropDownMenu = () => {
   const searchRef = React.useRef<HTMLInputElement>(null);
@@ -74,6 +75,7 @@ export const DropDownMenu = () => {
 
   const updatePosition = useCallback(() => {
     clearTimeout(timeout);
+    clearTimeout(backToInitialSizeTimeout);
 
     // Changed target: animate transition
     if (!lastTarget) {
@@ -175,6 +177,14 @@ export const DropDownMenu = () => {
       setMenu(state.menu);
     }
   }, [query, state.menu]);
+
+  useEffect(() => {
+    if (!state.target) {
+      backToInitialSizeTimeout = setTimeout(() => {
+        setMenu([]);
+      }, 1000);
+    }
+  }, [state.target]);
 
   return (
     <div
