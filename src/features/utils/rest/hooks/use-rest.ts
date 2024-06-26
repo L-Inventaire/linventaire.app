@@ -64,6 +64,7 @@ export const useRestSuggestions = <T>(
       }
       return [];
     },
+    placeholderData: (prev) => prev,
   });
 
   useEffect(() => {
@@ -99,6 +100,7 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
             options?.query,
             _.omit(options, "query")
           ),
+    placeholderData: (prev) => prev,
   });
 
   const refresh = () =>
@@ -154,5 +156,6 @@ export const useRestSchema = (table: string) => {
   return useQuery<SchemaType>({
     queryKey: [table + "_schema", id],
     queryFn: () => restApiClients[table].schema(id || ""),
+    placeholderData: (prev) => prev,
   });
 };
