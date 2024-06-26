@@ -46,7 +46,6 @@ export const Search = () => {
             path: [
               {
                 mode: "action",
-                options: [{ label: "Search contacts", keywords: [] }],
               },
             ],
             selection: [],

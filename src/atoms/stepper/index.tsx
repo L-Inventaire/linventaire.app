@@ -2,7 +2,7 @@ import { Button } from "@atoms/button/button";
 import { DropDownAtom, DropDownMenuType } from "@atoms/dropdown";
 import { Base, Info } from "@atoms/text";
 import { ChevronDownIcon, ChevronRightIcon } from "@heroicons/react/16/solid";
-import { useEffect } from "react";
+import { Fragment, useEffect } from "react";
 import { useSetRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
 
@@ -78,7 +78,7 @@ export const Stepper = <T extends string>({
     >
       <div className="flex items-center space-x-2">
         {statusGrouped.map((group, i) => (
-          <>
+          <Fragment key={i}>
             {i !== 0 && size === "lg" && (
               <ChevronRightIcon className="w-3 h-3 ml-1 text-gray-400" />
             )}
@@ -100,7 +100,7 @@ export const Stepper = <T extends string>({
                 <Info>{(statusName as any)[group[0]] || "-"}</Info>
               </>
             )}
-          </>
+          </Fragment>
         ))}
         {!readonly && ["sm", "xs", "md"].includes(size || "sm") && (
           <ChevronDownIcon className="w-3 h-3 ml-1 text-gray-400" />

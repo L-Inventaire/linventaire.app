@@ -110,8 +110,6 @@ export const useShortcuts = (
   };
 
   useControlledEffect(() => {
-    if (shortcuts.length > 0) console.log("useShortcuts", shortcuts);
-
     //Remove old shortcuts
     removeShortcuts();
 

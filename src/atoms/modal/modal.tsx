@@ -149,8 +149,8 @@ export const Modal = (props: {
             >
               <Dialog.Panel
                 className={
-                  "align-bottom bg-white dark:bg-wood-990 px-4 pt-5 pb-4 text-left w-full sm:w-auto overflow-hidden shadow-xl transform transition-all sm:align-middle sm:p-6 " +
-                  "relative inline-block rounded-tr-xl rounded-tl-xl sm:rounded-lg sm:my-8 w-full sm:w-full sm:max-w-[400px] " +
+                  "align-bottom bg-white dark:bg-wood-990 px-4 pt-5 pb-4 text-left w-full overflow-hidden shadow-xl transform transition-all sm:align-middle sm:p-6 " +
+                  "relative inline-block rounded-tr-md rounded-tl-md sm:rounded-lg sm:my-8 w-full md:w-[90vw] sm:max-w-[400px] " +
                   (props.className || "")
                 }
                 style={props.style || {}}

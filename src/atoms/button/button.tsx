@@ -142,6 +142,7 @@ export const Button = (props: ButtonProps) => {
       disabled={disabled}
       {..._.omit(
         props,
+        "btnRef",
         "onClick",
         "loading",
         "children",

@@ -2,9 +2,16 @@ import { Button } from "@atoms/button/button";
 import { Modal } from "@atoms/modal/modal";
 import { SearchBar } from "@components/search-bar";
 import { Suggestions } from "@components/search-bar/hooks/use-suggestions";
-import { ROUTES, getRoute } from "@features/routes";
+import { schemaToSearchFields } from "@components/search-bar/utils/utils";
+import { getRoute } from "@features/routes";
 import { normalizeString } from "@features/utils/format/strings";
 import { useNavigateAlt } from "@features/utils/navigate";
+import {
+  RestSearchQuery,
+  useRest,
+  useRestSchema,
+} from "@features/utils/rest/hooks/use-rest";
+import { RestEntity } from "@features/utils/rest/types/types";
 import { XMarkIcon } from "@heroicons/react/16/solid";
 import Fuse from "fuse.js";
 import _ from "lodash";
@@ -39,13 +46,8 @@ import { atom, useRecoilState } from "recoil";
 - We can search for invoices, when selecting one, it opens it and close the ctrl+K
 */
 
-type CtrlKOptionsType = {
-  label: string;
-  keywords?: string[];
-  priority?: number;
-  icon?: (p: any) => React.ReactNode;
-  action?: () => void;
-  to?: string;
+type CtrlKPathOptionType<T> = {
+  query: string; // Current query
 };
 
 type CtrlKPathType<T> = {
@@ -54,7 +56,16 @@ type CtrlKPathType<T> = {
     | "search" // Search items
     | "create"; // Create a new item (enlarge the modal)
   entity?: string; // Search entity (ex. "contacts")
-  options?: CtrlKOptionsType[]; // Additional options for any mode
+  options?: CtrlKPathOptionType<T>; // Additional options for any mode
+};
+
+type CtrlKOptionsType = {
+  label: string;
+  keywords?: string[];
+  priority?: number;
+  icon?: (p: any) => React.ReactNode;
+  action?: (event: MouseEvent) => void;
+  to?: string;
 };
 
 export type CtrlKStateType<T> = {
@@ -77,6 +88,42 @@ export const registerRootNavigation = (
   rootNavigationItems = [
     ...rootNavigationItems.filter((a) => a.to !== options.to),
     options,
+  ];
+};
+
+let useSearchableEntities = () => {
+  const [state, setState] = useRecoilState(CtrlKAtom);
+
+  const getAction = (entity: string, query?: string) => () => {
+    setState({
+      ...state,
+      path: [
+        ...state.path,
+        {
+          mode: "search",
+          entity: entity,
+          options: { query: query || "" },
+        },
+      ],
+    });
+  };
+
+  return [
+    {
+      label: "Contacts",
+      keywords: ["contact", "person", "people", "client", "fournisseur"],
+      action: getAction("contacts"),
+    },
+    {
+      label: "Clients",
+      keywords: [],
+      action: getAction("contacts", "is_client:1 "),
+    },
+    {
+      label: "Fournisseurs",
+      keywords: [],
+      action: getAction("contacts", "is_supplier:1 "),
+    },
   ];
 };
 
@@ -111,8 +158,9 @@ const filterSuggestions = (query: string, suggestions: CtrlKOptionsType[]) => {
 };
 
 export const CtrlKModal = () => {
-  const [query, setQuery] = useState("");
   const [state, setState] = useRecoilState(CtrlKAtom);
+  const currentState = state.path[state.path.length - 1] || {};
+
   const navigateAlt = useNavigateAlt();
   const close = () =>
     setState({
@@ -120,12 +168,39 @@ export const CtrlKModal = () => {
       selection: [],
     });
 
+  const searchableEntities = useSearchableEntities();
+  const query = currentState.options?.query || "";
+  const [searchQuery, setSearchQuery] = useState<RestSearchQuery[]>([]);
+  const setQuery = (query: string) => {
+    setState(
+      _.set(_.cloneDeep(state), "path", [
+        ...state.path.map((a, i) =>
+          i === state.path.length - 1
+            ? _.set(_.cloneDeep(a), "options.query", query)
+            : a
+        ),
+      ])
+    );
+  };
+  const schema = useRestSchema(currentState.entity || "");
+  const { items } = useRest<RestEntity & any>(currentState.entity || "", {
+    limit: 50,
+    query: searchQuery,
+    key: "crtl-k-" + currentState.entity + "-" + state.path.length,
+  });
+
+  console.log("currentState", currentState.options);
+
   return (
     <Modal
       open={state.path.length > 0}
       closable={false}
       positioned
-      style={{ marginTop: "10vh", maxHeight: "80vh" }}
+      style={{
+        marginTop: "10vh",
+        maxHeight: "80vh",
+        maxWidth: currentState.mode === "search" ? "1200px" : "",
+      }}
     >
       <div className="-m-6" style={{ maxHeight: "inherit" }}>
         <SearchBar
@@ -133,8 +208,19 @@ export const CtrlKModal = () => {
           autoFocus
           urlSync={false}
           inputClassName="py-2"
-          schema={{ table: "ctrl+k", fields: [] }}
-          onChange={(_, q) => setQuery(q)}
+          schema={
+            currentState.mode === "search"
+              ? {
+                  table: currentState.entity || "",
+                  fields: schemaToSearchFields(schema.data),
+                }
+              : { table: "ctrl+k", fields: [] }
+          }
+          value={query}
+          onChange={(obj, q) => {
+            setQuery(q);
+            if (obj.valid) setSearchQuery(obj.fields);
+          }}
           showExport={false}
           placeholder={"Search actions or items"}
           suffix={
@@ -148,21 +234,57 @@ export const CtrlKModal = () => {
           }
           shortcuts={["cmd+k"]}
           debounce={1}
-          suggestions={[
-            ...filterSuggestions(query, rootNavigationItems)
-              .filter((a) => a.to)
-              .map(
-                (a) =>
-                  ({
-                    type: "navigation",
-                    value: "Ouvrir '" + a.label + "'",
-                    onClick: (event) => {
-                      navigateAlt(getRoute(a.to!), { event });
-                      close();
-                    },
-                  } as Suggestions[0])
-              ),
-          ]}
+          suggestions={
+            currentState.mode === "action"
+              ? [
+                  ...filterSuggestions(query, [
+                    ...searchableEntities.map((a) => ({
+                      ...a,
+                      label: `Rechercher dans '${a.label}'`,
+                    })),
+                    ...rootNavigationItems.map((a) => ({
+                      ...a,
+                      label: `Ouvrir '${a.label}'`,
+                      action: (event: MouseEvent) => {
+                        close();
+                        setTimeout(() => {
+                          navigateAlt(getRoute(a.to!), { event });
+                        }, 100);
+                      },
+                    })),
+                  ]).map(
+                    (a) =>
+                      ({
+                        type: "navigation",
+                        value: a.label,
+                        onClick: a.action,
+                      } as Suggestions[0])
+                  ),
+                ]
+              : currentState.mode === "search"
+              ? [
+                  ...(items.data?.list || []).map(
+                    (a) =>
+                      ({
+                        type: "navigation",
+                        value: a._label,
+                        onClick: (event) => {
+                          close();
+                          setTimeout(() => {
+                            navigateAlt(
+                              // TODO Change me because url is not always linked to the entity
+                              getRoute(
+                                "/:client/" + currentState.entity + "/" + a.id
+                              ),
+                              { event }
+                            );
+                          }, 100);
+                        },
+                      } as Suggestions[0])
+                  ),
+                ]
+              : []
+          }
         />
       </div>
     </Modal>

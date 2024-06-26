@@ -23,6 +23,7 @@ import { DefaultScrollbars } from "@features/utils/scrollbars";
 
 export const SearchBar = ({
   schema,
+  value: controlledValue,
   onChange,
   debounce = 300,
   suggestions: additionalSuggestions,
@@ -37,6 +38,7 @@ export const SearchBar = ({
   urlSync,
 }: {
   schema: { table: string; fields: SearchField[] };
+  value?: string;
   onChange: (str: OutputQuery, raw: string) => void;
   debounce?: number;
   suggestions?: Suggestions;
@@ -71,6 +73,10 @@ export const SearchBar = ({
   );
   const rendererRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (controlledValue !== undefined) setValue(controlledValue);
+  }, [controlledValue]);
 
   const { search } = useLocation();
   useEffect(() => {

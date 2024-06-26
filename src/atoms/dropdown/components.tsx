@@ -92,7 +92,7 @@ export const MenuItem = ({
         icon({
           className: "h-4 w-4 opacity-80",
         })}
-      <Base noColor className="grow mt-px">
+      <Base noColor className="grow mt-px whitespace-nowrap">
         {label}
       </Base>
       {suffix}
