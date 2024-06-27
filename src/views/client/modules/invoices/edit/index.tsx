@@ -3,6 +3,7 @@ import { DocumentBar } from "@components/document-bar";
 import { PageLoader } from "@components/page-loader";
 import { useClients } from "@features/clients/state/use-clients";
 import { Invoices } from "@features/invoices/types/types";
+import { getDocumentNamePlurial } from "@features/invoices/utils";
 import { ROUTES, getRoute } from "@features/routes";
 import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { Page } from "@views/client/_layout/page";
@@ -12,7 +13,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { InvoiceStatus } from "../components/invoice-status";
 import { InvoicesDetailsPage } from "../components/invoices-details";
 import { getPdfPreview } from "../components/invoices-preview/invoices-preview";
-import { getDocumentName, getDocumentNamePlurial } from "@features/invoices/utils";
 
 export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
   const { client: clientUser, refresh, loading } = useClients();
@@ -26,7 +26,6 @@ export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
   id = id === "new" ? "" : id || "";
   const navigate = useNavigate();
 
-  // TODO this must not execute if we're in a modal /!\
   const initialModel = JSON.parse(
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as Invoices;

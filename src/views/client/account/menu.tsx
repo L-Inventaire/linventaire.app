@@ -1,21 +1,24 @@
 import { DropDownMenuType } from "@atoms/dropdown";
-import { registerRootNavigation } from "@components/ctrl-k";
+import { registerRootNavigation } from "@features/ctrlk";
 import { MenuIndex, ROUTES, getRoute } from "@features/routes";
+import { useTranslation } from "react-i18next";
 
-export const AccountMenu: MenuIndex = () => {
+export const useAccountMenu: MenuIndex = () => {
+  const { t } = useTranslation();
+
   const bar = {
     prefix: "/account/",
     menu: [
       {
         type: "title",
-        label: "Compte",
+        label: t("menu.account.title"),
       },
       {
-        label: "Préférence et profil",
+        label: t("menu.account.profile"),
         to: getRoute(ROUTES.AccountProfile),
       },
       {
-        label: "Sécurité",
+        label: t("menu.account.security"),
         to: getRoute(ROUTES.AccountSecurity),
       },
       {
@@ -23,10 +26,10 @@ export const AccountMenu: MenuIndex = () => {
       },
       {
         type: "title",
-        label: "Entreprise",
+        label: t("menu.account.enterprise"),
       },
       {
-        label: "Gérer mes entreprise",
+        label: t("menu.account.manage_companies"),
         to: getRoute(ROUTES.AccountClients),
       },
     ] as DropDownMenuType,
@@ -35,7 +38,7 @@ export const AccountMenu: MenuIndex = () => {
   for (const item of bar.menu) {
     if (item.to)
       registerRootNavigation({
-        label: "Compte > " + item.label,
+        label: t("menu.account.ctrlk_prefix") + " > " + item.label,
         keywords: [],
         to: item.to,
         priority: -100,

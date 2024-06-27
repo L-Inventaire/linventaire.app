@@ -6,10 +6,16 @@ import { Button } from "@atoms/button/button";
 import { ShoppingCartIcon } from "@heroicons/react/20/solid";
 import { PlusIcon } from "@heroicons/react/16/solid";
 import { DefaultScrollbars } from "@features/utils/scrollbars";
+import { useSetRecoilState } from "recoil";
+import { CtrlKAtom } from "@features/ctrlk/store";
+import { useCtrlKAsSelect } from "@features/ctrlk/use-ctrlk-as-select";
+import { Contacts, getContactName } from "@features/contacts/types/types";
 
 export const DevPage = () => {
   const [stepperVal, setStepperVal] = useState("bought");
   const [loading, setLoading] = useState(false);
+  const select = useCtrlKAsSelect();
+  const [supplier, setSupplier] = useState<Contacts>();
 
   return (
     <Page>
@@ -78,7 +84,17 @@ export const DevPage = () => {
         <div className="space-y-2">
           <SectionSmall>Selector Card</SectionSmall>
           <Info>To use when </Info>
-          TODO
+          <div
+            onClick={() =>
+              select<Contacts>("contacts", { is_supplier: true }, (item) => {
+                setSupplier(item);
+              })
+            }
+            className="border rounded p-4 w-max cursor-pointer hover:bg-slate-50"
+          >
+            {!supplier && "Choose a supplier"}
+            {supplier && getContactName(supplier)}
+          </div>
         </div>
       </div>
     </Page>

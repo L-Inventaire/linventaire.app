@@ -13,7 +13,6 @@ export const ContactsEditPage = ({ readonly }: { readonly?: boolean }) => {
   id = id === "new" ? "" : id || "";
   const navigate = useNavigate();
 
-  // TODO this must not execute if we're in a modal /!\
   const initialModel = JSON.parse(
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as Contacts;

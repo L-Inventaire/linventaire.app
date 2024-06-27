@@ -1,9 +1,8 @@
-import Select from "@atoms/input/input-select";
 import { DocumentBar } from "@components/document-bar";
 import { PageLoader } from "@components/page-loader";
 import { useClients } from "@features/clients/state/use-clients";
-import { StockItems } from "@features/stock/types/types";
 import { ROUTES, getRoute } from "@features/routes";
+import { StockItems } from "@features/stock/types/types";
 import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { Page } from "@views/client/_layout/page";
 import _ from "lodash";
@@ -24,7 +23,6 @@ export const StockItemsEditPage = ({ readonly }: { readonly?: boolean }) => {
   id = id === "new" ? "" : id || "";
   const navigate = useNavigate();
 
-  // TODO this must not execute if we're in a modal /!\
   const initialModel = JSON.parse(
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as StockItems;

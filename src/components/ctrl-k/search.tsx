@@ -1,7 +1,10 @@
 import { Button } from "@atoms/button/button";
 import { SearchBar } from "@components/search-bar";
 import { Suggestions } from "@components/search-bar/hooks/use-suggestions";
-import { schemaToSearchFields } from "@components/search-bar/utils/utils";
+import {
+  buildQueryFromMap,
+  schemaToSearchFields,
+} from "@components/search-bar/utils/utils";
 import { getRoute } from "@features/routes";
 import { useNavigateAlt } from "@features/utils/navigate";
 import {
@@ -14,10 +17,13 @@ import { XMarkIcon } from "@heroicons/react/16/solid";
 import _ from "lodash";
 import { useState } from "react";
 import { useRecoilState } from "recoil";
-import { CtrlKAtom, rootNavigationItems } from ".";
+import { CtrlKAtom } from "@features/ctrlk/store";
 import { filterSuggestions, useSearchableEntities } from "./search-utils";
+import { RestEntities, RootNavigationItems } from "@features/ctrlk";
+import { useTranslation } from "react-i18next";
 
 export const SearchCtrlK = () => {
+  const { t } = useTranslation();
   const [state, setState] = useRecoilState(CtrlKAtom);
   const currentState = state.path[state.path.length - 1] || {};
 
@@ -48,7 +54,10 @@ export const SearchCtrlK = () => {
     currentState.options?.entity || "",
     {
       limit: 50,
-      query: searchQuery,
+      query: [
+        ...searchQuery,
+        ...buildQueryFromMap(currentState.options?.internalQuery || {}),
+      ],
       key: "crtl-k-" + currentState.options?.entity + "-" + state.path.length,
     }
   );
@@ -74,7 +83,7 @@ export const SearchCtrlK = () => {
         if (obj.valid) setSearchQuery(obj.fields);
       }}
       showExport={false}
-      placeholder={"Search actions or items"}
+      placeholder={t("ctrlk.search.placeholder")}
       suffix={
         <Button
           onClick={() => close()}
@@ -89,14 +98,22 @@ export const SearchCtrlK = () => {
       suggestions={
         currentState.mode === "action"
           ? [
+              {
+                type: "operator",
+                value: "Supprimer la sélection",
+              },
+              {
+                type: "operator",
+                value: "Dupliquer la sélection",
+              },
               ...filterSuggestions(query, [
                 ...searchableEntities.map((a) => ({
                   ...a,
-                  label: `Rechercher dans '${a.label}'`,
+                  label: t("ctrlk.navigation.search_in") + ` '${a.label}'`,
                 })),
-                ...rootNavigationItems.map((a) => ({
+                ...RootNavigationItems.map((a) => ({
                   ...a,
-                  label: `Ouvrir '${a.label}'`,
+                  label: t("ctrlk.navigation.go_to") + ` '${a.label}'`,
                   action: (event: MouseEvent) => {
                     close();
                     setTimeout(() => {
@@ -139,16 +156,25 @@ export const SearchCtrlK = () => {
                   ({
                     type: "navigation",
                     value: a._label,
+                    render:
+                      RestEntities[
+                        currentState.options?.entity || ""
+                      ]?.renderResult?.(a),
                     onClick: (event) => {
                       close();
                       setTimeout(() => {
+                        if (currentState.options?.onClick) {
+                          currentState.options.onClick(a, event);
+                          return;
+                        }
                         navigateAlt(
-                          // TODO Change me because url is not always linked to the entity
                           getRoute(
-                            "/:client/" +
-                              currentState.options?.entity +
-                              "/" +
-                              a.id
+                            RestEntities[currentState.options?.entity || ""]
+                              ?.viewRoute ||
+                              "/:client/" +
+                                currentState.options?.entity +
+                                "/:id",
+                            { id: a.id }
                           ),
                           { event }
                         );

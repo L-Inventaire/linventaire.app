@@ -4228,6 +4228,11 @@ input, select {
   background-color: rgb(133 98 73 / var(--tw-bg-opacity));
 }
 
+.hover\:bg-slate-50:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(237 237 234 / var(--tw-bg-opacity));
+}
+
 .hover\:bg-opacity-15:hover {
   --tw-bg-opacity: 0.15;
 }

@@ -1,8 +1,8 @@
 import { DropDownMenuType, Menu } from "@atoms/dropdown";
 import { useHasAccess } from "@features/access";
 import { useLocation } from "react-router-dom";
-import { SettingsMenu } from "../settings/menu";
-import { AccountMenu } from "../account/menu";
+import { useSettingsMenu } from "../settings/menu";
+import { useAccountMenu } from "../account/menu";
 import { useRecoilValue } from "recoil";
 import { ResponsiveMenuAtom } from "./header";
 import { DefaultScrollbars } from "@features/utils/scrollbars";
@@ -17,8 +17,8 @@ const isPrefix = (location: string, prefix: string) => {
 export const SecondSideBar = () => {
   const hasAccess = useHasAccess();
   const location = useLocation();
-  const settingsMenu = SettingsMenu(hasAccess);
-  const accountMenu = AccountMenu(hasAccess);
+  const settingsMenu = useSettingsMenu(hasAccess);
+  const accountMenu = useAccountMenu(hasAccess);
   const menuOpen = useRecoilValue(ResponsiveMenuAtom);
 
   let menu: DropDownMenuType = [];

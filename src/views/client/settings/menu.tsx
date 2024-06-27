@@ -1,25 +1,28 @@
 import { DropDownMenuType } from "@atoms/dropdown";
-import { registerRootNavigation } from "@components/ctrl-k";
+import { registerRootNavigation } from "@features/ctrlk";
 import { MenuIndex, ROUTES, getRoute } from "@features/routes";
+import { useTranslation } from "react-i18next";
 
-export const SettingsMenu: MenuIndex = (hasAccess) => {
+export const useSettingsMenu: MenuIndex = (hasAccess) => {
+  const { t } = useTranslation();
+
   const bar = {
     prefix: "/settings/",
     menu: [
       {
         type: "title",
-        label: "Entreprise",
+        label: t("menu.settings.title"),
       },
       {
-        label: "Votre entreprise",
+        label: t("menu.settings.company"),
         to: getRoute(ROUTES.SettingsCompany),
       },
       {
-        label: "Collaborateurs",
+        label: t("menu.settings.users"),
         to: getRoute(ROUTES.SettingsUsers),
       },
       {
-        label: "Préférences",
+        label: t("menu.settings.preferences"),
         to: getRoute(ROUTES.SettingsPreferences),
       },
       {
@@ -27,22 +30,22 @@ export const SettingsMenu: MenuIndex = (hasAccess) => {
       },
       {
         type: "title",
-        label: "Paramètres",
+        label: t("menu.settings.preferences_title"),
       },
       {
-        label: "Étiquettes",
+        label: t("menu.settings.tags"),
         to: getRoute(ROUTES.SettingsTags),
       },
       {
-        label: "Champs personnalisés",
+        label: t("menu.settings.custom_fields"),
         to: getRoute(ROUTES.SettingsCustomFields),
       },
       {
-        label: "Importations",
+        label: t("menu.settings.import"),
         to: getRoute(ROUTES.SettingsImport),
       },
       {
-        label: "Développeurs et API",
+        label: t("menu.settings.api"),
         to: getRoute(ROUTES.SettingsApi),
       },
       {
@@ -50,10 +53,10 @@ export const SettingsMenu: MenuIndex = (hasAccess) => {
       },
       {
         type: "title",
-        label: "Abonnement",
+        label: t("menu.settings.billing_title"),
       },
       {
-        label: "Paiements et plans",
+        label: t("menu.settings.billing"),
         to: getRoute(ROUTES.SettingsBilling),
       },
     ] as DropDownMenuType,
@@ -62,7 +65,7 @@ export const SettingsMenu: MenuIndex = (hasAccess) => {
   for (const item of bar.menu) {
     if (item.to)
       registerRootNavigation({
-        label: "Paramètres de l'entreprise > " + item.label,
+        label: t("menu.settings.ctrl_prefix") + " > " + item.label,
         keywords: [],
         to: item.to,
         priority: -50,

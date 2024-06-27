@@ -41,5 +41,94 @@
       "tva": "Mention de TVA",
       "branding_placeholder": "Afficher le logo de linventaire.app sur les factures"
     }
+  },
+  "menu": {
+    "settings": {
+      "title": "Entreprise",
+      "company": "Votre entreprise",
+      "users": "Collaborateurs",
+      "preferences": "Préférences",
+      "preferences_title": "Paramètres",
+      "tags": "Étiquettes",
+      "custom_fields": "Champs personnalisés",
+      "categories": "Importations",
+      "import": "Importations",
+      "api": "Développeurs et API",
+      "billing_title": "Abonnement",
+      "billing": "Paiements et plans",
+      "ctrl_prefix": "Paramètres de l'entreprise"
+    },
+    "account": {
+      "title": "Compte",
+      "profile": "Préférence et profil",
+      "security": "Sécurité",
+      "enterprise": "Entreprise",
+      "manage_companies": "Gérer mes entreprise",
+      "ctrlk_prefix": "Compte"
+    },
+    "dashboard": "Tableau de bord",
+    "notifications": "Notifications",
+    "statistics": "Statistiques",
+    "contacts": "Tous les contacts",
+    "contacts_title": "Contacts",
+    "clients": "Clients",
+    "suppliers": "Fournisseurs",
+    "sell_title": "Ventes",
+    "quotes": "Devis",
+    "invoices": "Factures",
+    "subscriptions": "Abonnements",
+    "credit_notes": "Avoirs",
+    "services_title": "Service",
+    "consulting": "Service sur site",
+    "buy_title": "Achats",
+    "supplier_quotes": "Commandes",
+    "stock": "Stock",
+    "products": "Articles",
+    "supplier_invoices": "Factures fournisseurs",
+    "accounting": "Comptes",
+    "settings_title": "Entreprise",
+    "users": "Utilisateurs",
+    "settings_parent": "Paramètres"
+  },
+  "entities": {
+    "contacts": {
+      "titles": {
+        "plural": "Contacts",
+        "keywords": "contact,person,people",
+        "clients_plural": "Clients",
+        "suppliers_plural": "Fournisseurs",
+        "suppliers_keywords": "supplier",
+        "clients_keywords": "prospect"
+      }
+    },
+    "articles": {
+      "titles": {
+        "plural": "Articles",
+        "keywords": "produits,articles,consommables,services"
+      }
+    },
+    "invoices": {
+      "titles": {
+        "quotes_plural": "Devis",
+        "quotes_keywords": "devis,quotes,bon de commande",
+        "invoices_plural": "Factures",
+        "invoices_keywords": "factures",
+        "credit_notes_plural": "Avoirs",
+        "credit_notes_keywords": "avoirs",
+        "supplier_quotes_plural": "Commandes",
+        "supplier_quotes_keywords": "commande fournisseur,demande de prix",
+        "supplier_invoices_plural": "Factures fournisseurs",
+        "supplier_invoices_keywords": "factures,à payer"
+      }
+    }
+  },
+  "ctrlk": {
+    "search": {
+      "placeholder": "Rechercher des actions ou des éléments"
+    },
+    "navigation": {
+      "search_in": "Rechercher dans",
+      "go_to": "Ouvrir"
+    }
   }
 }

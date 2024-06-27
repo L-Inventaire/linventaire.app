@@ -2,7 +2,7 @@ import { Button } from "@atoms/button/button";
 import { InputDecorationIcon } from "@atoms/input/input-decoration-icon";
 import { Input } from "@atoms/input/input-text";
 import { Info } from "@atoms/text";
-import { CtrlKAtom } from "@components/ctrl-k";
+import { CtrlKAtom } from "@features/ctrlk/store";
 import { showShortCut } from "@features/utils/shortcuts";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { useRef } from "react";

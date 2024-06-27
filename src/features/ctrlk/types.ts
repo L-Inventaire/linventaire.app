@@ -2,8 +2,10 @@ import { ReactNode } from "react";
 
 export type CtrlKPathOptionType<T> = {
   query?: string; // Current query
+  internalQuery?: any;
   entity?: string; // Search entity (ex. "contacts")
   editor?: (props: { id: string }) => ReactNode;
+  onClick?: (item: T, event: MouseEvent) => void; // Action to apply on selection
 };
 
 export type CtrlKPathType<T> = {

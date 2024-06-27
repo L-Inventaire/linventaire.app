@@ -1,8 +1,8 @@
 import { Modal } from "@atoms/modal/modal";
-import { atom, useRecoilValue } from "recoil";
+import { CtrlKAtom } from "@features/ctrlk/store";
+import { useRecoilValue } from "recoil";
 import { ModalEditor } from "./editor";
 import { SearchCtrlK } from "./search";
-import { CtrlKOptionsType, CtrlKStateType } from "./types";
 
 /*
 [selection] Scenario 1:
@@ -31,24 +31,6 @@ import { CtrlKOptionsType, CtrlKStateType } from "./types";
 - We are now in "search" mode but for entity_type "invoices"
 - We can search for invoices, when selecting one, it opens it and close the ctrl+K
 */
-
-export const CtrlKAtom = atom<CtrlKStateType<any>>({
-  key: "CtrlKAtom",
-  default: {
-    path: [],
-    selection: [],
-  },
-});
-
-export let rootNavigationItems: CtrlKOptionsType[] = [];
-export const registerRootNavigation = (
-  options: CtrlKOptionsType & { to: string }
-) => {
-  rootNavigationItems = [
-    ...rootNavigationItems.filter((a) => a.to !== options.to),
-    options,
-  ];
-};
 
 export const CtrlKModal = () => {
   const state = useRecoilValue(CtrlKAtom);

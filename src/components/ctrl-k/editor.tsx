@@ -2,8 +2,10 @@ import { DocumentBar } from "@components/document-bar";
 import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import Scrollbars from "react-custom-scrollbars";
 import { useRecoilState } from "recoil";
-import { CtrlKAtom } from ".";
+import { CtrlKAtom } from "@features/ctrlk/store";
 import _ from "lodash";
+import { RestEntity } from "@features/utils/rest/types/types";
+import { RestEntities } from "@features/ctrlk";
 
 export const ModalEditor = () => {
   const [state, setState] = useRecoilState(CtrlKAtom);
@@ -12,16 +14,16 @@ export const ModalEditor = () => {
   const { draft, save, isInitiating } = useDraftRest(
     currentState.options?.entity || "",
     "new",
-    async (item) => {
-      // TODO on saved
+    async (item: RestEntity) => {
+      // Set created element as query for the previous path
+      const newPath = state.path.slice(0, state.path.length - 1);
+      _.set(_.last(newPath) || {}, "options.query", `id:"${item.id}"`);
       setState({
         ...state,
-        path: state.path.slice(0, state.path.length - 1),
+        path: newPath,
       });
     },
-    _.merge({
-      // TODO get an initial mode
-    })
+    _.merge(RestEntities[currentState.options?.entity || ""]?.defaultData, {})
   );
 
   return (
@@ -45,8 +47,10 @@ export const ModalEditor = () => {
         </div>
         <Scrollbars>
           <div className="p-4">
-            {currentState.options?.editor &&
-              currentState.options.editor({ id: "" })}
+            {RestEntities[currentState.options?.entity || ""]?.renderEditor &&
+              RestEntities[currentState.options?.entity || ""]?.renderEditor({
+                id: "",
+              })}
           </div>
         </Scrollbars>
       </div>

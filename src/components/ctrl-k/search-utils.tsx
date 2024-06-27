@@ -2,40 +2,79 @@ import { normalizeString } from "@features/utils/format/strings";
 import Fuse from "fuse.js";
 import _ from "lodash";
 import { useRecoilState } from "recoil";
-import { CtrlKOptionsType } from "./types";
-import { CtrlKAtom } from ".";
+import { CtrlKOptionsType } from "@features/ctrlk/types";
+import { CtrlKAtom } from "@features/ctrlk/store";
+import { useTranslation } from "react-i18next";
 
 export const useSearchableEntities = () => {
+  const { t } = useTranslation();
   const [state, setState] = useRecoilState(CtrlKAtom);
 
-  const getAction = (entity: string, query?: string) => () => {
-    setState({
-      ...state,
-      path: [
-        ...state.path,
-        {
-          mode: "search",
-          options: { query: query || "", entity: entity },
-        },
-      ],
-    });
-  };
+  const getAction =
+    (entity: string, query?: string, internalQuery?: any) => () => {
+      setState({
+        ...state,
+        path: [
+          ...state.path,
+          {
+            mode: "search",
+            options: { query: query || "", entity: entity, internalQuery },
+          },
+        ],
+      });
+    };
 
   return [
     {
-      label: "Contacts",
-      keywords: ["contact", "person", "people"],
+      label: t("entities.contacts.titles.plural"),
+      keywords: t("entities.contacts.titles.keywords").split(","),
       action: getAction("contacts"),
     },
     {
-      label: "Clients",
-      keywords: [],
+      label: t("entities.contacts.titles.clients_plural"),
+      keywords: t("entities.contacts.titles.clients_keywords").split(","),
       action: getAction("contacts", "is_client:1 "),
     },
     {
-      label: "Fournisseurs",
-      keywords: [],
+      label: t("entities.contacts.titles.suppliers_plural"),
+      keywords: t("entities.contacts.titles.suppliers_keywords").split(","),
       action: getAction("contacts", "is_supplier:1 "),
+    },
+    {
+      label: t("entities.articles.titles.plural"),
+      keywords: t("entities.articles.titles.keywords").split(","),
+      action: getAction("articles"),
+    },
+    {
+      label: t("entities.invoices.titles.quotes_plural"),
+      keywords: t("entities.invoices.titles.quotes_keywords").split(","),
+      action: getAction("invoices", "", { type: "quotes" }),
+    },
+    {
+      label: t("entities.invoices.titles.invoices_plural"),
+      keywords: t("entities.invoices.titles.invoices_keywords").split(","),
+      action: getAction("invoices", "", { type: "invoices" }),
+    },
+    {
+      label: t("entities.invoices.titles.credit_notes_plural"),
+      keywords: t("entities.invoices.titles.credit_notes_keywords").split(","),
+      action: getAction("invoices", "", { type: "credit_notes" }),
+    },
+    {
+      label: t("entities.invoices.titles.supplier_quotes_plural"),
+      keywords: t("entities.invoices.titles.supplier_quotes_keywords").split(
+        ","
+      ),
+      action: getAction("invoices", "", { type: "supplier_quotes" }),
+    },
+    {
+      label: t("entities.invoices.titles.supplier_invoices_plural"),
+      keywords: t("entities.invoices.titles.supplier_invoices_keywords").split(
+        ","
+      ),
+      action: getAction("invoices", "", {
+        type: ["supplier_invoices", "supplier_credit_note"],
+      }),
     },
   ];
 };
