@@ -1319,6 +1319,10 @@ img {
   height: 100vh;
 }
 
+.h-40 {
+  height: 10rem;
+}
+
 .max-h-0 {
   max-height: 0px;
 }
@@ -4594,6 +4598,10 @@ input, select {
 
   .md\:w-\[90vw\] {
     width: 90vw;
+  }
+
+  .md\:w-\[95vw\] {
+    width: 95vw;
   }
 
   .md\:grid-cols-1 {

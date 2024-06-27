@@ -17,6 +17,7 @@ import {
   LinkIcon,
   PencilSquareIcon,
   PrinterIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
 import _ from "lodash";
 import { useSetRecoilState } from "recoil";
@@ -28,6 +29,7 @@ export const DocumentBar = ({
   prefix,
   suffix,
   loading,
+  onClose,
   ...props
 }: {
   loading?: boolean;
@@ -35,6 +37,7 @@ export const DocumentBar = ({
   document: any & RestEntity;
   prefix?: React.ReactNode;
   suffix?: React.ReactNode;
+  onClose?: () => void;
   backRoute?: string;
   viewRoute?: string;
   editRoute?: string;
@@ -47,6 +50,7 @@ export const DocumentBar = ({
   const navigate = useNavigateAlt();
 
   const cancel = async () => {
+    if (onClose) return onClose();
     // Get previous route
     navigate(
       !document.id || mode === "read"
@@ -75,7 +79,11 @@ export const DocumentBar = ({
           size="xs"
           theme="outlined"
           shortcut={["esc"]}
-          icon={(p) => <ArrowLeftIcon {...p} />}
+          icon={
+            onClose
+              ? (p) => <XMarkIcon {...p} />
+              : (p) => <ArrowLeftIcon {...p} />
+          }
           onClick={cancel}
         />
         {mode === "read" && (

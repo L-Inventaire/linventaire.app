@@ -12,7 +12,6 @@ import { useLocation } from "react-router-dom";
 import { atom, useRecoilState, useSetRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
 import { MenuItem, MenuSection } from "./components";
-import { Input } from "@atoms/input/input-text";
 
 export type DropDownMenuType = {
   type?: "divider" | "danger" | "menu" | "label" | "title"; // default to menu
@@ -66,7 +65,7 @@ let backToInitialSizeTimeout: any = 0;
 
 export const DropDownMenu = () => {
   const searchRef = React.useRef<HTMLInputElement>(null);
-  const [query, setQuery] = useState("");
+  const [query] = useState("");
   const [state, setState] = useRecoilState(DropDownAtom);
   const [menu, setMenu] = useState<DropDownMenuType>(
     typeof state.menu === "function" ? [] : state.menu
