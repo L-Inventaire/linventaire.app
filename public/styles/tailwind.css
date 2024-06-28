@@ -998,6 +998,11 @@ img {
   margin-bottom: 2rem;
 }
 
+.mx-1 {
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
+}
+
 .\!-ml-0 {
   margin-left: -0px !important;
 }
@@ -1188,6 +1193,10 @@ img {
 
 .mt-px {
   margin-top: 1px;
+}
+
+.-ml-3 {
+  margin-left: -0.75rem;
 }
 
 .block {

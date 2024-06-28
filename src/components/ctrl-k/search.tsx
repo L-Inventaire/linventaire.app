@@ -21,6 +21,15 @@ import { CtrlKAtom } from "@features/ctrlk/store";
 import { filterSuggestions, useSearchableEntities } from "./search-utils";
 import { CtrlKRestEntities, RootNavigationItems } from "@features/ctrlk";
 import { useTranslation } from "react-i18next";
+import { twMerge } from "tailwind-merge";
+import {
+  ArrowRightIcon,
+  DocumentDuplicateIcon,
+  MagnifyingGlassIcon,
+  PencilIcon,
+  PlusIcon,
+  TrashIcon,
+} from "@heroicons/react/24/outline";
 
 export const SearchCtrlK = () => {
   const { t } = useTranslation();
@@ -79,7 +88,7 @@ export const SearchCtrlK = () => {
       }
       value={query}
       onChange={(obj, q) => {
-        if (q || Math.abs(q.length - query.length) <= 1) setQuery(q); // Make sure the default query is set
+        if (currentState.mode === "action") setQuery(q); // Make sure the default query is set
         if (obj.valid) setSearchQuery(obj.fields);
       }}
       showExport={false}
@@ -99,25 +108,54 @@ export const SearchCtrlK = () => {
         currentState.mode === "action"
           ? [
               ...(!!state.selection?.items?.length
-                ? ([
+                ? filterSuggestions(query, [
                     {
-                      type: "operator",
-                      value: "Supprimer la sélection",
+                      label: "Modifier 'Étiquettes'...",
+                      keywords: ["tags", "étiquettes", "catégories"],
+                      icon: (p: any) => <PencilIcon {...p} />,
                     },
                     {
-                      type: "operator",
-                      value: "Dupliquer la sélection",
+                      label: "Dupliquer la sélection",
+                      keywords: ["duplicate", "copy", "cloner"],
+                      icon: (p: any) => <DocumentDuplicateIcon {...p} />,
                     },
-                  ] as Suggestions[0][])
+                    {
+                      label: "Supprimer la sélection",
+                      keywords: ["delete", "remove", "retirer"],
+                      className: "text-red-500",
+                      icon: (p: any) => <TrashIcon {...p} />,
+                    },
+                  ]).map(
+                    (a) =>
+                      ({
+                        type: "operator",
+                        render: (
+                          <div
+                            className={twMerge(
+                              "flex items-center",
+                              a.icon ? "-ml-3" : "-ml-1",
+                              a.className
+                            )}
+                          >
+                            {a.icon &&
+                              a.icon({ className: "h-4 w-4 mx-1 opacity-50" })}
+                            {a.label}
+                          </div>
+                        ),
+                        onClick: a.action,
+                      } as Suggestions[0])
+                  )
                 : []),
               ...filterSuggestions(query, [
                 ...searchableEntities.map((a) => ({
                   ...a,
                   label: t("ctrlk.navigation.search_in") + ` '${a.label}'`,
+                  icon: (p: any) => <MagnifyingGlassIcon {...p} />,
                 })),
                 ...RootNavigationItems.map((a) => ({
                   ...a,
                   label: t("ctrlk.navigation.go_to") + ` '${a.label}'`,
+                  icon: (p: any) => <ArrowRightIcon {...p} />,
                   action: (event: MouseEvent) => {
                     close();
                     setTimeout(() => {
@@ -130,7 +168,18 @@ export const SearchCtrlK = () => {
                 (a) =>
                   ({
                     type: "navigation",
-                    value: a.label,
+                    render: (
+                      <div
+                        className={twMerge(
+                          "flex items-center",
+                          a.icon ? "-ml-3" : "-ml-1"
+                        )}
+                      >
+                        {a.icon &&
+                          a.icon({ className: "h-4 w-4 mx-1 opacity-50" })}
+                        {a.label}
+                      </div>
+                    ),
                     onClick: a.action,
                   } as Suggestions[0])
               ),
@@ -138,8 +187,14 @@ export const SearchCtrlK = () => {
           : currentState.mode === "search"
           ? [
               {
-                type: "navigation",
-                value: query ? `Créer '${query}'` : "Créer un nouvel élément",
+                type: "operator",
+                value: "create",
+                render: (
+                  <div className={twMerge("flex items-center -ml-3")}>
+                    <PlusIcon className="h-4 w-4 mx-1 opacity-50" />
+                    {query ? `Créer '${query}'` : "Créer un nouvel élément"}
+                  </div>
+                ),
                 onClick: () => {
                   setState({
                     ...state,

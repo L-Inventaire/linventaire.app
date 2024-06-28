@@ -17,10 +17,11 @@ export type CtrlKPathType<T> = {
 };
 
 export type CtrlKOptionsType = {
-  label: string;
+  label: string | ReactNode;
   keywords?: string[];
   priority?: number;
   icon?: (p: any) => React.ReactNode;
+  className?: string;
   action?: (event: MouseEvent) => void;
   to?: string;
 };
