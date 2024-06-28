@@ -19,7 +19,7 @@ import { useState } from "react";
 import { useRecoilState } from "recoil";
 import { CtrlKAtom } from "@features/ctrlk/store";
 import { filterSuggestions, useSearchableEntities } from "./search-utils";
-import { RestEntities, RootNavigationItems } from "@features/ctrlk";
+import { CtrlKRestEntities, RootNavigationItems } from "@features/ctrlk";
 import { useTranslation } from "react-i18next";
 
 export const SearchCtrlK = () => {
@@ -31,7 +31,7 @@ export const SearchCtrlK = () => {
   const close = () =>
     setState({
       path: [],
-      selection: [],
+      selection: { entity: "", items: [] },
     });
 
   const searchableEntities = useSearchableEntities();
@@ -98,14 +98,18 @@ export const SearchCtrlK = () => {
       suggestions={
         currentState.mode === "action"
           ? [
-              {
-                type: "operator",
-                value: "Supprimer la sélection",
-              },
-              {
-                type: "operator",
-                value: "Dupliquer la sélection",
-              },
+              ...(!!state.selection?.items?.length
+                ? ([
+                    {
+                      type: "operator",
+                      value: "Supprimer la sélection",
+                    },
+                    {
+                      type: "operator",
+                      value: "Dupliquer la sélection",
+                    },
+                  ] as Suggestions[0][])
+                : []),
               ...filterSuggestions(query, [
                 ...searchableEntities.map((a) => ({
                   ...a,
@@ -157,7 +161,7 @@ export const SearchCtrlK = () => {
                     type: "navigation",
                     value: a._label,
                     render:
-                      RestEntities[
+                      CtrlKRestEntities[
                         currentState.options?.entity || ""
                       ]?.renderResult?.(a),
                     onClick: (event) => {
@@ -169,8 +173,9 @@ export const SearchCtrlK = () => {
                         }
                         navigateAlt(
                           getRoute(
-                            RestEntities[currentState.options?.entity || ""]
-                              ?.viewRoute ||
+                            CtrlKRestEntities[
+                              currentState.options?.entity || ""
+                            ]?.viewRoute ||
                               "/:client/" +
                                 currentState.options?.entity +
                                 "/:id",

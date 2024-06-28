@@ -40,6 +40,7 @@ export const ArticlesEditPage = ({ readonly }: { readonly?: boolean }) => {
       bar={
         <DocumentBar
           loading={isInitiating}
+          entity={"articles"}
           document={article}
           mode={"write"}
           onSave={async () => await save()}

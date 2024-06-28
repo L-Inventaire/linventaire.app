@@ -9,7 +9,7 @@ import { StockItemStatus } from "../components/stock-item-status";
 
 export const StockItemsViewPage = ({ readonly }: { readonly?: boolean }) => {
   const { id } = useParams();
-  const { stock_item: item, isPending, update } = useStockItem(id || "");
+  const { stock_item: item, isPending } = useStockItem(id || "");
 
   if (!item)
     return (
@@ -27,6 +27,7 @@ export const StockItemsViewPage = ({ readonly }: { readonly?: boolean }) => {
       bar={
         <DocumentBar
           loading={isPending && !item}
+          entity={"stock_items"}
           document={item || { id }}
           mode={"read"}
           backRoute={ROUTES.Stock}

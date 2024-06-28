@@ -41,6 +41,7 @@ export const ContactsEditPage = ({ readonly }: { readonly?: boolean }) => {
       bar={
         <DocumentBar
           loading={isInitiating}
+          entity={"contacts"}
           document={{ id }}
           mode={"write"}
           onSave={async () => await save()}

@@ -1,25 +1,25 @@
+import { Button } from "@atoms/button/button";
 import { InputDecorationIcon } from "@atoms/input/input-decoration-icon";
 import { Input } from "@atoms/input/input-text";
 import { useTableFields } from "@features/fields/hooks/use-fields";
 import { debounce as delayCall } from "@features/utils/debounce";
 import { normalizeString } from "@features/utils/format/strings";
+import { DefaultScrollbars } from "@features/utils/scrollbars";
+import { Shortcut, showShortCut } from "@features/utils/shortcuts";
 import {
-  FunnelIcon,
-  ChevronUpDownIcon,
   ArrowDownTrayIcon,
+  ChevronUpDownIcon,
+  FunnelIcon,
 } from "@heroicons/react/24/outline";
 import { Fragment, useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import { Suggestions, useSuggestions } from "./hooks/use-suggestions";
 import { SearchBarSuggestions } from "./suggestions";
 import { buildFilter } from "./utils/filter";
 import { OutputQuery, SearchField } from "./utils/types";
-import { extractFilters, generateQuery } from "./utils/utils";
-import { useLocation } from "react-router-dom";
-import { Button } from "@atoms/button/button";
 import { getFromUrl, setToUrl } from "./utils/url";
-import { Shortcut, showShortCut } from "@features/utils/shortcuts";
-import { DefaultScrollbars } from "@features/utils/scrollbars";
+import { extractFilters, generateQuery } from "./utils/utils";
 
 export const SearchBar = ({
   schema,

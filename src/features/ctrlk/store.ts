@@ -5,6 +5,6 @@ export const CtrlKAtom = atom<CtrlKStateType<any>>({
   key: "CtrlKAtom",
   default: {
     path: [],
-    selection: [],
+    selection: { entity: "", items: [] },
   },
 });

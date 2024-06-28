@@ -18,6 +18,7 @@ export const ArticlesViewPage = ({ readonly }: { readonly?: boolean }) => {
       bar={
         <DocumentBar
           loading={isPending && !article}
+          entity={"articles"}
           document={article}
           mode={"read"}
           backRoute={ROUTES.Products}

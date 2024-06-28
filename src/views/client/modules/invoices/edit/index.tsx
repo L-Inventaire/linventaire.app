@@ -64,6 +64,7 @@ export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
       bar={
         <DocumentBar
           loading={isInitiating || loading}
+          entity={"invoices"}
           document={{ id }}
           mode={"write"}
           onSave={async () => await save()}

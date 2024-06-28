@@ -42,14 +42,14 @@ export const Search = () => {
         className="hidden"
         shortcut={["cmd+k"]}
         onClick={() => {
-          openCtrlK({
+          openCtrlK((state) => ({
+            ...state,
             path: [
               {
                 mode: "action",
               },
             ],
-            selection: [],
-          });
+          }));
         }}
       >
         .

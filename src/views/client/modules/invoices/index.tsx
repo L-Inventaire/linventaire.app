@@ -1,10 +1,13 @@
+import { Tag } from "@atoms/badge/tag";
 import { Button } from "@atoms/button/button";
 import { Base, Info } from "@atoms/text";
+import { RestDocumentsInput } from "@components/rest-documents-input";
+import { RestTable } from "@components/rest-table";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
-import { Table } from "@components/table";
 import { TagsInput } from "@components/tags-input";
 import { useInvoices } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
+import { getDocumentNamePlurial } from "@features/invoices/utils";
 import { ROUTES, getRoute } from "@features/routes";
 import { formatAmount } from "@features/utils/format/strings";
 import { useNavigateAlt } from "@features/utils/navigate";
@@ -13,26 +16,19 @@ import {
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
 import {
+  ArrowPathIcon,
   ArrowUturnLeftIcon,
   PlusIcon,
-  ArrowPathIcon,
 } from "@heroicons/react/24/outline";
 import { Page } from "@views/client/_layout/page";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useParams } from "react-router-dom";
 import { SearchBar } from "../../../../components/search-bar";
 import {
   buildQueryFromMap,
   schemaToSearchFields,
 } from "../../../../components/search-bar/utils/utils";
 import { InvoiceStatus } from "./components/invoice-status";
-import { RestDocumentsInput } from "@components/rest-documents-input";
-import { Tag } from "@atoms/badge/tag";
-import { useParams } from "react-router-dom";
-import _ from "lodash";
-import {
-  getDocumentName,
-  getDocumentNamePlurial,
-} from "@features/invoices/utils";
 
 export const InvoicesPage = () => {
   const type: Invoices["type"][] = (useParams().type?.split("+") || [
@@ -165,16 +161,13 @@ export const InvoicesPage = () => {
         <div className="px-3 h-7 w-full bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700">
           <Info>{invoices?.data?.total || 0} documents trouvés</Info>
         </div>
-        <Table
+        <RestTable
+          entity="invoices"
           onClick={({ id }, event) =>
             navigate(getRoute(ROUTES.InvoicesView, { id }), { event })
           }
-          loading={invoices.isPending}
-          data={invoices?.data?.list || []}
-          total={invoices?.data?.total || 0}
+          data={invoices}
           showPagination="full"
-          rowIndex="id"
-          onSelect={(items) => false && console.log(items)}
           onRequestData={async (page) => {
             setOptions({
               ...options,

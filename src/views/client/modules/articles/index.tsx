@@ -1,7 +1,7 @@
 import { Button } from "@atoms/button/button";
-import { Base, Info } from "@atoms/text";
+import { Info } from "@atoms/text";
+import { RestTable } from "@components/rest-table";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
-import { Table } from "@components/table";
 import { TagsInput } from "@components/tags-input";
 import { useArticles } from "@features/articles/hooks/use-articles";
 import { Articles } from "@features/articles/types/types";
@@ -13,16 +13,16 @@ import {
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
 import { PlusIcon } from "@heroicons/react/20/solid";
-import { Page } from "@views/client/_layout/page";
-import { useState } from "react";
-import { SearchBar } from "../../../../components/search-bar";
-import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
-import { getTvaValue } from "../invoices/utils";
 import {
   BriefcaseIcon,
   CubeIcon,
   CubeTransparentIcon,
 } from "@heroicons/react/24/solid";
+import { Page } from "@views/client/_layout/page";
+import { useState } from "react";
+import { SearchBar } from "../../../../components/search-bar";
+import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
+import { getTvaValue } from "../invoices/utils";
 
 export const ArticlesPage = () => {
   const [options, setOptions] = useState<RestOptions<Articles>>({
@@ -76,16 +76,13 @@ export const ArticlesPage = () => {
         <div className="px-3 h-7 w-full bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700">
           <Info>{articles?.data?.total || 0} articles trouvés</Info>
         </div>
-        <Table
+        <RestTable
+          entity="articles"
+          showPagination="full"
           onClick={({ id }, event) =>
             navigate(getRoute(ROUTES.ProductsView, { id }), { event })
           }
-          loading={articles.isPending}
-          data={articles?.data?.list || []}
-          total={articles?.data?.total || 0}
-          showPagination="full"
-          rowIndex="id"
-          onSelect={(items) => false && console.log(items)}
+          data={articles}
           onRequestData={async (page) => {
             setOptions({
               ...options,

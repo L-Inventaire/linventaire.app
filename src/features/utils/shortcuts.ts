@@ -90,7 +90,8 @@ export const useShortcutsContext = (context: string) => {
 let scids = 0;
 export const useShortcuts = (
   shortcuts: Shortcut[],
-  callback: (e: React.MouseEvent, shortcut: Shortcut) => void
+  callback: (e: React.MouseEvent, shortcut: Shortcut) => void,
+  deps: any[] = []
 ) => {
   const componentId = useRef(scids++);
   const currentShortcuts = useRef<string[]>([]);
@@ -125,7 +126,7 @@ export const useShortcuts = (
     }
 
     currentShortcuts.current = shortcuts;
-  }, [shortcuts.join(",")]);
+  }, [shortcuts.join(","), ...deps]);
 
   useEffect(() => {
     return () => {

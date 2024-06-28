@@ -204,10 +204,14 @@ export function RenderedTable<T>({
     return () => window.removeEventListener("resize", resizeEvent);
   }, [resizeEvent]);
 
-  useShortcuts(["cmd+a"], () => {
-    if (data.length === selected.length) setSelected([]);
-    else setSelected(data);
-  });
+  useShortcuts(
+    ["cmd+a"],
+    () => {
+      if (data.length === selected.length) setSelected([]);
+      else setSelected(data);
+    },
+    [data.length, selected.length]
+  );
 
   const responsiveMode = useResponsiveMode && parentWidth < 600; //Work in progress for responsive mode
 

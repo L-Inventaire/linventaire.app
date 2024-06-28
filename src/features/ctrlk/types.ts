@@ -27,5 +27,5 @@ export type CtrlKOptionsType = {
 
 export type CtrlKStateType<T> = {
   path: CtrlKPathType<T>[]; // Empty: not open, else: path to current state, for instance
-  selection: T[]; // For actions, the selected items on which the action will be applied
+  selection: { entity: string; items: T[] }; // For actions, the selected items on which the action will be applied
 };

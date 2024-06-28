@@ -1,6 +1,7 @@
 import { Button } from "@atoms/button/button";
 import { DropDownAtom, DropDownMenuType } from "@atoms/dropdown";
 import { withModel } from "@components/search-bar/utils/as-model";
+import { useRegisterActiveSelection } from "@features/ctrlk/use-register-current-selection";
 import { getRoute } from "@features/routes";
 import { copyToClipboard } from "@features/utils/clipboard";
 import { useNavigateAlt } from "@features/utils/navigate";
@@ -20,10 +21,12 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import _ from "lodash";
+import { useEffect } from "react";
 import { useSetRecoilState } from "recoil";
 
 export const DocumentBar = ({
   mode,
+  entity,
   document,
   onSave,
   prefix,
@@ -34,6 +37,7 @@ export const DocumentBar = ({
 }: {
   loading?: boolean;
   mode: "read" | "write";
+  entity: string;
   document: any & RestEntity;
   prefix?: React.ReactNode;
   suffix?: React.ReactNode;
@@ -70,6 +74,14 @@ export const DocumentBar = ({
         ]
       : []),
   ] as DropDownMenuType;
+
+  const registerActiveSelection = useRegisterActiveSelection();
+  useEffect(() => {
+    setTimeout(() => {
+      registerActiveSelection(entity, [document]);
+    }, 100);
+    return () => registerActiveSelection(entity, []);
+  }, []);
 
   return (
     <div className="items-center flex grow space-x-2 px-3 text-base">

@@ -1,15 +1,11 @@
-import { Stepper } from "@atoms/stepper";
-import { Page } from "../_layout/page";
-import { useState } from "react";
-import { Info, SectionSmall } from "@atoms/text";
 import { Button } from "@atoms/button/button";
-import { ShoppingCartIcon } from "@heroicons/react/20/solid";
-import { PlusIcon } from "@heroicons/react/16/solid";
-import { DefaultScrollbars } from "@features/utils/scrollbars";
-import { useSetRecoilState } from "recoil";
-import { CtrlKAtom } from "@features/ctrlk/store";
-import { useCtrlKAsSelect } from "@features/ctrlk/use-ctrlk-as-select";
+import { Stepper } from "@atoms/stepper";
+import { Info, SectionSmall } from "@atoms/text";
 import { Contacts, getContactName } from "@features/contacts/types/types";
+import { useCtrlKAsSelect } from "@features/ctrlk/use-ctrlk-as-select";
+import { PlusIcon } from "@heroicons/react/16/solid";
+import { useState } from "react";
+import { Page } from "../_layout/page";
 
 export const DevPage = () => {
   const [stepperVal, setStepperVal] = useState("bought");

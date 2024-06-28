@@ -5,8 +5,8 @@ export const useCtrlKAsSelect = () => {
   const setCtrlK = useSetRecoilState(CtrlKAtom);
 
   return <T>(entity: string, filter: any, cb: (entity: T) => void) =>
-    setCtrlK({
-      selection: [],
+    setCtrlK((state) => ({
+      ...state,
       path: [
         {
           mode: "search",
@@ -17,5 +17,5 @@ export const useCtrlKAsSelect = () => {
           },
         },
       ],
-    });
+    }));
 };

@@ -3,7 +3,7 @@ import { ReactNode, useCallback, useEffect, useState } from "react";
 import "./index.scss";
 import { Column, Pagination, RenderOptions, RenderedTable } from "./table";
 
-type PropsType<T> = {
+export type TablePropsType<T> = {
   name?: string;
   columns: Column<T>[];
   data: T[];
@@ -35,7 +35,7 @@ type PropsType<T> = {
 };
 
 export function Grid<T>(
-  props: Omit<PropsType<T>, "grid" | "columns"> & {
+  props: Omit<TablePropsType<T>, "grid" | "columns"> & {
     render: (item: T, options?: RenderOptions) => string | ReactNode;
     orderables?: string[];
   }
@@ -78,7 +78,7 @@ export function Table<T>({
   useResponsiveMode,
   cellClassName,
   className,
-}: PropsType<T>) {
+}: TablePropsType<T>) {
   const [pagination, setPagination] = useState<Pagination>({
     total: total || 0,
     page: initialPagination?.page || 1,

@@ -9,10 +9,7 @@ import { useParams } from "react-router-dom";
 import { InvoiceStatus } from "../components/invoice-status";
 import { InvoicesDetailsPage } from "../components/invoices-details";
 import { getPdfPreview } from "../components/invoices-preview/invoices-preview";
-import {
-  getDocumentName,
-  getDocumentNamePlurial,
-} from "@features/invoices/utils";
+import { getDocumentNamePlurial } from "@features/invoices/utils";
 
 export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
   const { id } = useParams();
@@ -37,6 +34,7 @@ export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
       bar={
         <DocumentBar
           loading={isPending && !invoice}
+          entity={"invoices"}
           document={invoice || { id }}
           mode={"read"}
           backRoute={getRoute(ROUTES.Invoices, { type: invoice.type })}

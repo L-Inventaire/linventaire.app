@@ -18,16 +18,16 @@ type RestEntityForCtrlK<T> = {
   renderResult?: (props: T) => ReactNode;
 };
 
-export let RestEntities: { [key: string]: RestEntityForCtrlK<any> } = {};
-export const registerRestEntity = <T>(
+export let CtrlKRestEntities: { [key: string]: RestEntityForCtrlK<any> } = {};
+export const registerCtrlKRestEntity = <T>(
   entity: string,
   renderEditor: (props: { id: string }) => ReactNode,
   renderResult?: (props: T) => ReactNode,
   defaultData?: any,
   viewRoute?: string
 ) => {
-  RestEntities = {
-    ...RestEntities,
+  CtrlKRestEntities = {
+    ...CtrlKRestEntities,
     [entity]: { viewRoute, renderEditor, renderResult, defaultData },
   };
 };

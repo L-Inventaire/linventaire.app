@@ -1,6 +1,5 @@
 import { Button } from "@atoms/button/button";
 import { DocumentBar } from "@components/document-bar";
-import { PageLoader } from "@components/page-loader";
 import { withModel } from "@components/search-bar/utils/as-model";
 import { useContact } from "@features/contacts/hooks/use-contacts";
 import { getContactName } from "@features/contacts/types/types";
@@ -23,6 +22,7 @@ export const ContactsViewPage = ({ readonly }: { readonly?: boolean }) => {
       bar={
         <DocumentBar
           loading={isPending && !contact}
+          entity={"contacts"}
           document={contact || { id }}
           mode={"read"}
           backRoute={ROUTES.Contacts}

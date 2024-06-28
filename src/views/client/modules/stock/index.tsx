@@ -1,7 +1,7 @@
 import { Button } from "@atoms/button/button";
 import { Base, Info } from "@atoms/text";
 import { RestDocumentsInput } from "@components/rest-documents-input";
-import { Table } from "@components/table";
+import { RestTable } from "@components/rest-table";
 import { ROUTES, getRoute } from "@features/routes";
 import { useStockItems } from "@features/stock/hooks/use-stock-items";
 import { StockItems } from "@features/stock/types/types";
@@ -64,16 +64,13 @@ export const StockPage = () => {
         <div className="px-3 h-7 w-full bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700">
           <Info>{stock_items?.data?.total || 0} documents trouvés</Info>
         </div>
-        <Table
+        <RestTable
+          entity="stock_items"
           onClick={({ id }, event) =>
             navigate(getRoute(ROUTES.StockView, { id }), { event })
           }
-          loading={stock_items.isPending}
-          data={stock_items?.data?.list || []}
-          total={stock_items?.data?.total || 0}
+          data={stock_items}
           showPagination="full"
-          rowIndex="id"
-          onSelect={(items) => false && console.log(items)}
           onRequestData={async (page) => {
             setOptions({
               ...options,

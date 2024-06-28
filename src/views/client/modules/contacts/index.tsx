@@ -1,12 +1,13 @@
 import { Button } from "@atoms/button/button";
 import { Info } from "@atoms/text";
 import { RestDocumentsInput } from "@components/rest-documents-input";
+import { RestTable } from "@components/rest-table";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
-import { Table } from "@components/table";
 import { TagsInput } from "@components/tags-input";
 import { useContacts } from "@features/contacts/hooks/use-contacts";
 import { Contacts, getContactName } from "@features/contacts/types/types";
 import { ROUTES, getRoute } from "@features/routes";
+import { useNavigateAlt } from "@features/utils/navigate";
 import {
   RestOptions,
   useRestSchema,
@@ -25,7 +26,6 @@ import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
-import { useNavigateAlt } from "@features/utils/navigate";
 
 export const ContactsPage = () => {
   const [options, setOptions] = useState<RestOptions<Contacts>>({
@@ -91,16 +91,14 @@ export const ContactsPage = () => {
         <div className="px-3 h-7 w-full bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700">
           <Info>{contacts?.data?.total || 0} contacts trouvés</Info>
         </div>
-        <Table
+
+        <RestTable
+          entity="contacts"
           onClick={({ id }, event) =>
             navigate(getRoute(ROUTES.ContactsView, { id }), { event })
           }
-          loading={contacts.isPending}
-          data={contacts?.data?.list || []}
-          total={contacts?.data?.total || 0}
+          data={contacts}
           showPagination="full"
-          rowIndex="id"
-          onSelect={(items) => false && console.log(items)}
           onRequestData={async (page) => {
             setOptions({
               ...options,

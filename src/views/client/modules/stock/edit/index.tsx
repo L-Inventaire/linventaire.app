@@ -12,8 +12,7 @@ import { StockItemsDetailsPage } from "../components/stock-item-details";
 import { StockItemStatus } from "../components/stock-item-status";
 
 export const StockItemsEditPage = ({ readonly }: { readonly?: boolean }) => {
-  const { client: clientUser, refresh, loading } = useClients();
-  const client = clientUser!.client!;
+  const { refresh, loading } = useClients();
 
   useEffect(() => {
     refresh();
@@ -45,6 +44,7 @@ export const StockItemsEditPage = ({ readonly }: { readonly?: boolean }) => {
       bar={
         <DocumentBar
           loading={isInitiating || loading}
+          entity={"stock_items"}
           document={{ id }}
           mode={"write"}
           onSave={async () => await save()}

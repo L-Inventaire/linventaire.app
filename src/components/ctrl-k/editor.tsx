@@ -5,7 +5,7 @@ import { useRecoilState } from "recoil";
 import { CtrlKAtom } from "@features/ctrlk/store";
 import _ from "lodash";
 import { RestEntity } from "@features/utils/rest/types/types";
-import { RestEntities } from "@features/ctrlk";
+import { CtrlKRestEntities } from "@features/ctrlk";
 
 export const ModalEditor = () => {
   const [state, setState] = useRecoilState(CtrlKAtom);
@@ -23,7 +23,10 @@ export const ModalEditor = () => {
         path: newPath,
       });
     },
-    _.merge(RestEntities[currentState.options?.entity || ""]?.defaultData, {})
+    _.merge(
+      CtrlKRestEntities[currentState.options?.entity || ""]?.defaultData,
+      {}
+    )
   );
 
   return (
@@ -32,6 +35,7 @@ export const ModalEditor = () => {
         <div className="border-b flex min-h-12 border-slate-100 dark:border-slate-700 shrink-0">
           <DocumentBar
             loading={isInitiating}
+            entity={currentState.options?.entity || ""}
             document={draft}
             mode={"write"}
             onClose={() => {
@@ -47,8 +51,11 @@ export const ModalEditor = () => {
         </div>
         <Scrollbars>
           <div className="p-4">
-            {RestEntities[currentState.options?.entity || ""]?.renderEditor &&
-              RestEntities[currentState.options?.entity || ""]?.renderEditor({
+            {CtrlKRestEntities[currentState.options?.entity || ""]
+              ?.renderEditor &&
+              CtrlKRestEntities[
+                currentState.options?.entity || ""
+              ]?.renderEditor({
                 id: "",
               })}
           </div>
