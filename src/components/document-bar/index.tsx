@@ -89,7 +89,7 @@ export const DocumentBar = ({
         <Button
           data-tooltip="Retour"
           size="xs"
-          theme="outlined"
+          theme={onClose ? "invisible" : "outlined"}
           shortcut={["esc"]}
           icon={
             onClose

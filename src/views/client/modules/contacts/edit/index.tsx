@@ -1,5 +1,6 @@
 import { DocumentBar } from "@components/document-bar";
 import { PageLoader } from "@components/page-loader";
+import { useContactDefaultModel } from "@features/contacts/configuration";
 import { Contacts } from "@features/contacts/types/types";
 import { ROUTES, getRoute } from "@features/routes";
 import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
@@ -13,6 +14,7 @@ export const ContactsEditPage = ({ readonly }: { readonly?: boolean }) => {
   id = id === "new" ? "" : id || "";
   const navigate = useNavigate();
 
+  const defaultModel = useContactDefaultModel();
   const initialModel = JSON.parse(
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as Contacts;
@@ -23,13 +25,7 @@ export const ContactsEditPage = ({ readonly }: { readonly?: boolean }) => {
     async (item) => {
       navigate(getRoute(ROUTES.ContactsView, { id: item.id }));
     },
-    _.merge(
-      {
-        type: "company",
-        delivery_address: null,
-      },
-      initialModel
-    ) as Contacts
+    _.merge(defaultModel, initialModel) as Contacts
   );
 
   return (

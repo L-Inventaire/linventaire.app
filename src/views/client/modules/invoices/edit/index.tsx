@@ -2,6 +2,7 @@ import Select from "@atoms/input/input-select";
 import { DocumentBar } from "@components/document-bar";
 import { PageLoader } from "@components/page-loader";
 import { useClients } from "@features/clients/state/use-clients";
+import { useInvoiceDefaultModel } from "@features/invoices/configuration";
 import { Invoices } from "@features/invoices/types/types";
 import { getDocumentNamePlurial } from "@features/invoices/utils";
 import { ROUTES, getRoute } from "@features/routes";
@@ -15,8 +16,7 @@ import { InvoicesDetailsPage } from "../components/invoices-details";
 import { getPdfPreview } from "../components/invoices-preview/invoices-preview";
 
 export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
-  const { client: clientUser, refresh, loading } = useClients();
-  const client = clientUser!.client!;
+  const { refresh, loading } = useClients();
 
   useEffect(() => {
     refresh();
@@ -26,6 +26,7 @@ export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
   id = id === "new" ? "" : id || "";
   const navigate = useNavigate();
 
+  const defaultModel = useInvoiceDefaultModel();
   const initialModel = JSON.parse(
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as Invoices;
@@ -36,20 +37,7 @@ export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
     async (item) => {
       navigate(getRoute(ROUTES.InvoicesView, { id: item.id }));
     },
-    _.omit(
-      _.merge(
-        {
-          type: "quotes",
-          state: "draft",
-          language: client.preferences?.language || "fr",
-          currency: client.preferences?.currency || "EUR",
-          format: client.invoices,
-          payment_information: client.payment,
-        } as Invoices,
-        initialModel
-      ),
-      "reference"
-    ) as Invoices
+    _.omit(_.merge(defaultModel, initialModel), "reference") as Invoices
   );
 
   return (

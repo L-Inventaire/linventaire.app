@@ -1,6 +1,6 @@
 import { DocumentBar } from "@components/document-bar";
 import { PageLoader } from "@components/page-loader";
-import { ArticleDefaultModel } from "@features/articles/configuration";
+import { useArticleDefaultModel } from "@features/articles/configuration";
 import { Articles } from "@features/articles/types/types";
 import { ROUTES, getRoute } from "@features/routes";
 import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
@@ -14,6 +14,7 @@ export const ArticlesEditPage = ({ readonly }: { readonly?: boolean }) => {
   id = id === "new" ? "" : id || "";
   const navigate = useNavigate();
 
+  const defaultModel = useArticleDefaultModel();
   const initialModel = JSON.parse(
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as Articles;
@@ -28,7 +29,7 @@ export const ArticlesEditPage = ({ readonly }: { readonly?: boolean }) => {
     async (item) => {
       navigate(getRoute(ROUTES.ProductsView, { id: item.id }));
     },
-    _.merge(ArticleDefaultModel, initialModel) as Articles
+    _.merge(defaultModel, initialModel) as Articles
   );
 
   return (

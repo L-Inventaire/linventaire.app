@@ -6,10 +6,20 @@ import { CtrlKAtom } from "@features/ctrlk/store";
 import _ from "lodash";
 import { RestEntity } from "@features/utils/rest/types/types";
 import { CtrlKRestEntities } from "@features/ctrlk";
+import { useRestSchema } from "@features/utils/rest/hooks/use-rest";
+import { withSearchAsModelObj } from "@components/search-bar/utils/as-model";
+import { buildQueryFromMap } from "@components/search-bar/utils/utils";
 
 export const ModalEditor = () => {
   const [state, setState] = useRecoilState(CtrlKAtom);
   const currentState = state.path[state.path.length - 1] || {};
+  const previousState = state.path[state.path.length - 2] || {};
+
+  const defaultData =
+    CtrlKRestEntities[currentState.options?.entity || ""]?.useDefaultData?.() ||
+    {};
+
+  const schema = useRestSchema(currentState.options?.entity || "");
 
   const { draft, save, isInitiating } = useDraftRest(
     currentState.options?.entity || "",
@@ -17,15 +27,34 @@ export const ModalEditor = () => {
     async (item: RestEntity) => {
       // Set created element as query for the previous path
       const newPath = state.path.slice(0, state.path.length - 1);
-      _.set(_.last(newPath) || {}, "options.query", `id:"${item.id}"`);
+      let lastItem = newPath.pop();
+      if (lastItem) {
+        lastItem = _.set(
+          _.cloneDeep(lastItem || ({} as any)),
+          "options.query",
+          `id:"${item.id}" `
+        );
+        newPath.push(lastItem);
+      }
+
+      console.log(lastItem, {
+        ...state,
+        path: newPath,
+      });
+
       setState({
         ...state,
         path: newPath,
       });
     },
     _.merge(
-      CtrlKRestEntities[currentState.options?.entity || ""]?.defaultData,
-      {}
+      defaultData,
+      withSearchAsModelObj(
+        schema.data!,
+        {},
+        buildQueryFromMap(previousState?.options?.internalQuery || {}),
+        { keepArraysFirst: true } // Used for supplier invoice where query use a "or"
+      )
     )
   );
 

@@ -13,7 +13,7 @@ export const registerRootNavigation = (
 
 type RestEntityForCtrlK<T> = {
   viewRoute?: string;
-  defaultData?: any;
+  useDefaultData?: () => Partial<T>;
   renderEditor: (props: { id: string }) => ReactNode;
   renderResult?: (props: T) => ReactNode;
 };
@@ -23,11 +23,11 @@ export const registerCtrlKRestEntity = <T>(
   entity: string,
   renderEditor: (props: { id: string }) => ReactNode,
   renderResult?: (props: T) => ReactNode,
-  defaultData?: any,
+  useDefaultData?: () => Partial<T>,
   viewRoute?: string
 ) => {
   CtrlKRestEntities = {
     ...CtrlKRestEntities,
-    [entity]: { viewRoute, renderEditor, renderResult, defaultData },
+    [entity]: { viewRoute, renderEditor, renderResult, useDefaultData },
   };
 };

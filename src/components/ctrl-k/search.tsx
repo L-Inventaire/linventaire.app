@@ -186,30 +186,33 @@ export const SearchCtrlK = () => {
             ]
           : currentState.mode === "search"
           ? [
-              {
-                type: "operator",
-                value: "create",
-                render: (
-                  <div className={twMerge("flex items-center -ml-3")}>
-                    <PlusIcon className="h-4 w-4 mx-1 opacity-50" />
-                    {query ? `Créer '${query}'` : "Créer un nouvel élément"}
-                  </div>
-                ),
-                onClick: () => {
-                  setState({
-                    ...state,
-                    path: [
-                      ...state.path,
-                      {
-                        mode: "create",
-                        options: {
-                          entity: currentState.options?.entity || "",
-                        },
-                      },
-                    ],
-                  });
-                },
-              },
+              // If id is used we don't want to create a new item
+              query.indexOf("id:") < 0
+                ? ({
+                    type: "operator",
+                    value: "create",
+                    render: (
+                      <div className={twMerge("flex items-center -ml-3")}>
+                        <PlusIcon className="h-4 w-4 mx-1 opacity-50" />
+                        {query ? `Créer '${query}'` : "Créer un nouvel élément"}
+                      </div>
+                    ),
+                    onClick: () => {
+                      setState({
+                        ...state,
+                        path: [
+                          ...state.path,
+                          {
+                            mode: "create",
+                            options: {
+                              entity: currentState.options?.entity || "",
+                            },
+                          },
+                        ],
+                      });
+                    },
+                  } as Suggestions[0])
+                : ({} as Suggestions[0]),
               ...(items.data?.list || []).map(
                 (a) =>
                   ({
