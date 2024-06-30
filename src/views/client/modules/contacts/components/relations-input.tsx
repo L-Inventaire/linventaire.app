@@ -95,9 +95,7 @@ export const RelationsInput = ({
             {!readonly && (
               <div className="mt-2">
                 <RestDocumentsInput
-                  table="contacts"
-                  column="parents"
-                  theme="primary"
+                  entity="contacts"
                   label="+ Ajouter un contact parent"
                   placeholder="Rechercher un contact"
                   max={1}

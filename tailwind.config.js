@@ -30,6 +30,9 @@ module.exports = {
       fontFamily: {
         sans: ["Inter var", ...defaultTheme.fontFamily.sans],
       },
+      boxShadow: {
+        sm: "0 1px 2px rgba(0, 0, 0, 0.07)",
+      },
       fontSize: {
         xxs: "9px",
         xs: "11px",

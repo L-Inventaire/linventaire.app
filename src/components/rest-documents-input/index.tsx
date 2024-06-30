@@ -1,167 +1,118 @@
 import { Button } from "@atoms/button/button";
-import { InputWithSuggestions } from "@atoms/input/input-with-suggestion";
-import { Loader } from "@atoms/loader";
-import { Info } from "@atoms/text";
-import { RestDocumentTag } from "@components/rest-tags/components/document";
-import {
-  useRest,
-  useRestSchema,
-  useRestSuggestions,
-} from "@features/utils/rest/hooks/use-rest";
-import { tableToIcons } from "@views/client/settings/fields";
+import { Base, Info } from "@atoms/text";
+import { AnimatedHeight } from "@components/animated-side/height";
+import { buildQueryFromMap } from "@components/search-bar/utils/utils";
+import { useCtrlKAsSelect } from "@features/ctrlk/use-ctrlk-as-select";
+import { useRest } from "@features/utils/rest/hooks/use-rest";
+import { RestEntity } from "@features/utils/rest/types/types";
+import { TrashIcon } from "@heroicons/react/16/solid";
 import _ from "lodash";
-import { useEffect, useState } from "react";
+import { ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
 
-export const RestDocumentsInput = (props: {
-  table: string;
-  column: string;
-  value?: string[] | string | null;
-  className?: string;
-  theme?: "default" | "primary" | "secondary";
+export const RestDocumentsInput = <T extends RestEntity>(props: {
   label?: string;
-  size?: "sm" | "md";
-  max?: number;
-  onChange?: (
-    value: string[] | string | null,
-    objects: any[] | any | null
-  ) => void;
   placeholder?: string;
+  entity: string;
+  filter?: Partial<T>;
+  onChange?: (id: string | string[], value: T | null) => void;
+  value?: string | string[] | null;
+  icon?: (props: { className: string }) => ReactNode;
+  render?: (value: T) => ReactNode;
+  size?: "sm" | "md" | "lg";
   disabled?: boolean;
-  icon?: (props: { className: string }) => JSX.Element;
+  max?: number;
 }) => {
-  const value: string[] =
-    props.max === 1
-      ? props.value
-        ? [props.value as string]
-        : []
-      : (props.value as string[]) || [];
+  const select = useCtrlKAsSelect();
+  const size = props.size || "sm";
 
-  const onChange = (value: string[]) => {
-    const objects = [
-      ...documents,
-      ...(suggestions?.data?.map((a) => a.item) || []),
-    ].filter((doc) => value.includes(doc.id));
-    props.onChange?.(
-      props.max === 1 ? value?.[0] || null : value,
-      props.max === 1 ? objects?.[0] || null : objects
-    );
-  };
-
-  const [focused, setFocused] = useState(false);
-
-  const [query, setQuery] = useState("");
-  const schema = useRestSchema(props.table);
-  const { suggestions } = useRestSuggestions(props.table, props.column, query);
-
-  const refType = _.get(schema.data, props.column);
-  const refTable =
-    (typeof refType === "string"
-      ? (refType as string)
-      : (refType?.[0] as string) || ""
-    )
-      .split("type:")
-      .pop() || props.table;
-
-  const { items, refresh } = useRest<{ id: string; _label: string }>(refTable, {
-    query: [
-      {
-        key: "id",
-        values: (value || []).map((value) => ({
-          op: "equals",
-          value,
-        })),
-      },
-    ],
-    key: props.table + "_" + props.column + "_selector_" + value.join("_"),
-    limit: (value || []).length,
+  const { items } = useRest<T>(props.entity, {
+    query: buildQueryFromMap({ id: props.value }),
+    limit: _.isArray(props.value) ? props.max : 1,
   });
-  const loading = items.isPending;
-  const documents = (items?.data?.list || [])?.slice(0, value?.length);
+  const valueObj = items?.data?.list?.[0];
 
-  useEffect(() => {
-    refresh();
-  }, [JSON.stringify(value)]);
-
-  const size = props.size || "md";
-
-  if (loading) return <Loader />;
+  // TODO allow to add multiple items
 
   return (
     <div
+      onClick={() =>
+        !props.disabled &&
+        select<T>(props.entity, props.filter || {}, (item: T) => {
+          props.onChange?.(item?.id, item);
+        })
+      }
       className={twMerge(
-        props.className,
-        (documents.length || !props.disabled) && "-m-1"
+        "inline-flex min-h-7 w-max",
+        size === "lg" ? "w-full" : props.value && "w-72",
+        "rounded shadow-sm text-black dark:text-white text-opacity-80 bg-white dark:bg-slate-900 border-[0.5px] border-slate-100 dark:border-slate-700 border-inside dark:border-slate-700",
+        !props.disabled &&
+          "dark:hover:bg-slate-800 hover:bg-gray-100 dark:hover:border-slate-700 dark:active:bg-slate-700 active:bg-gray-200"
       )}
     >
-      {documents.map((doc) => (
-        <RestDocumentTag
-          size={size}
-          icon={props.icon || tableToIcons(refTable)?.icon}
-          label={doc._label}
-          className={twMerge(
-            !props.disabled ? "cursor-pointer inline-flex items-center" : "",
-            "m-1 group/rest_document",
-            !props.disabled &&
-              "hover:opacity-75 active:opacity-50 hover:border-red-500"
-          )}
-          onClick={() =>
-            !props.disabled &&
-            onChange?.((value || []).filter((a) => a !== doc.id))
-          }
-          key={doc.id}
-          data-tooltip={!props.disabled ? "Retirer" : undefined}
-        />
-      ))}
-      {props.disabled && !documents.length && <Info>Aucun</Info>}
-      {!props.disabled &&
-        !focused &&
-        (value || []).length < (props.max || 100) && (
-          <Button
-            className="align-top m-1"
-            size="sm"
-            theme={props.theme || "default"}
-            onClick={() => setFocused(true)}
-          >
-            {props.label || "+ Ajouter"}
-          </Button>
+      <div
+        className={twMerge(
+          "grow inline-flex flex-row items-center",
+          !props.disabled && "cursor-pointer",
+          size === "sm" && "py-1 px-1.5 space-x-1",
+          size === "md" && "p-2 space-x-2",
+          size === "lg" && "p-2 space-x-2"
         )}
-      {!props.disabled && focused && (
-        <>
-          <InputWithSuggestions
-            placeholder={props.placeholder || "Ajouter un élément"}
-            autoFocus
-            onBlur={() => setFocused(false)}
-            size="sm"
-            wrapperClassName="align-top m-1 inline-block w-max"
-            className="max-w-24"
-            onChange={(e) => setQuery(e.target.value)}
-            options={[
-              ...(suggestions?.data || [])
-                .filter((a) => !(value || []).includes(a.value))
-                .map((a) => ({
-                  label: a.label as string,
-                  value: a.value as string,
-                })),
-            ]}
-            onSelect={async (v: string) => {
-              setQuery("");
-              onChange?.([
-                ...(value || []).slice(0, (props.max || 100) - 1),
-                v,
-              ]);
-            }}
-            render={(e) => (
-              <RestDocumentTag
-                size="md"
-                className="-mx-1"
-                label={e.label}
-                icon={tableToIcons(refTable)?.icon}
-              />
+      >
+        {props.icon && props.icon({ className: "h-4 w-4 opacity-90 shrink-0" })}
+        <div className="flex flex-col grow">
+          <div className="flex items-center space-x-1 w-full -my-1">
+            <div className={twMerge("grow")}>
+              <Info
+                className={twMerge(
+                  "block w-full transition-all",
+                  !props.value && size !== "lg" ? "h-0 opacity-0" : "h-4"
+                )}
+              >
+                {props.label}
+              </Info>
+              <Base
+                className={twMerge(
+                  "block w-full transition-all",
+                  props.value ? "h-0 opacity-0" : "h-5"
+                )}
+              >
+                {props.placeholder || props.label || props.entity}
+              </Base>
+            </div>
+            {!props.disabled && (
+              <div>
+                <div className="-mr-0.5 mt-0.5">
+                  <Button
+                    data-tooltip="Supprimer"
+                    className={twMerge(
+                      "text-red-500 dark:text-red-500 w-0 ml-0.5 overflow-hidden",
+                      props.value && "w-6 ml-0.5 transition-all delay-200"
+                    )}
+                    theme="invisible"
+                    size="xs"
+                    icon={(p) => <TrashIcon {...p} />}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      !props.disabled && props.onChange?.("", null);
+                    }}
+                  />
+                </div>
+              </div>
             )}
-          />
-        </>
-      )}
+          </div>
+          <AnimatedHeight className="pr-4">
+            {props.value && !!valueObj && (
+              <Base className="leading-5 block">
+                {props.render
+                  ? props.render(valueObj)
+                  : (valueObj as any)._label}
+              </Base>
+            )}
+          </AnimatedHeight>
+        </div>
+      </div>
     </div>
   );
 };

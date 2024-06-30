@@ -1,14 +1,12 @@
-import { useControlledEffect } from "@features/utils/hooks/use-controlled-effect";
 import _ from "lodash";
 import {
   InputHTMLAttributes,
   memo,
   ReactNode,
   useCallback,
+  useEffect,
   useRef,
 } from "react";
-
-let interval: any = null;
 
 export const AnimatedHeight = memo(
   (
@@ -28,17 +26,31 @@ export const AnimatedHeight = memo(
       }
     }, [el]);
 
-    props.trigger?.(updateSize);
+    useEffect(() => {
+      if (el.current) {
+        const observer = new MutationObserver(updateSize);
+        observer.observe(el.current, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          characterData: true,
+        });
 
-    useControlledEffect(() => {
-      interval = setInterval(() => {
+        // Initial update
         updateSize();
-      }, 200);
-      return () => {
-        clearInterval(interval);
-      };
-    }, []);
 
+        return () => {
+          observer.disconnect();
+        };
+      }
+    }, [el, updateSize]);
+
+    // Trigger updateSize if props.trigger is provided
+    useEffect(() => {
+      if (props.trigger) {
+        props.trigger(updateSize);
+      }
+    }, [props.trigger, updateSize]);
     return (
       <div className="transition-all px-1 -mx-1">
         <div

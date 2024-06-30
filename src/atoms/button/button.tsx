@@ -77,7 +77,7 @@ export const Button = (props: ButtonProps) => {
 
   if (props.theme === "outlined" || props.theme === "default")
     colors =
-      "shadow-sm text-black dark:text-white text-opacity-80 bg-white dark:bg-slate-900 dark:hover:bg-slate-800 hover:bg-gray-100 active:bg-gray-200 border-[0.5px] border-black border-opacity-15 border-solid border-inside dark:border-slate-700 dark:hover:border-slate-700 dark:active:bg-slate-700";
+      "shadow-sm text-black dark:text-white text-opacity-80 bg-white dark:bg-slate-900 dark:hover:bg-slate-800 hover:bg-gray-100 active:bg-gray-200 border-[0.5px] border-slate-100 dark:border-slate-700 border-inside dark:border-slate-700 dark:hover:border-slate-700 dark:active:bg-slate-700";
 
   if (props.theme === "invisible")
     colors =
@@ -123,7 +123,7 @@ export const Button = (props: ButtonProps) => {
       data-tooltip={tooltip.length ? tooltip : undefined}
       type="button"
       className={twMerge(
-        "print:hidden align-top whitespace-nowrap overflow-hidden text-ellipsis inline-flex items-center justify-center py-2 border text-sm font-medium rounded-md focus:outline-none",
+        "print:hidden align-top whitespace-nowrap overflow-hidden text-ellipsis inline-flex items-center justify-center py-2 border text-sm font-medium rounded-md outline-none hover:outline-none focus:outline-none active:outline-none",
         className,
         props.className
       )}

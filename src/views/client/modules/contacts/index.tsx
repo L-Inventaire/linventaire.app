@@ -188,8 +188,7 @@ export const ContactsPage = () => {
                   {(contact.parents?.length || 0) > 0 && (
                     <RestDocumentsInput
                       value={contact.parents}
-                      table="contacts"
-                      column="parents"
+                      entity="contacts"
                       disabled
                       size="sm"
                       icon={(p) => <ShareIcon {...p} />}

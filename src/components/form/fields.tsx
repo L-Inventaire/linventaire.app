@@ -28,6 +28,7 @@ import { TagsInput } from "@components/tags-input";
 import { UsersInput } from "@components/users-input";
 import { FilesInput } from "@components/files-input";
 import { RestDocumentsInput } from "@components/rest-documents-input";
+import { RestEntity } from "@features/utils/rest/types/types";
 
 export const FormInput = memo(
   (
@@ -221,16 +222,16 @@ export const FormInput = memo(
             )}
             {props.type === "rest_documents" && (
               <RestDocumentsInput
-                className="w-full"
+                label={props.label}
                 value={
                   (_value as string[] | string | null) ||
                   ((props.max || 0) > 1 ? [] : null)
                 }
                 max={props.max}
-                onChange={(e, object) => onChange(e, undefined, object)}
+                onChange={(id, object: any) => onChange(id, undefined, object)}
                 disabled={disabled}
-                table={props.rest?.table || ""}
-                column={props.rest?.column || ""}
+                entity={props.rest?.table || ""}
+                filter={(props.rest?.filter || {}) as any}
               />
             )}
             {props.type === "formatted" && (

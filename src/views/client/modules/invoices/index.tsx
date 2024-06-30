@@ -224,8 +224,7 @@ export const InvoicesPage = () => {
                   <RestDocumentsInput
                     disabled
                     value={invoice.client}
-                    table={"invoices"}
-                    column="client"
+                    entity={"contacts"}
                     max={1}
                   />
                 </div>

@@ -93,8 +93,7 @@ export const StockPage = () => {
                 <RestDocumentsInput
                   disabled
                   value={item.article}
-                  table={"stock_items"}
-                  column="article"
+                  entity={"articles"}
                   max={1}
                 />
               ),
@@ -107,8 +106,7 @@ export const StockPage = () => {
                   <RestDocumentsInput
                     disabled
                     value={item.client}
-                    table={"stock_items"}
-                    column="client"
+                    entity={"contacts"}
                     max={1}
                   />
                 </>

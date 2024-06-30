@@ -112,14 +112,14 @@ export const InvoicesDetailsPage = ({
                     <>
                       <FormInput
                         type="rest_documents"
-                        rest={{ table: "invoices", column: "client" }}
+                        rest={{ table: "contacts" }}
                         label="Client"
                         ctrl={ctrl("client")}
                         max={1}
                       />
                       <FormInput
                         type="rest_documents"
-                        rest={{ table: "invoices", column: "contact" }}
+                        rest={{ table: "contacts" }}
                         label="Contacts (optionnel)"
                         ctrl={ctrl("contact")}
                       />
@@ -128,7 +128,7 @@ export const InvoicesDetailsPage = ({
                   {(isSupplierInvoice || isSupplierQuote) && (
                     <FormInput
                       type="rest_documents"
-                      rest={{ table: "invoices", column: "supplier" }}
+                      rest={{ table: "contacts" }}
                       label="Fournisseur"
                       ctrl={ctrl("supplier")}
                       max={1}
@@ -400,7 +400,7 @@ export const InvoicesDetailsPage = ({
                         <FormInput
                           className="w-max"
                           type="rest_documents"
-                          rest={{ table: "invoices", column: "articles.all" }}
+                          rest={{ table: "articles" }}
                           label="Ajouter un article"
                           max={1}
                           onChange={(_id, e: Articles) => {

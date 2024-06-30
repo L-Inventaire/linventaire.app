@@ -22,15 +22,30 @@ export const useSettingsMenu: MenuIndex = (hasAccess) => {
         to: getRoute(ROUTES.SettingsUsers),
       },
       {
-        label: t("menu.settings.preferences"),
+        type: "divider",
+      },
+      {
+        type: "title",
+        label: t("menu.settings.activity_preferences_title"),
+      },
+      {
+        label: t("menu.settings.activity_format"),
         to: getRoute(ROUTES.SettingsPreferences),
+      },
+      {
+        label: t("menu.settings.stock_locations"),
+        to: getRoute(ROUTES.StockLocationsPreferences),
+      },
+      {
+        label: t("menu.settings.bank_accounts"),
+        to: getRoute(ROUTES.BankAccountsPreferences),
       },
       {
         type: "divider",
       },
       {
         type: "title",
-        label: t("menu.settings.preferences_title"),
+        label: t("menu.settings.general_preferences_title"),
       },
       {
         label: t("menu.settings.tags"),

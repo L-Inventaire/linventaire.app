@@ -5,7 +5,7 @@ import { RestDocumentsInput } from "@components/rest-documents-input";
 import { Table } from "@components/table";
 import { Articles } from "@features/articles/types/types";
 import { useContacts } from "@features/contacts/hooks/use-contacts";
-import { getContactName } from "@features/contacts/types/types";
+import { Contacts, getContactName } from "@features/contacts/types/types";
 import { ROUTES, getRoute } from "@features/routes";
 import { formatAmount, formatNumber } from "@features/utils/format/strings";
 import { EyeIcon, TrashIcon } from "@heroicons/react/24/outline";
@@ -161,9 +161,8 @@ export const ArticleSuppliersInput = ({
             {!readonly && (
               <div className="mt-2 flex space-x-2">
                 <RestDocumentsInput
-                  table="articles"
-                  column="suppliers"
-                  theme="primary"
+                  entity="contacts"
+                  filter={{ is_supplier: true } as Partial<Contacts>}
                   label="+ Ajouter un fournisseur"
                   placeholder="Rechercher un fournisseur..."
                   max={1}

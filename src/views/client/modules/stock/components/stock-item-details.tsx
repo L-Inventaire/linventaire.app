@@ -48,11 +48,10 @@ export const StockItemsDetailsPage = ({
           type="rest_documents"
           max={1}
           rest={{
-            table: "stock_items",
-            column: "article",
-            id: draft.id,
+            table: "articles",
           }}
           ctrl={ctrl("article")}
+          size="lg"
         />
         <FormInput
           label="Type"
@@ -86,9 +85,10 @@ export const StockItemsDetailsPage = ({
           type="rest_documents"
           max={1}
           rest={{
-            table: "stock_items",
-            column: "client",
-            id: draft.id,
+            table: "contacts",
+            filter: {
+              is_client: true,
+            },
           }}
           ctrl={ctrl("client")}
         />
@@ -97,9 +97,10 @@ export const StockItemsDetailsPage = ({
           type="rest_documents"
           max={1}
           rest={{
-            table: "stock_items",
-            column: "for_rel_quote",
-            id: draft.id,
+            table: "invoices",
+            filter: {
+              type: "supplier_quotes",
+            },
           }}
           ctrl={ctrl("for_rel_quote")}
         />
@@ -108,9 +109,10 @@ export const StockItemsDetailsPage = ({
           type="rest_documents"
           max={1}
           rest={{
-            table: "from_rel_supplier_quote",
-            column: "for_rel_quote",
-            id: draft.id,
+            table: "invoices",
+            filter: {
+              type: "quotes",
+            },
           }}
           ctrl={ctrl("from_rel_supplier_quote")}
         />

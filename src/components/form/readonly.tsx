@@ -76,12 +76,10 @@ export const FormReadonly = memo(
             )}
             {props.type === "rest_documents" && (
               <RestDocumentsInput
-                className="w-full"
                 value={(props.value as string[]) || []}
                 disabled={true}
                 max={props.max}
-                table={props.rest?.table || ""}
-                column={props.rest?.column || ""}
+                entity={props.rest?.table || ""}
               />
             )}
             {props.type === "phone" && (

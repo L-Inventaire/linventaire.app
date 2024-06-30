@@ -75,6 +75,8 @@ export const ROUTES = {
 
   Settings: "/:client/settings",
   SettingsPreferences: "/:client/settings/preferences",
+  StockLocationsPreferences: "/:client/settings/stock-locations",
+  BankAccountsPreferences: "/:client/settings/bank-accounts",
   SettingsTags: "/:client/settings/tags",
   SettingsCustomFields: "/:client/settings/custom-fields",
   SettingsCompany: "/:client/settings/company",

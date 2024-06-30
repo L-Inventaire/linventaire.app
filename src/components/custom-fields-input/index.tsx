@@ -110,8 +110,7 @@ export const CustomFieldsInput = ({
                             [f.code]: users,
                           })
                         }
-                        table={f.type}
-                        column={"fields." + f.code}
+                        entity={type.replace("type:", "")}
                       />
                     )}
                   </>

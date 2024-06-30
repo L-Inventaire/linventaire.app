@@ -1,6 +1,6 @@
 import { Button, ButtonProps } from "@atoms/button/button";
 import { Info } from "@atoms/text";
-import { AnimatedHeight } from "@components/animated-height";
+import { AnimatedHeight } from "@components/animated-side/height";
 import {
   Shortcut,
   showShortCut,

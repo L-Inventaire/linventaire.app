@@ -48,8 +48,9 @@ export type SearchFormFieldType = {
     | "scan"; //Default is text
   rest?: {
     table: string;
-    column: string;
+    column?: string;
     id?: string;
+    filter?: any;
   };
   placeholder?: string;
   disabled?: boolean;

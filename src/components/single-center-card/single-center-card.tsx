@@ -1,4 +1,4 @@
-import { AnimatedHeight } from "@components/animated-height";
+import { AnimatedHeight } from "@components/animated-side/height";
 
 export default function SingleCenterCard(props: {
   logo?: boolean;

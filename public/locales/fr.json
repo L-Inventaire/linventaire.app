@@ -56,7 +56,12 @@
       "api": "Développeurs et API",
       "billing_title": "Abonnement",
       "billing": "Paiements et plans",
-      "ctrl_prefix": "Paramètres de l'entreprise"
+      "ctrl_prefix": "Paramètres de l'entreprise",
+      "general_preferences_title": "Général",
+      "activity_preferences_title": "Activité",
+      "activity_format": "Factures et paiements",
+      "bank_accounts": "Comptes bancaires",
+      "stock_locations": "Lieux de stockage"
     },
     "account": {
       "title": "Compte",
