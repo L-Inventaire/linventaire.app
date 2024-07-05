@@ -67,7 +67,7 @@ const FileTagRender = ({
           icon
         ) : (
           <Icon
-            className="mr-2"
+            className="mr-1 inline-flex"
             {...getFileTypeIconProps({ extension: name.split(".").pop() })}
           />
         )
@@ -88,7 +88,7 @@ const FileTagRender = ({
           <span className="w-7 h-7 flex items-center justify-center mr-1">
             <img
               src={thumb}
-              className="object-contain border border-wood-200 dark:border-wood-800 rounded-sm"
+              className="object-contain border shadow-sm border-slate-100 dark:border-slate-900 rounded-sm"
               alt={name}
             />
           </span>

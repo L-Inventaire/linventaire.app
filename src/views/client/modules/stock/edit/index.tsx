@@ -60,11 +60,6 @@ export const StockItemsEditPage = ({}: { readonly?: boolean }) => {
                   <span>Nouvel élément en l'état</span>
                 </>
               )}
-              <StockItemStatus
-                value={draft.state}
-                onChange={(state) => setDraft({ ...draft, state })}
-                size="lg"
-              />
             </>
           }
         />

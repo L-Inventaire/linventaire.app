@@ -1,4 +1,8 @@
 import { Button } from "@atoms/button/button";
+import {
+  InputOutlinedDefault,
+  InputOutlinedHighlight,
+} from "@atoms/styles/inputs";
 import { Base, Info } from "@atoms/text";
 import { AnimatedHeight } from "@components/animated-side/height";
 import { buildQueryFromMap } from "@components/search-bar/utils/utils";
@@ -45,9 +49,11 @@ export const RestDocumentsInput = <T extends RestEntity>(props: {
       className={twMerge(
         "inline-flex min-h-7 w-max",
         size === "lg" ? "w-full" : props.value && "w-72",
-        "rounded shadow-sm text-black dark:text-white text-opacity-80 bg-white dark:bg-slate-900 border-[0.5px] border-slate-100 dark:border-slate-700 border-inside dark:border-slate-700",
+        "text-black dark:text-white text-opacity-80",
+        InputOutlinedDefault,
         !props.disabled &&
-          "dark:hover:bg-slate-800 hover:bg-gray-100 dark:hover:border-slate-700 dark:active:bg-slate-700 active:bg-gray-200"
+          "dark:hover:bg-slate-800 hover:bg-gray-100 dark:hover:border-slate-700 dark:active:bg-slate-700 active:bg-gray-200",
+        !!props.value && InputOutlinedHighlight
       )}
     >
       <div
@@ -59,7 +65,10 @@ export const RestDocumentsInput = <T extends RestEntity>(props: {
           size === "lg" && "p-2 space-x-2"
         )}
       >
-        {props.icon && props.icon({ className: "h-4 w-4 opacity-90 shrink-0" })}
+        {props.icon &&
+          props.icon({
+            className: twMerge("h-4 w-4 opacity-90 shrink-0"),
+          })}
         <div className="flex flex-col grow">
           <div className="flex items-center space-x-1 w-full -my-1">
             <div className={twMerge("grow")}>
@@ -73,8 +82,8 @@ export const RestDocumentsInput = <T extends RestEntity>(props: {
               </Info>
               <Base
                 className={twMerge(
-                  "block w-full transition-all",
-                  props.value ? "h-0 opacity-0" : "h-5"
+                  "block w-full transition-all opacity-75",
+                  props.value ? "h-0 opacity-0" : "min-h-5"
                 )}
               >
                 {props.placeholder || props.label || props.entity}

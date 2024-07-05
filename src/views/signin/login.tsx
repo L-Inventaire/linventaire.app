@@ -11,7 +11,7 @@ import { AuthApiClient } from "@features/auth/api-client/api-client";
 import { useAuth } from "@features/auth/state/use-auth";
 import { ROUTES } from "@features/routes";
 import { useControlledEffect } from "@features/utils/hooks/use-controlled-effect";
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -91,7 +91,7 @@ export const Login = () => {
     }
   };
 
-  const submit = async () => {
+  const submit = useCallback(async () => {
     setLoading(true);
     try {
       if (!mode) {
@@ -143,7 +143,7 @@ export const Login = () => {
     }
 
     setLoading(false);
-  };
+  }, [mode, email, password, code]);
 
   useControlledEffect(() => {
     if (code.length === 8) {

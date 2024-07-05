@@ -1,33 +1,38 @@
 import { ReactNode } from "react";
 import * as Text from "@atoms/text";
+import { twMerge } from "tailwind-merge";
+import { AnimatedHeight } from "@components/animated-side/height";
+import { CardDefault } from "@atoms/styles/cards";
 
 export const Card = (props: {
+  children?: ReactNode;
   className?: string;
-  prefix?: ReactNode;
-  title?: ReactNode | string;
-  text: ReactNode | string;
-  button?: ReactNode;
+  wrapperClassName?: string;
+  icon?: (p: any) => ReactNode;
+  title: ReactNode | string;
+  show?: boolean;
 }) => {
   return (
     <div
-      className={
-        "bg-wood-100 dark:bg-wood-950 rounded-lg flex items-center p-3 " +
-        (props.className || "")
-      }
+      className={props.show !== false ? props.wrapperClassName || "my-4" : ""}
     >
-      {props.prefix}
-      <div className="grow">
-        {props.title && (
-          <>
-            <Text.Base>{props.title}</Text.Base>
-            <br />
-          </>
+      <AnimatedHeight>
+        {props.show !== false && (
+          <div
+            className={twMerge(
+              CardDefault,
+              "p-2 flex items-center",
+              props.className
+            )}
+          >
+            {props.icon && props.icon({ className: "w-4 h-4 mr-2" })}
+            <div className="grow flex flex-col">
+              {props.title && <Text.Base>{props.title}</Text.Base>}
+              <Text.Info>{props.children}</Text.Info>
+            </div>
+          </div>
         )}
-        <Text.Info>{props.text}</Text.Info>
-      </div>
-      {props.button}
+      </AnimatedHeight>
     </div>
   );
 };
-
-export default Card;

@@ -79,7 +79,7 @@ const Text = (props: TextProps) => {
       break;
     case "section-small":
       defaultClassName =
-        "text-base font-semibold block " +
+        "text-base font-medium block " +
         " " +
         (props.noColor ? "" : "text-black dark:text-white");
       break;

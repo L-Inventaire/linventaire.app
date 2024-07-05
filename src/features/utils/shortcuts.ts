@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useCallback } from "react";
 import { useControlledEffect } from "@features/utils/hooks/use-controlled-effect";
 
 export type Shortcut =
@@ -90,11 +90,13 @@ export const useShortcutsContext = (context: string) => {
 let scids = 0;
 export const useShortcuts = (
   shortcuts: Shortcut[],
-  callback: (e: React.MouseEvent, shortcut: Shortcut) => void,
+  _callback: (e: React.MouseEvent, shortcut: Shortcut) => void,
   deps: any[] = []
 ) => {
   const componentId = useRef(scids++);
   const currentShortcuts = useRef<string[]>([]);
+
+  const callback = useCallback(_callback, [_callback, ...deps]);
 
   const removeShortcuts = () => {
     for (const context of Object.keys(shortcutsCallbacks)) {
@@ -126,7 +128,7 @@ export const useShortcuts = (
     }
 
     currentShortcuts.current = shortcuts;
-  }, [shortcuts.join(","), ...deps]);
+  }, [shortcuts.join(","), ...deps, callback]);
 
   useEffect(() => {
     return () => {
