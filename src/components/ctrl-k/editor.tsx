@@ -84,7 +84,7 @@ export const ModalEditor = () => {
               ?.renderEditor &&
               CtrlKRestEntities[
                 currentState.options?.entity || ""
-              ]?.renderEditor({
+              ]?.renderEditor?.({
                 id: "",
               })}
           </div>

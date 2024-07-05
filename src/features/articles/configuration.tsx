@@ -8,10 +8,11 @@ export const useArticleDefaultModel: () => Partial<Articles> = () => ({
   tva: "20",
 });
 
-registerCtrlKRestEntity<Articles>(
-  "articles",
-  (props) => <ArticlesDetailsPage readonly={false} id={props.id} />,
-  (article) => <>{article.name}</>,
-  useArticleDefaultModel,
-  ROUTES.ProductsView
-);
+registerCtrlKRestEntity<Articles>("articles", {
+  renderEditor: (props) => (
+    <ArticlesDetailsPage readonly={false} id={props.id} />
+  ),
+  renderResult: (article) => <>{article.name}</>,
+  useDefaultData: useArticleDefaultModel,
+  viewRoute: ROUTES.ProductsView,
+});

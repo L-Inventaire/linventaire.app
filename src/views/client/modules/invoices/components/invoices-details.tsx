@@ -115,7 +115,6 @@ export const InvoicesDetailsPage = ({
                         rest={{ table: "contacts" }}
                         label="Client"
                         ctrl={ctrl("client")}
-                        max={1}
                       />
                       <FormInput
                         type="rest_documents"
@@ -131,7 +130,6 @@ export const InvoicesDetailsPage = ({
                       rest={{ table: "contacts" }}
                       label="Fournisseur"
                       ctrl={ctrl("supplier")}
-                      max={1}
                     />
                   )}
                 </PageColumns>
@@ -402,7 +400,6 @@ export const InvoicesDetailsPage = ({
                           type="rest_documents"
                           rest={{ table: "articles" }}
                           label="Ajouter un article"
-                          max={1}
                           onChange={(_id, e: Articles) => {
                             setDraft({
                               ...draft,

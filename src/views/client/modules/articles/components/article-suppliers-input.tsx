@@ -165,7 +165,6 @@ export const ArticleSuppliersInput = ({
                   filter={{ is_supplier: true } as Partial<Contacts>}
                   label="+ Ajouter un fournisseur"
                   placeholder="Rechercher un fournisseur..."
-                  max={1}
                   value={""}
                   onChange={(supplier) => {
                     if (supplier && typeof supplier === "string") {

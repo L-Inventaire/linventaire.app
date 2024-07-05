@@ -98,7 +98,6 @@ export const RelationsInput = ({
                   entity="contacts"
                   label="+ Ajouter un contact parent"
                   placeholder="Rechercher un contact"
-                  max={1}
                   value={""}
                   onChange={(parent) => {
                     if (parent && typeof parent === "string") {

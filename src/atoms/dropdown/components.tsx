@@ -86,7 +86,6 @@ export const MenuItem = ({
         className
       )}
     >
-      <div ref={autoScrollRef} className="h-24 absolute" />
       {icon &&
         icon({
           className: "h-4 w-4 opacity-80",
@@ -95,6 +94,7 @@ export const MenuItem = ({
         {label}
       </Base>
       {suffix}
+      <div ref={autoScrollRef} className="h-24 absolute" />
     </Link>
   );
 };

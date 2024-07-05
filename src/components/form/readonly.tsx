@@ -78,7 +78,7 @@ export const FormReadonly = memo(
               <RestDocumentsInput
                 value={(props.value as string[]) || []}
                 disabled={true}
-                max={props.max}
+                max={props.max || 1}
                 entity={props.rest?.table || ""}
               />
             )}

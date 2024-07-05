@@ -11,41 +11,78 @@ import { useRest } from "@features/utils/rest/hooks/use-rest";
 import { RestEntity } from "@features/utils/rest/types/types";
 import { TrashIcon } from "@heroicons/react/16/solid";
 import _ from "lodash";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { twMerge } from "tailwind-merge";
 
-export const RestDocumentsInput = <T extends RestEntity>(props: {
+type RestDocumentProps<T> = {
   label?: string;
   placeholder?: string;
   entity: string;
   filter?: Partial<T>;
-  onChange?: (id: string | string[], value: T | null) => void;
-  value?: string | string[] | null;
   icon?: (props: { className: string }) => ReactNode;
-  render?: (value: T) => ReactNode;
-  size?: "sm" | "md" | "lg";
+  render?: (value: T) => ReactNode | JSX.Element;
+  size?: "xs" | "sm" | "md" | "lg";
   disabled?: boolean;
-  max?: number;
-}) => {
+} & (
+  | {
+      value?: string | null;
+      onEntityChange?: (value: T | null) => void;
+      onChange?: (id: string, value: T | null) => void;
+      max?: undefined | false | null;
+    }
+  | {
+      value?: string[] | null | never[];
+      onEntityChange?: (value: T[]) => void;
+      onChange?: (id: string[], value: T[]) => void;
+      max: number;
+    }
+);
+
+export const RestDocumentsInput = <T extends RestEntity>(
+  props: RestDocumentProps<T>
+) => {
   const select = useCtrlKAsSelect();
   const size = props.size || "sm";
 
   const { items } = useRest<T>(props.entity, {
     query: buildQueryFromMap({ id: props.value }),
-    limit: _.isArray(props.value) ? props.max : 1,
+    limit: _.isArray(props.value) ? props.max || 1 : 1,
   });
-  const valueObj = items?.data?.list?.[0];
+  const valuesList = items?.data?.list;
 
-  // TODO allow to add multiple items
+  useEffect(() => {
+    if (typeof props.max !== "number") {
+      props.onEntityChange?.(valuesList?.[0] || null);
+    } else {
+      props.onEntityChange?.(valuesList || []);
+    }
+  }, [valuesList]);
+
+  const onClick = () =>
+    !props.disabled &&
+    select<T>(
+      props.entity,
+      props.filter || {},
+      (items: T[]) => {
+        if (typeof props.max !== "number") {
+          props.onChange?.(items[0]?.id || "", items[0] || null);
+        } else {
+          props.onChange?.(
+            (items || []).map((a) => a.id),
+            items || []
+          );
+        }
+      },
+      props.max || 1
+    );
+
+  if (size === "xs" && !props.value) {
+    return <Button theme="invisible" icon={props.icon} onClick={onClick} />;
+  }
 
   return (
     <div
-      onClick={() =>
-        !props.disabled &&
-        select<T>(props.entity, props.filter || {}, (item: T) => {
-          props.onChange?.(item?.id, item);
-        })
-      }
+      onClick={onClick}
       className={twMerge(
         "inline-flex min-h-7 w-max",
         size === "lg" ? "w-full" : props.value && "w-72",
@@ -104,7 +141,11 @@ export const RestDocumentsInput = <T extends RestEntity>(props: {
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      !props.disabled && props.onChange?.("", null);
+                      if (typeof props.max !== "number") {
+                        !props.disabled && props.onChange?.("", null);
+                      } else {
+                        !props.disabled && props.onChange?.([], []);
+                      }
                     }}
                   />
                 </div>
@@ -112,11 +153,11 @@ export const RestDocumentsInput = <T extends RestEntity>(props: {
             )}
           </div>
           <AnimatedHeight className="pr-4">
-            {props.value && !!valueObj && (
+            {props.value && !!valuesList?.[0] && (
               <Base className="leading-5 block">
                 {props.render
-                  ? props.render(valueObj)
-                  : (valueObj as any)._label}
+                  ? props.render(valuesList[0])
+                  : (valuesList[0] as any)._label}
               </Base>
             )}
           </AnimatedHeight>

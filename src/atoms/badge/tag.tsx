@@ -37,9 +37,6 @@ export const Tag = ({
       style={{
         ...(style || {}),
         minWidth: "21px",
-        ...(color && color.indexOf("#") === 0
-          ? { backgroundColor: color + "33" }
-          : {}),
       }}
       className={twMerge(
         size === "sm"
@@ -54,7 +51,6 @@ export const Tag = ({
         onClick &&
           "cursor-pointer dark:hover:bg-slate-800 hover:bg-gray-100 active:bg-gray-200 dark:hover:border-slate-700 dark:active:bg-slate-700",
         "align-top text-ellipsis whitespace-nowrap overflow-hidden min-w-0 max-w-full shrink-0",
-        color && color.indexOf("#") !== 0 && `bg-${color}-200`,
         className
       )}
     >
@@ -62,7 +58,7 @@ export const Tag = ({
         (color ? (
           <div
             className={twMerge(
-              "w-2.5 h-2.5 rounded-full mr-1.5",
+              "shrink-0 w-2.5 h-2.5 rounded-full mr-1.5",
               color.indexOf("#") !== 0 && `bg-${color}-500`
             )}
             style={color.indexOf("#") === 0 ? { backgroundColor: color } : {}}

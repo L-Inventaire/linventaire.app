@@ -5,15 +5,8 @@ export type CtrlKPathOptionType<T> = {
   internalQuery?: any;
   entity?: string; // Search entity (ex. "contacts")
   editor?: (props: { id: string }) => ReactNode;
-  onClick?: (item: T, event: MouseEvent) => void; // Action to apply on selection
-};
-
-export type CtrlKPathType<T> = {
-  mode:
-    | "action" // Search actions to apply on selection
-    | "search" // Search items
-    | "create"; // Create a new item (enlarge the modal)
-  options?: CtrlKPathOptionType<T>; // Additional options for any mode
+  onClick?: (items: T[], event: MouseEvent) => void; // Action to apply on selection
+  selected?: T[]; // Selected items in search mode
 };
 
 export type CtrlKOptionsType = {
@@ -24,6 +17,15 @@ export type CtrlKOptionsType = {
   className?: string;
   action?: (event: MouseEvent) => void;
   to?: string;
+};
+
+export type CtrlKPathType<T> = {
+  mode:
+    | "action" // Search actions to apply on selection
+    | "search" // Search items
+    | "create"; // Create a new item (enlarge the modal)
+  select?: boolean; // Allow to select multiple items
+  options?: CtrlKPathOptionType<T>; // Additional options for any mode
 };
 
 export type CtrlKStateType<T> = {

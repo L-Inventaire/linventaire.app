@@ -8,10 +8,11 @@ export const useContactDefaultModel: () => Partial<Contacts> = () => ({
   delivery_address: null,
 });
 
-registerCtrlKRestEntity<Contacts>(
-  "contacts",
-  (props) => <ContactsDetailsPage readonly={false} id={props.id} />,
-  (contact) => <>{getContactName(contact)}</>,
-  useContactDefaultModel,
-  ROUTES.ContactsView
-);
+registerCtrlKRestEntity<Contacts>("contacts", {
+  renderEditor: (props) => (
+    <ContactsDetailsPage readonly={false} id={props.id} />
+  ),
+  renderResult: (contact) => <>{getContactName(contact)}</>,
+  useDefaultData: useContactDefaultModel,
+  viewRoute: ROUTES.ContactsView,
+});

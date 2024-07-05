@@ -12,22 +12,29 @@ export const registerRootNavigation = (
 };
 
 type RestEntityForCtrlK<T> = {
-  viewRoute?: string;
-  useDefaultData?: () => Partial<T>;
-  renderEditor: (props: { id: string }) => ReactNode;
+  // How we render the result in the search list
   renderResult?: (props: T) => ReactNode;
+  viewRoute?: string; // Where we can view the entity
+
+  // When we want to not use rest entities but custom data (replace all results)
+  resultList?: (query: string) => Promise<{ total: number; list: T[] }>;
+
+  // Allow to create a new entity
+  renderEditor?: (props: { id: string }) => ReactNode;
+  useDefaultData?: () => Partial<T>;
+  onCreate?: (query: string) => {
+    callback: (query: string) => Promise<string | void | false>; // Returns the query we want after the creation
+    label?: string | ReactNode;
+  };
 };
 
 export let CtrlKRestEntities: { [key: string]: RestEntityForCtrlK<any> } = {};
 export const registerCtrlKRestEntity = <T>(
   entity: string,
-  renderEditor: (props: { id: string }) => ReactNode,
-  renderResult?: (props: T) => ReactNode,
-  useDefaultData?: () => Partial<T>,
-  viewRoute?: string
+  options: RestEntityForCtrlK<T>
 ) => {
   CtrlKRestEntities = {
     ...CtrlKRestEntities,
-    [entity]: { viewRoute, renderEditor, renderResult, useDefaultData },
+    [entity]: options,
   };
 };

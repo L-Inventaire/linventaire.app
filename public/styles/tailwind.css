@@ -1216,6 +1216,18 @@ img {
   margin-right: -0.25rem;
 }
 
+.-mr-2 {
+  margin-right: -0.5rem;
+}
+
+.-mr-1\.5 {
+  margin-right: -0.375rem;
+}
+
+.-mr-3 {
+  margin-right: -0.75rem;
+}
+
 .block {
   display: block;
 }
@@ -3339,6 +3351,10 @@ img {
 
 .align-top {
   vertical-align: top;
+}
+
+.align-middle {
+  vertical-align: middle;
 }
 
 .align-bottom {

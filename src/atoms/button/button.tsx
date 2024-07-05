@@ -6,7 +6,7 @@ import {
   useShortcuts,
 } from "@features/utils/shortcuts";
 import _ from "lodash";
-import { useRef, useState } from "react";
+import { ReactNode, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 
 export interface ButtonProps
@@ -26,7 +26,7 @@ export interface ButtonProps
   children?: React.ReactNode;
   to?: string;
   target?: string;
-  icon?: (props: { className: string }) => JSX.Element;
+  icon?: (props: { className: string }) => ReactNode | JSX.Element;
   "data-tooltip"?: string;
 }
 

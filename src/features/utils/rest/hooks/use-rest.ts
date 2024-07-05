@@ -23,6 +23,7 @@ export type RestOptions<T> = {
   asc?: boolean;
   index?: string;
   key?: string;
+  queryFn?: () => Promise<{ total: number; list: T[] }>;
 };
 
 export const useRestSuggestions = <T>(
@@ -92,14 +93,16 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
   const items = useQuery({
     queryKey: [table, id, options?.key || "default", options?.query || ""],
     staleTime: 1000 * 60 * 5, // 5 minutes
-    queryFn: () =>
-      options?.limit === 0
-        ? { total: 0, list: [] }
-        : restApiClient.list(
-            id || "",
-            options?.query,
-            _.omit(options, "query")
-          ),
+    queryFn:
+      options?.queryFn ||
+      (() =>
+        options?.limit === 0
+          ? { total: 0, list: [] }
+          : restApiClient.list(
+              id || "",
+              options?.query,
+              _.omit(options, "query")
+            )),
     placeholderData: (prev) => prev,
   });
 
@@ -155,7 +158,7 @@ export const useRestSchema = (table: string) => {
   const { id } = useCurrentClient();
   return useQuery<SchemaType>({
     queryKey: [table + "_schema", id],
-    queryFn: () => restApiClients[table].schema(id || ""),
+    queryFn: () => restApiClients[table].schema(id || "") || {},
     placeholderData: (prev) => prev,
   });
 };

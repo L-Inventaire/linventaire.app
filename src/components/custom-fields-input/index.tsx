@@ -103,8 +103,8 @@ export const CustomFieldsInput = ({
                       <RestDocumentsInput
                         disabled={readonly}
                         max={isArray ? undefined : 1}
-                        value={value[f.code] || isArray ? [] : ""}
-                        onChange={(users) =>
+                        value={value[f.code] || isArray ? ([] as any) : ""}
+                        onChange={(users: any) =>
                           onChange({
                             ...value,
                             [f.code]: users,

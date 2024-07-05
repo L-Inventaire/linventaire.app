@@ -73,7 +73,6 @@ export const InvoiceFormatInput = (props: {
       />
       <FormInput
         type="files"
-        max={1}
         label={t("settings.invoices.logo")}
         readonly={readonly}
         ctrl={ctrl("logo")}
@@ -81,7 +80,6 @@ export const InvoiceFormatInput = (props: {
       />
       <FormInput
         type="files"
-        max={1}
         label={t("settings.invoices.footer_logo")}
         readonly={readonly}
         ctrl={ctrl("footer_logo")}

@@ -4,7 +4,9 @@ import { useAuth } from "@features/auth/state/use-auth";
 import { useWebsockets } from "@features/auth/state/use-sockets";
 import { DidCreateCompanyOrSignupAtom } from "@features/clients/state/store";
 import { useClients } from "@features/clients/state/use-clients";
+import { useCustomersConfiguration } from "@features/customers/configuration";
 import { ROUTES, getRoute, useRoutes } from "@features/routes";
+import { useTagConfiguration } from "@features/tags/configuration";
 import { Modals } from "@views/modals";
 import { Navigate, Outlet, Route, useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
@@ -99,6 +101,9 @@ export const BackOfficeRoutes = () => {
 };
 
 export const Layout = () => {
+  useCustomersConfiguration();
+  useTagConfiguration();
+
   const [menuOpen, setMenuOpen] = useRecoilState(ResponsiveMenuAtom);
   useWebsockets();
   const { user, logout } = useAuth();

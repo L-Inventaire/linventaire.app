@@ -26,6 +26,7 @@ export type StockItems = {
   notes: string;
   documents: string[];
   tags: string[];
+  assignees: string[];
 
   fields: any;
 };

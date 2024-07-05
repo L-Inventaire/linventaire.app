@@ -13,6 +13,7 @@ export const schemaToSearchFields = (
     [key: string]: string | { label: string; keywords: string };
   } = {}
 ) => {
+  if (Object.keys(schema || {}).length === 0) return [];
   return Object.entries(flattenKeys(schema)).map(([key, value]) => {
     key = key.replace(/\[0\]$/, "");
     const tr =

@@ -17,10 +17,11 @@ export const useInvoiceDefaultModel: () => Partial<Invoices> = () => {
   };
 };
 
-registerCtrlKRestEntity<Invoices>(
-  "invoices",
-  (props) => <InvoicesDetailsPage readonly={false} id={props.id} />,
-  (invoice) => <>{invoice.reference}</>,
-  useInvoiceDefaultModel,
-  ROUTES.InvoicesView
-);
+registerCtrlKRestEntity<Invoices>("invoices", {
+  renderEditor: (props) => (
+    <InvoicesDetailsPage readonly={false} id={props.id} />
+  ),
+  renderResult: (invoice) => <>{invoice.reference}</>,
+  useDefaultData: useInvoiceDefaultModel,
+  viewRoute: ROUTES.InvoicesView,
+});

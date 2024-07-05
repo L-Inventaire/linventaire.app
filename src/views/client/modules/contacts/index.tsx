@@ -187,7 +187,7 @@ export const ContactsPage = () => {
                 <div className="w-full text-right flex space-x-1 justify-end items-center whitespace-nowrap">
                   {(contact.parents?.length || 0) > 0 && (
                     <RestDocumentsInput
-                      value={contact.parents}
+                      value={contact.parents as any}
                       entity="contacts"
                       disabled
                       size="sm"

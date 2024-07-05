@@ -225,10 +225,12 @@ export const FormInput = memo(
                 label={props.label}
                 value={
                   (_value as string[] | string | null) ||
-                  ((props.max || 0) > 1 ? [] : null)
+                  ((props.max || 0) > 1 ? ([] as any) : null)
                 }
                 max={props.max}
-                onChange={(id, object: any) => onChange(id, undefined, object)}
+                onChange={(id: any, object: any) =>
+                  onChange(id, undefined, object)
+                }
                 disabled={disabled}
                 entity={props.rest?.table || ""}
                 filter={(props.rest?.filter || {}) as any}

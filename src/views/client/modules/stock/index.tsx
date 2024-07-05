@@ -94,7 +94,6 @@ export const StockPage = () => {
                   disabled
                   value={item.article}
                   entity={"articles"}
-                  max={1}
                 />
               ),
             },
@@ -107,7 +106,6 @@ export const StockPage = () => {
                     disabled
                     value={item.client}
                     entity={"contacts"}
-                    max={1}
                   />
                 </>
               ),

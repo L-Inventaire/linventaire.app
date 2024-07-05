@@ -225,7 +225,6 @@ export const InvoicesPage = () => {
                     disabled
                     value={invoice.client}
                     entity={"contacts"}
-                    max={1}
                   />
                 </div>
               ),

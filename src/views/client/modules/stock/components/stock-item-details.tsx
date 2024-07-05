@@ -8,6 +8,7 @@ import { FormInput } from "@components/form/fields";
 import { FormContext } from "@components/form/formcontext";
 import { PageLoader } from "@components/page-loader";
 import { RestDocumentsInput } from "@components/rest-documents-input";
+import { TagsInput } from "@components/tags-input/new";
 import { Articles } from "@features/articles/types/types";
 import { useClients } from "@features/clients/state/use-clients";
 import { Invoices } from "@features/invoices/types/types";
@@ -20,7 +21,6 @@ import {
   MapPinIcon,
   QrCodeIcon,
   ShoppingCartIcon,
-  TagIcon,
   UserCircleIcon,
 } from "@heroicons/react/20/solid";
 import { DocumentIcon } from "@heroicons/react/24/outline";
@@ -88,8 +88,12 @@ export const StockItemsDetailsPage = ({
           value={ctrl("article").value}
           onChange={(id, article: Articles | null) => {
             ctrl("article").onChange(id);
+            ctrl("quantity").onChange(
+              article?.suppliers_details?.[0]?.delivery_quantity || 1
+            );
             setArticle(article);
           }}
+          onEntityChange={(article) => setArticle(article)}
         />
 
         {!!article && (
@@ -116,15 +120,18 @@ export const StockItemsDetailsPage = ({
               >
                 Localisation
               </Button>
-              <Button
-                data-tooltip="Étiquettes"
-                theme="invisible"
-                icon={(p) => <TagIcon {...p} />}
+              <TagsInput
+                size="md"
+                value={ctrl("tags").value}
+                onChange={ctrl("tags").onChange}
               />
-              <Button
-                data-tooltip="Responsable"
-                theme="invisible"
+              <RestDocumentsInput
+                entity={"users"}
+                size="xs"
                 icon={(p) => <UserCircleIcon {...p} />}
+                value={ctrl("assignees").value}
+                onChange={ctrl("assignees").onChange}
+                max={10}
               />
             </div>
           </div>
@@ -200,6 +207,13 @@ export const StockItemsDetailsPage = ({
             <Section className="mt-6 mb-2">Actions</Section>
             <Button theme="outlined">Subdiviser le lot</Button>
 
+            <RestDocumentsInput
+              entity="stock_items"
+              size="sm"
+              label="Élement d'origine"
+              placeholder="Aucun élément d'origine"
+            />
+
             <Section className="mt-6 mb-2">Traçabilité</Section>
             <Section className="mt-6 mb-2">Commentaires et historique</Section>
           </div>
@@ -212,7 +226,6 @@ export const StockItemsDetailsPage = ({
             <FormInput
               label="Article"
               type="rest_documents"
-              max={1}
               rest={{
                 table: "articles",
               }}
@@ -249,7 +262,6 @@ export const StockItemsDetailsPage = ({
             <FormInput
               label="Client"
               type="rest_documents"
-              max={1}
               rest={{
                 table: "contacts",
                 filter: {
@@ -261,7 +273,6 @@ export const StockItemsDetailsPage = ({
             <FormInput
               label="Commande fournisseur"
               type="rest_documents"
-              max={1}
               rest={{
                 table: "invoices",
                 filter: {
@@ -273,7 +284,6 @@ export const StockItemsDetailsPage = ({
             <FormInput
               label="Devis client"
               type="rest_documents"
-              max={1}
               rest={{
                 table: "invoices",
                 filter: {
