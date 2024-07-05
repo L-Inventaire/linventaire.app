@@ -1,57 +1,87 @@
-body .ce-block__content, body .ce-toolbar__content {
-  max-width: none;
-  font-size: 1rem;
+.controls {
+  display: flex;
+  border: 1px solid #ccc;
+  border-top: 0;
+  padding: 10px;
 }
 
-.ce-toolbar__actions--opened {
-  background: #FFF;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px #00000022;
-  padding: 2px 4px;
-  margin-top: -2px; 
-  margin-right: 8px;
-  border: 1px solid #e8e8eb;
+.controls-right {
+  margin-left: auto;
 }
 
-.codex-editor__redactor {
-  padding-bottom: 0px !important;
+.state {
+  margin: 10px 0;
+  font-family: monospace;
 }
 
-body .cdx-list__item {
-  padding: 1.5px 0 1.5px 3px
+.state-title {
+  color: #999;
+  text-transform: uppercase;
 }
 
-body .cdx-block {
-  padding-top: 0;
-  padding-bottom: 0.4em;
+.editor-input .ql-editor {
+  padding: 0 0.25em;
 }
 
-/* height 0px for ce-paragraph cdx-block with no children */
-body .remove-first-line-hack .ce-block:first-child {
-  height: 0px;
+.editor-input * {
+  font-family: Inter var, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
-body .ce-paragraph[data-placeholder]:empty:before {
-  color: rgb(170 166 157 / var(--tw-text-opacity));
-  font-size: 0.875rem;
+.editor-input .ql-container {
+  border: 0;
+  margin-top: 0.5em;
+  padding-top: 0.5em;
+  padding-bottom: 0.25em;
+  border-top: 1px solid #88888822;
 }
 
-body .ce-popover.ce-popover--opened {
-  right: 0;
-  left: auto;
+.editor-input .ql-toolbar {
+  border: 0;
+  padding: 0;
 }
 
-body .ce-toolbar__actions {
-  left: auto;
-  right: -16px;
+.editor-input .ql-editor.ql-blank::before {
+  left: 0.25em;
+  right: 0.25em;
+  font-style: normal;
 }
 
-body .ce-toolbar__actions--opened {
-  margin-right: 0px;
+.editor-input .ql-snow.ql-toolbar button, .editor-input .ql-snow .ql-toolbar button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: inline-block;
+  float: left;
+  height: 20px;
+  padding: 1px 3px;
+  width: 26px;
+  opacity: 0.5;
+  transition: all 200ms;
 }
 
-@media (min-width: 651px){
-  body .codex-editor--narrow .ce-toolbar__actions {
-    margin-right: 0px;
-  }
+.editor-input .ql-toolbar button.ql-active, .editor-input .ql-toolbar button:hover {
+  opacity: 1;
+  color: rgb(152, 118, 85);
+}
+
+.editor-input .ql-toolbar button.ql-active .ql-stroke, .editor-input .ql-toolbar button:hover .ql-stroke {
+  stroke: rgb(152, 118, 85);
+}
+
+.editor-input .ql-toolbar button.ql-active .ql-fill, .editor-input .ql-toolbar button:hover .ql-fill {
+  fill: rgb(152, 118, 85);
+}
+
+.editor-input .ql-toolbar {
+  margin-left: -3px;
+  margin-top: -4px;
+  margin-bottom: -2px;
+}
+
+.editor-input .ql-toolbar button {
+  opacity: 0.5;
+}
+
+.editor-input.has-focus .ql-toolbar button, .editor-input:hover .ql-toolbar button, .editor-input .ql-toolbar button.ql-active {
+  opacity: 1;
 }

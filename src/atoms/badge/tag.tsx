@@ -49,8 +49,8 @@ export const Tag = ({
           : size === "lg"
           ? "h-9 pl-2 pr-3"
           : "h-7 px-2 pr-2.5",
-        "text-center rounded-full shadow-sm inline-flex items-center text-sm border-box",
-        "text-black dark:text-white text-opacity-80 bg-white dark:bg-slate-900 border-[0.5px] border-black border-opacity-15 border-solid border-inside dark:border-slate-700",
+        "text-center rounded shadow-sm inline-flex items-center text-sm border-box",
+        "text-black dark:text-white text-opacity-80 bg-white dark:bg-slate-900 border border-black border-opacity-15 border-solid border-inside dark:border-slate-700",
         onClick &&
           "cursor-pointer dark:hover:bg-slate-800 hover:bg-gray-100 active:bg-gray-200 dark:hover:border-slate-700 dark:active:bg-slate-700",
         "align-top text-ellipsis whitespace-nowrap overflow-hidden min-w-0 max-w-full shrink-0",

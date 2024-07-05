@@ -22,5 +22,5 @@ registerCtrlKRestEntity<Invoices>(
   (props) => <InvoicesDetailsPage readonly={false} id={props.id} />,
   (invoice) => <>{invoice.reference}</>,
   useInvoiceDefaultModel,
-  ROUTES.StockView
+  ROUTES.InvoicesView
 );

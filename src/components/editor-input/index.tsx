@@ -1,26 +1,10 @@
-import CheckList from "@editorjs/checklist";
-import Code from "@editorjs/code";
-import EditorJS from "@editorjs/editorjs";
-import Embed from "@editorjs/embed";
-import InlineCode from "@editorjs/inline-code";
-import List from "@editorjs/list";
-import Marker from "@editorjs/marker";
-import Table from "@editorjs/table";
-import Underline from "@editorjs/underline";
-import { useEffect, useId, useRef } from "react";
-import { twMerge } from "tailwind-merge";
+import Delta from "quill-delta";
+import { useRef, useState } from "react";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 import "./index.css";
-
-export const EDITOR_JS_TOOLS = {
-  embed: Embed,
-  table: Table,
-  list: List,
-  code: Code,
-  marker: Marker,
-  checklist: CheckList,
-  inlineCode: InlineCode,
-  underline: Underline,
-};
+import { twMerge } from "tailwind-merge";
+import { InputOutlinedDefaultBorders } from "@atoms/styles/inputs";
 
 type EditorInputProps = {
   disabled?: boolean;
@@ -29,52 +13,61 @@ type EditorInputProps = {
   onChange?: (e: string) => void;
 };
 
-export const EditorInput = (props: EditorInputProps) => {
-  const holder = useId();
-  return (
-    <EditorInputIn
-      key={holder + (props.disabled ? "disabled" : "")}
-      {...props}
-    />
-  );
+const delta = new Delta() as unknown as any;
+
+const modules = {
+  toolbar: [
+    ["bold", "italic", "underline", "strike", "blockquote", "code-block"],
+    [
+      { list: "ordered" },
+      { list: "bullet" },
+      { indent: "-1" },
+      { indent: "+1" },
+    ],
+  ],
 };
 
-export const EditorInputIn = (props: EditorInputProps) => {
-  const holder = useId();
-  const editor = useRef<EditorJS | null>(null);
+export const EditorInput = (props: EditorInputProps) => {
+  const ref = useRef<ReactQuill>(null);
+  const [focused, setFocused] = useState(false);
 
-  useEffect(() => {
-    if (!editor.current) {
-      editor.current = new EditorJS({
-        data: JSON.parse(props.value || "{}"),
-        holder,
-        tools: EDITOR_JS_TOOLS,
-        placeholder: props.placeholder,
-        onChange: async (e) => {
-          if (!props.disabled) {
-            const val = JSON.stringify(await e.saver.save());
-            props.onChange?.(val);
-          }
-        },
-        readOnly: props.disabled,
-      });
-    }
-    return () => {
-      if (editor.current && editor.current.destroy) {
-        try {
-          editor.current.destroy();
-        } catch (e) {
-          console.error(e);
-        }
-      }
-    };
-  }, []);
+  const onEditorChange = (value: any) => {
+    props.onChange?.(value);
+  };
 
   return (
-    <div
-      className={twMerge("w-full", props.disabled && "remove-first-line-hack")}
-    >
-      <div id={holder}></div>
-    </div>
+    <ReactQuill
+      ref={ref}
+      onKeyDown={(e) => {
+        // If escape key is pressed, blur the editor
+        if (e.key === "Escape") {
+          ref.current?.blur();
+          setFocused(false);
+        }
+        // If contains ctrl key, don't stop propagation
+        if (e.ctrlKey || e.metaKey) {
+          return;
+        }
+        e.stopPropagation();
+      }}
+      onKeyUp={(e) => {
+        e.stopPropagation();
+      }}
+      onKeyPress={(e) => {
+        e.stopPropagation();
+      }}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
+      placeholder="Cliquer pour ajouter une note"
+      className={twMerge(
+        "editor-input p-2",
+        InputOutlinedDefaultBorders,
+        focused && "has-focus"
+      )}
+      theme="snow"
+      value={props.value || ""}
+      onChange={onEditorChange}
+      modules={modules}
+    />
   );
 };

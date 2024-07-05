@@ -1,4 +1,5 @@
 import Link from "@atoms/link";
+import { InputOutlinedDefault } from "@atoms/styles/inputs";
 import {
   Shortcut,
   showShortCut,
@@ -77,7 +78,7 @@ export const Button = (props: ButtonProps) => {
 
   if (props.theme === "outlined" || props.theme === "default")
     colors =
-      "shadow-sm text-black dark:text-white text-opacity-80 bg-white dark:bg-slate-900 dark:hover:bg-slate-800 hover:bg-gray-100 active:bg-gray-200 border-[0.5px] border-slate-100 dark:border-slate-700 border-inside dark:border-slate-700 dark:hover:border-slate-700 dark:active:bg-slate-700";
+      "text-black dark:text-white text-opacity-80 " + InputOutlinedDefault;
 
   if (props.theme === "invisible")
     colors =

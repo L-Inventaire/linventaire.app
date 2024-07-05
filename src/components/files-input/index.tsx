@@ -1,9 +1,11 @@
+import { InputOutlinedDefault } from "@atoms/styles/inputs";
 import { Info } from "@atoms/text";
 import { RestFileTag } from "@components/rest-tags/components/file";
 import { useClients } from "@features/clients/state/use-clients";
 import { FilesApiClient } from "@features/files/api-client/files-api-client";
 import { useFiles } from "@features/files/hooks/use-files";
 import { Files } from "@features/files/types/types";
+import { PaperClipIcon } from "@heroicons/react/24/outline";
 import _ from "lodash";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
@@ -180,7 +182,8 @@ export const DroppableFilesInput = ({
   return (
     <div
       className={twMerge(
-        "cursor-pointer text-center p-4 border-2 border-dashed border-slate-100 dark:border-slate-800 rounded w-full hover:bg-wood-50 dark:hover:bg-wood-950",
+        InputOutlinedDefault,
+        "cursor-pointer text-center p-2 border-dashed border-2",
         className
       )}
       onClick={() => fileInputRef.current?.click()}
@@ -196,7 +199,10 @@ export const DroppableFilesInput = ({
       onDragLeave={overrideEventDefaults}
       onDragOver={overrideEventDefaults}
     >
-      <Info>Click or drop to add files</Info>
+      <Info className="grow flex items-center justify-center h-full">
+        <PaperClipIcon className="h-4 w-4 inline-block mr-2" />
+        <span>Click or drop to add files</span>
+      </Info>
       <input
         ref={fileInputRef}
         type="file"
