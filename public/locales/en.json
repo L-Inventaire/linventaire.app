@@ -6,50 +6,23 @@
   },
   "header": {
     "search": {
-      "placeholder": "Search in l'inventaire",
+      "placeholder": "Search in inventory",
       "title": "Global search results"
     },
     "guides": "Guides",
-    "support": "Support"
-  },
-  "signin": {
-    "login": {
-      "title": "Hi {{0}}, glad to see you back.",
-      "welcome": "Hello, welcome to L'inventaire.",
-      "subtitle": "Enter your email to login",
-      "welcome_subtitle": "Choose an email to continue",
-      "email": "Email",
-      "code": "Code",
-      "password": "Password",
-      "password_instead": "Use a password instead",
-      "email_instead": "Send me a code by email instead",
-      "code_info": "We sent you a code by email.",
-      "code_resend": "Try again"
-    },
-    "signup": {
-      "title": "Let's create your account",
-      "subtitle": "It seems this is your first time on L'inventaire, let us know who you are",
-      "name": "Full name",
-      "photo": "Picture",
-      "removePhoto": "Remove picture",
-      "addPhoto": "Upload picture",
-      "submit": "Create my account",
-      "error": "An error occurred, please try again"
-    }
+    "support": "Help"
   },
   "general": {
-    "app_name": "L'inventaire",
-    "continue": "Continue",
     "tables": {
       "empty": "No data",
       "more": "Load more",
-      "pagination": "Showing {{current}} over {{total}} results"
+      "pagination": "Displaying {{current}} out of {{total}} items"
     },
     "save": "Save"
   },
   "settings": {
     "preferences": {
-      "currency": "Main currency",
+      "currency": "Primary currency",
       "title": "General",
       "language": "Company language"
     },
@@ -57,16 +30,110 @@
       "title": "Payments"
     },
     "invoices": {
-      "branding": "Show \"L'inventaire\" logo",
-      "color": "Main color",
+      "branding": "Inventory Logo",
+      "color": "Primary color",
       "logo": "Company logo",
       "footer_logo": "Footer logo",
       "template": "Template",
-      "heading": "Heading notes",
-      "footer": "Footnotes",
-      "tva": "VAT notice",
-      "payment_terms": "Terms of Sales",
-      "branding_placeholder": "Show the linventaire.app logo on invoices"
+      "heading": "Header notes",
+      "footer": "Footer notes",
+      "payment_terms": "Payment Terms",
+      "tva": "VAT mention",
+      "branding_placeholder": "Display linventaire.app logo on invoices"
+    }
+  },
+  "menu": {
+    "settings": {
+      "title": "Company",
+      "company": "Your company",
+      "users": "Collaborators",
+      "preferences": "Preferences",
+      "preferences_title": "Settings",
+      "tags": "Tags",
+      "custom_fields": "Custom fields",
+      "categories": "Imports",
+      "import": "Imports",
+      "api": "Developers and API",
+      "billing_title": "Subscription",
+      "billing": "Payments and plans",
+      "ctrl_prefix": "Company settings",
+      "general_preferences_title": "General",
+      "activity_preferences_title": "Activity",
+      "activity_format": "Invoices and payments",
+      "bank_accounts": "Bank accounts",
+      "stock_locations": "Stock locations"
+    },
+    "account": {
+      "title": "Account",
+      "profile": "Preferences and profile",
+      "security": "Security",
+      "enterprise": "Company",
+      "manage_companies": "Manage my companies",
+      "ctrlk_prefix": "Account"
+    },
+    "dashboard": "Dashboard",
+    "notifications": "Notifications",
+    "statistics": "Statistics",
+    "contacts": "All contacts",
+    "contacts_title": "Contacts",
+    "clients": "Clients",
+    "suppliers": "Suppliers",
+    "sell_title": "Sales",
+    "quotes": "Quotes",
+    "invoices": "Invoices",
+    "subscriptions": "Subscriptions",
+    "credit_notes": "Credit notes",
+    "services_title": "Service",
+    "consulting": "On-site service",
+    "buy_title": "Purchases",
+    "supplier_quotes": "Orders",
+    "stock": "Stock",
+    "products": "Items",
+    "supplier_invoices": "Supplier invoices",
+    "accounting": "Accounts",
+    "settings_title": "Company",
+    "users": "Users",
+    "settings_parent": "Settings"
+  },
+  "entities": {
+    "contacts": {
+      "titles": {
+        "plural": "Contacts",
+        "keywords": "contact,person,people",
+        "clients_plural": "Clients",
+        "suppliers_plural": "Suppliers",
+        "suppliers_keywords": "supplier",
+        "clients_keywords": "prospect"
+      }
+    },
+    "articles": {
+      "titles": {
+        "plural": "Items",
+        "keywords": "products,items,consumables,services"
+      }
+    },
+    "invoices": {
+      "titles": {
+        "quotes_plural": "Quotes",
+        "quotes_keywords": "quotes,orders",
+        "invoices_plural": "Invoices",
+        "invoices_keywords": "invoices",
+        "credit_notes_plural": "Credit notes",
+        "credit_notes_keywords": "credit notes",
+        "supplier_quotes_plural": "Orders",
+        "supplier_quotes_keywords": "supplier orders,price requests",
+        "supplier_invoices_plural": "Supplier invoices",
+        "supplier_invoices_keywords": "invoices,to pay"
+      }
+    }
+  },
+  "ctrlk": {
+    "search": {
+      "placeholder": "Search for actions or items"
+    },
+    "navigation": {
+      "search_in": "Search in",
+      "go_to": "Open"
     }
   }
 }
