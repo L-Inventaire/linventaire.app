@@ -1,9 +1,11 @@
+import { Button } from "@atoms/button/button";
 import { DropDownAtom } from "@atoms/dropdown";
-import { Section } from "@atoms/text";
-import { useShortcuts, useShortcutsContext } from "@features/utils/shortcuts";
+import { SectionSmall } from "@atoms/text";
+import { useShortcutsContext } from "@features/utils/shortcuts";
 import { Dialog, Transition } from "@headlessui/react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
+import { XMarkIcon } from "@heroicons/react/16/solid";
 import { ErrorBoundary } from "@views/error-boundary";
+import _, { uniqueId } from "lodash";
 import {
   Fragment,
   ReactNode,
@@ -14,12 +16,12 @@ import {
 } from "react";
 import { atom, useRecoilState, useSetRecoilState } from "recoil";
 
-const ModalsCountState = atom({
+const ModalsCountState = atom<string[]>({
   key: "ModalsState",
-  default: 0,
+  default: [],
 });
 
-const visibleModals = { value: 0 };
+const visibleModals = { stack: [] as string[] };
 
 export const ModalContext = (props: { level: string }) => {
   const setMenu = useSetRecoilState(DropDownAtom);
@@ -39,6 +41,7 @@ export const Modal = (props: {
   style?: any;
   positioned?: boolean;
 }) => {
+  const modalId = useRef(uniqueId());
   const [open, setOpen] = useState(false);
   const [modalsCountState, setModalsCountState] =
     useRecoilState(ModalsCountState);
@@ -47,15 +50,17 @@ export const Modal = (props: {
 
   const onClose = useCallback(() => {
     openStatus.current = false;
-    visibleModals.value += -1;
-    setModalsCountState(visibleModals.value);
+    visibleModals.stack = visibleModals.stack.filter(
+      (a) => a !== modalId.current
+    );
+    setModalsCountState(visibleModals.stack);
   }, [setModalsCountState]);
 
   const onOpen = useCallback(() => {
     openStatus.current = true;
-    visibleModals.value += 1;
-    setLevel(visibleModals.value);
-    setModalsCountState(visibleModals.value);
+    visibleModals.stack = _.uniq([...visibleModals.stack, modalId.current]);
+    setLevel(visibleModals.stack.findIndex((a) => a === modalId.current));
+    setModalsCountState(visibleModals.stack);
   }, [setModalsCountState]);
 
   useEffect(() => {
@@ -75,12 +80,9 @@ export const Modal = (props: {
     };
   }, [openStatus, onClose]);
 
-  const zIndex = "z-" + level + "0";
-
-  useShortcuts(
-    props.closable !== false ? ["esc"] : [],
-    () => props.onClose && props.onClose()
-  );
+  const zIndex = "z-[" + (level + 5) + "0]";
+  const active =
+    modalsCountState[modalsCountState.length - 1] === modalId.current;
 
   return (
     <Transition.Root show={open} as={Fragment}>
@@ -103,18 +105,21 @@ export const Modal = (props: {
           <div
             className={
               "fixed inset-0 bg-opacity-10 dark:bg-opacity-50 transition-opacity " +
-              (level === 1 ? "bg-black" : "bg-transparent")
+              (modalsCountState[0] === modalId.current
+                ? "bg-black"
+                : "bg-transparent")
             }
           />
         </Transition.Child>
 
         <div
+          onClick={props.onClose}
           className={
-            "fixed z-50 inset-0 overflow-y-auto transition-transform " +
-            (level !== modalsCountState && open
+            "fixed z-10 inset-0 overflow-y-auto transition-transform " +
+            (!active && open
               ? "-translate-y-6 sm:scale-95 opacity-75 "
-              : level !== modalsCountState && !open
-              ? "translate-y-6 sm:scale-95 opacity-75 "
+              : !active && !open
+              ? "translate-y-6 sm:translate-y-0 sm:scale-100 opacity-75 "
               : "")
           }
         >
@@ -154,19 +159,20 @@ export const Modal = (props: {
                   (props.className || "")
                 }
                 style={props.style || {}}
+                onClick={(e) => e.stopPropagation()}
               >
-                {props.closable !== false && (
-                  <div className="z-20 absolute top-0 right-0 pt-4 pr-4">
-                    <button
-                      type="button"
-                      className="bg-slate-300 dark:bg-slate-600 rounded-full p-1 text-slate-600 dark:text-slate-300 hover:opacity-75 focus:outline-none "
-                      onClick={() => props.onClose && props.onClose()}
-                    >
-                      <XMarkIcon className="h-5 w-5" aria-hidden="true" />
-                    </button>
+                {open && <ModalContext level={level.toString()} />}
+                {props.closable !== false && open && (
+                  <div className="z-20 absolute top-0 right-1 pt-4 pr-4">
+                    <Button
+                      onClick={props.onClose}
+                      size="sm"
+                      theme="invisible"
+                      icon={(p) => <XMarkIcon {...p} />}
+                      shortcut={["esc"]}
+                    />
                   </div>
                 )}
-                {open && <ModalContext level={level.toString()} />}
                 <ErrorBoundary>{props.children}</ErrorBoundary>
               </Dialog.Panel>
             </Transition.Child>
@@ -213,7 +219,7 @@ export const ModalContent = (props: {
             as="h3"
             className="-mt-2 text-xl font-semibold leading-6 font-medium text-gray-900 dark:text-white pr-6"
           >
-            <Section>{props.title}</Section>
+            <SectionSmall>{props.title}</SectionSmall>
           </Dialog.Title>
           <div className="mt-2">
             <p className="text-sm text-gray-500 dark:text-white">

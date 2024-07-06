@@ -17,6 +17,8 @@ import {
 } from "@heroicons/react/20/solid";
 import { useState } from "react";
 import { Page } from "../_layout/page";
+import { InputButton } from "@components/input-button";
+import { AddressInputButton } from "@components/input-button/address";
 
 export const DevPage = () => {
   const [stepperVal, setStepperVal] = useState("bought");
@@ -26,6 +28,8 @@ export const DevPage = () => {
   const [tags, setTags] = useState<string[]>([]);
   const [users, setUsers] = useState<string[]>([]);
   const [files, setFiles] = useState<string[]>([]);
+  const [serial, setSerial] = useState<string>("");
+  const [address, setAddress] = useState<any>(null);
 
   return (
     <Page>
@@ -87,22 +91,21 @@ export const DevPage = () => {
           <SectionSmall>Input button</SectionSmall>
           <Info>A button that becomes an input when clicked</Info>
           <div>
-            <Button
+            <AddressInputButton
               size="md"
-              theme="outlined"
               icon={(p) => <MapPinIcon {...p} />}
-            >
-              <Info>Aucune adresse</Info>
-            </Button>
+              value={address}
+              onChange={setAddress}
+            />
           </div>
           <div>
-            <Button
+            <InputButton
               size="md"
-              theme="outlined"
               icon={(p) => <QrCodeIcon {...p} />}
-            >
-              <Info>Numéro de série</Info>
-            </Button>
+              placeholder="Numéro de série"
+              value={serial}
+              onChange={setSerial}
+            />
           </div>
         </div>
         <div className="space-y-2">
@@ -113,30 +116,19 @@ export const DevPage = () => {
           <SectionSmall>Selector Card (tags / users)</SectionSmall>
           <Info>To use when selecting a rest entity</Info>
 
-          <div>
-            <UsersInput withName value={users} onChange={setUsers} size="md" />
-          </div>
-          <div>
-            <UsersInput withName value={users} onChange={setUsers} size="sm" />
-          </div>
-
-          <div>
-            <TagsInput value={tags} size="md" disabled />
-          </div>
-
-          <div>
-            <TagsInput value={tags} onChange={setTags} size="sm" />
-          </div>
-
-          <div>
+          <div className="space-x-1">
             <TagsInput value={tags} onChange={setTags} size="xs" />
           </div>
-
-          <div>
-            <UsersInput value={users} onChange={setUsers} size="md" max={1} />
-          </div>
-          <div>
+          <div className="space-x-1">
+            <UsersInput withName value={users} onChange={setUsers} size="sm" />
+            <TagsInput value={tags} onChange={setTags} size="sm" />
             <UsersInput value={users} onChange={setUsers} size="sm" max={1} />
+          </div>
+
+          <div className="space-x-2">
+            <UsersInput withName value={users} onChange={setUsers} size="md" />
+            <TagsInput value={tags} size="md" disabled />
+            <UsersInput value={users} onChange={setUsers} size="md" max={1} />
           </div>
         </div>
 

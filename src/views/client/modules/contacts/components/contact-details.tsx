@@ -2,7 +2,7 @@ import currencies from "@assets/currencies.json";
 import languages from "@assets/languages.json";
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import { Info } from "@atoms/text";
-import { AddressInput } from "@components/address-input";
+import { AddressInput } from "@components/input-button/address/form";
 import { CustomFieldsInput } from "@components/custom-fields-input";
 import { EditorInput } from "@molecules/editor-input";
 import { FormInput } from "@components/form/fields";

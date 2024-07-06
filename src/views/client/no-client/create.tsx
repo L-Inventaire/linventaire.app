@@ -5,7 +5,7 @@ import { Input } from "@atoms/input/input-text";
 import Link from "@atoms/link";
 import { Loader } from "@atoms/loader";
 import { Base, Info, SectionSmall, Title } from "@atoms/text";
-import { AddressInput } from "@components/address-input";
+import { AddressInput } from "@components/input-button/address/form";
 import { Table } from "@molecules/table";
 import { DidCreateCompanyOrSignupAtom } from "@features/clients/state/store";
 import { useClients } from "@features/clients/state/use-clients";

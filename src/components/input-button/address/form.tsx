@@ -9,6 +9,7 @@ import {
   FormControllerType,
 } from "@components/form/formcontext";
 import { Base } from "@atoms/text";
+import { debounce } from "@features/utils/debounce";
 
 export const AddressInput = (props: {
   ctrl?: FormControllerType;
@@ -34,6 +35,8 @@ export const AddressInput = (props: {
     value?.country || navigator.language.toLocaleUpperCase() || "US"
   );
 
+  // TODO Fixme: this introduce a bug when typing very fast
+  // But needed for readonly mode
   useEffect(() => {
     setAddressLine1(value?.address_line_1 || "");
     setAddressLine2(value?.address_line_2 || "");
@@ -59,30 +62,25 @@ export const AddressInput = (props: {
   if (readonly) {
     return (
       <div className="space-y-2">
-        <Input
-          label="Adresse"
-          inputComponent={
-            <Base>
-              {addressLine1 && <>{addressLine1}</>}
-              {addressLine2 && (
-                <>
-                  {addressLine1 && <br />}
-                  {addressLine2}
-                </>
-              )}
-              {(zip || city) && <br />}
-              {zip && <>{zip} </>}
-              {city && <>{city}</>}
-              {(region || country) && <br />}
-              {region && <>{region} </>}
-              {country && (
-                <>
-                  {countries.find((a) => a.code === country)?.name || country}
-                </>
-              )}
-            </Base>
-          }
-        />
+        <Base>
+          {[
+            addressLine1,
+            addressLine2,
+            [zip, city].filter(Boolean).join(" "),
+            [
+              region,
+              country
+                ? countries.find((a) => a.code === country)?.name || country
+                : null,
+            ]
+              .filter(Boolean)
+              .join(" "),
+          ]
+            .filter((a) => a && a.length)
+            .map((a, i) => (
+              <div key={i}>{a}</div>
+            ))}
+        </Base>
       </div>
     );
   }
@@ -93,7 +91,7 @@ export const AddressInput = (props: {
       autoComplete={props.autoComplete === false ? "off" : undefined}
     >
       <Input
-        label="Adresse"
+        label="Address"
         inputComponent={
           <>
             <Input

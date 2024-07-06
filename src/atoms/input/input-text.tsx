@@ -45,7 +45,7 @@ export const Input = (props: InputProps) => {
   const inputRef = props.inputRef || internalRef;
 
   if (props.highlight && props.value)
-    inputClassName = inputClassName + " ring-2 ring-yellow-500";
+    inputClassName = inputClassName + " ring ring-yellow-500";
 
   if (!props.multiline) {
     if (props.size === "lg") inputClassName = inputClassName + " h-11";

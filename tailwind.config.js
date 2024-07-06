@@ -81,6 +81,7 @@ module.exports = {
     },
   },
   safelist: [
+    ...Array.from(Array(15)).map((_, a) => "z-[" + (a + 1) + "0]"),
     "w-10",
     "h-10",
     "w-12",

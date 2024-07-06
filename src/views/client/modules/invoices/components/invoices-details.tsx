@@ -2,7 +2,7 @@ import { Tag } from "@atoms/badge/tag";
 import { Button } from "@atoms/button/button";
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import { Info, SectionSmall } from "@atoms/text";
-import { AddressInput } from "@components/address-input";
+import { AddressInput } from "@components/input-button/address/form";
 import { CustomFieldsInput } from "@components/custom-fields-input";
 import { EditorInput } from "@molecules/editor-input";
 import { FormInput } from "@components/form/fields";

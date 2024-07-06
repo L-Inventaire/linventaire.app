@@ -1,6 +1,6 @@
 import { Modal } from "@atoms/modal/modal";
 import { CtrlKAtom } from "@features/ctrlk/store";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { ModalEditor } from "./editor";
 import { SearchCtrlK } from "./search";
 
@@ -33,13 +33,19 @@ import { SearchCtrlK } from "./search";
 */
 
 export const CtrlKModal = () => {
-  const state = useRecoilValue(CtrlKAtom);
+  const [state, setState] = useRecoilState(CtrlKAtom);
   const currentState = state.path[state.path.length - 1] || {};
 
   return (
     <Modal
       open={state.path.length > 0}
       closable={false}
+      onClose={() => {
+        setState({
+          ...state,
+          path: [],
+        });
+      }}
       positioned
       style={{
         marginTop: currentState.mode === "create" ? "50px" : "10vh",

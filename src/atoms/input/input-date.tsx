@@ -32,7 +32,7 @@ export function InputDate(props: InputProps) {
   inputClassName = inputClassName + (props.disabled ? " opacity-50" : "");
 
   if (props.highlight && props.value)
-    inputClassName = inputClassName + " ring-2 ring-yellow-500";
+    inputClassName = inputClassName + " ring ring-yellow-500";
 
   if (props.size === "lg") inputClassName = inputClassName + " text-base h-11";
   else if (props.size === "md")
