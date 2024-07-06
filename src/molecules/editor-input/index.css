@@ -78,6 +78,7 @@
   margin-bottom: -2px;
 }
 
+
 .editor-input .ql-toolbar button {
   opacity: 0.5;
 }
@@ -85,3 +86,17 @@
 .editor-input.has-focus .ql-toolbar button, .editor-input:hover .ql-toolbar button, .editor-input .ql-toolbar button.ql-active {
   opacity: 1;
 }
+
+
+.editor-input.is-disabled .ql-toolbar {
+  display: none;
+}
+.editor-input.is-disabled .ql-container {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.editor-input.is-disabled .ql-editor {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+

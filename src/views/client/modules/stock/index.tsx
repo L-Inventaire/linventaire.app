@@ -17,6 +17,8 @@ import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
 import { StockItemStatus } from "./components/stock-item-status";
+import { UserIcon } from "@heroicons/react/20/solid";
+import { getContactName } from "@features/contacts/types/types";
 
 export const StockPage = () => {
   const [options, setOptions] = useState<RestOptions<StockItems>>({
@@ -103,9 +105,14 @@ export const StockPage = () => {
               render: (item) => (
                 <>
                   <RestDocumentsInput
-                    disabled
+                    label="Fournisseur"
+                    placeholder="Aucun fournisseur"
+                    entity="contacts"
                     value={item.client}
-                    entity={"contacts"}
+                    icon={(p) => <UserIcon {...p} />}
+                    render={(c) => getContactName(c)}
+                    size="md"
+                    disabled
                   />
                 </>
               ),

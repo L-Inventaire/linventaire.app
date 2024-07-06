@@ -4,8 +4,9 @@ import { InputDecorationIcon } from "@atoms/input/input-decoration-icon";
 import { Input } from "@atoms/input/input-text";
 import { Modal, ModalContent } from "@atoms/modal/modal";
 import { Info } from "@atoms/text";
+import { FormContextContext } from "@components/form/formcontext";
 import _ from "lodash";
-import { ReactNode, useState } from "react";
+import { ReactNode, useContext, useState } from "react";
 
 export type InputButtonProps<T> = Omit<ButtonProps, "onChange" | "content"> & {
   value: T;
@@ -18,10 +19,12 @@ export type InputButtonProps<T> = Omit<ButtonProps, "onChange" | "content"> & {
 
 export const InputButton = <T,>(props: InputButtonProps<T>) => {
   const [open, setOpen] = useState(false);
-
+  const formContext = useContext(FormContextContext);
+  const disabled =
+    props.disabled || formContext.disabled || formContext.readonly || false;
   return (
     <>
-      {!props.disabled && (
+      {!disabled && (
         <Modal open={open} closable onClose={() => setOpen(false)}>
           <ModalContent title={props.label || props.placeholder}>
             {props.content || (
@@ -32,11 +35,11 @@ export const InputButton = <T,>(props: InputButtonProps<T>) => {
                     {...p}
                     placeholder={props.placeholder}
                     autoFocus
+                    autoSelect
                     value={props.value}
                     onChange={(e) => {
                       props.onChange(e.target.value as any);
                     }}
-                    onBlur={() => setOpen(false)}
                   />
                 )}
               />
@@ -45,6 +48,7 @@ export const InputButton = <T,>(props: InputButtonProps<T>) => {
               size="md"
               className="mt-4 float-right"
               onClick={() => setOpen(false)}
+              shortcut={["esc", "enter"]}
             >
               Fermer
             </Button>
@@ -65,7 +69,7 @@ export const InputButton = <T,>(props: InputButtonProps<T>) => {
         onClick={() => {
           setOpen(true);
         }}
-        className="h-max py-1"
+        className="h-max py-0.5"
       >
         <AnimatedHeight>
           {!props.value && (

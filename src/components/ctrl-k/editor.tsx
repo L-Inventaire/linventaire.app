@@ -23,7 +23,7 @@ export const ModalEditor = () => {
 
   const { draft, save, isInitiating } = useDraftRest(
     currentState.options?.entity || "",
-    "new",
+    currentState.options?.id || "new",
     async (item: RestEntity) => {
       // Set created element as query for the previous path
       const newPath = state.path.slice(0, state.path.length - 1);
@@ -36,12 +36,6 @@ export const ModalEditor = () => {
         );
         newPath.push(lastItem);
       }
-
-      console.log(lastItem, {
-        ...state,
-        path: newPath,
-      });
-
       setState({
         ...state,
         path: newPath,
@@ -85,7 +79,7 @@ export const ModalEditor = () => {
               CtrlKRestEntities[
                 currentState.options?.entity || ""
               ]?.renderEditor?.({
-                id: "",
+                id: currentState.options?.id || "",
               })}
           </div>
         </Scrollbars>

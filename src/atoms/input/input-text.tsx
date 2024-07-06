@@ -22,6 +22,7 @@ export interface InputProps
   inputRef?: React.Ref<HTMLInputElement | HTMLTextAreaElement>;
   shortcut?: Shortcut[];
   autoFocus?: boolean;
+  autoSelect?: boolean;
 }
 
 export const defaultInputClassName = (theme: "plain" = "plain") => {
@@ -67,6 +68,13 @@ export const Input = (props: InputProps) => {
       (inputRef as any)?.current?.focus();
     }
   }, [props.autoFocus]);
+
+  useEffect(() => {
+    if (props.autoSelect) {
+      (inputRef as any)?.current?.focus();
+      (inputRef as any)?.current?.select();
+    }
+  }, [props.autoSelect]);
 
   if (props.label) {
     return (

@@ -48,23 +48,23 @@ export const CtrlKModal = () => {
       }}
       positioned
       style={{
-        marginTop: currentState.mode === "create" ? "50px" : "10vh",
+        marginTop: currentState.mode === "editor" ? "50px" : "10vh",
         maxHeight:
-          currentState.mode === "create" ? "calc(100vh - 100px)" : "80vh",
+          currentState.mode === "editor" ? "calc(100vh - 100px)" : "80vh",
         maxWidth:
           currentState.mode === "search"
             ? "1200px"
-            : currentState.mode === "create"
+            : currentState.mode === "editor"
             ? "calc(100vw - 100px)"
             : "",
       }}
     >
-      {currentState.mode !== "create" && (
+      {currentState.mode !== "editor" && (
         <div className="-m-6" style={{ maxHeight: "inherit" }}>
           <SearchCtrlK />
         </div>
       )}
-      {currentState.mode === "create" && (
+      {currentState.mode === "editor" && (
         <div
           className="-m-6 grow flex flex-col"
           style={{

@@ -1,10 +1,11 @@
+import { InputOutlinedDefaultBorders } from "@atoms/styles/inputs";
 import Delta from "quill-delta";
-import { useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import "./index.css";
 import { twMerge } from "tailwind-merge";
-import { InputOutlinedDefaultBorders } from "@atoms/styles/inputs";
+import "./index.css";
+import { FormContextContext } from "@components/form/formcontext";
 
 type EditorInputProps = {
   disabled?: boolean;
@@ -12,8 +13,6 @@ type EditorInputProps = {
   value?: string;
   onChange?: (e: string) => void;
 };
-
-const delta = new Delta() as unknown as any;
 
 const modules = {
   toolbar: [
@@ -28,8 +27,13 @@ const modules = {
 };
 
 export const EditorInput = (props: EditorInputProps) => {
+  const formContext = useContext(FormContextContext);
+
   const ref = useRef<ReactQuill>(null);
   const [focused, setFocused] = useState(false);
+
+  const disabled =
+    props.disabled || formContext.disabled || formContext.readonly || false;
 
   const onEditorChange = (value: any) => {
     props.onChange?.(value);
@@ -37,6 +41,7 @@ export const EditorInput = (props: EditorInputProps) => {
 
   return (
     <ReactQuill
+      readOnly={disabled}
       ref={ref}
       onKeyDown={(e) => {
         // If escape key is pressed, blur the editor
@@ -60,8 +65,10 @@ export const EditorInput = (props: EditorInputProps) => {
       onBlur={() => setFocused(false)}
       placeholder="Cliquer pour ajouter une note"
       className={twMerge(
-        "editor-input p-2",
-        InputOutlinedDefaultBorders,
+        "editor-input",
+        disabled && "is-disabled",
+        !disabled && "p-2 bg-white dark:bg-slate-950",
+        !disabled && InputOutlinedDefaultBorders,
         focused && "has-focus"
       )}
       theme="snow"

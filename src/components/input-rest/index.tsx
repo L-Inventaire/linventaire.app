@@ -1,18 +1,18 @@
-import { Button } from "@atoms/button/button";
-import {
-  InputOutlinedDefault,
-  InputOutlinedHighlight,
-} from "@atoms/styles/inputs";
-import { Base, Info } from "@atoms/text";
 import { AnimatedHeight } from "@atoms/animated-side/height";
+import { Button } from "@atoms/button/button";
+import { InputOutlinedDefault } from "@atoms/styles/inputs";
+import { Base, Info } from "@atoms/text";
+import { FormContextContext } from "@components/form/formcontext";
 import { buildQueryFromMap } from "@components/search-bar/utils/utils";
+import { CtrlKRestEntities } from "@features/ctrlk";
 import { useCtrlKAsSelect } from "@features/ctrlk/use-ctrlk-as-select";
+import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { useRest } from "@features/utils/rest/hooks/use-rest";
 import { RestEntity } from "@features/utils/rest/types/types";
 import { TrashIcon } from "@heroicons/react/16/solid";
-import { PlusIcon } from "@heroicons/react/20/solid";
+import { PencilSquareIcon, PlusIcon } from "@heroicons/react/20/solid";
 import _ from "lodash";
-import { Fragment, ReactNode, useEffect } from "react";
+import { Fragment, ReactNode, useContext, useEffect } from "react";
 import { twMerge } from "tailwind-merge";
 
 type RestDocumentProps<T> = {
@@ -46,12 +46,16 @@ type RestDocumentProps<T> = {
 export const RestDocumentsInput = <T extends RestEntity>(
   props: RestDocumentProps<T>
 ) => {
+  const formContext = useContext(FormContextContext);
   const select = useCtrlKAsSelect();
+  const edit = useEditFromCtrlK();
   const size = props.size || "md";
+  const disabled =
+    props.disabled || formContext.disabled || formContext.readonly || false;
 
   const { items } = useRest<T>(props.entity, {
     query: buildQueryFromMap({ id: props.value }),
-    limit: _.isArray(props.value) ? props.value?.length : 1,
+    limit: _.isArray(props.value) ? props.value?.length : props.value ? 1 : 0,
     queryFn: props.queryFn ? () => props.queryFn!("") : undefined,
   });
   const valuesList = items?.data?.list;
@@ -65,7 +69,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
   }, [valuesList]);
 
   const onClick = () =>
-    !props.disabled &&
+    !disabled &&
     select<T>(
       props.entity,
       props.filter || {},
@@ -84,7 +88,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
 
   if (props.noWrapper) {
     if (!props.value || !props.value?.length) {
-      if (props.disabled) return <></>;
+      if (disabled) return <></>;
 
       return (
         <Button
@@ -103,7 +107,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
         onClick={onClick}
         className={twMerge(
           "inline-block",
-          !props.disabled &&
+          !disabled &&
             "hover:bg-slate-500 hover:bg-opacity-15 bg-opacity-0 transition-all cursor-pointer",
           props.className
         )}
@@ -111,7 +115,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
         <div
           className={twMerge(
             "-space-x-2 inline-block",
-            (props.max || 1) > 1 && !props.disabled && "mr-1"
+            (props.max || 1) > 1 && !disabled && "mr-1"
           )}
         >
           {(valuesList || []).map((value, i) => (
@@ -120,7 +124,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
             </Fragment>
           ))}
         </div>
-        {(props.max || 1) > 1 && !props.disabled && (
+        {(props.max || 1) > 1 && !disabled && (
           <Button
             theme="invisible"
             icon={(p) => <PlusIcon {...p} />}
@@ -138,20 +142,20 @@ export const RestDocumentsInput = <T extends RestEntity>(
     <div
       onClick={onClick}
       className={twMerge(
-        "inline-flex min-h-7 w-max",
+        "inline-flex min-h-7 w-max relative group/card",
         size === "xl" ? "w-full" : props.value && "w-72",
         "text-black dark:text-white text-opacity-80",
         InputOutlinedDefault,
-        !props.disabled &&
+        !disabled &&
           "dark:hover:bg-slate-800 hover:bg-gray-100 dark:hover:border-slate-700 dark:active:bg-slate-700 active:bg-gray-200",
-        !!props.value && InputOutlinedHighlight,
+        disabled && !props.value && "opacity-50 border-transparent shadow-none",
         props.className
       )}
     >
       <div
         className={twMerge(
           "grow inline-flex flex-row items-center",
-          !props.disabled && "cursor-pointer",
+          !disabled && "cursor-pointer",
           size === "md" && "py-0.5 px-1.5 space-x-2",
           size === "lg" && "py-1 px-1.5 space-x-1",
           size === "xl" && "p-2 space-x-2"
@@ -163,7 +167,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
           })}
         <div className="flex flex-col grow">
           <div className="flex items-center space-x-1 w-full -my-1">
-            <div className={twMerge("grow")}>
+            <div className={twMerge("grow min-h-5")}>
               <Info
                 className={twMerge(
                   "block w-full transition-all",
@@ -181,25 +185,48 @@ export const RestDocumentsInput = <T extends RestEntity>(
                 {props.placeholder || props.label || props.entity}
               </Base>
             </div>
-            {!props.disabled && (
+            {!disabled && (
               <div>
-                <div className="-mr-1 mt-0.5">
+                <div className="right-0.5 top-0.5 absolute opacity-0 group-hover/card:opacity-100 transition-all">
+                  {props.value?.[0] &&
+                    CtrlKRestEntities[props.entity].renderEditor && (
+                      <Button
+                        data-tooltip="Éditer"
+                        className={twMerge(
+                          "w-0 ml-0.5 overflow-hidden",
+                          props.value && "w-5 ml-px transition-all delay-200"
+                        )}
+                        theme="invisible"
+                        size="xs"
+                        icon={(p) => <PencilSquareIcon {...p} />}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          edit(
+                            props.entity,
+                            _.isArray(props.value)
+                              ? props.value[0]
+                              : props.value || ""
+                          );
+                        }}
+                      />
+                    )}
                   <Button
                     data-tooltip="Supprimer"
                     className={twMerge(
                       "text-red-500 dark:text-red-500 w-0 ml-0.5 overflow-hidden",
-                      props.value && "w-6 ml-0.5 transition-all delay-200"
+                      props.value && "w-5 ml-px transition-all delay-200"
                     )}
                     theme="invisible"
-                    size="sm"
+                    size="xs"
                     icon={(p) => <TrashIcon {...p} />}
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
                       if (typeof props.max !== "number") {
-                        !props.disabled && props.onChange?.("", null);
+                        !disabled && props.onChange?.("", null);
                       } else {
-                        !props.disabled && props.onChange?.([], []);
+                        !disabled && props.onChange?.([], []);
                       }
                     }}
                   />

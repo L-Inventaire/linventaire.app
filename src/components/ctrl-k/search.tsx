@@ -274,7 +274,7 @@ export const SearchCtrlK = () => {
                       )?.label
                         ? "navigation"
                         : "operator",
-                      value: "create",
+                      value: "editor",
                       render: CtrlKRestEntities[currentEntity || ""]
                         ?.onCreate ? (
                         CtrlKRestEntities[currentEntity || ""]?.onCreate?.(
@@ -306,7 +306,7 @@ export const SearchCtrlK = () => {
                             path: [
                               ...state.path,
                               {
-                                mode: "create",
+                                mode: "editor",
                                 options: {
                                   entity: currentEntity || "",
                                 },

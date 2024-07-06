@@ -886,6 +886,10 @@ img {
   right: 0.25rem;
 }
 
+.right-0\.5 {
+  right: 0.125rem;
+}
+
 .z-0 {
   z-index: 0;
 }
@@ -1278,6 +1282,10 @@ img {
 
 .mt-px {
   margin-top: 1px;
+}
+
+.ml-px {
+  margin-left: 1px;
 }
 
 .block {
@@ -4572,6 +4580,10 @@ input, select {
 }
 
 .group\/user:hover .group-hover\/user\:opacity-100 {
+  opacity: 1;
+}
+
+.group\/card:hover .group-hover\/card\:opacity-100 {
   opacity: 1;
 }
 

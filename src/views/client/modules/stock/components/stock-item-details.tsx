@@ -1,6 +1,6 @@
 import { Button } from "@atoms/button/button";
 import { Card } from "@atoms/card";
-import { Section } from "@atoms/text";
+import { SectionSmall } from "@atoms/text";
 import { CustomFieldsInput } from "@components/custom-fields-input";
 import { EditorInput } from "@molecules/editor-input";
 import { FilesInput } from "@components/input-rest/files";
@@ -16,6 +16,7 @@ import { StockItems } from "@features/stock/types/types";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import {
   ArrowRightIcon,
+  BuildingStorefrontIcon,
   HashtagIcon,
   InformationCircleIcon,
   MapPinIcon,
@@ -28,6 +29,8 @@ import { CubeIcon } from "@heroicons/react/24/solid";
 import { PageBlock, PageBlockHr } from "@views/client/_layout/page";
 import { useEffect, useState } from "react";
 import { StockItemStatus } from "./stock-item-status";
+import { UsersInput } from "@components/input-rest/users";
+import { InputButton } from "@components/input-button";
 
 export const StockItemsDetailsPage = ({
   readonly,
@@ -61,7 +64,7 @@ export const StockItemsDetailsPage = ({
     <div className="w-full max-w-3xl mx-auto">
       <FormContext readonly={readonly} alwaysVisible>
         <div className="flex flex-row mt-4 mb-2 items-center">
-          <Section className="grow m-0">Élément du stock</Section>
+          <SectionSmall className="grow m-0">Élément du stock</SectionSmall>
           <StockItemStatus
             value={draft.state}
             onChange={(state) => setDraft({ ...draft, state })}
@@ -71,12 +74,12 @@ export const StockItemsDetailsPage = ({
 
         <Card
           show={!ctrl("article").value}
-          title="Choisir un article"
+          title="Choisissez comment démarrer l'ajout au stock"
           wrapperClassName="mb-4"
           icon={(p) => <InformationCircleIcon {...p} />}
         >
-          Pour continuer, veuillez sélectionner l'article que vous ajoutez au
-          stock.
+          Vous pouvez ajouter au stock à partir d'un article, d'un fournisseur,
+          ou d'une commande.
         </Card>
 
         <RestDocumentsInput
@@ -91,28 +94,57 @@ export const StockItemsDetailsPage = ({
             ctrl("quantity").onChange(
               article?.suppliers_details?.[0]?.delivery_quantity || 1
             );
-            setArticle(article);
           }}
           onEntityChange={(article) => setArticle(article)}
         />
 
+        {!article && (
+          <>
+            <RestDocumentsInput
+              className="mt-4"
+              label="Commande"
+              placeholder="Sélectionner une commande"
+              entity="invoices"
+              icon={(p) => <ShoppingCartIcon {...p} />}
+              filter={{ type: "supplier_quotes" } as Partial<Invoices>}
+              size="xl"
+              value={ctrl("from_rel_supplier_quote").value}
+              onChange={ctrl("from_rel_supplier_quote").onChange}
+            />
+            <RestDocumentsInput
+              className="mt-4"
+              label="Fournisseur"
+              placeholder="Sélectionner un fournisseur"
+              entity="contacts"
+              icon={(p) => <BuildingStorefrontIcon {...p} />}
+              filter={{ is_supplier: true } as Partial<Invoices>}
+              size="xl"
+            />
+          </>
+        )}
+
         {!!article && (
           <div className="mt-2">
             <div className="m-grid-1">
-              <Button
+              <InputButton
                 data-tooltip="Numéro de série ou de lot"
                 theme="outlined"
                 icon={(p) => <QrCodeIcon {...p} />}
-              >
-                Aucun numéro de série ou de lot
-              </Button>
-              <Button
+                value={ctrl("serial_number").value}
+                onChange={ctrl("serial_number").onChange}
+                placeholder="Numéro de série ou de lot"
+              />
+              <InputButton
                 data-tooltip="Quantité"
                 theme="outlined"
                 icon={(p) => <HashtagIcon {...p} />}
+                value={ctrl("quantity").value}
+                onChange={ctrl("quantity").onChange}
+                placeholder="Aucun"
+                label="Quantité"
               >
-                1 {article.unit || "unité"}
-              </Button>
+                {ctrl("quantity").value || 1} {article.unit || "unité"}
+              </InputButton>
               <Button
                 data-tooltip="Localisation"
                 theme="outlined"
@@ -125,13 +157,10 @@ export const StockItemsDetailsPage = ({
                 value={ctrl("tags").value}
                 onChange={ctrl("tags").onChange}
               />
-              <RestDocumentsInput
-                entity={"users"}
-                size="sm"
-                icon={(p) => <UserCircleIcon {...p} />}
+              <UsersInput
+                size="md"
                 value={ctrl("assignees").value}
                 onChange={ctrl("assignees").onChange}
-                max={10}
               />
             </div>
           </div>
@@ -139,7 +168,9 @@ export const StockItemsDetailsPage = ({
 
         {!!article && (
           <div className="">
-            <Section className="mt-6 mb-2">Origine et affectation</Section>
+            <SectionSmall className="mt-8 mb-2">
+              Origine et affectation
+            </SectionSmall>
             <div className="m-grid-1 flex items-center">
               <RestDocumentsInput
                 label="Commande d'origine"
@@ -179,7 +210,9 @@ export const StockItemsDetailsPage = ({
 
         {!!article && (
           <div>
-            <Section className="mt-6 mb-2">Documents et notes</Section>
+            <SectionSmall className="mt-8 mb-2">
+              Documents et notes
+            </SectionSmall>
             <EditorInput
               key={readonly ? ctrl("notes").value : undefined}
               placeholder={
@@ -191,6 +224,7 @@ export const StockItemsDetailsPage = ({
             />
             <div className="mt-2" />
             <FilesInput
+              disabled={readonly}
               value={(ctrl("documents").value as any) || []}
               onChange={ctrl("documents").onChange}
               rel={{
@@ -204,7 +238,7 @@ export const StockItemsDetailsPage = ({
 
         {!!article && (
           <div>
-            <Section className="mt-6 mb-2">Actions</Section>
+            <SectionSmall className="mt-8 mb-2">Actions</SectionSmall>
             <Button theme="outlined">Subdiviser le lot</Button>
 
             <RestDocumentsInput
@@ -214,15 +248,19 @@ export const StockItemsDetailsPage = ({
               placeholder="Aucun élément d'origine"
             />
 
-            <Section className="mt-6 mb-2">Traçabilité</Section>
-            <Section className="mt-6 mb-2">Commentaires et historique</Section>
+            <SectionSmall className="mt-8 mb-2">Traçabilité</SectionSmall>
+            <SectionSmall className="mt-8 mb-2">
+              Commentaires et historique
+            </SectionSmall>
           </div>
         )}
 
         {false && (
           <>
-            <Section className="mt-6 mb-2">Autre informations</Section>
-            <Section>Réception</Section>
+            <SectionSmall className="mt-8 mb-2">
+              Autre informations
+            </SectionSmall>
+            <SectionSmall>Réception</SectionSmall>
             <FormInput
               label="Article"
               type="rest_documents"
@@ -257,7 +295,7 @@ export const StockItemsDetailsPage = ({
               ctrl={ctrl("serial_number")}
             />
             <PageBlockHr />
-            <Section>Usage</Section>
+            <SectionSmall>Usage</SectionSmall>
             <FormInput label="Quantité" type="number" ctrl={ctrl("quantity")} />
             <FormInput
               label="Client"

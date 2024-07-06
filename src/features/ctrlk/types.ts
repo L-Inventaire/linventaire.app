@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 
 export type CtrlKPathOptionType<T> = {
+  id?: string; // Current item id for editor mode
   query?: string; // Current query
   internalQuery?: any;
   entity?: string; // Search entity (ex. "contacts")
@@ -23,7 +24,7 @@ export type CtrlKPathType<T> = {
   mode:
     | "action" // Search actions to apply on selection
     | "search" // Search items
-    | "create"; // Create a new item (enlarge the modal)
+    | "editor"; // Create a new item (enlarge the modal)
   select?: boolean; // Allow to select multiple items
   options?: CtrlKPathOptionType<T>; // Additional options for any mode
 };
