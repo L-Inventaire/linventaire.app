@@ -7,7 +7,7 @@ export interface SelectInputProps
   placeholder?: string;
   theme?: "plain";
   hasError?: boolean;
-  size?: "md" | "lg" | "sm";
+  size?: "sm" | "md" | "lg" | "md";
   className?: string;
   children?: React.ReactNode;
   highlight?: boolean;
@@ -21,7 +21,7 @@ export function Select(props: SelectInputProps) {
   inputClassName = inputClassName + (props.disabled ? " opacity-50" : "");
 
   if (props.size === "lg") inputClassName = inputClassName + " text-lg h-11";
-  else if (props.size === "sm")
+  else if (props.size === "md")
     inputClassName = inputClassName + " text-sm h-7 py-0 px-3 pr-8";
   else inputClassName = inputClassName + " text-base h-9 py-1";
 

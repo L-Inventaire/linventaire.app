@@ -3,7 +3,7 @@ import { Input } from "@atoms/input/input-text";
 import { Modal, ModalContent } from "@atoms/modal/modal";
 import { MFAVerificationModal } from "@components/auth/mfa-verification-modal";
 import { VerifyEmail } from "@components/auth/verify-email";
-import { PageLoader } from "@components/page-loader";
+import { PageLoader } from "@atoms/page-loader";
 import { useAuth } from "@features/auth/state/use-auth";
 import { MethodType } from "@features/customers/api-client/mfa-api-client";
 import { useCustomerMfa } from "@features/customers/state/hooks";

@@ -1,9 +1,9 @@
 import { Button } from "@atoms/button/button";
 import { Info } from "@atoms/text";
-import { RestDocumentsInput } from "@components/rest-documents-input";
-import { RestTable } from "@components/rest-table";
+import { RestDocumentsInput } from "@components/input-rest";
+import { RestTable } from "@components/table-rest";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
-import { TagsInput } from "@components/tags-input";
+import { TagsInput } from "@components/input-rest/tags";
 import { useContacts } from "@features/contacts/hooks/use-contacts";
 import { Contacts, getContactName } from "@features/contacts/types/types";
 import { ROUTES, getRoute } from "@features/routes";
@@ -73,7 +73,7 @@ export const ContactsPage = () => {
           suffix={
             <Button
               className="shrink-0"
-              size="xs"
+              size="sm"
               to={withSearchAsModel(
                 getRoute(ROUTES.ContactsEdit, { id: "new" }),
                 schema.data
@@ -118,7 +118,7 @@ export const ContactsPage = () => {
                         ? "opacity-50"
                         : ""
                     }
-                    size="xs"
+                    size="sm"
                     theme="outlined"
                     data-tooltip={
                       contact.is_supplier && contact.is_client
@@ -159,7 +159,7 @@ export const ContactsPage = () => {
               render: (contact) => (
                 <div className="flex space-x-2 items-center">
                   <Button
-                    size="xs"
+                    size="sm"
                     theme="outlined"
                     data-tooltip={
                       contact.type === "person" ? "Personne" : "Entreprise"
@@ -190,16 +190,11 @@ export const ContactsPage = () => {
                       value={contact.parents as any}
                       entity="contacts"
                       disabled
-                      size="sm"
+                      size="md"
                       icon={(p) => <ShareIcon {...p} />}
                     />
                   )}{" "}
-                  <TagsInput
-                    size="sm"
-                    value={contact.tags}
-                    disabled
-                    hideEmpty
-                  />
+                  <TagsInput size="md" value={contact.tags} disabled />
                 </div>
               ),
             },

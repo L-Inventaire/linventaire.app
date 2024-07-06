@@ -31,7 +31,7 @@ export const ContactsViewPage = ({ readonly }: { readonly?: boolean }) => {
             <>
               <Button
                 theme="outlined"
-                size="xs"
+                size="sm"
                 shortcut={["d"]}
                 to={withModel<Invoices>(
                   getRoute(ROUTES.InvoicesEdit, { id: "new" }),
@@ -44,7 +44,7 @@ export const ContactsViewPage = ({ readonly }: { readonly?: boolean }) => {
                 Créer un devis
               </Button>
               <Button
-                size="xs"
+                size="sm"
                 shortcut={["f"]}
                 to={withModel<Invoices>(
                   getRoute(ROUTES.InvoicesEdit, { id: "new" }),

@@ -88,7 +88,7 @@ export const DocumentBar = ({
       <div className="flex items-center space-x-1">
         <Button
           data-tooltip="Retour"
-          size="xs"
+          size="sm"
           theme={onClose ? "invisible" : "outlined"}
           shortcut={["esc"]}
           icon={
@@ -102,14 +102,14 @@ export const DocumentBar = ({
           <>
             <Button
               data-tooltip="Précédent"
-              size="xs"
+              size="sm"
               theme="outlined"
               shortcut={["k"]}
               icon={(p) => <ChevronUpIcon {...p} />}
             />
             <Button
               data-tooltip="Suivant"
-              size="xs"
+              size="sm"
               theme="outlined"
               shortcut={["j"]}
               icon={(p) => <ChevronDownIcon {...p} />}
@@ -124,7 +124,7 @@ export const DocumentBar = ({
           {props.editRoute && (
             <Button
               data-tooltip="Dupliquer"
-              size="xs"
+              size="sm"
               theme="invisible"
               shortcut={["cmd+d"]}
               icon={(p) => <DocumentDuplicateIcon {...p} />}
@@ -142,7 +142,7 @@ export const DocumentBar = ({
           )}
           <Button
             data-tooltip="Copier le lien"
-            size="xs"
+            size="sm"
             theme="invisible"
             shortcut={["shift+u"]}
             icon={(p) => <LinkIcon {...p} />}
@@ -156,7 +156,7 @@ export const DocumentBar = ({
           {props.onPrint && (
             <Button
               data-tooltip="Imprimer"
-              size="xs"
+              size="sm"
               theme="invisible"
               icon={(p) => <PrinterIcon {...p} />}
               onClick={props.onPrint}
@@ -164,14 +164,14 @@ export const DocumentBar = ({
           )}
           <Button
             data-tooltip="Historique"
-            size="xs"
+            size="sm"
             theme="invisible"
             icon={(p) => <ClockIcon {...p} />}
           />
           {mode === "read" && (
             <Button
               data-tooltip="Modifier"
-              size="xs"
+              size="sm"
               theme="invisible"
               shortcut={["e"]}
               onClick={async () =>
@@ -182,7 +182,7 @@ export const DocumentBar = ({
           )}
           {!!actionMenu.length && (
             <Button
-              size="xs"
+              size="sm"
               theme="invisible"
               icon={(p) => <EllipsisHorizontalIcon {...p} />}
               onClick={(e) => {
@@ -196,10 +196,10 @@ export const DocumentBar = ({
           )}
           {mode === "write" && (
             <>
-              <Button size="xs" theme="outlined" onClick={cancel}>
+              <Button size="sm" theme="outlined" onClick={cancel}>
                 Annuler
               </Button>
-              <Button size="xs" onClick={onSave} shortcut={["cmd+s"]}>
+              <Button size="sm" onClick={onSave} shortcut={["cmd+s"]}>
                 Sauvegarder
               </Button>
             </>

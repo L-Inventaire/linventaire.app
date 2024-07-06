@@ -8,7 +8,7 @@ import { getRandomHexColor } from "@features/utils/format/strings";
 export default function InputColor(props: {
   disabled?: boolean;
   value: string;
-  size: "sm" | "md" | "lg";
+  size: "md" | "md" | "lg" | "sm";
   onChange: (phone: string) => void;
 }) {
   useEffect(() => {

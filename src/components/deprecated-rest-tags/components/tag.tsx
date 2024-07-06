@@ -7,7 +7,7 @@ export const RestTag = ({
   id,
   tag,
 }: {
-  size: "md" | "sm";
+  size: "sm" | "md";
   id: string;
   tag?: Tags;
 }) => {
@@ -17,13 +17,13 @@ export const RestTag = ({
   return <TagServer size={size} id={id} />;
 };
 
-const TagServer = ({ size, id }: { size: "md" | "sm"; id: string }) => {
+const TagServer = ({ size, id }: { size: "sm" | "md"; id: string }) => {
   const { tags } = useTags();
   const tag = (tags.data?.list || []).find((a) => a.id === id);
   return <TagRender size={size} tag={tag} />;
 };
 
-const TagRender = ({ size, tag }: { size: "md" | "sm"; tag?: Tags }) => {
+const TagRender = ({ size, tag }: { size: "sm" | "md"; tag?: Tags }) => {
   return (
     <TagAtom size={size} color={tag?.color}>
       {tag?.name || "-"}

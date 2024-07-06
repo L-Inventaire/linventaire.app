@@ -1,4 +1,4 @@
-import { Table, TablePropsType } from "@components/table";
+import { Table, TablePropsType } from "@molecules/table";
 import { useRegisterActiveSelection } from "@features/ctrlk/use-register-current-selection";
 import { UseQueryResult } from "@tanstack/react-query";
 import _ from "lodash";

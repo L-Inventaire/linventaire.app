@@ -5,7 +5,7 @@ import { atomFamily, useRecoilState } from "recoil";
 export const FormContextContext = createContext<{
   readonly: boolean;
   alwaysVisible: boolean;
-  size: "md" | "lg";
+  size: "sm" | "md";
   highlight: boolean;
   disabled: boolean;
 }>({
@@ -21,7 +21,7 @@ export const FormContext = ({
   ...context
 }: {
   children: any;
-  size?: "md" | "lg";
+  size?: "sm" | "md";
   readonly?: boolean;
   alwaysVisible?: boolean;
   highlight?: boolean;

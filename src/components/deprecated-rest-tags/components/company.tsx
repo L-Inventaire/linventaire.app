@@ -9,7 +9,7 @@ export const RestCompanyTag = ({
   id,
   company,
 }: {
-  size: "md" | "sm";
+  size: "md" | "md";
   id: string;
   company?: Clients;
 }) => {
@@ -19,7 +19,7 @@ export const RestCompanyTag = ({
   return <CompanyTagServer size={size} id={id} />;
 };
 
-const CompanyTagServer = ({ size, id }: { size: "md" | "sm"; id: string }) => {
+const CompanyTagServer = ({ size, id }: { size: "md" | "md"; id: string }) => {
   const { clients } = useClients();
   const client = clients.find((a) => a.client_id === id);
   return <CompanyTagRender size={size} company={client?.client} />;
@@ -29,7 +29,7 @@ const CompanyTagRender = ({
   size,
   company,
 }: {
-  size: "md" | "sm";
+  size: "md" | "md";
   company?: Clients;
 }) => {
   return (
@@ -37,10 +37,10 @@ const CompanyTagRender = ({
       icon={
         <Avatar
           shape="square"
-          className={twMerge("mr-1", size === "sm" ? "-ml-0.5" : "-ml-1")}
+          className={twMerge("mr-1", size === "md" ? "-ml-0.5" : "-ml-1")}
           fallback={company?.company.name || "-"}
           avatar={company?.preferences.logo}
-          size={size === "sm" ? 4 : 5}
+          size={size === "md" ? 4 : 5}
         />
       }
       size={size}

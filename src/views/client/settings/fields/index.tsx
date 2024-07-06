@@ -5,8 +5,8 @@ import { Modal, ModalContent } from "@atoms/modal/modal";
 import { Info, Section } from "@atoms/text";
 import { FormInput } from "@components/form/fields";
 import { useFormController } from "@components/form/formcontext";
-import { RestDocumentTag } from "@components/rest-tags/components/document";
-import { Table } from "@components/table";
+import { RestDocumentTag } from "@components/deprecated-rest-tags/components/document";
+import { Table } from "@molecules/table";
 import { useHasAccess } from "@features/access";
 import { useFields } from "@features/fields/hooks/use-fields";
 import { Fields } from "@features/fields/types/types";
@@ -58,7 +58,7 @@ export const FieldsPage = () => {
       <PageBlock>
         {hasAccess("FIELDS_MANAGE") && (
           <Button
-            size="sm"
+            size="md"
             className="float-right"
             onClick={() => setEdit({})}
             shortcut={["shift+a"]}
@@ -192,13 +192,13 @@ export const FieldsPage = () => {
                         <div className="text-right space-x-2 whitespace-nowrap flex items-center">
                           <Button
                             theme="outlined"
-                            size="sm"
+                            size="md"
                             onClick={() => setEdit(field)}
                             icon={(p) => <PencilIcon {...p} />}
                           />
                           <ButtonConfirm
                             theme="danger"
-                            size="sm"
+                            size="md"
                             onClick={() => remove.mutate(field.id)}
                             icon={(p) => <TrashIcon {...p} />}
                           />

@@ -22,7 +22,7 @@ export default function InputPhone(props: {
   disabled?: boolean;
   readonly?: boolean;
   value: string;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "md" | "lg";
   onChange?: (phone: string) => void;
 }) {
   const countryHint =
@@ -38,7 +38,7 @@ export default function InputPhone(props: {
 
   let inputClassName = defaultInputClassName();
   if (props.size === "lg") inputClassName = inputClassName + " h-11";
-  else if (props.size === "sm") inputClassName = inputClassName + " h-7";
+  else if (props.size === "md") inputClassName = inputClassName + " h-7";
   else inputClassName = inputClassName + " h-9";
 
   return (

@@ -6,7 +6,7 @@ import Link from "@atoms/link";
 import { Loader } from "@atoms/loader";
 import { Base, Info, SectionSmall, Title } from "@atoms/text";
 import { AddressInput } from "@components/address-input";
-import { Table } from "@components/table";
+import { Table } from "@molecules/table";
 import { DidCreateCompanyOrSignupAtom } from "@features/clients/state/store";
 import { useClients } from "@features/clients/state/use-clients";
 import { Clients } from "@features/clients/types/clients";
@@ -196,7 +196,7 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
 
             <div className="flex flex-row">
               <Input
-                size="lg"
+                size="md"
                 className="rounded-r-none"
                 placeholder="john@books.com or paste a list of emails"
                 type="email"
@@ -224,7 +224,7 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
                 }}
               />
               <Button
-                size="lg"
+                size="md"
                 className="rounded-l-none"
                 shortcut={["enter"]}
                 disabled={!validateEmail(newInvitationEmail)}
@@ -266,7 +266,7 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
                       <>
                         <Button
                           theme="danger"
-                          size="sm"
+                          size="md"
                           onClick={() => {
                             setInvitations(invitations.filter((e) => e !== i));
                           }}

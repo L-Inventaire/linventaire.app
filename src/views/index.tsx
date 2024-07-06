@@ -1,4 +1,4 @@
-import { PageLoader } from "@components/page-loader";
+import { PageLoader } from "@atoms/page-loader";
 import { useAuth } from "@features/auth/state/use-auth";
 import { ROUTES } from "@features/routes";
 import { useListenForShortcuts } from "@features/utils/shortcuts";

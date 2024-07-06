@@ -131,7 +131,7 @@ export const SearchForm = (props: FiltersProps) => {
                 key={key}
                 main={mainKey.join(",") === key}
                 {...getFieldProps(key)}
-                size="lg"
+                size="md"
                 value={props.value[key]}
                 onChange={(v) => change(key, v)}
                 onSearch={() => props.onSearch()}
@@ -148,7 +148,7 @@ export const SearchForm = (props: FiltersProps) => {
                 key={key}
                 main={mainKey.join(",") === key}
                 {...getFieldProps(key)}
-                size="lg"
+                size="md"
                 value={props.value[key]}
                 onChange={(v) => change(key, v)}
                 onSearch={() => props.onSearch()}
@@ -159,7 +159,7 @@ export const SearchForm = (props: FiltersProps) => {
 
         {mainKey.length !== 1 && (
           <Button
-            size="lg"
+            size="md"
             className="min-w-fit"
             theme="primary"
             shortcut={["enter"]}
@@ -173,7 +173,7 @@ export const SearchForm = (props: FiltersProps) => {
 
         {display?.advanced && (
           <Button
-            size="lg"
+            size="md"
             theme="outlined"
             disabled={advancedValuesChanged}
             className="shrink-0 max-w-xl"

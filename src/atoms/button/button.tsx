@@ -19,7 +19,7 @@ export interface ButtonProps
     | "default"
     | "outlined"
     | "invisible";
-  size?: "md" | "lg" | "xl" | "sm" | "xs";
+  size?: "md" | "lg" | "xl" | "md" | "sm" | "xs";
   loading?: boolean;
   disabled?: boolean;
   shortcut?: Shortcut[];
@@ -91,19 +91,21 @@ export const Button = (props: ButtonProps) => {
   // We wont use the md / lg sizes
   const size =
     props.size === "lg" || props.size === "md"
-      ? "sm"
-      : props.size || ("sm" as ButtonProps["size"]);
+      ? "md"
+      : props.size || ("md" as ButtonProps["size"]);
 
   if (size === "xl") className = className + " text-base h-14 px-14 ";
   else if (size === "lg") className = className + " text-base h-11 px-8 ";
-  else if (size === "sm") className = className + " px-3 text-base h-7";
-  else if (size === "xs") className = className + " px-2 text-base h-6";
+  else if (size === "md") className = className + " px-3 text-base h-7";
+  else if (size === "sm") className = className + " px-2 text-base h-6";
+  else if (size === "xs") className = className + " px-2 text-base h-5";
   else className = className + " px-4 text-base h-9";
 
   if (!props.children) {
     if (size === "lg") className = className + " w-11 !p-0 justify-center";
-    else if (size === "sm") className = className + " w-7 !p-0 justify-center";
-    else if (size === "xs") className = className + " w-6 !p-0 justify-center";
+    else if (size === "md") className = className + " w-7 !p-0 justify-center";
+    else if (size === "sm") className = className + " w-6 !p-0 justify-center";
+    else if (size === "xs") className = className + " w-5 !p-0 justify-center";
     else className = className + " w-12 !p-0 justify-center";
   }
 
@@ -158,7 +160,7 @@ export const Button = (props: ButtonProps) => {
             className={twMerge(
               "animate-spin",
               "overflow-hidden opacity-1 transition-all",
-              size === "xs" ? "-ml-1 mr-1 h-4 w-4" : "-ml-1.5 mr-1.5 h-4 w-4",
+              size === "sm" ? "-ml-1 mr-1 h-4 w-4" : "-ml-1.5 mr-1.5 h-4 w-4",
               !(props.loading || asyncLoading) && "w-0 opacity-0"
             )}
             xmlns="http://www.w3.org/2000/svg"
@@ -188,9 +190,9 @@ export const Button = (props: ButtonProps) => {
             "h-4 w-4",
             (props.loading || asyncLoading) && "w-0 opacity-0",
             props.children
-              ? size === "xs"
+              ? size === "sm"
                 ? "-ml-1 mr-1"
-                : size === "sm"
+                : size === "md"
                 ? "-ml-1 mr-1"
                 : "-ml-1 mr-2"
               : "-mx-2"

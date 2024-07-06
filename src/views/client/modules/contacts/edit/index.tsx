@@ -1,5 +1,5 @@
 import { DocumentBar } from "@components/document-bar";
-import { PageLoader } from "@components/page-loader";
+import { PageLoader } from "@atoms/page-loader";
 import { useContactDefaultModel } from "@features/contacts/configuration";
 import { Contacts } from "@features/contacts/types/types";
 import { ROUTES, getRoute } from "@features/routes";

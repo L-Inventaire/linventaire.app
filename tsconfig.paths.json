@@ -4,6 +4,7 @@
         "paths": {
             "@views/*": ["views/*"],
             "@atoms/*": ["atoms/*"],
+            "@molecules/*": ["molecules/*"],
             "@components/*": ["components/*"],
             "@store/*": ["store/*"],
             "@config/*": ["config/*"],

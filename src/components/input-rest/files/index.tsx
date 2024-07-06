@@ -1,6 +1,7 @@
+import { Button } from "@atoms/button/button";
 import { InputOutlinedDefault } from "@atoms/styles/inputs";
 import { Info } from "@atoms/text";
-import { RestFileTag } from "@components/rest-tags/components/file";
+import { RestFileTag } from "@components/input-rest/files/file";
 import { useClients } from "@features/clients/state/use-clients";
 import { FilesApiClient } from "@features/files/api-client/files-api-client";
 import { useFiles } from "@features/files/hooks/use-files";
@@ -14,7 +15,7 @@ import { twMerge } from "tailwind-merge";
 export const FilesInput = (props: {
   value: string[];
   className?: string;
-  size?: "sm" | "md";
+  size?: "md" | "sm";
   max?: number;
   onChange?: (value: string[]) => void;
   placeholder?: string;
@@ -25,6 +26,7 @@ export const FilesInput = (props: {
     field: string;
   };
 }) => {
+  const size = props.size || "md";
   const { client } = useClients();
   const { files } = useFiles({
     query: [
@@ -52,6 +54,57 @@ export const FilesInput = (props: {
     { progress: number; entity?: Files; file: File }[]
   >([]);
 
+  const uploadFiles = async (f: File[]) => {
+    setLoading(true);
+    await Promise.all(
+      f.map(async (file) => {
+        const index = newFilesRef.current.length;
+        newFilesRef.current.push({ progress: 0, file });
+        setNewFiles([...newFilesRef.current]);
+
+        try {
+          const entity = await FilesApiClient.upload(
+            client?.client_id || "",
+            {
+              name: file.name,
+              size: file.size,
+              mime: file.type,
+
+              rel_table: props.rel?.table || "",
+              rel_field: props.rel?.field || "",
+
+              // File starts unreferenced until we save the entity
+              // When saved, the file gets referenced by a trigger in backend (detects file:ididid pattern in the entity)
+              rel_id: "",
+              rel_unreferenced: true,
+            },
+            file,
+            (progress) => {
+              newFilesRef.current[index].progress = progress;
+              setNewFiles([...newFilesRef.current]);
+            }
+          );
+
+          newFilesRef.current[index].progress = 1;
+          newFilesRef.current[index].entity = entity;
+          setNewFiles([...newFilesRef.current]);
+        } catch (e) {
+          toast.error("Failed to upload file");
+          newFilesRef.current[index].progress = -1;
+        }
+      })
+    );
+    setNewFiles([]);
+    props.onChange?.([
+      ...props.value,
+      ...(newFilesRef.current || [])
+        .filter((a) => a.entity?.id)
+        .map((a) => `files:${a.entity?.id}`),
+    ]);
+    newFilesRef.current = [];
+    setLoading(false);
+  };
+
   return (
     <div
       className={twMerge(
@@ -61,15 +114,12 @@ export const FilesInput = (props: {
       )}
     >
       <div className="w-full">
-        {props.value.length === 0 && props.disabled && (
-          <Info>Aucun document</Info>
-        )}
         {_.sortBy(existingFiles || [], "created_at").map((file) => (
           <RestFileTag
             key={file.id}
             className="m-1"
             id={file.id}
-            size={"lg"}
+            size={"md"}
             onDelete={
               props.disabled
                 ? undefined
@@ -88,7 +138,7 @@ export const FilesInput = (props: {
               key={i}
               className="m-1"
               id={file.entity?.id || ""}
-              size={"lg"}
+              size={"md"}
               progress={file.entity ? undefined : 100 * file.progress}
               file={
                 file.entity ||
@@ -105,59 +155,16 @@ export const FilesInput = (props: {
       {!props.disabled &&
         (props.max || 100) >
           (existingFiles || []).length + (newFiles || []).length && (
-          <div className="w-full relative p-1">
+          <div
+            className={twMerge(
+              size === "md" && "w-full relative p-1",
+              size === "sm" && "inline-block"
+            )}
+          >
             <DroppableFilesInput
               disabled={loading}
-              onChange={async (f) => {
-                setLoading(true);
-                await Promise.all(
-                  f.map(async (file) => {
-                    const index = newFilesRef.current.length;
-                    newFilesRef.current.push({ progress: 0, file });
-                    setNewFiles([...newFilesRef.current]);
-
-                    try {
-                      const entity = await FilesApiClient.upload(
-                        client?.client_id || "",
-                        {
-                          name: file.name,
-                          size: file.size,
-                          mime: file.type,
-
-                          rel_table: props.rel?.table || "",
-                          rel_field: props.rel?.field || "",
-
-                          // File starts unreferenced until we save the entity
-                          // When saved, the file gets referenced by a trigger in backend (detects file:ididid pattern in the entity)
-                          rel_id: "",
-                          rel_unreferenced: true,
-                        },
-                        file,
-                        (progress) => {
-                          newFilesRef.current[index].progress = progress;
-                          setNewFiles([...newFilesRef.current]);
-                        }
-                      );
-
-                      newFilesRef.current[index].progress = 1;
-                      newFilesRef.current[index].entity = entity;
-                      setNewFiles([...newFilesRef.current]);
-                    } catch (e) {
-                      toast.error("Failed to upload file");
-                      newFilesRef.current[index].progress = -1;
-                    }
-                  })
-                );
-                setNewFiles([]);
-                props.onChange?.([
-                  ...props.value,
-                  ...(newFilesRef.current || [])
-                    .filter((a) => a.entity?.id)
-                    .map((a) => `files:${a.entity?.id}`),
-                ]);
-                newFilesRef.current = [];
-                setLoading(false);
-              }}
+              onChange={uploadFiles}
+              size={size}
             />
           </div>
         )}
@@ -169,10 +176,12 @@ export const DroppableFilesInput = ({
   onChange,
   className,
   disabled,
+  size,
 }: {
   onChange: (f: File[]) => void;
   className?: string;
   disabled?: boolean;
+  size?: "md" | "sm";
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const overrideEventDefaults = (e: React.DragEvent) => {
@@ -183,7 +192,8 @@ export const DroppableFilesInput = ({
     <div
       className={twMerge(
         InputOutlinedDefault,
-        "cursor-pointer text-center p-2 border-dashed border-2",
+        size === "md" &&
+          "cursor-pointer text-center p-2 border-dashed border-2",
         className
       )}
       onClick={() => fileInputRef.current?.click()}
@@ -199,10 +209,19 @@ export const DroppableFilesInput = ({
       onDragLeave={overrideEventDefaults}
       onDragOver={overrideEventDefaults}
     >
-      <Info className="grow flex items-center justify-center h-full">
-        <PaperClipIcon className="h-4 w-4 inline-block mr-2" />
-        <span>Click or drop to add files</span>
-      </Info>
+      {size === "md" && (
+        <Info className="grow flex items-center justify-center h-full">
+          <PaperClipIcon className="h-4 w-4 inline-block mr-2" />
+          <span>Click or drop to add files</span>
+        </Info>
+      )}
+      {size !== "md" && (
+        <Button
+          size={size}
+          theme="invisible"
+          icon={(p) => <PaperClipIcon {...p} />}
+        />
+      )}
       <input
         ref={fileInputRef}
         type="file"

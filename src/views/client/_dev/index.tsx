@@ -1,7 +1,10 @@
 import { Button } from "@atoms/button/button";
 import { Stepper } from "@atoms/stepper";
 import { Info, SectionSmall } from "@atoms/text";
-import { RestDocumentsInput } from "@components/rest-documents-input";
+import { RestDocumentsInput } from "@components/input-rest";
+import { FilesInput } from "@components/input-rest/files";
+import { TagsInput } from "@components/input-rest/tags";
+import { UsersInput } from "@components/input-rest/users";
 import { Articles } from "@features/articles/types/types";
 import { Contacts, getContactName } from "@features/contacts/types/types";
 import { formatAmount } from "@features/utils/format/strings";
@@ -10,6 +13,7 @@ import {
   BuildingStorefrontIcon,
   CubeIcon,
   MapPinIcon,
+  QrCodeIcon,
 } from "@heroicons/react/20/solid";
 import { useState } from "react";
 import { Page } from "../_layout/page";
@@ -19,6 +23,9 @@ export const DevPage = () => {
   const [loading, setLoading] = useState(false);
   const [supplier, setSupplier] = useState<string>("");
   const [article, setArticle] = useState<string>("");
+  const [tags, setTags] = useState<string[]>([]);
+  const [users, setUsers] = useState<string[]>([]);
+  const [files, setFiles] = useState<string[]>([]);
 
   return (
     <Page>
@@ -26,7 +33,7 @@ export const DevPage = () => {
         <div className="space-y-2">
           <SectionSmall>Buttons</SectionSmall>
           {[true, false].map((withIcon) =>
-            ["xs", "sm"].map((size) => (
+            ["sm", "md"].map((size) => (
               <div className="space-x-2">
                 {[
                   "primary",
@@ -53,11 +60,10 @@ export const DevPage = () => {
             ))
           )}
         </div>
-
         <div className="space-y-2">
           <SectionSmall>Stepper</SectionSmall>
           {[true, false].map((readonly) =>
-            ["xs", "sm", "md", "lg"].map((size) => (
+            ["sm", "md", "md", "lg"].map((size) => (
               <div>
                 <Stepper
                   size={size as any}
@@ -77,16 +83,67 @@ export const DevPage = () => {
             ))
           )}
         </div>
-
         <div className="space-y-2">
           <SectionSmall>Input button</SectionSmall>
           <Info>A button that becomes an input when clicked</Info>
-          TODO
+          <div>
+            <Button
+              size="md"
+              theme="outlined"
+              icon={(p) => <MapPinIcon {...p} />}
+            >
+              <Info>Aucune adresse</Info>
+            </Button>
+          </div>
+          <div>
+            <Button
+              size="md"
+              theme="outlined"
+              icon={(p) => <QrCodeIcon {...p} />}
+            >
+              <Info>Numéro de série</Info>
+            </Button>
+          </div>
+        </div>
+        <div className="space-y-2">
+          <SectionSmall>Files input</SectionSmall>
+          <FilesInput value={files} onChange={setFiles} size="md" />
+        </div>
+        <div className="space-y-2">
+          <SectionSmall>Selector Card (tags / users)</SectionSmall>
+          <Info>To use when selecting a rest entity</Info>
+
+          <div>
+            <UsersInput withName value={users} onChange={setUsers} size="md" />
+          </div>
+          <div>
+            <UsersInput withName value={users} onChange={setUsers} size="sm" />
+          </div>
+
+          <div>
+            <TagsInput value={tags} size="md" disabled />
+          </div>
+
+          <div>
+            <TagsInput value={tags} onChange={setTags} size="sm" />
+          </div>
+
+          <div>
+            <TagsInput value={tags} onChange={setTags} size="xs" />
+          </div>
+
+          <div>
+            <UsersInput value={users} onChange={setUsers} size="md" max={1} />
+          </div>
+          <div>
+            <UsersInput value={users} onChange={setUsers} size="sm" max={1} />
+          </div>
         </div>
 
         <div className="space-y-2">
           <SectionSmall>Selector Card</SectionSmall>
           <Info>To use when selecting a rest entity</Info>
+
           <div className="space-x-2">
             <RestDocumentsInput
               label="Fournisseur"
@@ -97,17 +154,18 @@ export const DevPage = () => {
               onChange={(id) => setSupplier(id as string)}
               icon={(p) => <BuildingStorefrontIcon {...p} />}
               render={getContactName}
+              size="md"
             />
             <Button
               size="md"
               theme="outlined"
               icon={(p) => <MapPinIcon {...p} />}
             >
-              No address (classic button)
+              No address (classic md button)
             </Button>
           </div>
           <RestDocumentsInput
-            size="md"
+            size="lg"
             label="Article"
             placeholder="Sélectionner un article"
             entity="articles"
@@ -117,7 +175,7 @@ export const DevPage = () => {
           />
           <br />
           <RestDocumentsInput
-            size="lg"
+            size="xl"
             label="Article"
             placeholder="Sélectionner un article"
             entity="articles"
@@ -128,10 +186,10 @@ export const DevPage = () => {
               <div className="space-y-1 py-1">
                 <div>{article.name}</div>
                 <div className="space-x-1">
-                  <Button size="xs" theme="outlined">
+                  <Button size="sm" theme="outlined">
                     {article.type}
                   </Button>
-                  <Button size="xs" theme="outlined">
+                  <Button size="sm" theme="outlined">
                     {formatAmount(article.price)}
                   </Button>
                 </div>

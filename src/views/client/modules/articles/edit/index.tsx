@@ -1,5 +1,5 @@
 import { DocumentBar } from "@components/document-bar";
-import { PageLoader } from "@components/page-loader";
+import { PageLoader } from "@atoms/page-loader";
 import { useArticleDefaultModel } from "@features/articles/configuration";
 import { Articles } from "@features/articles/types/types";
 import { ROUTES, getRoute } from "@features/routes";

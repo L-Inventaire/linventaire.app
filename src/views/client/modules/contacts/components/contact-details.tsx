@@ -4,10 +4,10 @@ import { InputLabel } from "@atoms/input/input-decoration-label";
 import { Info } from "@atoms/text";
 import { AddressInput } from "@components/address-input";
 import { CustomFieldsInput } from "@components/custom-fields-input";
-import { EditorInput } from "@components/editor-input";
+import { EditorInput } from "@molecules/editor-input";
 import { FormInput } from "@components/form/fields";
 import { FormContext } from "@components/form/formcontext";
-import { PageLoader } from "@components/page-loader";
+import { PageLoader } from "@atoms/page-loader";
 import { useClients } from "@features/clients/state/use-clients";
 import { ContactsApiClient } from "@features/contacts/api-client/contacts-api-client";
 import { Contacts } from "@features/contacts/types/types";
@@ -80,7 +80,7 @@ export const ContactsDetailsPage = ({
           <div className="grow">
             <PageBlock closable title="Général">
               <div className="space-y-2">
-                <FormContext size="lg">
+                <FormContext size="md">
                   <PageColumns>
                     <FormInput
                       label="Type d'entité"

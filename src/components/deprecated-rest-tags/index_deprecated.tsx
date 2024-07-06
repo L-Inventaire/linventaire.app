@@ -13,7 +13,7 @@ export const RestTag = ({
   item,
 }: {
   type: "tags" | "users" | "clients" | string;
-  size: "md" | "sm";
+  size: "md" | "md";
   id: string;
   label?: string | ReactNode;
   item?: any;

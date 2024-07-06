@@ -16,7 +16,7 @@ interface InputProps
   highlight?: boolean;
   theme?: "plain";
   hasError?: boolean;
-  size?: "md" | "lg" | "sm";
+  size?: "md" | "lg" | "md" | "sm";
   className?: string;
   children?: React.ReactNode;
   value?: string | Date | null;
@@ -35,7 +35,7 @@ export function InputDate(props: InputProps) {
     inputClassName = inputClassName + " ring-2 ring-yellow-500";
 
   if (props.size === "lg") inputClassName = inputClassName + " text-base h-11";
-  else if (props.size === "sm")
+  else if (props.size === "md")
     inputClassName = inputClassName + " text-sm h-7 py-0 px-3";
   else inputClassName = inputClassName + " text-sm h-9 py-1";
 

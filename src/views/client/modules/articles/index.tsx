@@ -1,8 +1,8 @@
 import { Button } from "@atoms/button/button";
 import { Info } from "@atoms/text";
-import { RestTable } from "@components/rest-table";
+import { RestTable } from "@components/table-rest";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
-import { TagsInput } from "@components/tags-input";
+import { TagsInput } from "@components/input-rest/tags";
 import { useArticles } from "@features/articles/hooks/use-articles";
 import { Articles } from "@features/articles/types/types";
 import { ROUTES, getRoute } from "@features/routes";
@@ -58,7 +58,7 @@ export const ArticlesPage = () => {
           }
           suffix={
             <Button
-              size="xs"
+              size="sm"
               to={withSearchAsModel(
                 getRoute(ROUTES.ProductsEdit, { id: "new" }),
                 schema.data
@@ -104,7 +104,7 @@ export const ArticlesPage = () => {
               cellClassName: "justify-start",
               render: (article) => (
                 <Button
-                  size="xs"
+                  size="sm"
                   theme="outlined"
                   icon={(p) =>
                     article.type === "product" ? (
@@ -138,7 +138,7 @@ export const ArticlesPage = () => {
               thClassName: "w-1",
               render: (article) => (
                 <div className="w-full text-right flex space-x-1 justify-end items-center whitespace-nowrap">
-                  <TagsInput size="sm" value={article.tags} disabled />
+                  <TagsInput size="md" value={article.tags} disabled />
                 </div>
               ),
             },
@@ -146,7 +146,7 @@ export const ArticlesPage = () => {
               thClassName: "w-1",
               cellClassName: "justify-end",
               render: (article) => (
-                <Button size="xs" theme="outlined">
+                <Button size="sm" theme="outlined">
                   Achat{" "}
                   {Object.values(article.suppliers_details || {})
                     .filter((a) => a.price)
@@ -163,7 +163,7 @@ export const ArticlesPage = () => {
               thClassName: "w-1",
               cellClassName: "justify-end",
               render: (article) => (
-                <Button size="xs" theme="outlined">
+                <Button size="sm" theme="outlined">
                   Vente {formatAmount(article.price)} HT
                 </Button>
               ),
@@ -172,7 +172,7 @@ export const ArticlesPage = () => {
               thClassName: "w-1",
               cellClassName: "justify-end",
               render: (article) => (
-                <Button size="xs" theme="outlined">
+                <Button size="sm" theme="outlined">
                   {formatAmount(article.price * (1 + getTvaValue(article.tva)))}{" "}
                   TTC
                 </Button>

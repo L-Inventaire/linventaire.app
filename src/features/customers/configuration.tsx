@@ -12,33 +12,39 @@ import { useNavigate } from "react-router-dom";
 
 export const useUsersDefaultModel: () => Partial<Customer> = () => ({});
 
-export const useCustomersConfiguration = () => {
+export const useSearchUsers = () => {
   const { id } = useCurrentClient();
   const { users: source } = useClientUsers(id!);
-  const navigate = useNavigate();
 
   const users = source
     .filter((a: any) => a.user?.id)
     .map((user) => user.user as PublicCustomer);
 
+  return async (query: string) => {
+    const list = query
+      ? new Fuse(users, {
+          includeScore: true,
+          threshold: 0.6,
+          keys: ["email", "full_name"],
+        })
+          .search(query)
+          .map((a: any) => a.item)
+      : users;
+
+    return { total: list.length, list };
+  };
+};
+
+export const useCustomersConfiguration = () => {
+  const findCustomers = useSearchUsers();
+  const navigate = useNavigate();
+
   registerCtrlKRestEntity<PublicCustomer>("users", {
     onCreate: (query) => ({
-      callback: async (a) => navigate(getRoute(ROUTES.SettingsUsers)),
+      callback: async () => navigate(getRoute(ROUTES.SettingsUsers)),
       label: validateEmail(query) ? `Inviter "${query}"` : "",
     }),
-    resultList: async (query) => {
-      const list = query
-        ? new Fuse(users, {
-            includeScore: true,
-            threshold: 0.6,
-            keys: ["email", "full_name"],
-          })
-            .search(query)
-            .map((a: any) => a.item)
-        : users;
-
-      return { total: list.length, list };
-    },
+    resultList: findCustomers,
     renderResult: (item) => (
       <div className="flex items-center space-x-2">
         <Avatar fallback={getFullName(item)} avatar={item.avatar} size={5} />

@@ -84,7 +84,7 @@ export const Header = () => {
                     data-tooltip="Ajouter/Retirer des favoris"
                     data-position="right"
                     className="opacity-50 -mt-0.5"
-                    size="sm"
+                    size="md"
                     theme="invisible"
                     icon={(p) => <StarIcon {...p} />}
                   />
@@ -109,7 +109,7 @@ export const Header = () => {
           data-tooltip="Support"
           data-position="left"
           className="rounded-lg"
-          size="sm"
+          size="md"
           theme="outlined"
           icon={(p) => <LifebuoyIcon {...p} />}
         />
@@ -117,7 +117,7 @@ export const Header = () => {
           data-tooltip="Guides"
           data-position="left"
           className="rounded-lg"
-          size="sm"
+          size="md"
           theme="outlined"
           icon={(p) => <BookOpenIcon {...p} />}
         />
@@ -125,7 +125,7 @@ export const Header = () => {
           data-tooltip="Mode sombre/clair"
           data-position="left"
           className="rounded-lg"
-          size="sm"
+          size="md"
           theme="outlined"
           icon={(p) =>
             theme === "dark" ? <MoonIcon {...p} /> : <SunIcon {...p} />

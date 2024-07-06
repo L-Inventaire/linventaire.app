@@ -82,7 +82,7 @@ export const PageBlock = (props: {
         {props.closable && (
           <Button
             data-tooltip="Plier / Déplier"
-            size="sm"
+            size="md"
             theme="invisible"
             onClick={() => setIsOpen(!isOpen)}
             icon={(p) =>

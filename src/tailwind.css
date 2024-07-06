@@ -34,6 +34,17 @@ input, select {
     }
 }
 
+.scroll-parent .scroll-track {
+ opacity: 0;
+ transition: opacity 0.5s;
+ transition-delay: 0s;
+}
+
+.scroll-parent:hover .scroll-track {
+ opacity: 1;
+ transition-delay: 0.25s;
+}
+
 .m-grid-1 {
     margin: -0.25rem;
 }

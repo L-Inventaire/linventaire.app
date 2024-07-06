@@ -1,11 +1,11 @@
-import SingleCenterCard from "@components/single-center-card/single-center-card";
+import SingleCenterCard from "@atoms/single-center-card/single-center-card";
 import { useAuth } from "@features/auth/state/use-auth";
 import { ROUTES, getRoute } from "@features/routes";
 import { ReactNode, useCallback, useEffect } from "react";
 import { Route, useNavigate } from "react-router-dom";
 import { Login } from "./login";
 import { SignUp } from "./signup";
-import { AnimatedBackground } from "@components/animated-background";
+import { AnimatedBackground } from "@atoms/animated-background";
 import { useClients } from "@features/clients/state/use-clients";
 
 export const LoginRoutes = () => {

@@ -2,13 +2,13 @@ import { Button } from "@atoms/button/button";
 import { Card } from "@atoms/card";
 import { Section } from "@atoms/text";
 import { CustomFieldsInput } from "@components/custom-fields-input";
-import { EditorInput } from "@components/editor-input";
-import { FilesInput } from "@components/files-input";
+import { EditorInput } from "@molecules/editor-input";
+import { FilesInput } from "@components/input-rest/files";
 import { FormInput } from "@components/form/fields";
 import { FormContext } from "@components/form/formcontext";
-import { PageLoader } from "@components/page-loader";
-import { RestDocumentsInput } from "@components/rest-documents-input";
-import { TagsInput } from "@components/tags-input/new";
+import { PageLoader } from "@atoms/page-loader";
+import { RestDocumentsInput } from "@components/input-rest";
+import { TagsInput } from "@components/input-rest/tags";
 import { Articles } from "@features/articles/types/types";
 import { useClients } from "@features/clients/state/use-clients";
 import { Invoices } from "@features/invoices/types/types";
@@ -65,7 +65,7 @@ export const StockItemsDetailsPage = ({
           <StockItemStatus
             value={draft.state}
             onChange={(state) => setDraft({ ...draft, state })}
-            size="lg"
+            size="md"
           />
         </div>
 
@@ -84,7 +84,7 @@ export const StockItemsDetailsPage = ({
           placeholder="Sélectionner un article"
           entity="articles"
           icon={(p) => <CubeIcon {...p} />}
-          size="lg"
+          size="xl"
           value={ctrl("article").value}
           onChange={(id, article: Articles | null) => {
             ctrl("article").onChange(id);
@@ -127,7 +127,7 @@ export const StockItemsDetailsPage = ({
               />
               <RestDocumentsInput
                 entity={"users"}
-                size="xs"
+                size="sm"
                 icon={(p) => <UserCircleIcon {...p} />}
                 value={ctrl("assignees").value}
                 onChange={ctrl("assignees").onChange}
@@ -147,12 +147,12 @@ export const StockItemsDetailsPage = ({
                 entity="invoices"
                 filter={{ type: "supplier_quotes" } as Partial<Invoices>}
                 icon={(p) => <ShoppingCartIcon {...p} />}
-                size="lg"
+                size="xl"
                 value={ctrl("from_rel_supplier_quote").value}
                 onChange={ctrl("from_rel_supplier_quote").onChange}
               />
 
-              <ArrowRightIcon className="h-12 w-12" />
+              <ArrowRightIcon className="h-5 w-5 shrink-0" />
 
               <RestDocumentsInput
                 label="Pour le devis"
@@ -160,7 +160,7 @@ export const StockItemsDetailsPage = ({
                 entity="invoices"
                 filter={{ type: "quotes" } as Partial<Invoices>}
                 icon={(p) => <DocumentIcon {...p} />}
-                size="lg"
+                size="xl"
                 value={ctrl("for_rel_quote").value}
                 onChange={ctrl("for_rel_quote").onChange}
               />
@@ -169,7 +169,7 @@ export const StockItemsDetailsPage = ({
                 placeholder="Sélectionner un contact"
                 entity="contacts"
                 icon={(p) => <MapPinIcon {...p} />}
-                size="lg"
+                size="xl"
                 value={ctrl("client").value}
                 onChange={ctrl("client").onChange}
               />
@@ -209,7 +209,7 @@ export const StockItemsDetailsPage = ({
 
             <RestDocumentsInput
               entity="stock_items"
-              size="sm"
+              size="md"
               label="Élement d'origine"
               placeholder="Aucun élément d'origine"
             />
@@ -230,7 +230,7 @@ export const StockItemsDetailsPage = ({
                 table: "articles",
               }}
               ctrl={ctrl("article")}
-              size="lg"
+              size="md"
             />
             <FormInput
               label="Type"

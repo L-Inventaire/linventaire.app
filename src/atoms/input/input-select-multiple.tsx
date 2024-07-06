@@ -15,7 +15,7 @@ interface InputProps
   highlight?: boolean;
   theme?: "plain";
   hasError?: boolean;
-  size?: "md" | "lg" | "sm";
+  size?: "sm" | "md" | "lg" | "md";
   className?: string;
   value?: string[];
   onChange?: (e: string[]) => void;
@@ -35,7 +35,7 @@ export function SelectMultiple(props: InputProps) {
     inputClassName = inputClassName + " !ring-2 !ring-yellow-500";
 
   if (props.size === "lg") inputClassName = inputClassName + " text-lg h-11";
-  else if (props.size === "sm")
+  else if (props.size === "md")
     inputClassName = inputClassName + " text-sm h-7 py-0 px-3";
   else inputClassName = inputClassName + " text-base h-9";
 

@@ -73,7 +73,7 @@ export const SideBar = () => {
             label={t("menu.contacts_title")}
             suffix={
               <Button
-                size="sm"
+                size="md"
                 theme="invisible"
                 icon={(p) => <PlusIcon {...p} />}
                 to={getRoute(ROUTES.ContactsEdit, { id: "new" })}
@@ -116,7 +116,7 @@ export const SideBar = () => {
             label={t("menu.sell_title")}
             suffix={
               <Button
-                size="sm"
+                size="md"
                 theme="invisible"
                 icon={(p) => <PlusIcon {...p} />}
                 to={withSearchAsModel(

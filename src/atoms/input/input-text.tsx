@@ -49,7 +49,7 @@ export const Input = (props: InputProps) => {
 
   if (!props.multiline) {
     if (props.size === "lg") inputClassName = inputClassName + " h-11";
-    else if (props.size === "sm") inputClassName = inputClassName + " h-7";
+    else if (props.size === "md") inputClassName = inputClassName + " h-7";
     else inputClassName = inputClassName + " h-9";
   }
 

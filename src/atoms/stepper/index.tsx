@@ -17,7 +17,7 @@ export const Stepper = <T extends string>({
   options: { title: string; color: string; value: T }[][];
   value: T;
   onChange?: (value: T) => void;
-  size?: "xs" | "sm" | "md" | "lg";
+  size?: "sm" | "md" | "md" | "lg";
 }) => {
   const statusGrouped = options.map((a) => a.map((b) => b.value));
   const status = statusGrouped.flat().map((a) => a);
@@ -47,7 +47,7 @@ export const Stepper = <T extends string>({
       className={twMerge("rounded-full", readonly ? "pointer-events-none	" : "")}
       data-tooltip={readonly ? statusName[value] : "Modifier le status" || "-"}
       theme="default"
-      size={size === "xs" ? "xs" : "sm"}
+      size={size === "sm" ? "sm" : "md"}
       shortcut={readonly ? undefined : ["u"]}
       onClick={
         !readonly
@@ -102,7 +102,7 @@ export const Stepper = <T extends string>({
             )}
           </Fragment>
         ))}
-        {!readonly && ["sm", "xs", "md"].includes(size || "sm") && (
+        {!readonly && ["md", "sm", "md"].includes(size || "md") && (
           <ChevronDownIcon className="w-3 h-3 ml-1 text-gray-400" />
         )}
       </div>

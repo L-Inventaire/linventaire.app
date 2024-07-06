@@ -12,7 +12,7 @@ export const RestUserTag = ({
   user,
   ...props
 }: {
-  size: "md" | "sm";
+  size: "md" | "md";
   id: string;
   user?: PublicCustomer;
   dataTooltip?: string;
@@ -33,7 +33,7 @@ const UserTagRender = ({
   icon,
   ...props
 }: {
-  size: "md" | "sm";
+  size: "md" | "md";
   user: PublicCustomer;
   dataTooltip?: string;
   className?: string;
@@ -50,10 +50,10 @@ const UserTagRender = ({
           icon
         ) : (
           <Avatar
-            className={twMerge("mr-1", size === "sm" ? "-ml-0.5" : "-ml-1")}
+            className={twMerge("mr-1", size === "md" ? "-ml-0.5" : "-ml-1")}
             fallback={name}
             avatar={avatar}
-            size={size === "sm" ? 4 : 5}
+            size={size === "md" ? 4 : 5}
           />
         )
       }
@@ -76,7 +76,7 @@ const UserTagServer = ({
   id,
   ...props
 }: {
-  size: "md" | "sm";
+  size: "md" | "md";
   id: string;
   dataTooltip?: string;
   className?: string;

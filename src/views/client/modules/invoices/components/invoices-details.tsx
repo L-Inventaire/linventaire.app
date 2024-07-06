@@ -4,11 +4,11 @@ import { InputLabel } from "@atoms/input/input-decoration-label";
 import { Info, SectionSmall } from "@atoms/text";
 import { AddressInput } from "@components/address-input";
 import { CustomFieldsInput } from "@components/custom-fields-input";
-import { EditorInput } from "@components/editor-input";
+import { EditorInput } from "@molecules/editor-input";
 import { FormInput } from "@components/form/fields";
 import { FormContext } from "@components/form/formcontext";
 import { InvoiceFormatInput } from "@components/invoice-format-input";
-import { PageLoader } from "@components/page-loader";
+import { PageLoader } from "@atoms/page-loader";
 import { PaymentInput } from "@components/payment-input";
 import { Articles } from "@features/articles/types/types";
 import { useClients } from "@features/clients/state/use-clients";
@@ -168,7 +168,7 @@ export const InvoicesDetailsPage = ({
                                 <Button
                                   disabled={index === 0}
                                   theme="default"
-                                  size="sm"
+                                  size="md"
                                   onClick={() => {
                                     const content = _.cloneDeep(
                                       draft.content || []
@@ -188,7 +188,7 @@ export const InvoicesDetailsPage = ({
                                     index === (draft.content?.length || 0) - 1
                                   }
                                   theme="default"
-                                  size="sm"
+                                  size="md"
                                   onClick={() => {
                                     const content = _.cloneDeep(
                                       draft.content || []
@@ -205,7 +205,7 @@ export const InvoicesDetailsPage = ({
                                 />
                                 <Button
                                   theme="default"
-                                  size="sm"
+                                  size="md"
                                   onClick={() =>
                                     setDraft({
                                       ...draft,
@@ -219,7 +219,7 @@ export const InvoicesDetailsPage = ({
                                 />
                                 <Button
                                   theme="danger"
-                                  size="sm"
+                                  size="md"
                                   onClick={() =>
                                     setDraft({
                                       ...draft,
@@ -377,7 +377,7 @@ export const InvoicesDetailsPage = ({
                           label="Ajouter une ligne"
                           input={
                             <Button
-                              size="sm"
+                              size="md"
                               theme="default"
                               onClick={() =>
                                 setDraft({

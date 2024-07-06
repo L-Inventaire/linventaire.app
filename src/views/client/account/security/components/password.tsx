@@ -5,7 +5,7 @@ import { Input } from "@atoms/input/input-text";
 import { Modal, ModalContent } from "@atoms/modal/modal";
 import * as Text from "@atoms/text";
 import { MFAVerificationModal } from "@components/auth/mfa-verification-modal";
-import { PageLoader } from "@components/page-loader";
+import { PageLoader } from "@atoms/page-loader";
 import { MethodType } from "@features/customers/api-client/mfa-api-client";
 import { useCustomerMfa } from "@features/customers/state/hooks";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";

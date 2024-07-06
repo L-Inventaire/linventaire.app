@@ -22,7 +22,7 @@ initializeFileTypeIcons();
 
 type FileTagType = {
   onDelete?: () => void;
-  size: "lg" | "md" | "sm";
+  size: "sm" | "md";
   progress?: number;
   id?: string;
   file?: Files;
@@ -76,7 +76,7 @@ const FileTagRender = ({
       noColor
       className={twMerge(
         className,
-        "bg-white dark:bg-slate-900",
+        "rounded bg-white dark:bg-slate-900",
         !!(file?.id || progress !== undefined) && "pr-1",
         progress !== undefined && "opacity-75 animate-pulse"
       )}
@@ -85,7 +85,7 @@ const FileTagRender = ({
     >
       <span className="flex items-center">
         {thumb && (
-          <span className="w-7 h-7 flex items-center justify-center mr-1">
+          <span className="w-6 h-6 flex items-center justify-center mr-1">
             <img
               src={thumb}
               className="object-contain border shadow-sm border-slate-100 dark:border-slate-900 rounded-sm"

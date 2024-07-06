@@ -18,7 +18,7 @@ export const StockItemStatus = ({
   // "bought" | "stock" | "reserved" | "in_transit" | "delivered"
   value: StockItems["state"];
   onChange?: (value: StockItems["state"]) => void;
-  size?: "xs" | "sm" | "md" | "lg";
+  size?: "sm" | "md" | "md" | "lg";
 }) => {
   const statusName = {
     bought: "Commandé",

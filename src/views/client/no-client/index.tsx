@@ -1,8 +1,8 @@
 import { Button } from "@atoms/button/button";
 import Link from "@atoms/link";
 import { Info, SectionSmall, Title } from "@atoms/text";
-import { AnimatedBackground } from "@components/animated-background";
-import SingleCenterCard from "@components/single-center-card/single-center-card";
+import { AnimatedBackground } from "@atoms/animated-background";
+import SingleCenterCard from "@atoms/single-center-card/single-center-card";
 import { useAuth } from "@features/auth/state/use-auth";
 import { useClients } from "@features/clients/state/use-clients";
 import { ROUTES, getRoute } from "@features/routes";
@@ -61,7 +61,7 @@ export const NoClientView = (props: { create?: boolean }) => {
               </Info>
               <Button
                 theme={!clients.length ? "primary" : "default"}
-                size="sm"
+                size="md"
                 onClick={() => setCreate(true)}
               >
                 New company

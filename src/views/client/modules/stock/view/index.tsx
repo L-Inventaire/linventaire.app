@@ -1,5 +1,5 @@
 import { DocumentBar } from "@components/document-bar";
-import { PageLoader } from "@components/page-loader";
+import { PageLoader } from "@atoms/page-loader";
 import { ROUTES, getRoute } from "@features/routes";
 import { useStockItem } from "@features/stock/hooks/use-stock-items";
 import { Page } from "@views/client/_layout/page";
@@ -34,7 +34,7 @@ export const StockItemsViewPage = ({ readonly }: { readonly?: boolean }) => {
           editRoute={ROUTES.StockEdit}
           prefix={
             <>
-              <StockItemStatus value={item.state} readonly size="lg" />
+              <StockItemStatus value={item.state} readonly size="md" />
             </>
           }
           suffix={<></>}

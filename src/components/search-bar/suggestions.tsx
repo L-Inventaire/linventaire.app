@@ -3,7 +3,7 @@ import { DropDownMenuType, Menu } from "@atoms/dropdown";
 import { Checkbox } from "@atoms/input/input-checkbox";
 import { Loader } from "@atoms/loader";
 import { Info, InfoSmall } from "@atoms/text";
-import { RestTag } from "@components/rest-tags";
+import { RestTag } from "@components/deprecated-rest-tags/index_deprecated";
 import { formatTime } from "@features/utils/format/dates";
 import {
   InformationCircleIcon,
@@ -85,7 +85,7 @@ export const SearchBarSuggestions = ({
                     {(currentField.type === "date" ||
                       currentField.type === "number") && (
                       <div className="mb-2 flex space-x-2 items-center max-w-md">
-                        <Select size="sm" className="shrink-0 w-max">
+                        <Select size="md" className="shrink-0 w-max">
                           <option value="">Égal à</option>
                           <option value=">=">Supérieur à</option>
                           <option value="<=">Inférieur à</option>
@@ -93,9 +93,9 @@ export const SearchBarSuggestions = ({
                         </Select>
                         {currentField.type === "date" && (
                           <>
-                            <InputDate size="sm" className="shrink-0 w-32" />
+                            <InputDate size="md" className="shrink-0 w-32" />
                             <span>et</span>
-                            <InputDate size="sm" className="shrink-0 w-32" />
+                            <InputDate size="md" className="shrink-0 w-32" />
                           </>
                         )}
                         {currentField.type === "number" && (
@@ -104,7 +104,7 @@ export const SearchBarSuggestions = ({
                               value=""
                               type="number"
                               pattern="\d*"
-                              size="sm"
+                              size="md"
                               className="shrink-0"
                             />
                             <span>et</span>
@@ -112,7 +112,7 @@ export const SearchBarSuggestions = ({
                               value=""
                               type="number"
                               pattern="\d*"
-                              size="sm"
+                              size="md"
                               className="shrink-0"
                             />
                           </>
@@ -156,7 +156,7 @@ export const SearchBarSuggestions = ({
                     {a.field?.type.indexOf("type:") === 0 && (
                       <RestTag
                         type={a.field?.type.split(":")[1] as string}
-                        size="sm"
+                        size="md"
                         label={a.render}
                         item={a.item}
                         id={a.value}
@@ -206,7 +206,7 @@ export const SearchBarSuggestions = ({
                 label: (
                   <span>
                     <Tag
-                      size="xs"
+                      size="sm"
                       noColor
                       className="bg-wood-500 text-white -ml-1 font-mono"
                     >

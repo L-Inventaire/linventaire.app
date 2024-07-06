@@ -1,34 +1,33 @@
 import { Button } from "@atoms/button/button";
 import SelectBoolean from "@atoms/input/input-boolean-select";
 import { Checkbox } from "@atoms/input/input-checkbox";
+import InputColor from "@atoms/input/input-color";
 import InputDate from "@atoms/input/input-date";
+import { InputDecorationIcon } from "@atoms/input/input-decoration-icon";
+import { InputLabel } from "@atoms/input/input-decoration-label";
 import { InputFormat } from "@atoms/input/input-format";
+import InputPhone from "@atoms/input/input-phone";
+import Select from "@atoms/input/input-select";
 import SelectMultiple from "@atoms/input/input-select-multiple";
 import { Input } from "@atoms/input/input-text";
 import { InputWithSuggestions } from "@atoms/input/input-with-suggestion";
-import Select from "@atoms/input/input-select";
+import { FilesInput } from "@components/input-rest/files";
+import { RestDocumentsInput } from "@components/input-rest";
+import { TagsInput } from "@components/input-rest/tags";
+import { UsersInput } from "@components/deprecated-users-input";
 import { debounce } from "@features/utils/debounce";
 import { useControlledEffect } from "@features/utils/hooks/use-controlled-effect";
 import {
   ArrowsPointingOutIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
+import _ from "lodash";
 import { nanoid } from "nanoid";
 import { memo, useContext, useRef, useState } from "react";
-import { SearchFormFieldType } from "./types";
-import _ from "lodash";
-import { InputLabel } from "@atoms/input/input-decoration-label";
-import { InputDecorationIcon } from "@atoms/input/input-decoration-icon";
-import { FormReadonly } from "./readonly";
-import { FormContextContext, FormControllerType } from "./formcontext";
 import { twMerge } from "tailwind-merge";
-import InputPhone from "@atoms/input/input-phone";
-import InputColor from "@atoms/input/input-color";
-import { TagsInput } from "@components/tags-input";
-import { UsersInput } from "@components/users-input";
-import { FilesInput } from "@components/files-input";
-import { RestDocumentsInput } from "@components/rest-documents-input";
-import { RestEntity } from "@features/utils/rest/types/types";
+import { FormContextContext, FormControllerType } from "./formcontext";
+import { FormReadonly } from "./readonly";
+import { SearchFormFieldType } from "./types";
 
 export const FormInput = memo(
   (
@@ -36,7 +35,7 @@ export const FormInput = memo(
       className?: string;
       highlight?: boolean;
       main?: boolean;
-      size?: "md" | "lg";
+      size?: "md" | "sm";
       readonly?: boolean;
       ctrl?: FormControllerType;
       value?:
@@ -138,13 +137,13 @@ export const FormInput = memo(
             options={options}
             loading={optionsLoading}
             highlight={highlight}
-            size="lg"
+            size="md"
             placeholder={placeholder}
             value={(_value as string) || ""}
             onChange={(e) => onChange(e.target.value, e.target.value)}
             disabled={disabled}
           />
-          <Button onClick={props.onSearch} size="lg" shortcut={["enter"]}>
+          <Button onClick={props.onSearch} size="md" shortcut={["enter"]}>
             <MagnifyingGlassIcon className="h-6 w-6 -mx-2" />
           </Button>
         </div>
@@ -192,7 +191,6 @@ export const FormInput = memo(
             )}
             {props.type === "tags" && (
               <TagsInput
-                className="w-full"
                 value={(_value as string[]) || []}
                 onChange={(e) => onChange(e)}
                 disabled={disabled}
@@ -305,12 +303,7 @@ export const FormInput = memo(
               />
             )}
             {props.type === "boolean" && (
-              <div
-                className={
-                  "overflow-hidden flex items-center " +
-                  (size === "lg" ? "h-11" : "h-9")
-                }
-              >
+              <div className={"overflow-hidden flex items-center h-9"}>
                 <Checkbox
                   value={(_value as boolean) || false}
                   onChange={(e) => onChange(e)}

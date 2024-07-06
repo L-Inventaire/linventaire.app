@@ -2,7 +2,7 @@ import { Button } from "@atoms/button/button";
 import { ButtonConfirm } from "@atoms/button/confirm";
 import { Modal, ModalContent } from "@atoms/modal/modal";
 import { Info, Section } from "@atoms/text";
-import { Table } from "@components/table";
+import { Table } from "@molecules/table";
 import { useTags } from "@features/tags/hooks/use-tags";
 import { Tags } from "@features/tags/types/types";
 import { useState } from "react";
@@ -25,7 +25,7 @@ export const TagsPage = () => {
       <PageBlock>
         {hasAccess("TAGS_MANAGE") && (
           <Button
-            size="sm"
+            size="md"
             className="float-right"
             onClick={() => setEdit({})}
             shortcut={["shift+a"]}
@@ -82,13 +82,13 @@ export const TagsPage = () => {
                   <div className="text-right space-x-2 whitespace-nowrap flex items-center">
                     <Button
                       theme="outlined"
-                      size="sm"
+                      size="md"
                       onClick={() => setEdit(tag)}
                       icon={(p) => <PencilIcon {...p} />}
                     />
                     <ButtonConfirm
                       theme="danger"
-                      size="sm"
+                      size="md"
                       onClick={() => remove.mutate(tag.id)}
                       icon={(p) => <TrashIcon {...p} />}
                     />

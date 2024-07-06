@@ -2,7 +2,7 @@ import Avatar from "@atoms/avatar/avatar";
 import { Button } from "@atoms/button/button";
 import { ButtonConfirm } from "@atoms/button/confirm";
 import { Info, Section } from "@atoms/text";
-import { Table } from "@components/table";
+import { Table } from "@molecules/table";
 import {
   useClientInvitations,
   useClients,
@@ -51,12 +51,12 @@ export const AccountClientsPage = () => {
               {
                 render: (c) => (
                   <div className="text-right w-full">
-                    <Button size="sm" onClick={() => accept(c.client_id)}>
+                    <Button size="md" onClick={() => accept(c.client_id)}>
                       Accepter
                     </Button>
                     <Button
                       theme="danger"
-                      size="sm"
+                      size="md"
                       className="ml-2"
                       onClick={() => accept(c.client_id, false)}
                     >
@@ -73,7 +73,7 @@ export const AccountClientsPage = () => {
       <PageBlock>
         <Button
           className="float-right"
-          size="sm"
+          size="md"
           icon={(p) => <PlusIcon {...p} />}
           to={ROUTES.CreateCompany}
         >
@@ -106,7 +106,7 @@ export const AccountClientsPage = () => {
                 <div className="text-right w-full">
                   {c.roles.list.includes("CLIENT_MANAGE") && (
                     <Button
-                      size="sm"
+                      size="md"
                       theme="outlined"
                       className="mr-2"
                       to={getRoute(ROUTES.Settings, { client: c.client_id })}
@@ -115,7 +115,7 @@ export const AccountClientsPage = () => {
                     </Button>
                   )}
                   <ButtonConfirm
-                    size="sm"
+                    size="md"
                     theme="danger"
                     onClick={async () => {
                       try {

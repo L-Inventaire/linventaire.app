@@ -1,5 +1,5 @@
 import { Confetti } from "@atoms/confetti";
-import { AnimatedBackground } from "@components/animated-background";
+import { AnimatedBackground } from "@atoms/animated-background";
 import { useAuth } from "@features/auth/state/use-auth";
 import { useWebsockets } from "@features/auth/state/use-sockets";
 import { DidCreateCompanyOrSignupAtom } from "@features/clients/state/store";

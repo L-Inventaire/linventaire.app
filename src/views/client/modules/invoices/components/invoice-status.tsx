@@ -13,7 +13,7 @@ export const InvoiceStatus = ({
   type: Invoices["type"];
   value: Invoices["state"];
   onChange?: (value: Invoices["state"]) => void;
-  size?: "xs" | "sm" | "md" | "lg";
+  size?: "sm" | "md" | "md" | "lg";
 }) => {
   // Quotes:
   // draft / sent / purchase_order / closed

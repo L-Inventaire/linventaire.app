@@ -10,7 +10,7 @@ export const RestDocumentTag = ({
   onClick,
   ...props
 }: {
-  size: "md" | "sm" | "xs";
+  size: "md" | "md" | "sm";
   label: string | ReactNode;
   icon?: (p: { className: string }) => ReactNode;
   className?: string;

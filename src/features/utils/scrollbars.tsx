@@ -25,22 +25,42 @@ export function renderTrackVerticalDefault({ style, ...props }: any) {
   return <div style={finalStyle} {...props} />;
 }
 
-export function renderThumbHorizontalDefault({ style, ...props }: any) {
+export function renderThumbHorizontalDefault({
+  style,
+  className,
+  ...props
+}: any) {
   const finalStyle = {
     ...style,
     borderRadius: "inherit",
     backgroundColor: "rgba(0,0,0,.2)",
   };
-  return <div style={finalStyle} {...props} />;
+  return (
+    <div
+      style={finalStyle}
+      className={className + " scroll-track"}
+      {...props}
+    />
+  );
 }
 
-export function renderThumbVerticalDefault({ style, ...props }: any) {
+export function renderThumbVerticalDefault({
+  style,
+  className,
+  ...props
+}: any) {
   const finalStyle = {
     ...style,
     borderRadius: "inherit",
     backgroundColor: "rgba(0,0,0,.2)",
   };
-  return <div style={finalStyle} {...props} />;
+  return (
+    <div
+      style={finalStyle}
+      className={className + " scroll-track"}
+      {...props}
+    />
+  );
 }
 
 export const DefaultScrollbars = ({
@@ -75,6 +95,7 @@ export const DefaultScrollbars = ({
       renderThumbHorizontal={(props) => renderThumbHorizontalDefault(props)}
       autoHeight={autoHeight}
       autoHeightMax={autoHeightMax}
+      className="scroll-parent"
     >
       {children}
     </Scrollbars>

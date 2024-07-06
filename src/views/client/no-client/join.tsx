@@ -2,7 +2,7 @@ import Avatar from "@atoms/avatar/avatar";
 import { Button } from "@atoms/button/button";
 import Link from "@atoms/link";
 import { Base, Info, SectionSmall } from "@atoms/text";
-import { Table } from "@components/table";
+import { Table } from "@molecules/table";
 import { DidCreateCompanyOrSignupAtom } from "@features/clients/state/store";
 import {
   useClientInvitations,
@@ -63,14 +63,14 @@ export const JoinCompany = () => {
                 render: (i) => (
                   <>
                     <Button
-                      size="sm"
+                      size="md"
                       loading={loading}
                       onClick={() => accept(i.client_id, true)}
                     >
                       Join
                     </Button>
                     <Button
-                      size="sm"
+                      size="md"
                       theme="default"
                       className="ml-2"
                       loading={loading}

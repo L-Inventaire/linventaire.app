@@ -328,7 +328,7 @@ export const SearchCtrlK = () => {
             {selection.length} éléments sélectionnés
           </Base>
           <Button
-            size="sm"
+            size="md"
             onClick={(event: any) => {
               close();
               if (currentState.options?.onClick) {

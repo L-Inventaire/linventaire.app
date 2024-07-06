@@ -3,7 +3,7 @@ import { InputLabel } from "@atoms/input/input-decoration-label";
 import SelectMultiple from "@atoms/input/input-select-multiple";
 import { Input } from "@atoms/input/input-text";
 import { Info, InfoSmall, Section } from "@atoms/text";
-import { Table } from "@components/table";
+import { Table } from "@molecules/table";
 import { useHasAccess } from "@features/access";
 import { useClientUsers } from "@features/clients/state/use-client-users";
 import { useClients } from "@features/clients/state/use-clients";
@@ -212,7 +212,7 @@ export const CompanyUsersPage = () => {
                       onClick={() => {
                         remove(user.user.email);
                       }}
-                      size="sm"
+                      size="md"
                       theme="danger"
                     >
                       Retirer
@@ -282,7 +282,7 @@ export const CompanyUsersPage = () => {
                 ) : (
                   <>
                     <Button
-                      size="sm"
+                      size="md"
                       className="mr-2"
                       onClick={() => setUpdatingUsers([user.user_id])}
                     >
@@ -293,7 +293,7 @@ export const CompanyUsersPage = () => {
                       onClick={() => {
                         remove(user.user.id);
                       }}
-                      size="sm"
+                      size="md"
                       theme="danger"
                     >
                       Retirer

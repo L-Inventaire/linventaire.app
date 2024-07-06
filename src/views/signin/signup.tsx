@@ -3,7 +3,7 @@ import { InputLabel } from "@atoms/input/input-decoration-label";
 import { InputImage } from "@atoms/input/input-image";
 import { Input } from "@atoms/input/input-text";
 import { Section, Subtitle } from "@atoms/text";
-import { PageLoader } from "@components/page-loader";
+import { PageLoader } from "@atoms/page-loader";
 import environment from "@config/environment";
 import { useAuth } from "@features/auth/state/use-auth";
 import { CustomersApiClient } from "@features/customers/api-client/api-client";
@@ -83,7 +83,7 @@ export const SignUp = () => {
             className="mt-4"
             input={
               <Input
-                size="lg"
+                size="md"
                 value={name}
                 placeholder="Jeff Bezos"
                 onChange={(e) => {

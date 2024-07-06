@@ -39,7 +39,7 @@ export function TablePaginationSimple({
             <>
               <Button
                 theme="default"
-                size="sm"
+                size="md"
                 disabled={
                   loading ||
                   pagination.page ===
@@ -90,7 +90,7 @@ export function TablePagination({
               <Select
                 className="shrink-0 w-max"
                 disabled={loading}
-                size="sm"
+                size="md"
                 value={pagination.perPage || "10"}
                 onChange={(e) =>
                   onChangePageSize && onChangePageSize(+e.target.value)
@@ -107,7 +107,7 @@ export function TablePagination({
             <>
               <Button
                 theme="default"
-                size="sm"
+                size="md"
                 disabled={loading || pagination.page === 1}
                 onClick={() => onChangePage && onChangePage(1)}
                 className="!px-1.5 -mr-px ml-4 rounded-r-none shrink-0"
@@ -116,7 +116,7 @@ export function TablePagination({
               </Button>
               <Button
                 theme="default"
-                size="sm"
+                size="md"
                 disabled={loading || pagination.page === 1}
                 onClick={() =>
                   onChangePage && onChangePage(pagination.page - 1)
@@ -127,7 +127,7 @@ export function TablePagination({
               </Button>
               <Button
                 theme="default"
-                size="sm"
+                size="md"
                 disabled={loading}
                 className="-mr-px rounded-none pointer-events-none shrink-0"
               >
@@ -135,7 +135,7 @@ export function TablePagination({
               </Button>
               <Button
                 theme="default"
-                size="sm"
+                size="md"
                 disabled={
                   loading ||
                   pagination.page ===
@@ -150,7 +150,7 @@ export function TablePagination({
               </Button>
               <Button
                 theme="default"
-                size="sm"
+                size="md"
                 disabled={
                   loading ||
                   pagination.page ===

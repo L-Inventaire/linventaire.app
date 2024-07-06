@@ -5,7 +5,7 @@ import { Input } from "@atoms/input/input-text";
 import Link from "@atoms/link";
 import { Info, Section, Subtitle } from "@atoms/text";
 import { MFAVerificationModal } from "@components/auth/mfa-verification-modal";
-import { PageLoader } from "@components/page-loader";
+import { PageLoader } from "@atoms/page-loader";
 import environment from "@config/environment";
 import { AuthApiClient } from "@features/auth/api-client/api-client";
 import { useAuth } from "@features/auth/state/use-auth";
@@ -193,7 +193,7 @@ export const Login = () => {
             input={
               <div className="flex flex-row">
                 <Input
-                  size="lg"
+                  size="md"
                   autoComplete="email"
                   value={email}
                   placeholder="jeff@books.com"
@@ -214,7 +214,7 @@ export const Login = () => {
                 <div className="flex flex-row">
                   <Input
                     autoFocus
-                    size="lg"
+                    size="md"
                     value={password}
                     placeholder="••••••••"
                     type="password"

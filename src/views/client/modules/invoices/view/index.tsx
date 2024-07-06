@@ -1,6 +1,6 @@
 import { Button } from "@atoms/button/button";
 import { DocumentBar } from "@components/document-bar";
-import { PageLoader } from "@components/page-loader";
+import { PageLoader } from "@atoms/page-loader";
 import { withModel } from "@components/search-bar/utils/as-model";
 import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { ROUTES, getRoute } from "@features/routes";
@@ -43,7 +43,7 @@ export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
           prefix={
             <>
               <InvoiceStatus
-                size="lg"
+                size="md"
                 readonly={update.isPending}
                 value={invoice.state}
                 type={invoice.type}
@@ -57,7 +57,7 @@ export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
                 <>
                   <Button
                     theme="outlined"
-                    size="xs"
+                    size="sm"
                     shortcut={["c"]}
                     to={withModel(
                       getRoute(ROUTES.InvoicesEdit, { id: "new" }),
@@ -72,7 +72,7 @@ export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
                     Créer une commande
                   </Button>
                   <Button
-                    size="xs"
+                    size="sm"
                     shortcut={["f"]}
                     to={withModel(
                       getRoute(ROUTES.InvoicesEdit, { id: "new" }),
@@ -90,7 +90,7 @@ export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
               )}
               {invoice.type === "invoices" && (
                 <Button
-                  size="xs"
+                  size="sm"
                   theme="outlined"
                   shortcut={["shift+a"]}
                   to={withModel(getRoute(ROUTES.InvoicesEdit, { id: "new" }), {

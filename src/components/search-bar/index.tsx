@@ -180,7 +180,7 @@ export const SearchBar = ({
                     <Button
                       data-tooltip="Filtrer"
                       className={"absolute left-1.5 top-1.5"}
-                      size="xs"
+                      size="sm"
                       theme="invisible"
                       icon={(p) => <FunnelIcon {...p} />}
                     />
@@ -227,7 +227,7 @@ export const SearchBar = ({
         {fields.length > 0 && (
           <Button
             className="shrink-0"
-            size="xs"
+            size="sm"
             theme="invisible"
             icon={(p) => <ChevronUpDownIcon {...p} />}
           >
@@ -237,7 +237,7 @@ export const SearchBar = ({
         {showExport !== false && (
           <Button
             className="shrink-0"
-            size="xs"
+            size="sm"
             theme="invisible"
             icon={(p) => <ArrowDownTrayIcon {...p} />}
           >

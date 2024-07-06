@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import * as Text from "@atoms/text";
 import { twMerge } from "tailwind-merge";
-import { AnimatedHeight } from "@components/animated-side/height";
+import { AnimatedHeight } from "@atoms/animated-side/height";
 import { CardDefault } from "@atoms/styles/cards";
 
 export const Card = (props: {

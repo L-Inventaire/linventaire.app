@@ -261,7 +261,7 @@ export function RenderedTable<T>({
               }
             >
               <Select
-                size="sm"
+                size="md"
                 className="grow w-full my-2 mr-2"
                 onChange={(e) => {
                   if (onChangeOrder) {
@@ -285,7 +285,7 @@ export function RenderedTable<T>({
                   ))}
               </Select>
               <Select
-                size="sm"
+                size="md"
                 className="shrink-0 !w-auto -ml-px my-2"
                 onChange={(e) => {
                   if (onChangeOrder)
@@ -306,7 +306,7 @@ export function RenderedTable<T>({
             <Button
               className="my-2"
               theme="default"
-              size="sm"
+              size="md"
               icon={(p) => <ArrowDownTrayIcon {...p} />}
               onClick={() => setExportModal(true)}
             >
@@ -322,7 +322,7 @@ export function RenderedTable<T>({
               <Button
                 className="my-2"
                 theme="default"
-                size="sm"
+                size="md"
                 icon={(p) => <CogIcon {...p} />}
                 onClick={() => setOptionsModal(true)}
               >
@@ -365,7 +365,7 @@ export function RenderedTable<T>({
                           typeof onSelect !== "function" && (
                             <DropdownButton
                               theme="primary"
-                              size="sm"
+                              size="md"
                               menu={onSelect.map((a) => ({
                                 onClick: () => a.callback(selected),
                                 icon: a.icon,

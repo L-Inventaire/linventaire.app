@@ -111,7 +111,7 @@ export const PreferencesPage = () => {
           {!readonly && (
             <Button
               theme="primary"
-              size="sm"
+              size="md"
               onClick={() =>
                 update(client?.id || "", {
                   preferences: {
@@ -142,7 +142,7 @@ export const PreferencesPage = () => {
           {!readonly && (
             <Button
               theme="primary"
-              size="sm"
+              size="md"
               onClick={() =>
                 update(client?.id || "", {
                   payment: {
@@ -173,7 +173,7 @@ export const PreferencesPage = () => {
             <Button
               className="mt-4"
               theme="primary"
-              size="sm"
+              size="md"
               onClick={() =>
                 update(client?.id || "", {
                   invoices: {
@@ -316,7 +316,7 @@ export const PreferencesPage = () => {
           <Button
             className="mt-4"
             theme="primary"
-            size="sm"
+            size="md"
             disabled={
               _.uniq(
                 [

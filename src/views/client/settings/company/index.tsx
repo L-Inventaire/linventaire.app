@@ -74,7 +74,7 @@ export const CompanyPage = () => {
             <Button
               className="mt-4"
               theme="primary"
-              size="sm"
+              size="md"
               onClick={() =>
                 update(client?.id || "", {
                   company: {
@@ -125,7 +125,7 @@ export const CompanyPage = () => {
             <Button
               className="mt-4"
               theme="primary"
-              size="sm"
+              size="md"
               onClick={() =>
                 update(client?.id || "", {
                   company: {
@@ -190,7 +190,7 @@ export const CompanyPage = () => {
           />
           {!readonly && (
             <Button
-              size="sm"
+              size="md"
               className="mt-4"
               theme="primary"
               onClick={() =>
@@ -223,7 +223,7 @@ export const CompanyPage = () => {
           <ButtonConfirm
             disabled={users.length > 1}
             theme="danger"
-            size="sm"
+            size="md"
             className="mt-4"
             confirmButtonTheme="danger"
             confirmButtonText="Détruire l'entreprise"

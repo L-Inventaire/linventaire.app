@@ -1,8 +1,8 @@
 import { Button } from "@atoms/button/button";
 import { Info, SectionSmall } from "@atoms/text";
 import { FormInput } from "@components/form/fields";
-import { RestDocumentsInput } from "@components/rest-documents-input";
-import { Table } from "@components/table";
+import { RestDocumentsInput } from "@components/input-rest";
+import { Table } from "@molecules/table";
 import { Articles } from "@features/articles/types/types";
 import { useContacts } from "@features/contacts/hooks/use-contacts";
 import { Contacts, getContactName } from "@features/contacts/types/types";
@@ -78,7 +78,7 @@ export const ArticleSuppliersInput = ({
                 >
                   <Button
                     icon={(p) => <TrashIcon {...p} />}
-                    size="sm"
+                    size="md"
                     theme="danger"
                     className="float-right"
                     onClick={() => {
@@ -183,7 +183,7 @@ export const ArticleSuppliersInput = ({
                 />
                 <Button
                   theme="outlined"
-                  size="sm"
+                  size="md"
                   onClick={() => {
                     onChange(_.uniq([...value[0], "custom"]), {
                       ...value[1],
@@ -247,7 +247,7 @@ export const ArticleSuppliersInput = ({
                         <>
                           <Button
                             icon={(p) => <EyeIcon {...p} />}
-                            size="sm"
+                            size="md"
                             to={getRoute(ROUTES.ContactsView, {
                               id: contact.id,
                             })}

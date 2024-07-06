@@ -5,16 +5,16 @@ import { formatTime } from "@features/utils/format/dates";
 import { formatAmount } from "@features/utils/format/strings";
 import { memo } from "react";
 import { SearchFormFieldType } from "./types";
-import { TagsInput } from "@components/tags-input";
+import { TagsInput } from "@components/input-rest/tags";
 import InputPhone from "@atoms/input/input-phone";
-import { UsersInput } from "@components/users-input";
-import { FilesInput } from "@components/files-input";
-import { RestDocumentsInput } from "@components/rest-documents-input";
+import { UsersInput } from "@components/deprecated-users-input";
+import { FilesInput } from "@components/input-rest/files";
+import { RestDocumentsInput } from "@components/input-rest";
 
 export const FormReadonly = memo(
   (
     props: Omit<SearchFormFieldType, "key"> & {
-      size: "md" | "lg";
+      size: "md" | "sm";
       value:
         | string
         | number
@@ -55,7 +55,6 @@ export const FormReadonly = memo(
             )}
             {props.type === "tags" && (
               <TagsInput
-                className="w-full"
                 value={(props.value as string[]) || []}
                 disabled={true}
               />

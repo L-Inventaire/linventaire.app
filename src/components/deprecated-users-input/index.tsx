@@ -3,7 +3,7 @@ import { Button } from "@atoms/button/button";
 import { InputWithSuggestions } from "@atoms/input/input-with-suggestion";
 import { Loader } from "@atoms/loader";
 import { Info } from "@atoms/text";
-import { RestUserTag } from "@components/rest-tags/components/user";
+import { RestUserTag } from "@components/deprecated-rest-tags/components/user";
 import { getFullName } from "@features/auth/utils";
 import { useClientUsers } from "@features/clients/state/use-client-users";
 import { useClients } from "@features/clients/state/use-clients";
@@ -16,7 +16,7 @@ import { twMerge } from "tailwind-merge";
 export const UsersInput = (props: {
   value: string[];
   className?: string;
-  size?: "sm" | "md";
+  size?: "md" | "md";
   max?: number;
   onChange?: (value: string[]) => void;
   placeholder?: string;
@@ -90,7 +90,7 @@ export const UsersInput = (props: {
         props.value?.length < (props.max || 100) && (
           <Button
             className="align-top m-1"
-            size="sm"
+            size="md"
             theme="default"
             onClick={() => setFocused(true)}
           >
@@ -103,7 +103,7 @@ export const UsersInput = (props: {
             placeholder="Ajouter un utilisateur"
             autoFocus
             onBlur={() => setFocused(false)}
-            size="sm"
+            size="md"
             wrapperClassName="align-top m-1 inline-block w-max"
             className="max-w-24"
             options={[

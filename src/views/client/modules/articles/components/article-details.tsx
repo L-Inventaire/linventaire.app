@@ -1,11 +1,11 @@
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import { Input } from "@atoms/input/input-text";
 import { CustomFieldsInput } from "@components/custom-fields-input";
-import { EditorInput } from "@components/editor-input";
+import { EditorInput } from "@molecules/editor-input";
 import { FormInput } from "@components/form/fields";
 import { FormContext } from "@components/form/formcontext";
-import { PageLoader } from "@components/page-loader";
-import { UsersInput } from "@components/users-input";
+import { PageLoader } from "@atoms/page-loader";
+import { UsersInput } from "@components/deprecated-users-input";
 import { Articles } from "@features/articles/types/types";
 import { tvaOptions, unitOptions } from "@features/utils/constants";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
@@ -39,7 +39,7 @@ export const ArticlesDetailsPage = ({
                     className="lg:w-1/4"
                     ctrl={ctrl("type")}
                     label="Type"
-                    size="lg"
+                    size="md"
                     type="select"
                     options={[
                       {
@@ -60,10 +60,10 @@ export const ArticlesDetailsPage = ({
                     className="lg:w-1/4"
                     ctrl={ctrl("internal_reference")}
                     label="Référence"
-                    size="lg"
+                    size="md"
                     type="scan"
                   />
-                  <FormInput ctrl={ctrl("name")} label="Nom" size="lg" />
+                  <FormInput ctrl={ctrl("name")} label="Nom" size="md" />
                 </PageColumns>
                 <InputLabel
                   label="Description"

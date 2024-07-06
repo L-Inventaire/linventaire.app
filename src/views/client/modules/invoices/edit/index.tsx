@@ -1,6 +1,6 @@
 import Select from "@atoms/input/input-select";
 import { DocumentBar } from "@components/document-bar";
-import { PageLoader } from "@components/page-loader";
+import { PageLoader } from "@atoms/page-loader";
 import { useClients } from "@features/clients/state/use-clients";
 import { useInvoiceDefaultModel } from "@features/invoices/configuration";
 import { Invoices } from "@features/invoices/types/types";
@@ -66,7 +66,7 @@ export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
                 <>
                   <span>Création d'un</span>
                   <Select
-                    size="sm"
+                    size="md"
                     className="w-max"
                     value={draft.type}
                     onChange={(e) =>
@@ -84,7 +84,7 @@ export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
                 </>
               )}
               <InvoiceStatus
-                size="lg"
+                size="md"
                 value={draft.state}
                 type={draft.type}
                 onChange={(value) => setDraft({ ...draft, state: value })}

@@ -1,8 +1,8 @@
 import { Button } from "@atoms/button/button";
 import { Info, SectionSmall } from "@atoms/text";
 import { FormInput } from "@components/form/fields";
-import { RestDocumentsInput } from "@components/rest-documents-input";
-import { Table } from "@components/table";
+import { RestDocumentsInput } from "@components/input-rest";
+import { Table } from "@molecules/table";
 import { useContacts } from "@features/contacts/hooks/use-contacts";
 import { Contacts, getContactName } from "@features/contacts/types/types";
 import { ROUTES, getRoute } from "@features/routes";
@@ -63,7 +63,7 @@ export const RelationsInput = ({
                 <div className="rounded border p-4" key={contact.id}>
                   <Button
                     icon={(p) => <TrashIcon {...p} />}
-                    size="sm"
+                    size="md"
                     theme="danger"
                     className="float-right"
                     onClick={() => {
@@ -130,7 +130,7 @@ export const RelationsInput = ({
                         <>
                           <Button
                             icon={(p) => <EyeIcon {...p} />}
-                            size="sm"
+                            size="md"
                             to={getRoute(ROUTES.ContactsView, {
                               id: contact.id,
                             })}
@@ -164,7 +164,7 @@ export const RelationsInput = ({
                   <>
                     <Button
                       icon={(p) => <EyeIcon {...p} />}
-                      size="sm"
+                      size="md"
                       to={getRoute(ROUTES.ContactsView, { id: contact.id })}
                     />
                   </>

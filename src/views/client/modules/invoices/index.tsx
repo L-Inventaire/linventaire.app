@@ -1,10 +1,10 @@
 import { Tag } from "@atoms/badge/tag";
 import { Button } from "@atoms/button/button";
 import { Base, Info } from "@atoms/text";
-import { RestDocumentsInput } from "@components/rest-documents-input";
-import { RestTable } from "@components/rest-table";
+import { RestDocumentsInput } from "@components/input-rest";
+import { RestTable } from "@components/table-rest";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
-import { TagsInput } from "@components/tags-input";
+import { TagsInput } from "@components/input-rest/tags";
 import { useInvoices } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
 import { getDocumentNamePlurial } from "@features/invoices/utils";
@@ -78,7 +78,7 @@ export const InvoicesPage = () => {
             ["supplier_invoices", "supplier_credit_notes"].includes(type[0]) ? (
               <>
                 <Button
-                  size="xs"
+                  size="sm"
                   theme="outlined"
                   to={withSearchAsModel(
                     getRoute(ROUTES.InvoicesEdit, { id: "new" }),
@@ -90,7 +90,7 @@ export const InvoicesPage = () => {
                   Avoir fournisseur
                 </Button>
                 <Button
-                  size="xs"
+                  size="sm"
                   to={withSearchAsModel(
                     getRoute(ROUTES.InvoicesEdit, { id: "new" }),
                     schema.data,
@@ -104,7 +104,7 @@ export const InvoicesPage = () => {
             ) : ["supplier_quotes"].includes(type[0]) ? (
               <>
                 <Button
-                  size="xs"
+                  size="sm"
                   to={withSearchAsModel(
                     getRoute(ROUTES.InvoicesEdit, { id: "new" }),
                     schema.data,
@@ -118,7 +118,7 @@ export const InvoicesPage = () => {
             ) : (
               <>
                 <Button
-                  size="xs"
+                  size="sm"
                   theme="outlined"
                   to={withSearchAsModel(
                     getRoute(ROUTES.InvoicesEdit, { id: "new" }),
@@ -130,7 +130,7 @@ export const InvoicesPage = () => {
                   Avoir
                 </Button>
                 <Button
-                  size="xs"
+                  size="sm"
                   to={withSearchAsModel(
                     getRoute(ROUTES.InvoicesEdit, { id: "new" }),
                     schema.data,
@@ -141,7 +141,7 @@ export const InvoicesPage = () => {
                   Devis
                 </Button>
                 <Button
-                  size="xs"
+                  size="sm"
                   to={withSearchAsModel(
                     getRoute(ROUTES.InvoicesEdit, { id: "new" }),
                     schema.data,
@@ -191,7 +191,7 @@ export const InvoicesPage = () => {
                   {invoice.subscription?.enabled && (
                     <Button
                       data-tooltip="Abonnement"
-                      size="xs"
+                      size="sm"
                       theme="invisible"
                       icon={(p) => <ArrowPathIcon {...p} />}
                     />
@@ -200,7 +200,7 @@ export const InvoicesPage = () => {
                   {invoice.content
                     ?.filter((c) => c.article && c.name)
                     ?.map((c) => (
-                      <Tag size="xs" data-tooltip={c.name}>
+                      <Tag size="sm" data-tooltip={c.name}>
                         {(c.quantity || 0) > 1 &&
                           [c.quantity, c.unit].filter(Boolean).join(" ")}{" "}
                         {c.name?.slice(0, 20) +
@@ -215,12 +215,7 @@ export const InvoicesPage = () => {
               cellClassName: "justify-end whitespace-nowrap",
               render: (invoice) => (
                 <div className="space-x-2 whitespace-nowrap flex">
-                  <TagsInput
-                    size="sm"
-                    value={invoice.tags}
-                    disabled
-                    hideEmpty
-                  />
+                  <TagsInput size="md" value={invoice.tags} disabled />
                   <RestDocumentsInput
                     disabled
                     value={invoice.client}
@@ -233,7 +228,7 @@ export const InvoicesPage = () => {
               thClassName: "w-1",
               cellClassName: "justify-end",
               render: (invoice) => (
-                <Button size="xs" theme="outlined">
+                <Button size="sm" theme="outlined">
                   {formatAmount(invoice.total?.total || 0)} HT
                 </Button>
               ),
@@ -242,7 +237,7 @@ export const InvoicesPage = () => {
               thClassName: "w-1",
               cellClassName: "justify-end",
               render: (invoice) => (
-                <Button size="xs" theme="outlined">
+                <Button size="sm" theme="outlined">
                   {formatAmount(invoice.total?.total_with_taxes || 0)} TTC
                 </Button>
               ),
@@ -252,7 +247,7 @@ export const InvoicesPage = () => {
               cellClassName: "justify-end",
               render: (invoice) => (
                 <InvoiceStatus
-                  size="xs"
+                  size="sm"
                   readonly
                   value={invoice.state}
                   type={invoice.type}

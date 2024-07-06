@@ -1,7 +1,7 @@
 import { Button } from "@atoms/button/button";
 import { Base, Info } from "@atoms/text";
-import { RestDocumentsInput } from "@components/rest-documents-input";
-import { RestTable } from "@components/rest-table";
+import { RestDocumentsInput } from "@components/input-rest";
+import { RestTable } from "@components/table-rest";
 import { ROUTES, getRoute } from "@features/routes";
 import { useStockItems } from "@features/stock/hooks/use-stock-items";
 import { StockItems } from "@features/stock/types/types";
@@ -47,7 +47,7 @@ export const StockPage = () => {
           suffix={
             <>
               <Button
-                size="xs"
+                size="sm"
                 onClick={() =>
                   navigate(getRoute(ROUTES.StockEdit, { id: "new" }))
                 }
@@ -114,7 +114,7 @@ export const StockPage = () => {
               thClassName: "w-1",
               cellClassName: "justify-end",
               render: (item) => (
-                <Button size="xs" theme="outlined">
+                <Button size="sm" theme="outlined">
                   {formatNumber(item.quantity || 0)}
                   {" / "}
                   {formatNumber(item.original_quantity || 0)}
@@ -125,7 +125,7 @@ export const StockPage = () => {
               thClassName: "w-1",
               cellClassName: "justify-end",
               render: (item) => (
-                <StockItemStatus size="xs" readonly value={item.state} />
+                <StockItemStatus size="sm" readonly value={item.state} />
               ),
             },
           ]}

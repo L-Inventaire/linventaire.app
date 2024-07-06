@@ -1,13 +1,13 @@
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import { Info } from "@atoms/text";
-import { FilesInput } from "@components/files-input";
+import { FilesInput } from "@components/input-rest/files";
 import { FormInput } from "@components/form/fields";
 import { FormControllerType } from "@components/form/formcontext";
-import { RestDocumentsInput } from "@components/rest-documents-input";
-import { TagsInput } from "@components/tags-input";
-import { UsersInput } from "@components/users-input";
+import { RestDocumentsInput } from "@components/input-rest";
+import { UsersInput } from "@components/deprecated-users-input";
 import { useTableFields } from "@features/fields/hooks/use-fields";
 import { Fragment } from "react/jsx-runtime";
+import { TagsInput } from "@components/input-rest/tags";
 
 export const CustomFieldsInput = ({
   table,
