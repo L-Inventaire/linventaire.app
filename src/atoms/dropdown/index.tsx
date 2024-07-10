@@ -192,7 +192,7 @@ export const DropDownMenu = () => {
         pointerEvents: state.target ? "all" : "none",
         opacity: state.target && menu.length > 0 ? 1 : 0,
       }}
-      className="z-50 transition-all fixed sm:bottom-auto bottom-0 h-auto shadow-xl border border-slate-50 dark:border-slate-700 sm:rounded-lg max-w-2xl w-full sm:w-64 bg-white dark:bg-slate-900 overflow-hidden"
+      className="z-50 transition-all fixed sm:bottom-auto bottom-0 h-auto shadow-xl border border-slate-50 dark:border-slate-700 sm:rounded-lg max-w-3xl w-full sm:w-64 bg-white dark:bg-slate-900 overflow-hidden"
     >
       <AnimatedHeight
         trigger={(cb) => (autoHeightTrigger = cb)}

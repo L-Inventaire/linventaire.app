@@ -1,6 +1,7 @@
 import { Button } from "@atoms/button/button";
 import { InputOutlinedDefault } from "@atoms/styles/inputs";
 import { Info } from "@atoms/text";
+import { FormControllerType } from "@components/form/formcontext";
 import { RestFileTag } from "@components/input-rest/files/file";
 import { useClients } from "@features/clients/state/use-clients";
 import { FilesApiClient } from "@features/files/api-client/files-api-client";
@@ -13,11 +14,12 @@ import toast from "react-hot-toast";
 import { twMerge } from "tailwind-merge";
 
 export const FilesInput = (props: {
-  value: string[];
+  value?: string[];
+  onChange?: (value: string[]) => void;
+  ctrl?: FormControllerType<string[]>;
   className?: string;
   size?: "md" | "sm";
   max?: number;
-  onChange?: (value: string[]) => void;
   placeholder?: string;
   disabled?: boolean;
   rel?: {
@@ -26,25 +28,24 @@ export const FilesInput = (props: {
     field: string;
   };
 }) => {
+  const value = props.ctrl?.value || props.value || [];
+  const onChange = props.ctrl?.onChange || props.onChange;
   const size = props.size || "md";
   const { client } = useClients();
   const { files } = useFiles({
     query: [
       {
         key: "id",
-        values: (props.value || []).map((a) => ({
+        values: (value || []).map((a) => ({
           op: "equals",
           value: a.split("files:").pop(),
         })),
       },
     ],
     key: JSON.stringify(props.rel),
-    limit: props.value.length || 1,
+    limit: value.length || 1,
   });
-  const existingFiles = (files?.data?.list || [])?.slice(
-    0,
-    props.value?.length
-  );
+  const existingFiles = (files?.data?.list || [])?.slice(0, value?.length);
 
   const [loading, setLoading] = useState(false);
   const newFilesRef = useRef<
@@ -95,8 +96,8 @@ export const FilesInput = (props: {
       })
     );
     setNewFiles([]);
-    props.onChange?.([
-      ...props.value,
+    onChange?.([
+      ...value,
       ...(newFilesRef.current || [])
         .filter((a) => a.entity?.id)
         .map((a) => `files:${a.entity?.id}`),
@@ -124,9 +125,7 @@ export const FilesInput = (props: {
               props.disabled
                 ? undefined
                 : () =>
-                    props.onChange?.(
-                      props.value.filter((a) => a !== `files:${file.id}`)
-                    )
+                    onChange?.(value.filter((a) => a !== `files:${file.id}`))
             }
             file={file}
           />

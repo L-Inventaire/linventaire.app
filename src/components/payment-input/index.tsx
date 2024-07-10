@@ -10,7 +10,7 @@ import { PageBlockHr, PageColumns } from "@views/client/_layout/page";
 import { useContext, useEffect, useState } from "react";
 
 export const PaymentInput = (props: {
-  ctrl: FormControllerType;
+  ctrl: FormControllerType<any>;
   readonly?: boolean;
 }) => {
   const { readonly: contextReadonly } = useContext(FormContextContext);

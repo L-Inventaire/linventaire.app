@@ -1,6 +1,7 @@
 import Avatar from "@atoms/avatar/avatar";
 import { Tag } from "@atoms/badge/tag";
 import { InputOutlinedDefaultBorders } from "@atoms/styles/inputs";
+import { FormControllerType } from "@components/form/formcontext";
 import { RestDocumentsInput } from "@components/input-rest";
 import { getFullName } from "@features/auth/utils";
 import { useSearchUsers } from "@features/customers/configuration";
@@ -19,8 +20,9 @@ export const UsersInput = ({
   ...props
 }: {
   size?: "sm" | "md" | "md";
-  value: string[];
-  onChange: (value: string[]) => void;
+  ctrl?: FormControllerType<string[] | null | never[]>;
+  value?: string[];
+  onChange?: (value: string[]) => void;
   max?: number;
   withName?: boolean;
   disabled?: boolean;
@@ -36,6 +38,7 @@ export const UsersInput = ({
       data-tooltip={props["data-tooltip"]}
       size={size}
       icon={(p) => <UserCircleIcon {...p} />}
+      ctrl={props.ctrl}
       value={value}
       onChange={onChange}
       noWrapper

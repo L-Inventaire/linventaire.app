@@ -43,9 +43,9 @@ export const FormContext = ({
   );
 };
 
-export type FormControllerType = {
-  value: any;
-  onChange: (value: any) => void;
+export type FormControllerType<T> = {
+  value: T;
+  onChange: (value: T) => void;
 };
 
 const FormControllerLockAtom = atomFamily<any, string>({

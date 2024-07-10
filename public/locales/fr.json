@@ -12,7 +12,34 @@
     "guides": "Guides",
     "support": "Aide"
   },
+  "signin": {
+    "login": {
+      "title": "Bonjour {{0}}",
+      "welcome": "Bonjour et bienvenue sur L'inventaire.",
+      "subtitle": "Entrez votre email pour vous connecter",
+      "welcome_subtitle": "Choisissez un email pour continuer",
+      "email": "Email",
+      "code": "Code",
+      "password": "Mot de passe",
+      "password_instead": "Utiliser un mot de passe",
+      "email_instead": "Recevoir un code par email",
+      "code_info": "Nous vous avons envoyé un code par email.",
+      "code_resend": "Renvoyer le code"
+    },
+    "signup": {
+      "title": "Créons votre compte",
+      "subtitle": "Il semble que ce soit votre première visite sur L'inventaire, dites-nous qui vous êtes",
+      "name": "Nom complet",
+      "photo": "Photo",
+      "removePhoto": "Supprimer la photo",
+      "addPhoto": "Ajouter une photo",
+      "submit": "Créer mon compte",
+      "error": "Une erreur s'est produite, veuillez réessayer"
+    }
+  },
   "general": {
+    "app_name": "L'inventaire",
+    "continue": "Continuer",
     "tables": {
       "empty": "Aucune donnée",
       "more": "Charger plus",

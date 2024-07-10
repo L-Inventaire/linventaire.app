@@ -17,7 +17,7 @@ export const CustomFieldsInput = ({
   emptyText,
 }: {
   table: string;
-  ctrl: FormControllerType;
+  ctrl: FormControllerType<any>;
   entityId: string;
   readonly?: boolean;
   emptyText?: React.ReactNode;

@@ -4,13 +4,17 @@ import { InputDecorationIcon } from "@atoms/input/input-decoration-icon";
 import { Input } from "@atoms/input/input-text";
 import { Modal, ModalContent } from "@atoms/modal/modal";
 import { Info } from "@atoms/text";
-import { FormContextContext } from "@components/form/formcontext";
+import {
+  FormContextContext,
+  FormControllerType,
+} from "@components/form/formcontext";
 import _ from "lodash";
 import { ReactNode, useContext, useState } from "react";
 
 export type InputButtonProps<T> = Omit<ButtonProps, "onChange" | "content"> & {
-  value: T;
-  onChange: (value: T) => void;
+  ctrl?: FormControllerType<string[] | null | never[]>;
+  value?: T;
+  onChange?: (value: T) => void;
   placeholder?: string;
   empty?: string;
   label?: string;
@@ -22,39 +26,12 @@ export const InputButton = <T,>(props: InputButtonProps<T>) => {
   const formContext = useContext(FormContextContext);
   const disabled =
     props.disabled || formContext.disabled || formContext.readonly || false;
+
+  const value = props.ctrl?.value || props.value;
+  const onChange = props.ctrl?.onChange || props.onChange;
+
   return (
     <>
-      {!disabled && (
-        <Modal open={open} closable onClose={() => setOpen(false)}>
-          <ModalContent title={props.label || props.placeholder}>
-            {props.content || (
-              <InputDecorationIcon
-                prefix={props.icon as any}
-                input={(p) => (
-                  <Input
-                    {...p}
-                    placeholder={props.placeholder}
-                    autoFocus
-                    autoSelect
-                    value={props.value}
-                    onChange={(e) => {
-                      props.onChange(e.target.value as any);
-                    }}
-                  />
-                )}
-              />
-            )}
-            <Button
-              size="md"
-              className="mt-4 float-right"
-              onClick={() => setOpen(false)}
-              shortcut={["esc", "enter"]}
-            >
-              Fermer
-            </Button>
-          </ModalContent>
-        </Modal>
-      )}
       <Button
         theme="outlined"
         {..._.omit(
@@ -72,12 +49,43 @@ export const InputButton = <T,>(props: InputButtonProps<T>) => {
         className="h-max py-0.5"
       >
         <AnimatedHeight>
-          {!props.value && (
+          {!value && (
             <Info>{props.empty || props.label || props.placeholder}</Info>
           )}
-          {!!props.value && (props.children || props.value)}
+          {!!value && (props.children || value)}
         </AnimatedHeight>
       </Button>
+      {!disabled && (
+        <Modal open={open} closable onClose={() => setOpen(false)}>
+          <ModalContent title={props.label || props.placeholder}>
+            {props.content || (
+              <InputDecorationIcon
+                prefix={props.icon as any}
+                input={(p) => (
+                  <Input
+                    {...p}
+                    placeholder={props.placeholder}
+                    autoFocus
+                    autoSelect
+                    value={value}
+                    onChange={(e) => {
+                      if (onChange) onChange(e.target.value as any);
+                    }}
+                  />
+                )}
+              />
+            )}
+            <Button
+              size="md"
+              className="mt-4 float-right"
+              onClick={() => setOpen(false)}
+              shortcut={["esc", "enter"]}
+            >
+              Fermer
+            </Button>
+          </ModalContent>
+        </Modal>
+      )}
     </>
   );
 };

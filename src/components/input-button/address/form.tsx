@@ -12,7 +12,7 @@ import { Base } from "@atoms/text";
 import { debounce } from "@features/utils/debounce";
 
 export const AddressInput = (props: {
-  ctrl?: FormControllerType;
+  ctrl?: FormControllerType<any>;
   value?: Partial<Clients["address"]>;
   onChange?: (args: Partial<Clients["address"]>) => void;
   disabled?: boolean;

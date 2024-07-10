@@ -193,7 +193,7 @@ export const Login = () => {
             input={
               <div className="flex flex-row">
                 <Input
-                  size="md"
+                  size="lg"
                   autoComplete="email"
                   value={email}
                   placeholder="jeff@books.com"
@@ -214,7 +214,7 @@ export const Login = () => {
                 <div className="flex flex-row">
                   <Input
                     autoFocus
-                    size="md"
+                    size="lg"
                     value={password}
                     placeholder="••••••••"
                     type="password"

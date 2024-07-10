@@ -1,4 +1,8 @@
 import { Button } from "@atoms/button/button";
+import {
+  InputOutlinedDefault,
+  InputOutlinedDefaultBorders,
+} from "@atoms/styles/inputs";
 import { Section } from "@atoms/text";
 import { DefaultScrollbars } from "@features/utils/scrollbars";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
@@ -49,6 +53,10 @@ export const PageBlockHr = () => {
   );
 };
 
+export const PageHr = () => {
+  return <div className="border-solid border-b dark:border-slate-700 !my-4" />;
+};
+
 export const PageBlock = (props: {
   children: ReactNode;
   title?: string;
@@ -68,7 +76,8 @@ export const PageBlock = (props: {
   return (
     <div
       className={twMerge(
-        "text-base p-3 lg:p-4 sm:pt-3 lg:pt-4 pt-0 sm:border border-b sm:mx-0 -mx-4 rounded-md mb-4 bg-slate-50 bg-opacity-50 dark:bg-slate-800 border-slate-100 dark:sm:border-slate-700 dark:border-slate-700",
+        "text-base p-3 lg:p-4 sm:pt-3 lg:pt-4 pt-0 mb-4",
+        InputOutlinedDefaultBorders,
         !isOpen && props.closable ? "cursor-pointer" : "",
         !props.title && "lg:pt-2 sm:pt-1 pt-1"
       )}
@@ -106,7 +115,7 @@ export const PageBlock = (props: {
 
 export const PageColumns = (props: { children: ReactNode }) => {
   return (
-    <div className="flex flex-col sm:space-y-3 lg:flex-row lg:space-x-3 lg:space-y-0 w-full">
+    <div className="flex flex-col sm:space-y-3 lg:flex-row lg:space-x-2 lg:space-y-0 w-full">
       {props.children}
     </div>
   );

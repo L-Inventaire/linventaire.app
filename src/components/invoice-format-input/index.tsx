@@ -11,7 +11,7 @@ import { useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export const InvoiceFormatInput = (props: {
-  ctrl: FormControllerType;
+  ctrl: FormControllerType<any>;
   readonly?: boolean;
 }) => {
   const { t } = useTranslation();
