@@ -15,7 +15,7 @@ import { InvoiceStatus } from "../components/invoice-status";
 import { InvoicesDetailsPage } from "../components/invoices-details";
 import { getPdfPreview } from "../components/invoices-preview/invoices-preview";
 
-export const InvoicesEditPage = ({ readonly }: { readonly?: boolean }) => {
+export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
   const { refresh, loading } = useClients();
 
   useEffect(() => {
