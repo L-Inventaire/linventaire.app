@@ -2,7 +2,6 @@ import { registerCtrlKRestEntity } from "@features/ctrlk";
 import { ROUTES } from "@features/routes";
 import { StockItemsDetailsPage } from "@views/client/modules/stock/components/stock-item-details";
 import { StockItems } from "./types/types";
-import { validateEmail } from "@features/utils/format/strings";
 
 export const useStockItemDefaultModel: () => Partial<StockItems> = () => ({});
 

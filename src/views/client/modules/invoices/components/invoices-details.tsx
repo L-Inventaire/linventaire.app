@@ -1,19 +1,25 @@
 import { Tag } from "@atoms/badge/tag";
 import { Button } from "@atoms/button/button";
 import { InputLabel } from "@atoms/input/input-decoration-label";
+import { PageLoader } from "@atoms/page-loader";
 import { Info, Section, SectionSmall } from "@atoms/text";
-import { AddressInput } from "@components/input-button/address/form";
 import { CustomFieldsInput } from "@components/custom-fields-input";
-import { EditorInput } from "@molecules/editor-input";
 import { FormInput } from "@components/form/fields";
 import { FormContext } from "@components/form/formcontext";
+import { InputButton } from "@components/input-button";
+import { AddressInput } from "@components/input-button/address/form";
+import { RestDocumentsInput } from "@components/input-rest";
+import { FilesInput } from "@components/input-rest/files";
+import { TagsInput } from "@components/input-rest/tags";
+import { UsersInput } from "@components/input-rest/users";
 import { InvoiceFormatInput } from "@components/invoice-format-input";
-import { PageLoader } from "@atoms/page-loader";
 import { PaymentInput } from "@components/payment-input";
 import { Articles } from "@features/articles/types/types";
 import { useClients } from "@features/clients/state/use-clients";
 import { useContact } from "@features/contacts/hooks/use-contacts";
+import { Contacts } from "@features/contacts/types/types";
 import { Invoices } from "@features/invoices/types/types";
+import { getDocumentName } from "@features/invoices/utils";
 import {
   currencyOptions,
   languageOptions,
@@ -25,11 +31,26 @@ import { getFormattedNumerotation } from "@features/utils/format/numerotation";
 import { formatAmount } from "@features/utils/format/strings";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import {
+  BanknotesIcon,
+  Bars3CenterLeftIcon,
+  BuildingStorefrontIcon,
+  ChevronDoubleUpIcon,
+  CubeIcon,
+  DocumentTextIcon,
+  EllipsisHorizontalIcon,
+  EnvelopeIcon,
+  HashtagIcon,
+  PlusIcon,
+  ReceiptPercentIcon,
+  UserIcon,
+} from "@heroicons/react/20/solid";
+import {
   ArrowDownIcon,
   ArrowUpIcon,
   DocumentDuplicateIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
+import { EditorInput } from "@molecules/editor-input";
 import {
   PageBlock,
   PageBlockHr,
@@ -38,35 +59,9 @@ import {
 } from "@views/client/_layout/page";
 import _ from "lodash";
 import { useEffect } from "react";
+import { twMerge } from "tailwind-merge";
 import { computePricesFromInvoice } from "../utils";
 import { InvoicesPreview } from "./invoices-preview/invoices-preview";
-import { getDocumentName } from "@features/invoices/utils";
-import { RestDocumentsInput } from "@components/input-rest";
-import { Contacts } from "@features/contacts/types/types";
-import {
-  ArrowPathRoundedSquareIcon,
-  BanknotesIcon,
-  Bars3CenterLeftIcon,
-  BuildingStorefrontIcon,
-  ChevronDoubleUpIcon,
-  CubeIcon,
-  CurrencyEuroIcon,
-  DocumentTextIcon,
-  EllipsisHorizontalIcon,
-  EnvelopeIcon,
-  GlobeAltIcon,
-  HashtagIcon,
-  PencilSquareIcon,
-  PlusIcon,
-  ReceiptPercentIcon,
-  UserIcon,
-} from "@heroicons/react/20/solid";
-import { InputButton } from "@components/input-button";
-import { TagsInput } from "@components/input-rest/tags";
-import { UsersInput } from "@components/input-rest/users";
-import { twMerge } from "tailwind-merge";
-import { FilesInput } from "@components/input-rest/files";
-import { Input } from "@atoms/input/input-text";
 
 export const InvoicesDetailsPage = ({
   readonly,

@@ -1,5 +1,5 @@
-import { DocumentBar } from "@components/document-bar";
 import { PageLoader } from "@atoms/page-loader";
+import { DocumentBar } from "@components/document-bar";
 import { useClients } from "@features/clients/state/use-clients";
 import { ROUTES, getRoute } from "@features/routes";
 import { useStockItemDefaultModel } from "@features/stock/configuration";
@@ -10,9 +10,8 @@ import _ from "lodash";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { StockItemsDetailsPage } from "../components/stock-item-details";
-import { StockItemStatus } from "../components/stock-item-status";
 
-export const StockItemsEditPage = ({}: { readonly?: boolean }) => {
+export const StockItemsEditPage = (_props: { readonly?: boolean }) => {
   const { refresh, loading } = useClients();
 
   useEffect(() => {
@@ -28,7 +27,7 @@ export const StockItemsEditPage = ({}: { readonly?: boolean }) => {
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as StockItems;
 
-  const { isInitiating, save, draft, setDraft } = useDraftRest<StockItems>(
+  const { isInitiating, save, draft } = useDraftRest<StockItems>(
     "stock_items",
     id || "new",
     async (item) => {

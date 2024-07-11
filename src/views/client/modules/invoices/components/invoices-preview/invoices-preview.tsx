@@ -14,12 +14,12 @@ import jsPDF from "jspdf";
 import _ from "lodash";
 import "./invoices-preview.scss";
 
-import { DateTime } from "luxon";
-import { getTvaValue } from "../../utils";
-import { useFile, useFiles } from "@features/files/hooks/use-files";
 import { buildQueryFromMap } from "@components/search-bar/utils/utils";
 import { FilesApiClient } from "@features/files/api-client/files-api-client";
+import { useFile, useFiles } from "@features/files/hooks/use-files";
 import { getDocumentName } from "@features/invoices/utils";
+import { DateTime } from "luxon";
+import { getTvaValue } from "../../utils";
 
 type InvoicesPreviewProps = {
   invoice: Invoices;
@@ -33,9 +33,9 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
   const logo = useFile(
     (invoice?.format?.logo[0] || "").split(":").pop() || ""
   ).file;
-  const footerLogo = useFile(
-    (invoice?.format?.footer_logo[0] || "").split(":").pop() || ""
-  ).file;
+  // const footerLogo = useFile(
+  //   (invoice?.format?.footer_logo[0] || "").split(":").pop() || ""
+  // ).file;
   const attachments = useFiles({
     query: buildQueryFromMap({
       id: invoice?.attachments?.map((a) => a.split(":").pop()),

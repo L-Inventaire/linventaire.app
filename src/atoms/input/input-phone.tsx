@@ -23,7 +23,7 @@ export default function InputPhone(props: {
   readonly?: boolean;
   value: string;
   size?: "sm" | "md" | "md" | "lg";
-  onChange?: (phone: string) => void;
+  onChange?: (phone: string | undefined) => void;
 }) {
   const countryHint =
     getCountryFromTimezone() ||

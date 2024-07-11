@@ -1,11 +1,10 @@
 import { InputOutlinedDefaultBorders } from "@atoms/styles/inputs";
-import Delta from "quill-delta";
+import { FormContextContext } from "@components/form/formcontext";
 import { useContext, useRef, useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { twMerge } from "tailwind-merge";
 import "./index.css";
-import { FormContextContext } from "@components/form/formcontext";
 
 type EditorInputProps = {
   disabled?: boolean;

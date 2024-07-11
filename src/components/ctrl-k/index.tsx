@@ -1,6 +1,6 @@
 import { Modal } from "@atoms/modal/modal";
 import { CtrlKAtom } from "@features/ctrlk/store";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState } from "recoil";
 import { ModalEditor } from "./editor";
 import { SearchCtrlK } from "./search";
 

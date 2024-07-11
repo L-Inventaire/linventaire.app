@@ -6,8 +6,7 @@ import { RestDocumentsInput } from "@components/input-rest";
 import { getFullName } from "@features/auth/utils";
 import { useSearchUsers } from "@features/customers/configuration";
 import { PublicCustomer } from "@features/customers/types/customers";
-import { Tags } from "@features/tags/types/types";
-import { TagIcon, UserCircleIcon } from "@heroicons/react/20/solid";
+import { UserCircleIcon } from "@heroicons/react/20/solid";
 import { twMerge } from "tailwind-merge";
 
 export const UsersInput = ({

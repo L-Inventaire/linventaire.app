@@ -1,6 +1,5 @@
 import { Stepper } from "@atoms/stepper";
 import { Invoices } from "@features/invoices/types/types";
-import { useEffect } from "react";
 
 export const InvoiceStatus = ({
   readonly,
@@ -41,21 +40,6 @@ export const InvoiceStatus = ({
     paid: "green",
     closed: "red",
     completed: "green",
-  };
-
-  const statusPerType = {
-    quotes: ["draft", "sent", "purchase_order", "completed", "closed"],
-    invoices: ["draft", "accounted", "partial_paid", "paid", "closed"],
-    credit_notes: ["draft", "accounted", "partial_paid", "paid", "closed"],
-    supplier_quotes: ["draft", "sent", "purchase_order", "completed", "closed"],
-    supplier_invoices: ["draft", "accounted", "partial_paid", "paid", "closed"],
-    supplier_credit_notes: [
-      "draft",
-      "accounted",
-      "partial_paid",
-      "paid",
-      "closed",
-    ],
   };
 
   const statusPerTypeGrouped = {

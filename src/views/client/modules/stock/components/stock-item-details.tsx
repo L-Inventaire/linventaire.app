@@ -1,14 +1,15 @@
 import { Button } from "@atoms/button/button";
 import { Card } from "@atoms/card";
+import { PageLoader } from "@atoms/page-loader";
 import { SectionSmall } from "@atoms/text";
 import { CustomFieldsInput } from "@components/custom-fields-input";
-import { EditorInput } from "@molecules/editor-input";
-import { FilesInput } from "@components/input-rest/files";
 import { FormInput } from "@components/form/fields";
 import { FormContext } from "@components/form/formcontext";
-import { PageLoader } from "@atoms/page-loader";
+import { InputButton } from "@components/input-button";
 import { RestDocumentsInput } from "@components/input-rest";
+import { FilesInput } from "@components/input-rest/files";
 import { TagsInput } from "@components/input-rest/tags";
+import { UsersInput } from "@components/input-rest/users";
 import { Articles } from "@features/articles/types/types";
 import { useClients } from "@features/clients/state/use-clients";
 import { Invoices } from "@features/invoices/types/types";
@@ -22,15 +23,13 @@ import {
   MapPinIcon,
   QrCodeIcon,
   ShoppingCartIcon,
-  UserCircleIcon,
 } from "@heroicons/react/20/solid";
 import { DocumentIcon } from "@heroicons/react/24/outline";
 import { CubeIcon } from "@heroicons/react/24/solid";
+import { EditorInput } from "@molecules/editor-input";
 import { PageBlock, PageBlockHr } from "@views/client/_layout/page";
 import { useEffect, useState } from "react";
 import { StockItemStatus } from "./stock-item-status";
-import { UsersInput } from "@components/input-rest/users";
-import { InputButton } from "@components/input-button";
 
 export const StockItemsDetailsPage = ({
   readonly,

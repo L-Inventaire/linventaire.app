@@ -1,8 +1,5 @@
 import { Button } from "@atoms/button/button";
-import {
-  InputOutlinedDefault,
-  InputOutlinedDefaultBorders,
-} from "@atoms/styles/inputs";
+import { InputOutlinedDefaultBorders } from "@atoms/styles/inputs";
 import { Section } from "@atoms/text";
 import { DefaultScrollbars } from "@features/utils/scrollbars";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";

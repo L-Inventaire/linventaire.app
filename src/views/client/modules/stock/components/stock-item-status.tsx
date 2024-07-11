@@ -1,12 +1,5 @@
-import { Button } from "@atoms/button/button";
-import { DropDownAtom, DropDownMenuType } from "@atoms/dropdown";
 import { Stepper } from "@atoms/stepper";
-import { Base, Info } from "@atoms/text";
 import { StockItems } from "@features/stock/types/types";
-import { ChevronDownIcon, ChevronRightIcon } from "@heroicons/react/16/solid";
-import { useEffect } from "react";
-import { useSetRecoilState } from "recoil";
-import { twMerge } from "tailwind-merge";
 
 export const StockItemStatus = ({
   readonly,
@@ -37,15 +30,6 @@ export const StockItemStatus = ({
     delivered: "green",
     depleted: "gray",
   };
-
-  const status = [
-    "bought",
-    "stock",
-    "reserved",
-    "in_transit",
-    "delivered",
-    "depleted",
-  ];
 
   const statusGrouped = [
     ["stock", "bought"],

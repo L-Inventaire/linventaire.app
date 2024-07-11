@@ -1,4 +1,6 @@
 import { Button } from "@atoms/button/button";
+import { Checkbox } from "@atoms/input/input-checkbox";
+import { Base } from "@atoms/text";
 import { SearchBar } from "@components/search-bar";
 import { Suggestions } from "@components/search-bar/hooks/use-suggestions";
 import {
@@ -30,8 +32,6 @@ import { useTranslation } from "react-i18next";
 import { useRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
 import { filterSuggestions, useSearchableEntities } from "./search-utils";
-import { Checkbox } from "@atoms/input/input-checkbox";
-import { Base, Info } from "@atoms/text";
 
 export const SearchCtrlK = () => {
   const { t } = useTranslation();

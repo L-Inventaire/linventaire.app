@@ -66,10 +66,10 @@ export const useSuggestions = (
     (inSearchMode ? status.filter?.values[status.value?.index || 0] : "") || "",
   ] as [string, string];
 
-  const [recentSearches, setRecentSearches] = useState<string[]>(
+  const [recentSearches, _setRecentSearches] = useState<string[]>(
     JSON.parse(localStorage.getItem("search-recent-" + schema.table) || "[]")
   );
-  const [popularFilters, setPopularFilters] = useState<string[]>(
+  const [popularFilters, _setPopularFilters] = useState<string[]>(
     JSON.parse(
       localStorage.getItem("search-popular-filters-" + schema.table) || "[]"
     )

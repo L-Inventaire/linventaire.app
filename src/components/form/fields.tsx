@@ -258,7 +258,7 @@ export const FormInput = memo(
             {props.type === "phone" && (
               <InputPhone
                 value={(_value as string) || ""}
-                onChange={(e) => onChange(e)}
+                onChange={(e) => onChange(e || "")}
                 size={size}
                 disabled={disabled}
               />
