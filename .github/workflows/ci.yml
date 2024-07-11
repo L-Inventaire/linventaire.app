@@ -25,7 +25,7 @@ jobs:
         run: yarn install
 
       - name: Run linter
-        run: yarn lint
+        run: yarn linter
 
   build:
     name: Build
