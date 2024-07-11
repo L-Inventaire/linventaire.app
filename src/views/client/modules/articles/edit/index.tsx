@@ -9,7 +9,7 @@ import _ from "lodash";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArticlesDetailsPage } from "../components/article-details";
 
-export const ArticlesEditPage = ({ readonly }: { readonly?: boolean }) => {
+export const ArticlesEditPage = (_props: { readonly?: boolean }) => {
   let { id } = useParams();
   id = id === "new" ? "" : id || "";
   const navigate = useNavigate();

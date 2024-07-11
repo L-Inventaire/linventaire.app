@@ -4,7 +4,6 @@ import { twMerge } from "tailwind-merge";
 export const Tag = ({
   color,
   className,
-  noColor,
   children,
   size,
   icon,

@@ -9,7 +9,7 @@
     "dev": "concurrently \"npm run start-frontend\" \"npm run start-tailwind\"",
     "update-tailwind-import": "sed -i '' -e \"s/tailwind.css?t=[^\\\"]*\\\"/tailwind.css?t=$(date +%s)\\\"/g\" ./public/index.html",
     "build": "export CI=true && craco build",
-    "linter": "export CI=true && eslint src/",
+    "linter": "export CI=true && eslint src/ --max-warnings 0",
     "test": "craco test",
     "eject": "craco eject"
   },

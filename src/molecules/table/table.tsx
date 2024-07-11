@@ -73,8 +73,6 @@ type PropsType<T> = {
 
 const defaultCellClassName = ({
   selected,
-  rowFirst,
-  rowLast,
   rowOdd,
   colFirst,
   colLast,

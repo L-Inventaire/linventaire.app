@@ -5,7 +5,7 @@ import { Page } from "@views/client/_layout/page";
 import { useParams } from "react-router-dom";
 import { ArticlesDetailsPage } from "../components/article-details";
 
-export const ArticlesViewPage = ({ readonly }: { readonly?: boolean }) => {
+export const ArticlesViewPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
   const { article, isPending } = useArticle(id || "");
 

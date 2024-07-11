@@ -3,7 +3,7 @@ import { registerRootNavigation } from "@features/ctrlk";
 import { MenuIndex, ROUTES, getRoute } from "@features/routes";
 import { useTranslation } from "react-i18next";
 
-export const useSettingsMenu: MenuIndex = (hasAccess) => {
+export const useSettingsMenu: MenuIndex = () => {
   const { t } = useTranslation();
 
   const bar = {

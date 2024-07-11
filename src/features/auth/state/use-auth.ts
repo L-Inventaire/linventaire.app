@@ -81,7 +81,7 @@ export const useAuth = () => {
   const login = extendsToken;
   const getUser = renewAuthorization;
 
-  const logout = useRecoilCallback(({ snapshot }) => () => {
+  const logout = useRecoilCallback(() => () => {
     AuthJWT.token = "";
     localStorage.clear();
     document.location.replace("/");

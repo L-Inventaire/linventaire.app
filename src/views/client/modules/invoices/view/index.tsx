@@ -11,7 +11,7 @@ import { InvoicesDetailsPage } from "../components/invoices-details";
 import { getPdfPreview } from "../components/invoices-preview/invoices-preview";
 import { getDocumentNamePlurial } from "@features/invoices/utils";
 
-export const InvoicesViewPage = ({ readonly }: { readonly?: boolean }) => {
+export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
   const { invoice, isPending, update } = useInvoice(id || "");
 

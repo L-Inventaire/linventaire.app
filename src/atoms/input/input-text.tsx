@@ -25,7 +25,7 @@ export interface InputProps
   autoSelect?: boolean;
 }
 
-export const defaultInputClassName = (theme: "plain" = "plain") => {
+export const defaultInputClassName = (_theme: "plain" = "plain") => {
   return "shadow-sm focus:ring-wood-500 focus:border-wood-500 block bg-white dark:bg-slate-800 text-base border-black border-opacity-15 dark:bg-slate-990 dark:border-slate-700 dark:text-white rounded-md placeholder-slate-300 dark:placeholder-slate-600";
 };
 
@@ -58,7 +58,7 @@ export const Input = (props: InputProps) => {
 
   useShortcuts(
     !props.disabled && props.shortcut?.length ? [...props.shortcut] : [],
-    (e) => {
+    () => {
       (inputRef as any)?.current?.focus();
     }
   );

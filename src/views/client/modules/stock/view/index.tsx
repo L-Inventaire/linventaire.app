@@ -7,7 +7,7 @@ import { useParams } from "react-router-dom";
 import { StockItemsDetailsPage } from "../components/stock-item-details";
 import { StockItemStatus } from "../components/stock-item-status";
 
-export const StockItemsViewPage = ({ readonly }: { readonly?: boolean }) => {
+export const StockItemsViewPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
   const { stock_item: item, isPending } = useStockItem(id || "");
 

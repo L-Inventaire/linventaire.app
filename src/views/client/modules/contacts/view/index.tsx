@@ -9,7 +9,7 @@ import { Page } from "@views/client/_layout/page";
 import { useParams } from "react-router-dom";
 import { ContactsDetailsPage } from "../components/contact-details";
 
-export const ContactsViewPage = ({ readonly }: { readonly?: boolean }) => {
+export const ContactsViewPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
   const { contact, isPending } = useContact(id || "");
 

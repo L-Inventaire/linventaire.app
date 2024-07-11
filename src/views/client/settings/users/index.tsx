@@ -241,7 +241,7 @@ export const CompanyUsersPage = () => {
               : [
                   {
                     label: "Changer les rôles",
-                    callback: (user) => {
+                    callback: () => {
                       setUpdatingUsers(users.map((u) => u.user_id));
                     },
                   },

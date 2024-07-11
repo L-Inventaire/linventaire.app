@@ -8,7 +8,7 @@ export const useTagConfiguration = () => {
   registerCtrlKRestEntity<Tags>("tags", {
     onCreate: (query: string) => {
       return {
-        callback: async (name) => {
+        callback: async () => {
           return "";
         },
         label: query ? `Créer "${query}"` : undefined,
