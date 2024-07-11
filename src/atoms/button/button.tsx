@@ -186,7 +186,7 @@ export const Button = (props: ButtonProps) => {
       {props.icon &&
         props.icon({
           className: twMerge(
-            "overflow-hidden opacity-1 transition-all",
+            "overflow-hidden opacity-1 transition-all shrink-0",
             "h-4 w-4",
             (props.loading || asyncLoading) && "w-0 opacity-0",
             props.children

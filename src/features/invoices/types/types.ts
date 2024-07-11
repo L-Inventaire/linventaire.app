@@ -27,10 +27,8 @@ export type Invoices = {
 
   // For credit notes or supplier credit note: invoices refunded by this credit note
   from_rel_invoice: string[]; // Nullable
-  rel_credit_note: string[]; // Automatically set by a trigger, list of credit notes generated from this invoice
   // For invoices or supplier invoice: quotes completed and transformed into this invoice
   from_rel_quote: string[]; // Nullable
-  rel_invoice: string[]; // Automatically set by a trigger, list of invoices generated from this quote
 
   name: string;
   reference: string;

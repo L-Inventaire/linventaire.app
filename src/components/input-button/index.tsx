@@ -46,14 +46,18 @@ export const InputButton = <T,>(props: InputButtonProps<T>) => {
         onClick={() => {
           setOpen(true);
         }}
-        className="h-max py-0.5"
+        className={
+          "h-max py-0.5" + (props.className ? " " + props.className : "")
+        }
       >
-        <AnimatedHeight>
-          {!value && (
-            <Info>{props.empty || props.label || props.placeholder}</Info>
-          )}
-          {!!value && (props.children || value)}
-        </AnimatedHeight>
+        {props.value !== "" && (
+          <AnimatedHeight>
+            {!value && (
+              <Info>{props.empty || props.label || props.placeholder}</Info>
+            )}
+            {!!value && (props.children || value)}
+          </AnimatedHeight>
+        )}
       </Button>
       {!disabled && (
         <Modal open={open} closable onClose={() => setOpen(false)}>
