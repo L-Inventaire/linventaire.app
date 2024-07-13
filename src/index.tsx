@@ -7,6 +7,8 @@ import "tippy.js/dist/tippy.css";
 import reportWebVitals from "./reportWebVitals";
 import InitialRouter from "./views";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 
 initReactFastclick();
 
@@ -16,7 +18,9 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <RecoilRoot>
-        <InitialRouter />
+        <DndProvider backend={HTML5Backend}>
+          <InitialRouter />
+        </DndProvider>
       </RecoilRoot>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

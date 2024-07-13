@@ -75,24 +75,27 @@ export const RestDocumentsInput = <T extends RestEntity>(
   }, [valuesList]);
 
   const onClick = () =>
-    !disabled &&
-    select<T>(
-      props.entity,
-      props.filter || {},
-      (items: T[]) => {
-        if (typeof props.max !== "number") {
-          const onChange = props.onChange || props.ctrl?.onChange;
-          onChange?.(items[0]?.id || "", items[0] || null);
-        } else {
-          const onChange = props.onChange || props.ctrl?.onChange;
-          onChange?.(
-            (items || []).map((a) => a.id),
-            items || []
-          );
-        }
-      },
-      props.max || 1
-    );
+    !disabled
+      ? select<T>(
+          props.entity,
+          props.filter || {},
+          (items: T[]) => {
+            if (typeof props.max !== "number") {
+              const onChange = props.onChange || props.ctrl?.onChange;
+              onChange?.(items[0]?.id || "", items[0] || null);
+            } else {
+              const onChange = props.onChange || props.ctrl?.onChange;
+              onChange?.(
+                (items || []).map((a) => a.id),
+                items || []
+              );
+            }
+          },
+          props.max || 1
+        )
+      : !!value
+      ? edit(props.entity, _.isArray(value) ? value[0] : value || "")
+      : null;
 
   if (props.noWrapper) {
     if (!value || !value?.length) {
@@ -105,6 +108,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
           onClick={onClick}
           className={props.className}
           size={size}
+          readonly={disabled}
           {...[props["data-tooltip"]]}
         />
       );
@@ -157,13 +161,15 @@ export const RestDocumentsInput = <T extends RestEntity>(
         !disabled &&
           "dark:hover:bg-slate-800 hover:bg-gray-100 dark:hover:border-slate-700 dark:active:bg-slate-700 active:bg-gray-200",
         disabled && !value && "opacity-50 border-transparent shadow-none",
+        disabled && !value && "pointer-events-none",
+        disabled && "shadow-none",
         props.className
       )}
     >
       <div
         className={twMerge(
           "grow inline-flex flex-row items-center",
-          !disabled && "cursor-pointer",
+          (!disabled || value) && "cursor-pointer",
           size === "md" && "py-0.5 px-1.5 space-x-2",
           size === "lg" && "py-1 px-1.5 space-x-1",
           size === "xl" && "p-2 space-x-2"

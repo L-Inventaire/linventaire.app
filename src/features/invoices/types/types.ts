@@ -105,6 +105,8 @@ export type InvoiceSubscription = {
 };
 
 export type InvoiceLine = {
+  _id?: string;
+
   article?: string; // Nullable
 
   type: "product" | "service" | "consumable" | "separation"; // product, service, consumable, separation

@@ -32,7 +32,7 @@ export const StockItemStatus = ({
   };
 
   const statusGrouped = [
-    ["stock", "bought"],
+    ["bought", "stock"],
     ["reserved", "in_transit"],
     ["delivered", "depleted"],
   ];

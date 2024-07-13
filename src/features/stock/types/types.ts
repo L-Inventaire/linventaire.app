@@ -20,6 +20,7 @@ export type StockItems = {
   client: string; // The client who has this stock item or plan to have it
   for_rel_quote: string; // The quote or invoice this stock item is linked to
   from_rel_supplier_quote: string; // The supplier quote this stock item is from
+  location: string; // The location of the stock item
 
   from_rel_original_stock_item: string; // When we split a stock item, we keep a reference to the original one
 

@@ -64,6 +64,8 @@
     "react-circular-progressbar": "^2.1.0",
     "react-custom-scrollbars": "^4.2.1",
     "react-datepicker": "^4.8.0",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^18.1.0",
     "react-editor-js": "=2.0.5",
     "react-fastclick": "^3.0.2",

@@ -128,6 +128,7 @@ export const StockItemsDetailsPage = ({
               <InputButton
                 data-tooltip="Numéro de série ou de lot"
                 theme="outlined"
+                empty="Aucun numéro de série ou de lot"
                 icon={(p) => <QrCodeIcon {...p} />}
                 value={ctrl("serial_number").value}
                 onChange={ctrl("serial_number").onChange}
@@ -144,13 +145,15 @@ export const StockItemsDetailsPage = ({
               >
                 {ctrl("quantity").value || 1} {article.unit || "unité"}
               </InputButton>
-              <Button
-                data-tooltip="Localisation"
-                theme="outlined"
-                icon={(p) => <MapPinIcon {...p} />}
-              >
-                Localisation
-              </Button>
+              {(!readonly || ctrl("location").value) && (
+                <Button
+                  data-tooltip="Localisation"
+                  theme="outlined"
+                  icon={(p) => <MapPinIcon {...p} />}
+                >
+                  Localisation
+                </Button>
+              )}
               <TagsInput
                 size="md"
                 value={ctrl("tags").value}
