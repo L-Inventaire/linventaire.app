@@ -9,7 +9,7 @@ import {
   FormControllerType,
 } from "@components/form/formcontext";
 import _ from "lodash";
-import { ReactNode, useContext, useState } from "react";
+import { ReactNode, useContext, useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
 
 export type InputButtonProps<T> = Omit<ButtonProps, "onChange" | "content"> & {
@@ -20,6 +20,7 @@ export type InputButtonProps<T> = Omit<ButtonProps, "onChange" | "content"> & {
   empty?: string;
   label?: string;
   content?: ReactNode | JSX.Element;
+  autoFocus?: boolean;
 };
 
 export const InputButton = <T,>(props: InputButtonProps<T>) => {
@@ -30,6 +31,10 @@ export const InputButton = <T,>(props: InputButtonProps<T>) => {
 
   const value = props.ctrl?.value || props.value;
   const onChange = props.ctrl?.onChange || props.onChange;
+
+  useEffect(() => {
+    if (props.autoFocus) setOpen(true);
+  }, []);
 
   return (
     <>

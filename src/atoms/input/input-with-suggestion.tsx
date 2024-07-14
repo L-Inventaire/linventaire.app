@@ -14,6 +14,7 @@ type InputSuggestionProps = {
   options: { label: string; value: string }[];
   loading?: boolean;
   autoFocus?: "scan" | "keyboard" | boolean;
+  autoSelect?: boolean;
   render?: (e: { label: string; value: string }) => React.ReactNode;
   float?: boolean;
 } & Omit<InputProps, "autoFocus" | "onSelect">;
@@ -111,6 +112,7 @@ export const InputWithSuggestions = (props: InputSuggestionProps) => {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         inputRef={ref}
+        autoSelect={props.autoSelect}
         autoFocus={props.autoFocus === "keyboard" || props.autoFocus === true}
         {..._.omit(
           props,

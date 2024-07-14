@@ -1,4 +1,5 @@
 import { Stepper } from "@atoms/stepper";
+import { Articles } from "@features/articles/types/types";
 import { StockItems } from "@features/stock/types/types";
 
 export const StockItemStatus = ({

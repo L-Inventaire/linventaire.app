@@ -1,6 +1,7 @@
 import { Address, Payment } from "@features/clients/types/clients";
+import { RestEntity } from "@features/utils/rest/types/types";
 
-export type Invoices = {
+export type Invoices = RestEntity & {
   client_id: string;
   id: string;
 

@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 export type CtrlKPathOptionType<T> = {
   id?: string; // Current item id for editor mode
   query?: string; // Current query
-  internalQuery?: any;
+  internalQuery?: Partial<T> | any;
   entity?: string; // Search entity (ex. "contacts")
   editor?: (props: { id: string }) => ReactNode;
   onClick?: (items: T[], event: MouseEvent) => void; // Action to apply on selection

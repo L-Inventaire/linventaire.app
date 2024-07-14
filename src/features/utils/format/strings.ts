@@ -34,10 +34,10 @@ export const formatIBAN = (iban: string) => {
     .replace(/ $/gm, "");
 };
 
-export const formatAmount = (number: number) => {
+export const formatAmount = (number: number, currency = "EUR") => {
   return (parseFloat(number as any) || 0).toLocaleString("fr-FR", {
     style: "currency",
-    currency: "EUR",
+    currency,
   });
 };
 

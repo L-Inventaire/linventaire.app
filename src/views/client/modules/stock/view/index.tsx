@@ -32,11 +32,7 @@ export const StockItemsViewPage = (_props: { readonly?: boolean }) => {
           mode={"read"}
           backRoute={ROUTES.Stock}
           editRoute={ROUTES.StockEdit}
-          prefix={
-            <>
-              <StockItemStatus value={item.state} readonly size="md" />
-            </>
-          }
+          prefix={<></>}
           suffix={<></>}
         />
       }

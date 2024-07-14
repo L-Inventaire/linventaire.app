@@ -30,6 +30,7 @@ import { EditorInput } from "@molecules/editor-input";
 import { PageBlock, PageBlockHr } from "@views/client/_layout/page";
 import { useEffect, useState } from "react";
 import { StockItemStatus } from "./stock-item-status";
+import { InvoiceRestDocument } from "../../invoices/components/invoice-input-rest-card";
 
 export const StockItemsDetailsPage = ({
   readonly,
@@ -68,6 +69,7 @@ export const StockItemsDetailsPage = ({
             value={draft.state}
             onChange={(state) => setDraft({ ...draft, state })}
             size="md"
+            readonly={readonly}
           />
         </div>
 
@@ -174,10 +176,9 @@ export const StockItemsDetailsPage = ({
               Origine et affectation
             </SectionSmall>
             <div className="m-grid-1 flex items-center">
-              <RestDocumentsInput
+              <InvoiceRestDocument
                 label="Commande d'origine"
                 placeholder="Sélectionner une commande"
-                entity="invoices"
                 filter={{ type: "supplier_quotes" } as Partial<Invoices>}
                 icon={(p) => <ShoppingCartIcon {...p} />}
                 size="xl"
@@ -187,10 +188,9 @@ export const StockItemsDetailsPage = ({
 
               <ArrowRightIcon className="h-5 w-5 shrink-0" />
 
-              <RestDocumentsInput
+              <InvoiceRestDocument
                 label="Pour le devis"
                 placeholder="Sélectionner un devis"
-                entity="invoices"
                 filter={{ type: "quotes" } as Partial<Invoices>}
                 icon={(p) => <DocumentIcon {...p} />}
                 size="xl"

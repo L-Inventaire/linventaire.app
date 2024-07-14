@@ -1,46 +1,55 @@
 import { Tag } from "@atoms/badge/tag";
 import { Button } from "@atoms/button/button";
-import { Input } from "@atoms/input/input-text";
-import {
-  InputOutlinedDefault,
-  InputOutlinedHighlight,
-} from "@atoms/styles/inputs";
+import { DropDownAtom } from "@atoms/dropdown";
 import { Base, Info } from "@atoms/text";
 import {
   FormContextContext,
   FormControllerType,
 } from "@components/form/formcontext";
 import { InputButton } from "@components/input-button";
-import { RestDocumentsInput } from "@components/input-rest";
 import { useArticle } from "@features/articles/hooks/use-articles";
-import { Articles } from "@features/articles/types/types";
-import { InvoiceLine } from "@features/invoices/types/types";
-import { getTextFromHtml } from "@features/utils/format/strings";
+import { CtrlKAtom } from "@features/ctrlk/store";
+import { CtrlKPathType } from "@features/ctrlk/types";
+import { InvoiceLine, Invoices } from "@features/invoices/types/types";
+import { StockItems } from "@features/stock/types/types";
+import { tvaOptions, unitOptions } from "@features/utils/constants";
+import { formatAmount, getTextFromHtml } from "@features/utils/format/strings";
 import {
+  ArrowDownIcon,
+  ArrowUpIcon,
   BanknotesIcon,
   Bars3BottomLeftIcon,
-  BriefcaseIcon,
-  ChevronDoubleUpIcon,
-  CubeIcon,
-  CubeTransparentIcon,
+  CheckCircleIcon,
+  DocumentDuplicateIcon,
   EllipsisHorizontalIcon,
   EllipsisVerticalIcon,
   HashtagIcon,
+  PercentBadgeIcon,
   TrashIcon,
 } from "@heroicons/react/20/solid";
-import { EditorInput } from "@molecules/editor-input";
-import { ReactNode, useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useDrag, useDragLayer, useDrop } from "react-dnd";
+import { useSetRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
+import { getArticleIcon } from "../../../articles/components/article-icon";
+import { InvoiceLineArticleInput } from "./components/line-article";
+import { InvoiceLineQuantityInput } from "./components/line-quantity";
+import { InvoiceLinePriceInput } from "./components/line-price";
+import { renderCompletion } from "../invoices-details";
 
 export const InvoiceLineInput = (props: {
+  invoice?: Invoices;
   value?: InvoiceLine;
   onChange?: (v: InvoiceLine) => void;
   ctrl?: FormControllerType<InvoiceLine>;
+  onDuplicate?: () => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
   onRemove?: () => void;
   readonly?: boolean;
 }) => {
   const formContext = useContext(FormContextContext);
+  const openCtrlK = useSetRecoilState(CtrlKAtom);
 
   const value = props.ctrl?.value || props.value || ({} as InvoiceLine);
   const onChange = props.ctrl?.onChange || props.onChange;
@@ -48,10 +57,7 @@ export const InvoiceLineInput = (props: {
 
   const { article } = useArticle(value.article || "");
 
-  const percentDone = value.quantity
-    ? ((value.quantity_ready || 0) / value.quantity) * 100
-    : 0;
-
+  const setMenu = useSetRecoilState(DropDownAtom);
   const [{ dragging }, dragRef] = useDrag(
     () => ({
       type: "invoice-line",
@@ -93,17 +99,18 @@ export const InvoiceLineInput = (props: {
           </div>
         )}
         <InputButton
+          autoFocus={!readonly && !value.name}
           className={twMerge("grow text-left justify-start")}
           placeholder={value.type !== "separation" ? "Article" : "Texte libre"}
           icon={(p) =>
             value.type === "separation" ? (
               <Bars3BottomLeftIcon {...p} />
             ) : (
-              <CubeIcon {...p} />
+              getArticleIcon(article?.type)(p)
             )
           }
           empty="Vide"
-          content={<InvoiceLineArticleInput {...props} />}
+          content={<InvoiceLineArticleInput {...props} article={article} />}
           value={value.description || value.name || article?.name}
         >
           <div
@@ -127,25 +134,69 @@ export const InvoiceLineInput = (props: {
               className="rounded-r-none shrink-0"
               label="Quantité"
               placeholder="Quantité"
+              content={
+                <InvoiceLineQuantityInput {...props} article={article} />
+              }
               icon={(p) => <HashtagIcon {...p} />}
+              value={
+                (value.quantity || 1) +
+                " " +
+                (unitOptions.find((a) => a.value === value.unit)?.label ||
+                  unitOptions.find((a) => a.value === "unit")?.label)
+              }
             />
             <InputButton
               className="rounded-none shrink-0"
-              label="Prix"
-              placeholder="Prix"
+              label="Prix et TVA"
+              placeholder="Prix et TVA"
               icon={(p) => <BanknotesIcon {...p} />}
+              content={<InvoiceLinePriceInput {...props} article={article} />}
+              value={`${formatAmount(
+                value.unit_price || 0,
+                props.invoice?.currency || "EUR"
+              )} ${
+                value.tva
+                  ? ` - TVA ${
+                      tvaOptions.find((a) => a.value === value.tva)?.label ||
+                      "Aucune"
+                    }`
+                  : ""
+              }`}
             />
-            <InputButton
+            <Button
+              onClick={(e) =>
+                setMenu({
+                  target: e.currentTarget,
+                  menu: [
+                    {
+                      label: "Appliquer une réduction",
+                      icon: (p) => <PercentBadgeIcon {...p} />,
+                    },
+                    {
+                      label: "Article optionnel",
+                      icon: (p) => <CheckCircleIcon {...p} />,
+                    },
+                    { type: "divider" },
+                    {
+                      label: "Dupliquer",
+                      icon: (p) => <DocumentDuplicateIcon {...p} />,
+                      onClick: props.onDuplicate,
+                    },
+                    {
+                      label: "Déplacer vers le haut",
+                      icon: (p) => <ArrowUpIcon {...p} />,
+                      onClick: props.onMoveUp,
+                    },
+                    {
+                      label: "Déplacer vers le bas",
+                      icon: (p) => <ArrowDownIcon {...p} />,
+                      onClick: props.onMoveDown,
+                    },
+                  ],
+                })
+              }
+              theme="outlined"
               className="rounded-l-none shrink-0"
-              label="TVA"
-              placeholder="TVA"
-              icon={(p) => <ChevronDoubleUpIcon {...p} />}
-            />
-            <InputButton
-              data-tooltip="Options"
-              className="rounded-l-none shrink-0"
-              label="Options"
-              placeholder="Options"
               icon={(p) => <EllipsisHorizontalIcon {...p} />}
             />
           </>
@@ -155,7 +206,7 @@ export const InvoiceLineInput = (props: {
         <Button
           theme="outlined"
           data-tooltip="Retirer la ligne"
-          className="shrink-0 text-red-500"
+          className="shrink-0 text-red-500 dark:text-red-500"
           icon={(p) => <TrashIcon {...p} />}
           onClick={() => {
             setDeleted(true);
@@ -166,8 +217,30 @@ export const InvoiceLineInput = (props: {
       {readonly && (
         <div className="w-16 shrink-0 flex items-center justify-end">
           {value.type !== "separation" && (
-            <Tag noColor color="orange" size="xs">
-              {percentDone}%
+            <Tag
+              noColor
+              color={renderCompletion([value])[1]}
+              size="xs"
+              data-tooltip="Voir le stock"
+              onClick={() => {
+                openCtrlK({
+                  path: [
+                    {
+                      mode: "search",
+                      options: {
+                        entity: "stock_items",
+                        internalQuery: {
+                          from_rel_supplier_quote: props.invoice?.id,
+                          article: value.article,
+                        },
+                      },
+                    } as CtrlKPathType<StockItems>,
+                  ],
+                  selection: { entity: "", items: [] },
+                });
+              }}
+            >
+              {renderCompletion([value])[0]}%
             </Tag>
           )}
         </div>
@@ -210,119 +283,6 @@ export const DropInvoiceLine = (props: {
           isOver && "opacity-100"
         )}
       />
-    </div>
-  );
-};
-
-const InvoiceLineArticleInput = (props: {
-  value?: InvoiceLine;
-  onChange?: (v: InvoiceLine) => void;
-  ctrl?: FormControllerType<InvoiceLine>;
-}) => {
-  const value = props.ctrl?.value || props.value || ({} as InvoiceLine);
-  const onChange = props.ctrl?.onChange || props.onChange;
-
-  const { article } = useArticle(value.article || "");
-
-  return (
-    <>
-      <div className="space-x-2 mb-4 flex">
-        <RadioCard
-          title={"Article ou service"}
-          value={value.type !== "separation"}
-          onClick={() => onChange?.({ ...value, type: "product" })}
-        />
-        <RadioCard
-          title={"Texte libre"}
-          value={value.type === "separation"}
-          onClick={() =>
-            onChange?.({ ...value, type: "separation", article: "" })
-          }
-        />
-      </div>
-
-      <div className="space-y-2">
-        {value.type !== "separation" && (
-          <RestDocumentsInput
-            size="xl"
-            entity="articles"
-            label="Choisir un article"
-            icon={(p) =>
-              article?.type === "service" ? (
-                <BriefcaseIcon {...p} />
-              ) : article?.type === "consumable" ? (
-                <CubeTransparentIcon {...p} />
-              ) : (
-                <CubeIcon {...p} />
-              )
-            }
-            value={value.article}
-            onChange={(id, article: Articles | null) =>
-              onChange?.(
-                article
-                  ? {
-                      ...value,
-                      article: id as string,
-                      name: article.name,
-                      description: article.description,
-                      type: article.type,
-                      tva: article.tva,
-                      unit_price: article.price,
-                      unit: article.unit || "unit",
-                    }
-                  : { ...value, article: "" }
-              )
-            }
-          />
-        )}
-
-        <Input
-          value={value.name}
-          onChange={(e) => onChange?.({ ...value, name: e.target.value })}
-        />
-
-        <EditorInput
-          placeholder="Texte libre"
-          value={value.description}
-          onChange={(description) => onChange?.({ ...value, description })}
-        />
-      </div>
-    </>
-  );
-};
-
-const RadioCard = (props: {
-  value?: boolean;
-  onClick?: () => void;
-  title?: ReactNode | string;
-  text?: ReactNode | string;
-}) => {
-  return (
-    <div
-      className={twMerge(
-        "w-full flex items-center cursor-pointer",
-        InputOutlinedDefault,
-        props.value && InputOutlinedHighlight
-      )}
-      onClick={props.onClick}
-    >
-      <div>
-        <div
-          className={twMerge(
-            "w-4 h-4 rounded-full mx-2 flex items-center justify-center",
-            props.value && "border border-wood-500",
-            !props.value && "border border-slate-100 dark:border-slate-700"
-          )}
-        >
-          {props.value && (
-            <div className="rounded-full bg-wood-500 w-2.5 h-2.5" />
-          )}
-        </div>
-      </div>
-      <div className="w-full py-2 text-sm">
-        {props.title && <Base className="block">{props.title}</Base>}
-        {props.text && <Info>{props.text}</Info>}
-      </div>
     </div>
   );
 };

@@ -50,6 +50,7 @@ export const FormInput = memo(
       disabled?: boolean;
       values?: any;
       autoFocus?: "scan" | "keyboard" | boolean;
+      autoSelect?: boolean;
     }
   ) => {
     const formContext = useContext(FormContextContext);
@@ -177,6 +178,7 @@ export const FormInput = memo(
               <InputWithSuggestions
                 className="w-full"
                 autoFocus={props.autoFocus}
+                autoSelect={props.autoSelect}
                 inputClassName={props.type === "scan" ? "to-focus" : ""}
                 style={{ minWidth: 128 }}
                 options={options}
