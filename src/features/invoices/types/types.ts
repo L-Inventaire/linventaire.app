@@ -14,8 +14,8 @@ export type Invoices = RestEntity & {
     | "supplier_invoices"
     | "supplier_credit_notes"; // invoice, quote, credit_note
 
-  // Quotes: “created”, “sent”, purchase_order, "closed”
-  // Invoices and Credit Notes: “created”, “sent”, "partial", “paid”, "closed"
+  // Quotes: “draft”, “sent”, "purchase_order", "completed", "closed”
+  // Invoices and Credit Notes: “draft”, “sent”, "partial", “paid”, "closed"
   state:
     | "draft"
     | "sent"
@@ -122,6 +122,7 @@ export type InvoiceLine = {
   discount?: InvoiceDiscount;
 
   quantity_ready?: number; //Quantity received or sent to determine if the line is ready to be invoices
+  quantity_delivered?: number; //Quantity delivered or received to determine if the line is ready to be invoices
 
   optional?: boolean;
   optional_checked?: boolean; // Checked by the client or by the agent (like a default checked option)

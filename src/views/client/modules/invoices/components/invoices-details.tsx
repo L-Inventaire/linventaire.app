@@ -49,7 +49,11 @@ import { computePricesFromInvoice } from "../utils";
 import { InvoiceLinesInput } from "./invoice-lines-input";
 import { InvoicesPreview } from "./invoices-preview/invoices-preview";
 
-export const computeCompletion = (linesu: Invoices["content"]) => {
+export const computeCompletion = (
+  linesu: Invoices["content"],
+  type: "delivered" | "ready" = "ready",
+  overflow = false
+) => {
   const lines = linesu || [];
   const total = lines.reduce(
     (acc, line) => acc + parseFloat((line.quantity as any) || 0),
@@ -57,23 +61,29 @@ export const computeCompletion = (linesu: Invoices["content"]) => {
   );
   if (total === 0) return 1;
 
+  const column = type === "ready" ? "quantity_ready" : "quantity_delivered";
+
   return (
     lines.reduce(
       (acc, line) =>
         acc +
-        Math.min(
-          parseFloat((line.quantity as any) || 0),
-          parseFloat((line.quantity_ready as any) || 0)
-        ),
+        (overflow
+          ? parseFloat((line[column] as any) || 0)
+          : Math.min(
+              parseFloat((line.quantity as any) || 0),
+              parseFloat((line[column] as any) || 0)
+            )),
       0
     ) / total
   );
 };
 
 export const renderCompletion = (
-  lines: Invoices["content"]
+  lines: Invoices["content"],
+  type: "delivered" | "ready" = "ready",
+  overflow = false
 ): [number, string] => {
-  const value = computeCompletion(lines);
+  const value = computeCompletion(lines, type, overflow);
   const color = value < 0.5 ? "red" : value < 0.8 ? "orange" : "green";
   return [Math.round(value * 100), color];
 };

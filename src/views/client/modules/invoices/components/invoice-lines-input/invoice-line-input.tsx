@@ -214,37 +214,42 @@ export const InvoiceLineInput = (props: {
           }}
         />
       )}
-      {readonly && (
-        <div className="w-16 shrink-0 flex items-center justify-end">
-          {value.type !== "separation" && (
-            <Tag
-              noColor
-              color={renderCompletion([value])[1]}
-              size="xs"
-              data-tooltip="Voir le stock"
-              onClick={() => {
-                openCtrlK({
-                  path: [
-                    {
-                      mode: "search",
-                      options: {
-                        entity: "stock_items",
-                        internalQuery: {
-                          from_rel_supplier_quote: props.invoice?.id,
-                          article: value.article,
+      {readonly &&
+        (props.invoice?.type === "supplier_quotes" ||
+          props.invoice?.type === "quotes") && (
+          <div className="w-20 shrink-0 flex items-center justify-end">
+            {value.type !== "separation" && (
+              <Tag
+                noColor
+                color={renderCompletion([value])[1]}
+                size="xs"
+                data-tooltip="Voir le stock"
+                onClick={() => {
+                  openCtrlK({
+                    path: [
+                      {
+                        mode: "search",
+                        options: {
+                          entity: "stock_items",
+                          internalQuery: {
+                            [props.invoice?.type === "supplier_quotes"
+                              ? "from_rel_supplier_quote"
+                              : "for_rel_quote"]: props.invoice?.id,
+                            article: value.article,
+                          },
                         },
-                      },
-                    } as CtrlKPathType<StockItems>,
-                  ],
-                  selection: { entity: "", items: [] },
-                });
-              }}
-            >
-              {renderCompletion([value])[0]}%
-            </Tag>
-          )}
-        </div>
-      )}
+                      } as CtrlKPathType<StockItems>,
+                    ],
+                    selection: { entity: "", items: [] },
+                  });
+                }}
+              >
+                {renderCompletion([value], "ready", true)[0] > 100 && "⚠️"}
+                {renderCompletion([value], "ready", true)[0]}%{" "}
+              </Tag>
+            )}
+          </div>
+        )}
     </div>
   );
 };
