@@ -13,6 +13,7 @@ RUN yarn build
 FROM nginx:alpine
 
 COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx-site.conf /etc/nginx/sites-enabled/default
 COPY --from=build /app/build /usr/share/nginx/html
 
 EXPOSE 80
