@@ -7,6 +7,7 @@ COPY package.json yarn.lock ./
 RUN yarn install
 
 COPY . .
+RUN rm src/config/environment.ts; cp src/config/environment.ts.dist src/config/environment.ts
 RUN yarn build
 
 # Stage 2: Serve the SPA with NGINX

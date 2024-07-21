@@ -1,5 +1,5 @@
 const Env = {
-  server: "https://server.com",
+  server: document.location.protocol + "//" + document.location.hostname,
   version: "1.0.0",
 };
 
