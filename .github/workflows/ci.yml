@@ -49,6 +49,7 @@ jobs:
         with:
           username: RomaricMourgues
           password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: ghcr.io
 
       - name: Push Docker image
         run: |
