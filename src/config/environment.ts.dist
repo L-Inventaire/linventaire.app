@@ -1,5 +1,6 @@
 const Env = {
-  server: "https://server.com",
+  reCaptchaSiteKey: "6Lf5LxopAAAAALXErlTeGxlWy_x6M8RlKlJzZ4RB",
+  server: document.location.protocol + "//" + document.location.hostname,
   version: "1.0.0",
 };
 

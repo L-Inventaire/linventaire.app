@@ -55,7 +55,7 @@ export const InputImage = ({
         ),
       {
         key: "preferences:profile:photoName",
-        timeout: 1000,
+        timeout: 200,
         doInitialCall: false,
       }
     );
