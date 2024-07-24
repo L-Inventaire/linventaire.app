@@ -10,6 +10,8 @@ import _ from "lodash";
 import { Fragment } from "react";
 import { DropInvoiceLine, InvoiceLineInput } from "./invoice-line-input";
 import { Invoices } from "@features/invoices/types/types";
+import { twMerge } from "tailwind-merge";
+import { InvoiceDiscountInput } from "./components/discount-input";
 
 export const InvoiceLinesInput = ({
   onChange,
@@ -156,14 +158,27 @@ export const InvoiceLinesInput = ({
       <AnimatedHeight>
         {!!value?.content?.length && (
           <>
-            <div className="space-x-2 text-right mb-4">
-              <InputButton
-                size="md"
-                label="Réduction globale"
-                empty="Pas de réduction globale"
-                placeholder="Options"
-                icon={(p) => <ReceiptPercentIcon {...p} />}
-              />
+            <div
+              className={twMerge(
+                "space-x-2 text-right",
+                !readonly || value.discount?.value ? "mb-8" : "mb-2"
+              )}
+            >
+              {(!readonly || value.discount?.value) && (
+                <InputButton
+                  size="md"
+                  label="Réduction globale"
+                  empty="Pas de réduction globale"
+                  placeholder="Options"
+                  icon={(p) => <ReceiptPercentIcon {...p} />}
+                  content={
+                    <InvoiceDiscountInput
+                      onChange={ctrl("discount").onChange}
+                      value={ctrl("discount").value}
+                    />
+                  }
+                />
+              )}
               {!readonly && (
                 <Button
                   theme="outlined"
@@ -175,7 +190,7 @@ export const InvoiceLinesInput = ({
                 </Button>
               )}
             </div>
-            <div className="flex">
+            <div className="flex border border-slate-50 dark:border-slate-800 p-2 float-right rounded-md">
               <div className="grow" />
               <Base>
                 <div className="space-y-2 min-w-64 block">
@@ -211,7 +226,7 @@ export const InvoiceLinesInput = ({
           </>
         )}
       </AnimatedHeight>
-      <div className="mb-8" />
+      <div className="mb-12" />
     </>
   );
 };

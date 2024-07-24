@@ -48,6 +48,7 @@ import { twMerge } from "tailwind-merge";
 import { computePricesFromInvoice } from "../utils";
 import { InvoiceLinesInput } from "./invoice-lines-input";
 import { InvoicesPreview } from "./invoices-preview/invoices-preview";
+import { CompletionTags } from "./invoice-lines-input/components/completion-tags";
 
 export const computeCompletion = (
   linesu: Invoices["content"],
@@ -152,14 +153,13 @@ export const InvoicesDetailsPage = ({
                 " " +
                 ctrl("reference").value +
                 (ctrl("name").value ? ` (${ctrl("name").value})` : "")}
-              <Tag
-                noColor
-                color={renderCompletion(draft.content)[1]}
-                size="sm"
-                className="ml-2"
-              >
-                {renderCompletion(draft.content)[0]}% complet
-              </Tag>
+              <div className="inline-block ml-2">
+                <CompletionTags
+                  size="sm"
+                  invoice={draft}
+                  lines={draft.content}
+                />
+              </div>
             </Section>
             <div className="space-y-2 mb-6">
               <PageColumns>
@@ -172,16 +172,18 @@ export const InvoicesDetailsPage = ({
                       icon={(p) => <UserIcon {...p} />}
                       size="xl"
                     />
-                    <RestDocumentsInput
-                      entity="contacts"
-                      filter={
-                        { parents: ctrl("client").value } as Partial<Contacts>
-                      }
-                      label="Contacts (optionnel)"
-                      ctrl={ctrl("contact")}
-                      icon={(p) => <EnvelopeIcon {...p} />}
-                      size="xl"
-                    />
+                    {(!readonly || ctrl("contact").value) && (
+                      <RestDocumentsInput
+                        entity="contacts"
+                        filter={
+                          { parents: ctrl("client").value } as Partial<Contacts>
+                        }
+                        label="Contacts (optionnel)"
+                        ctrl={ctrl("contact")}
+                        icon={(p) => <EnvelopeIcon {...p} />}
+                        size="xl"
+                      />
+                    )}
                   </>
                 )}
                 {(isSupplierInvoice || isSupplierQuote) && (
@@ -197,11 +199,13 @@ export const InvoicesDetailsPage = ({
               {hasClientOrSupplier && (
                 <>
                   <PageColumns>
-                    <InputButton
-                      ctrl={ctrl("name")}
-                      placeholder="Titre interne"
-                      icon={(p) => <DocumentTextIcon {...p} />}
-                    />
+                    {(!readonly || ctrl("name").value) && (
+                      <InputButton
+                        ctrl={ctrl("name")}
+                        placeholder="Titre interne"
+                        icon={(p) => <DocumentTextIcon {...p} />}
+                      />
+                    )}
                     <TagsInput ctrl={ctrl("tags")} />
                     <UsersInput ctrl={ctrl("assigned")} />
                   </PageColumns>

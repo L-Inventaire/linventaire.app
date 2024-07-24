@@ -10,6 +10,7 @@ import { EditorInput } from "@molecules/editor-input";
 import { useState } from "react";
 import { getArticleIcon } from "../../../../articles/components/article-icon";
 import { RadioCard } from "@atoms/radio-card";
+import { InputLabel } from "@atoms/input/input-decoration-label";
 
 export const InvoiceLineArticleInput = (props: {
   article?: Articles | null;
@@ -73,9 +74,38 @@ export const InvoiceLineArticleInput = (props: {
           />
         )}
 
-        {!useArticleName && (
+        {value.type === "separation" && (
           <>
             <FormInput
+              size="md"
+              autoFocus
+              autoSelect
+              label="Titre"
+              value={value.name}
+              onChange={(v) => onChange?.({ ...value, name: v })}
+              className="mb-4"
+            />
+            <InputLabel
+              label="Description"
+              input={
+                <>
+                  <EditorInput
+                    placeholder="Description"
+                    value={value.description}
+                    onChange={(description) =>
+                      onChange?.({ ...value, description })
+                    }
+                  />
+                </>
+              }
+            />
+          </>
+        )}
+
+        {value.type !== "separation" && !useArticleName && (
+          <>
+            <FormInput
+              size="md"
               autoFocus
               autoSelect
               label="Nom"
@@ -84,7 +114,7 @@ export const InvoiceLineArticleInput = (props: {
             />
 
             <EditorInput
-              placeholder="Texte libre"
+              placeholder="Description"
               value={value.description}
               onChange={(description) => onChange?.({ ...value, description })}
             />
