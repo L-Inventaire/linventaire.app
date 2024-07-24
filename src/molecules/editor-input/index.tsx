@@ -62,7 +62,7 @@ export const EditorInput = (props: EditorInputProps) => {
       }}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
-      placeholder="Cliquer pour ajouter une note"
+      placeholder={props.placeholder || "Cliquer pour ajouter une note"}
       className={twMerge(
         "editor-input",
         disabled && "is-disabled",

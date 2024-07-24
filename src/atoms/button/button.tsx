@@ -1,5 +1,8 @@
 import Link from "@atoms/link";
-import { InputOutlinedDefault } from "@atoms/styles/inputs";
+import {
+  InputOutlinedDefault,
+  InputOutlinedDefaultBorders,
+} from "@atoms/styles/inputs";
 import {
   Shortcut,
   showShortCut,
@@ -28,6 +31,7 @@ export interface ButtonProps
   target?: string;
   icon?: (props: { className: string }) => ReactNode | JSX.Element;
   "data-tooltip"?: string;
+  readonly?: boolean;
 }
 
 export const Button = (props: ButtonProps) => {
@@ -78,7 +82,11 @@ export const Button = (props: ButtonProps) => {
 
   if (props.theme === "outlined" || props.theme === "default")
     colors =
-      "text-black dark:text-white text-opacity-80 " + InputOutlinedDefault;
+      "text-black dark:text-white text-opacity-80 " +
+      InputOutlinedDefaultBorders +
+      (props.readonly
+        ? " shadow-none cursor-default select-text"
+        : InputOutlinedDefault);
 
   if (props.theme === "invisible")
     colors =

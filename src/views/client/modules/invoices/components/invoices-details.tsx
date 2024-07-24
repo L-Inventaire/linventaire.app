@@ -28,28 +28,13 @@ import {
 } from "@features/utils/constants";
 import { formatTime } from "@features/utils/format/dates";
 import { getFormattedNumerotation } from "@features/utils/format/numerotation";
-import { formatAmount } from "@features/utils/format/strings";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import {
-  BanknotesIcon,
-  Bars3CenterLeftIcon,
   BuildingStorefrontIcon,
-  ChevronDoubleUpIcon,
-  CubeIcon,
   DocumentTextIcon,
-  EllipsisHorizontalIcon,
   EnvelopeIcon,
-  HashtagIcon,
-  PlusIcon,
-  ReceiptPercentIcon,
   UserIcon,
 } from "@heroicons/react/20/solid";
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  DocumentDuplicateIcon,
-  TrashIcon,
-} from "@heroicons/react/24/outline";
 import { EditorInput } from "@molecules/editor-input";
 import {
   PageBlock,
@@ -61,7 +46,47 @@ import _ from "lodash";
 import { useEffect } from "react";
 import { twMerge } from "tailwind-merge";
 import { computePricesFromInvoice } from "../utils";
+import { InvoiceLinesInput } from "./invoice-lines-input";
 import { InvoicesPreview } from "./invoices-preview/invoices-preview";
+
+export const computeCompletion = (
+  linesu: Invoices["content"],
+  type: "delivered" | "ready" = "ready",
+  overflow = false
+) => {
+  const lines = linesu || [];
+  const total = lines.reduce(
+    (acc, line) => acc + parseFloat((line.quantity as any) || 0),
+    0
+  );
+  if (total === 0) return 1;
+
+  const column = type === "ready" ? "quantity_ready" : "quantity_delivered";
+
+  return (
+    lines.reduce(
+      (acc, line) =>
+        acc +
+        (overflow
+          ? parseFloat((line[column] as any) || 0)
+          : Math.min(
+              parseFloat((line.quantity as any) || 0),
+              parseFloat((line[column] as any) || 0)
+            )),
+      0
+    ) / total
+  );
+};
+
+export const renderCompletion = (
+  lines: Invoices["content"],
+  type: "delivered" | "ready" = "ready",
+  overflow = false
+): [number, string] => {
+  const value = computeCompletion(lines, type, overflow);
+  const color = value < 0.5 ? "red" : value < 0.8 ? "orange" : "green";
+  return [Math.round(value * 100), color];
+};
 
 export const InvoicesDetailsPage = ({
   readonly,
@@ -94,6 +119,10 @@ export const InvoicesDetailsPage = ({
           );
         }
         draft.total = computePricesFromInvoice(draft);
+        draft.content = (draft.content || []).map((a) => ({
+          ...a,
+          _id: a._id || _.uniqueId(),
+        }));
         return draft;
       });
   }, [JSON.stringify(draft)]);
@@ -123,6 +152,14 @@ export const InvoicesDetailsPage = ({
                 " " +
                 ctrl("reference").value +
                 (ctrl("name").value ? ` (${ctrl("name").value})` : "")}
+              <Tag
+                noColor
+                color={renderCompletion(draft.content)[1]}
+                size="sm"
+                className="ml-2"
+              >
+                {renderCompletion(draft.content)[0]}% complet
+              </Tag>
             </Section>
             <div className="space-y-2 mb-6">
               <PageColumns>
@@ -173,73 +210,15 @@ export const InvoicesDetailsPage = ({
             </div>
             {hasClientOrSupplier && (
               <>
-                <Section className="mb-2">
-                  <Tag noColor color="orange" size="sm" className="float-right">
-                    66% complet
-                  </Tag>
-                  Contenu
-                </Section>
-                <PageBlock>
-                  <div className="space-x-2 flex w-full items-center">
-                    <div className="-space-x-px flex items-center grow">
-                      <InputButton
-                        className="grow text-left justify-start rounded-r-none"
-                        placeholder="Article"
-                        icon={(p) => <CubeIcon {...p} />}
-                      />
-                      <InputButton
-                        className="rounded-none"
-                        label="Quantité"
-                        placeholder="Quantité"
-                        icon={(p) => <HashtagIcon {...p} />}
-                      />
-                      <InputButton
-                        className="rounded-none"
-                        label="Prix"
-                        placeholder="Prix"
-                        icon={(p) => <BanknotesIcon {...p} />}
-                      />
-                      <InputButton
-                        className="rounded-none"
-                        label="TVA"
-                        placeholder="TVA"
-                        icon={(p) => <ChevronDoubleUpIcon {...p} />}
-                      />
-                      <InputButton
-                        data-tooltip="Options"
-                        className="rounded-l-none"
-                        label="Options"
-                        placeholder="Options"
-                        value=""
-                        icon={(p) => <EllipsisHorizontalIcon {...p} />}
-                      />
-                    </div>
-                    <Tag noColor color="orange" size="xs">
-                      66%
-                    </Tag>
-                  </div>
-                  <PageBlockHr />
-                  <div className="space-x-2 flex w-full items-center">
-                    <div className="-space-x-px flex items-center grow">
-                      <InputButton
-                        className="grow text-left justify-start"
-                        placeholder="Séparateur"
-                        icon={(p) => <Bars3CenterLeftIcon {...p} />}
-                      />
-                    </div>
-                  </div>
-                  <PageBlockHr />
-                  <Button size="sm" icon={(p) => <PlusIcon {...p} />}>
-                    Ajouter une ligne
-                  </Button>
-                  <InputButton
-                    size="sm"
-                    label="Réduction globale"
-                    empty="Pas de réduction globale"
-                    placeholder="Options"
-                    icon={(p) => <ReceiptPercentIcon {...p} />}
-                  />
-                </PageBlock>
+                <Section className="mb-2">Contenu</Section>
+
+                <InvoiceLinesInput
+                  ctrl={ctrl}
+                  readonly={readonly}
+                  value={draft}
+                  onChange={setDraft}
+                />
+
                 {false && (
                   <>
                     <div className="space-y-2">
@@ -249,79 +228,6 @@ export const InvoicesDetailsPage = ({
                             key={index}
                             closable
                             title={item?.name || `Ligne #${index + 1}`}
-                            actions={
-                              !readonly && (
-                                <>
-                                  <Button
-                                    disabled={index === 0}
-                                    theme="default"
-                                    size="md"
-                                    onClick={() => {
-                                      const content = _.cloneDeep(
-                                        draft.content || []
-                                      );
-                                      const temp = content[index];
-                                      content[index] = content[index - 1];
-                                      content[index - 1] = temp;
-                                      setDraft({
-                                        ...draft,
-                                        content,
-                                      });
-                                    }}
-                                    icon={(p) => <ArrowUpIcon {...p} />}
-                                  />
-                                  <Button
-                                    disabled={
-                                      index === (draft.content?.length || 0) - 1
-                                    }
-                                    theme="default"
-                                    size="md"
-                                    onClick={() => {
-                                      const content = _.cloneDeep(
-                                        draft.content || []
-                                      );
-                                      const temp = content[index];
-                                      content[index] = content[index + 1];
-                                      content[index + 1] = temp;
-                                      setDraft({
-                                        ...draft,
-                                        content,
-                                      });
-                                    }}
-                                    icon={(p) => <ArrowDownIcon {...p} />}
-                                  />
-                                  <Button
-                                    theme="default"
-                                    size="md"
-                                    onClick={() =>
-                                      setDraft({
-                                        ...draft,
-                                        content: [
-                                          ...(draft.content || []),
-                                          _.cloneDeep(item),
-                                        ],
-                                      })
-                                    }
-                                    icon={(p) => (
-                                      <DocumentDuplicateIcon {...p} />
-                                    )}
-                                  />
-                                  <Button
-                                    theme="danger"
-                                    size="md"
-                                    onClick={() =>
-                                      setDraft({
-                                        ...draft,
-                                        content: draft.content?.filter(
-                                          (e, i) => i !== index
-                                        ),
-                                      })
-                                    }
-                                    icon={(p) => <TrashIcon {...p} />}
-                                  />
-                                </>
-                              )
-                            }
                           >
                             <div className="space-y-2">
                               <PageColumns>
@@ -560,43 +466,6 @@ export const InvoicesDetailsPage = ({
                     </div>
                   </>
                 )}
-                <div className="flex">
-                  <div className="grow" />
-                  <PageBlock>
-                    <div className="space-y-2 min-w-64 block">
-                      <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
-                        <span>Total HT</span>
-                        {formatAmount(draft.total?.initial || 0)}
-                      </div>
-                      {!!(draft.total?.discount || 0) && (
-                        <>
-                          <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
-                            <span>Remise</span>
-                            <span>
-                              {formatAmount(draft.total?.discount || 0)}
-                            </span>
-                          </div>
-                          <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
-                            <span>Total HT après remise</span>
-                            <span>{formatAmount(draft.total?.total || 0)}</span>
-                          </div>
-                        </>
-                      )}
-                      <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
-                        <span>TVA</span>
-                        {formatAmount(draft.total?.taxes || 0)}
-                      </div>
-                      <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
-                        <SectionSmall className="inline">
-                          Total TTC
-                        </SectionSmall>
-                        <SectionSmall className="inline">
-                          {formatAmount(draft.total?.total_with_taxes || 0)}
-                        </SectionSmall>
-                      </div>
-                    </div>
-                  </PageBlock>
-                </div>
 
                 <PageBlock title="Liens">
                   <Info>Aucun document n'est lié à ce devis.</Info>

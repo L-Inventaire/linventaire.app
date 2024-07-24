@@ -9,7 +9,8 @@ import {
   FormControllerType,
 } from "@components/form/formcontext";
 import _ from "lodash";
-import { ReactNode, useContext, useState } from "react";
+import { ReactNode, useContext, useEffect, useState } from "react";
+import { twMerge } from "tailwind-merge";
 
 export type InputButtonProps<T> = Omit<ButtonProps, "onChange" | "content"> & {
   ctrl?: FormControllerType<string[] | null | never[]>;
@@ -19,6 +20,7 @@ export type InputButtonProps<T> = Omit<ButtonProps, "onChange" | "content"> & {
   empty?: string;
   label?: string;
   content?: ReactNode | JSX.Element;
+  autoFocus?: boolean;
 };
 
 export const InputButton = <T,>(props: InputButtonProps<T>) => {
@@ -29,6 +31,10 @@ export const InputButton = <T,>(props: InputButtonProps<T>) => {
 
   const value = props.ctrl?.value || props.value;
   const onChange = props.ctrl?.onChange || props.onChange;
+
+  useEffect(() => {
+    if (props.autoFocus) setOpen(true);
+  }, []);
 
   return (
     <>
@@ -46,9 +52,8 @@ export const InputButton = <T,>(props: InputButtonProps<T>) => {
         onClick={() => {
           setOpen(true);
         }}
-        className={
-          "h-max py-0.5" + (props.className ? " " + props.className : "")
-        }
+        readonly={disabled}
+        className={twMerge("h-max whitespace-normal py-0.5", props.className)}
       >
         {props.value !== "" && (
           <AnimatedHeight>

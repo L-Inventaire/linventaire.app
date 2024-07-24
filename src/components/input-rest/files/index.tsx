@@ -43,7 +43,7 @@ export const FilesInput = (props: {
       },
     ],
     key: JSON.stringify(props.rel),
-    limit: value.length || 1,
+    limit: value.length,
   });
   const existingFiles = (files?.data?.list || [])?.slice(0, value?.length);
 

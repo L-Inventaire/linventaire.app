@@ -1,6 +1,7 @@
 import { Address, Payment } from "@features/clients/types/clients";
+import { RestEntity } from "@features/utils/rest/types/types";
 
-export type Invoices = {
+export type Invoices = RestEntity & {
   client_id: string;
   id: string;
 
@@ -13,8 +14,8 @@ export type Invoices = {
     | "supplier_invoices"
     | "supplier_credit_notes"; // invoice, quote, credit_note
 
-  // Quotes: “created”, “sent”, purchase_order, "closed”
-  // Invoices and Credit Notes: “created”, “sent”, "partial", “paid”, "closed"
+  // Quotes: “draft”, “sent”, "purchase_order", "completed", "closed”
+  // Invoices and Credit Notes: “draft”, “sent”, "partial", “paid”, "closed"
   state:
     | "draft"
     | "sent"
@@ -105,6 +106,8 @@ export type InvoiceSubscription = {
 };
 
 export type InvoiceLine = {
+  _id?: string;
+
   article?: string; // Nullable
 
   type: "product" | "service" | "consumable" | "separation"; // product, service, consumable, separation
@@ -119,6 +122,7 @@ export type InvoiceLine = {
   discount?: InvoiceDiscount;
 
   quantity_ready?: number; //Quantity received or sent to determine if the line is ready to be invoices
+  quantity_delivered?: number; //Quantity delivered or received to determine if the line is ready to be invoices
 
   optional?: boolean;
   optional_checked?: boolean; // Checked by the client or by the agent (like a default checked option)

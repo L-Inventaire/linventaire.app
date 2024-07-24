@@ -1,3 +1,4 @@
+import { Tag } from "@atoms/badge/tag";
 import { Button } from "@atoms/button/button";
 import { DropDownAtom, DropDownMenuType } from "@atoms/dropdown";
 import { Base, Info } from "@atoms/text";
@@ -17,7 +18,7 @@ export const Stepper = <T extends string>({
   options: { title: string; color: string; value: T }[][];
   value: T;
   onChange?: (value: T) => void;
-  size?: "sm" | "md" | "md" | "lg";
+  size?: "xs" | "sm" | "md" | "md" | "lg";
 }) => {
   const statusGrouped = options.map((a) => a.map((b) => b.value));
   const status = statusGrouped.flat().map((a) => a);
@@ -41,6 +42,14 @@ export const Stepper = <T extends string>({
   }, [value]);
 
   if (!status.includes(value)) return <></>;
+
+  if (size === "xs") {
+    return (
+      <Tag noColor color={(statusColor as any)[value]} size={size}>
+        {statusName[value] || "-"}
+      </Tag>
+    );
+  }
 
   return (
     <Button

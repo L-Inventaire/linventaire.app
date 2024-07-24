@@ -18,7 +18,7 @@ import _ from "lodash";
 import { Fragment, ReactNode, useContext, useEffect } from "react";
 import { twMerge } from "tailwind-merge";
 
-type RestDocumentProps<T> = {
+export type RestDocumentProps<T> = {
   className?: string;
   noWrapper?: boolean;
   label?: string;
@@ -26,11 +26,11 @@ type RestDocumentProps<T> = {
   entity: string;
   filter?: Partial<T>;
   queryFn?: (query: string) => Promise<{ total: number; list: T[] }>;
-  icon?: (props: { className: string }) => ReactNode;
   render?: (value: T) => ReactNode | JSX.Element;
   size?: "xs" | "sm" | "md" | "lg" | "xl";
   disabled?: boolean;
   "data-tooltip"?: string;
+  icon?: (props: { className: string }, items: T | T[] | null) => ReactNode;
 } & (
   | {
       value?: string | null;
@@ -74,25 +74,39 @@ export const RestDocumentsInput = <T extends RestEntity>(
     }
   }, [valuesList]);
 
-  const onClick = () =>
-    !disabled &&
-    select<T>(
-      props.entity,
-      props.filter || {},
-      (items: T[]) => {
-        if (typeof props.max !== "number") {
-          const onChange = props.onChange || props.ctrl?.onChange;
-          onChange?.(items[0]?.id || "", items[0] || null);
-        } else {
-          const onChange = props.onChange || props.ctrl?.onChange;
-          onChange?.(
-            (items || []).map((a) => a.id),
-            items || []
-          );
-        }
-      },
-      props.max || 1
-    );
+  const icon = props.icon
+    ? (p: { className: string }) =>
+        typeof props.max !== "number"
+          ? props.icon!(p, items.data?.list?.[0] || null)
+          : props.icon!(p, items.data?.list || [])
+    : undefined;
+
+  const onClick = (e: MouseEvent | any) => {
+    if (disabled && !value) return;
+    e.preventDefault();
+    e.stopPropagation();
+    return !disabled
+      ? select<T>(
+          props.entity,
+          props.filter || {},
+          (items: T[]) => {
+            if (typeof props.max !== "number") {
+              const onChange = props.onChange || props.ctrl?.onChange;
+              onChange?.(items[0]?.id || "", items[0] || null);
+            } else {
+              const onChange = props.onChange || props.ctrl?.onChange;
+              onChange?.(
+                (items || []).map((a) => a.id),
+                items || []
+              );
+            }
+          },
+          props.max || 1
+        )
+      : !!value
+      ? edit(props.entity, _.isArray(value) ? value[0] : value || "")
+      : null;
+  };
 
   if (props.noWrapper) {
     if (!value || !value?.length) {
@@ -101,10 +115,11 @@ export const RestDocumentsInput = <T extends RestEntity>(
       return (
         <Button
           theme="invisible"
-          icon={props.icon}
+          icon={icon}
           onClick={onClick}
           className={props.className}
           size={size}
+          readonly={disabled}
           {...[props["data-tooltip"]]}
         />
       );
@@ -152,99 +167,119 @@ export const RestDocumentsInput = <T extends RestEntity>(
       className={twMerge(
         "inline-flex min-h-7 w-max relative group/card",
         size === "xl" ? "w-full" : value && "w-72",
+        ["xs", "sm", "md"].includes(size) && "w-max max-w-72",
+        ["xs", "sm"].includes(size) && "h-6 min-h-6",
         "text-black dark:text-white text-opacity-80",
         InputOutlinedDefault,
         !disabled &&
           "dark:hover:bg-slate-800 hover:bg-gray-100 dark:hover:border-slate-700 dark:active:bg-slate-700 active:bg-gray-200",
         disabled && !value && "opacity-50 border-transparent shadow-none",
+        disabled && !value && "pointer-events-none",
+        disabled && "shadow-none",
         props.className
       )}
     >
       <div
         className={twMerge(
           "grow inline-flex flex-row items-center",
-          !disabled && "cursor-pointer",
+          (!disabled || value) && "cursor-pointer",
+          size === "sm" && "py-0 px-1 space-x-1",
           size === "md" && "py-0.5 px-1.5 space-x-2",
           size === "lg" && "py-1 px-1.5 space-x-1",
           size === "xl" && "p-2 space-x-2"
         )}
       >
-        {props.icon &&
-          props.icon({
+        {icon &&
+          icon({
             className: twMerge("h-4 w-4 shrink-0"),
           })}
         <div className="flex flex-col grow">
-          <div className="flex items-center space-x-1 w-full -my-1">
-            <div className={twMerge("grow min-h-5")}>
-              <Info
-                className={twMerge(
-                  "block w-full transition-all",
-                  !value && size !== "xl" ? "h-0 opacity-0" : "h-4"
-                )}
-              >
-                {props.label}
-              </Info>
+          {!["xs", "sm", "md"].includes(size) && (
+            <div className="flex items-center space-x-1 w-full -my-1">
+              <div className={twMerge("grow min-h-5")}>
+                <Info
+                  className={twMerge(
+                    "block w-full transition-all",
+                    !value && size !== "xl" ? "h-0 opacity-0" : "h-4"
+                  )}
+                >
+                  {props.label}
+                </Info>
+                <Base
+                  className={twMerge(
+                    "block w-full transition-all opacity-75",
+                    value ? "h-0 opacity-0" : "min-h-5"
+                  )}
+                >
+                  {props.placeholder || props.label || props.entity}
+                </Base>
+              </div>
+              {!disabled && (
+                <div>
+                  <div className="right-0.5 top-0.5 absolute opacity-0 group-hover/card:opacity-100 transition-all">
+                    {value?.[0] &&
+                      CtrlKRestEntities[props.entity].renderEditor && (
+                        <Button
+                          data-tooltip="Éditer"
+                          className={twMerge(
+                            "w-0 ml-0.5 overflow-hidden",
+                            value && "w-5 ml-px transition-all delay-200"
+                          )}
+                          theme="invisible"
+                          size="xs"
+                          icon={(p) => <PencilSquareIcon {...p} />}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            edit(
+                              props.entity,
+                              _.isArray(value) ? value[0] : value || ""
+                            );
+                          }}
+                        />
+                      )}
+                    <Button
+                      data-tooltip="Supprimer"
+                      className={twMerge(
+                        "text-red-500 dark:text-red-500 w-0 ml-0.5 overflow-hidden",
+                        value && "w-5 ml-px transition-all delay-200"
+                      )}
+                      theme="invisible"
+                      size="xs"
+                      icon={(p) => <TrashIcon {...p} />}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (typeof props.max !== "number") {
+                          const onChange =
+                            props.onChange || props.ctrl?.onChange;
+                          !disabled && onChange?.("", null);
+                        } else {
+                          const onChange =
+                            props.onChange || props.ctrl?.onChange;
+                          !disabled && onChange?.([], []);
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          <AnimatedHeight
+            className={twMerge(
+              "pr-1",
+              !["xs", "sm", "md"].includes(size) && "pr-4"
+            )}
+          >
+            {value && !!valuesList?.[0] && (
               <Base
                 className={twMerge(
-                  "block w-full transition-all opacity-75",
-                  value ? "h-0 opacity-0" : "min-h-5"
+                  "leading-5 block",
+                  ["xs", "sm", "md"].includes(size) &&
+                    "line-clamp-1 text-ellipsis"
                 )}
               >
-                {props.placeholder || props.label || props.entity}
-              </Base>
-            </div>
-            {!disabled && (
-              <div>
-                <div className="right-0.5 top-0.5 absolute opacity-0 group-hover/card:opacity-100 transition-all">
-                  {value?.[0] &&
-                    CtrlKRestEntities[props.entity].renderEditor && (
-                      <Button
-                        data-tooltip="Éditer"
-                        className={twMerge(
-                          "w-0 ml-0.5 overflow-hidden",
-                          value && "w-5 ml-px transition-all delay-200"
-                        )}
-                        theme="invisible"
-                        size="xs"
-                        icon={(p) => <PencilSquareIcon {...p} />}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          edit(
-                            props.entity,
-                            _.isArray(value) ? value[0] : value || ""
-                          );
-                        }}
-                      />
-                    )}
-                  <Button
-                    data-tooltip="Supprimer"
-                    className={twMerge(
-                      "text-red-500 dark:text-red-500 w-0 ml-0.5 overflow-hidden",
-                      value && "w-5 ml-px transition-all delay-200"
-                    )}
-                    theme="invisible"
-                    size="xs"
-                    icon={(p) => <TrashIcon {...p} />}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      if (typeof props.max !== "number") {
-                        const onChange = props.onChange || props.ctrl?.onChange;
-                        !disabled && onChange?.("", null);
-                      } else {
-                        const onChange = props.onChange || props.ctrl?.onChange;
-                        !disabled && onChange?.([], []);
-                      }
-                    }}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-          <AnimatedHeight className="pr-4">
-            {value && !!valuesList?.[0] && (
-              <Base className="leading-5 block">
                 {props.render
                   ? props.render(valuesList[0])
                   : (valuesList[0] as any)._label}

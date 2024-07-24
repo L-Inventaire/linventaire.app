@@ -36,7 +36,7 @@ export const UsersInput = ({
       entity={"users"}
       data-tooltip={props["data-tooltip"]}
       size={size}
-      icon={(p) => <UserCircleIcon {...p} />}
+      icon={(p: any) => <UserCircleIcon {...p} />}
       ctrl={props.ctrl}
       value={value}
       onChange={onChange}

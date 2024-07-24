@@ -29,7 +29,7 @@ export const TagsInput = ({
       entity={"tags"}
       data-tooltip={props["data-tooltip"]}
       size={size}
-      icon={(p) => <TagIcon {...p} />}
+      icon={(p: any) => <TagIcon {...p} />}
       ctrl={props.ctrl}
       value={value}
       onChange={onChange as any}

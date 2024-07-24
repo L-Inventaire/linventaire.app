@@ -43,6 +43,10 @@ export const FormContext = ({
   );
 };
 
+export type FormControllerFuncType<T> = (
+  key: keyof T | NestedKey<string, string>
+) => FormControllerType<any>;
+
 export type FormControllerType<T> = {
   value: T;
   onChange: (value: T) => void;

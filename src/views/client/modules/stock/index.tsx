@@ -19,6 +19,8 @@ import { schemaToSearchFields } from "../../../../components/search-bar/utils/ut
 import { StockItemStatus } from "./components/stock-item-status";
 import { UserIcon } from "@heroicons/react/20/solid";
 import { getContactName } from "@features/contacts/types/types";
+import { getArticleIcon } from "../articles/components/article-icon";
+import { Articles } from "@features/articles/types/types";
 
 export const StockPage = () => {
   const [options, setOptions] = useState<RestOptions<StockItems>>({
@@ -96,6 +98,10 @@ export const StockPage = () => {
                   disabled
                   value={item.article}
                   entity={"articles"}
+                  size="sm"
+                  icon={(p, article) =>
+                    getArticleIcon((article as Articles)?.type)(p)
+                  }
                 />
               ),
             },
@@ -111,7 +117,7 @@ export const StockPage = () => {
                     value={item.client}
                     icon={(p) => <UserIcon {...p} />}
                     render={(c) => getContactName(c)}
-                    size="md"
+                    size="sm"
                     disabled
                   />
                 </>

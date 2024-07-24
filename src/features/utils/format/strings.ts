@@ -34,10 +34,10 @@ export const formatIBAN = (iban: string) => {
     .replace(/ $/gm, "");
 };
 
-export const formatAmount = (number: number) => {
+export const formatAmount = (number: number, currency = "EUR") => {
   return (parseFloat(number as any) || 0).toLocaleString("fr-FR", {
     style: "currency",
-    currency: "EUR",
+    currency,
   });
 };
 
@@ -143,3 +143,8 @@ export function centerEllipsis(str: string) {
   }
   return str;
 }
+
+export const getTextFromHtml = (html: string) => {
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  return doc.body.textContent || "";
+};

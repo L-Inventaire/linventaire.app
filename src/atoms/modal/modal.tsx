@@ -104,24 +104,14 @@ export const Modal = (props: {
         >
           <div
             className={
-              "fixed inset-0 bg-opacity-10 dark:bg-opacity-50 transition-opacity " +
-              (modalsCountState[0] === modalId.current
-                ? "bg-black"
-                : "bg-transparent")
+              "fixed inset-0 bg-opacity-10 dark:bg-opacity-50 transition-opacity bg-black"
             }
           />
         </Transition.Child>
 
         <div
           onClick={props.onClose}
-          className={
-            "fixed z-10 inset-0 overflow-y-auto transition-transform " +
-            (!active && open
-              ? "-translate-y-6 sm:scale-95 opacity-75 "
-              : !active && !open
-              ? "translate-y-6 sm:translate-y-0 sm:scale-100 opacity-75 "
-              : "")
-          }
+          className={"fixed z-10 inset-0 overflow-y-auto transition-transform "}
         >
           <div
             className={

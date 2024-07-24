@@ -23,6 +23,7 @@ import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
 import { getTvaValue } from "../invoices/utils";
+import { getArticleIcon } from "./components/article-icon";
 
 export const ArticlesPage = () => {
   const [options, setOptions] = useState<RestOptions<Articles>>({
@@ -106,15 +107,7 @@ export const ArticlesPage = () => {
                 <Button
                   size="sm"
                   theme="outlined"
-                  icon={(p) =>
-                    article.type === "product" ? (
-                      <CubeIcon {...p} />
-                    ) : article.type === "service" ? (
-                      <BriefcaseIcon {...p} />
-                    ) : (
-                      <CubeTransparentIcon {...p} />
-                    )
-                  }
+                  icon={getArticleIcon(article?.type)}
                 >
                   {article.type === "consumable" && "Consommable"}
                   {article.type === "service" && "Service"}

@@ -13,7 +13,7 @@ export const useContacts = (options?: RestOptions<Contacts>) => {
 };
 
 export const useContact = (id: string) => {
-  const rest = useContacts({ query: { id } });
+  const rest = useContacts({ query: { id }, limit: id ? 1 : 0 });
   return {
     contact: id ? (rest.contacts.data?.list || [])[0] : null,
     isPending: id ? rest.contacts.isPending : false,
