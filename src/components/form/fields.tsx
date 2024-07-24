@@ -35,7 +35,7 @@ export const FormInput = memo(
       className?: string;
       highlight?: boolean;
       main?: boolean;
-      size?: "md" | "sm";
+      size?: "md" | "sm" | "lg";
       readonly?: boolean;
       ctrl?: FormControllerType<any>;
       value?:

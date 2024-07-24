@@ -104,7 +104,7 @@ export const Modal = (props: {
         >
           <div
             className={
-              "fixed inset-0 bg-opacity-10 dark:bg-opacity-50 transition-opacity bg-black"
+              "fixed inset-0 bg-opacity-10 dark:bg-opacity-80 transition-opacity bg-black"
             }
           />
         </Transition.Child>
@@ -146,6 +146,7 @@ export const Modal = (props: {
                 className={
                   "align-bottom bg-white dark:bg-slate-950 px-4 pt-5 pb-4 text-left w-full overflow-hidden shadow-xl transform transition-all sm:align-middle sm:p-6 " +
                   "relative inline-block rounded-tr-md rounded-tl-md sm:rounded-lg sm:my-8 w-full md:w-[95vw] sm:max-w-[400px] " +
+                  "dark:border-slate-700 dark:border " +
                   (props.className || "")
                 }
                 style={props.style || {}}

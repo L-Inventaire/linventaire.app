@@ -142,7 +142,7 @@ export const SearchBar = ({
   return (
     <div
       className={twMerge(
-        "grow relative w-full group rounded z-10 transition-all flex-col",
+        "grow relative w-full group rounded z-10 transition-all flex-col text-black dark:text-white",
         !inlineSuggestions && "focus-within:shadow-lg",
         className
       )}
@@ -249,7 +249,7 @@ export const SearchBar = ({
       {suggestions.length > 0 && (
         <div
           className={twMerge(
-            "hidden hover:block text-base z-10 right-0 top-full w-full h-max flex items-center bg-white dark:bg-wood-990 border-t rounded rounded-t-none px-2 py-1",
+            "hidden hover:block text-base z-10 right-0 top-full w-full h-max flex items-center bg-white dark:bg-wood-990 dark:border-slate-700 border-t rounded rounded-t-none px-2 py-1",
             inlineSuggestions
               ? "grow relative block overflow-visible shrink-0"
               : "group-focus-within:block absolute shadow-lg"

@@ -14,7 +14,7 @@ import { RestDocumentsInput } from "@components/input-rest";
 export const FormReadonly = memo(
   (
     props: Omit<SearchFormFieldType, "key"> & {
-      size: "md" | "sm";
+      size: "md" | "sm" | "lg";
       value:
         | string
         | number

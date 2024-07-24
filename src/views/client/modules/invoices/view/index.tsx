@@ -40,17 +40,6 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
           backRoute={getRoute(ROUTES.Invoices, { type: invoice.type })}
           editRoute={ROUTES.InvoicesEdit}
           onPrint={async () => getPdfPreview()}
-          prefix={
-            <>
-              <InvoiceStatus
-                size="md"
-                readonly={update.isPending}
-                value={invoice.state}
-                type={invoice.type}
-                onChange={(e) => update.mutate({ ...invoice, state: e })}
-              />
-            </>
-          }
           suffix={
             <>
               {invoice.type === "quotes" && (

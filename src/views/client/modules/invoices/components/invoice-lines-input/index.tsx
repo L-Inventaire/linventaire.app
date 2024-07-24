@@ -10,6 +10,10 @@ import _ from "lodash";
 import { Fragment } from "react";
 import { DropInvoiceLine, InvoiceLineInput } from "./invoice-line-input";
 import { Invoices } from "@features/invoices/types/types";
+import { twMerge } from "tailwind-merge";
+import { InvoiceDiscountInput } from "./components/discount-input";
+import { FormInput } from "@components/form/fields";
+import { tvaOptions } from "@features/utils/constants";
 
 export const InvoiceLinesInput = ({
   onChange,
@@ -156,14 +160,65 @@ export const InvoiceLinesInput = ({
       <AnimatedHeight>
         {!!value?.content?.length && (
           <>
-            <div className="space-x-2 text-right mb-4">
-              <InputButton
-                size="md"
-                label="Réduction globale"
-                empty="Pas de réduction globale"
-                placeholder="Options"
-                icon={(p) => <ReceiptPercentIcon {...p} />}
-              />
+            <div
+              className={twMerge(
+                "space-x-2 text-right",
+                !readonly || value.discount?.value ? "mb-8" : "mb-2"
+              )}
+            >
+              {_.uniq((value.content || []).map((a) => a.tva)).length === 1 && (
+                <InputButton
+                  size="md"
+                  label="TVA commune"
+                  content={
+                    <FormInput
+                      label="TVA"
+                      options={tvaOptions}
+                      value={value.content?.[0].tva}
+                      onChange={(tva) => {
+                        onChange({
+                          ...value,
+                          content: (value.content || []).map((a) => ({
+                            ...a,
+                            tva,
+                          })),
+                        });
+                      }}
+                    />
+                  }
+                  value={"always"}
+                >
+                  TVA{" "}
+                  {tvaOptions.find((v) => v.value === value.content?.[0].tva)
+                    ?.label || "Aucune"}
+                </InputButton>
+              )}
+              {(!readonly || value.discount?.value) && (
+                <InputButton
+                  size="md"
+                  label="Réduction globale"
+                  empty="Pas de réduction globale"
+                  placeholder="Options"
+                  icon={(p) => <ReceiptPercentIcon {...p} />}
+                  content={
+                    <InvoiceDiscountInput
+                      onChange={ctrl("discount").onChange}
+                      value={ctrl("discount").value}
+                    />
+                  }
+                  value={ctrl("discount").value}
+                >
+                  {"- "}
+                  {ctrl("discount").value ? (
+                    <>
+                      {value.discount?.mode === "amount"
+                        ? formatAmount(value.discount?.value)
+                        : `${value.discount?.value}%`}
+                    </>
+                  ) : undefined}{" "}
+                  sur le total
+                </InputButton>
+              )}
               {!readonly && (
                 <Button
                   theme="outlined"
@@ -175,7 +230,7 @@ export const InvoiceLinesInput = ({
                 </Button>
               )}
             </div>
-            <div className="flex">
+            <div className="flex border border-slate-50 dark:border-slate-800 p-2 float-right rounded-md">
               <div className="grow" />
               <Base>
                 <div className="space-y-2 min-w-64 block">
@@ -211,7 +266,7 @@ export const InvoiceLinesInput = ({
           </>
         )}
       </AnimatedHeight>
-      <div className="mb-8" />
+      <div className="mb-12" />
     </>
   );
 };
