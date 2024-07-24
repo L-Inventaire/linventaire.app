@@ -5,7 +5,7 @@ export const tvaOptions = [
   },
   {
     value: "inside_eu",
-    label: "Union Européenne",
+    label: "En UE",
   },
   {
     value: "0",

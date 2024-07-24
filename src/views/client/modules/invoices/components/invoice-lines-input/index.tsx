@@ -12,6 +12,8 @@ import { DropInvoiceLine, InvoiceLineInput } from "./invoice-line-input";
 import { Invoices } from "@features/invoices/types/types";
 import { twMerge } from "tailwind-merge";
 import { InvoiceDiscountInput } from "./components/discount-input";
+import { FormInput } from "@components/form/fields";
+import { tvaOptions } from "@features/utils/constants";
 
 export const InvoiceLinesInput = ({
   onChange,
@@ -164,6 +166,33 @@ export const InvoiceLinesInput = ({
                 !readonly || value.discount?.value ? "mb-8" : "mb-2"
               )}
             >
+              {_.uniq((value.content || []).map((a) => a.tva)).length === 1 && (
+                <InputButton
+                  size="md"
+                  label="TVA commune"
+                  content={
+                    <FormInput
+                      label="TVA"
+                      options={tvaOptions}
+                      value={value.content?.[0].tva}
+                      onChange={(tva) => {
+                        onChange({
+                          ...value,
+                          content: (value.content || []).map((a) => ({
+                            ...a,
+                            tva,
+                          })),
+                        });
+                      }}
+                    />
+                  }
+                  value={"always"}
+                >
+                  TVA{" "}
+                  {tvaOptions.find((v) => v.value === value.content?.[0].tva)
+                    ?.label || "Aucune"}
+                </InputButton>
+              )}
               {(!readonly || value.discount?.value) && (
                 <InputButton
                   size="md"
@@ -177,7 +206,18 @@ export const InvoiceLinesInput = ({
                       value={ctrl("discount").value}
                     />
                   }
-                />
+                  value={ctrl("discount").value}
+                >
+                  {"- "}
+                  {ctrl("discount").value ? (
+                    <>
+                      {value.discount?.mode === "amount"
+                        ? formatAmount(value.discount?.value)
+                        : `${value.discount?.value}%`}
+                    </>
+                  ) : undefined}{" "}
+                  sur le total
+                </InputButton>
               )}
               {!readonly && (
                 <Button

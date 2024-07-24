@@ -14,34 +14,32 @@ export const CompletionTags = (props: {
 }) => {
   const openCtrlK = useSetRecoilState(CtrlKAtom);
 
+  const onClick = (query: string) => {
+    openCtrlK({
+      path: [
+        {
+          mode: "search",
+          options: {
+            entity: "stock_items",
+            query,
+            internalQuery: {
+              [props.invoice?.type === "supplier_quotes"
+                ? "from_rel_supplier_quote"
+                : "for_rel_quote"]: props.invoice?.id,
+              article:
+                props.lines?.length === 1 ? props.lines[0].article : undefined,
+            },
+          },
+        } as CtrlKPathType<StockItems>,
+      ],
+      selection: { entity: "", items: [] },
+    });
+  };
+
   return (
-    <div
-      className="-space-x-px flex"
-      onClick={() => {
-        openCtrlK({
-          path: [
-            {
-              mode: "search",
-              options: {
-                entity: "stock_items",
-                internalQuery: {
-                  [props.invoice?.type === "supplier_quotes"
-                    ? "from_rel_supplier_quote"
-                    : "for_rel_quote"]: props.invoice?.id,
-                  article:
-                    props.lines?.length === 1
-                      ? props.lines[0].article
-                      : undefined,
-                },
-              },
-            } as CtrlKPathType<StockItems>,
-          ],
-          selection: { entity: "", items: [] },
-        });
-      }}
-    >
+    <div className="-space-x-px flex">
       <Tag
-        onClick={() => {}}
+        onClick={() => onClick('!state:"bought"')}
         className="rounded-r-none"
         noColor
         size={props.size || "xs"}
@@ -58,7 +56,7 @@ export const CompletionTags = (props: {
         {renderCompletion(props.lines, "ready", true)[0]}%{" "}
       </Tag>
       <Tag
-        onClick={() => {}}
+        onClick={() => onClick('state:"delivered","depleted"')}
         className="rounded-l-none"
         noColor
         size={props.size || "xs"}

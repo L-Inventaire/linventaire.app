@@ -5,9 +5,7 @@ import {
   FormControllerType,
   useFormController,
 } from "@components/form/formcontext";
-import { Articles } from "@features/articles/types/types";
 import { InvoiceLine } from "@features/invoices/types/types";
-import { tvaOptions } from "@features/utils/constants";
 
 export const InvoiceDiscountInput = (props: {
   value?: InvoiceLine["discount"];
@@ -31,12 +29,25 @@ export const InvoiceDiscountInput = (props: {
           { value: "amount", label: "Montant fixe" },
         ]}
       />
-      <FormInput
-        label="Réduction"
-        ctrl={ctrl(`value`)}
-        type="formatted"
-        format={ctrl("mode").value === "amount" ? "price" : "percentage"}
-      />
+
+      {value && (
+        <FormInput
+          label="Réduction"
+          value={value?.value}
+          onChange={(e) => {
+            if (e > 0) {
+              onChange!({
+                ...value,
+                value: e,
+              });
+            } else {
+              onChange!(undefined);
+            }
+          }}
+          type="formatted"
+          format={ctrl("mode").value === "amount" ? "price" : "percentage"}
+        />
+      )}
 
       <Info className="block mt-2">
         <Link

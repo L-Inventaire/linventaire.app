@@ -83,12 +83,6 @@ export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
                   <span>en</span>
                 </>
               )}
-              <InvoiceStatus
-                size="md"
-                value={draft.state}
-                type={draft.type}
-                onChange={(value) => setDraft({ ...draft, state: value })}
-              />
             </>
           }
         />

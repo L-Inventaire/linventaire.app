@@ -12,7 +12,7 @@ import { CtrlKAtom } from "@features/ctrlk/store";
 import { CtrlKPathType } from "@features/ctrlk/types";
 import { InvoiceLine, Invoices } from "@features/invoices/types/types";
 import { StockItems } from "@features/stock/types/types";
-import { unitOptions } from "@features/utils/constants";
+import { tvaOptions, unitOptions } from "@features/utils/constants";
 import { formatAmount, getTextFromHtml } from "@features/utils/format/strings";
 import {
   CheckIcon,
@@ -106,6 +106,15 @@ export const InvoiceLineInput = (props: {
           (deleted || dragging) && "max-h-0 opacity-0 !m-0"
         )}
       >
+        {readonly &&
+          (props.invoice?.type === "supplier_quotes" ||
+            props.invoice?.type === "quotes") && (
+            <div className="w-32 shrink-0 flex items-center justify-start mr-2">
+              {value.type !== "separation" && (
+                <CompletionTags invoice={props.invoice} lines={[value]} />
+              )}
+            </div>
+          )}
         <div className="-space-x-px flex items-center grow relative">
           {!readonly && (
             <div
@@ -255,15 +264,15 @@ export const InvoiceLineInput = (props: {
                   <Info className="inline-block min-w-16 text-right ml-1">
                     {getTvaValue(value.tva || "0")
                       ? "TVA " + getTvaValue(value.tva || "0") * 100 + "%"
-                      : "Sans TVA"}
+                      : tvaOptions.find((a) => a.value === value.tva)?.label}
                   </Info>
                 )}
               </InputButton>
             </>
           )}
         </div>
-        <div className="-space-x-px">
-          {!readonly && (
+        {!readonly && (
+          <div className="-space-x-px">
             <Button
               onClick={(e) =>
                 setMenu({
@@ -330,35 +339,26 @@ export const InvoiceLineInput = (props: {
               className={twMerge("rounded-r-none shrink-0")}
               icon={(p) => <EllipsisHorizontalIcon {...p} />}
             />
-          )}
-          {!readonly && props.onRemove && (
-            <Button
-              theme="outlined"
-              data-tooltip="Retirer la ligne"
-              className="shrink-0 text-red-500 dark:text-red-500 rounded-l-none"
-              icon={(p) => <TrashIcon {...p} />}
-              onClick={() => {
-                setDeleted(true);
-                setTimeout(props.onRemove!, 300);
-              }}
-            />
-          )}
-        </div>
-        {readonly &&
-          (props.invoice?.type === "supplier_quotes" ||
-            props.invoice?.type === "quotes") && (
-            <div className="w-32 shrink-0 flex items-center justify-end">
-              {value.type !== "separation" && (
-                <CompletionTags invoice={props.invoice} lines={[value]} />
-              )}
-            </div>
-          )}
+            {props.onRemove && (
+              <Button
+                theme="outlined"
+                data-tooltip="Retirer la ligne"
+                className="shrink-0 text-red-500 dark:text-red-500 rounded-l-none"
+                icon={(p) => <TrashIcon {...p} />}
+                onClick={() => {
+                  setDeleted(true);
+                  setTimeout(props.onRemove!, 300);
+                }}
+              />
+            )}
+          </div>
+        )}
       </div>
       {!!(value.discount?.value || 0) && (
         <div
           className={twMerge(
             "mb-2 text-right -mt-2 max-h-6 transition-all",
-            readonly ? "mr-36" : "mr-16",
+            readonly ? "" : "mr-16",
             (deleted || dragging) && "max-h-0 opacity-0 !my-0"
           )}
         >

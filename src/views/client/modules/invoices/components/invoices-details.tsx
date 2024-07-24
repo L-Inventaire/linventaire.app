@@ -49,6 +49,7 @@ import { computePricesFromInvoice } from "../utils";
 import { InvoiceLinesInput } from "./invoice-lines-input";
 import { InvoicesPreview } from "./invoices-preview/invoices-preview";
 import { CompletionTags } from "./invoice-lines-input/components/completion-tags";
+import { InvoiceStatus } from "./invoice-status";
 
 export const computeCompletion = (
   linesu: Invoices["content"],
@@ -148,6 +149,14 @@ export const InvoicesDetailsPage = ({
         <PageColumns>
           <div className="grow" />
           <div className="grow lg:w-3/5 max-w-3xl pt-6">
+            <div className="float-right">
+              <InvoiceStatus
+                size="sm"
+                value={draft.state}
+                type={draft.type}
+                onChange={(value) => setDraft({ ...draft, state: value })}
+              />
+            </div>
             <Section>
               {getDocumentName(draft.type) +
                 " " +
