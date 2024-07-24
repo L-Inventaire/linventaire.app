@@ -31,7 +31,7 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
   const user = clientUser?.client;
   const invoiceClient = useContact(invoice?.client ?? "")?.contact;
   const logo = useFile(
-    (invoice?.format?.logo[0] || "").split(":").pop() || ""
+    (invoice?.format?.logo?.[0] || "").split(":").pop() || ""
   ).file;
   // const footerLogo = useFile(
   //   (invoice?.format?.footer_logo[0] || "").split(":").pop() || ""

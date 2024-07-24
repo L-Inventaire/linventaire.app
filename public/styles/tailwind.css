@@ -4788,8 +4788,24 @@ input, select {
     position: relative;
   }
 
+  .md\:mb-12 {
+    margin-bottom: 3rem;
+  }
+
+  .md\:mt-8 {
+    margin-top: 2rem;
+  }
+
   .md\:w-\[95vw\] {
     width: 95vw;
+  }
+
+  .md\:w-full {
+    width: 100%;
+  }
+
+  .md\:max-w-md {
+    max-width: 28rem;
   }
 
   .md\:grid-cols-1 {

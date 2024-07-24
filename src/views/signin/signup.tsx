@@ -83,7 +83,7 @@ export const SignUp = () => {
             className="mt-4"
             input={
               <Input
-                size="md"
+                size="lg"
                 value={name}
                 placeholder="Jeff Bezos"
                 onChange={(e) => {
