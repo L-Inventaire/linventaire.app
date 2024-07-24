@@ -46,9 +46,9 @@ export const CompletionTags = (props: {
         data-tooltip="Reservé"
         icon={
           <CubeIcon
-            className={
-              "w-3 h-3 mr-1 " + `text-${renderCompletion(props.lines)[1]}-500`
-            }
+            className={`w-3 h-3 mr-1 text-${
+              renderCompletion(props.lines)[1]
+            }-500`}
           />
         }
       >
@@ -63,9 +63,9 @@ export const CompletionTags = (props: {
         data-tooltip="Livré"
         icon={
           <TruckIcon
-            className={
-              "w-3 h-3 mr-1 " + `text-${renderCompletion(props.lines)[1]}-500`
-            }
+            className={`w-3 h-3 mr-1 text-${
+              renderCompletion(props.lines)[1]
+            }-500`}
           />
         }
       >

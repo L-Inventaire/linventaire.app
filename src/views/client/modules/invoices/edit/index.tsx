@@ -1,6 +1,6 @@
 import Select from "@atoms/input/input-select";
-import { DocumentBar } from "@components/document-bar";
 import { PageLoader } from "@atoms/page-loader";
+import { DocumentBar } from "@components/document-bar";
 import { useClients } from "@features/clients/state/use-clients";
 import { useInvoiceDefaultModel } from "@features/invoices/configuration";
 import { Invoices } from "@features/invoices/types/types";
@@ -11,7 +11,6 @@ import { Page } from "@views/client/_layout/page";
 import _ from "lodash";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { InvoiceStatus } from "../components/invoice-status";
 import { InvoicesDetailsPage } from "../components/invoices-details";
 import { getPdfPreview } from "../components/invoices-preview/invoices-preview";
 

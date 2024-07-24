@@ -1,19 +1,18 @@
 import { Button } from "@atoms/button/button";
-import { DocumentBar } from "@components/document-bar";
 import { PageLoader } from "@atoms/page-loader";
+import { DocumentBar } from "@components/document-bar";
 import { withModel } from "@components/search-bar/utils/as-model";
 import { useInvoice } from "@features/invoices/hooks/use-invoices";
+import { getDocumentNamePlurial } from "@features/invoices/utils";
 import { ROUTES, getRoute } from "@features/routes";
 import { Page } from "@views/client/_layout/page";
 import { useParams } from "react-router-dom";
-import { InvoiceStatus } from "../components/invoice-status";
 import { InvoicesDetailsPage } from "../components/invoices-details";
 import { getPdfPreview } from "../components/invoices-preview/invoices-preview";
-import { getDocumentNamePlurial } from "@features/invoices/utils";
 
 export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
-  const { invoice, isPending, update } = useInvoice(id || "");
+  const { invoice, isPending } = useInvoice(id || "");
 
   if (!invoice)
     return (

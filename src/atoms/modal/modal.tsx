@@ -43,8 +43,7 @@ export const Modal = (props: {
 }) => {
   const modalId = useRef(uniqueId());
   const [open, setOpen] = useState(false);
-  const [modalsCountState, setModalsCountState] =
-    useRecoilState(ModalsCountState);
+  const [, setModalsCountState] = useRecoilState(ModalsCountState);
   const [level, setLevel] = useState(0);
   const openStatus = useRef<boolean>(false);
 
@@ -81,8 +80,6 @@ export const Modal = (props: {
   }, [openStatus, onClose]);
 
   const zIndex = "z-[" + (level + 5) + "0]";
-  const active =
-    modalsCountState[modalsCountState.length - 1] === modalId.current;
 
   return (
     <Transition.Root show={open} as={Fragment}>
