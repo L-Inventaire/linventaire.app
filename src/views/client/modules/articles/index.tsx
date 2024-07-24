@@ -1,8 +1,8 @@
 import { Button } from "@atoms/button/button";
 import { Info } from "@atoms/text";
-import { RestTable } from "@components/table-rest";
-import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { TagsInput } from "@components/input-rest/tags";
+import { withSearchAsModel } from "@components/search-bar/utils/as-model";
+import { RestTable } from "@components/table-rest";
 import { useArticles } from "@features/articles/hooks/use-articles";
 import { Articles } from "@features/articles/types/types";
 import { ROUTES, getRoute } from "@features/routes";
@@ -13,11 +13,6 @@ import {
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
 import { PlusIcon } from "@heroicons/react/20/solid";
-import {
-  BriefcaseIcon,
-  CubeIcon,
-  CubeTransparentIcon,
-} from "@heroicons/react/24/solid";
 import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";

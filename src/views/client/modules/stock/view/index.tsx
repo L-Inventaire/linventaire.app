@@ -1,11 +1,10 @@
-import { DocumentBar } from "@components/document-bar";
 import { PageLoader } from "@atoms/page-loader";
+import { DocumentBar } from "@components/document-bar";
 import { ROUTES, getRoute } from "@features/routes";
 import { useStockItem } from "@features/stock/hooks/use-stock-items";
 import { Page } from "@views/client/_layout/page";
 import { useParams } from "react-router-dom";
 import { StockItemsDetailsPage } from "../components/stock-item-details";
-import { StockItemStatus } from "../components/stock-item-status";
 
 export const StockItemsViewPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();

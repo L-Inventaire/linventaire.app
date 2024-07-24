@@ -5,7 +5,7 @@ import { useContact } from "@features/contacts/hooks/use-contacts";
 import { getContactName } from "@features/contacts/types/types";
 import { Invoices } from "@features/invoices/types/types";
 import { InvoiceStatus } from "../invoice-status";
-import { computeCompletion, renderCompletion } from "../invoices-details";
+import { renderCompletion } from "../invoices-details";
 
 export const InvoiceRestDocument = (
   props: Omit<RestDocumentProps<Invoices>, "entity">

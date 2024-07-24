@@ -1,4 +1,3 @@
-import { Tag } from "@atoms/badge/tag";
 import { Button } from "@atoms/button/button";
 import { DropDownAtom, DropDownMenuType } from "@atoms/dropdown";
 import { Base, BaseSmall, Info } from "@atoms/text";
@@ -8,18 +7,13 @@ import {
 } from "@components/form/formcontext";
 import { InputButton } from "@components/input-button";
 import { useArticle } from "@features/articles/hooks/use-articles";
-import { CtrlKAtom } from "@features/ctrlk/store";
-import { CtrlKPathType } from "@features/ctrlk/types";
 import { InvoiceLine, Invoices } from "@features/invoices/types/types";
-import { StockItems } from "@features/stock/types/types";
 import { tvaOptions, unitOptions } from "@features/utils/constants";
 import { formatAmount, getTextFromHtml } from "@features/utils/format/strings";
 import {
   CheckIcon,
-  CubeIcon,
   LockClosedIcon,
   ReceiptPercentIcon,
-  TruckIcon,
   XCircleIcon,
 } from "@heroicons/react/16/solid";
 import {
@@ -39,12 +33,11 @@ import { useSetRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
 import { getArticleIcon } from "../../../articles/components/article-icon";
 import { getTvaValue } from "../../utils";
-import { renderCompletion } from "../invoices-details";
+import { CompletionTags } from "./components/completion-tags";
+import { InvoiceDiscountInput } from "./components/discount-input";
 import { InvoiceLineArticleInput } from "./components/line-article";
 import { InvoiceLinePriceInput } from "./components/line-price";
 import { InvoiceLineQuantityInput } from "./components/line-quantity";
-import { CompletionTags } from "./components/completion-tags";
-import { InvoiceDiscountInput } from "./components/discount-input";
 
 export const InvoiceLineInput = (props: {
   invoice?: Invoices;
@@ -58,7 +51,6 @@ export const InvoiceLineInput = (props: {
   readonly?: boolean;
 }) => {
   const formContext = useContext(FormContextContext);
-  const openCtrlK = useSetRecoilState(CtrlKAtom);
 
   const value = props.ctrl?.value || props.value || ({} as InvoiceLine);
   const onChange = props.ctrl?.onChange || props.onChange;
@@ -92,9 +84,6 @@ export const InvoiceLineInput = (props: {
     _.uniq((props.invoice?.content || []).map((a) => a.tva)).length > 1;
   const hasOptionalArticles = (props.invoice?.content || []).some(
     (a) => a.optional
-  );
-  const hasDiscountedArticles = (props.invoice?.content || []).some(
-    (a) => a.discount?.value || 0
   );
 
   return (
