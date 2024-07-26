@@ -24,7 +24,7 @@ import {
   UserIcon,
 } from "@heroicons/react/20/solid";
 import { EditorInput } from "@molecules/editor-input";
-import { PageBlock, PageColumns } from "@views/client/_layout/page";
+import { PageColumns } from "@views/client/_layout/page";
 import _ from "lodash";
 import { Fragment, useEffect } from "react";
 import { twMerge } from "tailwind-merge";
@@ -394,6 +394,7 @@ export const InvoicesDetailsPage = ({
                     />
                     {(!readonly || ctrl("documents").value?.length) && (
                       <FilesInput
+                        disabled={readonly}
                         ctrl={ctrl("documents")}
                         rel={{
                           table: "invoices",

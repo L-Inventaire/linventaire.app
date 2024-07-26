@@ -27,10 +27,10 @@ import {
 import { DocumentIcon } from "@heroicons/react/24/outline";
 import { CubeIcon } from "@heroicons/react/24/solid";
 import { EditorInput } from "@molecules/editor-input";
-import { PageBlock, PageBlockHr } from "@views/client/_layout/page";
+import { PageBlockHr } from "@views/client/_layout/page";
 import { useEffect, useState } from "react";
-import { StockItemStatus } from "./stock-item-status";
 import { InvoiceRestDocument } from "../../invoices/components/invoice-lines-input/invoice-input-rest-card";
+import { StockItemStatus } from "./stock-item-status";
 
 export const StockItemsDetailsPage = ({
   readonly,

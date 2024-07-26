@@ -1,7 +1,10 @@
 import { Button } from "@atoms/button/button";
 import { InputOutlinedDefault } from "@atoms/styles/inputs";
 import { Info } from "@atoms/text";
-import { FormControllerType } from "@components/form/formcontext";
+import {
+  FormContextContext,
+  FormControllerType,
+} from "@components/form/formcontext";
 import { RestFileTag } from "@components/input-rest/files/file";
 import { useClients } from "@features/clients/state/use-clients";
 import { FilesApiClient } from "@features/files/api-client/files-api-client";
@@ -9,7 +12,7 @@ import { useFiles } from "@features/files/hooks/use-files";
 import { Files } from "@features/files/types/types";
 import { PaperClipIcon } from "@heroicons/react/24/outline";
 import _ from "lodash";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { twMerge } from "tailwind-merge";
 
@@ -29,8 +32,11 @@ export const FilesInput = (props: {
     field: string;
   };
 }) => {
+  const formContext = useContext(FormContextContext);
   const value = props.ctrl?.value || props.value || [];
   const onChange = props.ctrl?.onChange || props.onChange;
+  const disabled = props.disabled || formContext.disabled || false;
+
   const size = props.size || "md";
   const { client } = useClients();
   const { files } = useFiles({
@@ -111,7 +117,7 @@ export const FilesInput = (props: {
     <div
       className={twMerge(
         props.className,
-        (existingFiles?.length || !props.disabled) && "-m-1",
+        (existingFiles?.length || !disabled) && "-m-1",
         "relative"
       )}
     >
@@ -123,7 +129,7 @@ export const FilesInput = (props: {
             id={file.id}
             size={"md"}
             onDelete={
-              props.disabled
+              disabled
                 ? undefined
                 : () =>
                     onChange?.(value.filter((a) => a !== `files:${file.id}`))
@@ -152,7 +158,7 @@ export const FilesInput = (props: {
             />
           ))}
       </div>
-      {!props.disabled &&
+      {!disabled &&
         (props.max || 100) >
           (existingFiles || []).length + (newFiles || []).length && (
           <DroppableFilesInput
