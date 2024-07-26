@@ -56,7 +56,7 @@ export const Button = (props: ButtonProps) => {
     }
   );
 
-  if (props.to) {
+  if (props.to && !disabled) {
     return (
       <Link
         to={props.to}

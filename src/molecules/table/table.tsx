@@ -519,7 +519,7 @@ export function RenderedTable<T>({
                   >
                     {onSelect && (
                       <td
-                        className="w-8 m-0 p-0 height-table-hack overflow-hidden group/checkbox"
+                        className="w-8 m-0 p-0 height-table-hack overflow-hidden group/checkbox shrink-0"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <div

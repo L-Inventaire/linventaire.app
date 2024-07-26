@@ -51,6 +51,7 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
                       getRoute(ROUTES.InvoicesEdit, { id: "new" }),
                       {
                         ...invoice,
+                        from_rel_quote: invoice.id,
                         type: "supplier_quotes",
                         state: "draft",
                         id: "",
@@ -62,10 +63,15 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
                   <Button
                     size="sm"
                     shortcut={["f"]}
+                    disabled={
+                      invoice.state !== "purchase_order" &&
+                      invoice.state !== "completed"
+                    }
                     to={withModel(
                       getRoute(ROUTES.InvoicesEdit, { id: "new" }),
                       {
                         ...invoice,
+                        from_rel_quote: invoice.id,
                         type: "invoices",
                         state: "draft",
                         id: "",
@@ -81,8 +87,15 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
                   size="sm"
                   theme="outlined"
                   shortcut={["shift+a"]}
+                  disabled={
+                    !["accounted", "paid", "partial_paid"].includes(
+                      invoice.state
+                    )
+                  }
                   to={withModel(getRoute(ROUTES.InvoicesEdit, { id: "new" }), {
                     ...invoice,
+                    from_rel_quote: invoice.from_rel_quote,
+                    from_rel_invoice: invoice.id,
                     type: "credit_notes",
                     state: "draft",
                     id: "",

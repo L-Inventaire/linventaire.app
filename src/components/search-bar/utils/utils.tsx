@@ -209,3 +209,4 @@ export const buildQueryFromMap = (map: { [key: string]: any }) => {
         } as RestSearchQuery)
     );
 };
+export const generateQueryFromMap = buildQueryFromMap;

@@ -38,6 +38,8 @@ import { InvoiceLinesInput } from "./invoice-lines-input";
 import { CompletionTags } from "./invoice-lines-input/components/completion-tags";
 import { InvoiceStatus } from "./invoice-status";
 import { InvoicesPreview } from "./invoices-preview/invoices-preview";
+import { RelatedInvoices } from "./related-invoices";
+import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-card";
 
 export const computeCompletion = (
   linesu: Invoices["content"],
@@ -215,10 +217,10 @@ export const InvoicesDetailsPage = ({
         <PageColumns>
           <div className="grow" />
           <div className="grow lg:w-3/5 max-w-3xl pt-6">
-            <div className="float-right">
+            <div className="float-right mb-2">
               <InvoiceStatus
                 readonly={readonly}
-                size="sm"
+                size="lg"
                 value={draft.state}
                 type={draft.type}
                 onChange={(value) => setDraft({ ...draft, state: value })}
@@ -282,13 +284,13 @@ export const InvoicesDetailsPage = ({
                         ).toDateString()}
                         ctrl={ctrl("emit_date")}
                         placeholder="Date d'emission"
-                        value={formatTime(ctrl("emit_date").value)}
+                        value={formatTime(ctrl("emit_date").value || 0)}
                         content={
                           <FormInput ctrl={ctrl("emit_date")} type="date" />
                         }
                       >
                         {"Émis le "}
-                        {formatTime(ctrl("emit_date").value, {
+                        {formatTime(ctrl("emit_date").value || 0, {
                           hideTime: true,
                         })}
                       </InputButton>
@@ -332,7 +334,7 @@ export const InvoicesDetailsPage = ({
                   </div>
                 )}
 
-                {!isQuoteRelated && (
+                {!isQuoteRelated && readonly && (
                   <div className="mt-8">
                     {!isQuoteRelated && readonly && (
                       <div className="float-right">
@@ -344,30 +346,25 @@ export const InvoicesDetailsPage = ({
                   </div>
                 )}
 
-                {isSupplierRelated && (
+                {!readonly && !isQuoteRelated && (
                   <div className="mt-8">
-                    {isQuoteRelated && readonly && (
-                      <div className="float-right">
-                        <Button size="sm">Facture partielle</Button>
-                      </div>
-                    )}
-                    <Section className="mb-2">
-                      Factures et avoirs fournisseur liés
-                    </Section>
-                    TODO
+                    <Section className="mb-2">Origine</Section>
+                    <InvoiceRestDocument
+                      label="Devis d'origine"
+                      ctrl={ctrl("from_rel_quote")}
+                      size="xl"
+                      max={1}
+                    />
                   </div>
                 )}
 
-                {!isSupplierRelated && (
-                  <div className="mt-8">
-                    {isQuoteRelated && readonly && (
-                      <div className="float-right">
-                        <Button size="sm">Facture partielle</Button>
-                      </div>
-                    )}
-                    <Section className="mb-2">Factures et avoirs liés</Section>
-                    TODO
-                  </div>
+                {readonly && (
+                  <RelatedInvoices
+                    invoice={draft}
+                    className="mt-8"
+                    readonly={readonly}
+                    onPartialInvoice={() => {}}
+                  />
                 )}
 
                 <CustomFieldsInput

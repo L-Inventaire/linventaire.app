@@ -86,13 +86,16 @@ export const InputDelivery = ({
         }
       >
         <div className="space-y-0 flex-col flex text-left max-w-56">
-          <Base>
-            Livraison le{" "}
-            {formatTime(invoice.delivery_date, {
-              keepDate: true,
-              hideTime: true,
-            })}
-          </Base>
+          {!!invoice.delivery_date && (
+            <Base>
+              Livraison le{" "}
+              {formatTime(invoice.delivery_date, {
+                keepDate: true,
+                hideTime: true,
+              })}
+              {!invoice.delivery_date && <Base>Pas de date de livraison</Base>}
+            </Base>
+          )}
           <Info>
             {formatAddress(
               invoice.delivery_address,
