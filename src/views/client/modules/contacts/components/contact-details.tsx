@@ -333,14 +333,12 @@ export const ContactsDetailsPage = ({
                 />
               </div>
             </PageBlock>
-            <PageBlock closable title="Information complémentaire">
-              <CustomFieldsInput
-                table={"contacts"}
-                ctrl={ctrl("fields")}
-                readonly={readonly}
-                entityId={contact.id || ""}
-              />
-            </PageBlock>
+            <CustomFieldsInput
+              table={"contacts"}
+              ctrl={ctrl("fields")}
+              readonly={readonly}
+              entityId={contact.id || ""}
+            />
             <PageBlock
               title="Préférences"
               closable

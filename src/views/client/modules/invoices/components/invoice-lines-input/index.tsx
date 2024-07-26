@@ -307,7 +307,6 @@ export const InvoiceLinesInput = ({
           </>
         )}
       </AnimatedHeight>
-      <div className="mb-12" />
     </>
   );
 };

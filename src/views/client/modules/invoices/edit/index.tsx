@@ -36,7 +36,17 @@ export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
     async (item) => {
       navigate(getRoute(ROUTES.InvoicesView, { id: item.id }));
     },
-    _.omit(_.merge(defaultModel, initialModel), "reference") as Invoices
+    _.omit(
+      _.merge(defaultModel, {
+        ...initialModel,
+        content: (initialModel.content || []).map((a) => ({
+          ...a,
+          quantity_delivered: 0,
+          quantity_ready: 0,
+        })),
+      }),
+      "reference"
+    ) as Invoices
   );
 
   return (

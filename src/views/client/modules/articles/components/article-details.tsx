@@ -165,14 +165,12 @@ export const ArticlesDetailsPage = ({
             </PageBlock>
           </div>
           <div className="grow lg:max-w-xl">
-            <PageBlock closable title="Information complémentaire">
-              <CustomFieldsInput
-                table={"articles"}
-                ctrl={ctrl("fields")}
-                readonly={readonly}
-                entityId={draft.id || ""}
-              />
-            </PageBlock>
+            <CustomFieldsInput
+              table={"articles"}
+              ctrl={ctrl("fields")}
+              readonly={readonly}
+              entityId={draft.id || ""}
+            />
           </div>
         </PageColumns>
       </FormContext>

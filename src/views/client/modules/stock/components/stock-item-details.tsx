@@ -333,14 +333,12 @@ export const StockItemsDetailsPage = ({
               ctrl={ctrl("from_rel_supplier_quote")}
             />
             <PageBlockHr />
-            <PageBlock closable title="Champs additionels">
-              <CustomFieldsInput
-                table={"stock_items"}
-                ctrl={ctrl("fields")}
-                readonly={readonly}
-                entityId={draft.id || ""}
-              />
-            </PageBlock>
+            <CustomFieldsInput
+              table={"stock_items"}
+              ctrl={ctrl("fields")}
+              readonly={readonly}
+              entityId={draft.id || ""}
+            />
           </>
         )}
       </FormContext>

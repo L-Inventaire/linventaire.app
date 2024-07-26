@@ -115,7 +115,7 @@ export const InvoicesDetailsPage = ({
       setDraft((draft: Invoices) => {
         draft = _.cloneDeep(draft);
         if (!draft.emit_date) draft.emit_date = new Date();
-        if (draft.type) {
+        if (draft.type && !draft.reference) {
           draft.reference = getFormattedNumerotation(
             client.invoices_counters[draft.type]?.format,
             client.invoices_counters[draft.type]?.counter,
@@ -316,20 +316,24 @@ export const InvoicesDetailsPage = ({
                   onChange={setDraft}
                 />
 
-                <Section className="mb-2">Autre</Section>
-                <div className="m-grid-1">
-                  {otherInputs.map((a, i) => (
-                    <Fragment key={i}>
-                      {i !== 0 &&
-                        !a.complete &&
-                        otherInputs[i - 1].complete && <br />}
-                      {a.component}
-                    </Fragment>
-                  ))}
-                </div>
+                {!!otherInputs.length && (
+                  <div className="mt-8">
+                    <Section className="mb-2">Autre</Section>
+                    <div className="m-grid-1">
+                      {otherInputs.map((a, i) => (
+                        <Fragment key={i}>
+                          {i !== 0 &&
+                            !a.complete &&
+                            otherInputs[i - 1].complete && <br />}
+                          {a.component}
+                        </Fragment>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {!isQuoteRelated && (
-                  <div className="mt-6">
+                  <div className="mt-8">
                     {!isQuoteRelated && readonly && (
                       <div className="float-right">
                         <Button size="sm">Enregistrer un paiement</Button>
@@ -341,7 +345,7 @@ export const InvoicesDetailsPage = ({
                 )}
 
                 {isSupplierRelated && (
-                  <div className="mt-6">
+                  <div className="mt-8">
                     {isQuoteRelated && readonly && (
                       <div className="float-right">
                         <Button size="sm">Facture partielle</Button>
@@ -355,7 +359,7 @@ export const InvoicesDetailsPage = ({
                 )}
 
                 {!isSupplierRelated && (
-                  <div className="mt-6">
+                  <div className="mt-8">
                     {isQuoteRelated && readonly && (
                       <div className="float-right">
                         <Button size="sm">Facture partielle</Button>
@@ -366,17 +370,15 @@ export const InvoicesDetailsPage = ({
                   </div>
                 )}
 
-                <div className="mt-6"></div>
+                <CustomFieldsInput
+                  className="mt-8"
+                  table={"invoices"}
+                  ctrl={ctrl("fields")}
+                  readonly={readonly}
+                  entityId={draft.id || ""}
+                />
 
-                <PageBlock closable title="Champs additionels">
-                  <CustomFieldsInput
-                    table={"invoices"}
-                    ctrl={ctrl("fields")}
-                    readonly={readonly}
-                    entityId={draft.id || ""}
-                  />
-                </PageBlock>
-                <div className="mt-6">
+                <div className="mt-8">
                   <Section className="mb-2">Notes et documents</Section>
                   <div className="space-y-2 mt-2">
                     <EditorInput
@@ -402,7 +404,7 @@ export const InvoicesDetailsPage = ({
                     )}
                   </div>
                 </div>
-                <div className="mt-6">
+                <div className="mt-8">
                   <Section className="mb-2">Discussion</Section>
                   <div className="space-y-2 mt-2">TODO</div>
                 </div>
