@@ -132,11 +132,7 @@ export const InvoicesDetailsPage = ({
           ...a,
           _id: a._id || _.uniqueId(),
         }));
-        if (
-          !draft.attachments?.length &&
-          isQuoteRelated &&
-          !isSupplierRelated
-        ) {
+        if (!draft.attachments?.length && !isSupplierRelated) {
           draft.attachments = [...(client.invoices.attachments || [])];
         }
         return draft;
