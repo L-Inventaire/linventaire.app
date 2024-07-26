@@ -5,8 +5,8 @@ import { FormControllerFuncType } from "@components/form/formcontext";
 import { InputButton } from "@components/input-button";
 import { Invoices } from "@features/invoices/types/types";
 import { formatTime } from "@features/utils/format/dates";
-import { ArrowPathIcon, BellIcon } from "@heroicons/react/20/solid";
-import { ModalHr, PageBlockHr, PageColumns } from "@views/client/_layout/page";
+import { ArrowPathIcon } from "@heroicons/react/20/solid";
+import { ModalHr, PageColumns } from "@views/client/_layout/page";
 
 export const InvoiceRecurrenceInput = ({
   ctrl,

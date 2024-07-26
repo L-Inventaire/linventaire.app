@@ -66,7 +66,8 @@
       "footer": "Notes de bas de page",
       "payment_terms": "Conditions Générales de Vente",
       "tva": "Mention de TVA",
-      "branding_placeholder": "Afficher le logo de linventaire.app sur les factures"
+      "branding_placeholder": "Afficher le logo de linventaire.app sur les factures",
+      "attachments": "Documents liés"
     }
   },
   "menu": {

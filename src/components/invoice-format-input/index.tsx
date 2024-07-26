@@ -1,3 +1,4 @@
+import { InputLabel } from "@atoms/input/input-decoration-label";
 import { FormInput } from "@components/form/fields";
 import {
   FormContextContext,
@@ -6,6 +7,7 @@ import {
 } from "@components/form/formcontext";
 import { Invoices as InvoiceFormat } from "@features/clients/types/clients";
 import { tvaMentionOptions } from "@features/utils/constants";
+import { EditorInput } from "@molecules/editor-input";
 import { PageBlockHr } from "@views/client/_layout/page";
 import { useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -13,6 +15,7 @@ import { useTranslation } from "react-i18next";
 export const InvoiceFormatInput = (props: {
   ctrl: FormControllerType<any>;
   readonly?: boolean;
+  hideLinkedDocuments?: boolean;
 }) => {
   const { t } = useTranslation();
 
@@ -35,20 +38,35 @@ export const InvoiceFormatInput = (props: {
 
   return (
     <div className="space-y-2">
-      <FormInput
+      <InputLabel
         label={t("settings.invoices.heading")}
-        readonly={readonly}
-        ctrl={ctrl("heading")}
+        input={
+          <EditorInput
+            disabled={readonly}
+            onChange={ctrl("heading").onChange}
+            value={ctrl("heading").value}
+          />
+        }
       />
-      <FormInput
+      <InputLabel
         label={t("settings.invoices.footer")}
-        readonly={readonly}
-        ctrl={ctrl("footer")}
+        input={
+          <EditorInput
+            disabled={readonly}
+            onChange={ctrl("footer").onChange}
+            value={ctrl("footer").value}
+          />
+        }
       />
-      <FormInput
+      <InputLabel
         label={t("settings.invoices.payment_terms")}
-        readonly={readonly}
-        ctrl={ctrl("payment_terms")}
+        input={
+          <EditorInput
+            disabled={readonly}
+            onChange={ctrl("payment_terms").onChange}
+            value={ctrl("payment_terms").value}
+          />
+        }
       />
       <FormInput
         label={t("settings.invoices.tva")}
@@ -56,6 +74,15 @@ export const InvoiceFormatInput = (props: {
         ctrl={ctrl("tva")}
         options={tvaMentionOptions.map((a) => ({ label: a, value: a }))}
       />
+      {!props.hideLinkedDocuments && (
+        <FormInput
+          type="files"
+          label={t("settings.invoices.attachments")}
+          readonly={readonly}
+          ctrl={ctrl("attachments")}
+          rest={{ table: "invoices", column: "attachments" }}
+        />
+      )}
 
       <PageBlockHr />
       <FormInput
@@ -77,6 +104,7 @@ export const InvoiceFormatInput = (props: {
         readonly={readonly}
         ctrl={ctrl("logo")}
         rest={{ table: "invoices", column: "logo" }}
+        max={1}
       />
       <FormInput
         type="files"
@@ -84,6 +112,7 @@ export const InvoiceFormatInput = (props: {
         readonly={readonly}
         ctrl={ctrl("footer_logo")}
         rest={{ table: "invoices", column: "footer_logo" }}
+        max={1}
       />
       <FormInput
         type="select"

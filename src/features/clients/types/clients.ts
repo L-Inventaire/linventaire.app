@@ -111,6 +111,8 @@ export type Invoices = {
   logo: string;
   footer_logo: string;
   template: string;
+
+  attachments: string[];
 };
 
 export type Payment = {

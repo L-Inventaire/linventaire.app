@@ -1,39 +1,28 @@
-import { Tag } from "@atoms/badge/tag";
+import { Button } from "@atoms/button/button";
 import { PageLoader } from "@atoms/page-loader";
-import { Base, Info, Section } from "@atoms/text";
+import { Section } from "@atoms/text";
 import { CustomFieldsInput } from "@components/custom-fields-input";
 import { FormInput } from "@components/form/fields";
 import { FormContext } from "@components/form/formcontext";
 import { InputButton } from "@components/input-button";
-import { AddressInput } from "@components/input-button/address/form";
 import { RestDocumentsInput } from "@components/input-rest";
 import { FilesInput } from "@components/input-rest/files";
 import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
 import { InvoiceFormatInput } from "@components/invoice-format-input";
-import { PaymentInput } from "@components/payment-input";
 import { useClients } from "@features/clients/state/use-clients";
 import { useContact } from "@features/contacts/hooks/use-contacts";
 import { Contacts } from "@features/contacts/types/types";
 import { Invoices } from "@features/invoices/types/types";
 import { getDocumentName } from "@features/invoices/utils";
-import {
-  currencyOptions,
-  languageOptions,
-  paymentOptions,
-} from "@features/utils/constants";
+import { languageOptions } from "@features/utils/constants";
 import { formatTime } from "@features/utils/format/dates";
 import { getFormattedNumerotation } from "@features/utils/format/numerotation";
-import { formatIBAN } from "@features/utils/format/strings";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import {
-  ArrowPathIcon,
-  BanknotesIcon,
-  BellIcon,
   BuildingStorefrontIcon,
   DocumentTextIcon,
   EnvelopeIcon,
-  TruckIcon,
   UserIcon,
 } from "@heroicons/react/20/solid";
 import { EditorInput } from "@molecules/editor-input";
@@ -46,15 +35,14 @@ import _ from "lodash";
 import { Fragment, useEffect } from "react";
 import { twMerge } from "tailwind-merge";
 import { computePricesFromInvoice } from "../utils";
+import { InputDelivery } from "./input-delivery";
+import { InvoicePaymentInput } from "./input-payment";
+import { InvoiceRecurrenceInput } from "./input-recurrence";
+import { InvoiceReminderInput } from "./input-reminder";
 import { InvoiceLinesInput } from "./invoice-lines-input";
 import { CompletionTags } from "./invoice-lines-input/components/completion-tags";
 import { InvoiceStatus } from "./invoice-status";
 import { InvoicesPreview } from "./invoices-preview/invoices-preview";
-import { AddressLength, formatAddress } from "@features/utils/format/address";
-import { InputDelivery } from "./input-delivery";
-import { InvoicePaymentInput } from "./input-payment";
-import { InvoiceReminderInput } from "./input-reminder";
-import { InvoiceRecurrenceInput } from "./input-recurrence";
 
 export const computeCompletion = (
   linesu: Invoices["content"],
@@ -113,6 +101,20 @@ export const InvoicesDetailsPage = ({
 
   const { contact } = useContact(draft.contact);
 
+  const isQuoteRelated =
+    draft.type === "quotes" || draft.type === "supplier_quotes";
+  const isSupplierInvoice =
+    draft.type === "supplier_credit_notes" ||
+    draft.type === "supplier_invoices";
+  const isSupplierQuote = draft.type === "supplier_quotes";
+  const isSupplierRelated = isSupplierInvoice || isSupplierQuote;
+  const hasClientOrSupplier =
+    (draft.client && !isSupplierRelated) ||
+    (draft.supplier && isSupplierRelated);
+
+  const hasPreview =
+    hasClientOrSupplier && !isSupplierInvoice && !isSupplierQuote;
+
   useEffect(() => {
     if (!isPending && draft)
       setDraft((draft: Invoices) => {
@@ -130,25 +132,18 @@ export const InvoicesDetailsPage = ({
           ...a,
           _id: a._id || _.uniqueId(),
         }));
+        if (
+          !draft.attachments?.length &&
+          isQuoteRelated &&
+          !isSupplierRelated
+        ) {
+          draft.attachments = [...(client.invoices.attachments || [])];
+        }
         return draft;
       });
   }, [JSON.stringify(draft)]);
 
   if (isPending || (id && draft.id !== id) || !client) return <PageLoader />;
-
-  const isQuoteRelated =
-    draft.type === "quotes" || draft.type === "supplier_quotes";
-  const isSupplierInvoice =
-    draft.type === "supplier_credit_notes" ||
-    draft.type === "supplier_invoices";
-  const isSupplierQuote = draft.type === "supplier_quotes";
-  const isSupplierRelated = isSupplierInvoice || isSupplierQuote;
-  const hasClientOrSupplier =
-    (draft.client && !isSupplierRelated) ||
-    (draft.supplier && isSupplierRelated);
-
-  const hasPreview =
-    hasClientOrSupplier && !isSupplierInvoice && !isSupplierQuote;
 
   const otherInputs = _.sortBy(
     [
@@ -202,7 +197,7 @@ export const InvoicesDetailsPage = ({
         complete: draft.subscription?.enabled,
       },
     ].filter((a) => a.visible && (a.complete || !readonly)),
-    (a, i) => {
+    (a) => {
       return a.complete ? -1 : 0;
     }
   );
@@ -327,6 +322,11 @@ export const InvoicesDetailsPage = ({
 
                 {!isQuoteRelated && (
                   <div className="mt-6">
+                    {!isQuoteRelated && readonly && (
+                      <div className="float-right">
+                        <Button size="sm">Enregistrer un paiement</Button>
+                      </div>
+                    )}
                     <Section className="mb-2">Paiements</Section>
                     TODO
                   </div>
@@ -334,8 +334,13 @@ export const InvoicesDetailsPage = ({
 
                 {isSupplierRelated && (
                   <div className="mt-6">
+                    {isQuoteRelated && readonly && (
+                      <div className="float-right">
+                        <Button size="sm">Facture partielle</Button>
+                      </div>
+                    )}
                     <Section className="mb-2">
-                      Avoir et factures fournisseur liés
+                      Factures et avoirs fournisseur liés
                     </Section>
                     TODO
                   </div>
@@ -343,7 +348,12 @@ export const InvoicesDetailsPage = ({
 
                 {!isSupplierRelated && (
                   <div className="mt-6">
-                    <Section className="mb-2">Avoir et factures liés</Section>
+                    {isQuoteRelated && readonly && (
+                      <div className="float-right">
+                        <Button size="sm">Facture partielle</Button>
+                      </div>
+                    )}
+                    <Section className="mb-2">Factures et avoirs liés</Section>
                     TODO
                   </div>
                 )}
@@ -374,6 +384,7 @@ export const InvoicesDetailsPage = ({
                     <InvoiceFormatInput
                       readonly={readonly}
                       ctrl={ctrl("format")}
+                      hideLinkedDocuments
                     />
                   </PageBlock>
                 )}
