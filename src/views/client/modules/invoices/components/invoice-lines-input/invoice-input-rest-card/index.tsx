@@ -1,11 +1,9 @@
-import { Tag } from "@atoms/badge/tag";
 import { Info } from "@atoms/text";
 import { RestDocumentProps, RestDocumentsInput } from "@components/input-rest";
 import { useContact } from "@features/contacts/hooks/use-contacts";
 import { getContactName } from "@features/contacts/types/types";
 import { Invoices } from "@features/invoices/types/types";
 import { InvoiceStatus } from "../../invoice-status";
-import { renderCompletion } from "../../invoices-details";
 import { CompletionTags } from "../components/completion-tags";
 
 export const InvoiceRestDocument = (

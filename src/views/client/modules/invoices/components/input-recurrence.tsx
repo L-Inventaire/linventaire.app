@@ -12,10 +12,12 @@ export const InvoiceRecurrenceInput = ({
   ctrl,
   invoice,
   readonly,
+  btnKey,
 }: {
   ctrl: FormControllerFuncType<Invoices>;
   invoice: Invoices;
   readonly?: boolean;
+  btnKey?: string;
 }) => {
   const frequencyOptions = [
     { value: "weekly", label: "Hebdomadaire" },
@@ -55,6 +57,7 @@ export const InvoiceRecurrenceInput = ({
 
   return (
     <InputButton
+      btnKey={btnKey}
       placeholder="Récurrence"
       icon={(p) => <ArrowPathIcon {...p} />}
       readonly={readonly}

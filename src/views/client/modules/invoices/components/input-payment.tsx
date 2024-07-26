@@ -13,13 +13,16 @@ export const InvoicePaymentInput = ({
   ctrl,
   invoice,
   readonly,
+  btnKey,
 }: {
   ctrl: FormControllerFuncType<Invoices>;
   invoice: Invoices;
   readonly?: boolean;
+  btnKey?: string;
 }) => {
   return (
     <InputButton
+      btnKey={btnKey}
       placeholder="Paiement"
       icon={(p) => <BanknotesIcon {...p} />}
       content={

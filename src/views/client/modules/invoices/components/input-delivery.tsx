@@ -14,15 +14,18 @@ export const InputDelivery = ({
   invoice,
   readonly,
   contact,
+  btnKey,
 }: {
   ctrl: FormControllerFuncType<Invoices>;
   invoice: Invoices;
   readonly?: boolean;
   contact?: Contacts | null;
+  btnKey?: string;
 }) => {
   return (
     <>
       <InputButton
+        btnKey={btnKey}
         label="Modifier la livraison"
         icon={(p) => <TruckIcon {...p} />}
         content={

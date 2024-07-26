@@ -17,7 +17,7 @@ export type InputButtonProps<T> = Omit<
   ButtonProps,
   "onChange" | "content" | "value"
 > & {
-  key?: string;
+  btnKey?: string;
   ctrl?: FormControllerType<string[] | null | never[]>;
   value?: T | any;
   onChange?: (value: T) => void;
@@ -34,7 +34,7 @@ export const InputButtonIsOpenAtom = atomFamily<boolean, string>({
 });
 
 export const InputButton = <T,>(props: InputButtonProps<T>) => {
-  const key = useRef(props.key || _.uniqueId());
+  const key = useRef(props.btnKey || _.uniqueId());
   const [open, setOpen] = useRecoilState(InputButtonIsOpenAtom(key?.current));
   const formContext = useContext(FormContextContext);
   const disabled =

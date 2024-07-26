@@ -53,7 +53,10 @@ export const Stepper = <T extends string>({
 
   return (
     <Button
-      className={twMerge("rounded-full", readonly ? "pointer-events-none	" : "")}
+      className={twMerge(
+        "rounded-full",
+        readonly ? "pointer-events-none shadow-none	" : ""
+      )}
       data-tooltip={readonly ? statusName[value] : "Modifier le status" || "-"}
       theme="default"
       size={size === "sm" ? "sm" : "md"}

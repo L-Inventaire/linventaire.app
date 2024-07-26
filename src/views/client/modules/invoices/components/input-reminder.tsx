@@ -9,13 +9,16 @@ export const InvoiceReminderInput = ({
   ctrl,
   invoice,
   readonly,
+  btnKey,
 }: {
   ctrl: FormControllerFuncType<Invoices>;
   invoice: Invoices;
   readonly?: boolean;
+  btnKey?: string;
 }) => {
   return (
     <InputButton
+      btnKey={btnKey}
       placeholder="Rappels"
       icon={(p) => <BellIcon {...p} />}
       content={

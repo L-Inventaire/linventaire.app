@@ -9,13 +9,11 @@ import { RestDocumentsInput } from "@components/input-rest";
 import { FilesInput } from "@components/input-rest/files";
 import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
-import { InvoiceFormatInput } from "@components/invoice-format-input";
 import { useClients } from "@features/clients/state/use-clients";
 import { useContact } from "@features/contacts/hooks/use-contacts";
 import { Contacts } from "@features/contacts/types/types";
 import { Invoices } from "@features/invoices/types/types";
 import { getDocumentName } from "@features/invoices/utils";
-import { languageOptions } from "@features/utils/constants";
 import { formatTime } from "@features/utils/format/dates";
 import { getFormattedNumerotation } from "@features/utils/format/numerotation";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
@@ -26,16 +24,13 @@ import {
   UserIcon,
 } from "@heroicons/react/20/solid";
 import { EditorInput } from "@molecules/editor-input";
-import {
-  PageBlock,
-  PageBlockHr,
-  PageColumns,
-} from "@views/client/_layout/page";
+import { PageBlock, PageColumns } from "@views/client/_layout/page";
 import _ from "lodash";
 import { Fragment, useEffect } from "react";
 import { twMerge } from "tailwind-merge";
 import { computePricesFromInvoice } from "../utils";
 import { InputDelivery } from "./input-delivery";
+import { InvoiceInputFormat } from "./input-format";
 import { InvoicePaymentInput } from "./input-payment";
 import { InvoiceRecurrenceInput } from "./input-recurrence";
 import { InvoiceReminderInput } from "./input-reminder";
@@ -145,8 +140,24 @@ export const InvoicesDetailsPage = ({
     [
       {
         component: (
+          <InvoiceInputFormat
+            btnKey="invoice-format"
+            ctrl={ctrl}
+            readonly={readonly}
+            client={client}
+            invoice={draft}
+          />
+        ),
+        visible: !isSupplierInvoice && !isSupplierQuote,
+        complete: !_.isEqual(
+          _.omitBy(draft?.format, (a) => !a),
+          _.omitBy(client.invoices, (a) => !a)
+        ),
+      },
+      {
+        component: (
           <InvoicePaymentInput
-            key="invoice-payment"
+            btnKey="invoice-payment"
             invoice={draft}
             ctrl={ctrl}
             readonly={readonly}
@@ -158,7 +169,7 @@ export const InvoicesDetailsPage = ({
       {
         component: (
           <InputDelivery
-            key="invoice-delivery"
+            btnKey="invoice-delivery"
             invoice={draft}
             ctrl={ctrl}
             readonly={readonly}
@@ -171,7 +182,7 @@ export const InvoicesDetailsPage = ({
       {
         component: (
           <InvoiceReminderInput
-            key="invoice-reminder"
+            btnKey="invoice-reminder"
             invoice={draft}
             ctrl={ctrl}
             readonly={readonly}
@@ -183,7 +194,7 @@ export const InvoicesDetailsPage = ({
       {
         component: (
           <InvoiceRecurrenceInput
-            key="invoice-recurrence"
+            btnKey="invoice-recurrence"
             invoice={draft}
             ctrl={ctrl}
             readonly={readonly}
@@ -206,6 +217,7 @@ export const InvoicesDetailsPage = ({
           <div className="grow lg:w-3/5 max-w-3xl pt-6">
             <div className="float-right">
               <InvoiceStatus
+                readonly={readonly}
                 size="sm"
                 value={draft.state}
                 type={draft.type}
@@ -356,34 +368,6 @@ export const InvoicesDetailsPage = ({
 
                 <div className="mt-6"></div>
 
-                {!isSupplierInvoice && !isSupplierQuote && (
-                  <PageBlock
-                    closable
-                    title="Format"
-                    initOpen={
-                      !!(
-                        !_.isEqual(ctrl("format").value, client.invoices) ||
-                        (client.preferences?.language &&
-                          ctrl("language").value !==
-                            client.preferences?.language)
-                      )
-                    }
-                  >
-                    <FormInput
-                      label="Langue"
-                      className="w-max mb-4"
-                      ctrl={ctrl("language")}
-                      type="select"
-                      options={languageOptions}
-                    />
-                    <PageBlockHr />
-                    <InvoiceFormatInput
-                      readonly={readonly}
-                      ctrl={ctrl("format")}
-                      hideLinkedDocuments
-                    />
-                  </PageBlock>
-                )}
                 <PageBlock closable title="Champs additionels">
                   <CustomFieldsInput
                     table={"invoices"}
