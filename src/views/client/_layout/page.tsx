@@ -50,6 +50,12 @@ export const PageBlockHr = () => {
   );
 };
 
+export const ModalHr = () => {
+  return (
+    <div className="-mx-6 border-solid border-b dark:border-slate-700 !my-4" />
+  );
+};
+
 export const PageHr = () => {
   return <div className="border-solid border-b dark:border-slate-700 !my-4" />;
 };

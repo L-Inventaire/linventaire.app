@@ -159,7 +159,8 @@ export const Button = (props: ButtonProps) => {
         "children",
         "className",
         "icon",
-        "data-tooltip"
+        "data-tooltip",
+        "readonly"
       )}
     >
       {

@@ -37,7 +37,7 @@ export function Select(props: SelectInputProps) {
   return (
     <select
       className={inputClassName + " " + props.className}
-      {..._.omit(props, "label", "className", "size")}
+      {..._.omit(props, "label", "className", "size", "highlight")}
     >
       {props.children}
     </select>

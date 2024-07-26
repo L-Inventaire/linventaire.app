@@ -85,6 +85,8 @@ export const InvoiceLineInput = (props: {
   const hasOptionalArticles = (props.invoice?.content || []).some(
     (a) => a.optional
   );
+  const isSeparation =
+    value.type === "separation" || value.type === "correction";
 
   return (
     <>
@@ -99,8 +101,12 @@ export const InvoiceLineInput = (props: {
           (props.invoice?.type === "supplier_quotes" ||
             props.invoice?.type === "quotes") && (
             <div className="w-32 shrink-0 flex items-center justify-start mr-2">
-              {value.type !== "separation" && (
-                <CompletionTags invoice={props.invoice} lines={[value]} />
+              {!isSeparation && (
+                <CompletionTags
+                  invoice={props.invoice}
+                  lines={[value]}
+                  overflow
+                />
               )}
             </div>
           )}
@@ -116,7 +122,7 @@ export const InvoiceLineInput = (props: {
               <EllipsisVerticalIcon className="w-4 h-4 opacity-25 -ml-3" />
             </div>
           )}
-          {hasOptionalArticles && (
+          {hasOptionalArticles && !isSeparation && (
             <Button
               onClick={(e) =>
                 setMenu({
@@ -184,14 +190,12 @@ export const InvoiceLineInput = (props: {
             autoFocus={!readonly && !value.name}
             className={twMerge(
               "text-left justify-start grow",
-              hasOptionalArticles && "rounded-l-none",
-              value.type !== "separation" && "rounded-r-none"
+              hasOptionalArticles && !isSeparation && "rounded-l-none",
+              !isSeparation && "rounded-r-none"
             )}
-            placeholder={
-              value.type !== "separation" ? "Article" : "Texte libre"
-            }
+            placeholder={!isSeparation ? "Article" : "Texte libre"}
             icon={(p) =>
-              value.type === "separation" ? (
+              isSeparation ? (
                 <Bars3BottomLeftIcon {...p} />
               ) : (
                 getArticleIcon(article?.type)(p)
@@ -203,11 +207,10 @@ export const InvoiceLineInput = (props: {
           >
             <div
               className={twMerge(
-                value.type !== "separation" &&
-                  "overflow-hidden text-ellipsis line-clamp-1"
+                !isSeparation && "overflow-hidden text-ellipsis line-clamp-1"
               )}
             >
-              <Base className={value.type === "separation" ? "block" : "mr-2"}>
+              <Base className={isSeparation ? "block" : "mr-2"}>
                 {value.name || article?.name}
               </Base>
               <Info>
@@ -217,62 +220,61 @@ export const InvoiceLineInput = (props: {
               </Info>
             </div>
           </InputButton>
-          {value.type !== "separation" && (
-            <>
-              <InputButton
-                className="rounded-none shrink-0"
-                label="Quantité"
-                placeholder="Quantité"
-                content={
-                  <InvoiceLineQuantityInput {...props} article={article} />
-                }
-                value={
-                  (value.quantity || 1) +
-                  " " +
-                  (unitOptions.find((a) => a.value === value.unit)?.label ||
-                    unitOptions.find((a) => a.value === "unit")?.label)
-                }
-              />
-              <InputButton
-                data-tooltip={readonly ? "Prix total HT" : "Prix unitaire"}
-                className={twMerge(
-                  "rounded-l-none shrink-0",
-                  !!(value.discount?.value || 0) && "rounded-br-none"
-                )}
-                label="Prix et TVA"
-                placeholder="Prix et TVA"
-                content={<InvoiceLinePriceInput {...props} article={article} />}
-                value={value.unit_price}
-              >
-                {formatAmount(
-                  (readonly ? value.quantity || 0 : 1) *
-                    (value.unit_price || 0),
-                  props.invoice?.currency || "EUR"
-                )}
-                {hasMultipleTVAs && (
-                  <Info className="inline-block min-w-16 text-right ml-1">
-                    {getTvaValue(value.tva || "0")
-                      ? "TVA " + getTvaValue(value.tva || "0") * 100 + "%"
-                      : tvaOptions.find((a) => a.value === value.tva)?.label}
-                  </Info>
-                )}
-              </InputButton>
-            </>
+          {!isSeparation && (
+            <InputButton
+              className="rounded-none shrink-0"
+              label="Quantité"
+              placeholder="Quantité"
+              content={
+                <InvoiceLineQuantityInput {...props} article={article} />
+              }
+              value={
+                (value.quantity || 1) +
+                " " +
+                (unitOptions.find((a) => a.value === value.unit)?.label ||
+                  unitOptions.find((a) => a.value === "unit")?.label)
+              }
+            />
+          )}
+          {(!isSeparation || value.type === "correction") && (
+            <InputButton
+              data-tooltip={readonly ? "Prix total HT" : "Prix unitaire"}
+              className={twMerge(
+                "rounded-l-none shrink-0",
+                !!(value.discount?.value || 0) && "rounded-br-none"
+              )}
+              label="Prix et TVA"
+              placeholder="Prix et TVA"
+              content={<InvoiceLinePriceInput {...props} article={article} />}
+              value={value.unit_price}
+            >
+              {formatAmount(
+                (readonly ? value.quantity || 0 : 1) * (value.unit_price || 0),
+                props.invoice?.currency || "EUR"
+              )}
+              {hasMultipleTVAs && (
+                <Info className="inline-block min-w-16 text-right ml-1">
+                  {getTvaValue(value.tva || "0")
+                    ? "TVA " + getTvaValue(value.tva || "0") * 100 + "%"
+                    : tvaOptions.find((a) => a.value === value.tva)?.label}
+                </Info>
+              )}
+            </InputButton>
           )}
         </div>
         {!readonly && (
-          <div className="-space-x-px">
+          <div className="-space-x-px shrink-0">
             <Button
               onClick={(e) =>
                 setMenu({
                   target: e.currentTarget,
                   menu: [
-                    ...((value.type !== "separation"
+                    ...((!isSeparation
                       ? [
                           {
                             label: value.discount?.value
                               ? "Retirer la réduction"
-                              : "Appliquer une réduction",
+                              : "Ajouter une réduction",
                             icon: (p) => <ReceiptPercentIcon {...p} />,
                             onClick: () => {
                               onChange?.({
@@ -286,23 +288,27 @@ export const InvoiceLineInput = (props: {
                               });
                             },
                           },
-                          {
-                            label: value.optional
-                              ? "Article obligatoire"
-                              : "Article optionnel",
-                            icon: (p) =>
-                              value.optional ? (
-                                <LockClosedIcon {...p} />
-                              ) : (
-                                <CheckCircleIcon {...p} />
-                              ),
-                            onClick: () => {
-                              onChange?.({
-                                ...value,
-                                optional: !value.optional,
-                              });
-                            },
-                          },
+                          ...((props.invoice?.type === "quotes"
+                            ? [
+                                {
+                                  label: value.optional
+                                    ? "Article obligatoire"
+                                    : "Article optionnel",
+                                  icon: (p) =>
+                                    value.optional ? (
+                                      <LockClosedIcon {...p} />
+                                    ) : (
+                                      <CheckCircleIcon {...p} />
+                                    ),
+                                  onClick: () => {
+                                    onChange?.({
+                                      ...value,
+                                      optional: !value.optional,
+                                    });
+                                  },
+                                },
+                              ]
+                            : []) as DropDownMenuType),
                           { type: "divider" },
                         ]
                       : []) as DropDownMenuType),

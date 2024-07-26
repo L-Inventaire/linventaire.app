@@ -126,7 +126,18 @@ export const Input = (props: InputProps) => {
                 e.target.select();
               }
             }}
-            {..._.omit(props, "label", "inputClassName", "className", "size")}
+            {..._.omit(
+              props,
+              "label",
+              "inputClassName",
+              "className",
+              "size",
+              "highlight",
+              "inputRef",
+              "autoSelect",
+              "autoFocus",
+              "shortcut"
+            )}
           />
         ))}
     </>

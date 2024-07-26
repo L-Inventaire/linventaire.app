@@ -2,7 +2,7 @@ import { Invoices } from "@features/invoices/types/types";
 
 export const getTvaValue = (tva: string): number => {
   tva = tva || "";
-  if (tva.match(/^[0-9.]+$/)) {
+  if (tva.match(/^[0-9.]+.*/)) {
     return parseFloat(tva) / 100;
   }
   return 0;

@@ -9,12 +9,17 @@ import {
   FormControllerType,
 } from "@components/form/formcontext";
 import _ from "lodash";
-import { ReactNode, useContext, useEffect, useState } from "react";
+import { ReactNode, useContext, useEffect, useRef, useState } from "react";
+import { atomFamily, useRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
 
-export type InputButtonProps<T> = Omit<ButtonProps, "onChange" | "content"> & {
+export type InputButtonProps<T> = Omit<
+  ButtonProps,
+  "onChange" | "content" | "value"
+> & {
+  key?: string;
   ctrl?: FormControllerType<string[] | null | never[]>;
-  value?: T;
+  value?: T | any;
   onChange?: (value: T) => void;
   placeholder?: string;
   empty?: string;
@@ -23,8 +28,14 @@ export type InputButtonProps<T> = Omit<ButtonProps, "onChange" | "content"> & {
   autoFocus?: boolean;
 };
 
+export const InputButtonIsOpenAtom = atomFamily<boolean, string>({
+  key: "InputButtonIsOpenAtom",
+  default: false,
+});
+
 export const InputButton = <T,>(props: InputButtonProps<T>) => {
-  const [open, setOpen] = useState(false);
+  const key = useRef(props.key || _.uniqueId());
+  const [open, setOpen] = useRecoilState(InputButtonIsOpenAtom(key?.current));
   const formContext = useContext(FormContextContext);
   const disabled =
     props.disabled || formContext.disabled || formContext.readonly || false;
@@ -47,6 +58,7 @@ export const InputButton = <T,>(props: InputButtonProps<T>) => {
           "placeholder",
           "onClick",
           "label",
+          "readonly",
           "content"
         )}
         onClick={() => {

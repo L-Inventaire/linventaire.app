@@ -110,7 +110,7 @@ export type InvoiceLine = {
 
   article?: string; // Nullable
 
-  type: "product" | "service" | "consumable" | "separation"; // product, service, consumable, separation
+  type: "product" | "service" | "consumable" | "separation" | "correction"; // product, service, consumable, separation
   name?: string;
   description?: string;
 

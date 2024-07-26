@@ -46,6 +46,12 @@
   font-style: normal;
 }
 
+.editor-input .ql-disabled .ql-editor.ql-blank::before {
+  left: 0.0em;
+  right: 0.0em;
+  font-style: normal;
+}
+
 .editor-input .ql-snow.ql-toolbar button, .editor-input .ql-snow .ql-toolbar button {
   background: none;
   border: none;

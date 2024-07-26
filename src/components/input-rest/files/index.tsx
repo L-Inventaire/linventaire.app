@@ -9,7 +9,7 @@ import { useFiles } from "@features/files/hooks/use-files";
 import { Files } from "@features/files/types/types";
 import { PaperClipIcon } from "@heroicons/react/24/outline";
 import _ from "lodash";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { twMerge } from "tailwind-merge";
 
@@ -22,6 +22,7 @@ export const FilesInput = (props: {
   max?: number;
   placeholder?: string;
   disabled?: boolean;
+  refUploadTrigger?: (c: () => void) => void;
   rel?: {
     table: string;
     id: string;
@@ -154,18 +155,12 @@ export const FilesInput = (props: {
       {!props.disabled &&
         (props.max || 100) >
           (existingFiles || []).length + (newFiles || []).length && (
-          <div
-            className={twMerge(
-              size === "md" && "w-full relative p-1",
-              size === "sm" && "inline-block"
-            )}
-          >
-            <DroppableFilesInput
-              disabled={loading}
-              onChange={uploadFiles}
-              size={size}
-            />
-          </div>
+          <DroppableFilesInput
+            disabled={loading}
+            onChange={uploadFiles}
+            size={size}
+            refUploadTrigger={props.refUploadTrigger}
+          />
         )}
     </div>
   );
@@ -176,63 +171,87 @@ export const DroppableFilesInput = ({
   className,
   disabled,
   size,
+  refUploadTrigger,
 }: {
   onChange: (f: File[]) => void;
   className?: string;
   disabled?: boolean;
   size?: "md" | "sm";
+  refUploadTrigger?: (c: () => void) => void;
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const overrideEventDefaults = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
   };
+
+  const input = (
+    <input
+      ref={fileInputRef}
+      type="file"
+      className="hidden"
+      multiple
+      onChange={(e) => {
+        if (e.target.files && e.target.files.length && !disabled) {
+          onChange(Array.from(e.target.files).slice(0, 10));
+          if (fileInputRef.current) fileInputRef.current.value = "";
+        }
+      }}
+    />
+  );
+
+  useEffect(() => {
+    refUploadTrigger?.(() => {
+      fileInputRef.current?.click?.();
+    });
+  }, [refUploadTrigger]);
+
+  if (refUploadTrigger) {
+    return input;
+  }
+
   return (
     <div
       className={twMerge(
-        InputOutlinedDefault,
-        size === "md" &&
-          "cursor-pointer text-center p-2 border-dashed border-2",
-        className
+        size === "md" && "w-full relative p-1",
+        size === "sm" && "inline-block"
       )}
-      onClick={() => fileInputRef.current?.click()}
-      onDrop={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const files = e.dataTransfer?.files;
-        if (files && files.length && !disabled) {
-          onChange(Array.from(files).slice(0, 10));
-        }
-      }}
-      onDragEnter={overrideEventDefaults}
-      onDragLeave={overrideEventDefaults}
-      onDragOver={overrideEventDefaults}
     >
-      {size === "md" && (
-        <Info className="grow flex items-center justify-center h-full">
-          <PaperClipIcon className="h-4 w-4 inline-block mr-2" />
-          <span>Click or drop to add files</span>
-        </Info>
-      )}
-      {size !== "md" && (
-        <Button
-          size={size}
-          theme="invisible"
-          icon={(p) => <PaperClipIcon {...p} />}
-        />
-      )}
-      <input
-        ref={fileInputRef}
-        type="file"
-        className="hidden"
-        multiple
-        onChange={(e) => {
-          if (e.target.files && e.target.files.length && !disabled) {
-            onChange(Array.from(e.target.files).slice(0, 10));
-            if (fileInputRef.current) fileInputRef.current.value = "";
+      <div
+        className={twMerge(
+          InputOutlinedDefault,
+          size === "md" &&
+            "cursor-pointer text-center p-2 border-dashed border-2",
+          className
+        )}
+        onClick={() => fileInputRef.current?.click()}
+        onDrop={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const files = e.dataTransfer?.files;
+          if (files && files.length && !disabled) {
+            onChange(Array.from(files).slice(0, 10));
           }
         }}
-      />
+        onDragEnter={overrideEventDefaults}
+        onDragLeave={overrideEventDefaults}
+        onDragOver={overrideEventDefaults}
+      >
+        {size === "md" && (
+          <Info className="grow flex items-center justify-center h-full">
+            <PaperClipIcon className="h-4 w-4 inline-block mr-2" />
+            <span>Click or drop to add files</span>
+          </Info>
+        )}
+        {size !== "md" && (
+          <Button
+            size={size}
+            theme="invisible"
+            icon={(p) => <PaperClipIcon {...p} />}
+          />
+        )}
+        {input}
+      </div>
     </div>
   );
 };

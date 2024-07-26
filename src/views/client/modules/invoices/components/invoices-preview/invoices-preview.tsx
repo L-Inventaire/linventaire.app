@@ -20,6 +20,7 @@ import { useFile, useFiles } from "@features/files/hooks/use-files";
 import { getDocumentName } from "@features/invoices/utils";
 import { DateTime } from "luxon";
 import { getTvaValue } from "../../utils";
+import { Fragment } from "react/jsx-runtime";
 
 type InvoicesPreviewProps = {
   invoice: Invoices;
@@ -318,7 +319,7 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
               }
 
               return (
-                <>
+                <Fragment key={i}>
                   <tr>
                     <td
                       style={{
@@ -400,7 +401,7 @@ export function InvoicesPreview({ invoice }: InvoicesPreviewProps) {
                       style={{ height: 0, padding: 0 }}
                     />
                   </tr>
-                </>
+                </Fragment>
               );
             })}
           </tbody>

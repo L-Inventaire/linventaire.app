@@ -4,8 +4,9 @@ import { RestDocumentProps, RestDocumentsInput } from "@components/input-rest";
 import { useContact } from "@features/contacts/hooks/use-contacts";
 import { getContactName } from "@features/contacts/types/types";
 import { Invoices } from "@features/invoices/types/types";
-import { InvoiceStatus } from "../invoice-status";
-import { renderCompletion } from "../invoices-details";
+import { InvoiceStatus } from "../../invoice-status";
+import { renderCompletion } from "../../invoices-details";
+import { CompletionTags } from "../components/completion-tags";
 
 export const InvoiceRestDocument = (
   props: Omit<RestDocumentProps<Invoices>, "entity">
@@ -35,32 +36,15 @@ const RenderInvoiceCard = ({ invoice }: { invoice: Invoices }) => {
           .filter(Boolean)
           .join(", ")}
       </Info>
-      <div className="h-6 space-x-2 mt-1">
+      <div className="h-6 mt-1">
         <InvoiceStatus
           type={invoice.type}
           value={invoice.state}
           readonly
           size="xs"
         />
-        <div className="-space-x-px inline-block">
-          <Tag
-            className="rounded-r-none"
-            data-tooltip={"Lignes en stock"}
-            size="xs"
-            noColor
-            color={renderCompletion(invoice.content)[1]}
-          >
-            {renderCompletion(invoice.content)[0]}%
-          </Tag>
-          <Tag
-            className="rounded-l-none"
-            data-tooltip={"Lignes livrées"}
-            size="xs"
-            noColor
-            color={"gray"}
-          >
-            -
-          </Tag>
+        <div className="float-right">
+          <CompletionTags short invoice={invoice} lines={invoice.content} />
         </div>
       </div>
     </div>

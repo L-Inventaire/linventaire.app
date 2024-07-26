@@ -11,7 +11,7 @@ export enum AddressLength {
 export function formatAddress(
   address: Address | null | undefined,
   length: AddressLength,
-  placeholder: string | null
+  placeholder?: string | null
 ): string {
   if (!address) return placeholder ?? "#";
 
@@ -43,5 +43,5 @@ export function formatAddress(
     return secondLine;
   }
 
-  return placeholder ?? "#";
+  return placeholder || "";
 }

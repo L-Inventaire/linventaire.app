@@ -1,19 +1,25 @@
 import { AnimatedHeight } from "@atoms/animated-side/height";
 import { Button } from "@atoms/button/button";
 import { Card } from "@atoms/card";
-import { Base, SectionSmall } from "@atoms/text";
+import { Base, Info, SectionSmall } from "@atoms/text";
 import { FormControllerFuncType } from "@components/form/formcontext";
 import { InputButton } from "@components/input-button";
 import { formatAmount } from "@features/utils/format/strings";
-import { PlusIcon, ReceiptPercentIcon } from "@heroicons/react/20/solid";
+import {
+  PaperClipIcon,
+  PlusIcon,
+  ReceiptPercentIcon,
+} from "@heroicons/react/20/solid";
 import _ from "lodash";
-import { Fragment } from "react";
+import { Fragment, useRef } from "react";
 import { DropInvoiceLine, InvoiceLineInput } from "./invoice-line-input";
 import { Invoices } from "@features/invoices/types/types";
 import { twMerge } from "tailwind-merge";
 import { InvoiceDiscountInput } from "./components/discount-input";
 import { FormInput } from "@components/form/fields";
 import { tvaOptions } from "@features/utils/constants";
+import { FilesInput } from "@components/input-rest/files";
+import { getTvaValue } from "../../utils";
 
 export const InvoiceLinesInput = ({
   onChange,
@@ -26,6 +32,7 @@ export const InvoiceLinesInput = ({
   ctrl: FormControllerFuncType<Invoices>;
   readonly?: boolean;
 }) => {
+  const refTriggerUploadFile = useRef<() => void>(() => {});
   const addLine = () => {
     onChange({
       ...value,
@@ -157,6 +164,28 @@ export const InvoiceLinesInput = ({
           </Fragment>
         ))}
       </div>
+
+      <AnimatedHeight className="text-left">
+        {!!ctrl("attachments")?.value?.length && (
+          <Info>Documents envoyés avec la facture</Info>
+        )}
+        <div>
+          <FilesInput
+            ctrl={ctrl("attachments")}
+            rel={{
+              table: "invoices",
+              id: value.id,
+              field: "attachments",
+            }}
+            disabled={readonly}
+            refUploadTrigger={(uploadFile) =>
+              (refTriggerUploadFile.current = uploadFile)
+            }
+          />
+        </div>
+        {!!ctrl("attachments")?.value?.length && <div className="h-6" />}
+      </AnimatedHeight>
+
       <AnimatedHeight>
         {!!value?.content?.length && (
           <>
@@ -166,6 +195,15 @@ export const InvoiceLinesInput = ({
                 !readonly || value.discount?.value ? "mb-8" : "mb-2"
               )}
             >
+              {!readonly && (
+                <Button
+                  data-tooltip="Ajouter des documents"
+                  theme="invisible"
+                  size="md"
+                  icon={(p) => <PaperClipIcon {...p} />}
+                  onClick={refTriggerUploadFile.current}
+                />
+              )}
               {_.uniq((value.content || []).map((a) => a.tva)).length === 1 && (
                 <InputButton
                   size="md"
@@ -190,7 +228,10 @@ export const InvoiceLinesInput = ({
                 >
                   TVA{" "}
                   {tvaOptions.find((v) => v.value === value.content?.[0].tva)
-                    ?.label || "Aucune"}
+                    ?.label ||
+                    (getTvaValue(value.content?.[0]?.tva || "0")
+                      ? getTvaValue(value.content?.[0]?.tva || "0") * 100 + "%"
+                      : "Aucune")}
                 </InputButton>
               )}
               {(!readonly || value.discount?.value) && (

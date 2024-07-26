@@ -266,12 +266,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
               )}
             </div>
           )}
-          <AnimatedHeight
-            className={twMerge(
-              "pr-1",
-              !["xs", "sm", "md"].includes(size) && "pr-4"
-            )}
-          >
+          <AnimatedHeight className={twMerge("pr-1")}>
             {value && !!valuesList?.[0] && (
               <Base
                 className={twMerge(

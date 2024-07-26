@@ -30,7 +30,7 @@ import { EditorInput } from "@molecules/editor-input";
 import { PageBlock, PageBlockHr } from "@views/client/_layout/page";
 import { useEffect, useState } from "react";
 import { StockItemStatus } from "./stock-item-status";
-import { InvoiceRestDocument } from "../../invoices/components/invoice-input-rest-card";
+import { InvoiceRestDocument } from "../../invoices/components/invoice-lines-input/invoice-input-rest-card";
 
 export const StockItemsDetailsPage = ({
   readonly,
