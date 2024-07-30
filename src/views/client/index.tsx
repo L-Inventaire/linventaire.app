@@ -1,9 +1,12 @@
-import { Confetti } from "@atoms/confetti";
 import { AnimatedBackground } from "@atoms/animated-background";
+import { Confetti } from "@atoms/confetti";
 import { useAuth } from "@features/auth/state/use-auth";
 import { useWebsockets } from "@features/auth/state/use-sockets";
 import { DidCreateCompanyOrSignupAtom } from "@features/clients/state/store";
-import { useClients } from "@features/clients/state/use-clients";
+import {
+  useClients,
+  useCurrentClient,
+} from "@features/clients/state/use-clients";
 import { useCustomersConfiguration } from "@features/customers/configuration";
 import { ROUTES, getRoute, useRoutes } from "@features/routes";
 import { useTagConfiguration } from "@features/tags/configuration";
@@ -49,7 +52,7 @@ export const BackOfficeRoutes = () => {
       <Route element={<Layout />}>
         <Route
           path={ROUTES.Account}
-          element={<Navigate to={getRoute(ROUTES.AccountProfile)} />}
+          element={<NavigateGetRoute to={ROUTES.AccountProfile} />}
         />
         <Route path={ROUTES.AccountProfile} element={<AccountPage />} />
         <Route path={ROUTES.AccountClients} element={<AccountClientsPage />} />
@@ -80,7 +83,7 @@ export const BackOfficeRoutes = () => {
 
         <Route
           path={ROUTES.Settings}
-          element={<Navigate to={getRoute(ROUTES.SettingsPreferences)} />}
+          element={<NavigateGetRoute to={ROUTES.SettingsPreferences} />}
         />
         <Route
           path={ROUTES.SettingsPreferences}
@@ -167,4 +170,9 @@ export const Layout = () => {
       <AnimatedBackground />
     </>
   );
+};
+
+export const NavigateGetRoute = ({ to }: { to: string }) => {
+  useCurrentClient();
+  return <Navigate to={getRoute(to)} />;
 };

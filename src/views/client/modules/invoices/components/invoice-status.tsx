@@ -22,9 +22,9 @@ export const InvoiceStatus = ({
 
   const statusName = {
     draft: "Brouillon",
-    sent: "Envoyé",
+    sent: type === "quotes" ? "Envoyé" : "Demande au fournisseur",
     accounted: "Comptabilisé",
-    purchase_order: "Bon de commande",
+    purchase_order: type === "quotes" ? "Bon de commande" : "Commandé",
     partial_paid: "Paiment partiel",
     paid: "Payé",
     closed: "Fermé",

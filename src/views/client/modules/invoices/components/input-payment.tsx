@@ -48,7 +48,7 @@ export const InvoicePaymentInput = ({
       <div className="text-left flex flex-col space-y-0 w-max">
         <Base>
           Paiement par{" "}
-          {invoice.payment_information.mode
+          {(invoice.payment_information.mode || [])
             .map((a) => paymentOptions.find((b) => b.value === a)?.label || a)
             .join(", ")}{" "}
           en {invoice.currency}

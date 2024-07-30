@@ -154,13 +154,15 @@ export const ContactsDetailsPage = ({
                     label="Fournisseur"
                     placeholder="Ce contact est un fournisseur"
                     type="boolean"
-                    ctrl={ctrl("is_supplier")}
+                    value={!!contact.is_supplier}
+                    onChange={(e) => ctrl("is_supplier").onChange(e)}
                   />
                   <FormInput
                     label="Client"
                     placeholder="Ce contact est un client"
                     type="boolean"
-                    ctrl={ctrl("is_client")}
+                    value={!!contact.is_client}
+                    onChange={(e) => ctrl("is_client").onChange(e)}
                   />
                   <div className="grow w-full" />
                 </PageColumns>

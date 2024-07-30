@@ -27,11 +27,14 @@ export const ellipsis = (str: string, length: number) => {
 };
 
 export const formatIBAN = (iban: string) => {
-  return iban
-    .toLocaleUpperCase()
-    .replace(/[^A-Z0-9]/gm, "")
-    .replace(/([A-Z0-9]{4})/g, "$1 ")
-    .replace(/ $/gm, "");
+  return (
+    iban &&
+    iban
+      .toLocaleUpperCase()
+      .replace(/[^A-Z0-9]/gm, "")
+      .replace(/([A-Z0-9]{4})/g, "$1 ")
+      .replace(/ $/gm, "")
+  );
 };
 
 export const formatAmount = (number: number, currency = "EUR") => {

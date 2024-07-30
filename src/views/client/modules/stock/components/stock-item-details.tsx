@@ -102,6 +102,8 @@ export const StockItemsDetailsPage = ({
         {!article && (
           <>
             <RestDocumentsInput
+              disabled={true}
+              data-tooltip="Bientôt disponible"
               className="mt-4"
               label="Commande"
               placeholder="Sélectionner une commande"
@@ -113,6 +115,8 @@ export const StockItemsDetailsPage = ({
               onChange={ctrl("from_rel_supplier_quote").onChange}
             />
             <RestDocumentsInput
+              disabled={true}
+              data-tooltip="Bientôt disponible"
               className="mt-4"
               label="Fournisseur"
               placeholder="Sélectionner un fournisseur"
