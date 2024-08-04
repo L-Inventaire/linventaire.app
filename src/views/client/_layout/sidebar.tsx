@@ -173,7 +173,7 @@ export const SideBar = () => {
             show={hasAccess("ONSITE_READ")}
           >
             <SideMenuItem
-              to={getRoute(ROUTES.Consulting)}
+              to={getRoute(ROUTES.ServiceItems)}
               label={t("menu.consulting")}
               icon={(p) => <BriefcaseIcon {...p} />}
               show={hasAccess("ONSITE_READ")}

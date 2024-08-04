@@ -34,11 +34,11 @@ export const useSettingsMenu: MenuIndex = () => {
       },
       {
         label: t("menu.settings.stock_locations"),
-        to: getRoute(ROUTES.StockLocationsPreferences),
+        to: getRoute(ROUTES.SettingsStockLocations),
       },
       {
         label: t("menu.settings.bank_accounts"),
-        to: getRoute(ROUTES.BankAccountsPreferences),
+        to: getRoute(ROUTES.SettingsBankAccounts),
       },
       {
         type: "divider",

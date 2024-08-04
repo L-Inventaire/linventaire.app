@@ -64,10 +64,12 @@ export const ROUTES = {
   StockEdit: "/:client/stock/:id/form",
 
   Accounting: "/:client/accounting",
+  AccountingEdit: "/:client/accounting/:id/form",
+  AccountingView: "/:client/accounting/:id",
 
-  Consulting: "/:client/consulting",
-  ConsultingView: "/:client/consulting/:id",
-  ConsultingEdit: "/:client/consulting/:id/form",
+  ServiceItems: "/:client/service",
+  ServiceItemsView: "/:client/service/:id",
+  ServiceItemsEdit: "/:client/service/:id/form",
 
   Products: "/:client/products",
   ProductsView: "/:client/products/:id",
@@ -75,8 +77,8 @@ export const ROUTES = {
 
   Settings: "/:client/settings",
   SettingsPreferences: "/:client/settings/preferences",
-  StockLocationsPreferences: "/:client/settings/stock-locations",
-  BankAccountsPreferences: "/:client/settings/bank-accounts",
+  SettingsStockLocations: "/:client/settings/stock-locations",
+  SettingsBankAccounts: "/:client/settings/bank-accounts",
   SettingsTags: "/:client/settings/tags",
   SettingsCustomFields: "/:client/settings/custom-fields",
   SettingsCompany: "/:client/settings/company",

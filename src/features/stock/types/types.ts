@@ -1,7 +1,6 @@
-export type StockItems = {
-  client_id: string;
-  id: string;
+import { RestEntity } from "@features/utils/rest/types/types";
 
+export type StockItems = RestEntity & {
   state:
     | "bought"
     | "stock"
@@ -28,6 +27,10 @@ export type StockItems = {
   documents: string[];
   tags: string[];
   assignees: string[];
+};
 
-  fields: any;
+export type StockLocations = RestEntity & {
+  type: "warehouse" | "shelf";
+  name: string;
+  parent: string;
 };

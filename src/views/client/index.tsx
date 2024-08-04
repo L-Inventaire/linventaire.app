@@ -43,6 +43,8 @@ import { CompanyPlanPage } from "./settings/plan";
 import { PreferencesPage } from "./settings/preferences";
 import { TagsPage } from "./settings/tags";
 import { CompanyUsersPage } from "./settings/users";
+import { ServicePage } from "./modules/service";
+import { AccountingPage } from "./modules/accounting";
 
 export const BackOfficeRoutes = () => {
   return (
@@ -66,8 +68,13 @@ export const BackOfficeRoutes = () => {
         <Route path={ROUTES.ContactsView} element={<ContactsViewPage />} />
         <Route path={ROUTES.ContactsEdit} element={<ContactsEditPage />} />
 
-        <Route path={ROUTES.Consulting} element={<DevPage />} />
-        <Route path={ROUTES.Accounting} element={<DevPage />} />
+        <Route path={ROUTES.ServiceItems} element={<ServicePage />} />
+        <Route path={ROUTES.ServiceItemsView} element={<ServicePage />} />
+        <Route path={ROUTES.ServiceItemsEdit} element={<ServicePage />} />
+
+        <Route path={ROUTES.Accounting} element={<AccountingPage />} />
+        <Route path={ROUTES.AccountingView} element={<AccountingPage />} />
+        <Route path={ROUTES.AccountingEdit} element={<AccountingPage />} />
 
         <Route path={ROUTES.Products} element={<ArticlesPage />} />
         <Route path={ROUTES.ProductsView} element={<ArticlesViewPage />} />
@@ -94,6 +101,8 @@ export const BackOfficeRoutes = () => {
         <Route path={ROUTES.SettingsCompany} element={<CompanyPage />} />
         <Route path={ROUTES.SettingsUsers} element={<CompanyUsersPage />} />
         <Route path={ROUTES.SettingsBilling} element={<CompanyPlanPage />} />
+        <Route path={ROUTES.SettingsStockLocations} element={<DevPage />} />
+        <Route path={ROUTES.SettingsBankAccounts} element={<DevPage />} />
         <Route path={ROUTES.SettingsImport} element={<DevPage />} />
         <Route path={ROUTES.SettingsApi} element={<DevPage />} />
 
