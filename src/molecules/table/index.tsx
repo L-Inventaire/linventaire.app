@@ -11,8 +11,8 @@ export type TablePropsType<T> = {
   rowIndex?: string;
   total?: number;
 
+  checkboxAlwaysVisible?: boolean;
   grid?: boolean;
-  useResponsiveMode?: boolean;
   cellClassName?: (row: T) => string;
   className?: string;
   loading?: boolean;
@@ -27,6 +27,7 @@ export type TablePropsType<T> = {
         callback: (items: T[]) => void;
       }[]
     | ((items: T[]) => void);
+  selection?: T[];
   showPagination?: false | "simple" | "full" | true;
   initialPagination?: Pick<
     Pagination,
@@ -71,11 +72,12 @@ export function Table<T>({
   initialPagination,
   onRequestData,
   onFetchExportData,
+  checkboxAlwaysVisible,
   onClick,
   onSelect,
+  selection,
   loading,
   grid,
-  useResponsiveMode,
   cellClassName,
   className,
 }: TablePropsType<T>) {
@@ -124,14 +126,13 @@ export function Table<T>({
       scrollable={scrollable}
       onClick={onClick}
       onSelect={onSelect}
+      selection={selection}
       loading={loading || internalLoading}
       grid={grid}
-      useResponsiveMode={
-        useResponsiveMode === undefined ? true : useResponsiveMode
-      }
       cellClassName={cellClassName}
       className={className}
       onFetchExportData={onFetchExportData}
+      checkboxAlwaysVisible={checkboxAlwaysVisible}
       onChangeOrder={(columnIndex, direction) => {
         setPagination({
           ...pagination,

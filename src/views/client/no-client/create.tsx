@@ -246,7 +246,6 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
               <Table
                 className="mt-4"
                 showPagination={false}
-                useResponsiveMode={false}
                 data={invitations}
                 loading={false}
                 columns={[

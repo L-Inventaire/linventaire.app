@@ -38,7 +38,6 @@ export const JoinCompany = () => {
         {!!invitations.length && (
           <Table
             showPagination={false}
-            useResponsiveMode={false}
             data={invitations}
             loading={loading}
             columns={[

@@ -66,7 +66,7 @@ registerCtrlKRestEntity<AccountingTransactions>("accounting_transactions", {
             item.amount < 0 ? "text-red-600" : "text-green-600"
           )}
         >
-          {item.amount < 0 ? "- " : "+ "}
+          {item.amount < 0 ? "" : "+"}
           {formatAmount(item.amount, item.currency)}
         </div>
       ),

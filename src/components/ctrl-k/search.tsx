@@ -36,9 +36,11 @@ import { filterSuggestions, useSearchableEntities } from "./search-utils";
 export const SearchCtrlK = () => {
   const { t } = useTranslation();
   const [state, setState] = useRecoilState(CtrlKAtom);
-  const [selection, setSelection] = useState<RestEntity[]>([]);
   const currentState = state.path[state.path.length - 1] || {};
   const currentEntity = currentState.options?.entity;
+  const [selection, setSelection] = useState<RestEntity[]>(
+    currentState.options?.selected || []
+  );
 
   const toggleSelection = (item: RestEntity) => {
     setSelection((prev) =>
@@ -297,13 +299,19 @@ export const SearchCtrlK = () => {
                 );
               }, 100);
             }}
-            useResponsiveMode={false}
+            checkboxAlwaysVisible
             loading={items.isPending}
-            data={items.data?.list || []}
+            data={[
+              ...(selection || []),
+              ...((items.data?.list || [])?.filter(
+                (a) => selection.map((b) => b.id).indexOf(a.id) < 0
+              ) || []),
+            ]}
             showPagination={false}
             onSelect={
               currentState.select ? (items) => setSelection(items) : undefined
             }
+            selection={selection}
             rowIndex="id"
             columns={
               (CtrlKRestEntities[currentEntity || ""]?.renderResult as any) || [
@@ -316,11 +324,22 @@ export const SearchCtrlK = () => {
         </div>
       )}
 
-      {!!selection.length && (
-        <div className="border-t border-slate-100 dark:border-slate-700 px-3 py-2 flex items-center">
+      {(!!selection.length || !!currentState?.options?.selected?.length) && (
+        <div className="border-t border-slate-100 dark:border-slate-700 px-3 py-2 flex items-center space-x-2">
           <Base className="block grow">
             {selection.length} éléments sélectionnés
           </Base>
+          {!!selection.length && (
+            <Button
+              size="md"
+              theme="outlined"
+              onClick={() => {
+                setSelection([]);
+              }}
+            >
+              Tout retirer
+            </Button>
+          )}
           <Button
             size="md"
             onClick={(event: any) => {
@@ -331,7 +350,7 @@ export const SearchCtrlK = () => {
               }
             }}
           >
-            Sélectionner
+            Enregistrer
           </Button>
         </div>
       )}

@@ -4,7 +4,7 @@ import { CtrlKAtom } from "./store";
 export const useEditFromCtrlK = () => {
   const setCtrlK = useSetRecoilState(CtrlKAtom);
 
-  return (entity: string, id?: string) =>
+  return <T>(entity: string, id?: string, initialState?: Partial<T>) =>
     setCtrlK((state) => ({
       ...state,
       path: [
@@ -13,7 +13,7 @@ export const useEditFromCtrlK = () => {
           options: {
             entity: entity,
             id,
-            internalQuery: { description: "<p>Hey !</p>" },
+            internalQuery: initialState,
           },
         },
       ],

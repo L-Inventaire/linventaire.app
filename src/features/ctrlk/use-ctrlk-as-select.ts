@@ -8,8 +8,9 @@ export const useCtrlKAsSelect = () => {
     entity: string,
     filter: any,
     cb: (entities: T[]) => void,
-    max: number = 1
-  ) =>
+    max: number = 1,
+    selected: T[] = []
+  ) => {
     setCtrlK((state) => ({
       ...state,
       path: [
@@ -20,8 +21,10 @@ export const useCtrlKAsSelect = () => {
             entity: entity,
             internalQuery: filter,
             onClick: cb,
+            selected,
           },
         },
       ],
     }));
+  };
 };

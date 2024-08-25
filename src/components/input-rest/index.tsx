@@ -15,7 +15,7 @@ import { RestEntity } from "@features/utils/rest/types/types";
 import { TrashIcon } from "@heroicons/react/16/solid";
 import { PencilSquareIcon, PlusIcon } from "@heroicons/react/20/solid";
 import _ from "lodash";
-import { Fragment, ReactNode, useContext, useEffect } from "react";
+import { Fragment, ReactNode, useCallback, useContext, useEffect } from "react";
 import { twMerge } from "tailwind-merge";
 
 export type RestDocumentProps<T> = {
@@ -25,7 +25,7 @@ export type RestDocumentProps<T> = {
   placeholder?: string;
   entity: string;
   filter?: Partial<T>;
-  queryFn?: (query: string) => Promise<{ total: number; list: T[] }>;
+  queryFn?: (ids: string[]) => Promise<{ total: number; list: T[] }>;
   render?: (value: T) => ReactNode | JSX.Element;
   size?: "xs" | "sm" | "md" | "lg" | "xl";
   disabled?: boolean;
@@ -62,7 +62,9 @@ export const RestDocumentsInput = <T extends RestEntity>(
   const { items } = useRest<T>(props.entity, {
     query: buildQueryFromMap({ id: value }),
     limit: _.isArray(value) ? value?.length : value ? 1 : 0,
-    queryFn: props.queryFn ? () => props.queryFn!("") : undefined,
+    queryFn: props.queryFn
+      ? () => props.queryFn!(value ? (_.isArray(value) ? value : [value]) : [])
+      : undefined,
   });
   const valuesList = items?.data?.list;
 
@@ -81,32 +83,36 @@ export const RestDocumentsInput = <T extends RestEntity>(
           : props.icon!(p, items.data?.list || [])
     : undefined;
 
-  const onClick = (e: MouseEvent | any) => {
-    if (disabled && !value) return;
-    e.preventDefault();
-    e.stopPropagation();
-    return !disabled
-      ? select<T>(
-          props.entity,
-          props.filter || {},
-          (items: T[]) => {
-            if (typeof props.max !== "number") {
-              const onChange = props.onChange || props.ctrl?.onChange;
-              onChange?.(items[0]?.id || "", items[0] || null);
-            } else {
-              const onChange = props.onChange || props.ctrl?.onChange;
-              onChange?.(
-                (items || []).map((a) => a.id),
-                items || []
-              );
-            }
-          },
-          props.max || 1
-        )
-      : !!value
-      ? edit(props.entity, _.isArray(value) ? value[0] : value || "")
-      : null;
-  };
+  const onClick = useCallback(
+    (e: MouseEvent | any) => {
+      if (disabled && !value) return;
+      e.preventDefault();
+      e.stopPropagation();
+      return !disabled
+        ? select<T>(
+            props.entity,
+            props.filter || {},
+            (items: T[]) => {
+              if (typeof props.max !== "number") {
+                const onChange = props.onChange || props.ctrl?.onChange;
+                onChange?.(items[0]?.id || "", items[0] || null);
+              } else {
+                const onChange = props.onChange || props.ctrl?.onChange;
+                onChange?.(
+                  (items || []).map((a) => a.id),
+                  items || []
+                );
+              }
+            },
+            props.max || 1,
+            valuesList || []
+          )
+        : !!value
+        ? edit(props.entity, _.isArray(value) ? value[0] : value || "")
+        : null;
+    },
+    [valuesList]
+  );
 
   if (props.noWrapper) {
     if (!value || !value?.length) {

@@ -5,24 +5,22 @@ import Select from "@atoms/input/input-select";
 import { Loader } from "@atoms/loader";
 import { Modal } from "@atoms/modal/modal";
 import { Base, BaseSmall, Info } from "@atoms/text";
+import { useShortcuts } from "@features/utils/shortcuts";
+import { ArrowDownIcon, ArrowUpIcon } from "@heroicons/react/16/solid";
 import {
+  ArrowDownTrayIcon,
   ChevronDownIcon,
   CogIcon,
-  ArrowDownTrayIcon,
 } from "@heroicons/react/24/outline";
-import { ArrowDownIcon, ArrowUpIcon } from "@heroicons/react/16/solid";
 import _ from "lodash";
-import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { twMerge } from "tailwind-merge";
 import { TableExportModal } from "./export-modal";
 import { TableOptionsModal } from "./options-modal";
 import { TablePagination, TablePaginationSimple } from "./pagination";
-import { twMerge } from "tailwind-merge";
-import { useShortcuts } from "@features/utils/shortcuts";
 
-export type RenderOptions = {
-  responsive?: boolean;
-};
+export type RenderOptions = {};
 
 export type Column<T> = {
   title?: string | ReactNode;
@@ -46,7 +44,6 @@ export type Pagination = {
 type PropsType<T> = {
   name?: string;
   grid?: boolean;
-  useResponsiveMode?: boolean;
   columns: Column<T>[];
   data: T[];
   rowIndex?: string;
@@ -56,6 +53,7 @@ type PropsType<T> = {
   pagination?: Pagination;
   scrollable?: boolean;
   loading?: boolean;
+  checkboxAlwaysVisible?: boolean;
   onSelect?:
     | {
         icon?: (props: any) => JSX.Element;
@@ -64,6 +62,7 @@ type PropsType<T> = {
         callback: (items: T[]) => void;
       }[]
     | ((items: T[]) => void);
+  selection?: T[];
   onClick?: (item: T, e: MouseEvent) => void;
   onChangeOrder?: (columnIndex: number, direction: "ASC" | "DESC") => void;
   onChangePage?: (page: number) => void;
@@ -109,23 +108,46 @@ export function RenderedTable<T>({
   loading,
   scrollable,
   onSelect,
+  selection,
   onClick,
   onChangeOrder,
   onChangePage,
   onChangePageSize,
+  checkboxAlwaysVisible,
   grid,
-  useResponsiveMode,
   cellClassName,
   className,
   onFetchExportData,
 }: PropsType<T>) {
-  const [selected, setSelected] = useState<T[]>([]);
+  const [_selected, _setSelected] = useState<T[]>(selection || []);
   const parentRef = useRef<HTMLDivElement>(null);
-  const [parentWidth, setParentWidth] = useState(document.body.clientWidth);
   const [exportModal, setExportModal] = useState(false);
   const [optionsModal, setOptionsModal] = useState(false);
 
+  const isControlled = selection !== undefined;
+
+  const selected = isControlled ? selection : _selected;
+  const setSelected = (event: T[]) => {
+    if (onSelect && typeof onSelect === "function") onSelect(event);
+    if (!isControlled) {
+      _setSelected(event);
+    }
+  };
+
+  useEffect(() => {
+    setSelected(selection || []);
+  }, [selection, data.length, pagination?.page, pagination?.perPage]);
+
   const { t } = useTranslation();
+
+  useShortcuts(
+    ["cmd+a"],
+    () => {
+      if (data.length === selected.length) setSelected([]);
+      else setSelected(data);
+    },
+    [data.length, selected.length]
+  );
 
   const onClickCheckbox = (row: T, a: boolean, e: any) => {
     // Unselect all selected text
@@ -183,36 +205,6 @@ export function RenderedTable<T>({
     }
   };
 
-  useEffect(() => {
-    setSelected([]);
-  }, [data.length, pagination?.page, pagination?.perPage]);
-
-  useEffect(() => {
-    if (onSelect && typeof onSelect === "function") onSelect(selected);
-  }, [selected, onSelect]);
-
-  const resizeEvent = useCallback(() => {
-    const { offsetWidth } = parentRef.current!.parentNode! as any;
-    setParentWidth(offsetWidth);
-  }, [setParentWidth]);
-
-  useEffect(() => {
-    window.addEventListener("resize", resizeEvent);
-    resizeEvent();
-    return () => window.removeEventListener("resize", resizeEvent);
-  }, [resizeEvent]);
-
-  useShortcuts(
-    ["cmd+a"],
-    () => {
-      if (data.length === selected.length) setSelected([]);
-      else setSelected(data);
-    },
-    [data.length, selected.length]
-  );
-
-  const responsiveMode = useResponsiveMode && parentWidth < 600; //Work in progress for responsive mode
-
   return (
     <div
       ref={parentRef}
@@ -250,54 +242,48 @@ export function RenderedTable<T>({
           </div>
         )}
 
-        {(responsiveMode || grid) &&
-          columns.filter((a) => !a.hidden).find((c) => c.orderable) && (
-            <div
-              className={
-                "float-left flex flex-row " +
-                (responsiveMode ? "w-full" : "max-w-sm")
-              }
-            >
-              <Select
-                size="md"
-                className="grow w-full my-2 mr-2"
-                onChange={(e) => {
-                  if (onChangeOrder) {
-                    onChangeOrder(parseInt(e.target.value), "ASC");
+        {grid && columns.filter((a) => !a.hidden).find((c) => c.orderable) && (
+          <div className={"float-left flex flex-row "}>
+            <Select
+              size="md"
+              className="grow w-full my-2 mr-2"
+              onChange={(e) => {
+                if (onChangeOrder) {
+                  onChangeOrder(parseInt(e.target.value), "ASC");
 
-                    // go back to first selection in select
-                    e.target.selectedIndex = 0;
-                  }
-                }}
-              >
-                <option value="">
-                  {"Trier par "}
-                  {columns[pagination?.orderBy as number]?.title ?? "..."}
-                </option>
-                {columns
-                  .filter((a) => !a.hidden)
-                  .map((c, i) => (
-                    <option key={i} value={i}>
-                      {c.title}
-                    </option>
-                  ))}
-              </Select>
-              <Select
-                size="md"
-                className="shrink-0 !w-auto -ml-px my-2"
-                onChange={(e) => {
-                  if (onChangeOrder)
-                    onChangeOrder(
-                      pagination?.orderBy || 0,
-                      e.target.value as "ASC" | "DESC"
-                    );
-                }}
-              >
-                <option value={"ASC"}>Croissant</option>
-                <option value={"DESC"}>Décroissant</option>
-              </Select>
-            </div>
-          )}
+                  // go back to first selection in select
+                  e.target.selectedIndex = 0;
+                }
+              }}
+            >
+              <option value="">
+                {"Trier par "}
+                {columns[pagination?.orderBy as number]?.title ?? "..."}
+              </option>
+              {columns
+                .filter((a) => !a.hidden)
+                .map((c, i) => (
+                  <option key={i} value={i}>
+                    {c.title}
+                  </option>
+                ))}
+            </Select>
+            <Select
+              size="md"
+              className="shrink-0 !w-auto -ml-px my-2"
+              onChange={(e) => {
+                if (onChangeOrder)
+                  onChangeOrder(
+                    pagination?.orderBy || 0,
+                    e.target.value as "ASC" | "DESC"
+                  );
+              }}
+            >
+              <option value={"ASC"}>Croissant</option>
+              <option value={"DESC"}>Décroissant</option>
+            </Select>
+          </div>
+        )}
 
         {onFetchExportData && (
           <div className="float-right ml-2">
@@ -315,7 +301,7 @@ export function RenderedTable<T>({
 
         {
           // TODO add options to change columns order
-          false && !grid && !responsiveMode && (
+          false && !grid && (
             <div className="float-right ml-2">
               <Button
                 className="my-2"
@@ -334,18 +320,16 @@ export function RenderedTable<T>({
           className={
             "relative z-0 border-collapse table-fixed w-auto min-w-full " +
             (loading ? " opacity-75 animate-pulse " : "") +
-            (scrollable ? " scrollable h-full " : "") +
-            (responsiveMode ? " w-full " : "")
+            (scrollable ? " scrollable h-full " : "")
           }
         >
-          {!responsiveMode &&
-            !grid &&
+          {!grid &&
             columns
               .filter((a) => !a.hidden)
               .map((c) => c.title || "")
               .join("") && (
               <thead>
-                <tr className="bg-slate-50 border-b opacity-50">
+                <tr className="bg-slate-50 border-b opacity-50 dark:bg-slate-800 dark:border-slate-700">
                   {onSelect && (
                     <th
                       className={
@@ -534,6 +518,7 @@ export function RenderedTable<T>({
                           <Checkbox
                             className={twMerge(
                               "ml-1 group-hover/checkbox:opacity-100 opacity-0",
+                              checkboxAlwaysVisible && "opacity-100",
                               isSelected && "opacity-100"
                             )}
                             size="sm"
@@ -543,92 +528,47 @@ export function RenderedTable<T>({
                         </div>
                       </td>
                     )}
-                    {responsiveMode && (
-                      <td className="m-0 p-0 height-table-hack sm:w-auto w-full">
-                        <div
-                          className={twMerge(
-                            "mb-2 m-0 p-0 border rounded-md p-2",
-                            i % 2
-                              ? isSelected
-                                ? "dark:bg-opacity-90 bg-opacity-90 "
-                                : "dark:bg-opacity-25 bg-opacity-25 "
-                              : "",
-                            isSelected
-                              ? " bg-slate-200 dark:bg-slate-950 "
-                              : " bg-white dark:bg-slate-700 "
-                          )}
-                        >
-                          {columns
-                            .filter((a) => !a.hidden)
-                            .map((cell, j) => (
-                              <div
-                                className={
-                                  "flex flex-row items-center space-x-2 " +
-                                  (j !== 0 ? "mt-2" : "")
-                                }
-                                key={j}
-                              >
-                                {columns
-                                  .filter((a) => !a.hidden)
-                                  .some((a) => a.title) && (
-                                  <div className="grow">
-                                    {cell.title && (
-                                      <Info className="uppercase">
-                                        {cell.title}
-                                      </Info>
-                                    )}
-                                  </div>
-                                )}
-                                <div className="overflow-hidden">
-                                  {cell.render(row, { responsive: true })}
-                                </div>
-                              </div>
-                            ))}
-                        </div>
-                      </td>
-                    )}
-                    {!responsiveMode &&
-                      columns
-                        .filter((a) => !a.hidden)
-                        .map((cell, j) => {
-                          const jFirst = j === 0 && !onSelect;
-                          const jLast =
-                            j === columns.filter((a) => !a.hidden).length - 1;
-                          return (
-                            <td
-                              key={j}
-                              className={twMerge(
-                                "m-0 p-0 height-table-hack overflow-hidden",
-                                !cell.title && cell.thClassName
-                              )}
+                    {columns
+                      .filter((a) => !a.hidden)
+                      .map((cell, j) => {
+                        const jFirst = j === 0 && !onSelect;
+                        const jLast =
+                          j === columns.filter((a) => !a.hidden).length - 1;
+                        return (
+                          <td
+                            key={j}
+                            className={twMerge(
+                              "m-0 p-0 height-table-hack overflow-hidden",
+                              !cell.title && cell.thClassName
+                            )}
+                          >
+                            <div
+                              className={defaultCellClassName({
+                                selected: isSelected,
+                                rowFirst: iFirst,
+                                rowLast: iLast,
+                                rowOdd: i % 2 === 0,
+                                colFirst: jFirst,
+                                colLast: jLast,
+                                className: cell.className || "",
+                              })}
                             >
-                              <div
-                                className={defaultCellClassName({
-                                  selected: isSelected,
-                                  rowFirst: iFirst,
-                                  rowLast: iLast,
-                                  rowOdd: i % 2 === 0,
-                                  colFirst: jFirst,
-                                  colLast: jLast,
-                                  className: cell.className || "",
-                                })}
+                              <Base
+                                className={
+                                  (jFirst ? "pl-2 " : "") +
+                                  (jLast ? "pr-2 " : "") +
+                                  "w-full py-1 px-1 inline-flex items-center h-full " +
+                                  (cell.cellClassName || "") +
+                                  " " +
+                                  (cellClassName?.(row) || "")
+                                }
                               >
-                                <Base
-                                  className={
-                                    (jFirst ? "pl-2 " : "") +
-                                    (jLast ? "pr-2 " : "") +
-                                    "w-full py-1 px-1 inline-flex items-center h-full " +
-                                    (cell.cellClassName || "") +
-                                    " " +
-                                    (cellClassName?.(row) || "")
-                                  }
-                                >
-                                  {cell.render(row, { responsive: false })}
-                                </Base>
-                              </div>
-                            </td>
-                          );
-                        })}
+                                {cell.render(row, { responsive: false })}
+                              </Base>
+                            </div>
+                          </td>
+                        );
+                      })}
                   </tr>
                 );
               })}

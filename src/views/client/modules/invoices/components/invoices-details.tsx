@@ -9,9 +9,13 @@ import { RestDocumentsInput } from "@components/input-rest";
 import { FilesInput } from "@components/input-rest/files";
 import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
+import { buildQueryFromMap } from "@components/search-bar/utils/utils";
+import { useAccountingTransactions } from "@features/accounting/hooks/use-accounting-transactions";
 import { useClients } from "@features/clients/state/use-clients";
 import { useContact } from "@features/contacts/hooks/use-contacts";
 import { Contacts } from "@features/contacts/types/types";
+import { CtrlKRestEntities } from "@features/ctrlk";
+import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { Invoices } from "@features/invoices/types/types";
 import { getDocumentName } from "@features/invoices/utils";
 import { formatTime } from "@features/utils/format/dates";
@@ -24,6 +28,7 @@ import {
   UserIcon,
 } from "@heroicons/react/20/solid";
 import { EditorInput } from "@molecules/editor-input";
+import { Table } from "@molecules/table";
 import { PageColumns } from "@views/client/_layout/page";
 import _ from "lodash";
 import { Fragment, useEffect } from "react";
@@ -36,10 +41,11 @@ import { InvoiceRecurrenceInput } from "./input-recurrence";
 import { InvoiceReminderInput } from "./input-reminder";
 import { InvoiceLinesInput } from "./invoice-lines-input";
 import { CompletionTags } from "./invoice-lines-input/components/completion-tags";
+import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-card";
 import { InvoiceStatus } from "./invoice-status";
 import { InvoicesPreview } from "./invoices-preview/invoices-preview";
 import { RelatedInvoices } from "./related-invoices";
-import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-card";
+import { AccountingTransactions } from "@features/accounting/types/types";
 
 export const computeCompletion = (
   linesu: Invoices["content"],
@@ -97,6 +103,7 @@ export const InvoicesDetailsPage = ({
   );
 
   const { contact } = useContact(draft.contact);
+  const edit = useEditFromCtrlK();
 
   const isQuoteRelated =
     draft.type === "quotes" || draft.type === "supplier_quotes";
@@ -138,6 +145,12 @@ export const InvoicesDetailsPage = ({
         return draft;
       });
   }, [JSON.stringify(draft)]);
+
+  const { accounting_transactions } = useAccountingTransactions({
+    query: buildQueryFromMap({
+      rel_invoices: draft.id,
+    }),
+  });
 
   if (isPending || (id && draft.id !== id) || !client) return <PageLoader />;
 
@@ -341,11 +354,33 @@ export const InvoicesDetailsPage = ({
                   <div className="mt-8">
                     {!isQuoteRelated && readonly && (
                       <div className="float-right">
-                        <Button size="sm">Enregistrer un paiement</Button>
+                        <Button
+                          size="sm"
+                          onClick={() =>
+                            edit<AccountingTransactions>(
+                              "accounting_transactions",
+                              "",
+                              {
+                                rel_invoices: [draft.id],
+                                currency: draft.currency,
+                                amount: draft.total?.total_with_taxes || 0,
+                                reference: draft.reference,
+                              }
+                            )
+                          }
+                        >
+                          Enregistrer un paiement
+                        </Button>
                       </div>
                     )}
                     <Section className="mb-2">Paiements</Section>
-                    TODO
+                    <Table
+                      data={accounting_transactions.data?.list || []}
+                      columns={
+                        CtrlKRestEntities["accounting_transactions"]
+                          .renderResult as any
+                      }
+                    />
                   </div>
                 )}
 
@@ -355,6 +390,7 @@ export const InvoicesDetailsPage = ({
                     <InvoiceRestDocument
                       label="Devis d'origine"
                       ctrl={ctrl("from_rel_quote")}
+                      filter={{ type: "quotes" } as Partial<Invoices>}
                       size="xl"
                       max={1}
                     />

@@ -4,6 +4,8 @@ import { InputOutlinedDefaultBorders } from "@atoms/styles/inputs";
 import { FormControllerType } from "@components/form/formcontext";
 import { RestDocumentsInput } from "@components/input-rest";
 import { getFullName } from "@features/auth/utils";
+import { useClientUsers } from "@features/clients/state/use-client-users";
+import { useCurrentClient } from "@features/clients/state/use-clients";
 import { useSearchUsers } from "@features/customers/configuration";
 import { PublicCustomer } from "@features/customers/types/customers";
 import { UserCircleIcon } from "@heroicons/react/20/solid";
@@ -27,7 +29,8 @@ export const UsersInput = ({
   disabled?: boolean;
   "data-tooltip"?: string;
 }) => {
-  const searchUsers = useSearchUsers();
+  const { id } = useCurrentClient();
+  const { users } = useClientUsers(id!);
 
   return (
     <RestDocumentsInput
@@ -41,7 +44,13 @@ export const UsersInput = ({
       value={value}
       onChange={onChange}
       noWrapper
-      queryFn={searchUsers}
+      queryFn={async (ids) => {
+        const list =
+          users
+            .filter((a: any) => ids.includes(a.user.id))
+            ?.map((a: any) => a.user) || [];
+        return { list, total: list.length };
+      }}
       max={max || 10}
       render={
         ((user: PublicCustomer) => (
