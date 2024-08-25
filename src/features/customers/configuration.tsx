@@ -45,13 +45,21 @@ export const useCustomersConfiguration = () => {
       label: validateEmail(query) ? `Inviter "${query}"` : "",
     }),
     resultList: findCustomers,
-    renderResult: (item) => (
-      <div className="flex items-center space-x-2">
-        <Avatar fallback={getFullName(item)} avatar={item.avatar} size={5} />
-        <span> {getFullName(item)}</span>
-        <Info>{item.email}</Info>
-      </div>
-    ),
+    renderResult: [
+      {
+        render: (item) => (
+          <div className="flex items-center space-x-2">
+            <Avatar
+              fallback={getFullName(item)}
+              avatar={item.avatar}
+              size={5}
+            />
+            <span> {getFullName(item)}</span>
+            <Info>{item.email}</Info>
+          </div>
+        ),
+      },
+    ],
     viewRoute: ROUTES.SettingsUsers,
   });
 };

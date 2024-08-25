@@ -1,11 +1,9 @@
 import { Button } from "@atoms/button/button";
 import { Info } from "@atoms/text";
-import { RestDocumentsInput } from "@components/input-rest";
-import { RestTable } from "@components/table-rest";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
-import { TagsInput } from "@components/input-rest/tags";
+import { RestTable } from "@components/table-rest";
 import { useContacts } from "@features/contacts/hooks/use-contacts";
-import { Contacts, getContactName } from "@features/contacts/types/types";
+import { Contacts } from "@features/contacts/types/types";
 import { ROUTES, getRoute } from "@features/routes";
 import { useNavigateAlt } from "@features/utils/navigate";
 import {
@@ -13,19 +11,11 @@ import {
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
 import { PlusIcon } from "@heroicons/react/20/solid";
-import {
-  BuildingOfficeIcon,
-  ShareIcon,
-  UserIcon,
-} from "@heroicons/react/24/outline";
-import {
-  BuildingStorefrontIcon,
-  UserIcon as UserIconSolid,
-} from "@heroicons/react/24/solid";
 import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
+import { CtrlKRestEntities } from "@features/ctrlk";
 
 export const ContactsPage = () => {
   const [options, setOptions] = useState<RestOptions<Contacts>>({
@@ -107,98 +97,7 @@ export const ContactsPage = () => {
               asc: page.order === "ASC",
             });
           }}
-          columns={[
-            {
-              thClassName: "w-1",
-              render: (contact) => (
-                <div className="space-x-2 flex items-center">
-                  <Button
-                    className={
-                      !contact.is_supplier && !contact.is_client
-                        ? "opacity-50"
-                        : ""
-                    }
-                    size="sm"
-                    theme="outlined"
-                    data-tooltip={
-                      contact.is_supplier && contact.is_client
-                        ? "Fournisseur et client"
-                        : contact.is_supplier
-                        ? "Fournisseur"
-                        : contact.is_client
-                        ? "Client"
-                        : "Aucun"
-                    }
-                    icon={(p) =>
-                      contact.is_supplier && contact.is_client ? (
-                        <>
-                          <UserIconSolid {...p} />
-                          <BuildingStorefrontIcon {...p} />
-                        </>
-                      ) : contact.is_supplier ? (
-                        <UserIconSolid {...p} />
-                      ) : contact.is_client ? (
-                        <BuildingStorefrontIcon {...p} />
-                      ) : (
-                        <></>
-                      )
-                    }
-                  >
-                    {contact.is_supplier && contact.is_client
-                      ? "Tous"
-                      : contact.is_supplier
-                      ? "Fourn."
-                      : contact.is_client
-                      ? "Client"
-                      : "Aucun"}
-                  </Button>
-                </div>
-              ),
-            },
-            {
-              render: (contact) => (
-                <div className="flex space-x-2 items-center">
-                  <Button
-                    size="sm"
-                    theme="outlined"
-                    data-tooltip={
-                      contact.type === "person" ? "Personne" : "Entreprise"
-                    }
-                    icon={(p) =>
-                      contact.type === "person" ? (
-                        <UserIcon {...p} />
-                      ) : (
-                        <BuildingOfficeIcon {...p} />
-                      )
-                    }
-                  />
-                  <span>
-                    {getContactName(contact)}{" "}
-                    <span className="opacity-50">
-                      {[contact.email, contact.phone].join(" ")}
-                    </span>
-                  </span>
-                </div>
-              ),
-            },
-            {
-              thClassName: "w-1",
-              render: (contact) => (
-                <div className="w-full text-right flex space-x-1 justify-end items-center whitespace-nowrap">
-                  {(contact.parents?.length || 0) > 0 && (
-                    <RestDocumentsInput
-                      value={contact.parents as any}
-                      entity="contacts"
-                      disabled
-                      size="md"
-                      icon={(p) => <ShareIcon {...p} />}
-                    />
-                  )}{" "}
-                  <TagsInput size="md" value={contact.tags} disabled />
-                </div>
-              ),
-            },
-          ]}
+          columns={CtrlKRestEntities["contacts"].renderResult!}
         />
       </div>
     </Page>

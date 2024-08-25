@@ -1,25 +1,21 @@
-import { Tag } from "@atoms/badge/tag";
 import { Button } from "@atoms/button/button";
-import { Base, Info } from "@atoms/text";
+import { Base, BaseSmall, Info } from "@atoms/text";
 import { RestDocumentsInput } from "@components/input-rest";
-import { RestTable } from "@components/table-rest";
-import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { TagsInput } from "@components/input-rest/tags";
+import { withSearchAsModel } from "@components/search-bar/utils/as-model";
+import { RestTable } from "@components/table-rest";
 import { useInvoices } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
 import { getDocumentNamePlurial } from "@features/invoices/utils";
 import { ROUTES, getRoute } from "@features/routes";
+import { formatTime } from "@features/utils/format/dates";
 import { formatAmount } from "@features/utils/format/strings";
 import { useNavigateAlt } from "@features/utils/navigate";
 import {
   RestOptions,
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
-import {
-  ArrowPathIcon,
-  ArrowUturnLeftIcon,
-  PlusIcon,
-} from "@heroicons/react/24/outline";
+import { ArrowUturnLeftIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
@@ -29,6 +25,7 @@ import {
   schemaToSearchFields,
 } from "../../../../components/search-bar/utils/utils";
 import { InvoiceStatus } from "./components/invoice-status";
+import { CtrlKRestEntities } from "@features/ctrlk";
 
 export const InvoicesPage = () => {
   const type: Invoices["type"][] = (useParams().type?.split("+") || [
@@ -176,85 +173,7 @@ export const InvoicesPage = () => {
               asc: page.order === "ASC",
             });
           }}
-          columns={[
-            {
-              thClassName: "w-1",
-              render: (invoice) => (
-                <Base className="opacity-50 whitespace-nowrap">
-                  {invoice.reference}
-                </Base>
-              ),
-            },
-            {
-              render: (invoice) => (
-                <div className="flex items-center space-x-2">
-                  {invoice.subscription?.enabled && (
-                    <Button
-                      data-tooltip="Abonnement"
-                      size="sm"
-                      theme="invisible"
-                      icon={(p) => <ArrowPathIcon {...p} />}
-                    />
-                  )}
-                  {!!invoice.name && <span>{invoice.name}</span>}
-                  {invoice.content
-                    ?.filter((c) => c.article && c.name)
-                    ?.map((c) => (
-                      <Tag size="sm" data-tooltip={c.name}>
-                        {(c.quantity || 0) > 1 &&
-                          [c.quantity, c.unit].filter(Boolean).join(" ")}{" "}
-                        {c.name?.slice(0, 20) +
-                          ((c.name?.length || 0) > 20 ? "..." : "")}
-                      </Tag>
-                    ))}
-                </div>
-              ),
-            },
-            {
-              thClassName: "w-1",
-              cellClassName: "justify-end whitespace-nowrap",
-              render: (invoice) => (
-                <div className="space-x-2 whitespace-nowrap flex">
-                  <TagsInput size="md" value={invoice.tags} disabled />
-                  <RestDocumentsInput
-                    disabled
-                    value={invoice.client}
-                    entity={"contacts"}
-                  />
-                </div>
-              ),
-            },
-            {
-              thClassName: "w-1",
-              cellClassName: "justify-end",
-              render: (invoice) => (
-                <Button size="sm" theme="outlined">
-                  {formatAmount(invoice.total?.total || 0)} HT
-                </Button>
-              ),
-            },
-            {
-              thClassName: "w-1",
-              cellClassName: "justify-end",
-              render: (invoice) => (
-                <Button size="sm" theme="outlined">
-                  {formatAmount(invoice.total?.total_with_taxes || 0)} TTC
-                </Button>
-              ),
-            },
-            {
-              thClassName: "w-1",
-              cellClassName: "justify-end",
-              render: (invoice) => (
-                <InvoiceStatus
-                  size="sm"
-                  readonly
-                  value={invoice.state}
-                  type={invoice.type}
-                />
-              ),
-            },
-          ]}
+          columns={CtrlKRestEntities["invoices"].renderResult as any}
         />
       </div>
     </Page>

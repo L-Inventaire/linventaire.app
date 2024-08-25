@@ -11,7 +11,7 @@ registerCtrlKRestEntity<AccountingTransactions>("accounting_transactions", {
   renderEditor: (props) => (
     <AccountingTransactionsDetailsPage readonly={false} id={props.id} />
   ),
-  renderResult: (item) => <>{item.reference}</>,
+  renderResult: [{ render: (item) => <>{item.reference}</> }],
   useDefaultData: useAccountingTransactionDefaultModel,
   viewRoute: ROUTES.StockView,
 });
@@ -23,7 +23,7 @@ registerCtrlKRestEntity<AccountingAccounts>("accounting_accounts", {
   renderEditor: (props) => (
     <AccountingAccountsDetailsPage readonly={false} id={props.id} />
   ),
-  renderResult: (item) => <>{item.name}</>,
+  renderResult: [{ render: (item) => <>{item.name}</> }],
   useDefaultData: useAccountingAccountDefaultModel,
   viewRoute: ROUTES.StockView,
 });

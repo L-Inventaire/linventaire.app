@@ -224,26 +224,28 @@ export const SearchBar = ({
             )}
           />
         </div>
-        {fields.length > 0 && (
-          <Button
-            className="shrink-0"
-            size="sm"
-            theme="invisible"
-            icon={(p) => <ChevronUpDownIcon {...p} />}
-          >
-            Affichage
-          </Button>
-        )}
-        {showExport !== false && (
-          <Button
-            className="shrink-0"
-            size="sm"
-            theme="invisible"
-            icon={(p) => <ArrowDownTrayIcon {...p} />}
-          >
-            Export
-          </Button>
-        )}
+        {fields.length > 0 &&
+          document.location.host.indexOf("localhost") > -1 && (
+            <Button
+              className="shrink-0"
+              size="sm"
+              theme="invisible"
+              icon={(p) => <ChevronUpDownIcon {...p} />}
+            >
+              Affichage
+            </Button>
+          )}
+        {showExport !== false &&
+          document.location.host.indexOf("localhost") > -1 && (
+            <Button
+              className="shrink-0"
+              size="sm"
+              theme="invisible"
+              icon={(p) => <ArrowDownTrayIcon {...p} />}
+            >
+              Export
+            </Button>
+          )}
         {suffix}
       </div>
       {suggestions.length > 0 && (

@@ -96,6 +96,7 @@ export const RelationsInput = ({
               <div className="mt-2">
                 <RestDocumentsInput
                   entity="contacts"
+                  size="xl"
                   label="+ Ajouter un contact parent"
                   placeholder="Rechercher un contact"
                   value={""}

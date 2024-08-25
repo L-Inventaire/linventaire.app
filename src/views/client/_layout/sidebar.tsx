@@ -31,6 +31,7 @@ import { useLocation } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { Account } from "./account";
 import { ResponsiveMenuAtom } from "./header";
+import { ListBulletIcon } from "@heroicons/react/16/solid";
 
 export const SideBar = () => {
   const { t } = useTranslation();
@@ -67,49 +68,6 @@ export const SideBar = () => {
             label={t("menu.statistics")}
             icon={(p) => <ChartBarIcon {...p} />}
           />
-
-          <MenuSection
-            className="!mt-6"
-            label={t("menu.contacts_title")}
-            suffix={
-              <Button
-                size="md"
-                theme="invisible"
-                icon={(p) => <PlusIcon {...p} />}
-                to={getRoute(ROUTES.ContactsEdit, { id: "new" })}
-              />
-            }
-            show={hasAccess("CONTACTS_READ")}
-          >
-            <SideMenuItem
-              to={getRoute(ROUTES.Contacts)}
-              label={t("menu.contacts")}
-              icon={(p) => <WalletIcon {...p} />}
-              active={
-                location.pathname.indexOf(getRoute(ROUTES.Contacts)) === 0 &&
-                location.search.indexOf("is_client%3A1") === -1 &&
-                location.search.indexOf("is_supplier%3A1") === -1
-              }
-            />
-            <SideMenuItem
-              to={getRoute(ROUTES.Contacts) + "?q=is_client%3A1"}
-              label={t("menu.clients")}
-              icon={(p) => <UserIcon {...p} />}
-              active={
-                location.pathname.indexOf(getRoute(ROUTES.Contacts)) === 0 &&
-                location.search.indexOf("is_client%3A1") !== -1
-              }
-            />
-            <SideMenuItem
-              to={getRoute(ROUTES.Contacts) + "?q=is_supplier%3A1"}
-              label={t("menu.suppliers")}
-              icon={(p) => <BuildingStorefrontIcon {...p} />}
-              active={
-                location.pathname.indexOf(getRoute(ROUTES.Contacts)) === 0 &&
-                location.search.indexOf("is_supplier%3A1") !== -1
-              }
-            />
-          </MenuSection>
 
           <MenuSection
             className="!mt-6"
@@ -169,20 +127,18 @@ export const SideBar = () => {
 
           <MenuSection
             className="!mt-6"
-            label={t("menu.services_title")}
-            show={hasAccess("ONSITE_READ")}
-          >
-            <SideMenuItem
-              to={getRoute(ROUTES.ServiceItems)}
-              label={t("menu.consulting")}
-              icon={(p) => <BriefcaseIcon {...p} />}
-              show={hasAccess("ONSITE_READ")}
-            />
-          </MenuSection>
-
-          <MenuSection
-            className="!mt-6"
             label={t("menu.buy_title")}
+            suffix={
+              <Button
+                size="md"
+                theme="invisible"
+                icon={(p) => <PlusIcon {...p} />}
+                to={getRoute(ROUTES.Invoices, {
+                  id: "new",
+                  type: "supplier_quotes",
+                })}
+              />
+            }
             show={
               hasAccess("ARTICLES_READ") ||
               hasAccess("INVOICES_READ") ||
@@ -196,6 +152,26 @@ export const SideBar = () => {
               show={hasAccess("INVOICES_READ")}
             />
             <SideMenuItem
+              to={getRoute(ROUTES.Invoices, {
+                type: "supplier_invoices+supplier_credit_notes",
+              })}
+              label={t("menu.supplier_invoices")}
+              icon={(p) => <DocumentArrowDownIcon {...p} />}
+            />
+          </MenuSection>
+
+          <MenuSection
+            className="!mt-6"
+            label={t("menu.activity_title")}
+            show={hasAccess("CONTACTS_READ")}
+          >
+            <SideMenuItem
+              to={getRoute(ROUTES.ServiceItems)}
+              label={t("menu.consulting")}
+              icon={(p) => <BriefcaseIcon {...p} />}
+              show={hasAccess("ONSITE_READ")}
+            />
+            <SideMenuItem
               to={getRoute(ROUTES.Stock)}
               label={t("menu.stock")}
               icon={(p) => <ViewColumnsIcon {...p} />}
@@ -207,20 +183,21 @@ export const SideBar = () => {
               icon={(p) => <CubeIcon {...p} />}
               show={hasAccess("ARTICLES_READ")}
             />
+            <SideMenuItem
+              to={getRoute(ROUTES.Contacts)}
+              label={t("menu.contacts")}
+              icon={(p) => <UsersIcon {...p} />}
+              active={
+                location.pathname.indexOf(getRoute(ROUTES.Contacts)) === 0
+              }
+            />
           </MenuSection>
 
           <MenuSection className="!mt-6" label="Comptabilité">
             <SideMenuItem
-              to={getRoute(ROUTES.Invoices, {
-                type: "supplier_invoices+supplier_credit_notes",
-              })}
-              label={t("menu.supplier_invoices")}
-              icon={(p) => <DocumentArrowDownIcon {...p} />}
-            />
-            <SideMenuItem
               to={getRoute(ROUTES.Accounting)}
               label={t("menu.accounting")}
-              icon={(p) => <BookOpenIcon {...p} />}
+              icon={(p) => <ListBulletIcon {...p} />}
             />
           </MenuSection>
 

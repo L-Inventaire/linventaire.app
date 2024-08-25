@@ -11,7 +11,7 @@ registerCtrlKRestEntity<ServiceItems>("service_items", {
   renderEditor: (props) => (
     <ServiceItemsDetailsPage readonly={false} id={props.id} />
   ),
-  renderResult: (item) => <>{item.article}</>,
+  renderResult: [{ render: (item) => <>{item.article}</> }],
   useDefaultData: useServiceItemDefaultModel,
   viewRoute: ROUTES.ServiceItemsView,
 });
@@ -19,11 +19,11 @@ registerCtrlKRestEntity<ServiceItems>("service_items", {
 export const useServiceTimeDefaultModel: () => Partial<ServiceTimes> =
   () => ({});
 
-registerCtrlKRestEntity<ServiceTimes>("service_items", {
+registerCtrlKRestEntity<ServiceTimes>("service_times", {
   renderEditor: (props) => (
     <ServiceTimesDetailsPage readonly={false} id={props.id} />
   ),
-  renderResult: (item) => <>{item.date}</>,
+  renderResult: [{ render: (item) => <>{item.date}</> }],
   useDefaultData: useServiceTimeDefaultModel,
   viewRoute: ROUTES.ServiceItemsView,
 });

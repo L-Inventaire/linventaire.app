@@ -28,7 +28,7 @@ export const ServiceItemsEditPage = (_props: { readonly?: boolean }) => {
   ) as ServiceItems;
 
   const { isInitiating, save, draft } = useDraftRest<ServiceItems>(
-    "stock_items",
+    "service_items",
     id || "new",
     async (item) => {
       navigate(getRoute(ROUTES.ServiceItemsView, { id: item.id }));
@@ -52,15 +52,6 @@ export const ServiceItemsEditPage = (_props: { readonly?: boolean }) => {
           backRoute={ROUTES.ServiceItems}
           viewRoute={ROUTES.ServiceItemsView}
           editRoute={ROUTES.ServiceItemsEdit}
-          prefix={
-            <>
-              {!draft.id && (
-                <>
-                  <span>Nouvel élément en l'état</span>
-                </>
-              )}
-            </>
-          }
         />
       }
     >

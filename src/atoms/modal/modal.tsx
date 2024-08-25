@@ -147,7 +147,6 @@ export const Modal = (props: {
                   (props.className || "")
                 }
                 style={props.style || {}}
-                onClick={(e) => e.stopPropagation()}
               >
                 {open && <ModalContext level={level.toString()} />}
                 {props.closable !== false && open && (
@@ -161,7 +160,15 @@ export const Modal = (props: {
                     />
                   </div>
                 )}
-                <ErrorBoundary>{props.children}</ErrorBoundary>
+                <ErrorBoundary>
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
+                    {props.children}
+                  </div>
+                </ErrorBoundary>
               </Dialog.Panel>
             </Transition.Child>
           </div>

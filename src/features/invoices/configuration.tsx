@@ -3,6 +3,12 @@ import { registerCtrlKRestEntity } from "@features/ctrlk";
 import { ROUTES } from "@features/routes";
 import { InvoicesDetailsPage } from "@views/client/modules/invoices/components/invoices-details";
 import { Invoices } from "./types/types";
+import { Base, BaseSmall, Info } from "@atoms/text";
+import { RestDocumentsInput } from "@components/input-rest";
+import { TagsInput } from "@components/input-rest/tags";
+import { formatTime } from "@features/utils/format/dates";
+import { formatAmount } from "@features/utils/format/strings";
+import { InvoiceStatus } from "@views/client/modules/invoices/components/invoice-status";
 
 export const useInvoiceDefaultModel: () => Partial<Invoices> = () => {
   const { client } = useCurrentClient();
@@ -21,7 +27,84 @@ registerCtrlKRestEntity<Invoices>("invoices", {
   renderEditor: (props) => (
     <InvoicesDetailsPage readonly={false} id={props.id} />
   ),
-  renderResult: (invoice) => <>{invoice.reference}</>,
+  renderResult: [
+    {
+      title: "Date",
+      thClassName: "w-16",
+      render: (invoice) => {
+        console.log(invoice);
+        return (
+          <Base className="whitespace-nowrap">
+            {invoice.emit_date
+              ? formatTime(invoice.emit_date, { hideTime: true })
+              : "-"}
+          </Base>
+        );
+      },
+    },
+    {
+      title: "Libellé",
+      render: (invoice) => (
+        <Base className="opacity-50 whitespace-nowrap">
+          <BaseSmall>
+            {invoice.reference}{" "}
+            {invoice.subscription?.enabled && <span>(Abonnement)</span>}
+          </BaseSmall>
+          <br />
+          <div className="flext items-center jhustify-center">
+            <span>{invoice.name || "-"} </span>
+          </div>
+        </Base>
+      ),
+    },
+    {
+      title: "Client",
+      render: (invoice) => (
+        <Base className="whitespace-nowrap">
+          <RestDocumentsInput
+            disabled
+            value={invoice.client}
+            entity={"contacts"}
+          />
+        </Base>
+      ),
+    },
+    {
+      title: "Tags",
+      render: (invoice) => (
+        <Base className="whitespace-nowrap">
+          <TagsInput size="md" value={invoice.tags} disabled />
+        </Base>
+      ),
+    },
+    {
+      title: "Montant",
+      thClassName: "w-1",
+      cellClassName: "justify-end",
+      headClassName: "justify-end",
+      render: (invoice) => (
+        <Base className="text-right whitespace-nowrap">
+          {formatAmount(invoice.total?.total_with_taxes || 0)}
+          <br />
+          <Info>{formatAmount(invoice.total?.total || 0)} HT</Info>
+        </Base>
+      ),
+    },
+    {
+      title: "Statut",
+      thClassName: "w-48",
+      cellClassName: "justify-end",
+      headClassName: "justify-end",
+      render: (invoice) => (
+        <InvoiceStatus
+          size="sm"
+          readonly
+          value={invoice.state}
+          type={invoice.type}
+        />
+      ),
+    },
+  ],
   useDefaultData: useInvoiceDefaultModel,
   viewRoute: ROUTES.InvoicesView,
 });

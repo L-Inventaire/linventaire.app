@@ -9,6 +9,7 @@ export type ServiceItems = RestEntity & {
     | "done"
     | "cancelled";
 
+  title: string;
   article: string;
   hours_expected: number; // In hours
   hours_spent: number; // Precomputed: In hours, computed from service times
@@ -21,7 +22,7 @@ export type ServiceItems = RestEntity & {
   notes: string;
   documents: string[];
   tags: string[];
-  assignees: string[];
+  assigned: string[];
 };
 
 export type ServiceTimes = RestEntity & {

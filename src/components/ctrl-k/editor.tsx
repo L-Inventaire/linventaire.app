@@ -46,9 +46,13 @@ export const ModalEditor = () => {
       withSearchAsModelObj(
         schema.data!,
         {},
-        buildQueryFromMap(previousState?.options?.internalQuery || {}),
+        buildQueryFromMap(
+          (previousState
+            ? previousState?.options?.internalQuery
+            : currentState?.options?.internalQuery) || {}
+        ),
         { keepArraysFirst: true } // Used for supplier invoice where query use a "or"
-      )
+      ) || {}
     )
   );
 

@@ -69,31 +69,6 @@ export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
           viewRoute={ROUTES.InvoicesView}
           editRoute={ROUTES.InvoicesEdit}
           onPrint={async () => getPdfPreview()}
-          prefix={
-            <>
-              {!draft.id && (
-                <>
-                  <span>Création d'un</span>
-                  <Select
-                    size="md"
-                    className="w-max"
-                    value={draft.type}
-                    onChange={(e) =>
-                      setDraft({
-                        ...draft,
-                        type: e.target.value as Invoices["type"],
-                      })
-                    }
-                  >
-                    <option value="quotes">Devis</option>
-                    <option value="invoices">Facture</option>
-                    <option value="credit_notes">Avoir</option>
-                  </Select>
-                  <span>en</span>
-                </>
-              )}
-            </>
-          }
         />
       }
     >

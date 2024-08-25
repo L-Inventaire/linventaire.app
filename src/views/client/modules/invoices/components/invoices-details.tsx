@@ -110,7 +110,10 @@ export const InvoicesDetailsPage = ({
     (draft.supplier && isSupplierRelated);
 
   const hasPreview =
-    hasClientOrSupplier && !isSupplierInvoice && !isSupplierQuote;
+    document.location.origin.includes("localhost") &&
+    hasClientOrSupplier &&
+    !isSupplierInvoice &&
+    !isSupplierQuote;
 
   useEffect(() => {
     if (!isPending && draft)
@@ -256,7 +259,7 @@ export const InvoicesDetailsPage = ({
                         filter={
                           { parents: ctrl("client").value } as Partial<Contacts>
                         }
-                        label="Contacts (optionnel)"
+                        label="Contact (optionnel)"
                         ctrl={ctrl("contact")}
                         icon={(p) => <EnvelopeIcon {...p} />}
                         size="xl"

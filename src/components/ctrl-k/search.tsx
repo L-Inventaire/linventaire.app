@@ -1,5 +1,4 @@
 import { Button } from "@atoms/button/button";
-import { Checkbox } from "@atoms/input/input-checkbox";
 import { Base } from "@atoms/text";
 import { SearchBar } from "@components/search-bar";
 import { Suggestions } from "@components/search-bar/hooks/use-suggestions";
@@ -26,6 +25,7 @@ import {
   PlusIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
+import { Table } from "@molecules/table";
 import _ from "lodash";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -90,8 +90,6 @@ export const SearchCtrlK = () => {
           }
       : undefined,
   });
-
-  const list = items.data?.list || [];
 
   return (
     <>
@@ -211,57 +209,6 @@ export const SearchCtrlK = () => {
               ]
             : currentState.mode === "search"
             ? [
-                ...(list || []).map(
-                  (a: RestEntity & { _label: string }) =>
-                    ({
-                      type: "navigation",
-                      value: a._label,
-                      render: (
-                        <div className="flex items-center space-x-2">
-                          {currentState.select && (
-                            <div onClick={(e) => e.stopPropagation()}>
-                              <Checkbox
-                                size="sm"
-                                value={!!selection.find((b) => a.id === b.id)}
-                                onChange={() => toggleSelection(a)}
-                              />
-                            </div>
-                          )}
-                          {CtrlKRestEntities[
-                            currentEntity || ""
-                          ]?.renderResult?.(a) || a._label}
-                        </div>
-                      ),
-                      onClick: (event) => {
-                        if (event.shiftKey && currentState.select) {
-                          // Toggle selection
-                          toggleSelection(a);
-                          return;
-                        }
-                        close();
-                        setTimeout(() => {
-                          if (currentState.options?.onClick) {
-                            currentState.options.onClick(
-                              selection.length
-                                ? _.uniqBy([...selection, a], "id")
-                                : [a],
-                              event
-                            );
-                            return;
-                          }
-                          navigateAlt(
-                            getRoute(
-                              CtrlKRestEntities[currentEntity || ""]
-                                ?.viewRoute ||
-                                "/:client/" + currentEntity + "/:id",
-                              { id: a.id }
-                            ),
-                            { event }
-                          );
-                        }, 100);
-                      },
-                    } as Suggestions[0])
-                ),
                 // If id is used we don't want to create a new item
                 query.indexOf("id:") < 0 &&
                 (CtrlKRestEntities[currentEntity || ""]?.onCreate?.(
@@ -321,6 +268,53 @@ export const SearchCtrlK = () => {
             : []
         }
       />
+
+      {currentState.mode === "search" && (
+        <div className="m-2 rounded overflow-hidden">
+          <Table
+            onClick={(a, event) => {
+              if (event.shiftKey && currentState.select) {
+                // Toggle selection
+                toggleSelection(a);
+                return;
+              }
+              close();
+              setTimeout(() => {
+                if (currentState.options?.onClick) {
+                  currentState.options.onClick(
+                    selection.length ? _.uniqBy([...selection, a], "id") : [a],
+                    event
+                  );
+                  return;
+                }
+                navigateAlt(
+                  getRoute(
+                    CtrlKRestEntities[currentEntity || ""]?.viewRoute ||
+                      "/:client/" + currentEntity + "/:id",
+                    { id: a.id }
+                  ),
+                  { event }
+                );
+              }, 100);
+            }}
+            useResponsiveMode={false}
+            loading={items.isPending}
+            data={items.data?.list || []}
+            showPagination={false}
+            onSelect={
+              currentState.select ? (items) => setSelection(items) : undefined
+            }
+            rowIndex="id"
+            columns={
+              (CtrlKRestEntities[currentEntity || ""]?.renderResult as any) || [
+                {
+                  render: (a: RestEntity & { _label: string }) => a._label,
+                },
+              ]
+            }
+          />
+        </div>
+      )}
 
       {!!selection.length && (
         <div className="border-t border-slate-100 dark:border-slate-700 px-3 py-2 flex items-center">

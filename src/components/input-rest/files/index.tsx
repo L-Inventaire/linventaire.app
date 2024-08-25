@@ -246,7 +246,7 @@ export const DroppableFilesInput = ({
         {size === "md" && (
           <Info className="grow flex items-center justify-center h-full">
             <PaperClipIcon className="h-4 w-4 inline-block mr-2" />
-            <span>Click or drop to add files</span>
+            <span>Attacher un ou plusieurs fichiers</span>
           </Info>
         )}
         {size !== "md" && (

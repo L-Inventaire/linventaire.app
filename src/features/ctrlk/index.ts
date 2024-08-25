@@ -1,5 +1,9 @@
 import { ReactNode } from "react";
 import { CtrlKOptionsType } from "./types";
+import { TablePropsType } from "@molecules/table";
+import { Contacts } from "@features/contacts/types/types";
+import { Invoices } from "@features/invoices/types/types";
+import { Articles } from "@features/articles/types/types";
 
 export let RootNavigationItems: CtrlKOptionsType[] = [];
 export const registerRootNavigation = (
@@ -13,7 +17,7 @@ export const registerRootNavigation = (
 
 type RestEntityForCtrlK<T> = {
   // How we render the result in the search list
-  renderResult?: (props: T) => ReactNode;
+  renderResult?: TablePropsType<T>["columns"];
   viewRoute?: string; // Where we can view the entity
 
   // When we want to not use rest entities but custom data (replace all results)
@@ -28,7 +32,12 @@ type RestEntityForCtrlK<T> = {
   };
 };
 
-export let CtrlKRestEntities: { [key: string]: RestEntityForCtrlK<any> } = {};
+export let CtrlKRestEntities: {
+  contacts: RestEntityForCtrlK<Contacts>;
+  invoices: RestEntityForCtrlK<Invoices>;
+  articles: RestEntityForCtrlK<Articles>;
+  [key: string]: RestEntityForCtrlK<any>;
+} = {} as any;
 export const registerCtrlKRestEntity = <T>(
   entity: string,
   options: RestEntityForCtrlK<T>

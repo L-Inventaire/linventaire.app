@@ -2,6 +2,7 @@ import { Button } from "@atoms/button/button";
 import { Section } from "@atoms/text";
 import { generateQueryFromMap } from "@components/search-bar/utils/utils";
 import { RestTable } from "@components/table-rest";
+import { CtrlKRestEntities } from "@features/ctrlk";
 import { useInvoices } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
 
@@ -20,7 +21,7 @@ export const RelatedInvoices = ({
     invoice.type === "quotes" || invoice.type === "supplier_quotes";
 
   const { invoices: quote } = useInvoices({
-    query: generateQueryFromMap({ id: invoice.from_rel_quote }),
+    query: generateQueryFromMap({ id: invoice.from_rel_quote || "none" }),
   });
   const { invoices: siblings } = useInvoices({
     query: generateQueryFromMap({
@@ -44,11 +45,7 @@ export const RelatedInvoices = ({
         <RestTable
           data={quote}
           entity="invoices"
-          columns={[
-            {
-              render: (invoice) => <>{invoice.id}</>,
-            },
-          ]}
+          columns={CtrlKRestEntities["invoices"].renderResult as any}
         />
       )}
       {!!siblings?.data?.list?.length && (

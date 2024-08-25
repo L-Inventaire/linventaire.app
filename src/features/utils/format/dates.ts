@@ -5,7 +5,7 @@
  * else show day and month and year
  */
 export const formatTime = (
-  time: number | string,
+  time: number | string | Date,
   options: {
     keepTime?: boolean;
     keepSeconds?: boolean;

@@ -45,6 +45,10 @@ import { TagsPage } from "./settings/tags";
 import { CompanyUsersPage } from "./settings/users";
 import { ServicePage } from "./modules/service";
 import { AccountingPage } from "./modules/accounting";
+import { AccountingTransactionsViewPage } from "./modules/accounting/view";
+import { AccountingTransactionsEditPage } from "./modules/accounting/edit";
+import { ServiceItemsViewPage } from "./modules/service/view";
+import { ServiceItemsEditPage } from "./modules/service/edit";
 
 export const BackOfficeRoutes = () => {
   return (
@@ -69,12 +73,24 @@ export const BackOfficeRoutes = () => {
         <Route path={ROUTES.ContactsEdit} element={<ContactsEditPage />} />
 
         <Route path={ROUTES.ServiceItems} element={<ServicePage />} />
-        <Route path={ROUTES.ServiceItemsView} element={<ServicePage />} />
-        <Route path={ROUTES.ServiceItemsEdit} element={<ServicePage />} />
+        <Route
+          path={ROUTES.ServiceItemsView}
+          element={<ServiceItemsViewPage />}
+        />
+        <Route
+          path={ROUTES.ServiceItemsEdit}
+          element={<ServiceItemsEditPage />}
+        />
 
         <Route path={ROUTES.Accounting} element={<AccountingPage />} />
-        <Route path={ROUTES.AccountingView} element={<AccountingPage />} />
-        <Route path={ROUTES.AccountingEdit} element={<AccountingPage />} />
+        <Route
+          path={ROUTES.AccountingView}
+          element={<AccountingTransactionsViewPage />}
+        />
+        <Route
+          path={ROUTES.AccountingEdit}
+          element={<AccountingTransactionsEditPage />}
+        />
 
         <Route path={ROUTES.Products} element={<ArticlesPage />} />
         <Route path={ROUTES.ProductsView} element={<ArticlesViewPage />} />

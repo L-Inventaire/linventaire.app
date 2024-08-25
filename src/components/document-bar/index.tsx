@@ -162,12 +162,14 @@ export const DocumentBar = ({
               onClick={props.onPrint}
             />
           )}
-          <Button
-            data-tooltip="Historique"
-            size="sm"
-            theme="invisible"
-            icon={(p) => <ClockIcon {...p} />}
-          />
+          {false && (
+            <Button
+              data-tooltip="Historique"
+              size="sm"
+              theme="invisible"
+              icon={(p) => <ClockIcon {...p} />}
+            />
+          )}
           {mode === "read" && (
             <Button
               data-tooltip="Modifier"

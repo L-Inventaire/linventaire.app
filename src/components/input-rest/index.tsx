@@ -120,7 +120,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
           className={props.className}
           size={size}
           readonly={disabled}
-          {...[props["data-tooltip"]]}
+          data-tooltip={props["data-tooltip"]}
         />
       );
     }
@@ -134,6 +134,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
             "hover:bg-slate-500 hover:bg-opacity-15 bg-opacity-0 transition-all cursor-pointer",
           props.className
         )}
+        data-tooltip={props["data-tooltip"]}
       >
         <div
           className={twMerge(
@@ -154,7 +155,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
             onClick={onClick}
             className={props.className}
             size={size}
-            {...[props["data-tooltip"]]}
+            data-tooltip={props["data-tooltip"]}
           />
         )}
       </div>
@@ -174,15 +175,16 @@ export const RestDocumentsInput = <T extends RestEntity>(
         !disabled &&
           "dark:hover:bg-slate-800 hover:bg-gray-100 dark:hover:border-slate-700 dark:active:bg-slate-700 active:bg-gray-200",
         disabled && !value && "opacity-50 border-transparent shadow-none",
-        disabled && !value && "pointer-events-none",
         disabled && "shadow-none",
         props.className
       )}
+      data-tooltip={props["data-tooltip"]}
     >
       <div
         className={twMerge(
           "grow inline-flex flex-row items-center",
           (!disabled || value) && "cursor-pointer",
+          disabled && !value && "pointer-events-none",
           size === "sm" && "py-0 px-1 space-x-1",
           size === "md" && "py-0.5 px-1.5 space-x-2",
           size === "lg" && "py-1 px-1.5 space-x-1",

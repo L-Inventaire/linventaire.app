@@ -14,7 +14,7 @@ export type AccountingTransactions = RestEntity & {
   notes: string;
   documents: string[];
   tags: string[];
-  assignees: string[];
+  assigned: string[];
 };
 
 export type AccountingAccounts = RestEntity & {

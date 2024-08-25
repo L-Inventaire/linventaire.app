@@ -1,12 +1,11 @@
 import { Button } from "@atoms/button/button";
 import { Info } from "@atoms/text";
-import { TagsInput } from "@components/input-rest/tags";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { RestTable } from "@components/table-rest";
 import { useArticles } from "@features/articles/hooks/use-articles";
 import { Articles } from "@features/articles/types/types";
+import { CtrlKRestEntities } from "@features/ctrlk";
 import { ROUTES, getRoute } from "@features/routes";
-import { formatAmount } from "@features/utils/format/strings";
 import { useNavigateAlt } from "@features/utils/navigate";
 import {
   RestOptions,
@@ -17,8 +16,6 @@ import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
-import { getTvaValue } from "../invoices/utils";
-import { getArticleIcon } from "./components/article-icon";
 
 export const ArticlesPage = () => {
   const [options, setOptions] = useState<RestOptions<Articles>>({
@@ -94,79 +91,7 @@ export const ArticlesPage = () => {
                     ][page.orderBy],
             });
           }}
-          columns={[
-            {
-              thClassName: "w-1",
-              cellClassName: "justify-start",
-              render: (article) => (
-                <Button
-                  size="sm"
-                  theme="outlined"
-                  icon={getArticleIcon(article?.type)}
-                >
-                  {article.type === "consumable" && "Consommable"}
-                  {article.type === "service" && "Service"}
-                  {article.type === "product" && "Stockable"}
-                </Button>
-              ),
-            },
-            {
-              render: (article) => (
-                <>
-                  {!!article.internal_reference && (
-                    <span className="font-mono mr-2 text-wood-800 dark:text-wood-500">
-                      {article.internal_reference}
-                    </span>
-                  )}
-                  {article.name}
-                </>
-              ),
-            },
-            {
-              thClassName: "w-1",
-              render: (article) => (
-                <div className="w-full text-right flex space-x-1 justify-end items-center whitespace-nowrap">
-                  <TagsInput size="md" value={article.tags} disabled />
-                </div>
-              ),
-            },
-            {
-              thClassName: "w-1",
-              cellClassName: "justify-end",
-              render: (article) => (
-                <Button size="sm" theme="outlined">
-                  Achat{" "}
-                  {Object.values(article.suppliers_details || {})
-                    .filter((a) => a.price)
-                    .map((a) => formatAmount(a.price))
-                    // Keep only min and max
-                    .sort()
-                    .filter((_, i, arr) => i === 0 || i === arr.length - 1)
-                    .join("-")}{" "}
-                  HT
-                </Button>
-              ),
-            },
-            {
-              thClassName: "w-1",
-              cellClassName: "justify-end",
-              render: (article) => (
-                <Button size="sm" theme="outlined">
-                  Vente {formatAmount(article.price)} HT
-                </Button>
-              ),
-            },
-            {
-              thClassName: "w-1",
-              cellClassName: "justify-end",
-              render: (article) => (
-                <Button size="sm" theme="outlined">
-                  {formatAmount(article.price * (1 + getTvaValue(article.tva)))}{" "}
-                  TTC
-                </Button>
-              ),
-            },
-          ]}
+          columns={CtrlKRestEntities["articles"].renderResult as any}
         />
       </div>
     </Page>

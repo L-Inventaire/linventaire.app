@@ -101,7 +101,7 @@
     "dashboard": "Dashboard",
     "notifications": "Notifications",
     "statistics": "Statistics",
-    "contacts": "All contacts",
+    "contacts": "Contacts",
     "contacts_title": "Contacts",
     "clients": "Clients",
     "suppliers": "Suppliers",
@@ -116,11 +116,12 @@
     "supplier_quotes": "Orders",
     "stock": "Stock",
     "products": "Items",
-    "supplier_invoices": "Supplier invoices",
-    "accounting": "Accounts",
+    "supplier_invoices": "Purchase invoices",
+    "accounting": "Operations",
     "settings_title": "Company",
     "users": "Users",
-    "settings_parent": "Settings"
+    "settings_parent": "Settings",
+    "activity_title": "Activity"
   },
   "entities": {
     "contacts": {

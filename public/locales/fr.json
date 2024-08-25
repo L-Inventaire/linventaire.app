@@ -102,7 +102,7 @@
     "dashboard": "Tableau de bord",
     "notifications": "Notifications",
     "statistics": "Statistiques",
-    "contacts": "Tous les contacts",
+    "contacts": "Contacts",
     "contacts_title": "Contacts",
     "clients": "Clients",
     "suppliers": "Fournisseurs",
@@ -117,11 +117,12 @@
     "supplier_quotes": "Commandes",
     "stock": "Stock",
     "products": "Articles",
-    "supplier_invoices": "Factures fournisseurs",
-    "accounting": "Comptes",
+    "supplier_invoices": "Factures d'achat",
+    "accounting": "Opérations",
     "settings_title": "Entreprise",
     "users": "Utilisateurs",
-    "settings_parent": "Paramètres"
+    "settings_parent": "Paramètres",
+    "activity_title": "Activité"
   },
   "entities": {
     "contacts": {

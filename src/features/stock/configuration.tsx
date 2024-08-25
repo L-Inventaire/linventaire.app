@@ -10,7 +10,7 @@ registerCtrlKRestEntity<StockItems>("stock_items", {
   renderEditor: (props) => (
     <StockItemsDetailsPage readonly={false} id={props.id} />
   ),
-  renderResult: (item) => <>{item.article}</>,
+  renderResult: [{ render: (item) => <>{item.article}</> }],
   useDefaultData: useStockItemDefaultModel,
   viewRoute: ROUTES.StockView,
 });
@@ -22,7 +22,7 @@ registerCtrlKRestEntity<StockLocations>("stock_locations", {
   renderEditor: (props) => (
     <StockLocationsDetailsPage readonly={false} id={props.id} />
   ),
-  renderResult: (item) => <>{item.name}</>,
+  renderResult: [{ render: (item) => <>{item.name}</> }],
   useDefaultData: useStockLocationDefaultModel,
   viewRoute: ROUTES.StockView,
 });

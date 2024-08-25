@@ -122,7 +122,7 @@ export const ContactsDetailsPage = ({
                   </PageColumns>
 
                   {contact.type === "company" && (
-                    <FormContext disabled={!contact.business_registered_id}>
+                    <FormContext>
                       {!contact.business_registered_id && (
                         <Info className="block mt-2 !mb-4">
                           Entrez un numéro de SIRET ou SIREN pour pré-remplir
@@ -150,6 +150,7 @@ export const ContactsDetailsPage = ({
                 </FormContext>
 
                 <PageColumns>
+                  {contact.is_supplier}
                   <FormInput
                     label="Fournisseur"
                     placeholder="Ce contact est un fournisseur"

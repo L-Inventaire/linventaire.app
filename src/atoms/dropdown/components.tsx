@@ -81,7 +81,7 @@ export const MenuItem = ({
       to={to}
       noColor
       className={twMerge(
-        "relative py-px px-2 h-7 w-full rounded text-black dark:text-white bg-gray-500 bg-opacity-0 hover:bg-opacity-15 active:bg-opacity-25 cursor-pointer flex items-center space-x-2",
+        "relative py-px px-2 min-h-7 w-full rounded text-black dark:text-white bg-gray-500 bg-opacity-0 hover:bg-opacity-15 active:bg-opacity-25 cursor-pointer flex items-center space-x-2",
         active && "bg-opacity-15 dark:bg-opacity-25 ",
         className
       )}

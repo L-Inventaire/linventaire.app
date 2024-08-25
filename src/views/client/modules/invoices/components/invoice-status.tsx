@@ -67,6 +67,10 @@ export const InvoiceStatus = ({
     ],
   };
 
+  if (!statusPerTypeGrouped[type]) {
+    return null;
+  }
+
   return (
     <Stepper
       value={value}

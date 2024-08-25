@@ -14,27 +14,27 @@ export const ServiceItemStatus = ({
   size?: "sm" | "md" | "md" | "lg";
 }) => {
   const statusName = {
-    bought: "Commandé",
-    stock: "En stock",
-    reserved: "Réservé",
-    in_transit: "En transit",
-    delivered: "Livré",
-    depleted: "Épuisé",
+    backlog: "Backlog",
+    todo: "À faire",
+    in_progress: "En cours",
+    in_review: "En revue",
+    done: "Terminé",
+    cancelled: "Annulé",
   };
 
   const statusColor = {
-    bought: "gray",
-    stock: "blue",
-    reserved: "red",
-    in_transit: "orange",
-    delivered: "green",
-    depleted: "gray",
+    backlog: "gray",
+    todo: "red",
+    in_progress: "orange",
+    in_review: "blue",
+    done: "green",
+    cancelled: "gray",
   };
 
   const statusGrouped = [
-    ["bought", "stock"],
-    ["reserved", "in_transit"],
-    ["delivered", "depleted"],
+    ["backlog", "todo"],
+    ["in_progress", "in_review"],
+    ["done", "cancelled"],
   ];
 
   return (

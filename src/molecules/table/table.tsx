@@ -4,7 +4,7 @@ import { Checkbox } from "@atoms/input/input-checkbox";
 import Select from "@atoms/input/input-select";
 import { Loader } from "@atoms/loader";
 import { Modal } from "@atoms/modal/modal";
-import { Base, Info } from "@atoms/text";
+import { Base, BaseSmall, Info } from "@atoms/text";
 import {
   ChevronDownIcon,
   CogIcon,
@@ -345,7 +345,7 @@ export function RenderedTable<T>({
               .map((c) => c.title || "")
               .join("") && (
               <thead>
-                <tr>
+                <tr className="bg-slate-50 border-b opacity-50">
                   {onSelect && (
                     <th
                       className={
@@ -384,14 +384,14 @@ export function RenderedTable<T>({
                     .map((column, i) => (
                       <th
                         key={i}
-                        className={
+                        className={twMerge(
                           "font-medium px-1 py-1  " +
-                          (column.orderable
-                            ? "cursor-pointer hover:bg-opacity-75 "
-                            : "") +
-                          (scrollable ? " sticky top-0 z-10 " : "") +
-                          (column.thClassName || "")
-                        }
+                            (column.orderable
+                              ? "cursor-pointer hover:bg-opacity-75 "
+                              : "") +
+                            (scrollable ? " sticky top-0 z-10 " : "") +
+                            (column.thClassName || "")
+                        )}
                         onClick={() => {
                           if (column.orderable) {
                             onChangeOrder &&
@@ -403,17 +403,15 @@ export function RenderedTable<T>({
                         }}
                       >
                         <div
-                          className={
+                          className={twMerge(
                             "items-center flex text-slate-500 table-hover-sort-container  " +
-                            (column.headClassName || "")
-                          }
+                              (column.headClassName || ""),
+                            i === columns.length - 1 ? "pr-1" : ""
+                          )}
                         >
-                          <Info
-                            className="uppercase"
-                            noColor={pagination?.orderBy === i}
-                          >
+                          <BaseSmall noColor={pagination?.orderBy === i}>
                             {column.title}
-                          </Info>
+                          </BaseSmall>
                           {column.orderable && (
                             <div className="w-8 flex items-center ml-1">
                               {pagination?.orderBy === i &&

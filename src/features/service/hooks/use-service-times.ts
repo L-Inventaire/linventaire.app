@@ -1,9 +1,9 @@
 import { RestOptions, useRest } from "@features/utils/rest/hooks/use-rest";
-import { ServiceItems } from "../types/types";
+import { ServiceTimes } from "../types/types";
 import { useEffect } from "react";
 
-export const useServiceTimes = (options?: RestOptions<ServiceItems>) => {
-  const rest = useRest<ServiceItems>("service_times", options);
+export const useServiceTimes = (options?: RestOptions<ServiceTimes>) => {
+  const rest = useRest<ServiceTimes>("service_times", options);
 
   useEffect(() => {
     rest.refresh();

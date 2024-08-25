@@ -52,15 +52,6 @@ export const StockItemsEditPage = (_props: { readonly?: boolean }) => {
           backRoute={ROUTES.Stock}
           viewRoute={ROUTES.StockView}
           editRoute={ROUTES.StockEdit}
-          prefix={
-            <>
-              {!draft.id && (
-                <>
-                  <span>Nouvel élément en l'état</span>
-                </>
-              )}
-            </>
-          }
         />
       }
     >

@@ -86,8 +86,8 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
     <>
       <Title>
         {step === 0
-          ? "Create your new company"
-          : `Almost ready to work with ${companyName}`}
+          ? "Créez votre entreprise"
+          : `${companyName} est presque prêt`}
       </Title>
       {step < 3 && props.onClose && (
         <Info className="block">
@@ -100,14 +100,14 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
               }
             }}
           >
-            Go back
+            Retour
           </Link>
         </Info>
       )}
       <div className="mt-4">
         {step === 0 && (
           <>
-            <SectionSmall className="block mb-2 mt-4">Identity</SectionSmall>
+            <SectionSmall className="block mb-2 mt-4">Identité</SectionSmall>
 
             <InputLabel
               input={
@@ -117,7 +117,7 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
                   onChange={(e) => setCompanyName(e.target.value)}
                 />
               }
-              label="Company name"
+              label="Nom de l'entreprise"
             />
 
             <InputLabel
@@ -135,16 +135,16 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
         {step === 1 && (
           <>
             <SectionSmall className="block mt-4 mb-1">
-              Legal information
+              Informations légales
             </SectionSmall>
 
             <Info className="block mb-4">
-              Enters your legal information now so we can setup your company for
-              your invoices, taxes and more.
+              Ces informations seront utilisées pour générer vos factures et
+              devis.
             </Info>
 
             <InputLabel
-              label="Legal Name"
+              label="Nom légal"
               input={
                 <Input
                   placeholder="BOOKS INC."
@@ -155,7 +155,7 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
             />
 
             <InputLabel
-              label="Registration Number"
+              label="SIRET"
               className="mt-4"
               input={
                 <Input
@@ -167,7 +167,7 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
             />
 
             <InputLabel
-              label="Tax Number"
+              label="Numéro de TVA (optionnel)"
               className="mt-4"
               input={
                 <Input
@@ -179,26 +179,25 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
             />
 
             <div className="mt-4" />
-            <AddressInput onChange={(a) => setAddress(a)} />
+            <AddressInput onChange={(a) => setAddress(a)} value={address} />
           </>
         )}
 
         {step === 2 && (
           <>
             <SectionSmall className="block mt-4 mb-1">
-              Collaborators
+              Collaborateurs
             </SectionSmall>
 
             <Info className="block mb-4">
-              Invite your collaborators to join your company. They will be able
-              to create invoices, manage stock and more.
+              Invitez vos collaborateurs à rejoindre votre entreprise.
             </Info>
 
             <div className="flex flex-row">
               <Input
                 size="md"
                 className="rounded-r-none"
-                placeholder="john@books.com or paste a list of emails"
+                placeholder="john@books.com ou copiez/collez une liste d'emails"
                 type="email"
                 value={newInvitationEmail}
                 onChange={(e) => {
@@ -289,7 +288,19 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
 
         {step < 3 && (
           <Button
-            disabled={!companyName && step === 0}
+            disabled={
+              (!companyName && step === 0) ||
+              (!(
+                address.address_line_1 &&
+                address.zip &&
+                address.city &&
+                address.country &&
+                address.region &&
+                companyLegalName &&
+                companyRegistrationNumber
+              ) &&
+                step === 1)
+            }
             loading={step > 2}
             className="mt-8"
             onClick={() => {

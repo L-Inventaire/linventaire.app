@@ -90,7 +90,7 @@ export const AddressInput = (props: {
       autoComplete={props.autoComplete === false ? "off" : undefined}
     >
       <Input
-        label="Address"
+        label="Adresse"
         inputComponent={
           <>
             <Input
@@ -116,12 +116,12 @@ export const AddressInput = (props: {
         }
       />
       <Input
-        label="Region and city"
+        label="Région et code postal"
         inputComponent={
           <>
             <Input
               style={{ marginTop: -1 }}
-              placeholder="Region"
+              placeholder="Région"
               autoComplete={autoComplete ? "address-level1" : "off"}
               inputClassName="relative rounded-none rounded-t-md focus:z-10"
               value={region}
@@ -133,7 +133,7 @@ export const AddressInput = (props: {
               style={{ marginTop: "-1px" }}
             >
               <Input
-                placeholder="ZIP"
+                placeholder="Code postal"
                 autoComplete={autoComplete ? "postal-code" : "off"}
                 inputClassName="rounded-none rounded-bl-md focus:z-10"
                 value={zip}
@@ -141,7 +141,7 @@ export const AddressInput = (props: {
                 disabled={disabled}
               />
               <Input
-                placeholder="City"
+                placeholder="Ville"
                 autoComplete={autoComplete ? "address-level2" : "off"}
                 inputClassName="rounded-none rounded-br-md focus:z-10"
                 value={city}
@@ -153,11 +153,11 @@ export const AddressInput = (props: {
         }
       />
       <Input
-        label="Country"
+        label="Pays"
         inputComponent={
           <>
             <Select
-              placeholder="Country"
+              placeholder="Pays"
               className="relative rounded-md focus:z-10 "
               value={country}
               autoComplete="country"

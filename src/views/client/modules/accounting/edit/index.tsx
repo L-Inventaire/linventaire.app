@@ -57,15 +57,6 @@ export const AccountingTransactionsEditPage = (_props: {
           backRoute={ROUTES.Accounting}
           viewRoute={ROUTES.AccountingView}
           editRoute={ROUTES.AccountingEdit}
-          prefix={
-            <>
-              {!draft.id && (
-                <>
-                  <span>Nouvel élément en l'état</span>
-                </>
-              )}
-            </>
-          }
         />
       }
     >
