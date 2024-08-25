@@ -99,7 +99,7 @@ registerCtrlKRestEntity<Contacts>("contacts", {
     {
       title: "Étiquettes",
       render: (contact) => (
-        <div className="w-full text-right flex space-x-1 justify-end items-center whitespace-nowrap">
+        <div className="w-full flex space-x-1 items-center whitespace-nowrap">
           <TagsInput size="md" value={contact.tags} disabled />
         </div>
       ),
@@ -107,7 +107,7 @@ registerCtrlKRestEntity<Contacts>("contacts", {
     {
       title: "Parents",
       render: (contact) => (
-        <div className="w-full text-right flex space-x-1 justify-end items-center whitespace-nowrap">
+        <div className="w-full flex space-x-1 items-center whitespace-nowrap">
           {(contact.parents?.length || 0) > 0 && (
             <RestDocumentsInput
               value={contact.parents as any}

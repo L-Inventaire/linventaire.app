@@ -1,7 +1,7 @@
 import currencies from "@assets/currencies.json";
 import languages from "@assets/languages.json";
 import { InputLabel } from "@atoms/input/input-decoration-label";
-import { Info } from "@atoms/text";
+import { Info, SectionSmall } from "@atoms/text";
 import { AddressInput } from "@components/input-button/address/form";
 import { CustomFieldsInput } from "@components/custom-fields-input";
 import { EditorInput } from "@molecules/editor-input";
@@ -21,6 +21,8 @@ import {
 import _ from "lodash";
 import { useEffect } from "react";
 import { RelationsInput } from "./relations-input";
+import { RestDocumentsInput } from "@components/input-rest";
+import { ContactAccountingAccount } from "./contact-accounting-account";
 
 export const ContactsDetailsPage = ({
   readonly,
@@ -244,6 +246,16 @@ export const ContactsDetailsPage = ({
             )}
           </div>
           <div className="grow lg:max-w-xl">
+            {id && (contact.is_client || contact.is_supplier) && (
+              <PageBlock closable title="Comptabilité">
+                {contact.is_client && (
+                  <ContactAccountingAccount type="client" contactId={id} />
+                )}
+                {contact.is_supplier && (
+                  <ContactAccountingAccount type="supplier" contactId={id} />
+                )}
+              </PageBlock>
+            )}
             <PageBlock closable title="Adresse de facturation">
               <AddressInput ctrl={ctrl("address")} autoComplete={false} />
             </PageBlock>

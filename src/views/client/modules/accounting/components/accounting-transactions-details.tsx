@@ -3,6 +3,7 @@ import { Section } from "@atoms/text";
 import { CustomFieldsInput } from "@components/custom-fields-input";
 import { FormInput } from "@components/form/fields";
 import { FormContext } from "@components/form/formcontext";
+import { RestDocumentsInput } from "@components/input-rest";
 import { FilesInput } from "@components/input-rest/files";
 import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
@@ -10,12 +11,10 @@ import { AccountingTransactions } from "@features/accounting/types/types";
 import { useClients } from "@features/clients/state/use-clients";
 import { currencyOptions } from "@features/utils/constants";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
+import { ArrowRightIcon } from "@heroicons/react/16/solid";
 import { EditorInput } from "@molecules/editor-input";
 import { InvoiceRestDocument } from "../../invoices/components/invoice-lines-input/invoice-input-rest-card";
-import {
-  ArrowRightCircleIcon,
-  ArrowRightIcon,
-} from "@heroicons/react/16/solid";
+import { useEffect } from "react";
 
 export const AccountingTransactionsDetailsPage = ({
   readonly,
@@ -34,18 +33,33 @@ export const AccountingTransactionsDetailsPage = ({
       readonly
     );
 
+  useEffect(() => {
+    if (!readonly)
+      setDraft({
+        ...draft,
+        transaction_date: draft.transaction_date || new Date().toISOString(),
+        currency: draft.currency || client.preferences.currency || "EUR",
+      });
+  }, [draft.transaction_date, draft.currency]);
+
+  if (isPending) return null;
+
   return (
     <div className="w-full max-w-3xl mx-auto">
       <FormContext readonly={readonly} alwaysVisible>
-        <Card title="Déclarer une opération">
-          Déclarez ou éditez une opération bancaire.
-        </Card>
+        {!readonly && (
+          <Card title="Déclarer une opération">
+            Déclarez ou éditez une opération comptable.
+          </Card>
+        )}
 
         <div className="float-right">
           <TagsInput ctrl={ctrl("tags")} />
           <UsersInput ctrl={ctrl("assigned")} />
         </div>
         <Section className="mb-2">Opération</Section>
+
+        <FormInput label="Référence" type="text" ctrl={ctrl("reference")} />
 
         <div className="flex space-x-2">
           <FormInput label="Date" type="date" ctrl={ctrl("transaction_date")} />
@@ -64,20 +78,20 @@ export const AccountingTransactionsDetailsPage = ({
         </div>
 
         <div className="flex space-x-2 items-center mt-4">
-          <FormInput
+          <RestDocumentsInput
+            entity="accounting_accounts"
+            size="xl"
             label="Compte à débiter"
-            type="select"
+            placeholder="Associer un compte"
             ctrl={ctrl("debit")}
-            disabled
-            options={currencyOptions}
           />
-          <ArrowRightIcon className="w-4 h-4 shrink-0 mt-6" />
-          <FormInput
+          <ArrowRightIcon className="w-4 h-4 shrink-0" />
+          <RestDocumentsInput
+            entity="accounting_accounts"
+            size="xl"
             label="Compte à créditer"
-            type="select"
+            placeholder="Associer un compte"
             ctrl={ctrl("credit")}
-            disabled
-            options={currencyOptions}
           />
         </div>
 

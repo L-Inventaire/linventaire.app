@@ -404,7 +404,7 @@ export function RenderedTable<T>({
                       >
                         <div
                           className={twMerge(
-                            "items-center flex text-slate-500 table-hover-sort-container  " +
+                            "items-center flex text-slate-500 table-hover-sort-container whitespace-nowrap  " +
                               (column.headClassName || ""),
                             i === columns.length - 1 ? "pr-1" : ""
                           )}

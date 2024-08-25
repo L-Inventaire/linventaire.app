@@ -5,22 +5,22 @@ import { useEffect } from "react";
 export const useAccountingAccounts = (
   options?: RestOptions<AccountingAccounts>
 ) => {
-  const rest = useRest<AccountingAccounts>("accounting_transactions", options);
+  const rest = useRest<AccountingAccounts>("accounting_accounts", options);
 
   useEffect(() => {
     rest.refresh();
   }, [JSON.stringify(options)]);
 
-  return { accounting_transactions: rest.items, ...rest };
+  return { accounting_accounts: rest.items, ...rest };
 };
 
 export const useAccountingAccount = (id: string) => {
   const rest = useAccountingAccounts({ query: { id } });
   return {
     accounting_transaction: id
-      ? (rest.accounting_transactions.data?.list || [])[0]
+      ? (rest.accounting_accounts.data?.list || [])[0]
       : null,
-    isPending: id ? rest.accounting_transactions.isPending : false,
+    isPending: id ? rest.accounting_accounts.isPending : false,
     ...rest,
   };
 };

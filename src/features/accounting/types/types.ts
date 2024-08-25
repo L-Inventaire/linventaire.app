@@ -18,6 +18,7 @@ export type AccountingTransactions = RestEntity & {
 };
 
 export type AccountingAccounts = RestEntity & {
+  type: "client" | "supplier" | "internal";
   contact: string;
   standard_identifier: string; // Numéro sur le plan comptable
   standard: "pcg" | "ifrs"; // Plan Comptable Général, dans le futur pourrait être étendu à d'autres standards

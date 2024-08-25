@@ -14,6 +14,7 @@ import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
+import { CtrlKRestEntities } from "@features/ctrlk";
 
 export const AccountingPage = () => {
   const [options, setOptions] = useState<RestOptions<AccountingTransactions>>({
@@ -78,29 +79,9 @@ export const AccountingPage = () => {
               asc: page.order === "ASC",
             });
           }}
-          columns={[
-            {
-              thClassName: "w-1",
-              render: (item) => (
-                <Base className="opacity-50 whitespace-nowrap">
-                  {item.reference}
-                </Base>
-              ),
-            },
-            {
-              render: () => <></>,
-            },
-            {
-              thClassName: "w-1",
-              cellClassName: "justify-end",
-              render: () => <></>,
-            },
-            {
-              thClassName: "w-1",
-              cellClassName: "justify-end",
-              render: () => <></>,
-            },
-          ]}
+          columns={
+            CtrlKRestEntities.accounting_transactions?.renderResult || []
+          }
         />
       </div>
     </Page>

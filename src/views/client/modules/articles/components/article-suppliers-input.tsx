@@ -159,9 +159,10 @@ export const ArticleSuppliersInput = ({
                 </div>
               ))}
             {!readonly && (
-              <div className="mt-2 flex space-x-2">
+              <div className="mt-2 flex flex-col space-y-2">
                 <RestDocumentsInput
                   entity="contacts"
+                  size="xl"
                   filter={{ is_supplier: true } as Partial<Contacts>}
                   label="+ Ajouter un fournisseur"
                   placeholder="Rechercher un fournisseur..."

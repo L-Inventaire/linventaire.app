@@ -9,6 +9,8 @@ import { ROUTES, getRoute } from "@features/routes";
 import { EyeIcon, TrashIcon } from "@heroicons/react/24/outline";
 import _ from "lodash";
 import { useEffect } from "react";
+import { CtrlKRestEntities } from "@features/ctrlk";
+import { useNavigateAlt } from "@features/utils/navigate";
 
 export const RelationsInput = ({
   id,
@@ -21,6 +23,7 @@ export const RelationsInput = ({
   value: [string[], Contacts["parents_roles"]]; // parents, parents_roles
   onChange: (parents: string[], roles: Contacts["parents_roles"]) => void;
 }) => {
+  const navigate = useNavigateAlt();
   const { contacts: children } = useContacts({
     query: [
       {
@@ -117,29 +120,22 @@ export const RelationsInput = ({
             {!!parents?.data?.list?.length && readonly && (
               <>
                 <Table
-                  data={parents.data?.list || []}
+                  data={children.data?.list || []}
                   columns={[
+                    ...(CtrlKRestEntities["contacts"].renderResult as any),
                     {
-                      render: (contact) => <>{getContactName(contact)}</>,
-                    },
-                    {
+                      title: "Rôle",
                       render: (contact) => <>{value[1][contact.id]?.role}</>,
                     },
-                    {
-                      cellClassName: "flex justify-end",
-                      render: (contact) => (
-                        <>
-                          <Button
-                            icon={(p) => <EyeIcon {...p} />}
-                            size="md"
-                            to={getRoute(ROUTES.ContactsView, {
-                              id: contact.id,
-                            })}
-                          />
-                        </>
-                      ),
-                    },
                   ]}
+                  onClick={(contact, event) =>
+                    navigate(
+                      getRoute(ROUTES.ContactsView, { id: contact.id }),
+                      {
+                        event,
+                      }
+                    )
+                  }
                 />
               </>
             )}
@@ -149,29 +145,21 @@ export const RelationsInput = ({
 
       {!!children?.data?.total && readonly && (
         <div>
-          <SectionSmall>Autre contacts</SectionSmall>
+          <SectionSmall>Contacts liés</SectionSmall>
           <Table
             data={children.data?.list || []}
             columns={[
+              ...(CtrlKRestEntities["contacts"].renderResult as any),
               {
-                render: (contact) => <>{getContactName(contact)}</>,
-              },
-              {
-                render: (contact) => <>{value[1][contact.id]?.role}</>,
-              },
-              {
-                cellClassName: "flex justify-end",
-                render: (contact) => (
-                  <>
-                    <Button
-                      icon={(p) => <EyeIcon {...p} />}
-                      size="md"
-                      to={getRoute(ROUTES.ContactsView, { id: contact.id })}
-                    />
-                  </>
-                ),
+                title: "Rôle",
+                render: (contact) => <>{contact.parents_roles[id]?.role}</>,
               },
             ]}
+            onClick={(contact, event) =>
+              navigate(getRoute(ROUTES.ContactsView, { id: contact.id }), {
+                event,
+              })
+            }
           />
         </div>
       )}
