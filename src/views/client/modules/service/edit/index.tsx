@@ -27,7 +27,7 @@ export const ServiceItemsEditPage = (_props: { readonly?: boolean }) => {
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as ServiceItems;
 
-  const { isInitiating, save, draft } = useDraftRest<ServiceItems>(
+  const { isInitiating, save } = useDraftRest<ServiceItems>(
     "service_items",
     id || "new",
     async (item) => {

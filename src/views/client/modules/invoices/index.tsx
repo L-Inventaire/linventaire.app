@@ -1,15 +1,12 @@
 import { Button } from "@atoms/button/button";
-import { Base, BaseSmall, Info } from "@atoms/text";
-import { RestDocumentsInput } from "@components/input-rest";
-import { TagsInput } from "@components/input-rest/tags";
+import { Info } from "@atoms/text";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { RestTable } from "@components/table-rest";
+import { CtrlKRestEntities } from "@features/ctrlk";
 import { useInvoices } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
 import { getDocumentNamePlurial } from "@features/invoices/utils";
 import { ROUTES, getRoute } from "@features/routes";
-import { formatTime } from "@features/utils/format/dates";
-import { formatAmount } from "@features/utils/format/strings";
 import { useNavigateAlt } from "@features/utils/navigate";
 import {
   RestOptions,
@@ -24,8 +21,6 @@ import {
   buildQueryFromMap,
   schemaToSearchFields,
 } from "../../../../components/search-bar/utils/utils";
-import { InvoiceStatus } from "./components/invoice-status";
-import { CtrlKRestEntities } from "@features/ctrlk";
 
 export const InvoicesPage = () => {
   const type: Invoices["type"][] = (useParams().type?.split("+") || [

@@ -2,15 +2,15 @@ import { Button } from "@atoms/button/button";
 import { Info, SectionSmall } from "@atoms/text";
 import { FormInput } from "@components/form/fields";
 import { RestDocumentsInput } from "@components/input-rest";
-import { Table } from "@molecules/table";
 import { useContacts } from "@features/contacts/hooks/use-contacts";
 import { Contacts, getContactName } from "@features/contacts/types/types";
+import { CtrlKRestEntities } from "@features/ctrlk";
 import { ROUTES, getRoute } from "@features/routes";
-import { EyeIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { useNavigateAlt } from "@features/utils/navigate";
+import { TrashIcon } from "@heroicons/react/24/outline";
+import { Table } from "@molecules/table";
 import _ from "lodash";
 import { useEffect } from "react";
-import { CtrlKRestEntities } from "@features/ctrlk";
-import { useNavigateAlt } from "@features/utils/navigate";
 
 export const RelationsInput = ({
   id,

@@ -1,18 +1,18 @@
 import currencies from "@assets/currencies.json";
 import languages from "@assets/languages.json";
 import { InputLabel } from "@atoms/input/input-decoration-label";
-import { Info, SectionSmall } from "@atoms/text";
-import { AddressInput } from "@components/input-button/address/form";
+import { PageLoader } from "@atoms/page-loader";
+import { Info } from "@atoms/text";
 import { CustomFieldsInput } from "@components/custom-fields-input";
-import { EditorInput } from "@molecules/editor-input";
 import { FormInput } from "@components/form/fields";
 import { FormContext } from "@components/form/formcontext";
-import { PageLoader } from "@atoms/page-loader";
+import { AddressInput } from "@components/input-button/address/form";
 import { useClients } from "@features/clients/state/use-clients";
 import { ContactsApiClient } from "@features/contacts/api-client/contacts-api-client";
 import { Contacts } from "@features/contacts/types/types";
 import { debounce } from "@features/utils/debounce";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
+import { EditorInput } from "@molecules/editor-input";
 import {
   PageBlock,
   PageBlockHr,
@@ -20,9 +20,8 @@ import {
 } from "@views/client/_layout/page";
 import _ from "lodash";
 import { useEffect } from "react";
-import { RelationsInput } from "./relations-input";
-import { RestDocumentsInput } from "@components/input-rest";
 import { ContactAccountingAccount } from "./contact-accounting-account";
+import { RelationsInput } from "./relations-input";
 
 export const ContactsDetailsPage = ({
   readonly,

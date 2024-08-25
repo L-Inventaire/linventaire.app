@@ -3,7 +3,6 @@ import { FormInput } from "@components/form/fields";
 import { FormContext } from "@components/form/formcontext";
 import { RestDocumentsInput } from "@components/input-rest";
 import { UsersInput } from "@components/input-rest/users";
-import { useClients } from "@features/clients/state/use-clients";
 import { ServiceTimes } from "@features/service/types/types";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { BriefcaseIcon } from "@heroicons/react/20/solid";
@@ -15,10 +14,7 @@ export const ServiceTimesDetailsPage = ({
   readonly?: boolean;
   id: string;
 }) => {
-  const { client: clientUser } = useClients();
-  const client = clientUser!.client!;
-
-  const { isPending, ctrl, draft, setDraft } = useReadDraftRest<ServiceTimes>(
+  const { ctrl, draft } = useReadDraftRest<ServiceTimes>(
     "service_times",
     id || "new",
     readonly

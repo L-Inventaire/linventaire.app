@@ -27,7 +27,7 @@ export const StockItemsEditPage = (_props: { readonly?: boolean }) => {
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as StockItems;
 
-  const { isInitiating, save, draft } = useDraftRest<StockItems>(
+  const { isInitiating, save } = useDraftRest<StockItems>(
     "stock_items",
     id || "new",
     async (item) => {

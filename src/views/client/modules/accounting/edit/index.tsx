@@ -29,7 +29,7 @@ export const AccountingTransactionsEditPage = (_props: {
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as AccountingTransactions;
 
-  const { isInitiating, save, draft } = useDraftRest<AccountingTransactions>(
+  const { isInitiating, save } = useDraftRest<AccountingTransactions>(
     "accounting_transactions",
     id || "new",
     async (item) => {

@@ -5,11 +5,10 @@ import { useHasAccess } from "@features/access";
 import { registerRootNavigation } from "@features/ctrlk";
 import { ROUTES, getRoute } from "@features/routes";
 import { DefaultScrollbars } from "@features/utils/scrollbars";
+import { ListBulletIcon } from "@heroicons/react/16/solid";
 import { DocumentIcon, PlusIcon } from "@heroicons/react/24/outline";
 import {
-  BookOpenIcon,
   BriefcaseIcon,
-  BuildingStorefrontIcon,
   CalendarDaysIcon,
   ChartBarIcon,
   CodeBracketIcon,
@@ -21,17 +20,14 @@ import {
   InboxIcon,
   ReceiptRefundIcon,
   ShoppingCartIcon,
-  UserIcon,
   UsersIcon,
   ViewColumnsIcon,
-  WalletIcon,
 } from "@heroicons/react/24/solid";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { Account } from "./account";
 import { ResponsiveMenuAtom } from "./header";
-import { ListBulletIcon } from "@heroicons/react/16/solid";
 
 export const SideBar = () => {
   const { t } = useTranslation();

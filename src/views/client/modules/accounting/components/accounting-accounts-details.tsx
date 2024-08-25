@@ -3,7 +3,6 @@ import { FormInput } from "@components/form/fields";
 import { FormContext } from "@components/form/formcontext";
 import { RestDocumentsInput } from "@components/input-rest";
 import { AccountingAccounts } from "@features/accounting/types/types";
-import { useClients } from "@features/clients/state/use-clients";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { useEffect } from "react";
 
@@ -14,8 +13,6 @@ export const AccountingAccountsDetailsPage = ({
   readonly?: boolean;
   id: string;
 }) => {
-  const { client: clientUser } = useClients();
-
   const { isPending, ctrl, draft, setDraft } =
     useReadDraftRest<AccountingAccounts>(
       "accounting_accounts",

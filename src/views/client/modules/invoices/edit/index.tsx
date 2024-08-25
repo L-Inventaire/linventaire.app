@@ -1,4 +1,3 @@
-import Select from "@atoms/input/input-select";
 import { PageLoader } from "@atoms/page-loader";
 import { DocumentBar } from "@components/document-bar";
 import { useClients } from "@features/clients/state/use-clients";
@@ -30,7 +29,7 @@ export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as Invoices;
 
-  const { isInitiating, save, draft, setDraft } = useDraftRest<Invoices>(
+  const { isInitiating, save, draft } = useDraftRest<Invoices>(
     "invoices",
     id || "new",
     async (item) => {

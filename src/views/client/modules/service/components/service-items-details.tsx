@@ -3,6 +3,7 @@ import { Section } from "@atoms/text";
 import { CustomFieldsInput } from "@components/custom-fields-input";
 import { FormInput } from "@components/form/fields";
 import { FormContext } from "@components/form/formcontext";
+import { InputButton } from "@components/input-button";
 import { RestDocumentsInput } from "@components/input-rest";
 import { FilesInput } from "@components/input-rest/files";
 import { TagsInput } from "@components/input-rest/tags";
@@ -15,12 +16,11 @@ import { useServiceTimes } from "@features/service/hooks/use-service-times";
 import { ServiceItems } from "@features/service/types/types";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { ClockIcon, CubeIcon } from "@heroicons/react/16/solid";
-import { BriefcaseIcon, UserIcon } from "@heroicons/react/20/solid";
+import { UserIcon } from "@heroicons/react/20/solid";
 import { DocumentIcon } from "@heroicons/react/24/outline";
 import { EditorInput } from "@molecules/editor-input";
-import { ServiceItemStatus } from "./service-item-status";
 import { InvoiceRestDocument } from "../../invoices/components/invoice-lines-input/invoice-input-rest-card";
-import { InputButton } from "@components/input-button";
+import { ServiceItemStatus } from "./service-item-status";
 
 export const ServiceItemsDetailsPage = ({
   readonly,
