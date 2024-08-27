@@ -88,4 +88,6 @@ export const ROUTES = {
   SettingsBilling: "/:client/settings/billing",
 
   DevPage: "/:client/dev",
+
+  DocumentView: "/:client/document/:document",
 };

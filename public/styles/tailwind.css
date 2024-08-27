@@ -1728,10 +1728,6 @@ img {
   max-width: 28rem;
 }
 
-.max-w-sm {
-  max-width: 24rem;
-}
-
 .max-w-xl {
   max-width: 36rem;
 }
@@ -3244,10 +3240,6 @@ img {
 
 .bg-opacity-75 {
   --tw-bg-opacity: 0.75;
-}
-
-.bg-opacity-90 {
-  --tw-bg-opacity: 0.9;
 }
 
 .bg-gradient-to-r {
@@ -5989,10 +5981,6 @@ input, select {
 
 .dark\:bg-opacity-80:where(.dark, .dark *) {
   --tw-bg-opacity: 0.8;
-}
-
-.dark\:bg-opacity-90:where(.dark, .dark *) {
-  --tw-bg-opacity: 0.9;
 }
 
 .dark\:text-blue-100:where(.dark, .dark *) {

@@ -49,6 +49,7 @@ import { AccountingTransactionsViewPage } from "./modules/accounting/view";
 import { AccountingTransactionsEditPage } from "./modules/accounting/edit";
 import { ServiceItemsViewPage } from "./modules/service/view";
 import { ServiceItemsEditPage } from "./modules/service/edit";
+import { DocumentPage } from "./modules/document";
 
 export const BackOfficeRoutes = () => {
   return (
@@ -103,6 +104,8 @@ export const BackOfficeRoutes = () => {
         <Route path={ROUTES.Invoices} element={<InvoicesPage />} />
         <Route path={ROUTES.InvoicesView} element={<InvoicesViewPage />} />
         <Route path={ROUTES.InvoicesEdit} element={<InvoicesEditPage />} />
+
+        <Route path={ROUTES.DocumentView} element={<DocumentPage />} />
 
         <Route
           path={ROUTES.Settings}

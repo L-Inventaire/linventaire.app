@@ -164,5 +164,10 @@
       "search_in": "Rechercher dans",
       "go_to": "Ouvrir"
     }
+  },
+  "documents": {
+    "index": {
+      "title": "Documents partagés"
+    }
   }
 }
