@@ -50,7 +50,7 @@ export const buildFilter = (
     return (
       <span
         className={twMerge(
-          "bg-wood-500 bg-opacity-10 border border-wood-500 rounded-sm",
+          "bg-slate-500 bg-opacity-10 border border-slate-500 rounded-sm",
           "bg-red-500 text-red-500 border-red-500 line-through"
         )}
         style={{
@@ -78,7 +78,7 @@ export const buildFilter = (
     >
       <span
         className={twMerge(
-          "bg-wood-500 text-wood-500 text-white border border-wood-500 rounded border-r-0 rounded-r-none"
+          "bg-slate-500 text-slate-500 text-white border border-slate-500 rounded border-r-0 rounded-r-none"
         )}
         style={{
           padding: "1px 0",
@@ -104,7 +104,7 @@ export const buildFilter = (
       </span>
       <span
         className={twMerge(
-          "relative bg-wood-500 bg-opacity-10 border border-wood-500 rounded rounded-l-none"
+          "relative bg-slate-500 bg-opacity-10 border border-slate-500 rounded rounded-l-none"
         )}
         style={{
           padding: "1px calc(0.5ch - 1px)",
@@ -118,7 +118,7 @@ export const buildFilter = (
               key={i}
               className={
                 i < filter.values_raw.split(",").length - 1
-                  ? "border-r border-wood-500"
+                  ? "border-r border-slate-500"
                   : ""
               }
               style={{
@@ -138,7 +138,7 @@ export const buildFilter = (
                     style={{ width: match.length + "ch" }}
                     className="inline-block text-center"
                   >
-                    <span className="font-sans text-xs text-wood-500 -top-px relative">
+                    <span className="font-sans text-xs text-slate-500 -top-px relative">
                       {match.replace(/T/, "")}
                     </span>
                   </span>
@@ -148,7 +148,7 @@ export const buildFilter = (
                   style={{ width: value.length + "ch" }}
                   className={twMerge(
                     "inline-block text-center",
-                    value === "1" ? "text-wood-500" : "text-red-500"
+                    value === "1" ? "text-slate-500" : "text-red-500"
                   )}
                 >
                   {" "}

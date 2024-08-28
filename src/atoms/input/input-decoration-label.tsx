@@ -27,7 +27,7 @@ export const InputLabel = (props: InputLabelProps) => {
         {props.feedback && (
           <Info
             noColor
-            className={props.hasError ? "text-red-400" : "text-wood-400"}
+            className={props.hasError ? "text-red-400" : "text-slate-400"}
           >
             {props.feedback}
           </Info>

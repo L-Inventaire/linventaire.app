@@ -23,7 +23,7 @@ export default function Avatar(props: {
           ? " rounded-md "
           : " rounded-lg "
         : " rounded-full ") +
-      " overflow-hidden bg-wood-200 ",
+      " overflow-hidden bg-slate-200 ",
     props.className
   );
 
@@ -82,7 +82,7 @@ export default function Avatar(props: {
       {..._.omit(props, "avatar", "className", "src")}
     >
       <svg
-        className="h-full w-full text-wood-400 bg-wood-200"
+        className="h-full w-full text-slate-400 bg-slate-200"
         fill="currentColor"
         viewBox="0 0 24 24"
       >

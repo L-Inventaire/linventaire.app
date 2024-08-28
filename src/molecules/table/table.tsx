@@ -90,7 +90,7 @@ const defaultCellClassName = ({
     colFirst && "pl-1",
     colLast && "pr-1",
     selected
-      ? " bg-opacity-20 dark:bg-opacity-20 bg-wood-500 dark:bg-wood-500 group-hover/row:bg-opacity-15 dark:group-hover/row:bg-opacity-15"
+      ? " bg-opacity-20 dark:bg-opacity-20 bg-slate-500 dark:bg-slate-500 group-hover/row:bg-opacity-15 dark:group-hover/row:bg-opacity-15"
       : rowOdd
       ? "dark:bg-opacity-15 bg-opacity-15 group-hover/row:bg-opacity-0 dark:group-hover/row:bg-opacity-0"
       : "dark:bg-opacity-50 bg-opacity-50 group-hover/row:bg-opacity-25 dark:group-hover/row:bg-opacity-25",

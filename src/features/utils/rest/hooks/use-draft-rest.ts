@@ -55,15 +55,17 @@ export const useDraftRest = <T extends { id: string }>(
     // user to load it back -> JSON.parse(localStorage.getItem("drafts_" + key.join("_")) || "{}"
     // 2/ Auto loading draft at loading page is great when reloading page but not when navigating from button "create new"
     // Maybe we can detect if it's a reload or not ?
-    if (defaultValue) setDraft(defaultValue as T);
+    if (defaultValue && !items.isPending) {
+      setDraft(defaultValue as T);
+    }
     setDefaultWasSet(true);
-  }, [JSON.stringify(defaultValue)]);
+  }, [JSON.stringify(defaultValue), items.isPending]);
 
   useEffect(() => {
     if (existingItem && (draft.id !== existingItem.id || readonly)) {
       setDraft(existingItem);
     }
-  }, [existingItem]);
+  }, [existingItem, draft.id]);
 
   const save = async () => {
     try {

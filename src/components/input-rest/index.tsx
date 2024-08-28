@@ -111,7 +111,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
         ? edit(props.entity, _.isArray(value) ? value[0] : value || "")
         : null;
     },
-    [valuesList]
+    [valuesList, props.filter, props.entity, props.max, value]
   );
 
   if (props.noWrapper) {

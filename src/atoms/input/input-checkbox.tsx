@@ -18,11 +18,11 @@ export const Checkbox = (props: {
         className={twMerge(
           "overflow-hidden transition-all shrink-0 flex justify-center items-center border rounded text-white " +
             (props.value
-              ? "border-wood-400 bg-wood-400 hover:border-wood-500 hover:bg-wood-500"
-              : "border-wood-200 bg-slate-50 dark:bg-slate-800 dark:border-slate-700 " +
+              ? "border-slate-400 bg-slate-400 hover:border-slate-500 hover:bg-slate-500"
+              : "border-slate-200 bg-slate-50 dark:bg-slate-800 dark:border-slate-700 " +
                 (props.disabled
                   ? ""
-                  : "hover:border-wood-200 dark:hover:border-slate-600")) +
+                  : "hover:border-slate-200 dark:hover:border-slate-600")) +
             " " +
             (props.disabled ? "opacity-50" : "cursor-pointer"),
           className,

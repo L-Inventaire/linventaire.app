@@ -25,12 +25,12 @@ export const RadioCard = (props: {
         <div
           className={twMerge(
             "w-4 h-4 rounded-full mx-2 flex items-center justify-center",
-            props.value && "border border-wood-500",
+            props.value && "border border-slate-500",
             !props.value && "border border-slate-100 dark:border-slate-700"
           )}
         >
           {props.value && (
-            <div className="rounded-full bg-wood-500 w-2.5 h-2.5" />
+            <div className="rounded-full bg-slate-500 w-2.5 h-2.5" />
           )}
         </div>
       </div>

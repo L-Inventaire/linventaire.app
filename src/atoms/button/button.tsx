@@ -70,11 +70,11 @@ export const Button = (props: ButtonProps) => {
   }
 
   let colors =
-    "shadow-sm text-white bg-wood-500 hover:bg-wood-600 active:bg-wood-700 border-[0.5px] border-wood-600 hover:border-wood-700 ";
+    "shadow-sm text-white bg-black hover:bg-slate-800 active:bg-slate-900 border-[0.5px] border-slate-600 hover:border-slate-700 dark:bg-white dark:active:bg-white dark:hover:bg-white dark:text-black dark:hover:bg-opacity-75 dark:active:bg-opacity-10 dark:border-slate-800 dark:hover:border-slate-800";
 
   if (props.theme === "secondary")
     colors =
-      "shadow-sm text-wood-500 bg-wood-100 hover:bg-wood-200 active:bg-wood-300 dark:bg-wood-900 dark:active:bg-wood-900 dark:hover:bg-wood-900 dark:text-slate-200 dark:hover:bg-opacity-75 dark:active:bg-opacity-10 border-[0.5px] border-wood-200 hover:border-wood-300 dark:border-wood-900 dark:hover:border-wood-800";
+      "shadow-sm text-slate-500 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 dark:bg-slate-900 dark:active:bg-slate-900 dark:hover:bg-slate-900 dark:text-slate-200 dark:hover:bg-opacity-75 dark:active:bg-opacity-10 border-[0.5px] border-slate-200 hover:border-slate-300 dark:border-slate-900 dark:hover:border-slate-800";
 
   if (props.theme === "danger")
     colors =

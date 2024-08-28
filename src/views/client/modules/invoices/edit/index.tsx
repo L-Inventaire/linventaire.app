@@ -12,6 +12,9 @@ import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { InvoicesDetailsPage } from "../components/invoices-details";
 import { getPdfPreview } from "../components/invoices-preview/invoices-preview";
+import { Button } from "@atoms/button/button";
+import { CheckBadgeIcon } from "@heroicons/react/16/solid";
+import { CheckIcon } from "@heroicons/react/24/outline";
 
 export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
   const { refresh, loading } = useClients();
@@ -57,6 +60,13 @@ export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
         },
         { label: id ? "Modifier" : "Créer" },
       ]}
+      footer={
+        <div className="text-right">
+          <Button size="lg" icon={(p) => <CheckIcon {...p} />}>
+            Marquer comme payée
+          </Button>
+        </div>
+      }
       bar={
         <DocumentBar
           loading={isInitiating || loading}

@@ -13,6 +13,7 @@ import { twMerge } from "tailwind-merge";
 export const Page = (props: {
   children: ReactNode;
   bar?: ReactNode;
+  footer?: ReactNode;
   title?: {
     label?: string;
     to?: string;
@@ -39,6 +40,11 @@ export const Page = (props: {
         <DefaultScrollbars className="p-3 grow">
           {props.children}
         </DefaultScrollbars>
+        {props.footer && (
+          <div className="border-t border-solid border-slate-100 dark:border-slate-700 p-3">
+            {props.footer}
+          </div>
+        )}
       </div>
     </ErrorBoundary>
   );

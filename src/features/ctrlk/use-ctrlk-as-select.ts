@@ -21,7 +21,7 @@ export const useCtrlKAsSelect = () => {
             entity: entity,
             internalQuery: filter,
             onClick: cb,
-            selected,
+            selected: max > 1 ? selected : undefined,
           },
         },
       ],

@@ -208,7 +208,7 @@ export const SearchBarSuggestions = ({
                     <Tag
                       size="sm"
                       noColor
-                      className="bg-wood-500 text-white -ml-1 font-mono"
+                      className="bg-slate-500 text-white -ml-1 font-mono"
                     >
                       {field?.label}
                     </Tag>{" "}

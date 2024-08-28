@@ -182,7 +182,7 @@ export const InvoicesDetailsPage = ({
           />
         ),
         visible: !isSupplierRelated,
-        complete: draft.payment_information.mode?.length,
+        complete: draft.payment_information?.mode?.length,
       },
       {
         component: (
@@ -342,7 +342,7 @@ export const InvoicesDetailsPage = ({
                         <Fragment key={i}>
                           {i !== 0 &&
                             !a.complete &&
-                            otherInputs[i - 1].complete && <br />}
+                            !!otherInputs[i - 1].complete && <br />}
                           {a.component}
                         </Fragment>
                       ))}
@@ -441,29 +441,33 @@ export const InvoicesDetailsPage = ({
                     )}
                   </div>
                 </div>
-                <div className="mt-8">
-                  <Section className="mb-2">Discussion</Section>
-                  <div className="space-y-2 mt-2">TODO</div>
-                </div>
+                {false && (
+                  <div className="mt-8">
+                    <Section className="mb-2">Discussion</Section>
+                    <div className="space-y-2 mt-2">TODO</div>
+                  </div>
+                )}
               </>
             )}
           </div>
           {/* TODO Clearly this fixed isn't right for all screens, we should use js probably ? */}
-          <div
-            className={twMerge(
-              "lg:w-2/5 shrink-0 flex items-start justify-center pt-6 transition-all 2xl:flex hidden",
-              !hasPreview && "w-0 lg:w-0",
-              hasPreview && "w-full"
-            )}
-          >
-            {hasPreview && (
-              <div className="fixed grow shrink-0">
-                <div className="w-full flex flex-col grow shadow-lg border overflow-x-auto max-w-[560px] lg:aspect-[5/7] bg-white">
-                  <InvoicesPreview invoice={draft} />
+          {false && (
+            <div
+              className={twMerge(
+                "lg:w-2/5 shrink-0 flex items-start justify-center pt-6 transition-all 2xl:flex hidden",
+                !hasPreview && "w-0 lg:w-0",
+                hasPreview && "w-full"
+              )}
+            >
+              {hasPreview && (
+                <div className="fixed grow shrink-0">
+                  <div className="w-full flex flex-col grow shadow-lg border overflow-x-auto max-w-[560px] lg:aspect-[5/7] bg-white">
+                    <InvoicesPreview invoice={draft} />
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
           <div className="grow" />
         </PageColumns>
       </FormContext>

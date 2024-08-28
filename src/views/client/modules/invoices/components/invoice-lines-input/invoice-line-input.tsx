@@ -417,7 +417,7 @@ export const DropInvoiceLine = (props: {
       ></div>
       <div
         className={twMerge(
-          "absolute w-full h-0.5 -top-[5px] opacity-0 transition-all bg-wood-300 rounded-full pointer-events-none shadow-sm",
+          "absolute w-full h-0.5 -top-[5px] opacity-0 transition-all bg-slate-300 rounded-full pointer-events-none shadow-sm",
           isOver && "opacity-100"
         )}
       />
