@@ -11,6 +11,7 @@ import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
 import { buildQueryFromMap } from "@components/search-bar/utils/utils";
 import { useAccountingTransactions } from "@features/accounting/hooks/use-accounting-transactions";
+import { AccountingTransactions } from "@features/accounting/types/types";
 import { useClients } from "@features/clients/state/use-clients";
 import { useContact } from "@features/contacts/hooks/use-contacts";
 import { Contacts } from "@features/contacts/types/types";
@@ -23,7 +24,6 @@ import { getFormattedNumerotation } from "@features/utils/format/numerotation";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import {
   BuildingStorefrontIcon,
-  DocumentTextIcon,
   EnvelopeIcon,
   UserIcon,
 } from "@heroicons/react/20/solid";
@@ -45,7 +45,6 @@ import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-ca
 import { InvoiceStatus } from "./invoice-status";
 import { InvoicesPreview } from "./invoices-preview/invoices-preview";
 import { RelatedInvoices } from "./related-invoices";
-import { AccountingTransactions } from "@features/accounting/types/types";
 
 export const computeCompletion = (
   linesu: Invoices["content"],
@@ -227,35 +226,62 @@ export const InvoicesDetailsPage = ({
     }
   );
 
+  const billableContent = (draft.content || []).filter(
+    (a) => a.unit_price && a.quantity
+  );
+
   return (
     <>
       <FormContext readonly={readonly} alwaysVisible>
         <PageColumns>
           <div className="grow" />
           <div className="grow lg:w-3/5 max-w-3xl pt-6">
-            <div className="float-right mb-2">
+            <div className="mb-2">
               <InvoiceStatus
-                readonly={readonly}
-                size="lg"
+                readonly={true}
+                size="sm"
                 value={draft.state}
                 type={draft.type}
                 onChange={(value) => setDraft({ ...draft, state: value })}
               />
             </div>
-            <Section>
-              {getDocumentName(draft.type) +
-                " " +
-                ctrl("reference").value +
-                (ctrl("name").value ? ` (${ctrl("name").value})` : "")}
-              <div className="inline-block ml-2">
-                <CompletionTags
-                  size="sm"
-                  invoice={draft}
-                  lines={draft.content}
-                />
-              </div>
+            <div className="float-right space-x-2">
+              <TagsInput ctrl={ctrl("tags")} />
+              <UsersInput ctrl={ctrl("assigned")} />
+            </div>
+            <Section className="flex items-center space-x-2">
+              <span>
+                {getDocumentName(draft.type) + " " + ctrl("reference").value}
+              </span>
+
+              {(!readonly || ctrl("emit_date").value) && (
+                <InputButton
+                  theme="invisible"
+                  data-tooltip={new Date(
+                    ctrl("emit_date").value
+                  ).toDateString()}
+                  ctrl={ctrl("emit_date")}
+                  placeholder="Date d'emission"
+                  value={formatTime(ctrl("emit_date").value || 0)}
+                  content={<FormInput ctrl={ctrl("emit_date")} type="date" />}
+                >
+                  {"Émis le "}
+                  {formatTime(ctrl("emit_date").value || 0, {
+                    hideTime: true,
+                  })}
+                </InputButton>
+              )}
             </Section>
-            <div className="space-y-2 mb-6">
+            {(!readonly || ctrl("name").value) && (
+              <InputButton
+                theme="invisible"
+                size="sm"
+                className="-mx-1 px-1 -mt-2"
+                ctrl={ctrl("name")}
+                placeholder="Titre interne"
+              />
+            )}
+            <div className="space-y-2 mb-6 mt-4">
               <PageColumns>
                 {!isSupplierInvoice && !isSupplierQuote && (
                   <>
@@ -290,43 +316,24 @@ export const InvoicesDetailsPage = ({
                   />
                 )}
               </PageColumns>
-              {hasClientOrSupplier && (
-                <>
-                  <PageColumns>
-                    {(!readonly || ctrl("emit_date").value) && (
-                      <InputButton
-                        data-tooltip={new Date(
-                          ctrl("emit_date").value
-                        ).toDateString()}
-                        ctrl={ctrl("emit_date")}
-                        placeholder="Date d'emission"
-                        value={formatTime(ctrl("emit_date").value || 0)}
-                        content={
-                          <FormInput ctrl={ctrl("emit_date")} type="date" />
-                        }
-                      >
-                        {"Émis le "}
-                        {formatTime(ctrl("emit_date").value || 0, {
-                          hideTime: true,
-                        })}
-                      </InputButton>
-                    )}
-                    {(!readonly || ctrl("name").value) && (
-                      <InputButton
-                        ctrl={ctrl("name")}
-                        placeholder="Titre interne"
-                        icon={(p) => <DocumentTextIcon {...p} />}
-                      />
-                    )}
-                    <TagsInput ctrl={ctrl("tags")} />
-                    <UsersInput ctrl={ctrl("assigned")} />
-                  </PageColumns>
-                </>
-              )}
             </div>
             {hasClientOrSupplier && (
               <>
-                <Section className="mb-2">Contenu</Section>
+                <Section className="mb-2">
+                  Contenu
+                  {!!billableContent?.length && isQuoteRelated && (
+                    <div className="inline-block ml-2">
+                      <CompletionTags
+                        size="sm"
+                        invoice={draft}
+                        lines={draft.content}
+                      />
+                    </div>
+                  )}
+                  {!!billableContent?.length && !isQuoteRelated && (
+                    <div className="inline-block ml-2">[paiement status]</div>
+                  )}
+                </Section>
                 <InvoiceLinesInput
                   ctrl={ctrl}
                   readonly={readonly}
@@ -406,46 +413,52 @@ export const InvoicesDetailsPage = ({
                   />
                 )}
 
-                <CustomFieldsInput
-                  className="mt-8"
-                  table={"invoices"}
-                  ctrl={ctrl("fields")}
-                  readonly={readonly}
-                  entityId={draft.id || ""}
-                />
-
-                <div className="mt-8">
-                  <Section className="mb-2">Notes et documents</Section>
-                  <div className="space-y-2 mt-2">
-                    <EditorInput
-                      key={readonly ? ctrl("notes").value : undefined}
-                      placeholder={
-                        readonly
-                          ? "Aucune note"
-                          : "Cliquez pour ajouter des notes"
-                      }
-                      disabled={readonly}
-                      value={ctrl("notes").value || ""}
-                      onChange={(e) => ctrl("notes").onChange(e)}
+                {billableContent.length > 0 && (
+                  <>
+                    <CustomFieldsInput
+                      className="mt-8"
+                      table={"invoices"}
+                      ctrl={ctrl("fields")}
+                      readonly={readonly}
+                      entityId={draft.id || ""}
                     />
-                    {(!readonly || ctrl("documents").value?.length) && (
-                      <FilesInput
-                        disabled={readonly}
-                        ctrl={ctrl("documents")}
-                        rel={{
-                          table: "invoices",
-                          id: draft.id || "",
-                          field: "documents",
-                        }}
-                      />
+
+                    <div className="mt-8">
+                      <Section className="mb-2">
+                        Notes et documents internes
+                      </Section>
+                      <div className="space-y-2 mt-2">
+                        <EditorInput
+                          key={readonly ? ctrl("notes").value : undefined}
+                          placeholder={
+                            readonly
+                              ? "Aucune note"
+                              : "Cliquez pour ajouter des notes"
+                          }
+                          disabled={readonly}
+                          value={ctrl("notes").value || ""}
+                          onChange={(e) => ctrl("notes").onChange(e)}
+                        />
+                        {(!readonly || ctrl("documents").value?.length) && (
+                          <FilesInput
+                            disabled={readonly}
+                            ctrl={ctrl("documents")}
+                            rel={{
+                              table: "invoices",
+                              id: draft.id || "",
+                              field: "documents",
+                            }}
+                          />
+                        )}
+                      </div>
+                    </div>
+                    {false && (
+                      <div className="mt-8">
+                        <Section className="mb-2">Discussion</Section>
+                        <div className="space-y-2 mt-2">TODO</div>
+                      </div>
                     )}
-                  </div>
-                </div>
-                {false && (
-                  <div className="mt-8">
-                    <Section className="mb-2">Discussion</Section>
-                    <div className="space-y-2 mt-2">TODO</div>
-                  </div>
+                  </>
                 )}
               </>
             )}

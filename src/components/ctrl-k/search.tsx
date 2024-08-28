@@ -27,7 +27,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { Table } from "@molecules/table";
 import _ from "lodash";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
@@ -41,6 +41,13 @@ export const SearchCtrlK = () => {
   const [selection, setSelection] = useState<RestEntity[]>(
     currentState.options?.selected || []
   );
+  const [initialSelection, setInitialSelection] = useState<RestEntity[]>(
+    currentState.options?.selected || []
+  );
+
+  useEffect(() => {
+    setInitialSelection(_.intersectionBy(initialSelection, selection, "id"));
+  }, [selection.length]);
 
   const toggleSelection = (item: RestEntity) => {
     setSelection((prev) =>
@@ -269,60 +276,72 @@ export const SearchCtrlK = () => {
               ]
             : []
         }
+        afterSuggestions={
+          <>
+            {currentState.mode === "search" && (
+              <div className="m-2 rounded overflow-hidden">
+                <Table
+                  onClick={(a, event) => {
+                    if (
+                      (event.shiftKey && currentState.select) ||
+                      selection?.length
+                    ) {
+                      // Toggle selection
+                      toggleSelection(a);
+                      return;
+                    }
+                    close();
+                    setTimeout(() => {
+                      if (currentState.options?.onClick) {
+                        currentState.options.onClick(
+                          selection.length
+                            ? _.uniqBy([...selection, a], "id")
+                            : [a],
+                          event
+                        );
+                        return;
+                      }
+                      navigateAlt(
+                        getRoute(
+                          CtrlKRestEntities[currentEntity || ""]?.viewRoute ||
+                            "/:client/" + currentEntity + "/:id",
+                          { id: a.id }
+                        ),
+                        { event }
+                      );
+                    }, 100);
+                  }}
+                  checkboxAlwaysVisible
+                  loading={items.isPending}
+                  data={[
+                    ...(initialSelection || []),
+                    ...((items.data?.list || [])?.filter(
+                      (a) => initialSelection.map((b) => b.id).indexOf(a.id) < 0
+                    ) || []),
+                  ]}
+                  showPagination={false}
+                  onSelect={
+                    currentState.select
+                      ? (items) => setSelection(items)
+                      : undefined
+                  }
+                  selection={selection}
+                  rowIndex="id"
+                  columns={
+                    (CtrlKRestEntities[currentEntity || ""]
+                      ?.renderResult as any) || [
+                      {
+                        render: (a: RestEntity & { _label: string }) =>
+                          a._label,
+                      },
+                    ]
+                  }
+                />
+              </div>
+            )}
+          </>
+        }
       />
-
-      {currentState.mode === "search" && (
-        <div className="m-2 rounded overflow-hidden">
-          <Table
-            onClick={(a, event) => {
-              if (event.shiftKey && currentState.select) {
-                // Toggle selection
-                toggleSelection(a);
-                return;
-              }
-              close();
-              setTimeout(() => {
-                if (currentState.options?.onClick) {
-                  currentState.options.onClick(
-                    selection.length ? _.uniqBy([...selection, a], "id") : [a],
-                    event
-                  );
-                  return;
-                }
-                navigateAlt(
-                  getRoute(
-                    CtrlKRestEntities[currentEntity || ""]?.viewRoute ||
-                      "/:client/" + currentEntity + "/:id",
-                    { id: a.id }
-                  ),
-                  { event }
-                );
-              }, 100);
-            }}
-            checkboxAlwaysVisible
-            loading={items.isPending}
-            data={[
-              ...(selection || []),
-              ...((items.data?.list || [])?.filter(
-                (a) => selection.map((b) => b.id).indexOf(a.id) < 0
-              ) || []),
-            ]}
-            showPagination={false}
-            onSelect={
-              currentState.select ? (items) => setSelection(items) : undefined
-            }
-            selection={selection}
-            rowIndex="id"
-            columns={
-              (CtrlKRestEntities[currentEntity || ""]?.renderResult as any) || [
-                {
-                  render: (a: RestEntity & { _label: string }) => a._label,
-                },
-              ]
-            }
-          />
-        </div>
-      )}
 
       {(!!selection.length || !!currentState?.options?.selected?.length) && (
         <div className="border-t border-slate-100 dark:border-slate-700 px-3 py-2 flex items-center space-x-2">

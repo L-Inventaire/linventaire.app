@@ -1,4 +1,5 @@
 import { Address } from "@features/clients/types/clients";
+import { formatAddress } from "@features/utils/format/address";
 
 export type Contacts = {
   client_id: string;
@@ -58,4 +59,12 @@ export const getContactName = (contact: Partial<Contacts>) => {
         .filter(Boolean)
         .join(" ")
     : contact.business_name || contact.business_registered_name;
+};
+
+export const isContactLegalyDefined = (contact: Partial<Contacts>) => {
+  return !!(
+    formatAddress(contact?.address)?.length &&
+    contact?.business_registered_id &&
+    getContactName(contact)
+  );
 };

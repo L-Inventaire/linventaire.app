@@ -36,6 +36,7 @@ export const SearchBar = ({
   inlineSuggestions,
   shortcuts,
   urlSync,
+  afterSuggestions,
 }: {
   schema: { table: string; fields: SearchField[] };
   value?: string;
@@ -51,6 +52,7 @@ export const SearchBar = ({
   inlineSuggestions?: boolean;
   shortcuts?: Shortcut[];
   urlSync?: boolean;
+  afterSuggestions?: JSX.Element;
 }) => {
   const { fields: customFields, loading: loadingCustomFields } = useTableFields(
     schema.table
@@ -271,6 +273,7 @@ export const SearchBar = ({
               schema={schema}
               loadingSuggestionsValues={loadingSuggestionsValues}
             />
+            {afterSuggestions}
           </DefaultScrollbars>
         </div>
       )}

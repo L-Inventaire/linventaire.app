@@ -920,6 +920,18 @@ img {
   top: 100%;
 }
 
+.-top-1 {
+  top: -0.25rem;
+}
+
+.-top-0 {
+  top: -0px;
+}
+
+.-top-0\.5 {
+  top: -0.125rem;
+}
+
 .z-0 {
   z-index: 0;
 }
@@ -1127,6 +1139,11 @@ img {
 .my-8 {
   margin-top: 2rem;
   margin-bottom: 2rem;
+}
+
+.my-0 {
+  margin-top: 0px;
+  margin-bottom: 0px;
 }
 
 .\!-ml-0 {
@@ -1343,6 +1360,10 @@ img {
 
 .mt-px {
   margin-top: 1px;
+}
+
+.-mt-1 {
+  margin-top: -0.25rem;
 }
 
 .line-clamp-1 {

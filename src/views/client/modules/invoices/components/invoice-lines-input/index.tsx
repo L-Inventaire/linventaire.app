@@ -197,7 +197,7 @@ export const InvoiceLinesInput = ({
             >
               {!readonly && (
                 <Button
-                  data-tooltip="Ajouter des documents"
+                  data-tooltip="Documents à joindre à la facture"
                   theme="invisible"
                   size="md"
                   icon={(p) => <PaperClipIcon {...p} />}
