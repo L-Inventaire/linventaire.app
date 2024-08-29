@@ -2,7 +2,7 @@ import { Button } from "@atoms/button/button";
 import { DropDownAtom } from "@atoms/dropdown";
 import { SectionSmall } from "@atoms/text";
 import { useShortcutsContext } from "@features/utils/shortcuts";
-import { Dialog, Transition } from "@headlessui/react";
+import { Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/16/solid";
 import { ErrorBoundary } from "@views/error-boundary";
 import _, { uniqueId } from "lodash";
@@ -14,6 +14,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { createPortal } from "react-dom";
 import { atom, useRecoilState, useSetRecoilState } from "recoil";
 
 const ModalsCountState = atom<string[]>({
@@ -82,99 +83,100 @@ export const Modal = (props: {
   const zIndex = "z-[" + (level + 5) + "0]";
 
   return (
-    <Transition.Root show={open} as={Fragment}>
-      <Dialog
-        as="div"
-        className={"relative " + zIndex}
-        onClose={() => {
-          //Nothing
-        }}
-      >
-        <Transition.Child
-          as={Fragment}
-          enter="ease-out duration-200"
-          enterFrom="opacity-0 pointer-events-none"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0 pointer-events-none"
-        >
-          <div
-            className={
-              "fixed inset-0 bg-opacity-10 dark:bg-opacity-80 transition-opacity bg-black"
-            }
-          />
-        </Transition.Child>
-
-        <div
-          onClick={props.onClose}
-          className={"fixed z-10 inset-0 overflow-y-auto transition-transform "}
-        >
-          <div
-            className={
-              "flex items-end justify-center min-h-screen text-center sm:block "
-            }
-          >
-            {
-              /* This element is to trick the browser into centering the modal contents. */
-              !props.positioned && (
-                <span
-                  className="hidden sm:inline-block sm:align-middle sm:h-screen"
-                  aria-hidden="true"
-                >
-                  &#8203;
-                </span>
-              )
-            }
+    <>
+      {createPortal(
+        <Transition.Root show={open} as={Fragment}>
+          <div className={"relative " + zIndex}>
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-200"
-              enterFrom={
-                "opacity-0 pointer-events-none sm:translate-y-0 translate-y-4 sm:scale-95"
-              }
-              enterTo="opacity-100 translate-y-0 sm:scale-100"
+              enterFrom="opacity-0 pointer-events-none"
+              enterTo="opacity-100"
               leave="ease-in duration-200"
-              leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-              leaveTo={
-                "opacity-0 pointer-events-none sm:translate-y-0 translate-y-4 sm:scale-95"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0 pointer-events-none"
+            >
+              <div
+                className={
+                  "fixed inset-0 bg-opacity-10 dark:bg-opacity-80 transition-opacity bg-black"
+                }
+              />
+            </Transition.Child>
+
+            <div
+              onClick={props.onClose}
+              className={
+                "fixed z-10 inset-0 overflow-y-auto transition-transform "
               }
             >
-              <Dialog.Panel
+              <div
                 className={
-                  "align-bottom bg-white dark:bg-slate-950 px-4 pt-5 pb-4 text-left w-full overflow-hidden shadow-xl transform transition-all sm:align-middle sm:p-6 " +
-                  "relative inline-block rounded-tr-md rounded-tl-md sm:rounded-lg sm:my-8 w-full md:w-[95vw] sm:max-w-[400px] " +
-                  "dark:border-slate-700 dark:border " +
-                  (props.className || "")
+                  "flex items-end justify-center min-h-screen text-center sm:block "
                 }
-                style={props.style || {}}
               >
-                {open && <ModalContext level={level.toString()} />}
-                {props.closable !== false && open && (
-                  <div className="z-20 absolute top-0 right-1 pt-4 pr-4">
-                    <Button
-                      onClick={props.onClose}
-                      size="sm"
-                      theme="invisible"
-                      icon={(p) => <XMarkIcon {...p} />}
-                      shortcut={["esc"]}
-                    />
-                  </div>
-                )}
-                <ErrorBoundary>
+                {
+                  /* This element is to trick the browser into centering the modal contents. */
+                  !props.positioned && (
+                    <span
+                      className="hidden sm:inline-block sm:align-middle sm:h-screen"
+                      aria-hidden="true"
+                    >
+                      &#8203;
+                    </span>
+                  )
+                }
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-200"
+                  enterFrom={
+                    "opacity-0 pointer-events-none sm:translate-y-0 translate-y-4 sm:scale-95"
+                  }
+                  enterTo="opacity-100 translate-y-0 sm:scale-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+                  leaveTo={
+                    "opacity-0 pointer-events-none sm:translate-y-0 translate-y-4 sm:scale-95"
+                  }
+                >
                   <div
-                    onClick={(e) => {
-                      e.stopPropagation();
-                    }}
+                    className={
+                      "align-bottom bg-white dark:bg-slate-950 px-4 pt-5 pb-4 text-left w-full overflow-visible shadow-xl transform transition-all sm:align-middle sm:p-6 " +
+                      "relative inline-block rounded-tr-md rounded-tl-md sm:rounded-lg sm:my-8 w-full md:w-[95vw] sm:max-w-[400px] " +
+                      "dark:border-slate-700 dark:border " +
+                      (props.className || "")
+                    }
+                    style={props.style || {}}
                   >
-                    {props.children}
+                    {open && <ModalContext level={level.toString()} />}
+                    {props.closable !== false && open && (
+                      <div className="z-20 absolute top-0 right-1 pt-4 pr-4">
+                        <Button
+                          onClick={props.onClose}
+                          size="sm"
+                          theme="invisible"
+                          icon={(p) => <XMarkIcon {...p} />}
+                          shortcut={["esc"]}
+                        />
+                      </div>
+                    )}
+                    <ErrorBoundary>
+                      <div
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                      >
+                        {props.children}
+                      </div>
+                    </ErrorBoundary>
                   </div>
-                </ErrorBoundary>
-              </Dialog.Panel>
-            </Transition.Child>
+                </Transition.Child>
+              </div>
+            </div>
           </div>
-        </div>
-      </Dialog>
-    </Transition.Root>
+        </Transition.Root>,
+        document.body
+      )}
+    </>
   );
 };
 
@@ -210,12 +212,9 @@ export const ModalContent = (props: {
             (props.icon ? "sm:ml-4" : "")
           }
         >
-          <Dialog.Title
-            as="h3"
-            className="-mt-2 text-xl font-semibold leading-6 font-medium text-gray-900 dark:text-white pr-6"
-          >
+          <h3 className="-mt-2 text-xl font-semibold leading-6 font-medium text-gray-900 dark:text-white pr-6">
             <SectionSmall>{props.title}</SectionSmall>
-          </Dialog.Title>
+          </h3>
           <div className="mt-2">
             <p className="text-sm text-gray-500 dark:text-white">
               {props.text || ""}

@@ -138,24 +138,31 @@ export const SearchCtrlK = () => {
           currentState.mode === "action"
             ? [
                 ...(!!state.selection?.items?.length
-                  ? filterSuggestions(query, [
-                      {
-                        label: "Modifier 'Étiquettes'...",
-                        keywords: ["tags", "étiquettes", "catégories"],
-                        icon: (p: any) => <PencilIcon {...p} />,
-                      },
-                      {
-                        label: "Dupliquer la sélection",
-                        keywords: ["duplicate", "copy", "cloner"],
-                        icon: (p: any) => <DocumentDuplicateIcon {...p} />,
-                      },
-                      {
-                        label: "Supprimer la sélection",
-                        keywords: ["delete", "remove", "retirer"],
-                        className: "text-red-500",
-                        icon: (p: any) => <TrashIcon {...p} />,
-                      },
-                    ]).map(
+                  ? filterSuggestions(
+                      query,
+                      true
+                        ? []
+                        : [
+                            {
+                              label: "Modifier 'Étiquettes'...",
+                              keywords: ["tags", "étiquettes", "catégories"],
+                              icon: (p: any) => <PencilIcon {...p} />,
+                            },
+                            {
+                              label: "Dupliquer la sélection",
+                              keywords: ["duplicate", "copy", "cloner"],
+                              icon: (p: any) => (
+                                <DocumentDuplicateIcon {...p} />
+                              ),
+                            },
+                            {
+                              label: "Supprimer la sélection",
+                              keywords: ["delete", "remove", "retirer"],
+                              className: "text-red-500",
+                              icon: (p: any) => <TrashIcon {...p} />,
+                            },
+                          ]
+                    ).map(
                       (a) =>
                         ({
                           type: "operator",
@@ -279,7 +286,7 @@ export const SearchCtrlK = () => {
         afterSuggestions={
           <>
             {currentState.mode === "search" && (
-              <div className="m-2 rounded overflow-hidden">
+              <div className="my-2 rounded overflow-hidden">
                 <Table
                   onClick={(a, event) => {
                     if (

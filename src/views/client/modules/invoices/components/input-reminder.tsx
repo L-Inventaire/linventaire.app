@@ -21,6 +21,7 @@ export const InvoiceReminderInput = ({
       btnKey={btnKey}
       placeholder="Rappels"
       icon={(p) => <BellIcon {...p} />}
+      readonly={readonly}
       content={
         <>
           <Info>
@@ -43,40 +44,14 @@ export const InvoiceReminderInput = ({
                 label="Nombre de rappels"
                 ctrl={ctrl("reminders.repetition")}
               />
-              <FormInput
-                type="multiselect"
-                label="Destinataires"
-                onChange={(e) => ctrl("reminders.recipients").onChange(e)}
-                value={ctrl("reminders.recipients").value}
-                options={async (query: string) => [
-                  ...(ctrl("reminders.recipients").value || []).map(
-                    (r: string) => ({
-                      value: r as string,
-                      label: r as string,
-                    })
-                  ),
-                  ...(query
-                    .toLocaleLowerCase()
-                    .match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/g)
-                    ? [{ value: query, label: query }]
-                    : []),
-                ]}
-              />
             </div>
           )}
         </>
       }
       value={invoice.reminders?.enabled}
-      readonly={readonly}
     >
       <div className="space-y-0 w-max flex flex-col text-left">
         <Base>{invoice.reminders?.repetition} rappel(s) envoyé(s)</Base>
-        <Info>Envoyé au client et aux contacts.</Info>
-        <Info>
-          {invoice.reminders?.recipients?.length
-            ? `à ${invoice.reminders?.recipients?.join(", ")}`
-            : "Pas de destinataire additionel"}
-        </Info>
       </div>
     </InputButton>
   );

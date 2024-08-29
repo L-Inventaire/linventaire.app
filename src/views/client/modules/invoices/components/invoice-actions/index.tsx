@@ -1,4 +1,5 @@
 import { Button } from "@atoms/button/button";
+import { DropdownButton } from "@atoms/dropdown";
 import { Info } from "@atoms/text";
 import { useClients } from "@features/clients/state/use-clients";
 import { useContact } from "@features/contacts/hooks/use-contacts";
@@ -14,10 +15,17 @@ import {
   DocumentCheckIcon,
   EllipsisHorizontalIcon,
   PaperAirplaneIcon,
+  PrinterIcon,
   XMarkIcon,
 } from "@heroicons/react/16/solid";
+import { InvoiceSendModal, InvoiceSendModalAtom } from "./modal-send";
+import { useSetRecoilState } from "recoil";
+import { useNavigate } from "react-router-dom";
+import { getRoute, ROUTES } from "@features/routes";
+import { getPdfPreview } from "../invoices-preview/invoices-preview";
+import { ButtonConfirm } from "@atoms/button/confirm";
 
-export const InvoiceFooter = ({
+export const InvoiceActions = ({
   id,
   readonly,
 }: {
@@ -27,7 +35,18 @@ export const InvoiceFooter = ({
   const { client: clientUser } = useClients();
   const client = clientUser!.client!;
 
-  const { draft, save } = useReadDraftRest<Invoices>("invoices", id || "new");
+  const navigate = useNavigate();
+  const { draft, save: _save } = useReadDraftRest<Invoices>(
+    "invoices",
+    id || "new"
+  );
+
+  const save = async () => {
+    const item = await _save();
+    if (item) navigate(getRoute(ROUTES.InvoicesView, { id: item?.id }));
+  };
+
+  const openSendModal = useSetRecoilState(InvoiceSendModalAtom);
 
   const isSupplierInvoice =
     draft.type === "supplier_credit_notes" ||
@@ -65,7 +84,8 @@ export const InvoiceFooter = ({
         (!draft?.payment_information?.bank_iban &&
           draft?.payment_information?.mode?.includes("bank"))
       ) {
-        error = "Votre document nécessite un moyen de paiement valide.";
+        error =
+          "Votre document nécessite un moyen de paiement valide, vous pouvez en définir un dans les paramètres.";
       }
     }
 
@@ -111,6 +131,8 @@ export const InvoiceFooter = ({
 
   return (
     <div className="text-right space-x-2">
+      <InvoiceSendModal id={id} />
+
       {error && <Info className="text-red-500">{error}</Info>}
 
       {!readonly && (
@@ -123,46 +145,108 @@ export const InvoiceFooter = ({
 
       {readonly && draft.state === "draft" && !isSupplierRelated && (
         <>
-          <Button
+          <DropdownButton
             disabled={disabled}
             size="lg"
             icon={(p) => <PaperAirplaneIcon {...p} />}
+            position="top"
+            menu={[
+              {
+                label: "Envoyer par email...",
+                icon: (p) => <PaperAirplaneIcon {...p} />,
+                onClick: () => openSendModal(true),
+              },
+              {
+                type: "divider",
+              },
+              {
+                label: "Télécharger le PDF",
+                icon: (p) => <PrinterIcon {...p} />,
+                onClick: () => getPdfPreview(),
+              },
+              {
+                label: "Marquer comme envoyé",
+                icon: (p) => <CheckIcon {...p} />,
+                onClick: () => _save({ state: "sent" }),
+              },
+            ]}
           >
             Envoyer
-          </Button>
+          </DropdownButton>
         </>
       )}
 
       {readonly && draft.state === "sent" && draft.type === "quotes" && (
         <>
-          <Button
+          <DropdownButton
             theme="invisible"
             icon={(p) => <EllipsisHorizontalIcon {...p} />}
+            menu={[
+              {
+                label: "Envoyer de nouveau...",
+                onClick: () => openSendModal(true),
+              },
+              {
+                label: "Télécharger en PDF",
+                onClick: () => getPdfPreview(),
+              },
+              {
+                label: "Retourner en brouillon",
+                onClick: () => _save({ state: "draft" }),
+              },
+              {
+                label: "Créer une commande",
+                onClick: () => {
+                  console.log("Create a purchase order");
+                },
+              },
+            ]}
           />
-          {/* Créer une commande ou retour en brouillon */}
-          <Button
+          <ButtonConfirm
+            confirmTitle="Retourner en brouillon ?"
+            confirmMessage="Votre client ne pourra plus voir cette version du devis."
             theme="outlined"
             disabled={disabled}
             size="lg"
             icon={(p) => <XMarkIcon {...p} />}
+            onClick={() => _save({ state: "draft" })}
           >
             Devis refusé
-          </Button>
-          <Button
+          </ButtonConfirm>
+          <ButtonConfirm
+            confirmTitle="Valider le devis ?"
+            confirmMessage="Un devis marqué comme accepté doit être executé, vous ne pourrez plus revenir en brouillon. Vous pouvez attendre que le client accepte le devis si un email lui a été envoyé."
             disabled={disabled}
             size="lg"
             icon={(p) => <CheckIcon {...p} />}
+            onClick={() => _save({ state: "purchase_order" })}
           >
             Devis accepté
-          </Button>
+          </ButtonConfirm>
         </>
       )}
 
       {readonly && draft.state === "purchase_order" && !isSupplierRelated && (
         <>
-          <Button
+          <DropdownButton
             theme="invisible"
             icon={(p) => <EllipsisHorizontalIcon {...p} />}
+            menu={[
+              {
+                label: "Télécharger en PDF",
+                onClick: () => getPdfPreview(),
+              },
+              {
+                label: "Marquer comme annulé",
+                onClick: () => _save({ state: "closed" }),
+              },
+              {
+                label: "Créer une commande",
+                onClick: () => {
+                  console.log("Create a purchase order");
+                },
+              },
+            ]}
           />
           {/* Créer une commande, marquer comme annulé */}
           <Button
@@ -173,6 +257,14 @@ export const InvoiceFooter = ({
             Facturer
           </Button>
         </>
+      )}
+
+      {readonly && draft.state === "closed" && draft.type === "quotes" && (
+        <div>
+          <Button disabled={true} size="lg">
+            Document fermé
+          </Button>
+        </div>
       )}
     </div>
   );

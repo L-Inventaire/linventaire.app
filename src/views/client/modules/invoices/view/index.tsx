@@ -9,7 +9,7 @@ import { Page } from "@views/client/_layout/page";
 import { useParams } from "react-router-dom";
 import { InvoicesDetailsPage } from "../components/invoices-details";
 import { getPdfPreview } from "../components/invoices-preview/invoices-preview";
-import { InvoiceFooter } from "../components/invoice-actions";
+import { InvoiceActions } from "../components/invoice-actions";
 
 export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
@@ -31,7 +31,7 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
         },
         { label: invoice.reference || "" },
       ]}
-      footer={<InvoiceFooter id={id} readonly={true} />}
+      footer={<InvoiceActions id={id} readonly={true} />}
       bar={
         <DocumentBar
           loading={isPending && !invoice}

@@ -45,6 +45,7 @@ import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-ca
 import { InvoiceStatus } from "./invoice-status";
 import { InvoicesPreview } from "./invoices-preview/invoices-preview";
 import { RelatedInvoices } from "./related-invoices";
+import { Flex, Text, Button as RaddixButton, Spinner } from "@radix-ui/themes";
 
 export const computeCompletion = (
   linesu: Invoices["content"],
@@ -341,80 +342,80 @@ export const InvoicesDetailsPage = ({
                   onChange={setDraft}
                 />
 
-                {!!otherInputs.length && (
-                  <div className="mt-8">
-                    <Section className="mb-2">Autre</Section>
-                    <div className="m-grid-1">
-                      {otherInputs.map((a, i) => (
-                        <Fragment key={i}>
-                          {i !== 0 &&
-                            !a.complete &&
-                            !!otherInputs[i - 1].complete && <br />}
-                          {a.component}
-                        </Fragment>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {!isQuoteRelated && readonly && (
-                  <div className="mt-8">
-                    {!isQuoteRelated && readonly && (
-                      <div className="float-right">
-                        <Button
-                          size="sm"
-                          onClick={() =>
-                            edit<AccountingTransactions>(
-                              "accounting_transactions",
-                              "",
-                              {
-                                rel_invoices: [draft.id],
-                                currency: draft.currency,
-                                amount: draft.total?.total_with_taxes || 0,
-                                reference: draft.reference,
-                              }
-                            )
-                          }
-                        >
-                          Enregistrer un paiement
-                        </Button>
-                      </div>
-                    )}
-                    <Section className="mb-2">Paiements</Section>
-                    <Table
-                      data={accounting_transactions.data?.list || []}
-                      columns={
-                        CtrlKRestEntities["accounting_transactions"]
-                          .renderResult as any
-                      }
-                    />
-                  </div>
-                )}
-
-                {!readonly && !isQuoteRelated && (
-                  <div className="mt-8">
-                    <Section className="mb-2">Origine</Section>
-                    <InvoiceRestDocument
-                      label="Devis d'origine"
-                      ctrl={ctrl("from_rel_quote")}
-                      filter={{ type: "quotes" } as Partial<Invoices>}
-                      size="xl"
-                      max={1}
-                    />
-                  </div>
-                )}
-
-                {readonly && (
-                  <RelatedInvoices
-                    invoice={draft}
-                    className="mt-8"
-                    readonly={readonly}
-                    onPartialInvoice={() => {}}
-                  />
-                )}
-
                 {billableContent.length > 0 && (
                   <>
+                    {!!otherInputs.length && (
+                      <div className="mt-8">
+                        <Section className="mb-2">Autre</Section>
+                        <div className="m-grid-1">
+                          {otherInputs.map((a, i) => (
+                            <Fragment key={i}>
+                              {i !== 0 &&
+                                !a.complete &&
+                                !!otherInputs[i - 1].complete && <br />}
+                              {a.component}
+                            </Fragment>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {!isQuoteRelated && readonly && (
+                      <div className="mt-8">
+                        {!isQuoteRelated && readonly && (
+                          <div className="float-right">
+                            <Button
+                              size="sm"
+                              onClick={() =>
+                                edit<AccountingTransactions>(
+                                  "accounting_transactions",
+                                  "",
+                                  {
+                                    rel_invoices: [draft.id],
+                                    currency: draft.currency,
+                                    amount: draft.total?.total_with_taxes || 0,
+                                    reference: draft.reference,
+                                  }
+                                )
+                              }
+                            >
+                              Enregistrer un paiement
+                            </Button>
+                          </div>
+                        )}
+                        <Section className="mb-2">Paiements</Section>
+                        <Table
+                          data={accounting_transactions.data?.list || []}
+                          columns={
+                            CtrlKRestEntities["accounting_transactions"]
+                              .renderResult as any
+                          }
+                        />
+                      </div>
+                    )}
+
+                    {!readonly && !isQuoteRelated && (
+                      <div className="mt-8">
+                        <Section className="mb-2">Origine</Section>
+                        <InvoiceRestDocument
+                          label="Devis d'origine"
+                          ctrl={ctrl("from_rel_quote")}
+                          filter={{ type: "quotes" } as Partial<Invoices>}
+                          size="xl"
+                          max={1}
+                        />
+                      </div>
+                    )}
+
+                    {readonly && (
+                      <RelatedInvoices
+                        invoice={draft}
+                        className="mt-8"
+                        readonly={readonly}
+                        onPartialInvoice={() => {}}
+                      />
+                    )}
+
                     <CustomFieldsInput
                       className="mt-8"
                       table={"invoices"}

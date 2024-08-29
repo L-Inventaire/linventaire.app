@@ -27,18 +27,23 @@ export type DropDownMenuType = {
 export const DropDownAtom = atom<{
   target: HTMLElement | null;
   menu: DropDownMenuType | ((query: string) => Promise<DropDownMenuType>);
-  position?: "bottom" | "left" | "right"; //Default to bottom
+  position?: "top" | "bottom" | "left" | "right"; //Default to bottom
+  refreshTime?: number;
 }>({
   key: "dropdown",
   default: {
     target: null,
     position: "bottom",
     menu: [],
+    refreshTime: 0,
   },
 });
 
 export const DropdownButton = (
-  props: { menu: DropDownMenuType } & ButtonProps
+  props: {
+    menu: DropDownMenuType;
+    position?: "top" | "left" | "bottom" | "right";
+  } & ButtonProps
 ) => {
   const setState = useSetRecoilState(DropDownAtom);
 
@@ -47,8 +52,9 @@ export const DropdownButton = (
       onClick={(e) => {
         setState({
           target: e.currentTarget,
-          position: "bottom",
+          position: props.position || "bottom",
           menu: props.menu,
+          refreshTime: Date.now(),
         });
       }}
       {..._.omit(props, ["menu"])}
@@ -88,6 +94,10 @@ export const DropDownMenu = () => {
       const targetRect = state.target.getBoundingClientRect();
       if (ref.current) {
         ref.current.style.pointerEvents = "none";
+        let windowWidth = window.innerWidth;
+        if (windowWidth - (targetRect.x + targetRect.width) < 256) {
+          windowWidth = targetRect.x + targetRect.width;
+        }
         const position =
           window.screen.width < 640
             ? [0, 0]
@@ -96,9 +106,10 @@ export const DropDownMenu = () => {
             : state.position === "right"
             ? [targetRect.x + targetRect.width, targetRect.y]
             : [targetRect.x, targetRect.y + targetRect.height];
+
         ref.current.style.transform = `translate(${Math.min(
           Math.max(Math.ceil(position[0]), 0),
-          window.innerWidth - 256
+          windowWidth - 256
         )}px, ${Math.max(Math.ceil(position[1]), 0)}px)`;
 
         if (window.screen.width < 640) {
@@ -116,16 +127,24 @@ export const DropDownMenu = () => {
       // Also we want to make sure the menu is not outside the screen
       timeout = setTimeout(() => {
         const height = ref.current?.getBoundingClientRect().height;
+        const targetRect = state.target?.getBoundingClientRect?.();
+
         if (height && ref.current) {
+          let windowHeight = window.innerHeight;
+          if (targetRect?.y && windowHeight - targetRect?.y < height) {
+            windowHeight = targetRect.y;
+          }
+
           ref.current.style.transition = "all 0.1s ease-in-out";
           ref.current.style.pointerEvents = "all";
 
-          const currentTransform = ref.current?.style.transform.match(/\d+/g);
+          const currentTransform =
+            ref.current?.style.transform.match(/[\d.]+/g);
           ref.current.style.transform = `translate(${
             currentTransform ? currentTransform[0] : 0
           }px, ${Math.max(
             Math.min(
-              window.innerHeight - height,
+              windowHeight - height,
               parseInt(currentTransform ? currentTransform[1] : "0")
             ),
             0
@@ -175,7 +194,7 @@ export const DropDownMenu = () => {
     } else {
       setMenu(state.menu);
     }
-  }, [query, state.menu]);
+  }, [query, state.menu, state.target]);
 
   useEffect(() => {
     if (!state.target) {

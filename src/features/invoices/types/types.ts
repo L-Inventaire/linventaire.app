@@ -63,6 +63,7 @@ export type Invoices = RestEntity & {
   payment_information: Payment;
   format?: InvoiceFormat;
 
+  recipients?: string[];
   reminders?: InvoiceReminder;
   subscription?: InvoiceSubscription; // Available only for invoices
 
@@ -94,7 +95,6 @@ export type InvoiceTotal = {
 export type InvoiceReminder = {
   enabled: boolean;
   repetition: number; // Number of weeks of repetitions
-  recipients: string[]; // List of emails
 };
 
 export type InvoiceSubscription = {

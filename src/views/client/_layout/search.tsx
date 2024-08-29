@@ -17,7 +17,7 @@ export const Search = () => {
   return (
     <div className="md:relative z-10 w-full">
       <InputDecorationIcon
-        className="w-full relative z-20"
+        className="w-full relative z-20 whitespace-nowrap"
         prefix={(p) => <MagnifyingGlassIcon {...p} />}
         suffix={(p) => (
           <Info className={p.className + " mr-1"}>

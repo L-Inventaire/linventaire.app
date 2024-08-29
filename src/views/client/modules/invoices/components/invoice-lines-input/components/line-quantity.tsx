@@ -21,7 +21,12 @@ export const InvoiceLineQuantityInput = (props: {
 
   return (
     <div className="space-y-2">
-      <FormInput label="Quantité" ctrl={ctrl("quantity")} autoSelect />
+      <FormInput
+        label="Quantité"
+        type="number"
+        ctrl={ctrl("quantity")}
+        autoSelect
+      />
       <FormInput label="Unité" ctrl={ctrl(`unit`)} options={unitOptions} />
 
       <Info className="block mt-2">

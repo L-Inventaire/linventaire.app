@@ -14,7 +14,7 @@ import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { InvoicesDetailsPage } from "../components/invoices-details";
 import { getPdfPreview } from "../components/invoices-preview/invoices-preview";
-import { InvoiceFooter } from "../components/invoice-actions";
+import { InvoiceActions } from "../components/invoice-actions";
 
 export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
   const { refresh, loading } = useClients();
@@ -60,7 +60,7 @@ export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
         },
         { label: id ? "Modifier" : "Créer" },
       ]}
-      footer={<InvoiceFooter id={id} readonly={false} />}
+      footer={<InvoiceActions id={id} readonly={false} />}
       bar={
         <DocumentBar
           loading={isInitiating || loading}

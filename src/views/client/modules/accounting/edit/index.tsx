@@ -53,7 +53,9 @@ export const AccountingTransactionsEditPage = (_props: {
           entity={"accounting_transactions"}
           document={{ id }}
           mode={"write"}
-          onSave={async () => await save()}
+          onSave={async () => {
+            await save();
+          }}
           backRoute={ROUTES.Accounting}
           viewRoute={ROUTES.AccountingView}
           editRoute={ROUTES.AccountingEdit}

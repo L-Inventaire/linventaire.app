@@ -1,6 +1,6 @@
 import { useFormController } from "@components/form/formcontext";
 import { useNavigationPrompt } from "@features/utils/use-navigation-prompt";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { atomFamily, useRecoilState } from "recoil";
 import { useRest } from "./use-rest";
 
@@ -67,16 +67,21 @@ export const useDraftRest = <T extends { id: string }>(
     }
   }, [existingItem, draft.id]);
 
-  const save = async () => {
-    try {
-      setLockNavigation(false);
-      const newItem = await upsert.mutateAsync(draft);
-      await onSaved(newItem);
-    } catch (e) {
-      setLockNavigation(true);
-      console.error(e);
-    }
-  };
+  const save = useCallback(
+    async (mutation: Partial<T> = {}) => {
+      try {
+        setLockNavigation(false);
+        const newItem = await upsert.mutateAsync({ ...draft, ...mutation });
+        await onSaved(newItem);
+        return newItem;
+      } catch (e) {
+        setLockNavigation(true);
+        console.error(e);
+      }
+      return null;
+    },
+    [draft, upsert.mutateAsync, onSaved]
+  );
 
   return {
     save,

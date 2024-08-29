@@ -46,7 +46,7 @@ export const DocumentBar = ({
   viewRoute?: string;
   editRoute?: string;
   onPrint?: () => Promise<void>;
-  onSave?: () => Promise<void>;
+  onSave?: () => Promise<any>;
   onRemove?: () => Promise<void>;
 }) => {
   const setMenu = useSetRecoilState(DropDownAtom);
@@ -131,7 +131,7 @@ export const DocumentBar = ({
               onClick={(e: any) =>
                 navigate(
                   withModel(getRoute(props.editRoute || "", { id: "new" }), {
-                    ..._.omit(document, "id"),
+                    ..._.omit(document, "id", "state"),
                   }),
                   {
                     event: e,

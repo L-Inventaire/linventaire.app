@@ -60,15 +60,17 @@ export const InvoiceLinesInput = ({
       >
         Votre facture ne contient aucune ligne, ajoutez-en une pour continuer.
         <br />
-        <Button
-          className="my-2"
-          theme="outlined"
-          size="md"
-          icon={(p) => <PlusIcon {...p} />}
-          onClick={addLine}
-        >
-          Ajouter une ligne
-        </Button>
+        {!readonly && (
+          <Button
+            className="my-2"
+            theme="outlined"
+            size="md"
+            icon={(p) => <PlusIcon {...p} />}
+            onClick={addLine}
+          >
+            Ajouter une ligne
+          </Button>
+        )}
       </Card>
 
       <div className="mb-2">

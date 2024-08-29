@@ -25,6 +25,7 @@ export const InvoicePaymentInput = ({
       btnKey={btnKey}
       placeholder="Paiement"
       icon={(p) => <BanknotesIcon {...p} />}
+      readonly={readonly}
       content={
         <>
           <div className="p-4 border rounded">
