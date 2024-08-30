@@ -13,7 +13,7 @@ import {
 } from "react-router-dom";
 import { BackOfficeRoutes } from "./client";
 import { LoginRoutes } from "./signin";
-import { Tooltip } from "@atoms/tooltip";
+import { Tooltip } from "@atoms/tooltip/service";
 
 const router = createBrowserRouter(
   createRoutesFromElements(

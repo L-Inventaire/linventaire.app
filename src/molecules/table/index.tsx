@@ -28,6 +28,8 @@ export type TablePropsType<T> = {
       }[]
     | ((items: T[]) => void);
   selection?: T[];
+  groupBy?: string;
+  groupByRender?: (item: T) => ReactNode;
   showPagination?: false | "simple" | "full" | true;
   initialPagination?: Pick<
     Pagination,
@@ -80,6 +82,7 @@ export function Table<T>({
   grid,
   cellClassName,
   className,
+  ...props
 }: TablePropsType<T>) {
   const [pagination, setPagination] = useState<Pagination>({
     total: total || 0,
@@ -153,6 +156,7 @@ export function Table<T>({
           perPage: size,
         });
       }}
+      {...props}
     />
   );
 }

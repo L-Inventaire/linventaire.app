@@ -137,9 +137,23 @@ export const useShortcuts = (
   }, []);
 };
 
+let shortcutPaused = false;
+export const useToggleShortcuts = () => {
+  return {
+    pause: () => {
+      shortcutPaused = true;
+    },
+    resume: () => {
+      shortcutPaused = false;
+    },
+  };
+};
+
 export const useListenForShortcuts = () => {
   useEffect(() => {
     const listener = (e: any) => {
+      if (shortcutPaused) return;
+
       const context = contextsStack[contextsStack.length - 1];
       if (!e.key) return;
 

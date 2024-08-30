@@ -174,7 +174,7 @@ export const Modal = (props: {
             </div>
           </div>
         </Transition.Root>,
-        document.body
+        document.querySelector(".radix-themes") || document.body
       )}
     </>
   );

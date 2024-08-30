@@ -37,23 +37,24 @@ export const Search = () => {
           />
         )}
       />
-      <Button
-        btnRef={buttonRef}
-        className="hidden"
-        shortcut={["cmd+k"]}
-        onClick={() => {
-          openCtrlK((state) => ({
-            ...state,
-            path: [
-              {
-                mode: "action",
-              },
-            ],
-          }));
-        }}
-      >
-        .
-      </Button>
+      <div className="hidden">
+        <Button
+          btnRef={buttonRef}
+          shortcut={["cmd+k"]}
+          onClick={() => {
+            openCtrlK((state) => ({
+              ...state,
+              path: [
+                {
+                  mode: "action",
+                },
+              ],
+            }));
+          }}
+        >
+          .
+        </Button>
+      </div>
     </div>
   );
 };

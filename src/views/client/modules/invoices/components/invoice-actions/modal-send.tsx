@@ -100,18 +100,16 @@ export const InvoiceSendModalContent = ({
           </div>
         ))}
       </div>
-      <div className="mt-4 flex -space-x-px">
+      <div className="mt-4 flex space-x-2">
         <Input
-          className="rounded-r-none"
           size="md"
           placeholder="email@gmail.com, email@linventaire.app"
           value={newMails}
           onChange={(e) => setNewMails(e.target.value)}
         />
         <Button
-          className="rounded-l-none"
           theme="outlined"
-          size="md"
+          size="sm"
           onClick={() => {
             setDraft({
               ...draft,
@@ -137,7 +135,7 @@ export const InvoiceSendModalContent = ({
       <div className="text-right mt-4 m-grid-1">
         <Button
           theme="outlined"
-          size="lg"
+          size="sm"
           icon={(p) => <PrinterIcon {...p} />}
           onClick={() => getPdfPreview()}
         >
@@ -145,7 +143,7 @@ export const InvoiceSendModalContent = ({
         </Button>
         <Button
           disabled={!draft.recipients?.length}
-          size="lg"
+          size="sm"
           icon={(p) => <PaperAirplaneIcon {...p} />}
           onClick={async () => {
             try {

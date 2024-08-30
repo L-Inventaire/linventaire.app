@@ -45,7 +45,14 @@ import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-ca
 import { InvoiceStatus } from "./invoice-status";
 import { InvoicesPreview } from "./invoices-preview/invoices-preview";
 import { RelatedInvoices } from "./related-invoices";
-import { Flex, Text, Button as RaddixButton, Spinner } from "@radix-ui/themes";
+import {
+  Flex,
+  Text,
+  Button as RaddixButton,
+  Spinner,
+  Code,
+  Callout,
+} from "@radix-ui/themes";
 
 export const computeCompletion = (
   linesu: Invoices["content"],
@@ -228,7 +235,7 @@ export const InvoicesDetailsPage = ({
   );
 
   const billableContent = (draft.content || []).filter(
-    (a) => a.unit_price && a.quantity
+    (a) => a.unit_price && a.quantity && !(a.optional && !a.optional_checked)
   );
 
   return (
@@ -237,6 +244,29 @@ export const InvoicesDetailsPage = ({
         <PageColumns>
           <div className="grow" />
           <div className="grow lg:w-3/5 max-w-3xl pt-6">
+            {readonly && draft.state === "draft" && (
+              <Callout.Root className="mb-4">
+                <Callout.Text>
+                  Ce document est un <Text weight="bold">brouillon</Text>.
+                </Callout.Text>
+              </Callout.Root>
+            )}
+
+            {readonly && draft.state === "sent" && isQuoteRelated && (
+              <Callout.Root className="mb-4" color="blue">
+                <Callout.Text>
+                  Le devis a été envoyé au client et est{" "}
+                  <Text weight="bold">en attente d'acceptation</Text>.
+                </Callout.Text>
+              </Callout.Root>
+            )}
+
+            {readonly && draft.state === "purchase_order" && isQuoteRelated && (
+              <Callout.Root className="mb-4" color="green">
+                <Callout.Text>Le devis a été accepté part client</Callout.Text>
+              </Callout.Root>
+            )}
+
             <div className="mb-2">
               <InvoiceStatus
                 readonly={true}
@@ -258,6 +288,7 @@ export const InvoicesDetailsPage = ({
               {(!readonly || ctrl("emit_date").value) && (
                 <InputButton
                   theme="invisible"
+                  className="m-0"
                   data-tooltip={new Date(
                     ctrl("emit_date").value
                   ).toDateString()}
@@ -265,11 +296,14 @@ export const InvoicesDetailsPage = ({
                   placeholder="Date d'emission"
                   value={formatTime(ctrl("emit_date").value || 0)}
                   content={<FormInput ctrl={ctrl("emit_date")} type="date" />}
+                  readonly={readonly}
                 >
-                  {"Émis le "}
-                  {formatTime(ctrl("emit_date").value || 0, {
-                    hideTime: true,
-                  })}
+                  <Text size="2" className="opacity-75" weight="medium">
+                    {"Émis le "}
+                    {formatTime(ctrl("emit_date").value || 0, {
+                      hideTime: true,
+                    })}
+                  </Text>
                 </InputButton>
               )}
             </Section>
@@ -321,18 +355,15 @@ export const InvoicesDetailsPage = ({
             {hasClientOrSupplier && (
               <>
                 <Section className="mb-2">
-                  Contenu
+                  Contenu <Code>{billableContent.length}</Code>
                   {!!billableContent?.length && isQuoteRelated && (
-                    <div className="inline-block ml-2">
+                    <div className="inline-block float-right">
                       <CompletionTags
                         size="sm"
                         invoice={draft}
                         lines={draft.content}
                       />
                     </div>
-                  )}
-                  {!!billableContent?.length && !isQuoteRelated && (
-                    <div className="inline-block ml-2">[paiement status]</div>
                   )}
                 </Section>
                 <InvoiceLinesInput
@@ -463,6 +494,8 @@ export const InvoicesDetailsPage = ({
                 )}
               </>
             )}
+            <br />
+            <br />
           </div>
           {/* TODO Clearly this fixed isn't right for all screens, we should use js probably ? */}
           {false && (

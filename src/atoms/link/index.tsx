@@ -22,7 +22,7 @@ export default function Link(
 
   const colors = props.noColor
     ? ""
-    : "hover:text-slate-600 active:text-slate-800 text-slate-500 hover:underline underline-offset-2";
+    : "hover:text-blue-600 active:text-blue-800 text-blue-500 hover:underline underline-offset-2 cursor-pointer";
 
   if (
     (props.href || "")?.startsWith("http") ||

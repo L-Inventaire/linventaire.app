@@ -64,7 +64,7 @@ export const InvoiceLinesInput = ({
           <Button
             className="my-2"
             theme="outlined"
-            size="md"
+            size="sm"
             icon={(p) => <PlusIcon {...p} />}
             onClick={addLine}
           >
@@ -190,55 +190,25 @@ export const InvoiceLinesInput = ({
 
       <AnimatedHeight>
         {!!value?.content?.length && (
-          <>
+          <div className="text-right flex justify-end">
             <div
               className={twMerge(
                 "space-x-2 text-right",
-                !readonly || value.discount?.value ? "mb-8" : "mb-2"
+                !readonly || value.discount?.value ? "mb-8" : "mb-0"
               )}
             >
               {!readonly && (
                 <Button
                   data-tooltip="Documents à joindre à la facture"
                   theme="invisible"
-                  size="md"
+                  size="sm"
                   icon={(p) => <PaperClipIcon {...p} />}
                   onClick={refTriggerUploadFile.current}
                 />
               )}
-              {_.uniq((value.content || []).map((a) => a.tva)).length === 1 && (
-                <InputButton
-                  size="md"
-                  label="TVA commune"
-                  content={
-                    <FormInput
-                      label="TVA"
-                      options={tvaOptions}
-                      value={value.content?.[0].tva}
-                      onChange={(tva) => {
-                        onChange({
-                          ...value,
-                          content: (value.content || []).map((a) => ({
-                            ...a,
-                            tva,
-                          })),
-                        });
-                      }}
-                    />
-                  }
-                  value={"always"}
-                >
-                  TVA{" "}
-                  {tvaOptions.find((v) => v.value === value.content?.[0].tva)
-                    ?.label ||
-                    (getTvaValue(value.content?.[0]?.tva || "0")
-                      ? getTvaValue(value.content?.[0]?.tva || "0") * 100 + "%"
-                      : "Aucune")}
-                </InputButton>
-              )}
               {(!readonly || value.discount?.value) && (
                 <InputButton
-                  size="md"
+                  size="sm"
                   label="Réduction globale"
                   empty="Pas de réduction globale"
                   placeholder="Options"
@@ -265,7 +235,7 @@ export const InvoiceLinesInput = ({
               {!readonly && (
                 <Button
                   theme="outlined"
-                  size="md"
+                  size="sm"
                   icon={(p) => <PlusIcon {...p} />}
                   onClick={addLine}
                 >
@@ -273,7 +243,7 @@ export const InvoiceLinesInput = ({
                 </Button>
               )}
             </div>
-            <div className="flex border border-slate-50 dark:border-slate-800 p-2 float-right rounded-md">
+            <div className="flex border border-slate-50 dark:border-slate-800 w-max p-2 rounded-md inline-block">
               <div className="grow" />
               <Base>
                 <div className="space-y-2 min-w-64 block">
@@ -306,7 +276,7 @@ export const InvoiceLinesInput = ({
                 </div>
               </Base>
             </div>
-          </>
+          </div>
         )}
       </AnimatedHeight>
     </>

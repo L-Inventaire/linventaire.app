@@ -152,7 +152,7 @@ export const SearchBar = ({
     >
       <div
         className={twMerge(
-          "pl-1 pr-3 flex items-center space-x-2 py-2",
+          "pl-1 pr-3 flex items-center space-x-2 py-2 h-12",
           inputClassName
         )}
       >
@@ -181,7 +181,7 @@ export const SearchBar = ({
                 : () => (
                     <Button
                       data-tooltip="Filtrer"
-                      className={"absolute left-1.5 top-1.5"}
+                      className={"!absolute !left-1 !top-0 !bottom-0 !m-auto"}
                       size="sm"
                       theme="invisible"
                       icon={(p) => <FunnelIcon {...p} />}

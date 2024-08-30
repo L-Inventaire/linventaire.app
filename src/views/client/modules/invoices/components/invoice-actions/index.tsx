@@ -16,6 +16,8 @@ import {
   EllipsisHorizontalIcon,
   PaperAirplaneIcon,
   PrinterIcon,
+  TruckIcon,
+  ViewColumnsIcon,
   XMarkIcon,
 } from "@heroicons/react/16/solid";
 import { InvoiceSendModal, InvoiceSendModalAtom } from "./modal-send";
@@ -24,6 +26,8 @@ import { useNavigate } from "react-router-dom";
 import { getRoute, ROUTES } from "@features/routes";
 import { getPdfPreview } from "../invoices-preview/invoices-preview";
 import { ButtonConfirm } from "@atoms/button/confirm";
+import { withModel } from "@components/search-bar/utils/as-model";
+import { useNavigateAlt } from "@features/utils/navigate";
 
 export const InvoiceActions = ({
   id,
@@ -35,7 +39,7 @@ export const InvoiceActions = ({
   const { client: clientUser } = useClients();
   const client = clientUser!.client!;
 
-  const navigate = useNavigate();
+  const navigate = useNavigateAlt();
   const { draft, save: _save } = useReadDraftRest<Invoices>(
     "invoices",
     id || "new"
@@ -130,8 +134,10 @@ export const InvoiceActions = ({
   disabled = disabled || !!error;
 
   return (
-    <div className="text-right space-x-2">
+    <div className="text-right space-x-2 flex items-center">
       <InvoiceSendModal id={id} />
+
+      <div className="grow"></div>
 
       {error && <Info className="text-red-500">{error}</Info>}
 
@@ -143,128 +149,223 @@ export const InvoiceActions = ({
         </>
       )}
 
-      {readonly && draft.state === "draft" && !isSupplierRelated && (
+      {readonly && (
         <>
-          <DropdownButton
-            disabled={disabled}
-            size="lg"
-            icon={(p) => <PaperAirplaneIcon {...p} />}
-            position="top"
-            menu={[
-              {
-                label: "Envoyer par email...",
-                icon: (p) => <PaperAirplaneIcon {...p} />,
-                onClick: () => openSendModal(true),
-              },
-              {
-                type: "divider",
-              },
-              {
-                label: "Télécharger le PDF",
-                icon: (p) => <PrinterIcon {...p} />,
-                onClick: () => getPdfPreview(),
-              },
-              {
-                label: "Marquer comme envoyé",
-                icon: (p) => <CheckIcon {...p} />,
-                onClick: () => _save({ state: "sent" }),
-              },
-            ]}
-          >
-            Envoyer
-          </DropdownButton>
-        </>
-      )}
+          {draft.state === "draft" && !isSupplierRelated && (
+            <>
+              <DropdownButton
+                disabled={disabled}
+                className="m-0"
+                size="lg"
+                icon={(p) => <PaperAirplaneIcon {...p} />}
+                position="top"
+                menu={[
+                  {
+                    label: "Envoyer par email...",
+                    icon: (p) => <PaperAirplaneIcon {...p} />,
+                    onClick: () => openSendModal(true),
+                  },
+                  {
+                    type: "divider",
+                  },
+                  {
+                    label: "Télécharger le PDF",
+                    icon: (p) => <PrinterIcon {...p} />,
+                    onClick: () => getPdfPreview(),
+                  },
+                  {
+                    label: "Marquer comme envoyé",
+                    icon: (p) => <CheckIcon {...p} />,
+                    onClick: () => {
+                      if (
+                        // TODO: make a better modal
+                        window.confirm(
+                          "Marquer comme envoyé ? Le retour en brouillon ne sera plus possible."
+                        )
+                      )
+                        _save({ state: "sent" });
+                    },
+                  },
+                ]}
+              >
+                Envoyer
+              </DropdownButton>
+            </>
+          )}
 
-      {readonly && draft.state === "sent" && draft.type === "quotes" && (
-        <>
-          <DropdownButton
-            theme="invisible"
-            icon={(p) => <EllipsisHorizontalIcon {...p} />}
-            menu={[
-              {
-                label: "Envoyer de nouveau...",
-                onClick: () => openSendModal(true),
-              },
-              {
-                label: "Télécharger en PDF",
-                onClick: () => getPdfPreview(),
-              },
-              {
-                label: "Retourner en brouillon",
-                onClick: () => _save({ state: "draft" }),
-              },
-              {
-                label: "Créer une commande",
-                onClick: () => {
-                  console.log("Create a purchase order");
-                },
-              },
-            ]}
-          />
-          <ButtonConfirm
-            confirmTitle="Retourner en brouillon ?"
-            confirmMessage="Votre client ne pourra plus voir cette version du devis."
-            theme="outlined"
-            disabled={disabled}
-            size="lg"
-            icon={(p) => <XMarkIcon {...p} />}
-            onClick={() => _save({ state: "draft" })}
-          >
-            Devis refusé
-          </ButtonConfirm>
-          <ButtonConfirm
-            confirmTitle="Valider le devis ?"
-            confirmMessage="Un devis marqué comme accepté doit être executé, vous ne pourrez plus revenir en brouillon. Vous pouvez attendre que le client accepte le devis si un email lui a été envoyé."
-            disabled={disabled}
-            size="lg"
-            icon={(p) => <CheckIcon {...p} />}
-            onClick={() => _save({ state: "purchase_order" })}
-          >
-            Devis accepté
-          </ButtonConfirm>
-        </>
-      )}
+          {draft.state === "sent" && draft.type === "quotes" && (
+            <>
+              <DropdownButton
+                className="m-0"
+                theme="invisible"
+                icon={(p) => <EllipsisHorizontalIcon {...p} />}
+                menu={[
+                  {
+                    label: "Envoyer de nouveau...",
+                    onClick: () => openSendModal(true),
+                  },
+                  {
+                    label: "Télécharger en PDF",
+                    onClick: () => getPdfPreview(),
+                  },
+                  {
+                    label: "Retourner en brouillon",
+                    onClick: () => _save({ state: "draft" }),
+                  },
+                  {
+                    label: "Créer une commande",
+                    onClick: (event) =>
+                      navigate(
+                        withModel(
+                          getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+                          {
+                            ...draft,
+                            from_rel_quote: draft.id,
+                            type: "supplier_quotes",
+                            state: "draft",
+                            id: "",
+                          }
+                        ),
+                        { event }
+                      ),
+                  },
+                ]}
+              />
+              <ButtonConfirm
+                confirmTitle="Retourner en brouillon ?"
+                confirmMessage="Votre client ne pourra plus voir cette version du devis."
+                theme="outlined"
+                disabled={disabled}
+                size="lg"
+                icon={(p) => <XMarkIcon {...p} />}
+                onClick={() => _save({ state: "draft" })}
+              >
+                Devis refusé
+              </ButtonConfirm>
+              <ButtonConfirm
+                confirmTitle="Valider le devis ?"
+                confirmMessage="Un devis marqué comme accepté doit être executé, vous ne pourrez plus revenir en brouillon. Vous pouvez attendre que le client accepte le devis si un email lui a été envoyé."
+                disabled={disabled}
+                size="lg"
+                icon={(p) => <CheckIcon {...p} />}
+                onClick={() => _save({ state: "purchase_order" })}
+              >
+                Devis accepté
+              </ButtonConfirm>
+            </>
+          )}
 
-      {readonly && draft.state === "purchase_order" && !isSupplierRelated && (
-        <>
-          <DropdownButton
-            theme="invisible"
-            icon={(p) => <EllipsisHorizontalIcon {...p} />}
-            menu={[
-              {
-                label: "Télécharger en PDF",
-                onClick: () => getPdfPreview(),
-              },
-              {
-                label: "Marquer comme annulé",
-                onClick: () => _save({ state: "closed" }),
-              },
-              {
-                label: "Créer une commande",
-                onClick: () => {
-                  console.log("Create a purchase order");
-                },
-              },
-            ]}
-          />
-          {/* Créer une commande, marquer comme annulé */}
-          <Button
-            disabled={disabled}
-            size="lg"
-            icon={(p) => <DocumentCheckIcon {...p} />}
-          >
-            Facturer
-          </Button>
-        </>
-      )}
+          {draft.state === "sent" &&
+            draft.type !== "quotes" &&
+            draft.type !== "supplier_quotes" && (
+              <>
+                <DropdownButton
+                  className="m-0"
+                  theme="invisible"
+                  icon={(p) => <EllipsisHorizontalIcon {...p} />}
+                  menu={[
+                    ...(!isSupplierRelated
+                      ? [
+                          {
+                            label: "Envoyer de nouveau...",
+                            onClick: () => openSendModal(true),
+                          },
+                        ]
+                      : []),
+                    {
+                      label: "Télécharger en PDF",
+                      onClick: () => getPdfPreview(),
+                    },
+                  ]}
+                />
+                {isSupplierRelated && (
+                  <Button
+                    disabled={disabled}
+                    size="lg"
+                    theme="outlined"
+                    icon={(p) => <TruckIcon {...p} />}
+                    onClick={() => {
+                      // TODO
+                    }}
+                  >
+                    Réception
+                  </Button>
+                )}
+                <Button
+                  disabled={disabled}
+                  size="lg"
+                  icon={(p) => <CheckIcon {...p} />}
+                  onClick={() => {
+                    // TODO
+                  }}
+                >
+                  Enregistrer un paiement
+                </Button>
+              </>
+            )}
 
-      {readonly && draft.state === "closed" && draft.type === "quotes" && (
-        <div>
-          <Button disabled={true} size="lg">
-            Document fermé
-          </Button>
-        </div>
+          {draft.state === "purchase_order" && !isSupplierRelated && (
+            <>
+              <DropdownButton
+                theme="invisible"
+                size="lg"
+                className="m-0"
+                icon={(p) => <EllipsisHorizontalIcon {...p} />}
+                menu={[
+                  {
+                    label: "Télécharger en PDF",
+                    onClick: () => getPdfPreview(),
+                  },
+                  {
+                    label: "Marquer comme annulé",
+                    onClick: () => _save({ state: "closed" }),
+                  },
+                  {
+                    label: "Créer une commande",
+                    onClick: (event) =>
+                      navigate(
+                        withModel(
+                          getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+                          {
+                            ...draft,
+                            from_rel_quote: draft.id,
+                            type: "supplier_quotes",
+                            state: "draft",
+                            id: "",
+                          }
+                        ),
+                        { event }
+                      ),
+                  },
+                ]}
+              />
+              {/* Créer une commande, marquer comme annulé */}
+              <Button
+                disabled={disabled}
+                size="lg"
+                icon={(p) => <DocumentCheckIcon {...p} />}
+              >
+                Facturer
+              </Button>
+            </>
+          )}
+
+          {draft.state === "closed" && (
+            <div>
+              <Button disabled={true} size="lg">
+                Document fermé
+              </Button>
+            </div>
+          )}
+
+          {draft.state === "completed" && (
+            <div>
+              <Button disabled={true} size="lg">
+                Document complet
+              </Button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

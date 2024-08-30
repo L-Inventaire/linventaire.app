@@ -19,7 +19,6 @@ export type Invoices = RestEntity & {
   state:
     | "draft"
     | "sent"
-    | "accounted"
     | "purchase_order"
     | "partial_paid"
     | "paid"

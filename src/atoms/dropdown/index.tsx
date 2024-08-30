@@ -5,6 +5,7 @@ import {
   Shortcut,
   showShortCut,
   useShortcuts,
+  useToggleShortcuts,
 } from "@features/utils/shortcuts";
 import _ from "lodash";
 import React, { Fragment, useCallback, useEffect, useState } from "react";
@@ -12,6 +13,7 @@ import { useLocation } from "react-router-dom";
 import { atom, useRecoilState, useSetRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
 import { MenuItem, MenuSection } from "./components";
+import { DropdownMenu } from "@radix-ui/themes";
 
 export type DropDownMenuType = {
   type?: "divider" | "danger" | "menu" | "label" | "title"; // default to menu
@@ -46,21 +48,63 @@ export const DropdownButton = (
   } & ButtonProps
 ) => {
   const setState = useSetRecoilState(DropDownAtom);
+  const [open, setOpen] = useState(false);
+
+  const { pause, resume } = useToggleShortcuts();
+
+  useEffect(() => {
+    if (open) {
+      pause();
+    } else {
+      resume();
+    }
+    return () => {
+      resume();
+    };
+  }, [open]);
 
   return (
-    <Button
-      onClick={(e) => {
-        setState({
-          target: e.currentTarget,
-          position: props.position || "bottom",
-          menu: props.menu,
-          refreshTime: Date.now(),
-        });
-      }}
-      {..._.omit(props, ["menu"])}
-    >
-      {props.children}
-    </Button>
+    <DropdownMenu.Root open={open} onOpenChange={(a) => setOpen(a)}>
+      <DropdownMenu.Trigger>
+        <div>
+          <Button onClick={() => setOpen(true)} {..._.omit(props, ["menu"])}>
+            {props.children}
+          </Button>
+        </div>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content>
+        {props.menu.map((m, i) => {
+          return m.type === "divider" ? (
+            <DropdownMenu.Separator key={i} />
+          ) : m.type === "label" ? (
+            <DropdownMenu.Label key={i}>{m.label}</DropdownMenu.Label>
+          ) : m.type === "title" ? (
+            <MenuSection key={i} label={m.label} />
+          ) : (
+            <DropdownMenu.Item
+              onClick={
+                m.onClick
+                  ? (e: any) => {
+                      m.onClick?.(e);
+                    }
+                  : undefined
+              }
+              className={twMerge(
+                "my-1",
+                m.type === "danger" &&
+                  "bg-red-500 text-red-500 dark:text-red-500"
+              )}
+              color={m.type === "danger" ? "crimson" : undefined}
+              key={i}
+              shortcut={m.shortcut && showShortCut(m.shortcut)}
+            >
+              {m.icon && m.icon({ className: "w-4 h-4" })}
+              {m.label}
+            </DropdownMenu.Item>
+          );
+        })}
+      </DropdownMenu.Content>
+    </DropdownMenu.Root>
   );
 };
 

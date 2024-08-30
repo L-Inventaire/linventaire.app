@@ -189,34 +189,34 @@ input, select {
  transition-delay: 0.25s;
 }
 
-.m-grid-1 {
+#root .m-grid-1 {
     margin: -0.25rem;
 }
 
-.m-grid-1 > * {
+#root .m-grid-1 > * {
     margin: 0.25rem;
 }
 
-.m-grid-2 {
+#root .m-grid-2 {
     margin: -0.5rem;
 }
 
-.m-grid-2 > * {
+#root .m-grid-2 > * {
     margin: 0.5rem;
 }
 
-.m-grid-3 {
+#root .m-grid-3 {
     margin: -0.75rem;
 }
 
-.m-grid-3 > * {
+#root .m-grid-3 > * {
     margin: 0.75rem;
 }
 
-.m-grid-4 {
+#root .m-grid-4 {
     margin: -1rem;
 }
 
-.m-grid-4 > * {
+#root .m-grid-4 > * {
     margin: 1rem;
 }

@@ -62,8 +62,8 @@ export const ButtonConfirm = (props: ButtonConfirmProps) => {
                 onClick={() => {
                   setInConfirm(false);
                 }}
-                theme="default"
-                className={"mr-4 mt-2 shadow-none"}
+                theme="outlined"
+                className={"mr-4 mt-2"}
                 shortcut={["esc"]}
               >
                 {props.cancelButtonText || "Annuler"}

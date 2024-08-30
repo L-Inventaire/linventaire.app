@@ -21,7 +21,7 @@ const App = () => {
     <Theme
       accentColor={"" as any}
       grayColor="gray"
-      radius="small"
+      radius="medium"
       scaling="90%"
       appearance="inherit"
       panelBackground="solid"

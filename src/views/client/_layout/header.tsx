@@ -80,14 +80,16 @@ export const Header = () => {
               {i === title.length - 1 ? (
                 <div className="inline-flex space-x-1 items-center">
                   <Base className="inline font-semibold">{t.label}</Base>
-                  <Button
-                    data-tooltip="Ajouter/Retirer des favoris"
-                    data-position="right"
-                    className="opacity-50 -mt-0.5"
-                    size="md"
-                    theme="invisible"
-                    icon={(p) => <StarIcon {...p} />}
-                  />
+                  {false && (
+                    <Button
+                      data-tooltip="Ajouter/Retirer des favoris"
+                      data-position="right"
+                      className="opacity-50 -mt-0.5"
+                      size="sm"
+                      theme="invisible"
+                      icon={(p) => <StarIcon {...p} />}
+                    />
+                  )}
                 </div>
               ) : (
                 <Base className="inline opacity-50 font-medium">
@@ -104,29 +106,26 @@ export const Header = () => {
         <Search />
       </div>
 
-      <div className="hidden lg:inline w-full text-right space-x-2 mr-1">
+      <div className="hidden lg:inline w-full text-right m-grid-1 mr-1">
         <Button
           data-tooltip="Support"
           data-position="left"
-          className="rounded-lg"
           size="md"
-          theme="outlined"
+          theme="invisible"
           icon={(p) => <LifebuoyIcon {...p} />}
         />
         <Button
           data-tooltip="Guides"
           data-position="left"
-          className="rounded-lg"
           size="md"
-          theme="outlined"
+          theme="invisible"
           icon={(p) => <BookOpenIcon {...p} />}
         />
         <Button
           data-tooltip="Mode sombre/clair"
           data-position="left"
-          className="rounded-lg"
           size="md"
-          theme="outlined"
+          theme="invisible"
           icon={(p) =>
             theme === "dark" ? <MoonIcon {...p} /> : <SunIcon {...p} />
           }
