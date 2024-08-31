@@ -130,7 +130,7 @@ export const Button = (props: ButtonProps) => {
             onClick={onClick}
             disabled={disabled}
           >
-            {props.icon && props.icon({ className: "w-4 h-4" })}
+            {props.icon && props.icon({ className: "w-4 h-4 shrink-0" })}
           </IconButton>
         )}
         {!!props.children && (
@@ -145,7 +145,7 @@ export const Button = (props: ButtonProps) => {
           >
             {props.icon && (
               <Spinner loading={loading || false}>
-                {props.icon({ className: "w-4 h-4" })}
+                {props.icon({ className: "w-4 h-4 shrink-0" })}
               </Spinner>
             )}
             {props.children}

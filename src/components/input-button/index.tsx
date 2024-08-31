@@ -55,7 +55,7 @@ export const InputButton = <T,>(props: InputButtonProps<T>) => {
           props.className
         )}
       >
-        {props.icon && props.icon({ className: "mr-2 w-4 h-4" })}
+        {props.icon && props.icon({ className: "mr-2 w-4 h-4 shrink-0" })}
         {props.value !== "" && (
           <AnimatedHeight>
             {!value && (
@@ -87,7 +87,7 @@ export const InputButton = <T,>(props: InputButtonProps<T>) => {
         }}
         readonly={disabled}
         className={twMerge(
-          "h-max whitespace-normal py-0.5 text-opacity-100 text-black cursor-pointer",
+          "h-max whitespace-normal py-[5.5px] text-opacity-100 text-black cursor-pointer",
           props.className
         )}
       >

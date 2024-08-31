@@ -190,15 +190,16 @@ export const InvoiceLinesInput = ({
 
       <AnimatedHeight>
         {!!value?.content?.length && (
-          <div className="text-right flex justify-end">
+          <div className="text-right">
             <div
               className={twMerge(
                 "space-x-2 text-right",
-                !readonly || value.discount?.value ? "mb-8" : "mb-0"
+                !readonly || value.discount?.value ? "mb-4" : "mb-0"
               )}
             >
               {!readonly && (
                 <Button
+                  className="m-0"
                   data-tooltip="Documents à joindre à la facture"
                   theme="invisible"
                   size="sm"
@@ -222,7 +223,7 @@ export const InvoiceLinesInput = ({
                   value={ctrl("discount").value}
                 >
                   {"- "}
-                  {ctrl("discount").value ? (
+                  {(ctrl("discount.value").value || 0) > 0 ? (
                     <>
                       {value.discount?.mode === "amount"
                         ? formatAmount(value.discount?.value)
@@ -243,38 +244,42 @@ export const InvoiceLinesInput = ({
                 </Button>
               )}
             </div>
-            <div className="flex border border-slate-50 dark:border-slate-800 w-max p-2 rounded-md inline-block">
-              <div className="grow" />
-              <Base>
-                <div className="space-y-2 min-w-64 block">
-                  <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
-                    <span>Total HT</span>
-                    {formatAmount(value.total?.initial || 0)}
+            <div className="flex justify-end">
+              <div className="flex border border-slate-50 dark:border-slate-800 w-max p-2 rounded-md inline-block">
+                <div className="grow" />
+                <Base>
+                  <div className="space-y-2 min-w-64 block">
+                    <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
+                      <span>Total HT</span>
+                      {formatAmount(value.total?.initial || 0)}
+                    </div>
+                    {!!(value.total?.discount || 0) && (
+                      <>
+                        <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
+                          <span>Remise</span>
+                          <span>
+                            {formatAmount(value.total?.discount || 0)}
+                          </span>
+                        </div>
+                        <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
+                          <span>Total HT après remise</span>
+                          <span>{formatAmount(value.total?.total || 0)}</span>
+                        </div>
+                      </>
+                    )}
+                    <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
+                      <span>TVA</span>
+                      {formatAmount(value.total?.taxes || 0)}
+                    </div>
+                    <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
+                      <SectionSmall className="inline">Total TTC</SectionSmall>
+                      <SectionSmall className="inline">
+                        {formatAmount(value.total?.total_with_taxes || 0)}
+                      </SectionSmall>
+                    </div>
                   </div>
-                  {!!(value.total?.discount || 0) && (
-                    <>
-                      <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
-                        <span>Remise</span>
-                        <span>{formatAmount(value.total?.discount || 0)}</span>
-                      </div>
-                      <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
-                        <span>Total HT après remise</span>
-                        <span>{formatAmount(value.total?.total || 0)}</span>
-                      </div>
-                    </>
-                  )}
-                  <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
-                    <span>TVA</span>
-                    {formatAmount(value.total?.taxes || 0)}
-                  </div>
-                  <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
-                    <SectionSmall className="inline">Total TTC</SectionSmall>
-                    <SectionSmall className="inline">
-                      {formatAmount(value.total?.total_with_taxes || 0)}
-                    </SectionSmall>
-                  </div>
-                </div>
-              </Base>
+                </Base>
+              </div>
             </div>
           </div>
         )}

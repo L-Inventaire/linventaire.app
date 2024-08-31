@@ -638,8 +638,7 @@ video {
 }
 
 [type='text'],input:where(:not([type])),[type='email'],[type='url'],[type='password'],[type='number'],[type='date'],[type='datetime-local'],[type='month'],[type='search'],[type='tel'],[type='time'],[type='week'],[multiple],textarea,select {
-  -webkit-appearance: none;
-          appearance: none;
+  appearance: none;
   background-color: #fff;
   border-color: #6b7280;
   border-width: 1px;
@@ -710,8 +709,7 @@ select {
 }
 
 [type='checkbox'],[type='radio'] {
-  -webkit-appearance: none;
-          appearance: none;
+  appearance: none;
   padding: 0;
   -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
@@ -764,8 +762,7 @@ select {
 
 @media (forced-colors: active)  {
   [type='checkbox']:checked {
-    -webkit-appearance: auto;
-            appearance: auto;
+    appearance: auto;
   }
 }
 
@@ -775,8 +772,7 @@ select {
 
 @media (forced-colors: active)  {
   [type='radio']:checked {
-    -webkit-appearance: auto;
-            appearance: auto;
+    appearance: auto;
   }
 }
 
@@ -796,8 +792,7 @@ select {
 
 @media (forced-colors: active)  {
   [type='checkbox']:indeterminate {
-    -webkit-appearance: auto;
-            appearance: auto;
+    appearance: auto;
   }
 }
 
@@ -1000,7 +995,6 @@ body :is(.relative) {
 }
 
 body :is(.sticky) {
-  position: -webkit-sticky;
   position: sticky;
 }
 
@@ -1689,7 +1683,6 @@ body :is(.h-full) {
 }
 
 body :is(.h-max) {
-  height: -webkit-max-content;
   height: max-content;
 }
 
@@ -1870,7 +1863,6 @@ body :is(.w-full) {
 }
 
 body :is(.w-max) {
-  width: -webkit-max-content;
   width: max-content;
 }
 
@@ -1891,7 +1883,6 @@ body :is(.min-w-\[25\%\]) {
 }
 
 body :is(.min-w-fit) {
-  min-width: -webkit-fit-content;
   min-width: -moz-fit-content;
   min-width: fit-content;
 }
@@ -2103,10 +2094,6 @@ body :is(.resize) {
 
 body :is(.list-disc) {
   list-style-type: disc;
-}
-
-body :is(.grid-cols-1) {
-  grid-template-columns: repeat(1, minmax(0, 1fr));
 }
 
 body :is(.flex-row) {
@@ -3491,6 +3478,31 @@ body :is(.py-px) {
   padding-bottom: 1px;
 }
 
+body :is(.py-\[1\.4\]) {
+  padding-top: 1.4;
+  padding-bottom: 1.4;
+}
+
+body :is(.py-\[8px\]) {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+body :is(.py-\[6px\]) {
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+body :is(.py-\[5px\]) {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+body :is(.py-\[5\.5px\]) {
+  padding-top: 5.5px;
+  padding-bottom: 5.5px;
+}
+
 body :is(.pb-1) {
   padding-bottom: 0.25rem;
 }
@@ -3605,10 +3617,6 @@ body :is(.pt-6) {
 
 body :is(.pt-8) {
   padding-top: 2rem;
-}
-
-body :is(.pl-10) {
-  padding-left: 2.5rem;
 }
 
 body :is(.text-left) {
@@ -4964,10 +4972,6 @@ body :is(.group\/user:hover .group-hover\/user\:opacity-100) {
     width: 95vw;
   }
 
-  body :is(.md\:grid-cols-1) {
-    grid-template-columns: repeat(1, minmax(0, 1fr));
-  }
-
   body :is(.md\:flex-row) {
     flex-direction: row;
   }
@@ -5022,10 +5026,6 @@ body :is(.group\/user:hover .group-hover\/user\:opacity-100) {
     max-width: 36rem;
   }
 
-  body :is(.lg\:grid-cols-2) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   body :is(.lg\:flex-row) {
     flex-direction: row;
   }
@@ -5063,19 +5063,9 @@ body :is(.group\/user:hover .group-hover\/user\:opacity-100) {
   }
 }
 
-@media (min-width: 1280px) {
-  body :is(.xl\:grid-cols-3) {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
 @media (min-width: 1536px) {
   body :is(.\32xl\:flex) {
     display: flex;
-  }
-
-  body :is(.\32xl\:grid-cols-4) {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 

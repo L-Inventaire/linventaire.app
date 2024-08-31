@@ -118,48 +118,50 @@ export const InvoiceLineInput = (props: {
         >
           <Flex direction="column">
             <Flex align="stretch">
-              <InputButton
-                theme="invisible"
-                readonly={readonly}
-                className="rounded-none h-auto flex grow p-3 m-0 box-border text-left justify-start"
-                autoFocus={!readonly && !value.name}
-                placeholder={!isSeparation ? "Article" : "Texte libre"}
-                icon={(p) =>
-                  isSeparation ? (
-                    <Bars3BottomLeftIcon {...p} />
-                  ) : (
-                    getArticleIcon(article?.type)(p)
-                  )
-                }
-                empty="Vide"
-                content={
-                  <InvoiceLineArticleInput {...props} article={article} />
-                }
-                value={value.description || value.name || article?.name}
-              >
-                <Text
-                  as="div"
-                  size="2"
-                  weight="bold"
-                  className="overflow-hidden text-ellipsis line-clamp-1"
+              <Box flexGrow="1">
+                <InputButton
+                  theme="invisible"
+                  readonly={readonly}
+                  className="rounded-none flex grow p-3 m-0 h-full w-full box-border text-left justify-start"
+                  autoFocus={!readonly && !value.name}
+                  placeholder={!isSeparation ? "Article" : "Texte libre"}
+                  icon={(p) =>
+                    isSeparation ? (
+                      <Bars3BottomLeftIcon {...p} />
+                    ) : (
+                      getArticleIcon(article?.type)(p)
+                    )
+                  }
+                  empty="Vide"
+                  content={
+                    <InvoiceLineArticleInput {...props} article={article} />
+                  }
+                  value={value.description || value.name || article?.name}
                 >
-                  {value.name || article?.name}
-                </Text>
-                <Text
-                  as="div"
-                  color="gray"
-                  size="2"
-                  className="overflow-hidden text-ellipsis line-clamp-1"
-                >
-                  {getTextFromHtml(
-                    value.description || article?.description || "-"
-                  )}
-                </Text>
-              </InputButton>
+                  <Text
+                    as="div"
+                    size="2"
+                    weight="bold"
+                    className="overflow-hidden text-ellipsis line-clamp-1"
+                  >
+                    {value.name || article?.name}
+                  </Text>
+                  <Text
+                    as="div"
+                    color="gray"
+                    size="2"
+                    className="overflow-hidden text-ellipsis line-clamp-1"
+                  >
+                    {getTextFromHtml(
+                      value.description || article?.description || "-"
+                    )}
+                  </Text>
+                </InputButton>
+              </Box>
               {!isSeparation && (
                 <Box
                   className={twMerge(
-                    "text-right w-1/5 border-l",
+                    "text-right w-1/5 shrink-0 border-l",
                     !value.optional_checked && value.optional && "border-dashed"
                   )}
                 >
@@ -190,7 +192,7 @@ export const InvoiceLineInput = (props: {
               {(!isSeparation || value.type === "correction") && (
                 <Box
                   className={twMerge(
-                    "text-right w-1/5 border-l",
+                    "text-right w-1/5 shrink-0 border-l",
                     !value.optional_checked && value.optional && "border-dashed"
                   )}
                 >
@@ -238,198 +240,200 @@ export const InvoiceLineInput = (props: {
                 </Box>
               )}
             </Flex>
-            <Flex
-              align="center"
-              gap="3"
-              className={twMerge(
-                "p-3 border-t",
-                !value.optional_checked && value.optional && "border-dashed"
-              )}
-            >
-              <Box flexGrow="1">
-                {!(value.optional && !value.optional_checked) && (
-                  <>
-                    {(props.invoice?.type === "supplier_quotes" ||
-                      props.invoice?.type === "quotes") && (
-                      <div className="w-32 shrink-0 flex items-center justify-start mr-2">
-                        {!isSeparation && (
-                          <CompletionTags
-                            invoice={props.invoice!}
-                            lines={[value]}
-                            overflow
-                          />
-                        )}
-                      </div>
-                    )}
-                  </>
+            {(value.type !== "separation" || !readonly) && (
+              <Flex
+                align="center"
+                gap="3"
+                className={twMerge(
+                  "p-3 border-t",
+                  !value.optional_checked && value.optional && "border-dashed"
                 )}
-              </Box>
+              >
+                <Box flexGrow="1">
+                  {!(value.optional && !value.optional_checked) && (
+                    <>
+                      {(props.invoice?.type === "supplier_quotes" ||
+                        props.invoice?.type === "quotes") && (
+                        <div className="w-32 shrink-0 flex items-center justify-start mr-2">
+                          {!isSeparation && (
+                            <CompletionTags
+                              invoice={props.invoice!}
+                              lines={[value]}
+                              overflow
+                            />
+                          )}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </Box>
 
-              {value.optional && (
-                <Text size="2">
-                  Ligne optionelle{" "}
-                  {value.optional_checked && (
-                    <Text weight="bold">selectionnée</Text>
-                  )}
-                  {!value.optional_checked && (
-                    <Text weight="bold">non selectionnée</Text>
-                  )}
-                </Text>
-              )}
+                {value.optional && (
+                  <Text size="2">
+                    Ligne optionelle{" "}
+                    {value.optional_checked && (
+                      <Text weight="bold">selectionnée</Text>
+                    )}
+                    {!value.optional_checked && (
+                      <Text weight="bold">non selectionnée</Text>
+                    )}
+                  </Text>
+                )}
 
-              {hasOptionalArticles && !isSeparation && (
-                <Button
-                  disabled={readonly}
-                  onClick={(e) =>
-                    setMenu({
-                      target: e.currentTarget,
-                      menu: [
-                        {
-                          label: "Option cochée",
-                          icon: (p) => <CheckCircleIcon {...p} />,
-                          onClick: () => {
-                            onChange?.({
-                              ...value,
-                              optional: true,
-                              optional_checked: true,
-                            });
-                          },
-                        },
-                        {
-                          label: "Option décochée",
-                          icon: (p) => <XCircleIcon {...p} />,
-                          onClick: () => {
-                            onChange?.({
-                              ...value,
-                              optional: true,
-                              optional_checked: false,
-                            });
-                          },
-                        },
-                        {
-                          type: "divider",
-                        },
-                        {
-                          label: "Article non optionnel",
-                          icon: (p) => <LockClosedIcon {...p} />,
-                          onClick: () => {
-                            onChange?.({
-                              ...value,
-                              optional: false,
-                              optional_checked: false,
-                            });
-                          },
-                        },
-                      ],
-                    })
-                  }
-                  theme="invisible"
-                  size="xs"
-                  icon={({ className }) =>
-                    value.optional ? (
-                      <div className="border-slate-100 border rounded w-4 h-4 flex items-center justify-center">
-                        {value.optional_checked ? (
-                          <CheckIcon className="w-4 h-4" />
-                        ) : (
-                          <div className="w-1 h-1 dark:bg-white bg-black opacity-50" />
-                        )}
-                      </div>
-                    ) : (
-                      <LockClosedIcon
-                        className={twMerge(className, "opacity-25")}
-                      />
-                    )
-                  }
-                />
-              )}
-              {!readonly && (
-                <>
-                  {props.onRemove && (
-                    <Button
-                      danger
-                      theme="invisible"
-                      data-tooltip="Retirer la ligne"
-                      icon={(p) => <TrashIcon {...p} />}
-                      onClick={() => {
-                        setDeleted(true);
-                        setTimeout(props.onRemove!, 300);
-                      }}
-                      size="xs"
-                    />
-                  )}
+                {hasOptionalArticles && !isSeparation && (
                   <Button
+                    disabled={readonly}
                     onClick={(e) =>
                       setMenu({
                         target: e.currentTarget,
                         menu: [
-                          ...((!isSeparation
-                            ? [
-                                {
-                                  label: value.discount?.value
-                                    ? "Retirer la réduction"
-                                    : "Ajouter une réduction",
-                                  icon: (p) => <ReceiptPercentIcon {...p} />,
-                                  onClick: () => {
-                                    onChange?.({
-                                      ...value,
-                                      discount: value.discount?.value
-                                        ? undefined
-                                        : {
-                                            value: 10,
-                                            mode: "percentage",
-                                          },
-                                    });
-                                  },
-                                },
-                                ...((props.invoice?.type === "quotes"
-                                  ? [
-                                      {
-                                        label: value.optional
-                                          ? "Article obligatoire"
-                                          : "Article optionnel",
-                                        icon: (p) =>
-                                          value.optional ? (
-                                            <LockClosedIcon {...p} />
-                                          ) : (
-                                            <CheckCircleIcon {...p} />
-                                          ),
-                                        onClick: () => {
-                                          onChange?.({
-                                            ...value,
-                                            optional: !value.optional,
-                                          });
-                                        },
-                                      },
-                                    ]
-                                  : []) as DropDownMenuType),
-                                { type: "divider" },
-                              ]
-                            : []) as DropDownMenuType),
                           {
-                            label: "Dupliquer",
-                            icon: (p) => <DocumentDuplicateIcon {...p} />,
-                            onClick: props.onDuplicate,
+                            label: "Option cochée",
+                            icon: (p) => <CheckCircleIcon {...p} />,
+                            onClick: () => {
+                              onChange?.({
+                                ...value,
+                                optional: true,
+                                optional_checked: true,
+                              });
+                            },
                           },
                           {
-                            label: "Déplacer vers le haut",
-                            icon: (p) => <ArrowUpIcon {...p} />,
-                            onClick: props.onMoveUp,
+                            label: "Option décochée",
+                            icon: (p) => <XCircleIcon {...p} />,
+                            onClick: () => {
+                              onChange?.({
+                                ...value,
+                                optional: true,
+                                optional_checked: false,
+                              });
+                            },
                           },
                           {
-                            label: "Déplacer vers le bas",
-                            icon: (p) => <ArrowDownIcon {...p} />,
-                            onClick: props.onMoveDown,
+                            type: "divider",
+                          },
+                          {
+                            label: "Article non optionnel",
+                            icon: (p) => <LockClosedIcon {...p} />,
+                            onClick: () => {
+                              onChange?.({
+                                ...value,
+                                optional: false,
+                                optional_checked: false,
+                              });
+                            },
                           },
                         ],
                       })
                     }
                     theme="invisible"
-                    icon={(p) => <EllipsisHorizontalIcon {...p} />}
                     size="xs"
+                    icon={({ className }) =>
+                      value.optional ? (
+                        <div className="border-slate-100 border rounded w-4 h-4 flex items-center justify-center">
+                          {value.optional_checked ? (
+                            <CheckIcon className="w-4 h-4" />
+                          ) : (
+                            <div className="w-1 h-1 dark:bg-white bg-black opacity-50" />
+                          )}
+                        </div>
+                      ) : (
+                        <LockClosedIcon
+                          className={twMerge(className, "opacity-25")}
+                        />
+                      )
+                    }
                   />
-                </>
-              )}
-            </Flex>
+                )}
+                {!readonly && (
+                  <>
+                    {props.onRemove && (
+                      <Button
+                        danger
+                        theme="invisible"
+                        data-tooltip="Retirer la ligne"
+                        icon={(p) => <TrashIcon {...p} />}
+                        onClick={() => {
+                          setDeleted(true);
+                          setTimeout(props.onRemove!, 300);
+                        }}
+                        size="xs"
+                      />
+                    )}
+                    <Button
+                      onClick={(e) =>
+                        setMenu({
+                          target: e.currentTarget,
+                          menu: [
+                            ...((!isSeparation
+                              ? [
+                                  {
+                                    label: value.discount?.value
+                                      ? "Retirer la réduction"
+                                      : "Ajouter une réduction",
+                                    icon: (p) => <ReceiptPercentIcon {...p} />,
+                                    onClick: () => {
+                                      onChange?.({
+                                        ...value,
+                                        discount: value.discount?.value
+                                          ? undefined
+                                          : {
+                                              value: 10,
+                                              mode: "percentage",
+                                            },
+                                      });
+                                    },
+                                  },
+                                  ...((props.invoice?.type === "quotes"
+                                    ? [
+                                        {
+                                          label: value.optional
+                                            ? "Article obligatoire"
+                                            : "Article optionnel",
+                                          icon: (p) =>
+                                            value.optional ? (
+                                              <LockClosedIcon {...p} />
+                                            ) : (
+                                              <CheckCircleIcon {...p} />
+                                            ),
+                                          onClick: () => {
+                                            onChange?.({
+                                              ...value,
+                                              optional: !value.optional,
+                                            });
+                                          },
+                                        },
+                                      ]
+                                    : []) as DropDownMenuType),
+                                  { type: "divider" },
+                                ]
+                              : []) as DropDownMenuType),
+                            {
+                              label: "Dupliquer",
+                              icon: (p) => <DocumentDuplicateIcon {...p} />,
+                              onClick: props.onDuplicate,
+                            },
+                            {
+                              label: "Déplacer vers le haut",
+                              icon: (p) => <ArrowUpIcon {...p} />,
+                              onClick: props.onMoveUp,
+                            },
+                            {
+                              label: "Déplacer vers le bas",
+                              icon: (p) => <ArrowDownIcon {...p} />,
+                              onClick: props.onMoveDown,
+                            },
+                          ],
+                        })
+                      }
+                      theme="invisible"
+                      icon={(p) => <EllipsisHorizontalIcon {...p} />}
+                      size="xs"
+                    />
+                  </>
+                )}
+              </Flex>
+            )}
           </Flex>
         </Card>
       </div>
