@@ -1,19 +1,19 @@
+import { AnimatedHeight } from "@atoms/animated-side/height";
 import { Button, ButtonProps } from "@atoms/button/button";
 import { Info } from "@atoms/text";
-import { AnimatedHeight } from "@atoms/animated-side/height";
 import {
   Shortcut,
   showShortCut,
   useShortcuts,
   useToggleShortcuts,
 } from "@features/utils/shortcuts";
+import { DropdownMenu } from "@radix-ui/themes";
 import _ from "lodash";
 import React, { Fragment, useCallback, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { atom, useRecoilState, useSetRecoilState } from "recoil";
+import { atom, useRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
 import { MenuItem, MenuSection } from "./components";
-import { DropdownMenu } from "@radix-ui/themes";
 
 export type DropDownMenuType = {
   type?: "divider" | "danger" | "menu" | "label" | "title"; // default to menu
@@ -47,7 +47,6 @@ export const DropdownButton = (
     position?: "top" | "left" | "bottom" | "right";
   } & ButtonProps
 ) => {
-  const setState = useSetRecoilState(DropDownAtom);
   const [open, setOpen] = useState(false);
 
   const { pause, resume } = useToggleShortcuts();

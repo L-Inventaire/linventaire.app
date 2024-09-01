@@ -14,3 +14,8 @@ export const fetchServer = async (
   const data = await fetch(domain + url, options);
   return data;
 };
+
+export const getServerUrl = (url: string) => {
+  const domain = Env.server.replace(/\/$/, "");
+  return domain + url;
+};

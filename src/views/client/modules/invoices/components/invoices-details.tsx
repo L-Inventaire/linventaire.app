@@ -29,10 +29,10 @@ import {
 } from "@heroicons/react/20/solid";
 import { EditorInput } from "@molecules/editor-input";
 import { Table } from "@molecules/table";
+import { Callout, Code, Text } from "@radix-ui/themes";
 import { PageColumns } from "@views/client/_layout/page";
 import _ from "lodash";
 import { Fragment, useEffect } from "react";
-import { twMerge } from "tailwind-merge";
 import { computePricesFromInvoice } from "../utils";
 import { InputDelivery } from "./input-delivery";
 import { InvoiceInputFormat } from "./input-format";
@@ -43,16 +43,7 @@ import { InvoiceLinesInput } from "./invoice-lines-input";
 import { CompletionTags } from "./invoice-lines-input/components/completion-tags";
 import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-card";
 import { InvoiceStatus } from "./invoice-status";
-import { InvoicesPreview } from "./invoices-preview/invoices-preview";
 import { RelatedInvoices } from "./related-invoices";
-import {
-  Flex,
-  Text,
-  Button as RaddixButton,
-  Spinner,
-  Code,
-  Callout,
-} from "@radix-ui/themes";
 
 export const computeCompletion = (
   linesu: Invoices["content"],
@@ -122,12 +113,6 @@ export const InvoicesDetailsPage = ({
   const hasClientOrSupplier =
     (draft.client && !isSupplierRelated) ||
     (draft.supplier && isSupplierRelated);
-
-  const hasPreview =
-    document.location.origin.includes("localhost") &&
-    hasClientOrSupplier &&
-    !isSupplierInvoice &&
-    !isSupplierQuote;
 
   useEffect(() => {
     if (!isPending && draft)
@@ -497,24 +482,6 @@ export const InvoicesDetailsPage = ({
             <br />
             <br />
           </div>
-          {/* TODO Clearly this fixed isn't right for all screens, we should use js probably ? */}
-          {false && (
-            <div
-              className={twMerge(
-                "lg:w-2/5 shrink-0 flex items-start justify-center pt-6 transition-all 2xl:flex hidden",
-                !hasPreview && "w-0 lg:w-0",
-                hasPreview && "w-full"
-              )}
-            >
-              {hasPreview && (
-                <div className="fixed grow shrink-0">
-                  <div className="w-full flex flex-col grow shadow-lg border overflow-x-auto max-w-[560px] lg:aspect-[5/7] bg-white">
-                    <InvoicesPreview invoice={draft} />
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
           <div className="grow" />
         </PageColumns>
       </FormContext>

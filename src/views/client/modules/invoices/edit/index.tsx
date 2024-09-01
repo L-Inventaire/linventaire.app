@@ -1,4 +1,3 @@
-import { Button } from "@atoms/button/button";
 import { PageLoader } from "@atoms/page-loader";
 import { DocumentBar } from "@components/document-bar";
 import { useClients } from "@features/clients/state/use-clients";
@@ -7,14 +6,12 @@ import { Invoices } from "@features/invoices/types/types";
 import { getDocumentNamePlurial } from "@features/invoices/utils";
 import { ROUTES, getRoute } from "@features/routes";
 import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
-import { CheckIcon } from "@heroicons/react/24/outline";
 import { Page } from "@views/client/_layout/page";
 import _ from "lodash";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { InvoicesDetailsPage } from "../components/invoices-details";
-import { getPdfPreview } from "../components/invoices-preview/invoices-preview";
 import { InvoiceActions } from "../components/invoice-actions";
+import { InvoicesDetailsPage } from "../components/invoices-details";
 
 export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
   const { refresh, loading } = useClients();
@@ -71,7 +68,6 @@ export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
           backRoute={getRoute(ROUTES.Invoices, { type: draft.type })}
           viewRoute={ROUTES.InvoicesView}
           editRoute={ROUTES.InvoicesEdit}
-          onPrint={async () => getPdfPreview()}
         />
       }
     >

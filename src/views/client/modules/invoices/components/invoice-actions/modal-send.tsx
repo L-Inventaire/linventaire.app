@@ -137,7 +137,7 @@ export const InvoiceSendModalContent = ({
           theme="outlined"
           size="sm"
           icon={(p) => <PrinterIcon {...p} />}
-          onClick={() => getPdfPreview()}
+          onClick={() => getPdfPreview(draft)}
         >
           Télécharger
         </Button>

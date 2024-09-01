@@ -1,6 +1,8 @@
 import { Button } from "@atoms/button/button";
+import { ButtonConfirm } from "@atoms/button/confirm";
 import { DropdownButton } from "@atoms/dropdown";
 import { Info } from "@atoms/text";
+import { withModel } from "@components/search-bar/utils/as-model";
 import { useClients } from "@features/clients/state/use-clients";
 import { useContact } from "@features/contacts/hooks/use-contacts";
 import {
@@ -8,7 +10,9 @@ import {
   isContactLegalyDefined,
 } from "@features/contacts/types/types";
 import { Invoices } from "@features/invoices/types/types";
+import { getRoute, ROUTES } from "@features/routes";
 import { formatAddress } from "@features/utils/format/address";
+import { useNavigateAlt } from "@features/utils/navigate";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import {
   CheckIcon,
@@ -17,17 +21,11 @@ import {
   PaperAirplaneIcon,
   PrinterIcon,
   TruckIcon,
-  ViewColumnsIcon,
   XMarkIcon,
 } from "@heroicons/react/16/solid";
-import { InvoiceSendModal, InvoiceSendModalAtom } from "./modal-send";
 import { useSetRecoilState } from "recoil";
-import { useNavigate } from "react-router-dom";
-import { getRoute, ROUTES } from "@features/routes";
 import { getPdfPreview } from "../invoices-preview/invoices-preview";
-import { ButtonConfirm } from "@atoms/button/confirm";
-import { withModel } from "@components/search-bar/utils/as-model";
-import { useNavigateAlt } from "@features/utils/navigate";
+import { InvoiceSendModal, InvoiceSendModalAtom } from "./modal-send";
 
 export const InvoiceActions = ({
   id,
@@ -171,7 +169,7 @@ export const InvoiceActions = ({
                   {
                     label: "Télécharger le PDF",
                     icon: (p) => <PrinterIcon {...p} />,
-                    onClick: () => getPdfPreview(),
+                    onClick: () => getPdfPreview(draft),
                   },
                   {
                     label: "Marquer comme envoyé",
@@ -206,7 +204,7 @@ export const InvoiceActions = ({
                   },
                   {
                     label: "Télécharger en PDF",
-                    onClick: () => getPdfPreview(),
+                    onClick: () => getPdfPreview(draft),
                   },
                   {
                     label: "Retourner en brouillon",
@@ -274,7 +272,7 @@ export const InvoiceActions = ({
                       : []),
                     {
                       label: "Télécharger en PDF",
-                      onClick: () => getPdfPreview(),
+                      onClick: () => getPdfPreview(draft),
                     },
                   ]}
                 />
@@ -314,7 +312,7 @@ export const InvoiceActions = ({
                 menu={[
                   {
                     label: "Télécharger en PDF",
-                    onClick: () => getPdfPreview(),
+                    onClick: () => getPdfPreview(draft),
                   },
                   {
                     label: "Marquer comme annulé",

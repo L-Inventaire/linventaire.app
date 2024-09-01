@@ -40,7 +40,7 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
           mode={"read"}
           backRoute={getRoute(ROUTES.Invoices, { type: invoice.type })}
           editRoute={ROUTES.InvoicesEdit}
-          onPrint={async () => getPdfPreview()}
+          onPrint={async () => getPdfPreview(invoice)}
           suffix={
             <>
               {invoice.type === "quotes" && (

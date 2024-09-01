@@ -4,6 +4,8 @@ import { Card } from "@atoms/card";
 import { Base, Info, SectionSmall } from "@atoms/text";
 import { FormControllerFuncType } from "@components/form/formcontext";
 import { InputButton } from "@components/input-button";
+import { FilesInput } from "@components/input-rest/files";
+import { Invoices } from "@features/invoices/types/types";
 import { formatAmount } from "@features/utils/format/strings";
 import {
   PaperClipIcon,
@@ -12,14 +14,9 @@ import {
 } from "@heroicons/react/20/solid";
 import _ from "lodash";
 import { Fragment, useRef } from "react";
-import { DropInvoiceLine, InvoiceLineInput } from "./invoice-line-input";
-import { Invoices } from "@features/invoices/types/types";
 import { twMerge } from "tailwind-merge";
 import { InvoiceDiscountInput } from "./components/discount-input";
-import { FormInput } from "@components/form/fields";
-import { tvaOptions } from "@features/utils/constants";
-import { FilesInput } from "@components/input-rest/files";
-import { getTvaValue } from "../../utils";
+import { DropInvoiceLine, InvoiceLineInput } from "./invoice-line-input";
 
 export const InvoiceLinesInput = ({
   onChange,
