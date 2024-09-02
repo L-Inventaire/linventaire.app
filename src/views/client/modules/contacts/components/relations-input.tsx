@@ -120,7 +120,7 @@ export const RelationsInput = ({
             {!!parents?.data?.list?.length && readonly && (
               <>
                 <Table
-                  data={children.data?.list || []}
+                  data={parents.data?.list || []}
                   columns={[
                     ...(CtrlKRestEntities["contacts"].renderResult as any),
                     {
