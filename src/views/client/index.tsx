@@ -105,8 +105,6 @@ export const BackOfficeRoutes = () => {
         <Route path={ROUTES.InvoicesView} element={<InvoicesViewPage />} />
         <Route path={ROUTES.InvoicesEdit} element={<InvoicesEditPage />} />
 
-        <Route path={ROUTES.DocumentView} element={<DocumentPage />} />
-
         <Route
           path={ROUTES.Settings}
           element={<NavigateGetRoute to={ROUTES.SettingsPreferences} />}

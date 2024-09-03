@@ -11,15 +11,20 @@ import {
   createBrowserRouter,
   createRoutesFromElements,
 } from "react-router-dom";
-import { BackOfficeRoutes } from "./client";
+import { BackOfficeRoutes, Layout } from "./client";
 import { LoginRoutes } from "./signin";
 import { Tooltip } from "@atoms/tooltip/service";
+import { DocumentPage } from "./client/modules/document";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/">
       {BackOfficeRoutes()}
       {LoginRoutes()}
+
+      <Route path={ROUTES.SignDocumentView} element={<DocumentPage />} />
+      <Route path={ROUTES.SignedDocumentView} element={<DocumentPage />} />
+
       <Route path="*" element={<Navigate to={ROUTES.Login} />} />
       <Route path="" element={<Navigate to={ROUTES.Login} />} />
     </Route>
