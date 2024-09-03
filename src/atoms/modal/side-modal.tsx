@@ -124,7 +124,7 @@ export const SideModal = (props: {
             >
               <Dialog.Panel
                 className={
-                  "text-black dark:text-white align-bottom bg-white dark:bg-wood-990 px-4 pt-5 pb-4 text-left w-full sm:w-auto shadow-xl transform transition-all sm:align-middle sm:p-6 " +
+                  "text-black dark:text-white align-bottom bg-white dark:bg-slate-990 px-4 pt-5 pb-4 text-left w-full sm:w-auto shadow-xl transform transition-all sm:align-middle sm:p-6 " +
                   "absolute h-full top-0 right-0 m-0 rounded-none left-auto sm:w-auto overflow-auto " +
                   (props.className || "")
                 }
@@ -134,7 +134,7 @@ export const SideModal = (props: {
                   <div className="z-20 absolute top-0 right-0 pt-4 pr-4">
                     <button
                       type="button"
-                      className="bg-wood-300 dark:bg-wood-600 rounded-full p-1 text-wood-600 dark:text-wood-300 hover:opacity-75 focus:outline-none "
+                      className="bg-slate-300 dark:bg-slate-600 rounded-full p-1 text-slate-600 dark:text-slate-300 hover:opacity-75 focus:outline-none "
                       onClick={() => props.onClose && props.onClose()}
                     >
                       <XMarkIcon className="h-5 w-5" aria-hidden="true" />

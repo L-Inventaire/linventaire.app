@@ -3,6 +3,8 @@ export const getFormattedNumerotation = (
   counter: number,
   draft?: boolean
 ) => {
+  counter = counter || 1;
+
   let n = format.replace(/@YYYY/g, new Date().getFullYear().toString());
   n = n.replace(/@YY/g, new Date().getFullYear().toString().slice(-2));
   n = n.replace(

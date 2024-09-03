@@ -21,6 +21,7 @@ import {
   buildQueryFromMap,
   schemaToSearchFields,
 } from "../../../../components/search-bar/utils/utils";
+import { InvoiceStatus } from "./components/invoice-status";
 
 export const InvoicesPage = () => {
   const type: Invoices["type"][] = (useParams().type?.split("+") || [
@@ -34,6 +35,7 @@ export const InvoicesPage = () => {
 
   const { invoices } = useInvoices({
     ...options,
+    index: "state,emit_date",
     query: [...((options?.query as any) || []), ...buildQueryFromMap({ type })],
   });
 
@@ -154,6 +156,17 @@ export const InvoicesPage = () => {
           <Info>{invoices?.data?.total || 0} documents trouvés</Info>
         </div>
         <RestTable
+          groupBy="state"
+          groupByRender={(row) => (
+            <div className="mt-px">
+              <InvoiceStatus
+                size="xs"
+                readonly
+                value={row.state}
+                type={row.type}
+              />
+            </div>
+          )}
           entity="invoices"
           onClick={({ id }, event) =>
             navigate(getRoute(ROUTES.InvoicesView, { id }), { event })

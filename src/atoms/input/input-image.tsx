@@ -66,7 +66,7 @@ export const InputImage = ({
       <div
         style={photoName ? { backgroundColor: stringToColor(photoName) } : {}}
         className={
-          "w-20 h-20 flex items-center justify-center bg-wood-200 dark:bg-wood-700 hover:bg-opacity-75 flex items-center justify-center cursor-pointer " +
+          "w-20 h-20 flex items-center justify-center bg-slate-200 dark:bg-slate-700 hover:bg-opacity-75 flex items-center justify-center cursor-pointer " +
           (shape === "circle" ? "rounded-full" : "rounded-md")
         }
         onClick={() => document.getElementById("profileImageInput")?.click()}
@@ -84,7 +84,7 @@ export const InputImage = ({
         ) : photoName ? (
           <Title>{photoName}</Title>
         ) : (
-          <PhotoIcon className="w-8 h-8 text-wood-500 dark:text-wood-400" />
+          <PhotoIcon className="w-8 h-8 text-slate-500 dark:text-slate-400" />
         )}
         <input
           type="file"

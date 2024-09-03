@@ -36,6 +36,7 @@ export const SearchBar = ({
   inlineSuggestions,
   shortcuts,
   urlSync,
+  afterSuggestions,
 }: {
   schema: { table: string; fields: SearchField[] };
   value?: string;
@@ -51,6 +52,7 @@ export const SearchBar = ({
   inlineSuggestions?: boolean;
   shortcuts?: Shortcut[];
   urlSync?: boolean;
+  afterSuggestions?: JSX.Element;
 }) => {
   const { fields: customFields, loading: loadingCustomFields } = useTableFields(
     schema.table
@@ -150,7 +152,7 @@ export const SearchBar = ({
     >
       <div
         className={twMerge(
-          "pl-1 pr-3 flex items-center space-x-2 py-2",
+          "pl-1 pr-3 flex items-center space-x-2 py-2 h-12",
           inputClassName
         )}
       >
@@ -179,7 +181,7 @@ export const SearchBar = ({
                 : () => (
                     <Button
                       data-tooltip="Filtrer"
-                      className={"absolute left-1.5 top-1.5"}
+                      className={"!absolute !left-1 !top-0 !bottom-0 !m-auto"}
                       size="sm"
                       theme="invisible"
                       icon={(p) => <FunnelIcon {...p} />}
@@ -251,7 +253,7 @@ export const SearchBar = ({
       {suggestions.length > 0 && (
         <div
           className={twMerge(
-            "hidden hover:block text-base z-10 right-0 top-full w-full h-max flex items-center bg-white dark:bg-wood-990 dark:border-slate-700 border-t rounded rounded-t-none px-2 py-1",
+            "hidden hover:block text-base z-10 right-0 top-full w-full h-max flex items-center bg-white dark:bg-slate-990 dark:border-slate-700 border-t rounded rounded-t-none px-2 py-1",
             inlineSuggestions
               ? "grow relative block overflow-visible shrink-0"
               : "group-focus-within:block absolute shadow-lg"
@@ -271,6 +273,7 @@ export const SearchBar = ({
               schema={schema}
               loadingSuggestionsValues={loadingSuggestionsValues}
             />
+            {afterSuggestions}
           </DefaultScrollbars>
         </div>
       )}

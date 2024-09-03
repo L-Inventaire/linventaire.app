@@ -10,8 +10,8 @@ import { Page } from "@views/client/_layout/page";
 import _ from "lodash";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { InvoiceActions } from "../components/invoice-actions";
 import { InvoicesDetailsPage } from "../components/invoices-details";
-import { getPdfPreview } from "../components/invoices-preview/invoices-preview";
 
 export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
   const { refresh, loading } = useClients();
@@ -57,6 +57,7 @@ export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
         },
         { label: id ? "Modifier" : "Créer" },
       ]}
+      footer={<InvoiceActions id={id} readonly={false} />}
       bar={
         <DocumentBar
           loading={isInitiating || loading}
@@ -67,7 +68,6 @@ export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
           backRoute={getRoute(ROUTES.Invoices, { type: draft.type })}
           viewRoute={ROUTES.InvoicesView}
           editRoute={ROUTES.InvoicesEdit}
-          onPrint={async () => getPdfPreview()}
         />
       }
     >

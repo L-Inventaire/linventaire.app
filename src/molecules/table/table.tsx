@@ -54,6 +54,8 @@ type PropsType<T> = {
   scrollable?: boolean;
   loading?: boolean;
   checkboxAlwaysVisible?: boolean;
+  groupBy?: string;
+  groupByRender?: (item: T) => ReactNode;
   onSelect?:
     | {
         icon?: (props: any) => JSX.Element;
@@ -90,7 +92,7 @@ const defaultCellClassName = ({
     colFirst && "pl-1",
     colLast && "pr-1",
     selected
-      ? " bg-opacity-20 dark:bg-opacity-20 bg-wood-500 dark:bg-wood-500 group-hover/row:bg-opacity-15 dark:group-hover/row:bg-opacity-15"
+      ? " bg-opacity-20 dark:bg-opacity-20 bg-slate-500 dark:bg-slate-500 group-hover/row:bg-opacity-15 dark:group-hover/row:bg-opacity-15"
       : rowOdd
       ? "dark:bg-opacity-15 bg-opacity-15 group-hover/row:bg-opacity-0 dark:group-hover/row:bg-opacity-0"
       : "dark:bg-opacity-50 bg-opacity-50 group-hover/row:bg-opacity-25 dark:group-hover/row:bg-opacity-25",
@@ -118,6 +120,7 @@ export function RenderedTable<T>({
   cellClassName,
   className,
   onFetchExportData,
+  ...props
 }: PropsType<T>) {
   const [_selected, _setSelected] = useState<T[]>(selection || []);
   const parentRef = useRef<HTMLDivElement>(null);
@@ -432,65 +435,32 @@ export function RenderedTable<T>({
                 </td>
               </tr>
             )}
-            {!!grid && (
-              <tr>
-                <td className="grid gap-4 grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-                  {data.map((row, i) => {
-                    if (onSelect && !rowIndex)
-                      throw new Error(
-                        "rowIndex is required when onSelect is defined"
-                      );
-                    const isSelected = selected
-                      .map((a) => (a as any)[rowIndex || "id"])
-                      .includes((row as any)[rowIndex || "id"]);
-                    return (
-                      <div
-                        key={i}
-                        className={
-                          "flex flex-row items-center " +
-                          (columns[0].className || "")
-                        }
-                      >
-                        {onSelect && (
-                          <Checkbox
-                            className="mr-2"
-                            value={isSelected}
-                            onChange={(a, e) => onClickCheckbox(row, a, e)}
-                          />
-                        )}
-                        <div
-                          className={
-                            "w-full " +
-                            (isSelected
-                              ? " bg-slate-200 dark:bg-slate-950 "
-                              : " bg-slate-200 dark:bg-slate-700 ") +
-                            (onClick
-                              ? "cursor-pointer hover:bg-opacity-75 "
-                              : "") +
-                            (cellClassName?.(row) || "")
-                          }
-                          onClick={(e) => onClick && onClick(row, e as any)}
+            {data.map((row, i) => {
+              if (onSelect && !rowIndex)
+                throw new Error(
+                  "rowIndex is required when onSelect is defined"
+                );
+              const isSelected = selected
+                .map((a) => (a as any)[rowIndex || "id"])
+                .includes((row as any)[rowIndex || "id"]);
+              const iFirst = i === 0;
+              const iLast = i === data.length - 1;
+              return (
+                <>
+                  {props.groupBy &&
+                    _.get(data?.[i] || {}, props.groupBy) !==
+                      _.get(data?.[i - 1] || {}, props.groupBy) && (
+                      <tr>
+                        <td
+                          colSpan={columns.length + 1}
+                          className="bg-slate-100 border-b bg-opacity-75 border-b border-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:border-slate-700 pl-8 py-1"
                         >
-                          {columns[0].render(row, { responsive: false })}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </td>
-              </tr>
-            )}
-            {!grid &&
-              data.map((row, i) => {
-                if (onSelect && !rowIndex)
-                  throw new Error(
-                    "rowIndex is required when onSelect is defined"
-                  );
-                const isSelected = selected
-                  .map((a) => (a as any)[rowIndex || "id"])
-                  .includes((row as any)[rowIndex || "id"]);
-                const iFirst = i === 0;
-                const iLast = i === data.length - 1;
-                return (
+                          {props.groupByRender?.(row) ||
+                            _.get(row, props.groupBy)}
+                        </td>
+                      </tr>
+                    )}
+
                   <tr
                     key={i}
                     onClick={(e) => onClick && onClick(row, e as any)}
@@ -570,8 +540,9 @@ export function RenderedTable<T>({
                         );
                       })}
                   </tr>
-                );
-              })}
+                </>
+              );
+            })}
           </tbody>
           {!!pagination && showPagination && (!loading || !!data.length) && (
             <tfoot>

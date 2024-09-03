@@ -79,7 +79,7 @@ export const InputCounter = (props: {
       )}
       <Input
         size={size}
-        className="min-w-[25%] !border-wood-500 !border !border-solid px-0 text-center -mx-px"
+        className="min-w-[25%] !border-slate-500 !border !border-solid px-0 text-center -mx-px"
         type="number"
         pattern="[0-9]*"
         value={value}

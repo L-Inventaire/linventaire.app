@@ -22,7 +22,7 @@ export default function IconStep(props: IconStepProps) {
   return (
     <div className={"flex " + (props.className || "")}>
       <div className="w-8">
-        <div className="flex items-center bg-wood-100 dark:bg-wood-700 rounded-full p-1 inline-block">
+        <div className="flex items-center bg-slate-100 dark:bg-slate-700 rounded-full p-1 inline-block">
           <div className=" w-6 h-6">
             <Transition
               show={isRefreshed}
@@ -37,7 +37,7 @@ export default function IconStep(props: IconStepProps) {
               {!!isRefreshed && (
                 <>
                   {_.isString(props.icon) ? (
-                    <div className="text-wood-400 font-semibold m-auto text-center mt-1">
+                    <div className="text-slate-400 font-semibold m-auto text-center mt-1">
                       {props.icon}
                     </div>
                   ) : (

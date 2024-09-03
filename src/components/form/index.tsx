@@ -230,7 +230,7 @@ export const SearchForm = (props: FiltersProps) => {
       )}
 
       {advancedFilters && (
-        <div className="p-4 pb-6 bg-wood-100 dark:bg-wood-950 border mt-4 flex flex-col space-y-4">
+        <div className="p-4 pb-6 bg-slate-100 dark:bg-slate-950 border mt-4 flex flex-col space-y-4">
           {!!display?.advanced?.default?.length && (
             <DynamicGrid className="grid gap-4">
               {(display?.advanced?.default || []).map((key) => (

@@ -1,6 +1,6 @@
 import { useFormController } from "@components/form/formcontext";
 import { useNavigationPrompt } from "@features/utils/use-navigation-prompt";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { atomFamily, useRecoilState } from "recoil";
 import { useRest } from "./use-rest";
 
@@ -55,26 +55,33 @@ export const useDraftRest = <T extends { id: string }>(
     // user to load it back -> JSON.parse(localStorage.getItem("drafts_" + key.join("_")) || "{}"
     // 2/ Auto loading draft at loading page is great when reloading page but not when navigating from button "create new"
     // Maybe we can detect if it's a reload or not ?
-    if (defaultValue) setDraft(defaultValue as T);
+    if (defaultValue && !items.isPending) {
+      setDraft(defaultValue as T);
+    }
     setDefaultWasSet(true);
-  }, [JSON.stringify(defaultValue)]);
+  }, [JSON.stringify(defaultValue), items.isPending]);
 
   useEffect(() => {
     if (existingItem && (draft.id !== existingItem.id || readonly)) {
       setDraft(existingItem);
     }
-  }, [existingItem]);
+  }, [existingItem, draft.id]);
 
-  const save = async () => {
-    try {
-      setLockNavigation(false);
-      const newItem = await upsert.mutateAsync(draft);
-      await onSaved(newItem);
-    } catch (e) {
-      setLockNavigation(true);
-      console.error(e);
-    }
-  };
+  const save = useCallback(
+    async (mutation: Partial<T> = {}) => {
+      try {
+        setLockNavigation(false);
+        const newItem = await upsert.mutateAsync({ ...draft, ...mutation });
+        await onSaved(newItem);
+        return newItem;
+      } catch (e) {
+        setLockNavigation(true);
+        console.error(e);
+      }
+      return null;
+    },
+    [draft, upsert.mutateAsync, onSaved]
+  );
 
   return {
     save,

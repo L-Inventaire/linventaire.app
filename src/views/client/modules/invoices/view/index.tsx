@@ -9,6 +9,7 @@ import { Page } from "@views/client/_layout/page";
 import { useParams } from "react-router-dom";
 import { InvoicesDetailsPage } from "../components/invoices-details";
 import { getPdfPreview } from "../components/invoices-preview/invoices-preview";
+import { InvoiceActions } from "../components/invoice-actions";
 
 export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
@@ -16,7 +17,7 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
 
   if (!invoice)
     return (
-      <div className="flex justify-center items-center h-full w-full dark:bg-wood-990 bg-white">
+      <div className="flex justify-center items-center h-full w-full dark:bg-slate-990 bg-white">
         <PageLoader />
       </div>
     );
@@ -30,6 +31,7 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
         },
         { label: invoice.reference || "" },
       ]}
+      footer={<InvoiceActions id={id} readonly={true} />}
       bar={
         <DocumentBar
           loading={isPending && !invoice}
@@ -38,7 +40,7 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
           mode={"read"}
           backRoute={getRoute(ROUTES.Invoices, { type: invoice.type })}
           editRoute={ROUTES.InvoicesEdit}
-          onPrint={async () => getPdfPreview()}
+          onPrint={async () => getPdfPreview(invoice)}
           suffix={
             <>
               {invoice.type === "quotes" && (
@@ -58,7 +60,7 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
                       }
                     )}
                   >
-                    Créer une commande
+                    Démarrer une commande
                   </Button>
                   <Button
                     size="sm"
@@ -88,9 +90,7 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
                   theme="outlined"
                   shortcut={["shift+a"]}
                   disabled={
-                    !["accounted", "paid", "partial_paid"].includes(
-                      invoice.state
-                    )
+                    !["sent", "paid", "partial_paid"].includes(invoice.state)
                   }
                   to={withModel(getRoute(ROUTES.InvoicesEdit, { id: "new" }), {
                     ...invoice,

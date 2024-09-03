@@ -1,3 +1,4 @@
+import { twMerge } from "tailwind-merge";
 import { SectionSmall } from "./text";
 
 export const Alert = (props: {
@@ -20,10 +21,10 @@ export const Alert = (props: {
 
   return (
     <div
-      className={
-        `text-${textColor} bg-${color} p-4 flex items-center rounded-md ` +
+      className={twMerge(
+        `text-${textColor} bg-${color} p-4 flex items-center rounded-md `,
         props.className
-      }
+      )}
     >
       <div className="flex items-center h-full" style={{ minHeight: 48 }}>
         <div className="flex-shrink-0">

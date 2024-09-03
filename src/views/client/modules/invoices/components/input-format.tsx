@@ -31,6 +31,7 @@ export const InvoiceInputFormat = ({
     : true;
   return (
     <InputButton
+      readonly={readonly}
       btnKey={btnKey}
       className={hasContent ? "w-full justify-start" : ""}
       data-tooltip="Format et langue par défaut"

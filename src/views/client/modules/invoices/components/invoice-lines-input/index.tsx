@@ -4,6 +4,8 @@ import { Card } from "@atoms/card";
 import { Base, Info, SectionSmall } from "@atoms/text";
 import { FormControllerFuncType } from "@components/form/formcontext";
 import { InputButton } from "@components/input-button";
+import { FilesInput } from "@components/input-rest/files";
+import { Invoices } from "@features/invoices/types/types";
 import { formatAmount } from "@features/utils/format/strings";
 import {
   PaperClipIcon,
@@ -12,14 +14,9 @@ import {
 } from "@heroicons/react/20/solid";
 import _ from "lodash";
 import { Fragment, useRef } from "react";
-import { DropInvoiceLine, InvoiceLineInput } from "./invoice-line-input";
-import { Invoices } from "@features/invoices/types/types";
 import { twMerge } from "tailwind-merge";
 import { InvoiceDiscountInput } from "./components/discount-input";
-import { FormInput } from "@components/form/fields";
-import { tvaOptions } from "@features/utils/constants";
-import { FilesInput } from "@components/input-rest/files";
-import { getTvaValue } from "../../utils";
+import { DropInvoiceLine, InvoiceLineInput } from "./invoice-line-input";
 
 export const InvoiceLinesInput = ({
   onChange,
@@ -60,15 +57,17 @@ export const InvoiceLinesInput = ({
       >
         Votre facture ne contient aucune ligne, ajoutez-en une pour continuer.
         <br />
-        <Button
-          className="my-2"
-          theme="outlined"
-          size="md"
-          icon={(p) => <PlusIcon {...p} />}
-          onClick={addLine}
-        >
-          Ajouter une ligne
-        </Button>
+        {!readonly && (
+          <Button
+            className="my-2"
+            theme="outlined"
+            size="sm"
+            icon={(p) => <PlusIcon {...p} />}
+            onClick={addLine}
+          >
+            Ajouter une ligne
+          </Button>
+        )}
       </Card>
 
       <div className="mb-2">
@@ -188,55 +187,26 @@ export const InvoiceLinesInput = ({
 
       <AnimatedHeight>
         {!!value?.content?.length && (
-          <>
+          <div className="text-right">
             <div
               className={twMerge(
                 "space-x-2 text-right",
-                !readonly || value.discount?.value ? "mb-8" : "mb-2"
+                !readonly || value.discount?.value ? "mb-4" : "mb-0"
               )}
             >
               {!readonly && (
                 <Button
-                  data-tooltip="Ajouter des documents"
+                  className="m-0"
+                  data-tooltip="Documents à joindre à la facture"
                   theme="invisible"
-                  size="md"
+                  size="sm"
                   icon={(p) => <PaperClipIcon {...p} />}
                   onClick={refTriggerUploadFile.current}
                 />
               )}
-              {_.uniq((value.content || []).map((a) => a.tva)).length === 1 && (
-                <InputButton
-                  size="md"
-                  label="TVA commune"
-                  content={
-                    <FormInput
-                      label="TVA"
-                      options={tvaOptions}
-                      value={value.content?.[0].tva}
-                      onChange={(tva) => {
-                        onChange({
-                          ...value,
-                          content: (value.content || []).map((a) => ({
-                            ...a,
-                            tva,
-                          })),
-                        });
-                      }}
-                    />
-                  }
-                  value={"always"}
-                >
-                  TVA{" "}
-                  {tvaOptions.find((v) => v.value === value.content?.[0].tva)
-                    ?.label ||
-                    (getTvaValue(value.content?.[0]?.tva || "0")
-                      ? getTvaValue(value.content?.[0]?.tva || "0") * 100 + "%"
-                      : "Aucune")}
-                </InputButton>
-              )}
               {(!readonly || value.discount?.value) && (
                 <InputButton
-                  size="md"
+                  size="sm"
                   label="Réduction globale"
                   empty="Pas de réduction globale"
                   placeholder="Options"
@@ -250,7 +220,7 @@ export const InvoiceLinesInput = ({
                   value={ctrl("discount").value}
                 >
                   {"- "}
-                  {ctrl("discount").value ? (
+                  {(ctrl("discount.value").value || 0) > 0 ? (
                     <>
                       {value.discount?.mode === "amount"
                         ? formatAmount(value.discount?.value)
@@ -263,7 +233,7 @@ export const InvoiceLinesInput = ({
               {!readonly && (
                 <Button
                   theme="outlined"
-                  size="md"
+                  size="sm"
                   icon={(p) => <PlusIcon {...p} />}
                   onClick={addLine}
                 >
@@ -271,40 +241,44 @@ export const InvoiceLinesInput = ({
                 </Button>
               )}
             </div>
-            <div className="flex border border-slate-50 dark:border-slate-800 p-2 float-right rounded-md">
-              <div className="grow" />
-              <Base>
-                <div className="space-y-2 min-w-64 block">
-                  <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
-                    <span>Total HT</span>
-                    {formatAmount(value.total?.initial || 0)}
+            <div className="flex justify-end">
+              <div className="flex border border-slate-50 dark:border-slate-800 w-max p-2 rounded-md inline-block">
+                <div className="grow" />
+                <Base>
+                  <div className="space-y-2 min-w-64 block">
+                    <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
+                      <span>Total HT</span>
+                      {formatAmount(value.total?.initial || 0)}
+                    </div>
+                    {!!(value.total?.discount || 0) && (
+                      <>
+                        <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
+                          <span>Remise</span>
+                          <span>
+                            {formatAmount(value.total?.discount || 0)}
+                          </span>
+                        </div>
+                        <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
+                          <span>Total HT après remise</span>
+                          <span>{formatAmount(value.total?.total || 0)}</span>
+                        </div>
+                      </>
+                    )}
+                    <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
+                      <span>TVA</span>
+                      {formatAmount(value.total?.taxes || 0)}
+                    </div>
+                    <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
+                      <SectionSmall className="inline">Total TTC</SectionSmall>
+                      <SectionSmall className="inline">
+                        {formatAmount(value.total?.total_with_taxes || 0)}
+                      </SectionSmall>
+                    </div>
                   </div>
-                  {!!(value.total?.discount || 0) && (
-                    <>
-                      <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
-                        <span>Remise</span>
-                        <span>{formatAmount(value.total?.discount || 0)}</span>
-                      </div>
-                      <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
-                        <span>Total HT après remise</span>
-                        <span>{formatAmount(value.total?.total || 0)}</span>
-                      </div>
-                    </>
-                  )}
-                  <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
-                    <span>TVA</span>
-                    {formatAmount(value.total?.taxes || 0)}
-                  </div>
-                  <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
-                    <SectionSmall className="inline">Total TTC</SectionSmall>
-                    <SectionSmall className="inline">
-                      {formatAmount(value.total?.total_with_taxes || 0)}
-                    </SectionSmall>
-                  </div>
-                </div>
-              </Base>
+                </Base>
+              </div>
             </div>
-          </>
+          </div>
         )}
       </AnimatedHeight>
     </>

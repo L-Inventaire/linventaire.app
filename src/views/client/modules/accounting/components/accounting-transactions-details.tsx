@@ -108,7 +108,7 @@ export const AccountingTransactionsDetailsPage = ({
               "supplier_invoices",
               "supplier_credit_notes",
             ] as any,
-            state: ["partial_paid", "sent", "accounted"] as any,
+            state: ["partial_paid", "sent"] as any,
           }}
         />
 

@@ -39,6 +39,7 @@ export const InvoiceDiscountInput = (props: {
               onChange!({
                 ...value,
                 value: e,
+                mode: ctrl("mode").value || "percentage",
               });
             } else {
               onChange!(undefined);

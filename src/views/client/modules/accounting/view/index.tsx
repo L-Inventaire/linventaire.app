@@ -16,7 +16,7 @@ export const AccountingTransactionsViewPage = (_props: {
 
   if (!item)
     return (
-      <div className="flex justify-center items-center h-full w-full dark:bg-wood-990 bg-white">
+      <div className="flex justify-center items-center h-full w-full dark:bg-slate-990 bg-white">
         <PageLoader />
       </div>
     );

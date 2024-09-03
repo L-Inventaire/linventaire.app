@@ -10,8 +10,8 @@ interface TabsProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 const defaultTabClassName =
-  " text-sm cursor-pointer h-10 px-3 flex items-center border-b-2 border-transparent hover:text-wood-500 transition-colors";
-const activeTabClassName = " text-wood-400 border-wood-400 ";
+  " text-sm cursor-pointer h-10 px-3 flex items-center border-b-2 border-transparent hover:text-slate-500 transition-colors";
+const activeTabClassName = " text-slate-400 border-slate-400 ";
 const inactiveTabClassName = " text-slate-500 ";
 
 export default function Tabs(props: TabsProps) {

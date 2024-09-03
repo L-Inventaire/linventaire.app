@@ -36,7 +36,7 @@ registerCtrlKRestEntity<Articles>("articles", {
       render: (article) => (
         <>
           {!!article.internal_reference && (
-            <span className="font-mono mr-2 text-wood-800 dark:text-wood-500">
+            <span className="font-mono mr-2 text-slate-800 dark:text-slate-500">
               {article.internal_reference}
             </span>
           )}

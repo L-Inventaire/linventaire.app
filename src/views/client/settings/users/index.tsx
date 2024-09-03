@@ -68,7 +68,15 @@ export const CompanyUsersPage = () => {
             placeholder="Rôles"
             value={updatingRoles}
             onChange={(e) => setUpdatingRoles(e)}
-            options={getRoles()}
+            options={getRoles().filter(
+              (a) =>
+                a.value.includes("CLIENT_MANAGE") ||
+                a.value.includes("CONTACTS") ||
+                a.value.includes("ARTICLES") ||
+                a.value.includes("STOCK") ||
+                a.value.includes("INVOICES") ||
+                a.value.includes("ONSITE")
+            )}
           />
           <Button
             className="mt-4"
@@ -124,7 +132,15 @@ export const CompanyUsersPage = () => {
                   placeholder="Rôles"
                   value={inviteesRoles}
                   onChange={(e) => setInviteesRoles(e)}
-                  options={getRoles()}
+                  options={getRoles().filter(
+                    (a) =>
+                      a.value.includes("CLIENT_MANAGE") ||
+                      a.value.includes("CONTACTS") ||
+                      a.value.includes("ARTICLES") ||
+                      a.value.includes("STOCK") ||
+                      a.value.includes("INVOICES") ||
+                      a.value.includes("ONSITE")
+                  )}
                 />
                 <Button
                   disabled={!invitedEmails.length}
@@ -342,10 +358,27 @@ const roleSumary = (roles: Role[]) => {
     .join(" - ");
 };
 
+const RolesNames: any = {
+  CLIENT_MANAGE: "Administrateur",
+  CONTACTS: "Contacts",
+  ARTICLES: "Articles",
+  STOCK: "Stock et réceptions",
+  INVOICES: "Factures, devis et avoirs",
+  ONSITE: "Interventions",
+  MANAGE: "Administration",
+  WRITE: "Lecture et modifications",
+  READ: "Lecture",
+};
+
 const getRoles = () =>
   _.flatMap(
     Roles.map((level) => ({
       value: level,
-      label: level,
+      label:
+        RolesNames[level] ||
+        (RolesNames[level.split("_")[0]]
+          ? RolesNames[level.split("_")[0]] +
+            ` (${RolesNames[level.split("_")[1]]})`
+          : level),
     }))
   );

@@ -47,6 +47,27 @@ export const InputButton = <T,>(props: InputButtonProps<T>) => {
     if (props.autoFocus) setOpen(true);
   }, []);
 
+  if (props.readonly) {
+    return (
+      <div
+        className={twMerge(
+          "h-max whitespace-normal py-0.5 text-opacity-100 text-black flex items-center",
+          props.className
+        )}
+      >
+        {props.icon && props.icon({ className: "mr-2 w-4 h-4 shrink-0" })}
+        {props.value !== "" && (
+          <AnimatedHeight>
+            {!value && (
+              <Info>{props.empty || props.label || props.placeholder}</Info>
+            )}
+            {!!value && (props.children || value)}
+          </AnimatedHeight>
+        )}
+      </div>
+    );
+  }
+
   return (
     <>
       <Button
@@ -65,7 +86,10 @@ export const InputButton = <T,>(props: InputButtonProps<T>) => {
           setOpen(true);
         }}
         readonly={disabled}
-        className={twMerge("h-max whitespace-normal py-0.5", props.className)}
+        className={twMerge(
+          "h-max whitespace-normal py-[5.5px] text-opacity-100 cursor-pointer",
+          props.className
+        )}
       >
         {props.value !== "" && (
           <AnimatedHeight>

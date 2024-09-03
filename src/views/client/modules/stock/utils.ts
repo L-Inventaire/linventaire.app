@@ -22,13 +22,14 @@ export const computePricesFromInvoice = (
     let itemsDiscount = 0;
     if (item.discount?.mode === "percentage") {
       itemsDiscount =
-        itemsPrice * (parseFloat(item.discount.value as any) / 100);
+        (itemsPrice + itemsPrice * getTvaValue(item.tva || "")) *
+        (parseFloat(item.discount.value as any) / 100);
     } else if (item.discount?.mode === "amount") {
       itemsDiscount = parseFloat(item.discount.value as any);
     }
     initial += itemsPrice;
     discount += itemsDiscount;
-    taxes += (itemsPrice - itemsDiscount) * getTvaValue(item.tva || "");
+    taxes += itemsPrice * getTvaValue(item.tva || "");
   });
 
   if (invoice.discount?.mode === "percentage") {

@@ -22,9 +22,12 @@ export const InvoiceStatus = ({
 
   const statusName = {
     draft: "Brouillon",
-    sent: type === "quotes" ? "Envoyé" : "Demande au fournisseur",
+    sent:
+      type === "quotes" || type === "invoices" || type === "credit_notes"
+        ? "Envoyé"
+        : "Demandé",
     accounted: "Comptabilisé",
-    purchase_order: type === "quotes" ? "Bon de commande" : "Commandé",
+    purchase_order: type === "quotes" ? "Accepté" : "Commandé",
     partial_paid: "Paiment partiel",
     paid: "Payé",
     closed: "Fermé",
@@ -44,12 +47,8 @@ export const InvoiceStatus = ({
 
   const statusPerTypeGrouped = {
     quotes: [["draft"], ["sent"], ["purchase_order", "closed", "completed"]],
-    invoices: [["draft"], ["accounted"], ["paid", "partial_paid", "closed"]],
-    credit_notes: [
-      ["draft"],
-      ["accounted"],
-      ["paid", "partial_paid", "closed"],
-    ],
+    invoices: [["draft"], ["sent"], ["paid", "partial_paid", "closed"]],
+    credit_notes: [["draft"], ["sent"], ["paid", "partial_paid", "closed"]],
     supplier_quotes: [
       ["draft"],
       ["sent"],
@@ -57,12 +56,12 @@ export const InvoiceStatus = ({
     ],
     supplier_invoices: [
       ["draft"],
-      ["accounted"],
+      ["sent"],
       ["paid", "partial_paid", "closed"],
     ],
     supplier_credit_notes: [
       ["draft"],
-      ["accounted"],
+      ["sent"],
       ["paid", "partial_paid", "closed"],
     ],
   };

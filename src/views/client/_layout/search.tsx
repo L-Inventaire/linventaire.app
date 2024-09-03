@@ -17,7 +17,7 @@ export const Search = () => {
   return (
     <div className="md:relative z-10 w-full">
       <InputDecorationIcon
-        className="w-full relative z-20"
+        className="w-full relative z-20 whitespace-nowrap"
         prefix={(p) => <MagnifyingGlassIcon {...p} />}
         suffix={(p) => (
           <Info className={p.className + " mr-1"}>
@@ -37,23 +37,24 @@ export const Search = () => {
           />
         )}
       />
-      <Button
-        btnRef={buttonRef}
-        className="hidden"
-        shortcut={["cmd+k"]}
-        onClick={() => {
-          openCtrlK((state) => ({
-            ...state,
-            path: [
-              {
-                mode: "action",
-              },
-            ],
-          }));
-        }}
-      >
-        .
-      </Button>
+      <div className="hidden">
+        <Button
+          btnRef={buttonRef}
+          shortcut={["cmd+k"]}
+          onClick={() => {
+            openCtrlK((state) => ({
+              ...state,
+              path: [
+                {
+                  mode: "action",
+                },
+              ],
+            }));
+          }}
+        >
+          .
+        </Button>
+      </div>
     </div>
   );
 };

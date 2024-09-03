@@ -52,12 +52,13 @@ export const AnimatedHeight = memo(
       }
     }, [props.trigger, updateSize]);
     return (
-      <div className="transition-all px-1 -mx-1">
+      <div className="transition-all p-1 -m-1">
         <div
           {..._.omit(props, "children", "trigger")}
           ref={el}
           style={{
             boxSizing: "border-box",
+            paddingBottom: "0.5rem",
           }}
         >
           {props.children}

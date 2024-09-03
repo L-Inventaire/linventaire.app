@@ -9,6 +9,7 @@ export const Checkbox = (props: {
   size?: "sm" | "md";
   className?: string;
   disabled?: boolean;
+  icon?: (p: { className: string }) => React.ReactNode;
 }) => {
   const renderSwitch = () => {
     const className = props.className || "";
@@ -18,11 +19,11 @@ export const Checkbox = (props: {
         className={twMerge(
           "overflow-hidden transition-all shrink-0 flex justify-center items-center border rounded text-white " +
             (props.value
-              ? "border-wood-400 bg-wood-400 hover:border-wood-500 hover:bg-wood-500"
-              : "border-wood-200 bg-slate-50 dark:bg-slate-800 dark:border-slate-700 " +
+              ? "border-blue-600 bg-blue-600 hover:border-blue-500 hover:bg-blue-500"
+              : "border-blue-200 bg-blue-50 dark:bg-blue-800 dark:border-blue-700 " +
                 (props.disabled
                   ? ""
-                  : "hover:border-wood-200 dark:hover:border-slate-600")) +
+                  : "hover:border-slate-200 dark:hover:border-slate-600")) +
             " " +
             (props.disabled ? "opacity-50" : "cursor-pointer"),
           className,
@@ -35,12 +36,21 @@ export const Checkbox = (props: {
           props.onChange(!props.value, e as React.MouseEvent<HTMLInputElement>)
         }
       >
-        <CheckIcon
-          className={twMerge(
-            "m-icon-small translate-y-full transition-all",
-            props.value && "translate-y-0"
-          )}
-        />
+        {!props.icon && (
+          <CheckIcon
+            className={twMerge(
+              "m-icon-small translate-y-full transition-all",
+              props.value && "translate-y-0"
+            )}
+          />
+        )}
+        {!!props.icon &&
+          props.icon({
+            className: twMerge(
+              "w-4 h-4 translate-y-full transition-all",
+              props.value && "translate-y-0"
+            ),
+          })}
       </div>
     );
   };

@@ -11,6 +11,7 @@ import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
 import { buildQueryFromMap } from "@components/search-bar/utils/utils";
 import { useAccountingTransactions } from "@features/accounting/hooks/use-accounting-transactions";
+import { AccountingTransactions } from "@features/accounting/types/types";
 import { useClients } from "@features/clients/state/use-clients";
 import { useContact } from "@features/contacts/hooks/use-contacts";
 import { Contacts } from "@features/contacts/types/types";
@@ -23,16 +24,15 @@ import { getFormattedNumerotation } from "@features/utils/format/numerotation";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import {
   BuildingStorefrontIcon,
-  DocumentTextIcon,
   EnvelopeIcon,
   UserIcon,
 } from "@heroicons/react/20/solid";
 import { EditorInput } from "@molecules/editor-input";
 import { Table } from "@molecules/table";
+import { Callout, Code, Text } from "@radix-ui/themes";
 import { PageColumns } from "@views/client/_layout/page";
 import _ from "lodash";
 import { Fragment, useEffect } from "react";
-import { twMerge } from "tailwind-merge";
 import { computePricesFromInvoice } from "../utils";
 import { InputDelivery } from "./input-delivery";
 import { InvoiceInputFormat } from "./input-format";
@@ -43,9 +43,7 @@ import { InvoiceLinesInput } from "./invoice-lines-input";
 import { CompletionTags } from "./invoice-lines-input/components/completion-tags";
 import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-card";
 import { InvoiceStatus } from "./invoice-status";
-import { InvoicesPreview } from "./invoices-preview/invoices-preview";
 import { RelatedInvoices } from "./related-invoices";
-import { AccountingTransactions } from "@features/accounting/types/types";
 
 export const computeCompletion = (
   linesu: Invoices["content"],
@@ -116,12 +114,6 @@ export const InvoicesDetailsPage = ({
     (draft.client && !isSupplierRelated) ||
     (draft.supplier && isSupplierRelated);
 
-  const hasPreview =
-    document.location.origin.includes("localhost") &&
-    hasClientOrSupplier &&
-    !isSupplierInvoice &&
-    !isSupplierQuote;
-
   useEffect(() => {
     if (!isPending && draft)
       setDraft((draft: Invoices) => {
@@ -182,7 +174,7 @@ export const InvoicesDetailsPage = ({
           />
         ),
         visible: !isSupplierRelated,
-        complete: draft.payment_information.mode?.length,
+        complete: draft.payment_information?.mode?.length,
       },
       {
         component: (
@@ -227,35 +219,89 @@ export const InvoicesDetailsPage = ({
     }
   );
 
+  const billableContent = (draft.content || []).filter(
+    (a) => a.unit_price && a.quantity && !(a.optional && !a.optional_checked)
+  );
+
   return (
     <>
       <FormContext readonly={readonly} alwaysVisible>
         <PageColumns>
           <div className="grow" />
           <div className="grow lg:w-3/5 max-w-3xl pt-6">
-            <div className="float-right mb-2">
+            {readonly && draft.state === "draft" && (
+              <Callout.Root className="mb-4">
+                <Callout.Text>
+                  Ce document est un <Text weight="bold">brouillon</Text>.
+                </Callout.Text>
+              </Callout.Root>
+            )}
+
+            {readonly && draft.state === "sent" && isQuoteRelated && (
+              <Callout.Root className="mb-4" color="blue">
+                <Callout.Text>
+                  Le devis a été envoyé au client et est{" "}
+                  <Text weight="bold">en attente d'acceptation</Text>.
+                </Callout.Text>
+              </Callout.Root>
+            )}
+
+            {readonly && draft.state === "purchase_order" && isQuoteRelated && (
+              <Callout.Root className="mb-4" color="green">
+                <Callout.Text>Le devis a été accepté part client</Callout.Text>
+              </Callout.Root>
+            )}
+
+            <div className="mb-2">
               <InvoiceStatus
-                readonly={readonly}
-                size="lg"
+                readonly={true}
+                size="sm"
                 value={draft.state}
                 type={draft.type}
                 onChange={(value) => setDraft({ ...draft, state: value })}
               />
             </div>
-            <Section>
-              {getDocumentName(draft.type) +
-                " " +
-                ctrl("reference").value +
-                (ctrl("name").value ? ` (${ctrl("name").value})` : "")}
-              <div className="inline-block ml-2">
-                <CompletionTags
-                  size="sm"
-                  invoice={draft}
-                  lines={draft.content}
-                />
-              </div>
+            <div className="float-right space-x-2">
+              <TagsInput ctrl={ctrl("tags")} />
+              <UsersInput ctrl={ctrl("assigned")} />
+            </div>
+            <Section className="flex items-center space-x-2">
+              <span>
+                {getDocumentName(draft.type) + " " + ctrl("reference").value}
+              </span>
+
+              {(!readonly || ctrl("emit_date").value) && (
+                <InputButton
+                  theme="invisible"
+                  className="m-0"
+                  data-tooltip={new Date(
+                    ctrl("emit_date").value
+                  ).toDateString()}
+                  ctrl={ctrl("emit_date")}
+                  placeholder="Date d'emission"
+                  value={formatTime(ctrl("emit_date").value || 0)}
+                  content={<FormInput ctrl={ctrl("emit_date")} type="date" />}
+                  readonly={readonly}
+                >
+                  <Text size="2" className="opacity-75" weight="medium">
+                    {"Émis le "}
+                    {formatTime(ctrl("emit_date").value || 0, {
+                      hideTime: true,
+                    })}
+                  </Text>
+                </InputButton>
+              )}
             </Section>
-            <div className="space-y-2 mb-6">
+            {(!readonly || ctrl("name").value) && (
+              <InputButton
+                theme="invisible"
+                size="sm"
+                className="-mx-1 px-1 -mt-2"
+                ctrl={ctrl("name")}
+                placeholder="Titre interne"
+              />
+            )}
+            <div className="space-y-2 mb-6 mt-4">
               <PageColumns>
                 {!isSupplierInvoice && !isSupplierQuote && (
                   <>
@@ -290,43 +336,21 @@ export const InvoicesDetailsPage = ({
                   />
                 )}
               </PageColumns>
-              {hasClientOrSupplier && (
-                <>
-                  <PageColumns>
-                    {(!readonly || ctrl("emit_date").value) && (
-                      <InputButton
-                        data-tooltip={new Date(
-                          ctrl("emit_date").value
-                        ).toDateString()}
-                        ctrl={ctrl("emit_date")}
-                        placeholder="Date d'emission"
-                        value={formatTime(ctrl("emit_date").value || 0)}
-                        content={
-                          <FormInput ctrl={ctrl("emit_date")} type="date" />
-                        }
-                      >
-                        {"Émis le "}
-                        {formatTime(ctrl("emit_date").value || 0, {
-                          hideTime: true,
-                        })}
-                      </InputButton>
-                    )}
-                    {(!readonly || ctrl("name").value) && (
-                      <InputButton
-                        ctrl={ctrl("name")}
-                        placeholder="Titre interne"
-                        icon={(p) => <DocumentTextIcon {...p} />}
-                      />
-                    )}
-                    <TagsInput ctrl={ctrl("tags")} />
-                    <UsersInput ctrl={ctrl("assigned")} />
-                  </PageColumns>
-                </>
-              )}
             </div>
             {hasClientOrSupplier && (
               <>
-                <Section className="mb-2">Contenu</Section>
+                <Section className="mb-2">
+                  Contenu <Code>{billableContent.length}</Code>
+                  {!!billableContent?.length && isQuoteRelated && (
+                    <div className="inline-block float-right">
+                      <CompletionTags
+                        size="sm"
+                        invoice={draft}
+                        lines={draft.content}
+                      />
+                    </div>
+                  )}
+                </Section>
                 <InvoiceLinesInput
                   ctrl={ctrl}
                   readonly={readonly}
@@ -334,135 +358,129 @@ export const InvoicesDetailsPage = ({
                   onChange={setDraft}
                 />
 
-                {!!otherInputs.length && (
-                  <div className="mt-8">
-                    <Section className="mb-2">Autre</Section>
-                    <div className="m-grid-1">
-                      {otherInputs.map((a, i) => (
-                        <Fragment key={i}>
-                          {i !== 0 &&
-                            !a.complete &&
-                            otherInputs[i - 1].complete && <br />}
-                          {a.component}
-                        </Fragment>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {!isQuoteRelated && readonly && (
-                  <div className="mt-8">
-                    {!isQuoteRelated && readonly && (
-                      <div className="float-right">
-                        <Button
-                          size="sm"
-                          onClick={() =>
-                            edit<AccountingTransactions>(
-                              "accounting_transactions",
-                              "",
-                              {
-                                rel_invoices: [draft.id],
-                                currency: draft.currency,
-                                amount: draft.total?.total_with_taxes || 0,
-                                reference: draft.reference,
-                              }
-                            )
-                          }
-                        >
-                          Enregistrer un paiement
-                        </Button>
+                {billableContent.length > 0 && (
+                  <>
+                    {!!otherInputs.length && (
+                      <div className="mt-8">
+                        <Section className="mb-2">Autre</Section>
+                        <div className="m-grid-1">
+                          {otherInputs.map((a, i) => (
+                            <Fragment key={i}>
+                              {i !== 0 &&
+                                !a.complete &&
+                                !!otherInputs[i - 1].complete && <br />}
+                              {a.component}
+                            </Fragment>
+                          ))}
+                        </div>
                       </div>
                     )}
-                    <Section className="mb-2">Paiements</Section>
-                    <Table
-                      data={accounting_transactions.data?.list || []}
-                      columns={
-                        CtrlKRestEntities["accounting_transactions"]
-                          .renderResult as any
-                      }
-                    />
-                  </div>
-                )}
 
-                {!readonly && !isQuoteRelated && (
-                  <div className="mt-8">
-                    <Section className="mb-2">Origine</Section>
-                    <InvoiceRestDocument
-                      label="Devis d'origine"
-                      ctrl={ctrl("from_rel_quote")}
-                      filter={{ type: "quotes" } as Partial<Invoices>}
-                      size="xl"
-                      max={1}
-                    />
-                  </div>
-                )}
+                    {!isQuoteRelated && readonly && (
+                      <div className="mt-8">
+                        {!isQuoteRelated && readonly && (
+                          <div className="float-right">
+                            <Button
+                              size="sm"
+                              onClick={() =>
+                                edit<AccountingTransactions>(
+                                  "accounting_transactions",
+                                  "",
+                                  {
+                                    rel_invoices: [draft.id],
+                                    currency: draft.currency,
+                                    amount: draft.total?.total_with_taxes || 0,
+                                    reference: draft.reference,
+                                  }
+                                )
+                              }
+                            >
+                              Enregistrer un paiement
+                            </Button>
+                          </div>
+                        )}
+                        <Section className="mb-2">Paiements</Section>
+                        <Table
+                          data={accounting_transactions.data?.list || []}
+                          columns={
+                            CtrlKRestEntities["accounting_transactions"]
+                              .renderResult as any
+                          }
+                        />
+                      </div>
+                    )}
 
-                {readonly && (
-                  <RelatedInvoices
-                    invoice={draft}
-                    className="mt-8"
-                    readonly={readonly}
-                    onPartialInvoice={() => {}}
-                  />
-                )}
+                    {!readonly && !isQuoteRelated && (
+                      <div className="mt-8">
+                        <Section className="mb-2">Origine</Section>
+                        <InvoiceRestDocument
+                          label="Devis d'origine"
+                          ctrl={ctrl("from_rel_quote")}
+                          filter={{ type: "quotes" } as Partial<Invoices>}
+                          size="xl"
+                          max={1}
+                        />
+                      </div>
+                    )}
 
-                <CustomFieldsInput
-                  className="mt-8"
-                  table={"invoices"}
-                  ctrl={ctrl("fields")}
-                  readonly={readonly}
-                  entityId={draft.id || ""}
-                />
-
-                <div className="mt-8">
-                  <Section className="mb-2">Notes et documents</Section>
-                  <div className="space-y-2 mt-2">
-                    <EditorInput
-                      key={readonly ? ctrl("notes").value : undefined}
-                      placeholder={
-                        readonly
-                          ? "Aucune note"
-                          : "Cliquez pour ajouter des notes"
-                      }
-                      disabled={readonly}
-                      value={ctrl("notes").value || ""}
-                      onChange={(e) => ctrl("notes").onChange(e)}
-                    />
-                    {(!readonly || ctrl("documents").value?.length) && (
-                      <FilesInput
-                        disabled={readonly}
-                        ctrl={ctrl("documents")}
-                        rel={{
-                          table: "invoices",
-                          id: draft.id || "",
-                          field: "documents",
-                        }}
+                    {readonly && (
+                      <RelatedInvoices
+                        invoice={draft}
+                        className="mt-8"
+                        readonly={readonly}
+                        onPartialInvoice={() => {}}
                       />
                     )}
-                  </div>
-                </div>
-                <div className="mt-8">
-                  <Section className="mb-2">Discussion</Section>
-                  <div className="space-y-2 mt-2">TODO</div>
-                </div>
+
+                    <CustomFieldsInput
+                      className="mt-8"
+                      table={"invoices"}
+                      ctrl={ctrl("fields")}
+                      readonly={readonly}
+                      entityId={draft.id || ""}
+                    />
+
+                    <div className="mt-8">
+                      <Section className="mb-2">
+                        Notes et documents internes
+                      </Section>
+                      <div className="space-y-2 mt-2">
+                        <EditorInput
+                          key={readonly ? ctrl("notes").value : undefined}
+                          placeholder={
+                            readonly
+                              ? "Aucune note"
+                              : "Cliquez pour ajouter des notes"
+                          }
+                          disabled={readonly}
+                          value={ctrl("notes").value || ""}
+                          onChange={(e) => ctrl("notes").onChange(e)}
+                        />
+                        {(!readonly || ctrl("documents").value?.length) && (
+                          <FilesInput
+                            disabled={readonly}
+                            ctrl={ctrl("documents")}
+                            rel={{
+                              table: "invoices",
+                              id: draft.id || "",
+                              field: "documents",
+                            }}
+                          />
+                        )}
+                      </div>
+                    </div>
+                    {false && (
+                      <div className="mt-8">
+                        <Section className="mb-2">Discussion</Section>
+                        <div className="space-y-2 mt-2">TODO</div>
+                      </div>
+                    )}
+                  </>
+                )}
               </>
             )}
-          </div>
-          {/* TODO Clearly this fixed isn't right for all screens, we should use js probably ? */}
-          <div
-            className={twMerge(
-              "lg:w-2/5 shrink-0 flex items-start justify-center pt-6 transition-all 2xl:flex hidden",
-              !hasPreview && "w-0 lg:w-0",
-              hasPreview && "w-full"
-            )}
-          >
-            {hasPreview && (
-              <div className="fixed grow shrink-0">
-                <div className="w-full flex flex-col grow shadow-lg border overflow-x-auto max-w-[560px] lg:aspect-[5/7] bg-white">
-                  <InvoicesPreview invoice={draft} />
-                </div>
-              </div>
-            )}
+            <br />
+            <br />
           </div>
           <div className="grow" />
         </PageColumns>

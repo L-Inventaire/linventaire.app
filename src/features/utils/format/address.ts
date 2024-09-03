@@ -10,17 +10,17 @@ export enum AddressLength {
 
 export function formatAddress(
   address: Address | null | undefined,
-  length: AddressLength,
+  length: AddressLength = AddressLength.full,
   placeholder?: string | null
 ): string {
-  if (!address) return placeholder ?? "#";
+  if (!address) return placeholder ?? "";
 
   if (
     ([AddressLength.full, AddressLength.part1].includes(length) &&
       _.isEmpty(address?.city)) ||
     (length === AddressLength.part2 && _.isEmpty(address?.zip))
   ) {
-    return placeholder ?? "#";
+    return placeholder ?? "";
   }
 
   const country = (countries ?? []).find(
@@ -32,7 +32,7 @@ export function formatAddress(
   }`;
 
   if (length === AddressLength.full) {
-    return firstLine + ", " + secondLine;
+    return [firstLine, secondLine].filter(Boolean).join(", ");
   }
 
   if (length === AddressLength.part1) {

@@ -46,7 +46,7 @@ export const DocumentBar = ({
   viewRoute?: string;
   editRoute?: string;
   onPrint?: () => Promise<void>;
-  onSave?: () => Promise<void>;
+  onSave?: () => Promise<any>;
   onRemove?: () => Promise<void>;
 }) => {
   const setMenu = useSetRecoilState(DropDownAtom);
@@ -84,11 +84,11 @@ export const DocumentBar = ({
   }, []);
 
   return (
-    <div className="items-center flex grow space-x-2 px-3 text-base">
+    <div className="items-center flex grow space-x-2 px-3 text-base h-12">
       <div className="flex items-center space-x-1">
         <Button
           data-tooltip="Retour"
-          size="sm"
+          size="xs"
           theme={onClose ? "invisible" : "outlined"}
           shortcut={["esc"]}
           icon={
@@ -102,14 +102,14 @@ export const DocumentBar = ({
           <>
             <Button
               data-tooltip="Précédent"
-              size="sm"
+              size="xs"
               theme="outlined"
               shortcut={["k"]}
               icon={(p) => <ChevronUpIcon {...p} />}
             />
             <Button
               data-tooltip="Suivant"
-              size="sm"
+              size="xs"
               theme="outlined"
               shortcut={["j"]}
               icon={(p) => <ChevronDownIcon {...p} />}
@@ -124,14 +124,14 @@ export const DocumentBar = ({
           {props.editRoute && (
             <Button
               data-tooltip="Dupliquer"
-              size="sm"
+              size="xs"
               theme="invisible"
               shortcut={["cmd+d"]}
               icon={(p) => <DocumentDuplicateIcon {...p} />}
               onClick={(e: any) =>
                 navigate(
                   withModel(getRoute(props.editRoute || "", { id: "new" }), {
-                    ..._.omit(document, "id"),
+                    ..._.omit(document, "id", "state"),
                   }),
                   {
                     event: e,
@@ -142,7 +142,7 @@ export const DocumentBar = ({
           )}
           <Button
             data-tooltip="Copier le lien"
-            size="sm"
+            size="xs"
             theme="invisible"
             shortcut={["shift+u"]}
             icon={(p) => <LinkIcon {...p} />}
@@ -156,7 +156,7 @@ export const DocumentBar = ({
           {props.onPrint && (
             <Button
               data-tooltip="Imprimer"
-              size="sm"
+              size="xs"
               theme="invisible"
               icon={(p) => <PrinterIcon {...p} />}
               onClick={props.onPrint}
@@ -165,7 +165,7 @@ export const DocumentBar = ({
           {false && (
             <Button
               data-tooltip="Historique"
-              size="sm"
+              size="xs"
               theme="invisible"
               icon={(p) => <ClockIcon {...p} />}
             />
@@ -173,7 +173,7 @@ export const DocumentBar = ({
           {mode === "read" && (
             <Button
               data-tooltip="Modifier"
-              size="sm"
+              size="xs"
               theme="invisible"
               shortcut={["e"]}
               onClick={async () =>
@@ -184,7 +184,7 @@ export const DocumentBar = ({
           )}
           {!!actionMenu.length && (
             <Button
-              size="sm"
+              size="xs"
               theme="invisible"
               icon={(p) => <EllipsisHorizontalIcon {...p} />}
               onClick={(e) => {
