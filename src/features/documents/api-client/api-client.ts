@@ -7,7 +7,15 @@ export class DocumentsApiClient {
       method: "GET",
     });
 
-    console.log("response", response);
+    const data = await response.json();
+    return data as DocumentEntity;
+  };
+
+  static viewDocument = async (id: string, contactID: string) => {
+    const response = await fetchServer("/api/documents/v1/" + id + "/view", {
+      method: "POST",
+      body: JSON.stringify({ contact_id: contactID }),
+    });
 
     const data = await response.json();
     return data as DocumentEntity;

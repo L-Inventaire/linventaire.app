@@ -7,7 +7,9 @@ export const useDocument = (id: string) => {
     queryFn: () => DocumentsApiClient.getDocument(id),
   });
 
-  console.log("document", document, isLoadingDocument);
+  const viewDocument = (contactID: string) => {
+    DocumentsApiClient.viewDocument(id, contactID);
+  };
 
-  return { document, isLoadingDocument };
+  return { document, isLoadingDocument, viewDocument };
 };

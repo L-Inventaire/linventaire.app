@@ -11,3 +11,11 @@ export const PublicCustomerAtom = atomFamily<PublicCustomer | null, string>({
   key: "PublicCustomerAtom",
   default: null,
 });
+
+export const PublicCustomersAtom = atomFamily<
+  PublicCustomer[] | null,
+  string[]
+>({
+  key: "PublicCustomersAtom",
+  default: null,
+});
