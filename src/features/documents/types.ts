@@ -1,5 +1,6 @@
 import { Contacts } from "@features/contacts/types/types";
 import { Customer } from "@features/customers/types/customers";
+import { Invoices } from "@features/invoices/types/types";
 
 export type DocumentEntity = {
   owner_id: string;
@@ -9,6 +10,7 @@ export type DocumentEntity = {
   signed: boolean;
   events: { list: DocumentEvents[] };
   recipients: { list: DocumentRecipients[] };
+  entity: Invoices;
 
   type: "invoice" | "quote";
 };
