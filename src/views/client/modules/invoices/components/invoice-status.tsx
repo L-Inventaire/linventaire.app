@@ -36,7 +36,10 @@ export const InvoiceStatus = ({
 
   const statusColor = {
     draft: "gray",
-    sent: "blue",
+    sent:
+      type === "quotes" || type === "invoices" || type === "credit_notes"
+        ? "blue"
+        : "red",
     accounted: "blue",
     purchase_order: "orange",
     partial_paid: "orange",

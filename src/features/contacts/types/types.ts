@@ -27,7 +27,9 @@ export type Contacts = {
   currency: string;
 
   email: string;
+  emails: string[];
   phone: string;
+  phones: string[];
   address: Address;
   delivery_address: Address | null;
   billing: Billing;

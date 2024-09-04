@@ -30,7 +30,14 @@ export const Search = () => {
             size="md"
             onFocus={(e) => {
               e.preventDefault();
-              buttonRef.current?.click();
+              openCtrlK((state) => ({
+                ...state,
+                path: [
+                  {
+                    mode: "action",
+                  },
+                ],
+              }));
             }}
             inputClassName={"!rounded-md text-black " + className}
             placeholder={t("header.search.placeholder")}

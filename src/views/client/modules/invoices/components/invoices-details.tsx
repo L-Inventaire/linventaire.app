@@ -229,27 +229,59 @@ export const InvoicesDetailsPage = ({
         <PageColumns>
           <div className="grow" />
           <div className="grow lg:w-3/5 max-w-3xl pt-6">
-            {readonly && draft.state === "draft" && (
-              <Callout.Root className="mb-4">
-                <Callout.Text>
-                  Ce document est un <Text weight="bold">brouillon</Text>.
-                </Callout.Text>
-              </Callout.Root>
-            )}
+            {readonly && (
+              <>
+                {draft.state === "draft" && (
+                  <Callout.Root className="mb-4">
+                    <Callout.Text>
+                      Ce document est un <Text weight="bold">brouillon</Text>.
+                    </Callout.Text>
+                  </Callout.Root>
+                )}
 
-            {readonly && draft.state === "sent" && isQuoteRelated && (
-              <Callout.Root className="mb-4" color="blue">
-                <Callout.Text>
-                  Le devis a été envoyé au client et est{" "}
-                  <Text weight="bold">en attente d'acceptation</Text>.
-                </Callout.Text>
-              </Callout.Root>
-            )}
+                {!isSupplierRelated && (
+                  <>
+                    {draft.state === "sent" && isQuoteRelated && (
+                      <Callout.Root className="mb-4" color="blue">
+                        <Callout.Text>
+                          Le devis a été envoyé au client et est{" "}
+                          <Text weight="bold">en attente d'acceptation</Text>.
+                        </Callout.Text>
+                      </Callout.Root>
+                    )}
+                    {draft.state === "purchase_order" && isQuoteRelated && (
+                      <Callout.Root className="mb-4" color="orange">
+                        <Callout.Text>
+                          Le devis a été accepté part le client, certaines
+                          lignes ne sont pas encore complétées.
+                        </Callout.Text>
+                      </Callout.Root>
+                    )}
+                  </>
+                )}
 
-            {readonly && draft.state === "purchase_order" && isQuoteRelated && (
-              <Callout.Root className="mb-4" color="green">
-                <Callout.Text>Le devis a été accepté part client</Callout.Text>
-              </Callout.Root>
+                {!!isSupplierRelated && (
+                  <>
+                    {draft.state === "sent" && isQuoteRelated && (
+                      <Callout.Root className="mb-4" color="red">
+                        <Callout.Text>
+                          Commande{" "}
+                          <Text weight="bold">en attente de validation</Text>{" "}
+                          par le fournisseur.
+                        </Callout.Text>
+                      </Callout.Root>
+                    )}
+                    {draft.state === "purchase_order" && isQuoteRelated && (
+                      <Callout.Root className="mb-4" color="orange">
+                        <Callout.Text>
+                          La commande a été accepté part le fournisseur, elle
+                          est en transit.
+                        </Callout.Text>
+                      </Callout.Root>
+                    )}
+                  </>
+                )}
+              </>
             )}
 
             <div className="mb-2">

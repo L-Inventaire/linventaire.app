@@ -100,8 +100,8 @@ export const RelationsInput = ({
                 <RestDocumentsInput
                   entity="contacts"
                   size="xl"
-                  label="+ Ajouter un contact parent"
-                  placeholder="Rechercher un contact"
+                  label="+ Attacher à un contact parent"
+                  placeholder="Attacher le contact parent et choisir un rôle"
                   value={""}
                   onChange={(parent) => {
                     if (parent && typeof parent === "string") {

@@ -1,84 +1,85 @@
 import { useEffect } from "react";
 import "./index.css";
 
-const createBlob = (top = 0, _delay = 0) => {
-  let colors = ["#FBE7C6", "#B4F8C8", "#A0E7E5", "#FFAEBC"]; // Random colors palette
-  // More vibrant colors
-  colors = ["#FBE7C6", "#B4F8C8", "#A0E7E5", "#FFAEBC", "#FBE7C6", "#B4F8C8"];
-  const screenSize = window.innerHeight;
-  const blobSize = 0.1 * screenSize + Math.random() * screenSize * 0.2; // Random size in % of screen height
-  const position = "right";
-  const duration = (Math.random() * 20 + 50) * (window.innerHeight / 600); // Random duration between 5 to 10 seconds
-  const delay = (_delay || Math.random()) * 50 * (window.innerHeight / 600);
+let running = false;
+let mPos = 0.5;
+let previousMousePos = 0.5;
+const smoothness = 0.1; // Smaller values make the movement slower and smoother
 
-  const blob = document.createElement("div");
-  blob.classList.add("blob");
-  blob.style.backgroundColor =
-    colors[Math.floor(Math.random() * colors.length)];
-  blob.style.height = `${blobSize}px`;
-  blob.style.width = `${blobSize}px`;
+const handleAnimation = () => {
+  const wall = document.getElementById("wall-1");
+  const rotator = document.getElementById("rotator");
 
-  // Positioning the blob outside of the screen
-  blob.style.top = `${top || Math.random() * 100}%`;
-  if (position === "right") {
-    blob.style.right = `-${blobSize}px`;
-    blob.classList.add("move-left");
-  } else {
-    blob.style.left = `-${blobSize}px`;
-    blob.classList.add("move-right");
+  if (wall) {
+    const currentMousePos = mPos / window.innerWidth;
+
+    // ease-in ease-out function
+    const mousePos =
+      currentMousePos * smoothness + previousMousePos * (1 - smoothness);
+
+    previousMousePos = mousePos;
+
+    const usedMov = (mousePos - 0.5) * 0.5 + 0.5;
+
+    wall.style.width = usedMov * 100 + "%";
+    rotator!.style.transform = `rotate(${usedMov * 360 * 5.5}deg)`;
   }
 
-  blob.style.animationDuration = `${duration}s`;
-  blob.style.animationDelay = `${delay}s`;
+  if (running) {
+    requestAnimationFrame(() => handleAnimation());
+  }
+};
 
-  // Adding the blob to the lava div
-  (window as any).document.querySelector(".lava").appendChild(blob);
-
-  // Removing the blob after animation
-  blob.addEventListener("animationend", () => {
-    blob.remove();
-    createBlob();
-  });
+const handleMouseMove = (e: MouseEvent) => {
+  mPos = e.clientX;
 };
 
 export const AnimatedBackground = () => {
   useEffect(() => {
-    Array.from({ length: 0 }).forEach(() => {
-      const a = Math.random() * 100;
-      const b = Math.random();
-      createBlob(a, b);
-      createBlob(
-        a + (0.5 - Math.random()) * 10,
-        b + (0.5 - Math.random()) * 0.01
-      );
-    });
+    running = true;
+    handleAnimation();
+
+    window.addEventListener("mousemove", handleMouseMove);
+
+    return () => {
+      running = false;
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
   }, []);
 
   return (
-    <>
-      <div className="hidden">
-        <div className="lava"></div>
+    <div className="absolute top-0 left-0 w-screen h-screen flex hidden">
+      <div className="relative w-screen h-screen flex">
+        <div id="wall-1" className="w-1/2 relative bg-slate-950">
+          <div
+            id="rotator"
+            className="h-5 w-5 rounded-full bg-white absolute bottom-[10%] right-16"
+          >
+            <div
+              className="h-24 w-1 rounded-full bg-white absolute bottom-0 right-0"
+              style={{ transform: "translate(-200%, 38%)" }}
+            />{" "}
+            <div
+              className="h-1 w-24 rounded-full bg-white absolute bottom-0 right-0"
+              style={{ transform: "translate(38%, -200%)" }}
+            />
+          </div>
+        </div>
+        <div className="h-full grow" />
       </div>
-      <svg
-        className="absolute top-0"
-        xmlns="http://www.w3.org/2000/svg"
-        version="1.1"
+
+      <div
+        className="absolute top-0 left-0 w-screen h-screen flex"
+        style={{ zIndex: -1 }}
       >
-        <defs>
-          <filter id="goo">
-            <feGaussianBlur
-              in="SourceGraphic"
-              stdDeviation="25"
-              result="blur"
-            />
-            <feColorMatrix
-              in="blur"
-              mode="matrix"
-              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 180 -70"
-            />
-          </filter>
-        </defs>
-      </svg>
-    </>
+        {[1, 2, 3, 4, 5, 6, 7].map(() => (
+          <>
+            <div className="bg-slate-950 grow" />
+            <div className="bg-white grow" />
+          </>
+        ))}
+        <div className="bg-slate-950 grow" />
+      </div>
+    </div>
   );
 };
