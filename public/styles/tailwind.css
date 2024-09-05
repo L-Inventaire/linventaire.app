@@ -1648,10 +1648,6 @@ body :is(.h-3) {
   height: 0.75rem;
 }
 
-body :is(.h-3\/4) {
-  height: 75%;
-}
-
 body :is(.h-32) {
   height: 8rem;
 }

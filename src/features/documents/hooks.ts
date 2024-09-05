@@ -11,5 +11,9 @@ export const useDocument = (id: string) => {
     DocumentsApiClient.viewDocument(id, contactID);
   };
 
-  return { document, isLoadingDocument, viewDocument };
+  const signDocument = (contactID: string) => {
+    DocumentsApiClient.signDocument(id, contactID);
+  };
+
+  return { document, isLoadingDocument, viewDocument, signDocument };
 };

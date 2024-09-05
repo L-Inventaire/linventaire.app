@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { atom, useRecoilState } from "recoil";
 import { getPdfPreview } from "../invoices-preview/invoices-preview";
+import { DocumentsApiClient } from "@features/documents/api-client/api-client";
 
 export const InvoiceSendModalAtom = atom<boolean>({
   key: "InvoiceSendModalAtom",
@@ -150,6 +151,8 @@ export const InvoiceSendModalContent = ({
               console.log(draft.state);
               await save({ state: "sent" });
               // TODO: call endpoint to send the invoice
+              DocumentsApiClient.sendInvoice(draft.id, draft.recipients);
+
               onClose();
               toast.success("Document envoyé");
             } catch (e) {
