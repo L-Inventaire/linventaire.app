@@ -7,6 +7,7 @@ import { Invoices } from "@features/invoices/types/types";
 import { isErrorResponse } from "@features/utils/rest/types/types";
 import { Page } from "@views/client/_layout/page";
 import { useEffect } from "react";
+import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
@@ -92,6 +93,12 @@ export const SigningSessionPage = () => {
                   className="mr-2"
                   onClick={async () => {
                     const signedSession = await signSigningSession();
+                    if (!signedSession.signing_url) {
+                      toast.error(
+                        "An error occurred while signing the document"
+                      );
+                      return;
+                    }
                     window.open(signedSession.signing_url, "_blank");
                   }}
                 >
