@@ -1,5 +1,5 @@
 import { Info } from "@atoms/text";
-import { stringToColor } from "@features/utils/format/strings";
+import { getServerUri, stringToColor } from "@features/utils/format/strings";
 import _ from "lodash";
 import { twMerge } from "tailwind-merge";
 
@@ -8,7 +8,7 @@ export const getColor = stringToColor;
 export default function Avatar(props: {
   shape?: "square" | "circle";
   fallback?: string;
-  avatar?: string;
+  avatar?: string | null;
   size: 4 | 5 | 8 | 10 | 11 | 28 | 14 | 48;
   className?: string;
 }) {
@@ -35,7 +35,7 @@ export default function Avatar(props: {
         style={{
           backgroundPosition: "center",
           backgroundSize: "cover",
-          backgroundImage: "url(" + props.avatar + ")",
+          backgroundImage: "url(" + getServerUri(props.avatar) + ")",
         }}
       />
     );

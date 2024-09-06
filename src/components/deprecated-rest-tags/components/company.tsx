@@ -2,6 +2,7 @@ import Avatar from "@atoms/avatar/avatar";
 import { Tag } from "@atoms/badge/tag";
 import { useClients } from "@features/clients/state/use-clients";
 import { Clients } from "@features/clients/types/clients";
+import { getServerUri } from "@features/utils/format/strings";
 import { twMerge } from "tailwind-merge";
 
 export const RestCompanyTag = ({
@@ -39,7 +40,7 @@ const CompanyTagRender = ({
           shape="square"
           className={twMerge("mr-1", size === "md" ? "-ml-0.5" : "-ml-1")}
           fallback={company?.company.name || "-"}
-          avatar={company?.preferences.logo}
+          avatar={getServerUri(company?.preferences.logo)}
           size={size === "md" ? 4 : 5}
         />
       }

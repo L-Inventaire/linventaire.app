@@ -2,6 +2,7 @@ import { Button } from "@atoms/button/button";
 import { Info, SectionSmall } from "@atoms/text";
 import { FormInput } from "@components/form/fields";
 import { RestDocumentsInput } from "@components/input-rest";
+import { ContactsColumns } from "@features/contacts/configuration";
 import { useContacts } from "@features/contacts/hooks/use-contacts";
 import { Contacts, getContactName } from "@features/contacts/types/types";
 import { CtrlKRestEntities } from "@features/ctrlk";
@@ -122,7 +123,7 @@ export const RelationsInput = ({
                 <Table
                   data={parents.data?.list || []}
                   columns={[
-                    ...(CtrlKRestEntities["contacts"].renderResult as any),
+                    ...ContactsColumns,
                     {
                       title: "Rôle",
                       render: (contact) => <>{value[1][contact.id]?.role}</>,
@@ -149,7 +150,7 @@ export const RelationsInput = ({
           <Table
             data={children.data?.list || []}
             columns={[
-              ...(CtrlKRestEntities["contacts"].renderResult as any),
+              ...ContactsColumns,
               {
                 title: "Rôle",
                 render: (contact) => <>{contact.parents_roles[id]?.role}</>,

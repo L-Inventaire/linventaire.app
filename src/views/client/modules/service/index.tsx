@@ -1,10 +1,8 @@
 import { Button } from "@atoms/button/button";
-import { Base, Info } from "@atoms/text";
-import { RestDocumentsInput } from "@components/input-rest";
+import { Info } from "@atoms/text";
 import { RestTable } from "@components/table-rest";
-import { Articles } from "@features/articles/types/types";
-import { getContactName } from "@features/contacts/types/types";
 import { ROUTES, getRoute } from "@features/routes";
+import { ServiceItemsColumns } from "@features/service/configuration";
 import { useServiceItems } from "@features/service/hooks/use-service-items";
 import { ServiceItems } from "@features/service/types/types";
 import { useNavigateAlt } from "@features/utils/navigate";
@@ -13,12 +11,10 @@ import {
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
 import { PlusIcon } from "@heroicons/react/16/solid";
-import { UserIcon } from "@heroicons/react/20/solid";
 import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
-import { getArticleIcon } from "../articles/components/article-icon";
 import { ServiceItemStatus } from "./components/service-item-status";
 
 export const ServicePage = () => {
@@ -26,6 +22,7 @@ export const ServicePage = () => {
     limit: 10,
     offset: 0,
     query: [],
+    index: "state,created_at",
   });
   const { service_items } = useServiceItems({
     ...options,
@@ -82,59 +79,13 @@ export const ServicePage = () => {
               asc: page.order === "ASC",
             });
           }}
-          columns={[
-            {
-              thClassName: "w-1",
-              render: (item) => (
-                <Base className="opacity-50 whitespace-nowrap">
-                  {item.notes}
-                </Base>
-              ),
-            },
-            {
-              render: (item) => (
-                <RestDocumentsInput
-                  disabled
-                  value={item.article}
-                  entity={"articles"}
-                  size="sm"
-                  icon={(p, article) =>
-                    getArticleIcon((article as Articles)?.type)(p)
-                  }
-                />
-              ),
-            },
-            {
-              thClassName: "w-1",
-              cellClassName: "justify-end",
-              render: (item) => (
-                <>
-                  <RestDocumentsInput
-                    label="Fournisseur"
-                    placeholder="Aucun fournisseur"
-                    entity="contacts"
-                    value={item.client}
-                    icon={(p) => <UserIcon {...p} />}
-                    render={(c) => getContactName(c)}
-                    size="sm"
-                    disabled
-                  />
-                </>
-              ),
-            },
-            {
-              thClassName: "w-1",
-              cellClassName: "justify-end",
-              render: () => <></>,
-            },
-            {
-              thClassName: "w-1",
-              cellClassName: "justify-end",
-              render: (item) => (
-                <ServiceItemStatus size="sm" readonly value={item.state} />
-              ),
-            },
-          ]}
+          columns={ServiceItemsColumns}
+          groupBy="state"
+          groupByRender={(row) => (
+            <div className="mt-px">
+              <ServiceItemStatus size="xs" readonly value={row.state} />
+            </div>
+          )}
         />
       </div>
     </Page>

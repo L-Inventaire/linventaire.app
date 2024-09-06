@@ -3,9 +3,12 @@ import { FormInput } from "@components/form/fields";
 import { FormContext } from "@components/form/formcontext";
 import { RestDocumentsInput } from "@components/input-rest";
 import { UsersInput } from "@components/input-rest/users";
+import { useArticle } from "@features/articles/hooks/use-articles";
+import { useServiceItem } from "@features/service/hooks/use-service-items";
 import { ServiceTimes } from "@features/service/types/types";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { BriefcaseIcon } from "@heroicons/react/20/solid";
+import { useEffect } from "react";
 
 export const ServiceTimesDetailsPage = ({
   readonly,
@@ -14,11 +17,20 @@ export const ServiceTimesDetailsPage = ({
   readonly?: boolean;
   id: string;
 }) => {
-  const { ctrl, draft } = useReadDraftRest<ServiceTimes>(
+  const { ctrl, draft, setDraft } = useReadDraftRest<ServiceTimes>(
     "service_times",
     id || "new",
     readonly
   );
+
+  const { service_item } = useServiceItem(draft.service);
+  const { article } = useArticle(service_item?.article || "");
+
+  useEffect(() => {
+    if (article?.unit) {
+      setDraft((d) => ({ ...d, unit: article.unit }));
+    }
+  }, [article?.unit]);
 
   return (
     <div className="w-full max-w-3xl mx-auto">
@@ -38,8 +50,13 @@ export const ServiceTimesDetailsPage = ({
         />
 
         <br />
+        <br />
 
-        <FormInput label="Description" type="text" ctrl={ctrl("description")} />
+        <FormInput
+          label="Travail effectué"
+          type="text"
+          ctrl={ctrl("description")}
+        />
 
         <br />
 
@@ -47,7 +64,11 @@ export const ServiceTimesDetailsPage = ({
 
         <br />
 
-        <FormInput label="Time (hours)" type="number" ctrl={ctrl("hours")} />
+        <FormInput
+          label={`Quantity (${article?.unit || "units"})`}
+          type="number"
+          ctrl={ctrl("quantity")}
+        />
 
         <br />
 

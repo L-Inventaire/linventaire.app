@@ -16,6 +16,7 @@ import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
+import { ArticlesColumns } from "@features/articles/configuration";
 
 export const ArticlesPage = () => {
   const [options, setOptions] = useState<RestOptions<Articles>>({
@@ -91,7 +92,7 @@ export const ArticlesPage = () => {
                     ][page.orderBy],
             });
           }}
-          columns={CtrlKRestEntities["articles"].renderResult as any}
+          columns={ArticlesColumns}
         />
       </div>
     </Page>

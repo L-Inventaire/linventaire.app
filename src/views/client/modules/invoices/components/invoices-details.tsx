@@ -44,6 +44,7 @@ import { CompletionTags } from "./invoice-lines-input/components/completion-tags
 import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-card";
 import { InvoiceStatus } from "./invoice-status";
 import { RelatedInvoices } from "./related-invoices";
+import { AccountingTransactionsColumns } from "@features/accounting/configuration";
 
 export const computeCompletion = (
   linesu: Invoices["content"],
@@ -450,10 +451,7 @@ export const InvoicesDetailsPage = ({
                             <Section className="mb-2">Paiements</Section>
                             <Table
                               data={accounting_transactions.data?.list || []}
-                              columns={
-                                CtrlKRestEntities["accounting_transactions"]
-                                  .renderResult as any
-                              }
+                              columns={AccountingTransactionsColumns}
                             />
                           </div>
                         )}

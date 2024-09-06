@@ -16,6 +16,7 @@ import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
 import { CtrlKRestEntities } from "@features/ctrlk";
+import { ContactsColumns } from "@features/contacts/configuration";
 
 export const ContactsPage = () => {
   const [options, setOptions] = useState<RestOptions<Contacts>>({
@@ -97,7 +98,7 @@ export const ContactsPage = () => {
               asc: page.order === "ASC",
             });
           }}
-          columns={CtrlKRestEntities["contacts"].renderResult!}
+          columns={ContactsColumns}
         />
       </div>
     </Page>

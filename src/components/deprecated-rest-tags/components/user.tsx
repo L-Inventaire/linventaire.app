@@ -4,6 +4,7 @@ import { getFullName } from "@features/auth/utils";
 import { useClientUsers } from "@features/clients/state/use-client-users";
 import { useClients } from "@features/clients/state/use-clients";
 import { PublicCustomer } from "@features/customers/types/customers";
+import { getServerUri } from "@features/utils/format/strings";
 import { twMerge } from "tailwind-merge";
 
 export const RestUserTag = ({
@@ -52,7 +53,7 @@ const UserTagRender = ({
           <Avatar
             className={twMerge("mr-1", size === "md" ? "-ml-0.5" : "-ml-1")}
             fallback={name}
-            avatar={avatar}
+            avatar={getServerUri(avatar)}
             size={size === "md" ? 4 : 5}
           />
         )

@@ -22,6 +22,7 @@ import {
   schemaToSearchFields,
 } from "../../../../components/search-bar/utils/utils";
 import { InvoiceStatus } from "./components/invoice-status";
+import { InvoicesColumns } from "@features/invoices/configuration";
 
 export const InvoicesPage = () => {
   const type: Invoices["type"][] = (useParams().type?.split("+") || [
@@ -181,7 +182,7 @@ export const InvoicesPage = () => {
               asc: page.order === "ASC",
             });
           }}
-          columns={CtrlKRestEntities["invoices"].renderResult as any}
+          columns={InvoicesColumns}
         />
       </div>
     </Page>

@@ -15,6 +15,7 @@ import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
+import { AccountingTransactionsColumns } from "@features/accounting/configuration";
 
 export const AccountingPage = () => {
   const [options, setOptions] = useState<RestOptions<AccountingTransactions>>({
@@ -79,9 +80,7 @@ export const AccountingPage = () => {
               asc: page.order === "ASC",
             });
           }}
-          columns={
-            CtrlKRestEntities.accounting_transactions?.renderResult || []
-          }
+          columns={AccountingTransactionsColumns}
         />
       </div>
     </Page>

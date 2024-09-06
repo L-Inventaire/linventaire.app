@@ -9,6 +9,7 @@ import { useSetRecoilState } from "recoil";
 import { InvoiceInvoiceModalAtom } from "./invoice-actions/modal-invoice";
 import { getRoute, ROUTES } from "@features/routes";
 import { useNavigateAlt } from "@features/utils/navigate";
+import { InvoicesColumns } from "@features/invoices/configuration";
 
 export const RelatedInvoices = ({
   invoice,
@@ -54,7 +55,7 @@ export const RelatedInvoices = ({
           }
           data={quote}
           entity="invoices"
-          columns={CtrlKRestEntities["invoices"].renderResult as any}
+          columns={InvoicesColumns}
         />
       )}
       <Section className="my-2">Factures et avoirs liés</Section>
@@ -65,7 +66,7 @@ export const RelatedInvoices = ({
           }
           data={siblings}
           entity="invoices"
-          columns={CtrlKRestEntities["invoices"].renderResult as any}
+          columns={InvoicesColumns}
         />
       )}
     </div>
