@@ -20,8 +20,8 @@ export const ServiceItemsViewPage = (_props: { readonly?: boolean }) => {
   return (
     <Page
       title={[
-        { label: "ServiceItems", to: getRoute(ROUTES.ServiceItems) },
-        { label: item.notes || "" },
+        { label: "Service", to: getRoute(ROUTES.ServiceItems) },
+        { label: item.title || "" },
       ]}
       bar={
         <DocumentBar

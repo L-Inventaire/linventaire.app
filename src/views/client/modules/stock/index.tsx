@@ -1,11 +1,10 @@
 import { Button } from "@atoms/button/button";
-import { Base, Info } from "@atoms/text";
-import { RestDocumentsInput } from "@components/input-rest";
+import { Info } from "@atoms/text";
 import { RestTable } from "@components/table-rest";
 import { ROUTES, getRoute } from "@features/routes";
+import { StockItemsColumns } from "@features/stock/configuration";
 import { useStockItems } from "@features/stock/hooks/use-stock-items";
 import { StockItems } from "@features/stock/types/types";
-import { formatNumber } from "@features/utils/format/strings";
 import { useNavigateAlt } from "@features/utils/navigate";
 import {
   RestOptions,
@@ -17,16 +16,13 @@ import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
 import { StockItemStatus } from "./components/stock-item-status";
-import { UserIcon } from "@heroicons/react/20/solid";
-import { getContactName } from "@features/contacts/types/types";
-import { getArticleIcon } from "../articles/components/article-icon";
-import { Articles } from "@features/articles/types/types";
 
 export const StockPage = () => {
   const [options, setOptions] = useState<RestOptions<StockItems>>({
     limit: 10,
     offset: 0,
     query: [],
+    index: "state,created_at",
   });
   const { stock_items } = useStockItems({
     ...options,
@@ -83,65 +79,13 @@ export const StockPage = () => {
               asc: page.order === "ASC",
             });
           }}
-          columns={[
-            {
-              thClassName: "w-1",
-              render: (item) => (
-                <Base className="opacity-50 whitespace-nowrap">
-                  {item.serial_number}
-                </Base>
-              ),
-            },
-            {
-              render: (item) => (
-                <RestDocumentsInput
-                  disabled
-                  value={item.article}
-                  entity={"articles"}
-                  size="sm"
-                  icon={(p, article) =>
-                    getArticleIcon((article as Articles)?.type)(p)
-                  }
-                />
-              ),
-            },
-            {
-              thClassName: "w-1",
-              cellClassName: "justify-end",
-              render: (item) => (
-                <>
-                  <RestDocumentsInput
-                    label="Fournisseur"
-                    placeholder="Aucun fournisseur"
-                    entity="contacts"
-                    value={item.client}
-                    icon={(p) => <UserIcon {...p} />}
-                    render={(c) => getContactName(c)}
-                    size="sm"
-                    disabled
-                  />
-                </>
-              ),
-            },
-            {
-              thClassName: "w-1",
-              cellClassName: "justify-end",
-              render: (item) => (
-                <Button size="sm" theme="outlined">
-                  {formatNumber(item.quantity || 0)}
-                  {" / "}
-                  {formatNumber(item.original_quantity || 0)}
-                </Button>
-              ),
-            },
-            {
-              thClassName: "w-1",
-              cellClassName: "justify-end",
-              render: (item) => (
-                <StockItemStatus size="sm" readonly value={item.state} />
-              ),
-            },
-          ]}
+          columns={StockItemsColumns}
+          groupBy="state"
+          groupByRender={(row) => (
+            <div className="mt-px">
+              <StockItemStatus size="xs" readonly value={row.state} />
+            </div>
+          )}
         />
       </div>
     </Page>

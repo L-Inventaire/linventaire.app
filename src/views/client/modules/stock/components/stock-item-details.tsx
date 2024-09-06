@@ -44,11 +44,13 @@ export const StockItemsDetailsPage = ({
 
   const [article, setArticle] = useState<Articles | null>(null);
 
-  const { isPending, ctrl, draft, setDraft } = useReadDraftRest<StockItems>(
-    "stock_items",
-    id || "new",
-    readonly
-  );
+  const {
+    isPending,
+    ctrl,
+    draft,
+    setDraft,
+    save: _save,
+  } = useReadDraftRest<StockItems>("stock_items", id || "new", readonly);
 
   useEffect(() => {
     if (!isPending && draft)
@@ -67,9 +69,13 @@ export const StockItemsDetailsPage = ({
           <SectionSmall className="grow m-0">Élément du stock</SectionSmall>
           <StockItemStatus
             value={draft.state}
-            onChange={(state) => setDraft({ ...draft, state })}
-            size="md"
-            readonly={readonly}
+            onChange={(e) => {
+              if (readonly) {
+                _save({ state: e });
+              } else {
+                ctrl("state").onChange(e);
+              }
+            }}
           />
         </div>
 
