@@ -104,7 +104,7 @@ export const SigningSessionPage = () => {
                 >
                   Signer
                 </Button>
-                <Button>Veto</Button>
+                <Button>Refuser</Button>
               </div>
             </div>
 
