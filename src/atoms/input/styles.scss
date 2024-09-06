@@ -155,6 +155,11 @@
     }
 }
 
+.PhoneInput {
+    display: flex !important;
+    flex-direction: row;
+}
+
 .PhoneReadonly .PhoneInputCountry .PhoneInputCountrySelectArrow {
     display: none;
 }

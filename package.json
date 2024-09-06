@@ -115,6 +115,7 @@
     "@tanstack/eslint-plugin-query": "^5.27.7",
     "@types/luxon": "^3.4.2",
     "concurrently": "^8.2.0",
+    "mini-css-extract-plugin": "^2.9.1",
     "sass": "^1.66.1",
     "tailwindcss": "^3.0.24",
     "typescript": "=5.1.6"

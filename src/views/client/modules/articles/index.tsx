@@ -2,9 +2,9 @@ import { Button } from "@atoms/button/button";
 import { Info } from "@atoms/text";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { RestTable } from "@components/table-rest";
+import { ArticlesColumns } from "@features/articles/configuration";
 import { useArticles } from "@features/articles/hooks/use-articles";
 import { Articles } from "@features/articles/types/types";
-import { CtrlKRestEntities } from "@features/ctrlk";
 import { ROUTES, getRoute } from "@features/routes";
 import { useNavigateAlt } from "@features/utils/navigate";
 import {
@@ -91,7 +91,7 @@ export const ArticlesPage = () => {
                     ][page.orderBy],
             });
           }}
-          columns={CtrlKRestEntities["articles"].renderResult as any}
+          columns={ArticlesColumns}
         />
       </div>
     </Page>

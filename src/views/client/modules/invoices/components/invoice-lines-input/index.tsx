@@ -204,7 +204,7 @@ export const InvoiceLinesInput = ({
                   onClick={refTriggerUploadFile.current}
                 />
               )}
-              {(!readonly || value.discount?.value) && (
+              {!!(!readonly || value.discount?.value) && (
                 <InputButton
                   size="sm"
                   label="Réduction globale"

@@ -3,6 +3,8 @@ import { CtrlKAtom } from "@features/ctrlk/store";
 import { useRecoilState } from "recoil";
 import { ModalEditor } from "./editor";
 import { SearchCtrlK } from "./search";
+import { CtrlKStateType } from "@features/ctrlk/types";
+import { useEffect } from "react";
 
 /*
 [selection] Scenario 1:
@@ -33,48 +35,66 @@ import { SearchCtrlK } from "./search";
 */
 
 export const CtrlKModal = () => {
-  const [state, setState] = useRecoilState(CtrlKAtom);
-  const currentState = state.path[state.path.length - 1] || {};
+  const [states, setStates] = useRecoilState(CtrlKAtom);
 
-  return (
-    <Modal
-      open={state.path.length > 0}
-      closable={false}
-      onClose={() => {
-        setState({
-          ...state,
-          path: [],
-        });
-      }}
-      positioned
-      style={{
-        marginTop: currentState.mode === "editor" ? "50px" : "10vh",
-        maxHeight:
-          currentState.mode === "editor" ? "calc(100vh - 100px)" : "80vh",
-        maxWidth:
-          currentState.mode === "search"
-            ? "1200px"
-            : currentState.mode === "editor"
-            ? "calc(100vw - 100px)"
-            : "",
-      }}
-    >
-      {currentState.mode !== "editor" && (
-        <div className="-m-6" style={{ maxHeight: "inherit" }}>
-          <SearchCtrlK />
-        </div>
-      )}
-      {currentState.mode === "editor" && (
-        <div
-          className="-m-6 grow flex flex-col"
-          style={{
-            maxHeight: "inherit",
-            height: "calc(100vh - 100px)",
-          }}
-        >
-          <ModalEditor />
-        </div>
-      )}
-    </Modal>
-  );
+  useEffect(() => {
+    // remove all items with path length 0
+    setStates((states) =>
+      states.filter((state, i) => i === 0 || state.path.length > 0)
+    );
+  }, [states.length]);
+
+  return states.map((state, index) => {
+    const setState = (newState: CtrlKStateType<any>) => {
+      setStates((states) => {
+        const newStates = [...states];
+        newStates[index] = newState;
+        return newStates;
+      });
+    };
+
+    const currentState = state.path[state.path.length - 1] || {};
+    return (
+      <Modal
+        key={index}
+        open={state.path.length > 0}
+        closable={false}
+        onClose={() => {
+          setState({
+            ...state,
+            path: [],
+          });
+        }}
+        positioned
+        style={{
+          marginTop: currentState.mode === "editor" ? "50px" : "10vh",
+          maxHeight:
+            currentState.mode === "editor" ? "calc(100vh - 100px)" : "80vh",
+          maxWidth:
+            currentState.mode === "search"
+              ? "1200px"
+              : currentState.mode === "editor"
+              ? "calc(100vw - 100px)"
+              : "",
+        }}
+      >
+        {currentState.mode !== "editor" && (
+          <div className="-m-6" style={{ maxHeight: "inherit" }}>
+            <SearchCtrlK index={index} />
+          </div>
+        )}
+        {currentState.mode === "editor" && (
+          <div
+            className="-m-6 grow flex flex-col"
+            style={{
+              maxHeight: "inherit",
+              height: "calc(100vh - 100px)",
+            }}
+          >
+            <ModalEditor index={index} />
+          </div>
+        )}
+      </Modal>
+    );
+  });
 };

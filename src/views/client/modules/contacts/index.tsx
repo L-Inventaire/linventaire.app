@@ -2,6 +2,7 @@ import { Button } from "@atoms/button/button";
 import { Info } from "@atoms/text";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { RestTable } from "@components/table-rest";
+import { ContactsColumns } from "@features/contacts/configuration";
 import { useContacts } from "@features/contacts/hooks/use-contacts";
 import { Contacts } from "@features/contacts/types/types";
 import { ROUTES, getRoute } from "@features/routes";
@@ -15,7 +16,6 @@ import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
-import { CtrlKRestEntities } from "@features/ctrlk";
 
 export const ContactsPage = () => {
   const [options, setOptions] = useState<RestOptions<Contacts>>({
@@ -97,7 +97,7 @@ export const ContactsPage = () => {
               asc: page.order === "ASC",
             });
           }}
-          columns={CtrlKRestEntities["contacts"].renderResult!}
+          columns={ContactsColumns}
         />
       </div>
     </Page>

@@ -43,12 +43,12 @@ export default function SingleCenterCard(props: {
             <>
               <img
                 className="h-8 w-auto mb-7 mt-2 dark:hidden"
-                src="/medias/logo-black.svg"
+                src="/medias/logo.svg"
                 alt="L'inventaire"
               />
               <img
                 className="h-8 w-auto mb-7 mt-2 hidden dark:block"
-                src="/medias/logo.svg"
+                src="/medias/logo-dark.svg"
                 alt="L'inventaire"
               />
             </>

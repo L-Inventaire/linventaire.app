@@ -33,9 +33,19 @@ import { useRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
 import { filterSuggestions, useSearchableEntities } from "./search-utils";
 
-export const SearchCtrlK = () => {
+export const SearchCtrlK = ({ index }: { index: number }) => {
+  const [states, setStates] = useRecoilState(CtrlKAtom);
+
+  const state = states[index];
+  const setState = (newState: any) => {
+    setStates((states) => {
+      const newStates = [...states];
+      newStates[index] = newState;
+      return newStates;
+    });
+  };
+
   const { t } = useTranslation();
-  const [state, setState] = useRecoilState(CtrlKAtom);
   const currentState = state.path[state.path.length - 1] || {};
   const currentEntity = currentState.options?.entity;
   const [selection, setSelection] = useState<RestEntity[]>(
@@ -64,7 +74,7 @@ export const SearchCtrlK = () => {
       selection: { entity: "", items: [] },
     });
 
-  const searchableEntities = useSearchableEntities();
+  const searchableEntities = useSearchableEntities(index);
   const query = currentState.options?.query || "";
   const [searchQuery, setSearchQuery] = useState<RestSearchQuery[]>([]);
   const setQuery = (query: string) => {

@@ -22,6 +22,7 @@ import _ from "lodash";
 import { useEffect } from "react";
 import { ContactAccountingAccount } from "./contact-accounting-account";
 import { RelationsInput } from "./relations-input";
+import { MultiInput } from "@atoms/multi-input";
 
 export const ContactsDetailsPage = ({
   readonly,
@@ -180,11 +181,41 @@ export const ContactsDetailsPage = ({
                   placeholder="email@server.com"
                   ctrl={ctrl("email")}
                 />
+                <MultiInput
+                  render={(v, onChange) => (
+                    <FormInput
+                      type="formatted"
+                      format="mail"
+                      label="Email"
+                      placeholder="email@server.com"
+                      value={v}
+                      onChange={onChange}
+                    />
+                  )}
+                  value={contact.emails || []}
+                  onChange={(phones) => ctrl("emails").onChange(phones)}
+                  title="Ajouter un autre email"
+                />
+
                 <FormInput
                   type="phone"
                   label="Téléphone"
                   placeholder="+33 6 12 34 56 78"
                   ctrl={ctrl("phone")}
+                />
+                <MultiInput
+                  render={(v, onChange) => (
+                    <FormInput
+                      type="phone"
+                      label="Téléphone"
+                      placeholder="+33 6 12 34 56 78"
+                      value={v}
+                      onChange={onChange}
+                    />
+                  )}
+                  value={contact.phones || []}
+                  onChange={(phones) => ctrl("phones").onChange(phones)}
+                  title="Ajouter un autre numéro de téléphone"
                 />
               </div>
             </PageBlock>

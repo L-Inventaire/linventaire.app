@@ -63,7 +63,10 @@ export const DropdownButton = (
   }, [open]);
 
   return (
-    <DropdownMenu.Root open={open} onOpenChange={(a) => setOpen(a)}>
+    <DropdownMenu.Root
+      open={open && !props.disabled && !props.readonly}
+      onOpenChange={(a) => setOpen(a)}
+    >
       <DropdownMenu.Trigger>
         <div>
           <Button onClick={() => setOpen(true)} {..._.omit(props, ["menu"])}>

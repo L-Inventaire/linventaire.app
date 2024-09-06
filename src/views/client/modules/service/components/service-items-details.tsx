@@ -9,8 +9,11 @@ import { FilesInput } from "@components/input-rest/files";
 import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
 import { RestTable } from "@components/table-rest";
+import { useArticle } from "@features/articles/hooks/use-articles";
+import { useAuth } from "@features/auth/state/use-auth";
 import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { Invoices } from "@features/invoices/types/types";
+import { ServiceTimesColumns } from "@features/service/configuration";
 import { useServiceItems } from "@features/service/hooks/use-service-items";
 import { useServiceTimes } from "@features/service/hooks/use-service-times";
 import { ServiceItems } from "@features/service/types/types";
@@ -29,11 +32,16 @@ export const ServiceItemsDetailsPage = ({
   readonly?: boolean;
   id: string;
 }) => {
-  const { isPending, ctrl, draft } = useReadDraftRest<ServiceItems>(
-    "service_items",
-    id || "new",
-    readonly
-  );
+  const { user } = useAuth();
+
+  const {
+    isPending,
+    ctrl,
+    draft,
+    save: _save,
+  } = useReadDraftRest<ServiceItems>("service_items", id || "new", readonly);
+
+  const { article } = useArticle(draft.article);
 
   const { service_items: otherServiceItems } = useServiceItems({
     query: { for_rel_quote: draft.for_rel_quote },
@@ -49,30 +57,29 @@ export const ServiceItemsDetailsPage = ({
   return (
     <div className="w-full max-w-3xl mx-auto">
       <FormContext readonly={readonly} alwaysVisible>
+        <Section>
+          <div className="float-right space-x-2 items-center flex-row flex">
+            <TagsInput ctrl={ctrl("tags")} />
+            <UsersInput ctrl={ctrl("assigned")} />
+            <ServiceItemStatus
+              value={draft.state}
+              onChange={(e) => {
+                if (readonly) {
+                  _save({ state: e });
+                } else {
+                  ctrl("state").onChange(e);
+                }
+              }}
+            />
+          </div>
+          Service
+        </Section>
+
         <div className="mt-4">
-          <FormInput label="Titre" type="text" ctrl={ctrl("title")} />
+          <FormInput size="lg" label="Titre" type="text" ctrl={ctrl("title")} />
         </div>
 
-        <div className="mt-4 space-x-2">
-          <ServiceItemStatus
-            value={draft.state}
-            onChange={ctrl("state").onChange}
-          />
-          <TagsInput ctrl={ctrl("tags")} />
-          <UsersInput ctrl={ctrl("assigned")} />
-          <InputButton
-            label={ctrl("hours_spent").value || "Temps estimé"}
-            icon={(p) => <ClockIcon {...p} />}
-            placeholder={"Nombre d'unité en fonction de l'article"}
-            ctrl={ctrl("hours_expected")}
-          >
-            {(ctrl("hours_spent").value || 0) +
-              " / " +
-              (ctrl("hours_expected").value || 0)}
-          </InputButton>
-        </div>
-
-        <div className="mt-2">
+        <div className="mt-4">
           <div className="space-y-2 mt-2">
             <EditorInput
               key={readonly ? ctrl("notes").value : undefined}
@@ -99,6 +106,31 @@ export const ServiceItemsDetailsPage = ({
 
         <div className="w-full border-t my-6" />
 
+        <div className="mt-4 space-x-2 items-center flex-row flex">
+          <RestDocumentsInput
+            size="xl"
+            entity="articles"
+            ctrl={ctrl("article")}
+            label="Article"
+            placeholder="Sélectionner un article"
+            filter={{ type: "service" } as any}
+            icon={(p) => <CubeIcon {...p} />}
+          />
+          <InputButton
+            label={ctrl("quantity_spent").value || "Temps estimé"}
+            icon={(p) => <ClockIcon {...p} />}
+            placeholder={"Nombre de '" + (article?.unit || "unités") + "'"}
+            ctrl={ctrl("quantity_expected")}
+          >
+            {(ctrl("quantity_spent").value || 0) +
+              " / " +
+              (ctrl("quantity_expected").value || 0)}{" "}
+            {article?.unit || "unités"}
+          </InputButton>
+        </div>
+
+        <div className="w-full border-t my-6" />
+
         <div className="flex space-x-2 items-center my-2">
           <RestDocumentsInput
             size="xl"
@@ -117,16 +149,6 @@ export const ServiceItemsDetailsPage = ({
             icon={(p) => <DocumentIcon {...p} />}
             filter={{ type: "quotes" } as Partial<Invoices>}
           />
-
-          <RestDocumentsInput
-            size="xl"
-            entity="articles"
-            ctrl={ctrl("article")}
-            label="Article"
-            placeholder="Sélectionner un article"
-            filter={{ type: "service" } as any}
-            icon={(p) => <CubeIcon {...p} />}
-          />
         </div>
 
         <div className="w-full border-t my-6" />
@@ -143,9 +165,16 @@ export const ServiceItemsDetailsPage = ({
           <Section className="mb-2">
             <Button
               theme="primary"
-              size="md"
+              size="sm"
               className="float-right"
-              onClick={() => createTime("service_times")}
+              onClick={() =>
+                createTime("service_times", "new", {
+                  service: draft.id,
+                  assigned: user?.id ? [user?.id] : [],
+                  date: Date.now(),
+                  quantity: 1,
+                })
+              }
             >
               Ajouter
             </Button>
@@ -154,10 +183,7 @@ export const ServiceItemsDetailsPage = ({
           <RestTable
             entity="service_times"
             data={serviceTimes}
-            columns={[
-              { title: "id", render: (i) => i.id },
-              { title: "time", render: (i) => i.hours },
-            ]}
+            columns={ServiceTimesColumns}
           />
         </div>
 

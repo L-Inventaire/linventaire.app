@@ -53,7 +53,7 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
                       getRoute(ROUTES.InvoicesEdit, { id: "new" }),
                       {
                         ...invoice,
-                        from_rel_quote: invoice.id,
+                        from_rel_quote: [invoice.id],
                         type: "supplier_quotes",
                         state: "draft",
                         id: "",
@@ -61,26 +61,6 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
                     )}
                   >
                     Démarrer une commande
-                  </Button>
-                  <Button
-                    size="sm"
-                    shortcut={["f"]}
-                    disabled={
-                      invoice.state !== "purchase_order" &&
-                      invoice.state !== "completed"
-                    }
-                    to={withModel(
-                      getRoute(ROUTES.InvoicesEdit, { id: "new" }),
-                      {
-                        ...invoice,
-                        from_rel_quote: invoice.id,
-                        type: "invoices",
-                        state: "draft",
-                        id: "",
-                      }
-                    )}
-                  >
-                    Facturer
                   </Button>
                 </>
               )}
@@ -94,8 +74,8 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
                   }
                   to={withModel(getRoute(ROUTES.InvoicesEdit, { id: "new" }), {
                     ...invoice,
-                    from_rel_quote: invoice.from_rel_quote,
-                    from_rel_invoice: invoice.id,
+                    from_rel_quote: [invoice.from_rel_quote],
+                    from_rel_invoice: [invoice.id],
                     type: "credit_notes",
                     state: "draft",
                     id: "",

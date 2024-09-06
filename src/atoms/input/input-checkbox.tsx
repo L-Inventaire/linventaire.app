@@ -30,7 +30,6 @@ export const Checkbox = (props: {
           props.size === "sm" ? "w-4 h-4" : "w-5 h-5 "
         )}
         onClick={(e) =>
-          !props.label &&
           !props.disabled &&
           props.onChange &&
           props.onChange(!props.value, e as React.MouseEvent<HTMLInputElement>)
@@ -57,24 +56,22 @@ export const Checkbox = (props: {
 
   if (props.label) {
     return (
-      <div
-        className={"flex flex-row items-center"}
-        onClick={(e) => {
-          if (!props.disabled) {
-            props.onChange &&
-              props.onChange(
-                !props.value,
-                e as React.MouseEvent<HTMLInputElement>
-              );
-          }
-        }}
-      >
+      <div className={"flex flex-row items-center"}>
         {renderSwitch()}
         <BaseSmall
           className={
             "ml-2 shrink-0 " +
             (props.disabled ? "opacity-50" : "cursor-pointer")
           }
+          onClick={(e) => {
+            if (!props.disabled) {
+              props.onChange &&
+                props.onChange(
+                  !props.value,
+                  e as React.MouseEvent<HTMLInputElement>
+                );
+            }
+          }}
         >
           {props.label}
         </BaseSmall>

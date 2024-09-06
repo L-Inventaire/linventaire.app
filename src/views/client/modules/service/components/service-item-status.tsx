@@ -11,7 +11,7 @@ export const ServiceItemStatus = ({
   // "bought" | "stock" | "reserved" | "in_transit" | "delivered"
   value: ServiceItems["state"];
   onChange?: (value: ServiceItems["state"]) => void;
-  size?: "sm" | "md" | "md" | "lg";
+  size?: "xs" | "sm" | "md" | "md" | "lg";
 }) => {
   const statusName = {
     backlog: "Backlog",

@@ -44,32 +44,48 @@ export const StockItemsDetailsPage = ({
 
   const [article, setArticle] = useState<Articles | null>(null);
 
-  const { isPending, ctrl, draft, setDraft } = useReadDraftRest<StockItems>(
-    "stock_items",
-    id || "new",
-    readonly
-  );
+  const {
+    isPending,
+    ctrl,
+    draft,
+    setDraft,
+    save: _save,
+  } = useReadDraftRest<StockItems>("stock_items", id || "new", readonly);
 
   useEffect(() => {
     if (!isPending && draft)
       setDraft((draft: StockItems) => {
         // Set auto computed values and defaults
-        return draft;
+        return { ...draft, state: draft?.state || "bought" };
       });
-  }, [JSON.stringify(draft)]);
+  }, [JSON.stringify(draft), isPending]);
 
   if (isPending || (id && draft.id !== id) || !client) return <PageLoader />;
 
   return (
     <div className="w-full max-w-3xl mx-auto">
       <FormContext readonly={readonly} alwaysVisible>
-        <div className="flex flex-row mt-4 mb-2 items-center">
+        <div className="flex flex-row mt-4 mb-2 items-center space-x-2">
           <SectionSmall className="grow m-0">Élément du stock</SectionSmall>
+          <TagsInput
+            size="md"
+            value={ctrl("tags").value}
+            onChange={ctrl("tags").onChange}
+          />
+          <UsersInput
+            size="md"
+            value={ctrl("assignees").value}
+            onChange={ctrl("assignees").onChange}
+          />
           <StockItemStatus
             value={draft.state}
-            onChange={(state) => setDraft({ ...draft, state })}
-            size="md"
-            readonly={readonly}
+            onChange={(e) => {
+              if (readonly) {
+                _save({ state: e });
+              } else {
+                ctrl("state").onChange(e);
+              }
+            }}
           />
         </div>
 
@@ -130,7 +146,7 @@ export const StockItemsDetailsPage = ({
 
         {!!article && (
           <div className="mt-2">
-            <div className="m-grid-1">
+            <div className="m-grid-1 flex items-center flex-row">
               <InputButton
                 data-tooltip="Numéro de série ou de lot"
                 theme="outlined"
@@ -151,7 +167,7 @@ export const StockItemsDetailsPage = ({
               >
                 {ctrl("quantity").value || 1} {article.unit || "unité"}
               </InputButton>
-              {(!readonly || ctrl("location").value) && (
+              {false && (!readonly || ctrl("location").value) && (
                 <Button
                   data-tooltip="Localisation"
                   theme="outlined"
@@ -160,16 +176,6 @@ export const StockItemsDetailsPage = ({
                   Localisation
                 </Button>
               )}
-              <TagsInput
-                size="md"
-                value={ctrl("tags").value}
-                onChange={ctrl("tags").onChange}
-              />
-              <UsersInput
-                size="md"
-                value={ctrl("assignees").value}
-                onChange={ctrl("assignees").onChange}
-              />
             </div>
           </div>
         )}
@@ -242,7 +248,7 @@ export const StockItemsDetailsPage = ({
           </div>
         )}
 
-        {!!article && (
+        {!!article && false && (
           <div>
             <SectionSmall className="mt-8 mb-2">Actions</SectionSmall>
             <Button theme="outlined">Subdiviser le lot</Button>

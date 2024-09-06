@@ -29,7 +29,7 @@ export const UsersInput = (props: {
   ).filter((u) => (u.user as PublicCustomer)?.id) as any;
   const [focused, setFocused] = useState(false);
   const selectedUsers = _.sortBy(
-    (users || []).filter((user) => props.value.includes(user.user_id)),
+    (users || []).filter((user) => (props.value || []).includes(user.user_id)),
     "name"
   );
 
@@ -57,7 +57,9 @@ export const UsersInput = (props: {
           )}
           onClick={() =>
             !props.disabled &&
-            props.onChange?.(props.value.filter((a) => a !== user.user_id))
+            props.onChange?.(
+              (props.value || []).filter((a) => a !== user.user_id)
+            )
           }
           icon={
             !props.disabled ? (
@@ -108,7 +110,7 @@ export const UsersInput = (props: {
             className="max-w-24"
             options={[
               ...(users || [])
-                .filter((a) => !props.value.includes(a.user_id))
+                .filter((a) => !(props.value || []).includes(a.user_id))
                 .map((a) => ({
                   label: getFullName(a.user) || a.user.email || "-",
                   value: a.user_id,
@@ -118,7 +120,7 @@ export const UsersInput = (props: {
               const user = (users || [])?.find((a) => a.user_id === value);
               if (user) {
                 props.onChange?.([
-                  ...props.value.slice(0, (props.max || 100) - 1),
+                  ...(props.value || []).slice(0, (props.max || 100) - 1),
                   user.user_id,
                 ]);
               } else {

@@ -10,8 +10,18 @@ import { useRestSchema } from "@features/utils/rest/hooks/use-rest";
 import { withSearchAsModelObj } from "@components/search-bar/utils/as-model";
 import { buildQueryFromMap } from "@components/search-bar/utils/utils";
 
-export const ModalEditor = () => {
-  const [state, setState] = useRecoilState(CtrlKAtom);
+export const ModalEditor = (props: { index: number }) => {
+  const [states, setStates] = useRecoilState(CtrlKAtom);
+
+  const state = states[props.index];
+  const setState = (newState: any) => {
+    setStates((states) => {
+      const newStates = [...states];
+      newStates[props.index] = newState;
+      return newStates;
+    });
+  };
+
   const currentState = state.path[state.path.length - 1] || {};
   const previousState = state.path[state.path.length - 2] || {};
 
