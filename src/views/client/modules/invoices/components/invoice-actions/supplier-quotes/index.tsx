@@ -1,7 +1,10 @@
 import { Button } from "@atoms/button/button";
 import { DropdownButton } from "@atoms/dropdown";
+import { withModel } from "@components/search-bar/utils/as-model";
 import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { Invoices } from "@features/invoices/types/types";
+import { getRoute, ROUTES } from "@features/routes";
+import { useNavigateAlt } from "@features/utils/navigate";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import {
   ChatBubbleBottomCenterIcon,
@@ -12,8 +15,6 @@ import {
   PrinterIcon,
 } from "@heroicons/react/16/solid";
 import { getPdfPreview } from "../../invoices-preview/invoices-preview";
-import { useSetRecoilState } from "recoil";
-import { InvoiceInvoiceModalAtom } from "../modal-invoice";
 
 export const SupplierQuotesActions = ({
   id,
@@ -23,7 +24,7 @@ export const SupplierQuotesActions = ({
   readonly?: boolean;
 }) => {
   const edit = useEditFromCtrlK();
-  const openInvoiceModal = useSetRecoilState(InvoiceInvoiceModalAtom);
+  const navigate = useNavigateAlt();
 
   const { draft, save: _save } = useReadDraftRest<Invoices>(
     "invoices",
@@ -115,7 +116,17 @@ export const SupplierQuotesActions = ({
             theme="outlined"
             size="lg"
             icon={(p) => <DocumentCheckIcon {...p} />}
-            onClick={() => openInvoiceModal(true)}
+            onClick={(event: any) =>
+              navigate(
+                withModel(getRoute(ROUTES.InvoicesEdit, { id: "new" }), {
+                  ...draft,
+                  type: "supplier_invoices",
+                  state: "draft",
+                  id: "",
+                }),
+                { event }
+              )
+            }
           >
             Enregistrer une facture
           </Button>

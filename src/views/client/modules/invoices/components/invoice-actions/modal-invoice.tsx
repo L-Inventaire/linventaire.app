@@ -11,8 +11,17 @@ import { useInvoices } from "@features/invoices/hooks/use-invoices";
 import { InvoiceLine, Invoices } from "@features/invoices/types/types";
 import { getRoute, ROUTES } from "@features/routes";
 import { formatAmount } from "@features/utils/format/strings";
+import { useNavigateAlt } from "@features/utils/navigate";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
-import { Box, Separator, Spinner, Strong, Tabs, Text } from "@radix-ui/themes";
+import {
+  Box,
+  Callout,
+  Separator,
+  Spinner,
+  Strong,
+  Tabs,
+  Text,
+} from "@radix-ui/themes";
 import { useQuery } from "@tanstack/react-query";
 import { ModalHr, PageHr } from "@views/client/_layout/page";
 import { useEffect, useState } from "react";
@@ -45,7 +54,7 @@ export const InvoiceInvoiceModalContent = ({
 }) => {
   const { draft } = useReadDraftRest<Invoices>("invoices", id || "new");
 
-  const navigate = useNavigate();
+  const navigate = useNavigateAlt();
 
   const { invoices } = useInvoices({
     query: buildQueryFromMap({
@@ -53,7 +62,26 @@ export const InvoiceInvoiceModalContent = ({
     } as Partial<Invoices>),
   });
 
-  const defaultContent = draft.content?.filter((a) => (a.quantity || 0) > 0);
+  const invoicedArticlesLines =
+    invoices?.data?.list?.reduce(
+      (acc, a) => acc.concat(a.content || []),
+      [] as InvoiceLine[]
+    ) || [];
+  const invoicedArticlesMap = {} as Record<string, number>;
+  for (const line of invoicedArticlesLines) {
+    invoicedArticlesMap[line.article || ""] =
+      (invoicedArticlesMap[line.article || ""] || 0) + (line.quantity || 0);
+  }
+  const defaultContent = draft.content
+    ?.map((a) => {
+      const invoicedQuantity = invoicedArticlesMap[a.article || ""] || 0;
+      invoicedArticlesMap[a.article || ""] -= a.quantity || 0;
+      return {
+        ...a,
+        quantity: Math.max(0, (a.quantity || 0) - invoicedQuantity),
+      };
+    })
+    ?.filter((a) => (a.quantity || 0) > 0);
 
   const [selection, setSelection] = useState<InvoiceLine[]>([]);
 
@@ -78,7 +106,9 @@ export const InvoiceInvoiceModalContent = ({
       >
         <Tabs.List>
           <Tabs.Trigger value="complete">Facturer tout le reste</Tabs.Trigger>
-          <Tabs.Trigger value="partial">Facture partielle</Tabs.Trigger>
+          {!!defaultContent?.length && (
+            <Tabs.Trigger value="partial">Facture partielle</Tabs.Trigger>
+          )}
         </Tabs.List>
 
         <Box pt="3">
@@ -144,51 +174,86 @@ export const InvoiceInvoiceModalContent = ({
         </Box>
       </Tabs.Root>
 
-      <SectionSmall>Facture à générer</SectionSmall>
-
-      <div>
-        {partialInvoice.isPending && <Spinner />}
-
-        {!partialInvoice.isPending && (
-          <div>
-            <Strong>
-              {formatAmount(
-                partialInvoice.data?.partial_invoice?.total?.total || 0
-              )}{" "}
-              HT sur cette facture.
-            </Strong>
-            <br />
-            {formatAmount(partialInvoice.data?.invoiced?.total?.total || 0)} HT
-            déjà facturé.
-            <br />
-            {formatAmount(partialInvoice.data?.remaining?.total?.total || 0)} HT
-            restant à facturer.
+      {(partialInvoice.data?.partial_invoice?.total?.total || 0) === 0 && (
+        <>
+          <Callout.Root>
+            <Callout.Text>Aucune facture à générer.</Callout.Text>
+          </Callout.Root>
+          <div className="text-right mt-4">
+            <Button
+              theme="outlined"
+              onClick={(event: any) => {
+                navigate(
+                  getRoute(ROUTES.Invoices, { type: "invoices" }) +
+                    `?q=from_rel_quote:"${draft.id}"`,
+                  {
+                    event,
+                  }
+                );
+                onClose();
+              }}
+            >
+              Consulter les factures de ce devis
+            </Button>
           </div>
-        )}
-      </div>
+        </>
+      )}
 
-      <div className="text-right">
-        <Button
-          onClick={() => {
-            navigate(
-              withModel(getRoute(ROUTES.InvoicesEdit, { id: "new" }), {
-                ...draft,
-                from_rel_quote: [draft.id],
-                type: "invoices",
-                state: "draft",
-                id: "",
-                content: partialInvoice.data?.partial_invoice?.content?.filter(
-                  (a) => a.type === "correction" || (a.quantity || 0) > 0
-                ),
-                discount: partialInvoice.data?.partial_invoice?.discount,
-              })
-            );
-            onClose();
-          }}
-        >
-          Créer la facture
-        </Button>
-      </div>
+      {partialInvoice.isPending ||
+        ((partialInvoice.data?.partial_invoice?.total?.total || 0) > 0 && (
+          <>
+            <SectionSmall>Facture à générer</SectionSmall>
+            <div>
+              {partialInvoice.isPending && <Spinner />}
+
+              {!partialInvoice.isPending && (
+                <div>
+                  <Strong>
+                    {formatAmount(
+                      partialInvoice.data?.partial_invoice?.total?.total || 0
+                    )}{" "}
+                    HT sur cette facture.
+                  </Strong>
+                  <br />
+                  {formatAmount(
+                    partialInvoice.data?.invoiced?.total?.total || 0
+                  )}{" "}
+                  HT déjà facturé.
+                  <br />
+                  {formatAmount(
+                    partialInvoice.data?.remaining?.total?.total || 0
+                  )}{" "}
+                  HT restant à facturer.
+                </div>
+              )}
+            </div>
+
+            <div className="text-right">
+              <Button
+                onClick={() => {
+                  navigate(
+                    withModel(getRoute(ROUTES.InvoicesEdit, { id: "new" }), {
+                      ...draft,
+                      from_rel_quote: [draft.id],
+                      type: "invoices",
+                      state: "draft",
+                      id: "",
+                      content:
+                        partialInvoice.data?.partial_invoice?.content?.filter(
+                          (a) =>
+                            a.type === "correction" || (a.quantity || 0) > 0
+                        ),
+                      discount: partialInvoice.data?.partial_invoice?.discount,
+                    })
+                  );
+                  onClose();
+                }}
+              >
+                Créer la facture
+              </Button>
+            </div>
+          </>
+        ))}
     </ModalContent>
   );
 };

@@ -421,40 +421,42 @@ export const InvoicesDetailsPage = ({
                         </div>
                       )}
 
-                      {!isQuoteRelated && readonly && (
-                        <div className="mt-8">
-                          {!isQuoteRelated && readonly && (
-                            <div className="float-right">
-                              <Button
-                                size="sm"
-                                onClick={() =>
-                                  edit<AccountingTransactions>(
-                                    "accounting_transactions",
-                                    "",
-                                    {
-                                      rel_invoices: [draft.id],
-                                      currency: draft.currency,
-                                      amount:
-                                        draft.total?.total_with_taxes || 0,
-                                      reference: draft.reference,
-                                    }
-                                  )
-                                }
-                              >
-                                Enregistrer un paiement
-                              </Button>
-                            </div>
-                          )}
-                          <Section className="mb-2">Paiements</Section>
-                          <Table
-                            data={accounting_transactions.data?.list || []}
-                            columns={
-                              CtrlKRestEntities["accounting_transactions"]
-                                .renderResult as any
-                            }
-                          />
-                        </div>
-                      )}
+                      {!isQuoteRelated &&
+                        readonly &&
+                        draft.state !== "draft" && (
+                          <div className="mt-8">
+                            {!isQuoteRelated && readonly && (
+                              <div className="float-right">
+                                <Button
+                                  size="sm"
+                                  onClick={() =>
+                                    edit<AccountingTransactions>(
+                                      "accounting_transactions",
+                                      "",
+                                      {
+                                        rel_invoices: [draft.id],
+                                        currency: draft.currency,
+                                        amount:
+                                          draft.total?.total_with_taxes || 0,
+                                        reference: draft.reference,
+                                      }
+                                    )
+                                  }
+                                >
+                                  Enregistrer un paiement
+                                </Button>
+                              </div>
+                            )}
+                            <Section className="mb-2">Paiements</Section>
+                            <Table
+                              data={accounting_transactions.data?.list || []}
+                              columns={
+                                CtrlKRestEntities["accounting_transactions"]
+                                  .renderResult as any
+                              }
+                            />
+                          </div>
+                        )}
 
                       {!isQuoteRelated && (
                         <div className="mt-8">
