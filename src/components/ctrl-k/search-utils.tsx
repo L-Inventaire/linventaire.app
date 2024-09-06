@@ -6,9 +6,18 @@ import { CtrlKOptionsType } from "@features/ctrlk/types";
 import { CtrlKAtom } from "@features/ctrlk/store";
 import { useTranslation } from "react-i18next";
 
-export const useSearchableEntities = () => {
+export const useSearchableEntities = (index: number) => {
   const { t } = useTranslation();
-  const [state, setState] = useRecoilState(CtrlKAtom);
+  const [states, setStates] = useRecoilState(CtrlKAtom);
+
+  const state = states[index];
+  const setState = (newState: any) => {
+    setStates((states) => {
+      const newStates = [...states];
+      newStates[index] = newState;
+      return newStates;
+    });
+  };
 
   const getAction =
     (entity: string, query?: string, internalQuery?: any) => () => {

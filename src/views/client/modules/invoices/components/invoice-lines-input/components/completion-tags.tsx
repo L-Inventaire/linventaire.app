@@ -29,25 +29,30 @@ export const CompletionTags = (props: {
   const openCtrlK = useSetRecoilState(CtrlKAtom);
 
   const onClick = (query: string) => {
-    openCtrlK({
-      path: [
-        {
-          mode: "search",
-          options: {
-            entity: "stock_items",
-            query,
-            internalQuery: {
-              [props.invoice?.type === "supplier_quotes"
-                ? "from_rel_supplier_quote"
-                : "for_rel_quote"]: props.invoice?.id,
-              article:
-                props.lines?.length === 1 ? props.lines[0].article : undefined,
+    openCtrlK((states) => [
+      ...states,
+      {
+        path: [
+          {
+            mode: "search",
+            options: {
+              entity: "stock_items",
+              query,
+              internalQuery: {
+                [props.invoice?.type === "supplier_quotes"
+                  ? "from_rel_supplier_quote"
+                  : "for_rel_quote"]: props.invoice?.id,
+                article:
+                  props.lines?.length === 1
+                    ? props.lines[0].article
+                    : undefined,
+              },
             },
-          },
-        } as CtrlKPathType<StockItems>,
-      ],
-      selection: { entity: "", items: [] },
-    });
+          } as CtrlKPathType<StockItems>,
+        ],
+        selection: { entity: "", items: [] },
+      },
+    ]);
   };
 
   const shortLeft =

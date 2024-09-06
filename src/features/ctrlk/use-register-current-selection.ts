@@ -5,9 +5,12 @@ export const useRegisterActiveSelection = <T>() => {
   const setCtrlK = useSetRecoilState(CtrlKAtom);
 
   return (entity: string, items: T[]) =>
-    setCtrlK((state) => {
+    setCtrlK((states) => {
       // If already open we don't want to override the current selection
-      if (state.path.length > 0) return state;
-      return { ...state, selection: { entity, items } };
+      if ((states[states.length - 1]?.path?.length || 0) > 0) return states;
+      return [
+        ...states,
+        { ...(states[states.length - 1] || {}), selection: { entity, items } },
+      ];
     });
 };
