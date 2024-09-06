@@ -99,7 +99,7 @@ export const InvoicesActions = ({
                   navigate(
                     withModel(getRoute(ROUTES.InvoicesEdit, { id: "new" }), {
                       ...draft,
-                      from_rel_quote: draft.id,
+                      from_rel_quote: [draft.id],
                       type: "supplier_quotes",
                       state: "draft",
                       id: "",

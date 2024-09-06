@@ -27,6 +27,7 @@ import { InvoiceSendModal, InvoiceSendModalAtom } from "./modal-send";
 import { QuotesActions } from "./quotes";
 import { SupplierInvoicesActions } from "./supplier-invoices";
 import { SupplierQuotesActions } from "./supplier-quotes";
+import { InvoiceInvoiceModal } from "./modal-invoice";
 
 export const InvoiceActions = ({
   id,
@@ -135,6 +136,7 @@ export const InvoiceActions = ({
   return (
     <div className="text-right space-x-2 flex items-center">
       <InvoiceSendModal id={id} />
+      <InvoiceInvoiceModal id={id} />
 
       <div className="grow"></div>
 
@@ -293,7 +295,7 @@ export const InvoiceActions = ({
                               getRoute(ROUTES.InvoicesEdit, { id: "new" }),
                               {
                                 ...draft,
-                                from_rel_quote: draft.id,
+                                from_rel_quote: [draft.id],
                                 type: "supplier_quotes",
                                 state: "draft",
                                 id: "",

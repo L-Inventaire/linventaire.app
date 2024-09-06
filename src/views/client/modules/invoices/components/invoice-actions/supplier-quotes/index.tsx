@@ -12,6 +12,8 @@ import {
   PrinterIcon,
 } from "@heroicons/react/16/solid";
 import { getPdfPreview } from "../../invoices-preview/invoices-preview";
+import { useSetRecoilState } from "recoil";
+import { InvoiceInvoiceModalAtom } from "../modal-invoice";
 
 export const SupplierQuotesActions = ({
   id,
@@ -21,6 +23,7 @@ export const SupplierQuotesActions = ({
   readonly?: boolean;
 }) => {
   const edit = useEditFromCtrlK();
+  const openInvoiceModal = useSetRecoilState(InvoiceInvoiceModalAtom);
 
   const { draft, save: _save } = useReadDraftRest<Invoices>(
     "invoices",
@@ -112,6 +115,7 @@ export const SupplierQuotesActions = ({
             theme="outlined"
             size="lg"
             icon={(p) => <DocumentCheckIcon {...p} />}
+            onClick={() => openInvoiceModal(true)}
           >
             Enregistrer une facture
           </Button>
@@ -121,7 +125,7 @@ export const SupplierQuotesActions = ({
             size="lg"
             icon={(p) => <CubeIcon {...p} />}
             onClick={() =>
-              edit("stock_items", undefined, { from_rel_quote: draft.id })
+              edit("stock_items", undefined, { from_rel_quote: [draft.id] })
             }
           >
             Réception

@@ -140,7 +140,7 @@ export const Modal = (props: {
                 >
                   <div
                     className={
-                      "align-bottom bg-white dark:bg-slate-950 px-4 pt-5 pb-4 text-left w-full overflow-visible shadow-xl transform transition-all sm:align-middle sm:p-6 " +
+                      "align-bottom bg-white dark:bg-slate-950 text-left w-full overflow-visible shadow-xl transform transition-all sm:align-middle " +
                       "relative inline-block rounded-tr-md rounded-tl-md sm:rounded-lg sm:my-8 w-full md:w-[95vw] sm:max-w-[400px] " +
                       "dark:border-slate-700 dark:border " +
                       (props.className || "")
@@ -161,6 +161,7 @@ export const Modal = (props: {
                     )}
                     <ErrorBoundary>
                       <div
+                        className="px-4 pt-5 pb-4 sm:p-6"
                         onClick={(e) => {
                           e.stopPropagation();
                         }}

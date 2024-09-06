@@ -17,6 +17,7 @@ import { getPdfPreview } from "../../invoices-preview/invoices-preview";
 import { InvoiceSendModalAtom } from "../modal-send";
 import { useSetRecoilState } from "recoil";
 import { useNavigateAlt } from "@features/utils/navigate";
+import { InvoiceInvoiceModalAtom } from "../modal-invoice";
 
 export const QuotesActions = ({
   id,
@@ -27,6 +28,7 @@ export const QuotesActions = ({
 }) => {
   const navigate = useNavigateAlt();
   const openSendModal = useSetRecoilState(InvoiceSendModalAtom);
+  const openInvoiceModal = useSetRecoilState(InvoiceInvoiceModalAtom);
 
   const { draft, save: _save } = useReadDraftRest<Invoices>(
     "invoices",
@@ -104,7 +106,7 @@ export const QuotesActions = ({
                   navigate(
                     withModel(getRoute(ROUTES.InvoicesEdit, { id: "new" }), {
                       ...draft,
-                      from_rel_quote: draft.id,
+                      from_rel_quote: [draft.id],
                       type: "supplier_quotes",
                       state: "draft",
                       id: "",
@@ -163,7 +165,7 @@ export const QuotesActions = ({
                   navigate(
                     withModel(getRoute(ROUTES.InvoicesEdit, { id: "new" }), {
                       ...draft,
-                      from_rel_quote: draft.id,
+                      from_rel_quote: [draft.id],
                       type: "supplier_quotes",
                       state: "draft",
                       id: "",
@@ -173,11 +175,11 @@ export const QuotesActions = ({
               },
             ]}
           />
-          {/* Créer une commande, marquer comme annulé */}
           <Button
             disabled={disabled}
             size="lg"
             icon={(p) => <DocumentCheckIcon {...p} />}
+            onClick={() => openInvoiceModal(true)}
           >
             Facturer
           </Button>
