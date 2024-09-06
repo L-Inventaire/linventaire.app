@@ -33,6 +33,10 @@ export const SupplierQuotesActions = ({
   const disabled =
     readonly || draft.state === "closed" || draft.state === "completed";
 
+  function openInvoiceModal(arg0: boolean): void {
+    throw new Error("Function not implemented.");
+  }
+
   return (
     <>
       {(draft.state === "draft" || draft.state === "sent") && (
@@ -153,11 +157,23 @@ export const SupplierQuotesActions = ({
       )}
 
       {draft.state === "completed" && (
-        <div>
+        <>
+          <DropdownButton
+            theme="invisible"
+            size="lg"
+            className="m-0"
+            icon={(p) => <EllipsisHorizontalIcon {...p} />}
+            menu={[
+              {
+                label: "Créer une facture",
+                onClick: () => openInvoiceModal(true),
+              },
+            ]}
+          />
           <Button disabled={true} size="lg">
             Document complet
           </Button>
-        </div>
+        </>
       )}
     </>
   );

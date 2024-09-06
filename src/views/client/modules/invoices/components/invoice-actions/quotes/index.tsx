@@ -195,11 +195,23 @@ export const QuotesActions = ({
       )}
 
       {draft.state === "completed" && (
-        <div>
+        <>
+          <DropdownButton
+            theme="invisible"
+            size="lg"
+            className="m-0"
+            icon={(p) => <EllipsisHorizontalIcon {...p} />}
+            menu={[
+              {
+                label: "Créer une facture",
+                onClick: () => openInvoiceModal(true),
+              },
+            ]}
+          />
           <Button disabled={true} size="lg">
             Document complet
           </Button>
-        </div>
+        </>
       )}
     </>
   );
