@@ -2,7 +2,7 @@ import { Button } from "@atoms/button/button";
 import { Info } from "@atoms/text";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { RestTable } from "@components/table-rest";
-import { CtrlKRestEntities } from "@features/ctrlk";
+import { InvoicesColumns } from "@features/invoices/configuration";
 import { useInvoices } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
 import { getDocumentNamePlurial } from "@features/invoices/utils";
@@ -22,7 +22,6 @@ import {
   schemaToSearchFields,
 } from "../../../../components/search-bar/utils/utils";
 import { InvoiceStatus } from "./components/invoice-status";
-import { InvoicesColumns } from "@features/invoices/configuration";
 
 export const InvoicesPage = () => {
   const type: Invoices["type"][] = (useParams().type?.split("+") || [

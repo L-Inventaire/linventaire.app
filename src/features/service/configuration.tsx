@@ -1,4 +1,5 @@
 import { SectionSmall } from "@atoms/text";
+import { UsersInput } from "@components/deprecated-users-input";
 import { RestDocumentsInput } from "@components/input-rest";
 import { Articles } from "@features/articles/types/types";
 import { getContactName } from "@features/contacts/types/types";
@@ -11,8 +12,6 @@ import { ServiceItemStatus } from "@views/client/modules/service/components/serv
 import { ServiceItemsDetailsPage } from "@views/client/modules/service/components/service-items-details";
 import { ServiceTimesDetailsPage } from "@views/client/modules/service/components/service-times-details";
 import { ServiceItems, ServiceTimes } from "./types/types";
-import { RestUserTag } from "@components/deprecated-rest-tags/components/user";
-import { UsersInput } from "@components/deprecated-users-input";
 
 export const useServiceItemDefaultModel: () => Partial<ServiceItems> =
   () => ({});

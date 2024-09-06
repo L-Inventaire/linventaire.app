@@ -10,12 +10,12 @@ import { FilesInput } from "@components/input-rest/files";
 import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
 import { buildQueryFromMap } from "@components/search-bar/utils/utils";
+import { AccountingTransactionsColumns } from "@features/accounting/configuration";
 import { useAccountingTransactions } from "@features/accounting/hooks/use-accounting-transactions";
 import { AccountingTransactions } from "@features/accounting/types/types";
 import { useClients } from "@features/clients/state/use-clients";
 import { useContact } from "@features/contacts/hooks/use-contacts";
 import { Contacts } from "@features/contacts/types/types";
-import { CtrlKRestEntities } from "@features/ctrlk";
 import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { Invoices } from "@features/invoices/types/types";
 import { getDocumentName } from "@features/invoices/utils";
@@ -44,7 +44,6 @@ import { CompletionTags } from "./invoice-lines-input/components/completion-tags
 import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-card";
 import { InvoiceStatus } from "./invoice-status";
 import { RelatedInvoices } from "./related-invoices";
-import { AccountingTransactionsColumns } from "@features/accounting/configuration";
 
 export const computeCompletion = (
   linesu: Invoices["content"],

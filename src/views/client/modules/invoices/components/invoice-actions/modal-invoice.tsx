@@ -1,9 +1,8 @@
 import { Button } from "@atoms/button/button";
 import { Checkbox } from "@atoms/input/input-checkbox";
-import { InputCounter } from "@atoms/input/input-counter";
 import { Input } from "@atoms/input/input-text";
 import { Modal, ModalContent } from "@atoms/modal/modal";
-import { Section, SectionSmall } from "@atoms/text";
+import { SectionSmall } from "@atoms/text";
 import { withModel } from "@components/search-bar/utils/as-model";
 import { buildQueryFromMap } from "@components/search-bar/utils/utils";
 import { InvoicesApiClient } from "@features/invoices/api-client/invoices-api-client";
@@ -20,12 +19,9 @@ import {
   Spinner,
   Strong,
   Tabs,
-  Text,
 } from "@radix-ui/themes";
 import { useQuery } from "@tanstack/react-query";
-import { ModalHr, PageHr } from "@views/client/_layout/page";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { atom, useRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
 

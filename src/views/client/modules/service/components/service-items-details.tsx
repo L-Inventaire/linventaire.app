@@ -9,8 +9,11 @@ import { FilesInput } from "@components/input-rest/files";
 import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
 import { RestTable } from "@components/table-rest";
+import { useArticle } from "@features/articles/hooks/use-articles";
+import { useAuth } from "@features/auth/state/use-auth";
 import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { Invoices } from "@features/invoices/types/types";
+import { ServiceTimesColumns } from "@features/service/configuration";
 import { useServiceItems } from "@features/service/hooks/use-service-items";
 import { useServiceTimes } from "@features/service/hooks/use-service-times";
 import { ServiceItems } from "@features/service/types/types";
@@ -21,10 +24,6 @@ import { DocumentIcon } from "@heroicons/react/24/outline";
 import { EditorInput } from "@molecules/editor-input";
 import { InvoiceRestDocument } from "../../invoices/components/invoice-lines-input/invoice-input-rest-card";
 import { ServiceItemStatus } from "./service-item-status";
-import { useArticle } from "@features/articles/hooks/use-articles";
-import { buildQueryFromMap } from "@components/search-bar/utils/utils";
-import { useAuth } from "@features/auth/state/use-auth";
-import { ServiceTimesColumns } from "@features/service/configuration";
 
 export const ServiceItemsDetailsPage = ({
   readonly,

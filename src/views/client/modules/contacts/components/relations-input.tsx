@@ -5,7 +5,6 @@ import { RestDocumentsInput } from "@components/input-rest";
 import { ContactsColumns } from "@features/contacts/configuration";
 import { useContacts } from "@features/contacts/hooks/use-contacts";
 import { Contacts, getContactName } from "@features/contacts/types/types";
-import { CtrlKRestEntities } from "@features/ctrlk";
 import { ROUTES, getRoute } from "@features/routes";
 import { useNavigateAlt } from "@features/utils/navigate";
 import { TrashIcon } from "@heroicons/react/24/outline";

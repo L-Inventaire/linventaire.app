@@ -2,14 +2,13 @@ import { Button } from "@atoms/button/button";
 import { Section } from "@atoms/text";
 import { generateQueryFromMap } from "@components/search-bar/utils/utils";
 import { RestTable } from "@components/table-rest";
-import { CtrlKRestEntities } from "@features/ctrlk";
+import { InvoicesColumns } from "@features/invoices/configuration";
 import { useInvoices } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
-import { useSetRecoilState } from "recoil";
-import { InvoiceInvoiceModalAtom } from "./invoice-actions/modal-invoice";
 import { getRoute, ROUTES } from "@features/routes";
 import { useNavigateAlt } from "@features/utils/navigate";
-import { InvoicesColumns } from "@features/invoices/configuration";
+import { useSetRecoilState } from "recoil";
+import { InvoiceInvoiceModalAtom } from "./invoice-actions/modal-invoice";
 
 export const RelatedInvoices = ({
   invoice,

@@ -1,9 +1,9 @@
 import { Button } from "@atoms/button/button";
 import { Info } from "@atoms/text";
 import { RestTable } from "@components/table-rest";
+import { AccountingTransactionsColumns } from "@features/accounting/configuration";
 import { useAccountingTransactions } from "@features/accounting/hooks/use-accounting-transactions";
 import { AccountingTransactions } from "@features/accounting/types/types";
-import { CtrlKRestEntities } from "@features/ctrlk";
 import { ROUTES, getRoute } from "@features/routes";
 import { useNavigateAlt } from "@features/utils/navigate";
 import {
@@ -15,7 +15,6 @@ import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
-import { AccountingTransactionsColumns } from "@features/accounting/configuration";
 
 export const AccountingPage = () => {
   const [options, setOptions] = useState<RestOptions<AccountingTransactions>>({
