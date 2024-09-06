@@ -1,19 +1,24 @@
 import { useQuery } from "@tanstack/react-query";
-import { DocumentsApiClient } from "./api-client/api-client";
+import { SigningSessionsApiClient } from "./api-client/api-client";
 
-export const useDocument = (id: string) => {
-  const { data: document, isLoading: isLoadingDocument } = useQuery({
-    queryKey: ["document", id],
-    queryFn: () => DocumentsApiClient.getDocument(id),
+export const useSigningSession = (id: string) => {
+  const { data: signingSession, isLoading: isLoadingDocument } = useQuery({
+    queryKey: ["signing-session", id],
+    queryFn: () => SigningSessionsApiClient.getSigningSession(id),
   });
 
-  const viewDocument = (contactID: string) => {
-    DocumentsApiClient.viewDocument(id, contactID);
+  const viewSigningSession = (contactID: string) => {
+    SigningSessionsApiClient.viewSigningSessio(id, contactID);
   };
 
-  const signDocument = (contactID: string) => {
-    DocumentsApiClient.signDocument(id, contactID);
+  const signSigningSession = () => {
+    return SigningSessionsApiClient.signSigningSession(id);
   };
 
-  return { document, isLoadingDocument, viewDocument, signDocument };
+  return {
+    signingSession,
+    isLoadingDocument,
+    viewSigningSession,
+    signSigningSession,
+  };
 };

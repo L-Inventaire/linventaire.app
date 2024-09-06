@@ -14,7 +14,7 @@ import {
 import { BackOfficeRoutes, Layout } from "./client";
 import { LoginRoutes } from "./signin";
 import { Tooltip } from "@atoms/tooltip/service";
-import { DocumentPage } from "./client/modules/document";
+import { SigningSessionPage } from "./client/modules/document";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -22,8 +22,11 @@ const router = createBrowserRouter(
       {BackOfficeRoutes()}
       {LoginRoutes()}
 
-      <Route path={ROUTES.SignDocumentView} element={<DocumentPage />} />
-      <Route path={ROUTES.SignedDocumentView} element={<DocumentPage />} />
+      <Route path={ROUTES.SignDocumentView} element={<SigningSessionPage />} />
+      <Route
+        path={ROUTES.SignedDocumentView}
+        element={<SigningSessionPage />}
+      />
 
       <Route path="*" element={<Navigate to={ROUTES.Login} />} />
       <Route path="" element={<Navigate to={ROUTES.Login} />} />

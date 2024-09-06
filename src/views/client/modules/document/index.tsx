@@ -1,38 +1,34 @@
 import { Button } from "@atoms/button/button";
 import { PageLoader } from "@atoms/page-loader";
 import { Base, Section, Title } from "@atoms/text";
-import { useDocument } from "@features/documents/hooks";
+import { useSigningSession } from "@features/documents/hooks";
 import { InvoicesApiClient } from "@features/invoices/api-client/invoices-api-client";
+import { Invoices } from "@features/invoices/types/types";
+import { isErrorResponse } from "@features/utils/rest/types/types";
 import { Page } from "@views/client/_layout/page";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
-import { EventItem } from "./components/event-item";
-import { isErrorResponse } from "@features/utils/rest/types/types";
-import { DocumentEntity } from "@features/documents/types";
 
-export const DocumentPage = () => {
-  const { document: documentID, contact: contactID } = useParams();
-  const {
-    document: documentResponse,
-    viewDocument,
-    signDocument,
-  } = useDocument(documentID ?? "");
+export const SigningSessionPage = () => {
+  const { session: sessionID } = useParams();
+  const { signingSession, viewSigningSession, signSigningSession } =
+    useSigningSession(sessionID ?? "");
   const { t } = useTranslation();
 
   useEffect(() => {
-    viewDocument(contactID ?? "");
-  }, [documentResponse]);
+    viewSigningSession(sessionID ?? "");
+  }, [signingSession]);
 
-  if (!documentResponse)
+  if (!signingSession)
     return (
       <div className="flex justify-center items-center h-full w-full dark:bg-wood-990 bg-white">
         <PageLoader />
       </div>
     );
 
-  if (isErrorResponse(documentResponse)) {
+  if (isErrorResponse(signingSession)) {
     return (
       <div
         className={twMerge(
@@ -56,7 +52,7 @@ export const DocumentPage = () => {
     );
   }
 
-  const document = documentResponse as DocumentEntity;
+  const invoice = signingSession.invoice_snapshot as unknown as Invoices;
 
   return (
     <div
@@ -79,11 +75,11 @@ export const DocumentPage = () => {
             </div>
 
             <div>
-              {document.entity && (
+              {invoice && (
                 <iframe
                   src={InvoicesApiClient.getPdfRoute({
-                    client_id: document.entity?.client_id ?? "",
-                    id: document.entity.id ?? "",
+                    client_id: invoice?.client_id ?? "",
+                    id: invoice.id ?? "",
                   })}
                   width={700}
                   height={500}
@@ -94,13 +90,9 @@ export const DocumentPage = () => {
               <div className="flex mt-2">
                 <Button
                   className="mr-2"
-                  onClick={() => {
-                    const recipient = document.recipients.list.find(
-                      (recipient) =>
-                        recipient.recipient_contact_id === contactID
-                    );
-                    signDocument(contactID ?? "");
-                    window.open(recipient?.id, "_blank");
+                  onClick={async () => {
+                    const signedSession = await signSigningSession();
+                    window.open(signedSession.signing_url, "_blank");
                   }}
                 >
                   Signer
@@ -111,11 +103,11 @@ export const DocumentPage = () => {
 
             <div className="flex flex-col bg-white w-3/4 rounded-md p-3 mt-6">
               <Section>Historique</Section>
-              {(document?.events?.list ?? [])
+              {/* {(document?.events?.list ?? [])
                 .filter((event) => !!event)
                 .map((event) => (
                   <EventItem document={document} event={event} />
-                ))}
+                ))} */}
             </div>
           </div>
         </div>

@@ -1,16 +1,13 @@
-import { Base } from "@atoms/text";
-import { DocumentEntity, DocumentEvents } from "@features/documents/types";
-import { formatTime } from "@features/utils/format/dates";
+import { SigningSession } from "@features/documents/types";
 
 export type EventItemProps = {
-  document: DocumentEntity;
-  event: DocumentEvents;
+  document: SigningSession;
 };
 
-export const EventItem = ({ document, event }: EventItemProps) => {
+export const EventItem = ({ document }: EventItemProps) => {
   return (
     <div className="w-full grid grid-cols-3">
-      <Base>
+      {/* <Base>
         {formatTime(event.created_at, {
           keepDate: true,
         })}
@@ -28,7 +25,7 @@ export const EventItem = ({ document, event }: EventItemProps) => {
             " " +
             event?.contact?.person_first_name?.toLocaleUpperCase()}
         {event?.user && event?.user?.full_name?.toLocaleUpperCase()}
-      </Base>
+      </Base> */}
     </div>
   );
 };
