@@ -1,4 +1,5 @@
 import { PageLoader } from "@atoms/page-loader";
+import { Tooltip } from "@atoms/tooltip/service";
 import { useAuth } from "@features/auth/state/use-auth";
 import { ROUTES } from "@features/routes";
 import { useListenForShortcuts } from "@features/utils/shortcuts";
@@ -11,10 +12,10 @@ import {
   createBrowserRouter,
   createRoutesFromElements,
 } from "react-router-dom";
-import { BackOfficeRoutes, Layout } from "./client";
-import { LoginRoutes } from "./signin";
-import { Tooltip } from "@atoms/tooltip/service";
+import { BackOfficeRoutes } from "./client";
 import { SigningSessionPage } from "./client/modules/document";
+import { LoginRoutes } from "./signin";
+import { SignedSessionPage } from "./client/modules/document/signed";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -23,10 +24,7 @@ const router = createBrowserRouter(
       {LoginRoutes()}
 
       <Route path={ROUTES.SignDocumentView} element={<SigningSessionPage />} />
-      <Route
-        path={ROUTES.SignedDocumentView}
-        element={<SigningSessionPage />}
-      />
+      <Route path={ROUTES.SignedDocumentView} element={<SignedSessionPage />} />
 
       <Route path="*" element={<Navigate to={ROUTES.Login} />} />
       <Route path="" element={<Navigate to={ROUTES.Login} />} />

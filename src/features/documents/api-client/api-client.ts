@@ -51,4 +51,32 @@ export class SigningSessionsApiClient {
     const data = await response.json();
     return data as SigningSession;
   };
+
+  static confirmSignSigningSession = async (id: string) => {
+    const response = await fetchServer(
+      "/api/signing-sessions/v1/" + id + "/confirm-signed",
+      {
+        method: "POST",
+      }
+    );
+
+    const data = await response.json();
+    return data as SigningSession;
+  };
+
+  static downloadSignedDocument = async (id: string): Promise<Blob> => {
+    const response = await fetchServer(
+      "/api/signing-sessions/v1/" + id + "/download",
+      {
+        method: "GET",
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to download signed document");
+    }
+
+    const data = await response.blob();
+    return data as Blob;
+  };
 }
