@@ -64,6 +64,18 @@ export class SigningSessionsApiClient {
     return data as SigningSession;
   };
 
+  static cancelSigningSession = async (id: string) => {
+    const response = await fetchServer(
+      "/api/signing-sessions/v1/" + id + "/cancel",
+      {
+        method: "POST",
+      }
+    );
+
+    const data = await response.json();
+    return data as SigningSession;
+  };
+
   static downloadSignedDocument = async (id: string): Promise<Blob> => {
     const response = await fetchServer(
       "/api/signing-sessions/v1/" + id + "/download",

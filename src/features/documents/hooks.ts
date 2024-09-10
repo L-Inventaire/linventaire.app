@@ -37,6 +37,10 @@ export const useSigningSession = (id: string) => {
     return SigningSessionsApiClient.signSigningSession(id);
   };
 
+  const cancelSigningSession = () => {
+    return SigningSessionsApiClient.cancelSigningSession(id);
+  };
+
   const downloadSignedDocument = async () => {
     return await SigningSessionsApiClient.downloadSignedDocument(id);
   };
@@ -51,5 +55,6 @@ export const useSigningSession = (id: string) => {
     signedDocument,
     isLoadingSignedDocument,
     refetchSignedDocument,
+    cancelSigningSession,
   };
 };

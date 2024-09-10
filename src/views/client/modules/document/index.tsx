@@ -1,6 +1,7 @@
+import { Alert } from "@atoms/alert";
 import { Button } from "@atoms/button/button";
 import { PageLoader } from "@atoms/page-loader";
-import { Base, Section, Title } from "@atoms/text";
+import { Base, Section, SectionSmall, Title } from "@atoms/text";
 import { useSigningSession } from "@features/documents/hooks";
 import { InvoicesApiClient } from "@features/invoices/api-client/invoices-api-client";
 import { Invoices } from "@features/invoices/types/types";
@@ -11,11 +12,17 @@ import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
+import styles from "./index.module.css";
 
 export const SigningSessionPage = () => {
   const { session: sessionID } = useParams();
-  const { signingSession, viewSigningSession, signSigningSession } =
-    useSigningSession(sessionID ?? "");
+  const {
+    signingSession,
+    viewSigningSession,
+    signSigningSession,
+    cancelSigningSession,
+    refetchSigningSession,
+  } = useSigningSession(sessionID ?? "");
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -75,36 +82,77 @@ export const SigningSessionPage = () => {
               <Section>Veuillez signer le document</Section>
             </div>
 
-            <div>
-              {invoice && (
-                <iframe
-                  src={InvoicesApiClient.getPdfRoute({
-                    client_id: invoice?.client_id ?? "",
-                    id: invoice.id ?? "",
-                  })}
-                  width={700}
-                  height={500}
-                  title="Invoice PDF Preview"
-                ></iframe>
+            <div className="w-full flex justify-center mb-6">
+              {signingSession.state === "signed" && (
+                <Alert
+                  title="Le document a déjà été signé"
+                  theme="warning"
+                  icon="CheckCircleIcon"
+                ></Alert>
               )}
+              {signingSession.state === "sent" && (
+                <Alert
+                  title="Le document a déjà été envoyé"
+                  theme="warning"
+                  icon="CheckCircleIcon"
+                ></Alert>
+              )}
+              {signingSession.state === "cancelled" && (
+                <Alert
+                  title="Le document a été refusé"
+                  theme="danger"
+                  icon="CheckCircleIcon"
+                ></Alert>
+              )}
+            </div>
+
+            <div className="w-full">
+              <div className={styles.videoContainer}>
+                {invoice && (
+                  <iframe
+                    src={InvoicesApiClient.getPdfRoute({
+                      client_id: invoice?.client_id ?? "",
+                      id: invoice.id ?? "",
+                    })}
+                    // className="!max-w-full !w-auto !h-auto"
+                    // width={700}
+                    // height={500}
+                    title="Invoice PDF Preview"
+                  ></iframe>
+                )}
+              </div>
 
               <div className="flex mt-2">
-                <Button
-                  className="mr-2"
-                  onClick={async () => {
-                    const signedSession = await signSigningSession();
-                    if (!signedSession.signing_url) {
-                      toast.error(
-                        "An error occurred while signing the document"
-                      );
-                      return;
-                    }
-                    window.open(signedSession.signing_url, "_blank");
-                  }}
-                >
-                  Signer
-                </Button>
-                <Button>Refuser</Button>
+                {!["signed", "sent", "cancelled"].includes(
+                  signingSession.state
+                ) && (
+                  <>
+                    <Button
+                      className="mr-2"
+                      onClick={async () => {
+                        const signedSession = await signSigningSession();
+                        if (!signedSession.signing_url) {
+                          toast.error(
+                            "An error occurred while signing the document"
+                          );
+                          return;
+                        }
+                        window.open(signedSession.signing_url, "_blank");
+                      }}
+                    >
+                      Signer
+                    </Button>
+                    <Button
+                      onClick={async () => {
+                        await cancelSigningSession();
+                        await refetchSigningSession();
+                        toast.success("La signature a été refusée");
+                      }}
+                    >
+                      Refuser
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
 
