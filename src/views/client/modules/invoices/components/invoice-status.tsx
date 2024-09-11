@@ -32,6 +32,7 @@ export const InvoiceStatus = ({
     paid: "Payé",
     closed: "Fermé",
     completed: "Complété",
+    signed: "Signé",
   };
 
   const statusColor = {
@@ -46,11 +47,22 @@ export const InvoiceStatus = ({
     paid: "green",
     closed: "red",
     completed: "green",
+    signed: "green",
   };
 
   const statusPerTypeGrouped = {
-    quotes: [["draft"], ["sent"], ["purchase_order", "closed", "completed"]],
-    invoices: [["draft"], ["sent"], ["paid", "partial_paid", "closed"]],
+    quotes: [
+      ["draft"],
+      ["sent"],
+      ["signed"],
+      ["purchase_order", "closed", "completed"],
+    ],
+    invoices: [
+      ["draft"],
+      ["sent"],
+      ["signed"],
+      ["paid", "partial_paid", "closed"],
+    ],
     credit_notes: [["draft"], ["sent"], ["paid", "partial_paid", "closed"]],
     supplier_quotes: [
       ["draft"],
