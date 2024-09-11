@@ -1,21 +1,24 @@
 import { Alert } from "@atoms/alert";
 import { Button } from "@atoms/button/button";
+import { Checkbox } from "@atoms/input/input-checkbox";
 import { PageLoader } from "@atoms/page-loader";
 import { Base, Section, Title } from "@atoms/text";
 import { useSigningSession } from "@features/documents/hooks";
 import { InvoicesApiClient } from "@features/invoices/api-client/invoices-api-client";
 import { InvoiceLine, Invoices } from "@features/invoices/types/types";
+import { getRoute, ROUTES } from "@features/routes";
 import { isErrorResponse } from "@features/utils/rest/types/types";
 import { Page } from "@views/client/_layout/page";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import styles from "./index.module.css";
-import { Checkbox } from "@atoms/input/input-checkbox";
 
 export const SigningSessionPage = () => {
+  const navigate = useNavigate();
+
   const { session: sessionID } = useParams();
   const {
     signingSession,
@@ -98,18 +101,42 @@ export const SigningSessionPage = () => {
 
             <div className="w-full flex justify-center mb-6">
               {signingSession.state === "signed" && (
-                <Alert
-                  title="Le document a déjà été signé"
-                  theme="warning"
-                  icon="CheckCircleIcon"
-                ></Alert>
+                <div className="flex flex-col justify-center items-center">
+                  <Alert
+                    title="Le document a déjà été signé"
+                    theme="warning"
+                    icon="CheckCircleIcon"
+                  ></Alert>
+                  <Button
+                    className="mt-2"
+                    onClick={() => {
+                      navigate(
+                        getRoute(ROUTES.SignedDocumentView, {
+                          session: sessionID,
+                        })
+                      );
+                    }}
+                  >
+                    Voir
+                  </Button>
+                </div>
               )}
               {signingSession.state === "sent" && (
-                <Alert
-                  title="Le document a déjà été envoyé"
-                  theme="warning"
-                  icon="CheckCircleIcon"
-                ></Alert>
+                <div>
+                  <Alert
+                    title="Le document a déjà été envoyé"
+                    theme="warning"
+                    icon="CheckCircleIcon"
+                  ></Alert>
+                  <Button
+                    className="mt-2"
+                    onClick={() => {
+                      window.open(signingSession.signing_url, "_blank");
+                    }}
+                  >
+                    Voir
+                  </Button>
+                </div>
               )}
               {signingSession.state === "cancelled" && (
                 <Alert
@@ -177,6 +204,10 @@ export const SigningSessionPage = () => {
                 {options.map((option) => (
                   <div className="mb-2">
                     <Checkbox
+                      disabled={
+                        signingSession.state === "signed" ||
+                        signingSession.state === "sent"
+                      }
                       onChange={(value) => {
                         setOptions((options) =>
                           options.map((o) =>

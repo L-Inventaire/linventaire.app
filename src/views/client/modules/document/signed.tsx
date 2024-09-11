@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
+import styles from "./index.module.css";
 
 export const SignedSessionPage = () => {
   const { session: sessionID } = useParams();
@@ -88,16 +89,11 @@ export const SignedSessionPage = () => {
               </Section>
             </div>
 
-            <div>
+            <div className="w-full">
               {url && (
-                <>
-                  <iframe
-                    width={700}
-                    height={500}
-                    src={url}
-                    title="Invoice PDF Preview"
-                  />
-                </>
+                <div className={styles.videoContainer}>
+                  <iframe src={url} title="Invoice PDF Preview" />
+                </div>
               )}
               {!signedDocument && (
                 <>
