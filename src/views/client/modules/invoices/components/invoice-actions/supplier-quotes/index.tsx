@@ -15,6 +15,8 @@ import {
   PrinterIcon,
 } from "@heroicons/react/16/solid";
 import { getPdfPreview } from "../../invoices-preview/invoices-preview";
+import { useSetRecoilState } from "recoil";
+import { InvoiceInvoiceModalAtom } from "../modal-invoice";
 
 export const SupplierQuotesActions = ({
   id,
@@ -25,6 +27,7 @@ export const SupplierQuotesActions = ({
 }) => {
   const edit = useEditFromCtrlK();
   const navigate = useNavigateAlt();
+  const openInvoiceModal = useSetRecoilState(InvoiceInvoiceModalAtom);
 
   const { draft, save: _save } = useReadDraftRest<Invoices>(
     "invoices",
@@ -32,10 +35,6 @@ export const SupplierQuotesActions = ({
   );
   const disabled =
     readonly || draft.state === "closed" || draft.state === "completed";
-
-  function openInvoiceModal(arg0: boolean): void {
-    throw new Error("Function not implemented.");
-  }
 
   return (
     <>
