@@ -24,7 +24,19 @@ export const useSigningSession = (id: string) => {
       signingSession &&
       !isErrorResponse(signingSession) &&
       signingSession.state === "signed",
-    retry: 50,
+    retry: (failureCount) => {
+      if (failureCount > 30) {
+        return false;
+      }
+
+      return (
+        (signingSession &&
+          !isErrorResponse(signingSession) &&
+          signingSession.state === "signed") ??
+        false
+      );
+    },
+    // retry: 50,
     retryDelay: 3000,
     retryOnMount: true,
   });
