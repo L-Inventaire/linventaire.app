@@ -1,18 +1,19 @@
 import { Alert } from "@atoms/alert";
 import { Button } from "@atoms/button/button";
 import { PageLoader } from "@atoms/page-loader";
-import { Base, Section, SectionSmall, Title } from "@atoms/text";
+import { Base, Section, Title } from "@atoms/text";
 import { useSigningSession } from "@features/documents/hooks";
 import { InvoicesApiClient } from "@features/invoices/api-client/invoices-api-client";
-import { Invoices } from "@features/invoices/types/types";
+import { InvoiceLine, Invoices } from "@features/invoices/types/types";
 import { isErrorResponse } from "@features/utils/rest/types/types";
 import { Page } from "@views/client/_layout/page";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import styles from "./index.module.css";
+import { Checkbox } from "@atoms/input/input-checkbox";
 
 export const SigningSessionPage = () => {
   const { session: sessionID } = useParams();
@@ -25,9 +26,24 @@ export const SigningSessionPage = () => {
   } = useSigningSession(sessionID ?? "");
   const { t } = useTranslation();
 
+  const [options, setOptions] = useState<InvoiceLine[]>([]);
+
   useEffect(() => {
     viewSigningSession(sessionID ?? "");
   }, [signingSession]);
+
+  const invoice =
+    signingSession && !isErrorResponse(signingSession)
+      ? (signingSession.invoice_snapshot as unknown as Invoices)
+      : null;
+
+  useEffect(() => {
+    setOptions(
+      invoice?.content
+        ?.filter((line) => line.optional)
+        .map((line) => ({ ...line })) ?? []
+    );
+  }, [invoice]);
 
   if (!signingSession)
     return (
@@ -59,8 +75,6 @@ export const SigningSessionPage = () => {
       </div>
     );
   }
-
-  const invoice = signingSession.invoice_snapshot as unknown as Invoices;
 
   return (
     <div
@@ -114,7 +128,7 @@ export const SigningSessionPage = () => {
                   <Button
                     className="mr-2"
                     onClick={async () => {
-                      const signedSession = await signSigningSession();
+                      const signedSession = await signSigningSession(options);
                       if (!signedSession.signing_url) {
                         toast.error(
                           "An error occurred while signing the document"
@@ -144,13 +158,40 @@ export const SigningSessionPage = () => {
               <div className={styles.videoContainer}>
                 {invoice && (
                   <iframe
-                    src={InvoicesApiClient.getPdfRoute({
-                      client_id: invoice?.client_id ?? "",
-                      id: invoice.id ?? "",
-                    })}
+                    src={InvoicesApiClient.getPdfRoute(
+                      {
+                        client_id: invoice?.client_id ?? "",
+                        id: invoice.id ?? "",
+                      },
+                      options
+                    )}
                     title="Invoice PDF Preview"
                   ></iframe>
                 )}
+              </div>
+            </div>
+
+            <div>
+              <Section>Options</Section>
+              <div>
+                {options.map((option) => (
+                  <div className="mb-2">
+                    <Checkbox
+                      onChange={(value) => {
+                        setOptions((options) =>
+                          options.map((o) =>
+                            o._id === option._id
+                              ? { ...o, optional_checked: value }
+                              : o
+                          )
+                        );
+                      }}
+                      label={option.name}
+                      size={"md"}
+                      value={option.optional_checked}
+                    />
+                  </div>
+                ))}
               </div>
             </div>
 

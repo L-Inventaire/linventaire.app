@@ -1,6 +1,7 @@
 import { fetchServer } from "@features/utils/fetch-server";
 import { SigningSession } from "../types";
 import { StandardOrErrorResponse } from "@features/utils/rest/types/types";
+import { InvoiceLine } from "@features/invoices/types/types";
 
 export class SigningSessionsApiClient {
   static getSigningSession = async (
@@ -40,11 +41,14 @@ export class SigningSessionsApiClient {
     return data as SigningSession;
   };
 
-  static signSigningSession = async (id: string) => {
+  static signSigningSession = async (id: string, options?: InvoiceLine[]) => {
     const response = await fetchServer(
       "/api/signing-sessions/v1/" + id + "/sign",
       {
         method: "POST",
+        body: JSON.stringify({
+          options: options ?? [],
+        }),
       }
     );
 
