@@ -77,7 +77,7 @@ export const SigningSessionPage = () => {
       >
         <div className="w-full h-full flex flex-col items-center">
           <div className="w-3/4 bg-white flex flex-col justify-between items-center rounded-md p-6">
-            <div className="flex flex-col justify-center items-center mb-6">
+            <div className="flex flex-col justify-center items-center">
               <Title>Signature du document</Title>
               <Section>Veuillez signer le document</Section>
             </div>
@@ -106,6 +106,40 @@ export const SigningSessionPage = () => {
               )}
             </div>
 
+            <div className="flex mb-4">
+              {!["signed", "sent", "cancelled"].includes(
+                signingSession.state
+              ) && (
+                <>
+                  <Button
+                    className="mr-2"
+                    onClick={async () => {
+                      const signedSession = await signSigningSession();
+                      if (!signedSession.signing_url) {
+                        toast.error(
+                          "An error occurred while signing the document"
+                        );
+                        return;
+                      }
+                      window.open(signedSession.signing_url, "_blank");
+                    }}
+                  >
+                    Signer
+                  </Button>
+                  <Button
+                    theme="danger"
+                    onClick={async () => {
+                      await cancelSigningSession();
+                      await refetchSigningSession();
+                      toast.success("La signature a été refusée");
+                    }}
+                  >
+                    Refuser
+                  </Button>
+                </>
+              )}
+            </div>
+
             <div className="w-full">
               <div className={styles.videoContainer}>
                 {invoice && (
@@ -114,44 +148,8 @@ export const SigningSessionPage = () => {
                       client_id: invoice?.client_id ?? "",
                       id: invoice.id ?? "",
                     })}
-                    // className="!max-w-full !w-auto !h-auto"
-                    // width={700}
-                    // height={500}
                     title="Invoice PDF Preview"
                   ></iframe>
-                )}
-              </div>
-
-              <div className="flex mt-2">
-                {!["signed", "sent", "cancelled"].includes(
-                  signingSession.state
-                ) && (
-                  <>
-                    <Button
-                      className="mr-2"
-                      onClick={async () => {
-                        const signedSession = await signSigningSession();
-                        if (!signedSession.signing_url) {
-                          toast.error(
-                            "An error occurred while signing the document"
-                          );
-                          return;
-                        }
-                        window.open(signedSession.signing_url, "_blank");
-                      }}
-                    >
-                      Signer
-                    </Button>
-                    <Button
-                      onClick={async () => {
-                        await cancelSigningSession();
-                        await refetchSigningSession();
-                        toast.success("La signature a été refusée");
-                      }}
-                    >
-                      Refuser
-                    </Button>
-                  </>
                 )}
               </div>
             </div>
