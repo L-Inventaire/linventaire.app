@@ -95,8 +95,10 @@ export const SigningSessionPage = () => {
         <div className="w-full h-full flex flex-col items-center">
           <div className="w-3/4 bg-white flex flex-col justify-between items-center rounded-md p-6">
             <div className="flex flex-col justify-center items-center">
-              <Title>Signature du document</Title>
-              <Section>Veuillez signer le document</Section>
+              <Title>Document {invoice?.reference}</Title>
+              <Section>
+                Vous êtes authentifiés comme {signingSession.recipient}
+              </Section>
             </div>
 
             <div className="w-full flex justify-center mb-6">
@@ -150,35 +152,38 @@ export const SigningSessionPage = () => {
             <div className="flex mb-4">
               {!["signed", "sent", "cancelled"].includes(
                 signingSession.state
-              ) && (
-                <>
-                  <Button
-                    className="mr-2"
-                    onClick={async () => {
-                      const signedSession = await signSigningSession(options);
-                      if (!signedSession.signing_url) {
-                        toast.error(
-                          "An error occurred while signing the document"
+              ) &&
+                invoice?.type !== "invoices" && (
+                  <>
+                    <Button
+                      className="mr-2"
+                      onClick={async () => {
+                        const signedSession = await signSigningSession(
+                          options ?? []
                         );
-                        return;
-                      }
-                      window.open(signedSession.signing_url, "_blank");
-                    }}
-                  >
-                    Signer
-                  </Button>
-                  <Button
-                    theme="danger"
-                    onClick={async () => {
-                      await cancelSigningSession();
-                      await refetchSigningSession();
-                      toast.success("La signature a été refusée");
-                    }}
-                  >
-                    Refuser
-                  </Button>
-                </>
-              )}
+                        if (!signedSession.signing_url) {
+                          toast.error(
+                            "An error occurred while signing the document"
+                          );
+                          return;
+                        }
+                        window.open(signedSession.signing_url, "_blank");
+                      }}
+                    >
+                      Signer
+                    </Button>
+                    <Button
+                      theme="danger"
+                      onClick={async () => {
+                        await cancelSigningSession();
+                        await refetchSigningSession();
+                        toast.success("La signature a été refusée");
+                      }}
+                    >
+                      Refuser
+                    </Button>
+                  </>
+                )}
             </div>
 
             <div className="w-full">
@@ -198,33 +203,35 @@ export const SigningSessionPage = () => {
               </div>
             </div>
 
-            <div>
-              <Section>Options</Section>
+            {options.length > 0 && (
               <div>
-                {options.map((option) => (
-                  <div className="mb-2">
-                    <Checkbox
-                      disabled={
-                        signingSession.state === "signed" ||
-                        signingSession.state === "sent"
-                      }
-                      onChange={(value) => {
-                        setOptions((options) =>
-                          options.map((o) =>
-                            o._id === option._id
-                              ? { ...o, optional_checked: value }
-                              : o
-                          )
-                        );
-                      }}
-                      label={option.name}
-                      size={"md"}
-                      value={option.optional_checked}
-                    />
-                  </div>
-                ))}
+                <Section>Options</Section>
+                <div>
+                  {options.map((option) => (
+                    <div className="mb-2">
+                      <Checkbox
+                        disabled={
+                          signingSession.state === "signed" ||
+                          signingSession.state === "sent"
+                        }
+                        onChange={(value) => {
+                          setOptions((options) =>
+                            options.map((o) =>
+                              o._id === option._id
+                                ? { ...o, optional_checked: value }
+                                : o
+                            )
+                          );
+                        }}
+                        label={option.name}
+                        size={"md"}
+                        value={option.optional_checked}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="flex flex-col bg-white w-3/4 rounded-md p-3 mt-6">
               <Section>Historique</Section>

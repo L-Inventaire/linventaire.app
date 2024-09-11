@@ -14,13 +14,16 @@ export class InvoicesApiClient {
     );
 
     const urlParams = new URLSearchParams();
-    urlParams.append("checked", JSON.stringify(optionsObject));
+
+    if ((options ?? []).length > 0) {
+      urlParams.append("checked", JSON.stringify(optionsObject));
+    }
 
     const url = getServerUrl(
       `/api/invoices/v1/${invoice.client_id}/invoice/${invoice.id}/pdf`
     );
 
-    if (options) {
+    if ((options ?? []).length > 0) {
       return url + "?" + urlParams.toString();
     }
 
