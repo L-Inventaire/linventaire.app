@@ -50,8 +50,11 @@ export const useSigningSession = (id: string) => {
     return SigningSessionsApiClient.signSigningSession(id, options);
   };
 
-  const cancelSigningSession = () => {
-    return SigningSessionsApiClient.cancelSigningSession(id);
+  const cancelSigningSession = (cancelReason?: string) => {
+    return SigningSessionsApiClient.cancelSigningSession(
+      id,
+      cancelReason ?? ""
+    );
   };
 
   const downloadSignedDocument = async () => {

@@ -15,6 +15,8 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import styles from "./index.module.css";
+import { CheckIcon, XCircleIcon } from "@heroicons/react/16/solid";
+import { Input } from "@atoms/input/input-text";
 
 export const SigningSessionPage = () => {
   const navigate = useNavigate();
@@ -30,6 +32,9 @@ export const SigningSessionPage = () => {
   const { t } = useTranslation();
 
   const [options, setOptions] = useState<InvoiceLine[]>([]);
+
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelReason, setCancelReason] = useState<string>("");
 
   useEffect(() => {
     viewSigningSession(sessionID ?? "");
@@ -172,16 +177,48 @@ export const SigningSessionPage = () => {
                     >
                       Signer
                     </Button>
-                    <Button
-                      theme="danger"
-                      onClick={async () => {
-                        await cancelSigningSession();
-                        await refetchSigningSession();
-                        toast.success("La signature a été refusée");
-                      }}
-                    >
-                      Refuser
-                    </Button>
+                    {!cancelling && (
+                      <Button
+                        theme="danger"
+                        onClick={async () => {
+                          setCancelling(true);
+                          // toast.success("La signature a été refusée");
+                        }}
+                      >
+                        Refuser
+                      </Button>
+                    )}
+                    {cancelling && (
+                      <>
+                        <Button
+                          theme="default"
+                          onClick={async () => {
+                            setCancelling(false);
+                          }}
+                          icon={(p) => <XCircleIcon {...p} />}
+                        ></Button>
+                        <Input
+                          className="w-1/2"
+                          value={cancelReason}
+                          onChange={(e) => setCancelReason(e.target.value)}
+                          placeholder="Raison du refus"
+                        />
+                        <Button
+                          theme="danger"
+                          onClick={async () => {
+                            await cancelSigningSession(cancelReason);
+                            await refetchSigningSession();
+
+                            toast.success(
+                              "La signature a été refusée avec succès"
+                            );
+
+                            setCancelling(false);
+                          }}
+                          icon={(p) => <CheckIcon {...p} />}
+                        />
+                      </>
+                    )}
                   </>
                 )}
             </div>

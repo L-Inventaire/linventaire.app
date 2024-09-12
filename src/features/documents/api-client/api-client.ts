@@ -68,11 +68,12 @@ export class SigningSessionsApiClient {
     return data as SigningSession;
   };
 
-  static cancelSigningSession = async (id: string) => {
+  static cancelSigningSession = async (id: string, cancelReason: string) => {
     const response = await fetchServer(
       "/api/signing-sessions/v1/" + id + "/cancel",
       {
         method: "POST",
+        body: JSON.stringify({ reason: cancelReason }),
       }
     );
 
