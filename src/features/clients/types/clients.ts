@@ -121,6 +121,7 @@ export type Invoices = {
 export type Payment = {
   mode: string[]; // "bank_transfer", "credit_card", "paypal", "cash", "check"
   delay: number; // In days
+  delay_type: "direct" | "month_end_delay_first" | "month_end_delay_last";
   bank_name: string;
   bank_iban: string;
   bank_bic: string;
