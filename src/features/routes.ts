@@ -87,5 +87,8 @@ export const ROUTES = {
   SettingsApi: "/:client/settings/api",
   SettingsBilling: "/:client/settings/billing",
 
+  SignDocumentView: "/signing-session/:session/view",
+  SignedDocumentView: "/signing-session/:session/signed",
+
   DevPage: "/:client/dev",
 };

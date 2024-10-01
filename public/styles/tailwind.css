@@ -1805,6 +1805,10 @@ body :is(.w-3) {
   width: 0.75rem;
 }
 
+body :is(.w-3\/4) {
+  width: 75%;
+}
+
 body :is(.w-32) {
   width: 8rem;
 }
@@ -2091,6 +2095,10 @@ body :is(.resize) {
 
 body :is(.list-disc) {
   list-style-type: disc;
+}
+
+body :is(.grid-cols-3) {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 body :is(.flex-row) {
@@ -3375,6 +3383,10 @@ body :is(.p-3) {
 
 body :is(.p-4) {
   padding: 1rem;
+}
+
+body :is(.p-6) {
+  padding: 1.5rem;
 }
 
 body :is(.\!px-1) {

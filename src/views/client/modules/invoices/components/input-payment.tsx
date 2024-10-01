@@ -60,8 +60,11 @@ export const InvoicePaymentInput = ({
           {invoice.payment_information?.bank_name})
         </Info>
         <Info>
-          Paiement sous {invoice.payment_information?.delay} jours, pénalité{" "}
-          {invoice.payment_information?.late_penalty}.
+          Paiement sous {invoice.payment_information?.delay} jours{" "}
+          {["month_end_delay_first", "month_end_delay_last"].includes(
+            invoice.payment_information?.delay_type
+          ) && "fin de mois"}
+          , pénalité {invoice.payment_information?.late_penalty}.
         </Info>
       </div>
     </InputButton>
