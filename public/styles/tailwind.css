@@ -1256,6 +1256,10 @@ body :is(.m-auto) {
   margin: auto;
 }
 
+body :is(.m-2) {
+  margin: 0.5rem;
+}
+
 body :is(.\!my-0) {
   margin-top: 0px !important;
   margin-bottom: 0px !important;
