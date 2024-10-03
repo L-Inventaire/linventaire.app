@@ -33,6 +33,9 @@ export const Roles = [
   "INVOICES_READ",
   "INVOICES_WRITE",
   "INVOICES_MANAGE",
+  "SIGNING_SESSIONS_READ",
+  "SIGNING_SESSIONS_WRITE",
+  "SIGNING_SESSIONS_MANAGE",
   "ONSITE_READ",
   "ONSITE_WRITE",
   "ONSITE_MANAGE",
@@ -118,6 +121,7 @@ export type Invoices = {
 export type Payment = {
   mode: string[]; // "bank_transfer", "credit_card", "paypal", "cash", "check"
   delay: number; // In days
+  delay_type: "direct" | "month_end_delay_first" | "month_end_delay_last";
   bank_name: string;
   bank_iban: string;
   bank_bic: string;

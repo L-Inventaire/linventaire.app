@@ -195,7 +195,7 @@ export const InvoicesDetailsPage = ({
           />
         ),
         visible: !isSupplierRelated,
-        complete: draft.delivery_date || draft.delivery_address,
+        complete: draft.delivery_delay || draft.delivery_address,
       },
       {
         component: (
@@ -330,6 +330,29 @@ export const InvoicesDetailsPage = ({
                     <Text size="2" className="opacity-75" weight="medium">
                       {"Émis le "}
                       {formatTime(ctrl("emit_date").value || 0, {
+                        hideTime: true,
+                      })}
+                    </Text>
+                  </InputButton>
+                )}
+                {(!readonly || ctrl("signature_date").value) && (
+                  <InputButton
+                    theme="invisible"
+                    className="m-0"
+                    data-tooltip={new Date(
+                      ctrl("signature_date").value
+                    ).toDateString()}
+                    ctrl={ctrl("signature_date")}
+                    placeholder="Date de signature"
+                    value={formatTime(ctrl("signature_date").value || 0)}
+                    content={
+                      <FormInput ctrl={ctrl("signature_date")} type="date" />
+                    }
+                    readonly={readonly}
+                  >
+                    <Text size="2" className="opacity-75" weight="medium">
+                      {"Signé le "}
+                      {formatTime(ctrl("signature_date").value || 0, {
                         hideTime: true,
                       })}
                     </Text>

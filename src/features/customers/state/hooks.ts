@@ -1,6 +1,10 @@
 import { useRecoilState } from "recoil";
 import { CustomersMfasApiClient } from "../api-client/mfa-api-client";
-import { CustomerMfaState, PublicCustomerAtom } from "./store";
+import {
+  CustomerMfaState,
+  PublicCustomerAtom,
+  PublicCustomersAtom,
+} from "./store";
 import { CustomersApiClient } from "../api-client/api-client";
 import { useGlobalEffect } from "@features/utils/hooks/use-global-effect";
 
@@ -25,6 +29,34 @@ export const usePublicCustomer = (id: string) => {
   return {
     customer,
     refresh: getCustomer,
+  };
+};
+
+export const usePublicCustomers = (ids: string[]) => {
+  const [customers, setCustomers] = useRecoilState(PublicCustomersAtom(ids));
+
+  const getCustomers = async () => {
+    if (ids) {
+      const customers = [];
+      for (const id of ids) {
+        const data = await CustomersApiClient.searchUser(id, "id");
+        if (data) customers.push(data);
+      }
+      setCustomers(customers);
+    }
+  };
+
+  useGlobalEffect(
+    "usePublicCustomer+" + ids.join(","),
+    () => {
+      getCustomers();
+    },
+    [ids.join(",")]
+  );
+
+  return {
+    customers,
+    refresh: getCustomers,
   };
 };
 

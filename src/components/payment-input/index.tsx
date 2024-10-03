@@ -5,7 +5,7 @@ import {
   useFormController,
 } from "@components/form/formcontext";
 import { Payment } from "@features/clients/types/clients";
-import { paymentOptions } from "@features/utils/constants";
+import { paymentDelayOptions, paymentOptions } from "@features/utils/constants";
 import { PageBlockHr, PageColumns } from "@views/client/_layout/page";
 import { useContext, useEffect, useState } from "react";
 
@@ -78,6 +78,16 @@ export const PaymentInput = (props: {
         ctrl={ctrl("delay")}
         type="number"
       />
+
+      <FormInput
+        className="w-max"
+        readonly={readonly}
+        label="Type de délai"
+        ctrl={ctrl("delay_type")}
+        type="select"
+        options={paymentDelayOptions}
+      />
+
       <FormInput
         label="Pénalité de retard"
         readonly={readonly}

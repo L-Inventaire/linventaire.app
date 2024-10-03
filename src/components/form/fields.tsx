@@ -28,6 +28,7 @@ import { twMerge } from "tailwind-merge";
 import { FormContextContext, FormControllerType } from "./formcontext";
 import { FormReadonly } from "./readonly";
 import { SearchFormFieldType } from "./types";
+import Radio from "@atoms/input/input-select-radio";
 
 export const FormInput = memo(
   (
@@ -372,6 +373,18 @@ export const FormInput = memo(
                 size={size}
                 placeholder={placeholder}
                 disabled={disabled}
+              />
+            )}
+            {props.type === "radio" && (
+              <Radio
+                className={twMerge("w-full", props.className || "")}
+                highlight={highlight}
+                value={_value as string}
+                onChange={(e) => onChange(e)}
+                size={size}
+                placeholder={placeholder}
+                disabled={disabled}
+                options={options || []}
               />
             )}
             {props.type === "modal" && (

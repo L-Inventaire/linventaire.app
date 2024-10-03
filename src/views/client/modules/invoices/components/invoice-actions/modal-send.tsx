@@ -17,6 +17,8 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { atom, useRecoilState } from "recoil";
 import { getPdfPreview } from "../invoices-preview/invoices-preview";
+import { SigningSessionsApiClient } from "@features/documents/api-client/api-client";
+import { useParams } from "react-router-dom";
 
 export const InvoiceSendModalAtom = atom<boolean>({
   key: "InvoiceSendModalAtom",
@@ -41,6 +43,7 @@ export const InvoiceSendModalContent = ({
   id?: string;
   onClose: () => void;
 }) => {
+  const { client: clientId } = useParams();
   const { draft, setDraft, save } = useReadDraftRest<Invoices>(
     "invoices",
     id || "new"
@@ -147,9 +150,20 @@ export const InvoiceSendModalContent = ({
           icon={(p) => <PaperAirplaneIcon {...p} />}
           onClick={async () => {
             try {
+              if (!clientId) {
+                toast.error("Erreur lors de l'envoi du document");
+                return;
+              }
+
               console.log(draft.state);
               await save({ state: "sent" });
-              // TODO: call endpoint to send the invoice
+
+              SigningSessionsApiClient.sendInvoice(
+                clientId,
+                draft.id,
+                draft.recipients ?? []
+              );
+
               onClose();
               toast.success("Document envoyé");
             } catch (e) {
