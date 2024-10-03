@@ -120,11 +120,19 @@ export const InvoicesDetailsPage = ({
         draft = _.cloneDeep(draft);
         if (!draft.emit_date) draft.emit_date = new Date();
         if (draft.type && !draft.reference) {
-          draft.reference = getFormattedNumerotation(
-            client.invoices_counters[draft.type]?.format,
-            client.invoices_counters[draft.type]?.counter,
-            draft.state === "draft"
-          );
+          const format = _.get(client.invoices_counters, draft.type)?.format;
+          const counter = _.get(client.invoices_counters, draft.type)?.counter;
+          const isDraft = draft.state === "draft";
+
+          if (!format || !counter) {
+            draft.reference = "ERR-NO-FORMAT";
+          } else {
+            draft.reference = getFormattedNumerotation(
+              format,
+              counter,
+              isDraft
+            );
+          }
         }
         draft.total = computePricesFromInvoice(draft);
         draft.content = (draft.content || []).map((a) => ({
