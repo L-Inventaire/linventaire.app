@@ -5,6 +5,8 @@ export type EventItemProps = {
 };
 
 export const EventItem = ({ document }: EventItemProps) => {
+  console.log("document", document);
+
   return (
     <div className="w-full grid grid-cols-3">
       {/* <Base>

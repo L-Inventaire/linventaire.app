@@ -49,7 +49,6 @@ import { AccountingTransactionsViewPage } from "./modules/accounting/view";
 import { AccountingTransactionsEditPage } from "./modules/accounting/edit";
 import { ServiceItemsViewPage } from "./modules/service/view";
 import { ServiceItemsEditPage } from "./modules/service/edit";
-import { SigningSessionPage } from "./modules/document";
 
 export const BackOfficeRoutes = () => {
   return (
