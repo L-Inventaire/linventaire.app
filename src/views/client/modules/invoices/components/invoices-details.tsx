@@ -296,7 +296,7 @@ export const InvoicesDetailsPage = ({
 
             <div className="mb-2">
               <InvoiceStatus
-                readonly={true}
+                readonly={readonly}
                 size="sm"
                 value={draft.state}
                 type={draft.type}
@@ -335,26 +335,34 @@ export const InvoicesDetailsPage = ({
                     </Text>
                   </InputButton>
                 )}
-                {(!readonly || ctrl("signature_date").value) && (
+                {!!ctrl("purchase_order_date").value && (
                   <InputButton
                     theme="invisible"
                     className="m-0"
                     data-tooltip={new Date(
-                      ctrl("signature_date").value
+                      ctrl("purchase_order_date").value || Date.now()
                     ).toDateString()}
-                    ctrl={ctrl("signature_date")}
+                    ctrl={ctrl("purchase_order_date") || Date.now()}
                     placeholder="Date de signature"
-                    value={formatTime(ctrl("signature_date").value || 0)}
+                    value={formatTime(
+                      ctrl("purchase_order_date").value || Date.now()
+                    )}
                     content={
-                      <FormInput ctrl={ctrl("signature_date")} type="date" />
+                      <FormInput
+                        ctrl={ctrl("purchase_order_date") || Date.now()}
+                        type="date"
+                      />
                     }
                     readonly={readonly}
                   >
                     <Text size="2" className="opacity-75" weight="medium">
-                      {"Signé le "}
-                      {formatTime(ctrl("signature_date").value || 0, {
-                        hideTime: true,
-                      })}
+                      {"Accepté le "}
+                      {formatTime(
+                        ctrl("purchase_order_date").value || Date.now(),
+                        {
+                          hideTime: true,
+                        }
+                      )}
                     </Text>
                   </InputButton>
                 )}

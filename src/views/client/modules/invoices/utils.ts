@@ -58,7 +58,7 @@ export const computeDeliveryDelayDate = (invoice: Invoices): DateTime => {
     ? "delivery_delay"
     : "no_delivery";
 
-  let date = DateTime.fromMillis(invoice.signature_date ?? Date.now());
+  let date = DateTime.fromMillis(invoice.purchase_order_date ?? Date.now());
 
   if (delayType === "delivery_date") {
     date = DateTime.fromMillis(invoice.delivery_date ?? Date.now());
@@ -77,7 +77,7 @@ export const isDeliveryLate = (invoice: Invoices): boolean => {
 export const computePaymentDelayDate = (invoice: Invoices): DateTime => {
   const payment = invoice.payment_information;
   const delayType = payment?.delay_type ?? "direct";
-  let date = DateTime.fromMillis(invoice.signature_date ?? Date.now());
+  let date = DateTime.fromMillis(invoice.purchase_order_date ?? Date.now());
 
   if (delayType === "direct") {
     date = date.plus({ days: payment.delay });

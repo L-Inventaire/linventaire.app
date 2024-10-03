@@ -70,7 +70,7 @@ export const InvoicePaymentInput = ({
         </Info>
 
         {invoice.type === "invoices" &&
-          invoice.signature_date &&
+          invoice.purchase_order_date &&
           invoice.state === "signed" && (
             <>
               <Info className={"text-blue-500"}>

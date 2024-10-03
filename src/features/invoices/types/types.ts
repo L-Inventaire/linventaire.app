@@ -46,7 +46,7 @@ export type Invoices = RestEntity & {
   delivery_date: number;
   delivery_delay: number;
 
-  signature_date: number | null;
+  purchase_order_date: number | null;
 
   content?: InvoiceLine[];
   discount?: InvoiceDiscount;

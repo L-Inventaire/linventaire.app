@@ -78,7 +78,7 @@ export const InvoicesColumns: Column<Invoices>[] = [
     render: (invoice) => (
       <Base className="whitespace-nowrap">
         <TagsInput size="md" value={invoice.tags} disabled />
-        {invoice.signature_date &&
+        {invoice.purchase_order_date &&
           invoice.state === "signed" &&
           isDeliveryLate(invoice) && (
             <Tag
@@ -88,7 +88,7 @@ export const InvoicesColumns: Column<Invoices>[] = [
               Livraison en retard
             </Tag>
           )}
-        {invoice.signature_date &&
+        {invoice.purchase_order_date &&
           invoice.state === "signed" &&
           isPaymentLate(invoice) && (
             <Tag

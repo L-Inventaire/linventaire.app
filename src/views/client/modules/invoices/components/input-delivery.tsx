@@ -144,7 +144,7 @@ export const InputDelivery = ({
           </Info>
 
           {invoice.type === "quotes" &&
-            invoice.signature_date &&
+            invoice.purchase_order_date &&
             invoice.state === "signed" && (
               <>
                 <Info className={"text-blue-500"}>
