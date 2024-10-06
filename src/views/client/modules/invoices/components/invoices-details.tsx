@@ -229,8 +229,7 @@ export const InvoicesDetailsPage = ({
     <>
       <FormContext readonly={readonly} alwaysVisible>
         <PageColumns>
-          <div className="grow" />
-          <div className="grow lg:w-3/5 max-w-3xl pt-6">
+          <div className="grow lg:w-3/5 max-w-3xl pt-6 mx-auto">
             {readonly && (
               <>
                 {draft.state === "draft" && (
@@ -341,7 +340,8 @@ export const InvoicesDetailsPage = ({
               {contentReadonly && !readonly && (
                 <Callout.Root className="my-4">
                   <Callout.Text>
-                    Le contenu et les clients de ce devis n'est plus modifiable.
+                    Le contenu et les clients de ce document ne sont plus
+                    modifiables.
                   </Callout.Text>
                 </Callout.Root>
               )}
@@ -355,8 +355,14 @@ export const InvoicesDetailsPage = ({
                         ctrl={ctrl("client")}
                         icon={(p) => <UserIcon {...p} />}
                         size="xl"
+                        filter={
+                          {
+                            is_client: true,
+                          } as Partial<Contacts>
+                        }
                       />
-                      {(!readonly || ctrl("contact").value) && (
+                      {((!readonly && ctrl("client").value) ||
+                        ctrl("contact").value) && (
                         <RestDocumentsInput
                           entity="contacts"
                           filter={
@@ -379,6 +385,11 @@ export const InvoicesDetailsPage = ({
                       ctrl={ctrl("supplier")}
                       icon={(p) => <BuildingStorefrontIcon {...p} />}
                       size="xl"
+                      filter={
+                        {
+                          is_supplier: true,
+                        } as Partial<Contacts>
+                      }
                     />
                   )}
                 </PageColumns>
@@ -531,7 +542,6 @@ export const InvoicesDetailsPage = ({
             <br />
             <br />
           </div>
-          <div className="grow" />
         </PageColumns>
       </FormContext>
     </>

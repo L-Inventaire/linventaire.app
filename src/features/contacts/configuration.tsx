@@ -94,6 +94,7 @@ export const ContactsColumns: Column<Contacts>[] = [
     ),
   },
   {
+    id: "tags",
     title: "Étiquettes",
     render: (contact) => (
       <div className="w-full flex space-x-1 items-center whitespace-nowrap">
@@ -102,7 +103,8 @@ export const ContactsColumns: Column<Contacts>[] = [
     ),
   },
   {
-    title: "Parents",
+    id: "relations",
+    title: "Relations",
     render: (contact) => (
       <div className="w-full flex space-x-1 items-center whitespace-nowrap">
         {(contact.parents?.length || 0) > 0 && (

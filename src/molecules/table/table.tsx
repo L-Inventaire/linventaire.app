@@ -23,6 +23,7 @@ import { TablePagination, TablePaginationSimple } from "./pagination";
 export type RenderOptions = {};
 
 export type Column<T> = {
+  id?: string;
   title?: string | ReactNode;
   className?: string;
   thClassName?: string;

@@ -85,6 +85,48 @@ export const ContactsDetailsPage = ({
                 <FormContext size="md">
                   <PageColumns>
                     <FormInput
+                      className="w-max"
+                      label="Type de contact"
+                      type="select"
+                      options={[
+                        {
+                          label: "Aucun",
+                          value: "none",
+                        },
+                        {
+                          label: "Client",
+                          value: "client",
+                        },
+                        {
+                          label: "Fournisseur",
+                          value: "supplier",
+                        },
+                        {
+                          label: "Client et fournisseur",
+                          value: "both",
+                        },
+                      ]}
+                      value={
+                        contact.is_supplier && contact.is_client
+                          ? "both"
+                          : contact.is_supplier
+                          ? "supplier"
+                          : contact.is_client
+                          ? "client"
+                          : "none"
+                      }
+                      onChange={(e) => {
+                        ctrl("is_supplier").onChange(
+                          e === "supplier" || e === "both"
+                        );
+                        ctrl("is_client").onChange(
+                          e === "client" || e === "both"
+                        );
+                      }}
+                    />
+                  </PageColumns>
+                  <PageColumns>
+                    <FormInput
                       label="Type d'entité"
                       className="w-auto min-w-32 shrink-0"
                       type={"select"}
@@ -115,8 +157,12 @@ export const ContactsDetailsPage = ({
                     {contact.type === "company" && (
                       <>
                         <FormInput
-                          label="SIRET / Numéro d'enregistrement"
-                          ctrl={ctrl("business_registered_id")}
+                          label="Raison sociale"
+                          ctrl={ctrl("business_registered_name")}
+                        />
+                        <FormInput
+                          label="Nom commercial"
+                          ctrl={ctrl("business_name")}
                         />
                       </>
                     )}
@@ -125,50 +171,19 @@ export const ContactsDetailsPage = ({
 
                   {contact.type === "company" && (
                     <FormContext>
-                      {!contact.business_registered_id && (
-                        <Info className="block mt-2 !mb-4">
-                          Entrez un numéro de SIRET ou SIREN pour pré-remplir
-                          les champs.
-                        </Info>
-                      )}
-                      <>
-                        <PageColumns>
-                          <FormInput
-                            label="Raison sociale"
-                            ctrl={ctrl("business_registered_name")}
-                          />
-                          <FormInput
-                            label="Nom commercial"
-                            ctrl={ctrl("business_name")}
-                          />
-                        </PageColumns>
+                      <PageColumns>
+                        <FormInput
+                          label="SIRET / Numéro d'enregistrement"
+                          ctrl={ctrl("business_registered_id")}
+                        />
                         <FormInput
                           label="Numéro de TVA"
                           ctrl={ctrl("business_tax_id")}
                         />
-                      </>
+                      </PageColumns>
                     </FormContext>
                   )}
                 </FormContext>
-
-                <PageColumns>
-                  {contact.is_supplier}
-                  <FormInput
-                    label="Fournisseur"
-                    placeholder="Ce contact est un fournisseur"
-                    type="boolean"
-                    value={!!contact.is_supplier}
-                    onChange={(e) => ctrl("is_supplier").onChange(e)}
-                  />
-                  <FormInput
-                    label="Client"
-                    placeholder="Ce contact est un client"
-                    type="boolean"
-                    value={!!contact.is_client}
-                    onChange={(e) => ctrl("is_client").onChange(e)}
-                  />
-                  <div className="grow w-full" />
-                </PageColumns>
 
                 <FormInput label="Étiquettes" type="tags" ctrl={ctrl("tags")} />
 
@@ -249,27 +264,25 @@ export const ContactsDetailsPage = ({
                 />
               </div>
             </PageBlock>
-            <PageBlock closable title="Relations">
-              <RelationsInput
-                id={contact.id}
-                readonly={readonly}
-                value={[
-                  ctrl("parents").value || [],
-                  ctrl("parents_roles").value || [],
-                ]}
-                onChange={(parents, roles) => {
-                  ctrl("parents").onChange(parents);
-                  ctrl("parents_roles").onChange(roles);
-                  ctrl("has_parents").onChange(!!parents.length);
-                }}
-              />
-            </PageBlock>
-            {readonly && (
+            <RelationsInput
+              id={contact.id}
+              readonly={readonly}
+              value={[
+                ctrl("parents").value || [],
+                ctrl("parents_roles").value || [],
+              ]}
+              onChange={(parents, roles) => {
+                ctrl("parents").onChange(parents);
+                ctrl("parents_roles").onChange(roles);
+                ctrl("has_parents").onChange(!!parents.length);
+              }}
+            />
+            {false && readonly && (
               <PageBlock title="Commentaires">
                 <Info>Bientôt disponible</Info>
               </PageBlock>
             )}
-            {readonly && (
+            {false && readonly && (
               <PageBlock title="Revisions">
                 <Info>Bientôt disponible</Info>
               </PageBlock>
@@ -378,12 +391,6 @@ export const ContactsDetailsPage = ({
                 />
               </div>
             </PageBlock>
-            <CustomFieldsInput
-              table={"contacts"}
-              ctrl={ctrl("fields")}
-              readonly={readonly}
-              entityId={contact.id || ""}
-            />
             <PageBlock
               title="Préférences"
               closable
@@ -422,6 +429,12 @@ export const ContactsDetailsPage = ({
                 />
               </div>
             </PageBlock>
+            <CustomFieldsInput
+              table={"contacts"}
+              ctrl={ctrl("fields")}
+              readonly={readonly}
+              entityId={contact.id || ""}
+            />
           </div>
         </PageColumns>
       </FormContext>

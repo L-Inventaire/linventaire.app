@@ -4,6 +4,7 @@ import { SectionSmall } from "@atoms/text";
 import { useShortcutsContext } from "@features/utils/shortcuts";
 import { Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/16/solid";
+import { Heading } from "@radix-ui/themes";
 import { ErrorBoundary } from "@views/error-boundary";
 import _, { uniqueId } from "lodash";
 import {
@@ -214,7 +215,7 @@ export const ModalContent = (props: {
           }
         >
           <h3 className="-mt-2 text-xl font-semibold leading-6 font-medium text-gray-900 dark:text-white pr-6">
-            <SectionSmall>{props.title}</SectionSmall>
+            <Heading size="3">{props.title}</Heading>
           </h3>
           <div className="mt-2">
             <p className="text-sm text-gray-500 dark:text-white">

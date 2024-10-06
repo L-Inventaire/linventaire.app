@@ -5,12 +5,19 @@ import { EditorInput } from "@molecules/editor-input";
 import { FormInput } from "@components/form/fields";
 import { FormContext } from "@components/form/formcontext";
 import { PageLoader } from "@atoms/page-loader";
-import { UsersInput } from "@components/deprecated-users-input";
 import { Articles } from "@features/articles/types/types";
 import { tvaOptions, unitOptions } from "@features/utils/constants";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { PageBlock, PageColumns } from "@views/client/_layout/page";
 import { ArticleSuppliersInput } from "./article-suppliers-input";
+import { UsersInput } from "@components/input-rest/users";
+
+const frequencyOptions = [
+  { value: "", label: "Pas de renouvellement" },
+  { value: "weekly", label: "Hebdomadaire" },
+  { value: "monthly", label: "Mensuel" },
+  { value: "yearly", label: "Annuel" },
+];
 
 export const ArticlesDetailsPage = ({
   readonly,
@@ -112,6 +119,15 @@ export const ArticlesDetailsPage = ({
                     label="Unité"
                     type="text"
                     options={unitOptions}
+                  />
+                </PageColumns>
+
+                <PageColumns>
+                  <FormInput
+                    type="select"
+                    label="Renouvellement"
+                    ctrl={ctrl("subscription")}
+                    options={frequencyOptions}
                   />
                 </PageColumns>
               </div>

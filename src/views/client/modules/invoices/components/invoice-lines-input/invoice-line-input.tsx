@@ -223,7 +223,12 @@ export const InvoiceLineInput = (props: {
                         props.invoice?.currency || "EUR"
                       )}
                     </Text>
-                    <Text as="div" color="gray" size="2">
+                    <Text
+                      as="div"
+                      color="gray"
+                      size="2"
+                      className="whitespace-nowrap"
+                    >
                       {getTvaValue(value.tva || "0")
                         ? "TVA " + getTvaValue(value.tva || "0") * 100 + "%"
                         : tvaOptions.find((a) => a.value === value.tva)?.label}
