@@ -51,7 +51,7 @@ export const InputButton = <T,>(props: InputButtonProps<T>) => {
     return (
       <div
         className={twMerge(
-          "h-max whitespace-normal py-0.5 text-opacity-100 text-black flex items-center",
+          "h-max whitespace-normal py-0.5 text-opacity-100 text-black dark:text-white flex items-center",
           props.className
         )}
       >

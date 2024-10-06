@@ -110,7 +110,7 @@ export const InvoiceLineInput = (props: {
         <Card
           variant="ghost"
           className={twMerge(
-            "w-full p-0 border m-0",
+            "w-full p-0 border m-0 dark:border-slate-700",
             !value.optional_checked &&
               value.optional &&
               "border-dashed shadow-none"
@@ -161,7 +161,7 @@ export const InvoiceLineInput = (props: {
               {!isSeparation && (
                 <Box
                   className={twMerge(
-                    "text-right w-1/5 shrink-0 border-l",
+                    "text-right w-1/5 shrink-0 border-l dark:border-slate-700",
                     !value.optional_checked && value.optional && "border-dashed"
                   )}
                 >
@@ -192,7 +192,7 @@ export const InvoiceLineInput = (props: {
               {(!isSeparation || value.type === "correction") && (
                 <Box
                   className={twMerge(
-                    "text-right w-1/5 shrink-0 border-l",
+                    "text-right w-1/5 shrink-0 border-l dark:border-slate-700",
                     !value.optional_checked && value.optional && "border-dashed"
                   )}
                 >
@@ -200,7 +200,7 @@ export const InvoiceLineInput = (props: {
                     readonly={readonly}
                     theme="invisible"
                     data-tooltip={readonly ? "Prix total HT" : "Prix unitaire"}
-                    className="rounded-none  h-full w-full flex grow p-3 m-0 box-border text-right justify-end"
+                    className="rounded-none h-full w-full flex grow p-3 m-0 box-border text-right justify-end"
                     label="Prix et TVA"
                     placeholder="Prix et TVA"
                     content={
@@ -250,7 +250,7 @@ export const InvoiceLineInput = (props: {
                 align="center"
                 gap="3"
                 className={twMerge(
-                  "p-3 border-t",
+                  "p-3 border-t dark:border-slate-700",
                   !value.optional_checked && value.optional && "border-dashed"
                 )}
               >
@@ -339,7 +339,7 @@ export const InvoiceLineInput = (props: {
                           {value.optional_checked ? (
                             <CheckIcon className="w-4 h-4" />
                           ) : (
-                            <div className="w-1 h-1 dark:bg-white bg-black opacity-50" />
+                            <div className="w-1 h-1 dark:bg-white bg-black dark:bg-white opacity-50" />
                           )}
                         </div>
                       ) : (
