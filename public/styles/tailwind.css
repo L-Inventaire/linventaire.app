@@ -1549,6 +1549,10 @@ body :is(.mt-px) {
   margin-top: 1px;
 }
 
+body :is(.mr-3) {
+  margin-right: 0.75rem;
+}
+
 body :is(.box-border) {
   box-sizing: border-box;
 }
@@ -3337,6 +3341,10 @@ body :is(.bg-opacity-75) {
 
 body :is(.bg-gradient-to-r) {
   background-image: linear-gradient(to right, var(--tw-gradient-stops));
+}
+
+body :is(.bg-none) {
+  background-image: none;
 }
 
 body :is(.from-current) {

@@ -18,6 +18,7 @@ export interface RadioProps
   highlight?: boolean;
   label?: string;
   value?: string;
+  layout?: "horizontal" | "vertical";
   onChange?: (e: string) => void;
   options: { label: string; value: string }[];
 }
@@ -33,6 +34,8 @@ export function Radio(props: RadioProps) {
     inputClassName = inputClassName + " text-sm py-0 px-3 pr-8";
   else inputClassName = inputClassName + " text-base h-9 py-1";
 
+  const layout = props?.layout ?? "horizontal";
+
   if (props.label) {
     return (
       <InputLabel
@@ -44,7 +47,11 @@ export function Radio(props: RadioProps) {
 
   return (
     <fieldset
-      className={twMerge(inputClassName, props.className)}
+      className={twMerge(
+        inputClassName,
+        layout === "horizontal" && "flex",
+        props.className
+      )}
       {..._.omit(
         props,
         "label",
@@ -60,7 +67,7 @@ export function Radio(props: RadioProps) {
       }}
     >
       {props.options.map((option) => (
-        <div className="flex">
+        <div className={twMerge("flex", layout === "horizontal" && "mr-2")}>
           <label>
             <input
               type="radio"
