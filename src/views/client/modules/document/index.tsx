@@ -100,7 +100,10 @@ export const SigningSessionPage = () => {
         <div className="w-full h-full flex flex-col items-center">
           <div className="w-3/4 bg-white flex flex-col justify-between items-center rounded-md p-6">
             <div className="flex flex-col justify-center items-center">
-              <Title>Document {invoice?.reference}</Title>
+              <Title>
+                {invoice?.type === "invoices" ? "Facture" : "Commande"}{" "}
+                {invoice?.reference}
+              </Title>
               <Section>
                 Vous êtes authentifiés comme {signingSession.recipient}
               </Section>
@@ -158,7 +161,7 @@ export const SigningSessionPage = () => {
               {!["signed", "sent", "cancelled"].includes(
                 signingSession.state
               ) &&
-                invoice?.type !== "invoices" && (
+                invoice?.type !== "quotes" && (
                   <>
                     <Button
                       className="mr-2"
@@ -240,7 +243,7 @@ export const SigningSessionPage = () => {
               </div>
             </div>
 
-            {options.length > 0 && (
+            {options.length > 0 && invoice?.type !== "quotes" && (
               <div>
                 <Section>Options</Section>
                 <div>
