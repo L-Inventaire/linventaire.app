@@ -121,6 +121,21 @@ export const paymentOptions = [
   },
 ];
 
+export const paymentDelayOptions = [
+  {
+    label: "Classique",
+    value: "direct",
+  },
+  {
+    label: "Délai de X jours, puis fin de mois",
+    value: "month_end_delay_first",
+  },
+  {
+    label: "Fin de mois, puis délai de X jours",
+    value: "month_end_delay_last",
+  },
+];
+
 export const tvaMentionOptions = [
   "TVA non applicable, art. 293 B du CGI",
   "Régime particulier - Biens d'occasion - article 297 A du CGI et directive communautaire 2006/112/CE",

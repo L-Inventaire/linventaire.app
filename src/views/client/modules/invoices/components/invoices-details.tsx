@@ -120,11 +120,19 @@ export const InvoicesDetailsPage = ({
         draft = _.cloneDeep(draft);
         if (!draft.emit_date) draft.emit_date = new Date();
         if (draft.type && !draft.reference) {
-          draft.reference = getFormattedNumerotation(
-            client.invoices_counters[draft.type]?.format,
-            client.invoices_counters[draft.type]?.counter,
-            draft.state === "draft"
-          );
+          const format = _.get(client.invoices_counters, draft.type)?.format;
+          const counter = _.get(client.invoices_counters, draft.type)?.counter;
+          const isDraft = draft.state === "draft";
+
+          if (!format || !counter) {
+            draft.reference = "ERR-NO-FORMAT";
+          } else {
+            draft.reference = getFormattedNumerotation(
+              format,
+              counter,
+              isDraft
+            );
+          }
         }
         draft.total = computePricesFromInvoice(draft);
         draft.content = (draft.content || []).map((a) => ({
@@ -187,7 +195,7 @@ export const InvoicesDetailsPage = ({
           />
         ),
         visible: !isSupplierRelated,
-        complete: draft.delivery_date || draft.delivery_address,
+        complete: draft.delivery_delay || draft.delivery_address,
       },
       {
         component: (
@@ -287,7 +295,7 @@ export const InvoicesDetailsPage = ({
 
             <div className="mb-2">
               <InvoiceStatus
-                readonly={true}
+                readonly={readonly}
                 size="sm"
                 value={draft.state}
                 type={draft.type}
@@ -323,6 +331,37 @@ export const InvoicesDetailsPage = ({
                       {formatTime(ctrl("emit_date").value || 0, {
                         hideTime: true,
                       })}
+                    </Text>
+                  </InputButton>
+                )}
+                {!!ctrl("purchase_order_date").value && (
+                  <InputButton
+                    theme="invisible"
+                    className="m-0"
+                    data-tooltip={new Date(
+                      ctrl("purchase_order_date").value || Date.now()
+                    ).toDateString()}
+                    ctrl={ctrl("purchase_order_date") || Date.now()}
+                    placeholder="Date de signature"
+                    value={formatTime(
+                      ctrl("purchase_order_date").value || Date.now()
+                    )}
+                    content={
+                      <FormInput
+                        ctrl={ctrl("purchase_order_date") || Date.now()}
+                        type="date"
+                      />
+                    }
+                    readonly={readonly}
+                  >
+                    <Text size="2" className="opacity-75" weight="medium">
+                      {"Accepté le "}
+                      {formatTime(
+                        ctrl("purchase_order_date").value || Date.now(),
+                        {
+                          hideTime: true,
+                        }
+                      )}
                     </Text>
                   </InputButton>
                 )}

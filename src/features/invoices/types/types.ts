@@ -22,6 +22,7 @@ export type Invoices = RestEntity & {
     | "purchase_order"
     | "partial_paid"
     | "paid"
+    | "signed"
     | "closed"
     | "completed";
 
@@ -43,6 +44,9 @@ export type Invoices = RestEntity & {
 
   delivery_address: Address | null;
   delivery_date: number;
+  delivery_delay: number;
+
+  purchase_order_date: number | null;
 
   content?: InvoiceLine[];
   discount?: InvoiceDiscount;

@@ -1545,6 +1545,10 @@ body :is(.mt-px) {
   margin-top: 1px;
 }
 
+body :is(.mr-3) {
+  margin-right: 0.75rem;
+}
+
 body :is(.box-border) {
   box-sizing: border-box;
 }
@@ -1803,6 +1807,10 @@ body :is(.w-28) {
 
 body :is(.w-3) {
   width: 0.75rem;
+}
+
+body :is(.w-3\/4) {
+  width: 75%;
 }
 
 body :is(.w-32) {
@@ -2091,6 +2099,10 @@ body :is(.resize) {
 
 body :is(.list-disc) {
   list-style-type: disc;
+}
+
+body :is(.grid-cols-3) {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 body :is(.flex-row) {
@@ -3337,6 +3349,10 @@ body :is(.bg-gradient-to-r) {
   background-image: linear-gradient(to right, var(--tw-gradient-stops));
 }
 
+body :is(.bg-none) {
+  background-image: none;
+}
+
 body :is(.from-current) {
   --tw-gradient-from: currentColor var(--tw-gradient-from-position);
   --tw-gradient-to: rgb(255 255 255 / 0) var(--tw-gradient-to-position);
@@ -3377,6 +3393,10 @@ body :is(.p-3) {
 
 body :is(.p-4) {
   padding: 1rem;
+}
+
+body :is(.p-6) {
+  padding: 1.5rem;
 }
 
 body :is(.\!px-1) {

@@ -5,9 +5,11 @@ import { InputButton } from "@components/input-button";
 import { PaymentInput } from "@components/payment-input";
 import { Invoices } from "@features/invoices/types/types";
 import { currencyOptions, paymentOptions } from "@features/utils/constants";
+import { formatTime } from "@features/utils/format/dates";
 import { formatIBAN } from "@features/utils/format/strings";
 import { BanknotesIcon } from "@heroicons/react/20/solid";
 import { PageBlockHr } from "@views/client/_layout/page";
+import { computePaymentDelayDate, isPaymentLate } from "../utils";
 
 export const InvoicePaymentInput = ({
   ctrl,
@@ -60,9 +62,31 @@ export const InvoicePaymentInput = ({
           {invoice.payment_information?.bank_name})
         </Info>
         <Info>
-          Paiement sous {invoice.payment_information?.delay} jours, pénalité{" "}
-          {invoice.payment_information?.late_penalty}.
+          Paiement sous {invoice.payment_information?.delay} jours{" "}
+          {["month_end_delay_first", "month_end_delay_last"].includes(
+            invoice.payment_information?.delay_type
+          ) && "fin de mois"}
+          , pénalité {invoice.payment_information?.late_penalty}.
         </Info>
+
+        {invoice.type === "invoices" &&
+          invoice.purchase_order_date &&
+          invoice.state === "signed" && (
+            <>
+              <Info className={"text-blue-500"}>
+                Signé, paiement avant le :{" "}
+                {formatTime(computePaymentDelayDate(invoice).toJSDate(), {
+                  keepDate: true,
+                  hideTime: true,
+                })}
+              </Info>
+              {isPaymentLate(invoice) && (
+                <Info className={"text-red-500"}>
+                  La paiement est en retard !
+                </Info>
+              )}
+            </>
+          )}
       </div>
     </InputButton>
   );

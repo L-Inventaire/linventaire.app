@@ -17,6 +17,9 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { atom, useRecoilState } from "recoil";
 import { getPdfPreview } from "../invoices-preview/invoices-preview";
+import { SigningSessionsApiClient } from "@features/documents/api-client/api-client";
+import { useParams } from "react-router-dom";
+import Radio from "@atoms/input/input-select-radio";
 
 export const InvoiceSendModalAtom = atom<boolean>({
   key: "InvoiceSendModalAtom",
@@ -41,11 +44,13 @@ export const InvoiceSendModalContent = ({
   id?: string;
   onClose: () => void;
 }) => {
+  const { client: clientId } = useParams();
   const { draft, setDraft, save } = useReadDraftRest<Invoices>(
     "invoices",
     id || "new"
   );
   const [newMails, setNewMails] = useState<string>("");
+  const [finalState, setFinalState] = useState<"sent" | "draft">("sent");
 
   const client = useContact(draft?.client);
   const contact = useContact(draft?.contact);
@@ -71,6 +76,20 @@ export const InvoiceSendModalContent = ({
         Choisir les destinataires de ce document. Les adresses emails des
         contacts principaux sont déjà ajoutées mais peuvent être retirés.
       </Info>
+
+      <Radio
+        label="Statut final"
+        className="flex w-full shadow-none"
+        value={finalState}
+        onChange={(e) => {
+          setFinalState(e as any);
+        }}
+        placeholder={"Statut"}
+        options={[
+          { label: "Brouillon", value: "draft" },
+          { label: "Envoyé", value: "sent" },
+        ]}
+      />
 
       <ModalHr />
 
@@ -147,9 +166,24 @@ export const InvoiceSendModalContent = ({
           icon={(p) => <PaperAirplaneIcon {...p} />}
           onClick={async () => {
             try {
-              console.log(draft.state);
-              await save({ state: "sent" });
-              // TODO: call endpoint to send the invoice
+              if (!clientId) {
+                toast.error("Erreur lors de l'envoi du document");
+                return;
+              }
+
+              if (finalState === "draft") {
+                await save({ state: "draft" });
+              }
+              if (finalState === "sent") {
+                await save({ state: "sent" });
+              }
+
+              SigningSessionsApiClient.sendInvoice(
+                clientId,
+                draft.id,
+                draft.recipients ?? []
+              );
+
               onClose();
               toast.success("Document envoyé");
             } catch (e) {

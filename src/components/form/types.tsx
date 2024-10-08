@@ -38,6 +38,7 @@ export type SearchFormFieldType = {
     | "date"
     | "boolean"
     | "select_boolean"
+    | "radio"
     | "number"
     | "formatted"
     | "multiselect"

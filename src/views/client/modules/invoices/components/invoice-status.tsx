@@ -46,6 +46,7 @@ export const InvoiceStatus = ({
     paid: "green",
     closed: "red",
     completed: "green",
+    signed: "green",
   };
 
   const statusPerTypeGrouped = {

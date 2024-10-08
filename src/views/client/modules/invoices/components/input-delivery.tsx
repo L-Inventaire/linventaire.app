@@ -8,6 +8,7 @@ import { Invoices } from "@features/invoices/types/types";
 import { AddressLength, formatAddress } from "@features/utils/format/address";
 import { formatTime } from "@features/utils/format/dates";
 import { TruckIcon } from "@heroicons/react/20/solid";
+import { computeDeliveryDelayDate, isDeliveryLate } from "../utils";
 
 export const InputDelivery = ({
   ctrl,
@@ -22,6 +23,12 @@ export const InputDelivery = ({
   contact?: Contacts | null;
   btnKey?: string;
 }) => {
+  const getDeliveryType = () => {
+    if (invoice.delivery_delay) return "delivery_delay";
+    if (invoice.delivery_date) return "delivery_date";
+    if (!invoice.delivery_date && !invoice.delivery_delay) return "no_delivery";
+  };
+
   return (
     <>
       <InputButton
@@ -30,24 +37,45 @@ export const InputDelivery = ({
         icon={(p) => <TruckIcon {...p} />}
         content={
           <div className="space-y-2">
-            {!ctrl("delivery_date").value && !readonly && (
-              <FormInput
-                placeholder="Ajouter une date de livraison"
-                type="boolean"
-                value={ctrl("delivery_date").value}
-                onChange={(e) =>
-                  ctrl("delivery_date").onChange(
-                    e ? Date.now() + 1000 * 60 * 60 * 24 * 7 : 0
-                  )
+            <FormInput
+              type="radio"
+              placeholder={"Type de livraison"}
+              options={[
+                { label: "Délai de livraison", value: "delivery_delay" },
+                { label: "Date de livraison", value: "delivery_date" },
+                { label: "Aucune", value: "no_delivery" },
+              ]}
+              value={getDeliveryType()}
+              onChange={(e) => {
+                if (e === "no_delivery") {
+                  ctrl("delivery_delay").onChange(undefined);
+                  ctrl("delivery_date").onChange(undefined);
                 }
-              />
-            )}
-
+                if (e === "delivery_delay") {
+                  ctrl("delivery_delay").onChange(30);
+                  ctrl("delivery_date").onChange(undefined);
+                }
+                if (e === "delivery_date") {
+                  ctrl("delivery_date").onChange(
+                    Date.now() + 1000 * 60 * 60 * 24 * 7
+                  );
+                  ctrl("delivery_delay").onChange(undefined);
+                }
+              }}
+            />
+            {invoice}
             {!!ctrl("delivery_date").value && (
               <FormInput
                 type="date"
                 label="Date de livraison"
                 ctrl={ctrl("delivery_date")}
+              />
+            )}
+            {!!ctrl("delivery_delay").value && (
+              <FormInput
+                type="number"
+                label="Délai de livraison (jours)"
+                ctrl={ctrl("delivery_delay")}
               />
             )}
 
@@ -80,7 +108,7 @@ export const InputDelivery = ({
           </div>
         }
         value={
-          invoice.delivery_date || invoice.delivery_address
+          invoice.delivery_delay || invoice.delivery_address
             ? "always"
             : undefined
         }
@@ -96,6 +124,14 @@ export const InputDelivery = ({
               {!invoice.delivery_date && <Base>Pas de date de livraison</Base>}
             </Base>
           )}
+          {!!invoice.delivery_delay && (
+            <Base>
+              Livraison dans {invoice.delivery_delay} jours
+              {!invoice.delivery_delay && (
+                <Base>Pas de délai de livraison</Base>
+              )}
+            </Base>
+          )}
           <Info>
             {formatAddress(
               invoice.delivery_address,
@@ -106,6 +142,25 @@ export const InputDelivery = ({
           <Info>
             {formatAddress(invoice.delivery_address, AddressLength.part2, "-")}
           </Info>
+
+          {invoice.type === "quotes" &&
+            invoice.purchase_order_date &&
+            invoice.state === "signed" && (
+              <>
+                <Info className={"text-blue-500"}>
+                  Signé, livraison avant le :{" "}
+                  {formatTime(computeDeliveryDelayDate(invoice).toJSDate(), {
+                    keepDate: true,
+                    hideTime: true,
+                  })}
+                </Info>
+                {isDeliveryLate(invoice) && (
+                  <Info className={"text-red-500"}>
+                    La livraison est en retard !
+                  </Info>
+                )}
+              </>
+            )}
         </div>
       </InputButton>
     </>

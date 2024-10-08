@@ -12,6 +12,11 @@
     "guides": "Guides",
     "support": "Help"
   },
+  "documents": {
+    "index": {
+      "title": "Shared Document"
+    }
+  },
   "signin": {
     "login": {
       "title": "Hi {{0}}, glad to see you back.",

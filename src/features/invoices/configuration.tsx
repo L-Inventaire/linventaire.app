@@ -10,6 +10,13 @@ import { formatTime } from "@features/utils/format/dates";
 import { formatAmount } from "@features/utils/format/strings";
 import { InvoiceStatus } from "@views/client/modules/invoices/components/invoice-status";
 import { Column } from "@molecules/table/table";
+import {
+  isDeliveryLate,
+  isPaymentLate,
+} from "@views/client/modules/invoices/utils";
+import { Tag } from "@atoms/badge/tag";
+import { twMerge } from "tailwind-merge";
+import { InputOutlinedDefaultBorders } from "@atoms/styles/inputs";
 
 export const useInvoiceDefaultModel: () => Partial<Invoices> = () => {
   const { client } = useCurrentClient();
@@ -71,6 +78,26 @@ export const InvoicesColumns: Column<Invoices>[] = [
     render: (invoice) => (
       <Base className="whitespace-nowrap">
         <TagsInput size="md" value={invoice.tags} disabled />
+        {invoice.purchase_order_date &&
+          invoice.state === "signed" &&
+          isDeliveryLate(invoice) && (
+            <Tag
+              className={twMerge(InputOutlinedDefaultBorders + " rounded-full")}
+              color={"red"}
+            >
+              Livraison en retard
+            </Tag>
+          )}
+        {invoice.purchase_order_date &&
+          invoice.state === "signed" &&
+          isPaymentLate(invoice) && (
+            <Tag
+              className={twMerge(InputOutlinedDefaultBorders + " rounded-full")}
+              color={"red"}
+            >
+              Paiement en retard
+            </Tag>
+          )}
       </Base>
     ),
   },
