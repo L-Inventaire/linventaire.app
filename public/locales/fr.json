@@ -67,7 +67,29 @@
       "payment_terms": "Conditions Générales de Vente",
       "tva": "Mention de TVA",
       "branding_placeholder": "Afficher le logo de linventaire.app sur les factures",
-      "attachments": "Documents liés"
+      "attachments": "Documents liés",
+      "other": {
+        "delivery_date": "Date de livraison",
+        "delivery_delay": "Délai de livraison",
+        "days": "jours",
+        "delivery_address": "Adresse de livraison",
+        "emit_date": "Date d'émission",
+        "payment_date": "Paiement avant le",
+        "delay": "Délai de paiement",
+        "payment_method": "Moyens de paiement",
+        "no_payment_method": "Aucun moyen de paiement",
+        "payment_terms": "Conditions de paiement",
+        "late_penalty": "Pénalité de retard",
+        "recovery_fee": "Frais de recouvrement",
+        "bank_details": "Relevé d'identité bancaire",
+        "recurrence": "Facture à tacite reconduction",
+        "frequency": {
+          "monthly": "Mensuel",
+          "weekly": "Hebdomadaire",
+          "yearly": "Annuel"
+        },
+        "recurrence_between": "entre le {{start}} et le {{end}}"
+      }
     }
   },
   "menu": {
