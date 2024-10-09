@@ -1553,6 +1553,18 @@ body :is(.mt-px) {
   margin-top: 1px;
 }
 
+body :is(.-mt-1) {
+  margin-top: -0.25rem;
+}
+
+body :is(.mb-10) {
+  margin-bottom: 2.5rem;
+}
+
+body :is(.mb-8) {
+  margin-bottom: 2rem;
+}
+
 body :is(.box-border) {
   box-sizing: border-box;
 }

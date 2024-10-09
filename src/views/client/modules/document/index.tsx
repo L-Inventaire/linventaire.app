@@ -1,10 +1,8 @@
-import { Alert } from "@atoms/alert";
 import { Button } from "@atoms/button/button";
 import { Checkbox } from "@atoms/input/input-checkbox";
 import { Input } from "@atoms/input/input-text";
 import { PageLoader } from "@atoms/page-loader";
-import { Base, Info, Section, Title } from "@atoms/text";
-import { EmbedSignDocument } from "@documenso/embed-react";
+import { Base, Section } from "@atoms/text";
 import { useSigningSession } from "@features/documents/hooks";
 import { InvoicesApiClient } from "@features/invoices/api-client/invoices-api-client";
 import { InvoiceLine, Invoices } from "@features/invoices/types/types";
@@ -17,6 +15,7 @@ import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
+import { TitleBar } from "./components/title-bar";
 import styles from "./index.module.css";
 
 export const SigningSessionPage = () => {
@@ -102,83 +101,11 @@ export const SigningSessionPage = () => {
         <div className="w-full h-full flex flex-col items-center">
           <div className="w-full md:w-3/4 bg-white flex flex-col justify-between items-center rounded-md p-6 md:px-24">
             {/* Logo and title section */}
-            <div className="w-full mt-6 flex">
-              <div className="w-1/4 h-full">
-                <div className="flex items-center">
-                  <img
-                    className="h-6 w-auto dark:hidden"
-                    src="/medias/logo.png"
-                    alt="L'inventaire"
-                  />
-                  <img
-                    className="mx-auto h-6 w-auto hidden dark:block"
-                    src="/medias/logo.svg"
-                    alt="L'inventaire"
-                  />
-                  <Section className="m-0 ml-2 font-normal">
-                    L'inventaire
-                  </Section>
-                </div>
-                <Info>{signingSession.recipient}</Info>
-              </div>
-
-              <div className="flex flex-col w-full items-center -m-2.5">
-                <Title>
-                  {invoice?.type === "invoices" ? "Facture" : "Commande"}{" "}
-                  {invoice?.reference}
-                </Title>
-              </div>
-              <div className="w-1/4"></div>
-            </div>
-
-            {/* Alerts section */}
-            <div className="w-full flex justify-center mb-6">
-              {signingSession.state === "signed" && (
-                <div className="flex flex-col justify-center items-center">
-                  <Alert
-                    title="Le document a déjà été signé"
-                    theme="warning"
-                    icon="CheckCircleIcon"
-                  ></Alert>
-                  <Button
-                    className="mt-2"
-                    onClick={() => {
-                      navigate(
-                        getRoute(ROUTES.SignedDocumentView, {
-                          session: sessionID,
-                        })
-                      );
-                    }}
-                  >
-                    Voir
-                  </Button>
-                </div>
-              )}
-              {signingSession.state === "sent" && (
-                <div>
-                  <Alert
-                    title="Le document a déjà été envoyé"
-                    theme="warning"
-                    icon="CheckCircleIcon"
-                  ></Alert>
-                  <Button
-                    className="mt-2"
-                    onClick={() => {
-                      window.open(signingSession.signing_url, "_blank");
-                    }}
-                  >
-                    Voir
-                  </Button>
-                </div>
-              )}
-              {signingSession.state === "cancelled" && (
-                <Alert
-                  title="Le document a été refusé"
-                  theme="danger"
-                  icon="CheckCircleIcon"
-                ></Alert>
-              )}
-            </div>
+            <TitleBar
+              signingSession={signingSession}
+              invoice={invoice}
+              alerts={true}
+            />
 
             {/* Buttons section */}
             <div className="flex mb-4">
@@ -188,6 +115,32 @@ export const SigningSessionPage = () => {
                   console.log("error", error);
                 }}
               /> */}
+
+              {signingSession.state === "signed" && (
+                <Button
+                  className="mt-2"
+                  onClick={() => {
+                    navigate(
+                      getRoute(ROUTES.SignedDocumentView, {
+                        session: sessionID,
+                      })
+                    );
+                  }}
+                >
+                  Voir le document signé
+                </Button>
+              )}
+
+              {signingSession.state === "sent" && (
+                <Button
+                  className="mt-2"
+                  onClick={() => {
+                    window.open(signingSession.signing_url, "_blank");
+                  }}
+                >
+                  Signer le document
+                </Button>
+              )}
 
               {!["signed", "sent", "cancelled"].includes(
                 signingSession.state
@@ -216,7 +169,6 @@ export const SigningSessionPage = () => {
                         theme="danger"
                         onClick={async () => {
                           setCancelling(true);
-                          // toast.success("La signature a été refusée");
                         }}
                       >
                         Refuser
@@ -257,30 +209,12 @@ export const SigningSessionPage = () => {
                 )}
             </div>
 
-            {/* IFrame section */}
-            <div className="w-full">
-              <div className={styles.videoContainer}>
-                {invoice && (
-                  <iframe
-                    src={InvoicesApiClient.getPdfRoute(
-                      {
-                        client_id: invoice?.client_id ?? "",
-                        id: invoice.id ?? "",
-                      },
-                      options
-                    )}
-                    title="Invoice PDF Preview"
-                  ></iframe>
-                )}
-              </div>
-            </div>
-
-            {options.length > 0 && invoice?.type !== "quotes" && (
-              <div>
+            {options.length > 0 && invoice?.type !== "invoices" && (
+              <div className="mb-4">
                 <Section>Options</Section>
-                <div>
+                <div className="flex w-full">
                   {options.map((option) => (
-                    <div className="mb-2">
+                    <div className="ml-2 flex">
                       <Checkbox
                         disabled={
                           signingSession.state === "signed" ||
@@ -304,6 +238,24 @@ export const SigningSessionPage = () => {
                 </div>
               </div>
             )}
+
+            {/* IFrame section */}
+            <div className="w-full">
+              <div className={styles.videoContainer}>
+                {invoice && (
+                  <iframe
+                    src={InvoicesApiClient.getPdfRoute(
+                      {
+                        client_id: invoice?.client_id ?? "",
+                        id: invoice.id ?? "",
+                      },
+                      options
+                    )}
+                    title="Invoice PDF Preview"
+                  ></iframe>
+                )}
+              </div>
+            </div>
 
             <div className="flex flex-col bg-white w-3/4 rounded-md p-3 mt-6">
               {/* <Section>Historique</Section> */}
