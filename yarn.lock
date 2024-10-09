@@ -1329,6 +1329,11 @@
   resolved "https://registry.yarnpkg.com/@csstools/selector-specificity/-/selector-specificity-2.2.0.tgz#2cbcf822bf3764c9658c4d2e568bd0c0cb748016"
   integrity sha512-+OJ9konv95ClSTOJCmMZqpd5+YGsB2S+x6w3E1oaM8UuR5j8nTNHYSz8c9BEPGDOCMQYIEEGlVPj/VY64iTbGw==
 
+"@documenso/embed-react@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@documenso/embed-react/-/embed-react-0.1.0.tgz#562a196e3d8780652aba007a8d7f17af83037d2c"
+  integrity sha512-CfnbzaIO+NKLUUjS4WWNxuTCZp/kWKR/q8G6Rm9Tye68G8YORNDFkl1U0U6EWOjjUsO3J3oCXREqZw4mldXyVA==
+
 "@editorjs/checklist@^1.6.0":
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/@editorjs/checklist/-/checklist-1.6.0.tgz#f3e501b0422917ca78fd08cb51578098a26a1823"

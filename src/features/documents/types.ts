@@ -1,4 +1,5 @@
 export type SigningSession = {
+  recipient_token: string;
   invoice_id: string;
   external_id: string;
   invoice_snapshot: string;

@@ -1,13 +1,16 @@
 import { Alert } from "@atoms/alert";
 import { Button } from "@atoms/button/button";
 import { Checkbox } from "@atoms/input/input-checkbox";
+import { Input } from "@atoms/input/input-text";
 import { PageLoader } from "@atoms/page-loader";
-import { Base, Section, Title } from "@atoms/text";
+import { Base, Info, Section, Title } from "@atoms/text";
+import { EmbedSignDocument } from "@documenso/embed-react";
 import { useSigningSession } from "@features/documents/hooks";
 import { InvoicesApiClient } from "@features/invoices/api-client/invoices-api-client";
 import { InvoiceLine, Invoices } from "@features/invoices/types/types";
 import { getRoute, ROUTES } from "@features/routes";
 import { isErrorResponse } from "@features/utils/rest/types/types";
+import { CheckIcon, XCircleIcon } from "@heroicons/react/16/solid";
 import { Page } from "@views/client/_layout/page";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -15,8 +18,6 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import styles from "./index.module.css";
-import { CheckIcon, XCircleIcon } from "@heroicons/react/16/solid";
-import { Input } from "@atoms/input/input-text";
 
 export const SigningSessionPage = () => {
   const navigate = useNavigate();
@@ -35,6 +36,7 @@ export const SigningSessionPage = () => {
 
   const [cancelling, setCancelling] = useState(false);
   const [cancelReason, setCancelReason] = useState<string>("");
+  // const [signingToken, setSigningToken] = useState<string | null>(null);
 
   useEffect(() => {
     viewSigningSession(sessionID ?? "");
@@ -98,17 +100,38 @@ export const SigningSessionPage = () => {
         ]}
       >
         <div className="w-full h-full flex flex-col items-center">
-          <div className="w-3/4 bg-white flex flex-col justify-between items-center rounded-md p-6">
-            <div className="flex flex-col justify-center items-center">
-              <Title>
-                {invoice?.type === "invoices" ? "Facture" : "Commande"}{" "}
-                {invoice?.reference}
-              </Title>
-              <Section>
-                Vous êtes authentifiés comme {signingSession.recipient}
-              </Section>
+          <div className="w-full md:w-3/4 bg-white flex flex-col justify-between items-center rounded-md p-6 md:px-24">
+            {/* Logo and title section */}
+            <div className="w-full mt-6 flex">
+              <div className="w-1/4 h-full">
+                <div className="flex items-center">
+                  <img
+                    className="h-6 w-auto dark:hidden"
+                    src="/medias/logo.png"
+                    alt="L'inventaire"
+                  />
+                  <img
+                    className="mx-auto h-6 w-auto hidden dark:block"
+                    src="/medias/logo.svg"
+                    alt="L'inventaire"
+                  />
+                  <Section className="m-0 ml-2 font-normal">
+                    L'inventaire
+                  </Section>
+                </div>
+                <Info>{signingSession.recipient}</Info>
+              </div>
+
+              <div className="flex flex-col w-full items-center -m-2.5">
+                <Title>
+                  {invoice?.type === "invoices" ? "Facture" : "Commande"}{" "}
+                  {invoice?.reference}
+                </Title>
+              </div>
+              <div className="w-1/4"></div>
             </div>
 
+            {/* Alerts section */}
             <div className="w-full flex justify-center mb-6">
               {signingSession.state === "signed" && (
                 <div className="flex flex-col justify-center items-center">
@@ -157,11 +180,19 @@ export const SigningSessionPage = () => {
               )}
             </div>
 
+            {/* Buttons section */}
             <div className="flex mb-4">
+              {/* <EmbedSignDocument
+                token={signingSession.recipient_token}
+                onDocumentError={(error) => {
+                  console.log("error", error);
+                }}
+              /> */}
+
               {!["signed", "sent", "cancelled"].includes(
                 signingSession.state
               ) &&
-                invoice?.type !== "quotes" && (
+                invoice?.type !== "invoices" && (
                   <>
                     <Button
                       className="mr-2"
@@ -226,6 +257,7 @@ export const SigningSessionPage = () => {
                 )}
             </div>
 
+            {/* IFrame section */}
             <div className="w-full">
               <div className={styles.videoContainer}>
                 {invoice && (
@@ -274,7 +306,7 @@ export const SigningSessionPage = () => {
             )}
 
             <div className="flex flex-col bg-white w-3/4 rounded-md p-3 mt-6">
-              <Section>Historique</Section>
+              {/* <Section>Historique</Section> */}
               {/* {(document?.events?.list ?? [])
                 .filter((event) => !!event)
                 .map((event) => (
