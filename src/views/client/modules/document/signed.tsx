@@ -12,6 +12,8 @@ import { twMerge } from "tailwind-merge";
 import styles from "./index.module.css";
 import { TitleBar } from "./components/title-bar";
 import { Invoices } from "@features/invoices/types/types";
+import { Loader } from "@atoms/loader";
+import { AspectRatio } from "@radix-ui/themes";
 
 export const SignedSessionPage = () => {
   const { session: sessionID } = useParams();
@@ -104,12 +106,27 @@ export const SignedSessionPage = () => {
                 </div>
               )}
               {!signedDocument && (
-                <>
-                  <Base>Le document est en cours de signature.</Base>
-                  <Button onClick={() => refetchSignedDocument()}>
-                    Raffraichir
-                  </Button>
-                </>
+                <div className="flex flex-col w-full justify-center items-center">
+                  <div className="flex items-center justify-center mb-6">
+                    <Loader className="mr-2" />
+                    <Section className="m-0 mr-2 font-normal">
+                      Le document est en cours de signature
+                    </Section>
+                    <Button onClick={() => refetchSignedDocument()}>
+                      Raffraichir
+                    </Button>
+                  </div>
+
+                  <div className="w-full md:w-1/2 lg:w-1/3">
+                    <AspectRatio ratio={1 / 1} className="flex justify-center">
+                      <img
+                        className="Image"
+                        src="/medias/undraw_signing_document.svg"
+                        alt="Landscape photograph by Tobias Tullius"
+                      />
+                    </AspectRatio>
+                  </div>
+                </div>
               )}
             </div>
           </div>
