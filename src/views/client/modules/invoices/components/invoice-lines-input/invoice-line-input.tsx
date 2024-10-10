@@ -178,7 +178,7 @@ export const InvoiceLineInput = (props: {
                     value={value.quantity}
                   >
                     <Text as="div" size="2" weight="bold">
-                      {value.quantity || 1} <Unit unit={article?.unit} />
+                      {value.quantity || 1} <Unit unit={value?.unit} />
                     </Text>
                     <Text as="div" color="gray" size="2">
                       {value.subscription &&
