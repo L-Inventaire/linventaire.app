@@ -15,6 +15,7 @@ import { useCallback, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { AnimatedBackground } from "@atoms/animated-background";
 
 let tryAgainTimeout: any = null;
 

@@ -1365,6 +1365,11 @@ body :is(.my-8) {
   margin-bottom: 2rem;
 }
 
+body :is(.my-auto) {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
 body :is(.\!-ml-0) {
   margin-left: -0px !important;
 }
@@ -1573,6 +1578,14 @@ body :is(.mt-px) {
   margin-top: 1px;
 }
 
+body :is(.-mt-\[2px\]) {
+  margin-top: -2px;
+}
+
+body :is(.-mt-\[1px\]) {
+  margin-top: -1px;
+}
+
 body :is(.box-border) {
   box-sizing: border-box;
 }
@@ -1723,6 +1736,10 @@ body :is(.h-px) {
 
 body :is(.h-screen) {
   height: 100vh;
+}
+
+body :is(.h-\[3px\]) {
+  height: 3px;
 }
 
 body :is(.max-h-0) {
@@ -1904,6 +1921,10 @@ body :is(.w-max) {
 
 body :is(.w-screen) {
   width: 100vw;
+}
+
+body :is(.w-1\/6) {
+  width: 16.666667%;
 }
 
 body :is(.min-w-0) {
@@ -5889,6 +5910,10 @@ body :is(.dark\:bg-opacity-75:where(.dark, .dark *)) {
 
 body :is(.dark\:bg-opacity-80:where(.dark, .dark *)) {
   --tw-bg-opacity: 0.8;
+}
+
+body :is(.dark\:bg-opacity-10:where(.dark, .dark *)) {
+  --tw-bg-opacity: 0.1;
 }
 
 body :is(.dark\:text-blue-100:where(.dark, .dark *)) {
