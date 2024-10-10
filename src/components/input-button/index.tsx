@@ -120,14 +120,16 @@ export const InputButton = <T,>(props: InputButtonProps<T>) => {
                 )}
               />
             )}
-            <Button
-              size="md"
-              className="mt-4 float-right"
-              onClick={() => setOpen(false)}
-              shortcut={["esc", "enter"]}
-            >
-              Fermer
-            </Button>
+            <div className="flex justify-end">
+              <Button
+                size="md"
+                className="mt-4"
+                onClick={() => setOpen(false)}
+                shortcut={["esc", "enter"]}
+              >
+                Fermer
+              </Button>
+            </div>
           </ModalContent>
         </Modal>
       )}

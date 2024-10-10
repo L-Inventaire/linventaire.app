@@ -1,3 +1,4 @@
+import { Heading } from "@radix-ui/themes";
 import { Info } from "../text";
 
 export interface InputLabelProps {
@@ -14,14 +15,15 @@ export const InputLabel = (props: InputLabelProps) => {
     <>
       <div className={props.className}>
         {props.label && (
-          <label
+          <Heading
+            size="2"
             className={
-              "block text-sm font-medium text-slate-500 whitespace-nowrap overflow-hidden text-ellipsis " +
+              "block whitespace-nowrap overflow-hidden text-ellipsis " +
               props.labelClassName
             }
           >
             {props.label}
-          </label>
+          </Heading>
         )}
         <div className={props.label ? "mt-1" : ""}>{props.input}</div>
         {props.feedback && (

@@ -31,6 +31,7 @@ import { PageBlockHr } from "@views/client/_layout/page";
 import { useEffect, useState } from "react";
 import { InvoiceRestDocument } from "../../invoices/components/invoice-lines-input/invoice-input-rest-card";
 import { StockItemStatus } from "./stock-item-status";
+import { Unit } from "@atoms/input/input-unit";
 
 export const StockItemsDetailsPage = ({
   readonly,
@@ -165,7 +166,7 @@ export const StockItemsDetailsPage = ({
                 placeholder="Aucun"
                 label="Quantité"
               >
-                {ctrl("quantity").value || 1} {article.unit || "unité"}
+                {ctrl("quantity").value || 1} <Unit unit={article.unit} />
               </InputButton>
               {false && (!readonly || ctrl("location").value) && (
                 <Button

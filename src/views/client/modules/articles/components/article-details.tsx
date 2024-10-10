@@ -1,18 +1,20 @@
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import { Input } from "@atoms/input/input-text";
+import { InputUnit } from "@atoms/input/input-unit";
+import { PageLoader } from "@atoms/page-loader";
 import { CustomFieldsInput } from "@components/custom-fields-input";
-import { EditorInput } from "@molecules/editor-input";
 import { FormInput } from "@components/form/fields";
 import { FormContext } from "@components/form/formcontext";
-import { PageLoader } from "@atoms/page-loader";
+import { UsersInput } from "@components/input-rest/users";
 import { Articles } from "@features/articles/types/types";
-import { tvaOptions, unitOptions } from "@features/utils/constants";
+import { tvaOptions } from "@features/utils/constants";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
+import { EditorInput } from "@molecules/editor-input";
+import { Heading } from "@radix-ui/themes";
 import { PageBlock, PageColumns } from "@views/client/_layout/page";
 import { ArticleSuppliersInput } from "./article-suppliers-input";
-import { UsersInput } from "@components/input-rest/users";
 
-const frequencyOptions = [
+export const frequencyOptions = [
   { value: "", label: "Pas de renouvellement" },
   { value: "weekly", label: "Hebdomadaire" },
   { value: "monthly", label: "Mensuel" },
@@ -114,11 +116,12 @@ export const ArticlesDetailsPage = ({
                     type="select"
                     options={tvaOptions}
                   />
-                  <FormInput
-                    ctrl={ctrl("unit")}
-                    label="Unité"
-                    type="text"
-                    options={unitOptions}
+                  <Heading size="2" className="mb-2">
+                    Unité
+                  </Heading>
+                  <InputUnit
+                    value={ctrl("unit").value}
+                    onValueChange={ctrl("unit").onChange}
                   />
                 </PageColumns>
 

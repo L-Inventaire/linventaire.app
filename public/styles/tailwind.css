@@ -1236,14 +1236,6 @@ body :is(.-m-1) {
   margin: -0.25rem;
 }
 
-body :is(.-m-2) {
-  margin: -0.5rem;
-}
-
-body :is(.-m-2\.5) {
-  margin: -0.625rem;
-}
-
 body :is(.-m-3) {
   margin: -0.75rem;
 }
@@ -1262,6 +1254,14 @@ body :is(.m-1) {
 
 body :is(.m-auto) {
   margin: auto;
+}
+
+body :is(.-m-2) {
+  margin: -0.5rem;
+}
+
+body :is(.-m-2\.5) {
+  margin: -0.625rem;
 }
 
 body :is(.\!my-0) {
@@ -1553,14 +1553,6 @@ body :is(.mt-px) {
   margin-top: 1px;
 }
 
-body :is(.-mt-1) {
-  margin-top: -0.25rem;
-}
-
-body :is(.mb-10) {
-  margin-bottom: 2.5rem;
-}
-
 body :is(.mb-8) {
   margin-bottom: 2rem;
 }
@@ -1825,10 +1817,6 @@ body :is(.w-3) {
   width: 0.75rem;
 }
 
-body :is(.w-3\/4) {
-  width: 75%;
-}
-
 body :is(.w-32) {
   width: 8rem;
 }
@@ -1892,6 +1880,10 @@ body :is(.w-max) {
 
 body :is(.w-screen) {
   width: 100vw;
+}
+
+body :is(.w-3\/4) {
+  width: 75%;
 }
 
 body :is(.min-w-0) {
@@ -4892,16 +4884,16 @@ body :is(.group\/user:hover .group-hover\/user\:opacity-100) {
     position: relative;
   }
 
-  body :is(.md\:w-3\/4) {
-    width: 75%;
-  }
-
   body :is(.md\:w-\[95vw\]) {
     width: 95vw;
   }
 
   body :is(.md\:w-1\/2) {
     width: 50%;
+  }
+
+  body :is(.md\:w-3\/4) {
+    width: 75%;
   }
 
   body :is(.md\:flex-row) {
