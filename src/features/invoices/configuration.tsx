@@ -36,7 +36,6 @@ export const InvoicesColumns: Column<Invoices>[] = [
     title: "Date",
     thClassName: "w-16",
     render: (invoice) => {
-      console.log(invoice);
       return (
         <Base className="whitespace-nowrap">
           {invoice.emit_date
