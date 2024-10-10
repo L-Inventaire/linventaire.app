@@ -20,6 +20,7 @@ import { twMerge } from "tailwind-merge";
 import { InputOutlinedDefaultBorders } from "@atoms/styles/inputs";
 import { TagPaymentCompletion } from "@views/client/modules/invoices/components/tag-payment-completion";
 import { UsersInput } from "@components/input-rest/users";
+import { Badge } from "@radix-ui/themes";
 
 export const useInvoiceDefaultModel: () => Partial<Invoices> = () => {
   const { client } = useCurrentClient();
@@ -81,18 +82,15 @@ export const InvoicesColumns: Column<Invoices>[] = [
     cellClassName: "justify-end",
     headClassName: "justify-end",
     render: (invoice) => (
-      <Base className="whitespace-nowrap space-x-2">
+      <Base className="whitespace-nowrap space-x-2 flex flex-row items-center">
         <TagsInput size="md" value={invoice.tags} disabled />
         <UsersInput size="md" value={invoice.assigned} disabled />
         {["quotes"].includes(invoice.type) &&
           invoice.state !== "closed" &&
           isComplete(invoice) && (
-            <Tag
-              className={twMerge(InputOutlinedDefaultBorders + " rounded-full")}
-              color={"green"}
-            >
+            <Badge size="2" color={"green"}>
               À facturer
-            </Tag>
+            </Badge>
           )}
         {["quotes"].includes(invoice.type) &&
           invoice.wait_for_completion_since &&
@@ -100,23 +98,17 @@ export const InvoicesColumns: Column<Invoices>[] = [
           !isComplete(invoice) &&
           invoice.state === "purchase_order" &&
           isDeliveryLate(invoice) && (
-            <Tag
-              className={twMerge(InputOutlinedDefaultBorders + " rounded-full")}
-              color={"red"}
-            >
+            <Badge size="2" color={"red"}>
               Livraison en retard
-            </Tag>
+            </Badge>
           )}
         {["invoices", "supplier_invoices"].includes(invoice.type) &&
           invoice.wait_for_completion_since &&
           invoice.state === "purchase_order" &&
           isPaymentLate(invoice) && (
-            <Tag
-              className={twMerge(InputOutlinedDefaultBorders + " rounded-full")}
-              color={"red"}
-            >
+            <Badge size="2" color={"red"}>
               Paiement en retard
-            </Tag>
+            </Badge>
           )}
         {invoice.type === "invoices" && (
           <TagPaymentCompletion invoice={invoice} />

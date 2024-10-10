@@ -4,6 +4,7 @@ import _ from "lodash";
 import { twMerge } from "tailwind-merge";
 import { usePaymentCompletion } from "../hooks/use-payment-completion";
 import { Invoices } from "@features/invoices/types/types";
+import { Badge } from "@radix-ui/themes";
 
 export type TagPaymentCompletionProps = {
   invoice: Invoices;
@@ -19,35 +20,19 @@ export const TagPaymentCompletion = ({
   const realPaymentCompletion = paymentCompletion || fetchedPaymentCompletion;
 
   return (
-    <Tag
-      className={twMerge(
-        "rounded-lg ml-1",
-        realPaymentCompletion.color &&
-          `text-${realPaymentCompletion.color}-600`,
-        props.className
-      )}
-      noColor
-      size={props.size || "md"}
-      data-tooltip={props["data-tooltip"] || "Facturé %"}
-      icon={
-        <CurrencyDollarIcon
-          className={twMerge(
-            "w-4 h-4 mr-1 shrink-0",
-            realPaymentCompletion.color &&
-              `text-${realPaymentCompletion.color}-600`
-          )}
-        />
-      }
-      {..._.omit(
-        props,
-        "children",
-        "className",
-        "size",
-        "icon",
-        "data-tooltip"
-      )}
+    <Badge
+      color={realPaymentCompletion.color as any}
+      size={"2"}
+      data-tooltip={props["data-tooltip"] || "% payé"}
     >
+      <CurrencyDollarIcon
+        className={twMerge(
+          "w-4 h-4 shrink-0",
+          realPaymentCompletion.color &&
+            `text-${realPaymentCompletion.color}-600`
+        )}
+      />{" "}
       {realPaymentCompletion.value} %
-    </Tag>
+    </Badge>
   );
 };
