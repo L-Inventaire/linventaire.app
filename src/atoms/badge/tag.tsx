@@ -1,16 +1,7 @@
 import { CSSProperties, ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
 
-export const Tag = ({
-  color,
-  className,
-  children,
-  size,
-  icon,
-  style,
-  onClick,
-  ...props
-}: {
+export type TagProps = {
   color?: string;
   className?: string;
   noColor?: boolean;
@@ -20,7 +11,18 @@ export const Tag = ({
   style?: CSSProperties;
   onClick?: (e: MouseEvent) => void;
   "data-tooltip"?: string;
-}) => {
+};
+
+export const Tag = ({
+  color,
+  className,
+  children,
+  size,
+  icon,
+  style,
+  onClick,
+  ...props
+}: TagProps) => {
   if (!children) return <></>;
 
   return (

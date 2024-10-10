@@ -17,6 +17,7 @@ import {
 import { Tag } from "@atoms/badge/tag";
 import { twMerge } from "tailwind-merge";
 import { InputOutlinedDefaultBorders } from "@atoms/styles/inputs";
+import { TagPaymentCompletion } from "@views/client/modules/invoices/components/tag-payment-completion";
 
 export const useInvoiceDefaultModel: () => Partial<Invoices> = () => {
   const { client } = useCurrentClient();
@@ -97,6 +98,9 @@ export const InvoicesColumns: Column<Invoices>[] = [
               Paiement en retard
             </Tag>
           )}
+        {invoice.type === "invoices" && (
+          <TagPaymentCompletion invoice={invoice} />
+        )}
       </Base>
     ),
   },
