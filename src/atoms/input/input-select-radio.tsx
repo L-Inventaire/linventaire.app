@@ -74,7 +74,7 @@ export function Radio(props: RadioProps) {
               value={option.value}
               name={props.name}
               checked={props.value === option.value}
-              onChange={(e) => {
+              onChange={() => {
                 /* Do nothing, it's for event bubbling */
               }}
             />{" "}

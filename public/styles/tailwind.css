@@ -1886,6 +1886,10 @@ body :is(.w-3\/4) {
   width: 75%;
 }
 
+body :is(.w-40) {
+  width: 10rem;
+}
+
 body :is(.min-w-0) {
   min-width: 0px;
 }

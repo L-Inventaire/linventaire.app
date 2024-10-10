@@ -32,14 +32,14 @@ export const useSettingsMenu: MenuIndex = () => {
         label: t("menu.settings.activity_format"),
         to: getRoute(ROUTES.SettingsPreferences),
       },
-      /*{
+      {
         label: t("menu.settings.stock_locations"),
         to: getRoute(ROUTES.SettingsStockLocations),
       },
       {
         label: t("menu.settings.bank_accounts"),
         to: getRoute(ROUTES.SettingsBankAccounts),
-      },*/
+      },
       {
         type: "divider",
       },

@@ -1,4 +1,3 @@
-import { Payment } from "@features/clients/types/clients";
 import { Invoices } from "@features/invoices/types/types";
 import { DateTime } from "luxon";
 

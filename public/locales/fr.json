@@ -187,6 +187,14 @@
       "go_to": "Ouvrir"
     }
   },
+  "stock": {
+    "locations": {
+      "type": {
+        "warehouse": "Entrepôt",
+        "shelf": "Étagère"
+      }
+    }
+  },
   "documents": {
     "index": {
       "title": "Documents partagés"
