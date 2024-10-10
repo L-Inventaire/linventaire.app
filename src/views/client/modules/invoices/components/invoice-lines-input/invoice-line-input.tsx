@@ -1,5 +1,6 @@
 import { Button } from "@atoms/button/button";
 import { DropDownAtom, DropDownMenuType } from "@atoms/dropdown";
+import { Unit } from "@atoms/input/input-unit";
 import { Base, BaseSmall, Info } from "@atoms/text";
 import {
   FormContextContext,
@@ -8,7 +9,7 @@ import {
 import { InputButton } from "@components/input-button";
 import { useArticle } from "@features/articles/hooks/use-articles";
 import { InvoiceLine, Invoices } from "@features/invoices/types/types";
-import { tvaOptions, unitOptions } from "@features/utils/constants";
+import { tvaOptions } from "@features/utils/constants";
 import { formatAmount, getTextFromHtml } from "@features/utils/format/strings";
 import {
   CheckIcon,
@@ -26,7 +27,8 @@ import {
   EllipsisVerticalIcon,
   TrashIcon,
 } from "@heroicons/react/20/solid";
-import _ from "lodash";
+import { Badge, Box, Card, Code, Flex, Text } from "@radix-ui/themes";
+import { frequencyOptions } from "@views/client/modules/articles/components/article-details";
 import { useContext, useEffect, useState } from "react";
 import { useDrag, useDragLayer, useDrop } from "react-dnd";
 import { useSetRecoilState } from "recoil";
@@ -38,7 +40,6 @@ import { InvoiceDiscountInput } from "./components/discount-input";
 import { InvoiceLineArticleInput } from "./components/line-article";
 import { InvoiceLinePriceInput } from "./components/line-price";
 import { InvoiceLineQuantityInput } from "./components/line-quantity";
-import { Box, Card, Flex, Code, Text } from "@radix-ui/themes";
 
 export const InvoiceLineInput = (props: {
   invoice?: Invoices;
@@ -177,14 +178,23 @@ export const InvoiceLineInput = (props: {
                     value={value.quantity}
                   >
                     <Text as="div" size="2" weight="bold">
-                      {(value.quantity || 1) +
-                        " " +
-                        (unitOptions.find((a) => a.value === value.unit)
-                          ?.label ||
-                          unitOptions.find((a) => a.value === "unit")?.label)}
+                      {value.quantity || 1} <Unit unit={article?.unit} />
                     </Text>
                     <Text as="div" color="gray" size="2">
-                      -
+                      {value.subscription &&
+                      frequencyOptions?.find(
+                        (a) => a.value === value.subscription
+                      )?.label ? (
+                        <Badge size="1" color="blue">
+                          {
+                            frequencyOptions?.find(
+                              (a) => a.value === value.subscription
+                            )?.label
+                          }
+                        </Badge>
+                      ) : (
+                        "-"
+                      )}
                     </Text>
                   </InputButton>
                 </Box>

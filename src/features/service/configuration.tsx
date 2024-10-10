@@ -12,6 +12,7 @@ import { ServiceItemStatus } from "@views/client/modules/service/components/serv
 import { ServiceItemsDetailsPage } from "@views/client/modules/service/components/service-items-details";
 import { ServiceTimesDetailsPage } from "@views/client/modules/service/components/service-times-details";
 import { ServiceItems, ServiceTimes } from "./types/types";
+import { Unit } from "@atoms/input/input-unit";
 
 export const useServiceItemDefaultModel: () => Partial<ServiceItems> =
   () => ({});
@@ -91,7 +92,11 @@ export const ServiceTimesColumns: Column<ServiceTimes>[] = [
   },
   {
     title: "Temps passé",
-    render: (item) => item.quantity + " " + (item.unit || "unités"),
+    render: (item) => (
+      <>
+        {item.quantity} <Unit unit={item.unit} />
+      </>
+    ),
   },
   {
     title: "Travail effectué",

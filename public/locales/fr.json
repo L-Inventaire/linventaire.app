@@ -191,5 +191,63 @@
     "index": {
       "title": "Documents partagés"
     }
+  },
+  "atoms": {
+    "input": {
+      "unit": {
+        "categories": {
+          "general": "Général",
+          "length": "Longueur",
+          "mass": "Poids",
+          "volume": "Volume",
+          "temperature": "Température",
+          "time": "Temps",
+          "area": "Surface",
+          "speed": "Vitesse"
+        },
+        "unit": "unité",
+        "ms": "ms",
+        "s": "s",
+        "min": "min",
+        "h": "h",
+        "d": "j",
+        "w": "sem",
+        "mo": "mois",
+        "y": "an",
+        "mm": "mm",
+        "cm": "cm",
+        "m": "m",
+        "km": "km",
+        "in": "po",
+        "ft": "pi",
+        "yd": "yd",
+        "mi": "mi",
+        "mg": "mg",
+        "g": "g",
+        "kg": "kg",
+        "t": "t",
+        "oz": "oz",
+        "lb": "lb",
+        "°C": "°C",
+        "°F": "°F",
+        "K": "K",
+        "ml": "ml",
+        "cl": "cl",
+        "dl": "dl",
+        "l": "l",
+        "m³": "m³",
+        "in³": "po³",
+        "ft³": "pi³",
+        "mm²": "mm²",
+        "cm²": "cm²",
+        "m²": "m²",
+        "ha": "ha",
+        "km²": "km²",
+        "in²": "po²",
+        "ft²": "pi²",
+        "yd²": "yd²",
+        "mi²": "mi²"
+      }
+    }
   }
 }

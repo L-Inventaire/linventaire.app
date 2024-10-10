@@ -123,6 +123,7 @@ export type InvoiceLine = {
   unit_price?: number;
   tva?: string;
   discount?: InvoiceDiscount;
+  subscription?: string; // Nullable
 
   quantity_ready?: number; //Quantity received or sent to determine if the line is ready to be invoices
   quantity_delivered?: number; //Quantity delivered or received to determine if the line is ready to be invoices

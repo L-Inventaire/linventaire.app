@@ -25,6 +25,7 @@ import { EditorInput } from "@molecules/editor-input";
 import { InvoiceRestDocument } from "../../invoices/components/invoice-lines-input/invoice-input-rest-card";
 import { ServiceItemStatus } from "./service-item-status";
 import { Contacts } from "@features/contacts/types/types";
+import { Unit } from "@atoms/input/input-unit";
 
 export const ServiceItemsDetailsPage = ({
   readonly,
@@ -126,7 +127,7 @@ export const ServiceItemsDetailsPage = ({
             {(ctrl("quantity_spent").value || 0) +
               " / " +
               (ctrl("quantity_expected").value || 0)}{" "}
-            {article?.unit || "unités"}
+            <Unit unit={article?.unit} />
           </InputButton>
         </div>
 

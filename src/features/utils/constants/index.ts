@@ -33,57 +33,6 @@ export const tvaOptions = [
   },
 ];
 
-export const unitOptions = [
-  {
-    value: "unit",
-    label: "Unité",
-  },
-  {
-    value: "kg",
-    label: "Kilogramme",
-  },
-  {
-    value: "g",
-    label: "Gramme",
-  },
-  {
-    value: "l",
-    label: "Litre",
-  },
-  {
-    value: "m",
-    label: "Mètre",
-  },
-  {
-    value: "m2",
-    label: "Mètre carré",
-  },
-  {
-    value: "m3",
-    label: "Mètre cube",
-  },
-  {
-    value: "hour",
-    label: "Heure",
-  },
-  {
-    value: "day",
-    label: "Jour",
-  },
-  {
-    value: "month",
-    label: "Mois",
-  },
-  {
-    value: "year",
-    label: "Année",
-  },
-  {
-    value: "other",
-    label: "Autre",
-  },
-];
-
 export const currencyOptions = [
   {
     label: "EUR (Euro)",
