@@ -8,11 +8,9 @@ import { CustomFieldsInput } from "@components/custom-fields-input";
 import { FormInput } from "@components/form/fields";
 import { FormContext } from "@components/form/formcontext";
 import { AddressInput } from "@components/input-button/address/form";
-import { generateQueryFromMap } from "@components/search-bar/utils/utils";
 import { useClients } from "@features/clients/state/use-clients";
 import { ContactsApiClient } from "@features/contacts/api-client/contacts-api-client";
 import { Contacts } from "@features/contacts/types/types";
-import { useInvoices } from "@features/invoices/hooks/use-invoices";
 import { debounce } from "@features/utils/debounce";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { EditorInput } from "@molecules/editor-input";
@@ -26,7 +24,6 @@ import { useEffect } from "react";
 import { ContactAccountingAccount } from "./contact-accounting-account";
 import { RelatedInvoicesInput } from "./related-invoices-input";
 import { RelationsInput } from "./relations-input";
-import { formatTime } from "@features/utils/format/dates";
 
 export const ContactsDetailsPage = ({
   readonly,

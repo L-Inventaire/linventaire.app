@@ -1,15 +1,16 @@
+import { RestDocumentsInput } from "@components/input-rest";
+import { pgcLabel } from "@components/pcg-input";
 import { registerCtrlKRestEntity } from "@features/ctrlk";
 import { ROUTES } from "@features/routes";
-import { AccountingTransactionsDetailsPage } from "@views/client/modules/accounting/components/accounting-transactions-details";
-import { AccountingAccountsDetailsPage } from "@views/client/modules/accounting/components/accounting-accounts-details";
-import { AccountingTransactions, AccountingAccounts } from "./types/types";
-import { Tag } from "@atoms/badge/tag";
-import { RestDocumentsInput } from "@components/input-rest";
-import { formatAmount } from "@features/utils/format/strings";
-import { twMerge } from "tailwind-merge";
 import { formatTime } from "@features/utils/format/dates";
-import { InvoiceRestDocument } from "@views/client/modules/invoices/components/invoice-lines-input/invoice-input-rest-card";
+import { formatAmount } from "@features/utils/format/strings";
+import { EditorInput } from "@molecules/editor-input";
 import { Column } from "@molecules/table/table";
+import { AccountingAccountsDetailsPage } from "@views/client/modules/accounting/components/accounting-accounts-details";
+import { AccountingTransactionsDetailsPage } from "@views/client/modules/accounting/components/accounting-transactions-details";
+import { InvoiceRestDocument } from "@views/client/modules/invoices/components/invoice-lines-input/invoice-input-rest-card";
+import { twMerge } from "tailwind-merge";
+import { AccountingAccounts, AccountingTransactions } from "./types/types";
 
 export const useAccountingTransactionDefaultModel: () => Partial<AccountingTransactions> =
   () => ({});
@@ -80,26 +81,26 @@ registerCtrlKRestEntity<AccountingTransactions>("accounting_transactions", {
 export const useAccountingAccountDefaultModel: () => Partial<AccountingAccounts> =
   () => ({});
 
-const AccountingAccountsColumns: Column<AccountingAccounts>[] = [
+export const AccountingAccountsColumns: Column<AccountingAccounts>[] = [
   {
-    title: "Identifiant",
-    render: (item) => <Tag>{item.standard_identifier}</Tag>,
-  },
-  { title: "Nom", render: (item) => <>{item.name}</> },
-  {
-    title: "Contact",
-    render: (item) => (
-      <>
-        <RestDocumentsInput
-          value={item.contact as any}
-          entity="contacts"
-          disabled
-          size="md"
-        />
-      </>
+    thClassName: "w-1 pr-4",
+    className: "whitespace-nowrap",
+    title: "Type",
+    render: (stockLocation) => (
+      <>{pgcLabel(stockLocation.standard_identifier)}</>
     ),
   },
-  { title: "Notes", render: (item) => <>{item.notes}</> },
+  {
+    thClassName: "w-1 pr-4",
+    title: "Nom",
+    render: (stockLocation) => <>{stockLocation.name}</>,
+  },
+  {
+    title: "Notes",
+    render: (stockLocation) => (
+      <EditorInput value={stockLocation.notes} disabled placeholder="-" />
+    ),
+  },
 ];
 
 registerCtrlKRestEntity<AccountingAccounts>("accounting_accounts", {
