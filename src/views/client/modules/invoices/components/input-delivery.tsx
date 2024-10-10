@@ -144,8 +144,8 @@ export const InputDelivery = ({
           </Info>
 
           {invoice.type === "quotes" &&
-            invoice.purchase_order_date &&
-            invoice.state === "signed" && (
+            invoice.wait_for_completion_since &&
+            invoice.state === "purchase_order" && (
               <>
                 <Info className={"text-blue-500"}>
                   Signé, livraison avant le :{" "}

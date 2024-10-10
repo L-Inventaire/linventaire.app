@@ -11,6 +11,7 @@ import { formatAmount } from "@features/utils/format/strings";
 import { InvoiceStatus } from "@views/client/modules/invoices/components/invoice-status";
 import { Column } from "@molecules/table/table";
 import {
+  isComplete,
   isDeliveryLate,
   isPaymentLate,
 } from "@views/client/modules/invoices/utils";
@@ -83,8 +84,21 @@ export const InvoicesColumns: Column<Invoices>[] = [
       <Base className="whitespace-nowrap space-x-2">
         <TagsInput size="md" value={invoice.tags} disabled />
         <UsersInput size="md" value={invoice.assigned} disabled />
-        {invoice.purchase_order_date &&
-          invoice.state === "signed" &&
+        {["quotes"].includes(invoice.type) &&
+          invoice.state !== "closed" &&
+          isComplete(invoice) && (
+            <Tag
+              className={twMerge(InputOutlinedDefaultBorders + " rounded-full")}
+              color={"green"}
+            >
+              À facturer
+            </Tag>
+          )}
+        {["quotes"].includes(invoice.type) &&
+          invoice.wait_for_completion_since &&
+          invoice.state !== "closed" &&
+          !isComplete(invoice) &&
+          invoice.state === "purchase_order" &&
           isDeliveryLate(invoice) && (
             <Tag
               className={twMerge(InputOutlinedDefaultBorders + " rounded-full")}
@@ -93,8 +107,9 @@ export const InvoicesColumns: Column<Invoices>[] = [
               Livraison en retard
             </Tag>
           )}
-        {invoice.purchase_order_date &&
-          invoice.state === "signed" &&
+        {["invoices", "supplier_invoices"].includes(invoice.type) &&
+          invoice.wait_for_completion_since &&
+          invoice.state === "purchase_order" &&
           isPaymentLate(invoice) && (
             <Tag
               className={twMerge(InputOutlinedDefaultBorders + " rounded-full")}

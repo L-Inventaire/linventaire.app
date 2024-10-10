@@ -380,21 +380,21 @@ export const InvoicesDetailsPage = ({
                     </Text>
                   </InputButton>
                 )}
-                {!!ctrl("purchase_order_date").value && (
+                {!!ctrl("wait_for_completion_since").value && (
                   <InputButton
                     theme="invisible"
                     className="m-0"
                     data-tooltip={new Date(
-                      ctrl("purchase_order_date").value || Date.now()
+                      ctrl("wait_for_completion_since").value || Date.now()
                     ).toDateString()}
-                    ctrl={ctrl("purchase_order_date") || Date.now()}
+                    ctrl={ctrl("wait_for_completion_since") || Date.now()}
                     placeholder="Date de signature"
                     value={formatTime(
-                      ctrl("purchase_order_date").value || Date.now()
+                      ctrl("wait_for_completion_since").value || Date.now()
                     )}
                     content={
                       <FormInput
-                        ctrl={ctrl("purchase_order_date") || Date.now()}
+                        ctrl={ctrl("wait_for_completion_since") || Date.now()}
                         type="date"
                       />
                     }
@@ -403,7 +403,7 @@ export const InvoicesDetailsPage = ({
                     <Text size="2" className="opacity-75" weight="medium">
                       {"Accepté le "}
                       {formatTime(
-                        ctrl("purchase_order_date").value || Date.now(),
+                        ctrl("wait_for_completion_since").value || Date.now(),
                         {
                           hideTime: true,
                         }
