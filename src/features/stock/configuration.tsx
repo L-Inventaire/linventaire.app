@@ -1,6 +1,9 @@
-import { Button } from "@atoms/button/button";
+import { Unit } from "@atoms/input/input-unit";
 import { Base } from "@atoms/text";
 import { RestDocumentsInput } from "@components/input-rest";
+import { TagsInput } from "@components/input-rest/tags";
+import { UsersInput } from "@components/input-rest/users";
+import { useArticle } from "@features/articles/hooks/use-articles";
 import { Articles } from "@features/articles/types/types";
 import { getContactName } from "@features/contacts/types/types";
 import { registerCtrlKRestEntity } from "@features/ctrlk";
@@ -8,17 +11,13 @@ import { ROUTES } from "@features/routes";
 import { formatNumber } from "@features/utils/format/strings";
 import { MapPinIcon, UserIcon } from "@heroicons/react/16/solid";
 import { Column } from "@molecules/table/table";
+import { Badge } from "@radix-ui/themes";
 import { getArticleIcon } from "@views/client/modules/articles/components/article-icon";
 import { StockItemsDetailsPage } from "@views/client/modules/stock/components/stock-item-details";
 import { StockItemStatus } from "@views/client/modules/stock/components/stock-item-status";
 import { useTranslation } from "react-i18next";
 import { useStockLocations } from "./hooks/use-stock-locations";
 import { StockItems, StockLocations } from "./types/types";
-import { useArticle } from "@features/articles/hooks/use-articles";
-import { Unit } from "@atoms/input/input-unit";
-import { Badge } from "@radix-ui/themes";
-import { TagsInput } from "@components/input-rest/tags";
-import { UsersInput } from "@components/input-rest/users";
 
 export const useStockItemDefaultModel: () => Partial<StockItems> = () => ({});
 

@@ -1,10 +1,9 @@
-import { Tag, TagProps } from "@atoms/badge/tag";
+import { TagProps } from "@atoms/badge/tag";
+import { Invoices } from "@features/invoices/types/types";
 import { CurrencyDollarIcon } from "@heroicons/react/20/solid";
-import _ from "lodash";
+import { Badge } from "@radix-ui/themes";
 import { twMerge } from "tailwind-merge";
 import { usePaymentCompletion } from "../hooks/use-payment-completion";
-import { Invoices } from "@features/invoices/types/types";
-import { Badge } from "@radix-ui/themes";
 
 export type TagPaymentCompletionProps = {
   invoice: Invoices;

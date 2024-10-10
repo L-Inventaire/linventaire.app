@@ -1,26 +1,23 @@
-import { useCurrentClient } from "@features/clients/state/use-clients";
-import { registerCtrlKRestEntity } from "@features/ctrlk";
-import { ROUTES } from "@features/routes";
-import { InvoicesDetailsPage } from "@views/client/modules/invoices/components/invoices-details";
-import { Invoices } from "./types/types";
 import { Base, BaseSmall, Info } from "@atoms/text";
 import { RestDocumentsInput } from "@components/input-rest";
 import { TagsInput } from "@components/input-rest/tags";
+import { UsersInput } from "@components/input-rest/users";
+import { useCurrentClient } from "@features/clients/state/use-clients";
+import { registerCtrlKRestEntity } from "@features/ctrlk";
+import { ROUTES } from "@features/routes";
 import { formatTime } from "@features/utils/format/dates";
 import { formatAmount } from "@features/utils/format/strings";
-import { InvoiceStatus } from "@views/client/modules/invoices/components/invoice-status";
 import { Column } from "@molecules/table/table";
+import { Badge } from "@radix-ui/themes";
+import { InvoiceStatus } from "@views/client/modules/invoices/components/invoice-status";
+import { InvoicesDetailsPage } from "@views/client/modules/invoices/components/invoices-details";
+import { TagPaymentCompletion } from "@views/client/modules/invoices/components/tag-payment-completion";
 import {
   isComplete,
   isDeliveryLate,
   isPaymentLate,
 } from "@views/client/modules/invoices/utils";
-import { Tag } from "@atoms/badge/tag";
-import { twMerge } from "tailwind-merge";
-import { InputOutlinedDefaultBorders } from "@atoms/styles/inputs";
-import { TagPaymentCompletion } from "@views/client/modules/invoices/components/tag-payment-completion";
-import { UsersInput } from "@components/input-rest/users";
-import { Badge } from "@radix-ui/themes";
+import { Invoices } from "./types/types";
 
 export const useInvoiceDefaultModel: () => Partial<Invoices> = () => {
   const { client } = useCurrentClient();
