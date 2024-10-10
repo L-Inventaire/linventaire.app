@@ -3,9 +3,9 @@ import InputCode from "@atoms/input/input-code";
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import { Input } from "@atoms/input/input-text";
 import Link from "@atoms/link";
+import { PageLoader } from "@atoms/page-loader";
 import { Info, Section, Subtitle } from "@atoms/text";
 import { MFAVerificationModal } from "@components/auth/mfa-verification-modal";
-import { PageLoader } from "@atoms/page-loader";
 import environment from "@config/environment";
 import { AuthApiClient } from "@features/auth/api-client/api-client";
 import { useAuth } from "@features/auth/state/use-auth";
@@ -15,7 +15,6 @@ import { useCallback, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { AnimatedBackground } from "@atoms/animated-background";
 
 let tryAgainTimeout: any = null;
 
