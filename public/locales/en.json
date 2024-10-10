@@ -71,7 +71,29 @@
       "footer": "Footer notes",
       "payment_terms": "Payment Terms",
       "tva": "VAT mention",
-      "branding_placeholder": "Display linventaire.app logo on invoices"
+      "branding_placeholder": "Display linventaire.app logo on invoices",
+      "other": {
+        "delivery_date": "Delivery date",
+        "delivery_delay": "Delivery delay",
+        "days": "days",
+        "delivery_address": "Delivery address",
+        "emit_date": "Issue date",
+        "payment_date": "Payment due by",
+        "delay": "Payment delay",
+        "payment_method": "Payment methods",
+        "no_payment_method": "No payment method",
+        "payment_terms": "Payment terms",
+        "late_penalty": "Late penalty",
+        "recovery_fee": "Recovery fee",
+        "bank_details": "Bank details",
+        "recurrence": "Recurring invoice",
+        "frequency": {
+          "monthly": "Monthly",
+          "weekly": "Weekly",
+          "yearly": "Yearly"
+        },
+        "recurrence_between": "between {{start}} and {{end}}"
+      }
     }
   },
   "menu": {

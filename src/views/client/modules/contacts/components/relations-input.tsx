@@ -1,16 +1,17 @@
 import { Button } from "@atoms/button/button";
-import { Info, SectionSmall } from "@atoms/text";
-import { FormInput } from "@components/form/fields";
-import { RestDocumentsInput } from "@components/input-rest";
 import { ContactsColumns } from "@features/contacts/configuration";
 import { useContacts } from "@features/contacts/hooks/use-contacts";
-import { Contacts, getContactName } from "@features/contacts/types/types";
+import { Contacts } from "@features/contacts/types/types";
 import { ROUTES, getRoute } from "@features/routes";
 import { useNavigateAlt } from "@features/utils/navigate";
-import { TrashIcon } from "@heroicons/react/24/outline";
+import { PencilIcon } from "@heroicons/react/24/outline";
 import { Table } from "@molecules/table";
-import _ from "lodash";
+import { PageBlock } from "@views/client/_layout/page";
 import { useEffect } from "react";
+import { useSetRecoilState } from "recoil";
+import { ContactRelationModalAtom } from "./relations-modal";
+import _ from "lodash";
+import { EditorInput } from "@molecules/editor-input";
 
 export const RelationsInput = ({
   id,
@@ -24,17 +25,8 @@ export const RelationsInput = ({
   onChange: (parents: string[], roles: Contacts["parents_roles"]) => void;
 }) => {
   const navigate = useNavigateAlt();
-  const { contacts: children } = useContacts({
-    query: [
-      {
-        key: "parents",
-        values: [{ op: "equals", value: id }],
-      },
-    ],
-    key: "children_" + id,
-  });
 
-  const { contacts: parents, refresh } = useContacts({
+  const { contacts: relations, refresh } = useContacts({
     query: [
       {
         key: "id",
@@ -49,120 +41,117 @@ export const RelationsInput = ({
     refresh();
   }, [id]);
 
+  const openRelationsModal = useSetRecoilState(ContactRelationModalAtom);
+
   return (
-    <div className="space-y-4">
-      <div>
-        {!!parents?.data?.list?.length && readonly && (
-          <SectionSmall>Parents</SectionSmall>
-        )}
-        <Info>
-          Les contacts parents sont les contacts qui sont responsables,
-          employeurs ou encore sociétés de ce contact.
-        </Info>
-        {(!!parents.data?.list?.length || !readonly) && (
-          <div className="space-y-4 mt-2">
-            {!readonly &&
-              (parents?.data?.list || []).map((contact) => (
-                <div className="rounded border p-4" key={contact.id}>
-                  <Button
-                    icon={(p) => <TrashIcon {...p} />}
-                    size="md"
-                    theme="danger"
-                    className="float-right"
-                    onClick={() => {
-                      const details = { ...value[1] };
-                      delete details[contact.id];
-                      onChange(
-                        value[0].filter((id) => id !== contact.id),
-                        details
-                      );
-                    }}
-                  />
-                  <SectionSmall>{getContactName(contact)}</SectionSmall>
-                  <FormInput
-                    label="Rôle"
-                    type="text"
-                    value={value[1][contact.id]?.role || ""}
-                    onChange={(role: string) => {
-                      onChange(value[0], {
+    <PageBlock
+      closable
+      title="Relations"
+      actions={
+        <>
+          {!readonly && (
+            <Button
+              size="sm"
+              onClick={() =>
+                openRelationsModal({
+                  open: true,
+                  contact: {
+                    parents: value[0],
+                    parents_roles: value[1],
+                  },
+                  relationId: "",
+                  onRelationChange: (contactId, relation) => {
+                    if (relation) {
+                      onChange([...value[0], contactId], {
                         ...value[1],
-                        [contact.id]: {
-                          role,
-                        },
-                      });
-                    }}
-                    placeholder="Rôle"
-                  />
-                </div>
-              ))}
-            {!readonly && (
-              <div className="mt-2">
-                <RestDocumentsInput
-                  entity="contacts"
-                  size="xl"
-                  label="+ Attacher à un contact parent"
-                  placeholder="Attacher le contact parent et choisir un rôle"
-                  value={""}
-                  onChange={(parent) => {
-                    if (parent && typeof parent === "string") {
-                      onChange(_.uniq([...value[0], parent]), {
-                        ...value[1],
-                        [parent]: {
-                          role: "",
-                        },
+                        [contactId]: relation,
                       });
                     }
-                  }}
+                  },
+                })
+              }
+            >
+              Ajouter une relation
+            </Button>
+          )}
+        </>
+      }
+    >
+      <div className="space-y-4 mt-4">
+        <Table
+          data={relations?.data?.list || []}
+          columns={[
+            ...ContactsColumns.filter(
+              (a) => a.id !== "tags" && a.id !== "relations"
+            ),
+            {
+              title: "Rôle",
+              thClassName: "w-1/4",
+              render: (contact) => <>{value[1][contact.id]?.role || "-"}</>,
+            },
+            {
+              title: "Notes",
+              thClassName: "w-1/4",
+              render: (contact) => (
+                <EditorInput
+                  value={value[1][contact.id]?.notes || "-"}
+                  disabled={true}
                 />
-              </div>
-            )}
-
-            {!!parents?.data?.list?.length && readonly && (
-              <>
-                <Table
-                  data={parents.data?.list || []}
-                  columns={[
-                    ...ContactsColumns,
-                    {
-                      title: "Rôle",
-                      render: (contact) => <>{value[1][contact.id]?.role}</>,
-                    },
-                  ]}
-                  onClick={(contact, event) =>
-                    navigate(
-                      getRoute(ROUTES.ContactsView, { id: contact.id }),
-                      {
-                        event,
-                      }
-                    )
-                  }
-                />
-              </>
-            )}
-          </div>
-        )}
+              ),
+            },
+            ...(!readonly
+              ? [
+                  {
+                    thClassName: "w-1",
+                    render: (contact: Contacts) => (
+                      <>
+                        <Button
+                          theme="outlined"
+                          size="sm"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            openRelationsModal({
+                              open: true,
+                              contact: {
+                                parents: value[0],
+                                parents_roles: value[1],
+                              },
+                              relationId: contact.id,
+                              onRelationChange: (_id, relation) => {
+                                if (relation) {
+                                  onChange(value[0], {
+                                    ...value[1],
+                                    [contact.id]: relation,
+                                  });
+                                } else {
+                                  const newParents = value[0].filter(
+                                    (id) => id !== contact.id
+                                  );
+                                  const newParentsRoles = _.omit(
+                                    value[1],
+                                    contact.id
+                                  );
+                                  onChange(newParents, newParentsRoles);
+                                }
+                              },
+                            });
+                          }}
+                          icon={(p) => <PencilIcon {...p} />}
+                        />
+                      </>
+                    ),
+                  },
+                ]
+              : []),
+          ]}
+          onClick={(contact, event) =>
+            navigate(getRoute(ROUTES.ContactsView, { id: contact.id }), {
+              event,
+            })
+          }
+        />
       </div>
-
-      {!!children?.data?.total && readonly && (
-        <div>
-          <SectionSmall>Contacts liés</SectionSmall>
-          <Table
-            data={children.data?.list || []}
-            columns={[
-              ...ContactsColumns,
-              {
-                title: "Rôle",
-                render: (contact) => <>{contact.parents_roles[id]?.role}</>,
-              },
-            ]}
-            onClick={(contact, event) =>
-              navigate(getRoute(ROUTES.ContactsView, { id: contact.id }), {
-                event,
-              })
-            }
-          />
-        </div>
-      )}
-    </div>
+    </PageBlock>
   );
 };

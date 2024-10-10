@@ -21,6 +21,9 @@ import { SideBar } from "./_layout/sidebar";
 import { AccountClientsPage } from "./account/clients";
 import { AccountPage } from "./account/profil";
 import { SecurityPage } from "./account/security";
+import { AccountingPage } from "./modules/accounting";
+import { AccountingTransactionsEditPage } from "./modules/accounting/edit";
+import { AccountingTransactionsViewPage } from "./modules/accounting/view";
 import { ArticlesPage } from "./modules/articles";
 import { ArticlesEditPage } from "./modules/articles/edit";
 import { ArticlesViewPage } from "./modules/articles/view";
@@ -32,23 +35,22 @@ import { InvoicesPage } from "./modules/invoices";
 import { InvoicesEditPage } from "./modules/invoices/edit";
 import { InvoicesViewPage } from "./modules/invoices/view";
 import { NotificationsPage } from "./modules/notifications";
+import { ServicePage } from "./modules/service";
+import { ServiceItemsEditPage } from "./modules/service/edit";
+import { ServiceItemsViewPage } from "./modules/service/view";
 import { StatisticsPage } from "./modules/statistics";
 import { StockPage } from "./modules/stock";
 import { StockItemsEditPage } from "./modules/stock/edit";
 import { StockItemsViewPage } from "./modules/stock/view";
 import { NoClientView } from "./no-client";
+import { BankAccountsPage } from "./settings/bank-accounts";
 import { CompanyPage } from "./settings/company";
 import { FieldsPage } from "./settings/fields";
 import { CompanyPlanPage } from "./settings/plan";
 import { PreferencesPage } from "./settings/preferences";
+import { StockLocationsPage } from "./settings/stock-locations";
 import { TagsPage } from "./settings/tags";
 import { CompanyUsersPage } from "./settings/users";
-import { ServicePage } from "./modules/service";
-import { AccountingPage } from "./modules/accounting";
-import { AccountingTransactionsViewPage } from "./modules/accounting/view";
-import { AccountingTransactionsEditPage } from "./modules/accounting/edit";
-import { ServiceItemsViewPage } from "./modules/service/view";
-import { ServiceItemsEditPage } from "./modules/service/edit";
 
 export const BackOfficeRoutes = () => {
   return (
@@ -117,8 +119,14 @@ export const BackOfficeRoutes = () => {
         <Route path={ROUTES.SettingsCompany} element={<CompanyPage />} />
         <Route path={ROUTES.SettingsUsers} element={<CompanyUsersPage />} />
         <Route path={ROUTES.SettingsBilling} element={<CompanyPlanPage />} />
-        <Route path={ROUTES.SettingsStockLocations} element={<DevPage />} />
-        <Route path={ROUTES.SettingsBankAccounts} element={<DevPage />} />
+        <Route
+          path={ROUTES.SettingsStockLocations}
+          element={<StockLocationsPage />}
+        />
+        <Route
+          path={ROUTES.SettingsBankAccounts}
+          element={<BankAccountsPage />}
+        />
         <Route path={ROUTES.SettingsImport} element={<DevPage />} />
         <Route path={ROUTES.SettingsApi} element={<DevPage />} />
 

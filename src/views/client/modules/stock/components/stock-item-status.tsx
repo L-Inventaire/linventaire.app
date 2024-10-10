@@ -14,28 +14,20 @@ export const StockItemStatus = ({
   size?: "xs" | "sm" | "md" | "md" | "lg";
 }) => {
   const statusName = {
-    bought: "Commandé",
     stock: "En stock",
-    reserved: "Réservé",
     in_transit: "En transit",
     delivered: "Livré",
     depleted: "Épuisé",
   };
 
   const statusColor = {
-    bought: "gray",
     stock: "blue",
-    reserved: "red",
     in_transit: "orange",
     delivered: "green",
-    depleted: "gray",
+    depleted: "red",
   };
 
-  const statusGrouped = [
-    ["bought", "stock"],
-    ["reserved", "in_transit"],
-    ["delivered", "depleted"],
-  ];
+  const statusGrouped = [["stock"], ["in_transit"], ["delivered", "depleted"]];
 
   return (
     <Stepper

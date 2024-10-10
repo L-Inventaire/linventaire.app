@@ -33,6 +33,7 @@ import { Callout, Code, Text } from "@radix-ui/themes";
 import { PageColumns } from "@views/client/_layout/page";
 import _ from "lodash";
 import { Fragment, useEffect } from "react";
+import { usePaymentCompletion } from "../hooks/use-payment-completion";
 import { computePricesFromInvoice } from "../utils";
 import { InputDelivery } from "./input-delivery";
 import { InvoiceInputFormat } from "./input-format";
@@ -44,8 +45,9 @@ import { CompletionTags } from "./invoice-lines-input/components/completion-tags
 import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-card";
 import { InvoiceStatus } from "./invoice-status";
 import { RelatedInvoices } from "./related-invoices";
+import { TagPaymentCompletion } from "./tag-payment-completion";
 
-export const computeCompletion = (
+export const computeStockCompletion = (
   linesu: Invoices["content"],
   type: "delivered" | "ready" = "ready",
   overflow = false
@@ -74,12 +76,51 @@ export const computeCompletion = (
   );
 };
 
-export const renderCompletion = (
+export const renderStockCompletion = (
   lines: Invoices["content"],
   type: "delivered" | "ready" = "ready",
   overflow = false
 ): [number, string] => {
-  const value = computeCompletion(lines, type, overflow);
+  const value = computeStockCompletion(lines, type, overflow);
+  const color = value < 0.5 ? "red" : value < 1 ? "orange" : "green";
+  return [Math.round(value * 100), color];
+};
+
+export const computePaymentCompletion = (
+  linesu: Invoices["content"],
+  type: "delivered" | "ready" = "ready",
+  overflow = false
+) => {
+  const lines = linesu || [];
+  const total = lines.reduce(
+    (acc, line) => acc + parseFloat((line.quantity as any) || 0),
+    0
+  );
+  if (total === 0) return 1;
+
+  const column = type === "ready" ? "quantity_ready" : "quantity_delivered";
+
+  return (
+    lines.reduce(
+      (acc, line) =>
+        acc +
+        (overflow
+          ? parseFloat((line[column] as any) || 0)
+          : Math.min(
+              parseFloat((line.quantity as any) || 0),
+              parseFloat((line[column] as any) || 0)
+            )),
+      0
+    ) / total
+  );
+};
+
+export const renderPaymentCompletion = (
+  lines: Invoices["content"],
+  type: "delivered" | "ready" = "ready",
+  overflow = false
+): [number, string] => {
+  const value = computeStockCompletion(lines, type, overflow);
   const color = value < 0.5 ? "red" : value < 1 ? "orange" : "green";
   return [Math.round(value * 100), color];
 };
@@ -113,6 +154,8 @@ export const InvoicesDetailsPage = ({
   const hasClientOrSupplier =
     (draft.client && !isSupplierRelated) ||
     (draft.supplier && isSupplierRelated);
+
+  const paymentCompletion = usePaymentCompletion(draft);
 
   useEffect(() => {
     if (!isPending && draft)
@@ -237,8 +280,7 @@ export const InvoicesDetailsPage = ({
     <>
       <FormContext readonly={readonly} alwaysVisible>
         <PageColumns>
-          <div className="grow" />
-          <div className="grow lg:w-3/5 max-w-3xl pt-6">
+          <div className="grow lg:w-3/5 max-w-3xl pt-6 mx-auto">
             {readonly && (
               <>
                 {draft.state === "draft" && (
@@ -296,12 +338,15 @@ export const InvoicesDetailsPage = ({
 
             <div className="mb-2">
               <InvoiceStatus
-                readonly={true}
+                readonly={readonly}
                 size="sm"
                 value={draft.state}
                 type={draft.type}
                 onChange={(value) => setDraft({ ...draft, state: value })}
               />
+              {draft.type === "invoices" && (
+                <TagPaymentCompletion invoice={draft} />
+              )}
             </div>
             <div className="float-right space-x-2">
               <TagsInput ctrl={ctrl("tags")} />
@@ -335,26 +380,34 @@ export const InvoicesDetailsPage = ({
                     </Text>
                   </InputButton>
                 )}
-                {(!readonly || ctrl("signature_date").value) && (
+                {!!ctrl("wait_for_completion_since").value && (
                   <InputButton
                     theme="invisible"
                     className="m-0"
                     data-tooltip={new Date(
-                      ctrl("signature_date").value
+                      ctrl("wait_for_completion_since").value || Date.now()
                     ).toDateString()}
-                    ctrl={ctrl("signature_date")}
+                    ctrl={ctrl("wait_for_completion_since") || Date.now()}
                     placeholder="Date de signature"
-                    value={formatTime(ctrl("signature_date").value || 0)}
+                    value={formatTime(
+                      ctrl("wait_for_completion_since").value || Date.now()
+                    )}
                     content={
-                      <FormInput ctrl={ctrl("signature_date")} type="date" />
+                      <FormInput
+                        ctrl={ctrl("wait_for_completion_since") || Date.now()}
+                        type="date"
+                      />
                     }
                     readonly={readonly}
                   >
                     <Text size="2" className="opacity-75" weight="medium">
-                      {"Signé le "}
-                      {formatTime(ctrl("signature_date").value || 0, {
-                        hideTime: true,
-                      })}
+                      {"Accepté le "}
+                      {formatTime(
+                        ctrl("wait_for_completion_since").value || Date.now(),
+                        {
+                          hideTime: true,
+                        }
+                      )}
                     </Text>
                   </InputButton>
                 )}
@@ -372,7 +425,8 @@ export const InvoicesDetailsPage = ({
               {contentReadonly && !readonly && (
                 <Callout.Root className="my-4">
                   <Callout.Text>
-                    Le contenu et les clients de ce devis n'est plus modifiable.
+                    Le contenu et les clients de ce document ne sont plus
+                    modifiables.
                   </Callout.Text>
                 </Callout.Root>
               )}
@@ -386,8 +440,14 @@ export const InvoicesDetailsPage = ({
                         ctrl={ctrl("client")}
                         icon={(p) => <UserIcon {...p} />}
                         size="xl"
+                        filter={
+                          {
+                            is_client: true,
+                          } as Partial<Contacts>
+                        }
                       />
-                      {(!readonly || ctrl("contact").value) && (
+                      {((!readonly && ctrl("client").value) ||
+                        ctrl("contact").value) && (
                         <RestDocumentsInput
                           entity="contacts"
                           filter={
@@ -410,6 +470,11 @@ export const InvoicesDetailsPage = ({
                       ctrl={ctrl("supplier")}
                       icon={(p) => <BuildingStorefrontIcon {...p} />}
                       size="xl"
+                      filter={
+                        {
+                          is_supplier: true,
+                        } as Partial<Contacts>
+                      }
                     />
                   )}
                 </PageColumns>
@@ -562,7 +627,6 @@ export const InvoicesDetailsPage = ({
             <br />
             <br />
           </div>
-          <div className="grow" />
         </PageColumns>
       </FormContext>
     </>

@@ -24,6 +24,8 @@ import { DocumentIcon } from "@heroicons/react/24/outline";
 import { EditorInput } from "@molecules/editor-input";
 import { InvoiceRestDocument } from "../../invoices/components/invoice-lines-input/invoice-input-rest-card";
 import { ServiceItemStatus } from "./service-item-status";
+import { Contacts } from "@features/contacts/types/types";
+import { Unit } from "@atoms/input/input-unit";
 
 export const ServiceItemsDetailsPage = ({
   readonly,
@@ -125,7 +127,7 @@ export const ServiceItemsDetailsPage = ({
             {(ctrl("quantity_spent").value || 0) +
               " / " +
               (ctrl("quantity_expected").value || 0)}{" "}
-            {article?.unit || "unités"}
+            <Unit unit={article?.unit} />
           </InputButton>
         </div>
 
@@ -139,6 +141,7 @@ export const ServiceItemsDetailsPage = ({
             label="Client"
             placeholder="Sélectionner un client"
             icon={(p) => <UserIcon {...p} />}
+            filter={{ is_client: true } as Partial<Contacts>}
           />
 
           <InvoiceRestDocument
@@ -147,7 +150,12 @@ export const ServiceItemsDetailsPage = ({
             label="Devis associé"
             placeholder="Sélectionner le devis associé"
             icon={(p) => <DocumentIcon {...p} />}
-            filter={{ type: "quotes" } as Partial<Invoices>}
+            filter={
+              {
+                type: "quotes",
+                state: ["draft", "purchase_order", "completed"] as any,
+              } as Partial<Invoices>
+            }
           />
         </div>
 

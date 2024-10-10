@@ -23,6 +23,7 @@ import { TablePagination, TablePaginationSimple } from "./pagination";
 export type RenderOptions = {};
 
 export type Column<T> = {
+  id?: string;
   title?: string | ReactNode;
   className?: string;
   thClassName?: string;
@@ -88,7 +89,7 @@ const defaultCellClassName = ({
   className?: string;
 }) => {
   return twMerge(
-    "h-full w-full flex items-center min-h-12 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800",
+    "h-full w-full flex items-center min-w-max min-h-12 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800",
     colFirst && "pl-1",
     colLast && "pr-1",
     selected

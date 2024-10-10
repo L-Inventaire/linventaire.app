@@ -15,6 +15,7 @@ import {
 import { ContactsDetailsPage } from "@views/client/modules/contacts/components/contact-details";
 import { Contacts, getContactName } from "./types/types";
 import { Column } from "@molecules/table/table";
+import { UsersInput } from "@components/input-rest/users";
 
 export const useContactDefaultModel: () => Partial<Contacts> = () => ({
   type: "company",
@@ -94,15 +95,18 @@ export const ContactsColumns: Column<Contacts>[] = [
     ),
   },
   {
+    id: "tags",
     title: "Étiquettes",
     render: (contact) => (
       <div className="w-full flex space-x-1 items-center whitespace-nowrap">
         <TagsInput size="md" value={contact.tags} disabled />
+        <UsersInput value={contact.assigned} disabled />
       </div>
     ),
   },
   {
-    title: "Parents",
+    id: "relations",
+    title: "Relations",
     render: (contact) => (
       <div className="w-full flex space-x-1 items-center whitespace-nowrap">
         {(contact.parents?.length || 0) > 0 && (

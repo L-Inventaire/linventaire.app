@@ -1,22 +1,23 @@
-import { useCurrentClient } from "@features/clients/state/use-clients";
-import { registerCtrlKRestEntity } from "@features/ctrlk";
-import { ROUTES } from "@features/routes";
-import { InvoicesDetailsPage } from "@views/client/modules/invoices/components/invoices-details";
-import { Invoices } from "./types/types";
 import { Base, BaseSmall, Info } from "@atoms/text";
 import { RestDocumentsInput } from "@components/input-rest";
 import { TagsInput } from "@components/input-rest/tags";
+import { UsersInput } from "@components/input-rest/users";
+import { useCurrentClient } from "@features/clients/state/use-clients";
+import { registerCtrlKRestEntity } from "@features/ctrlk";
+import { ROUTES } from "@features/routes";
 import { formatTime } from "@features/utils/format/dates";
 import { formatAmount } from "@features/utils/format/strings";
-import { InvoiceStatus } from "@views/client/modules/invoices/components/invoice-status";
 import { Column } from "@molecules/table/table";
+import { Badge } from "@radix-ui/themes";
+import { InvoiceStatus } from "@views/client/modules/invoices/components/invoice-status";
+import { InvoicesDetailsPage } from "@views/client/modules/invoices/components/invoices-details";
+import { TagPaymentCompletion } from "@views/client/modules/invoices/components/tag-payment-completion";
 import {
+  isComplete,
   isDeliveryLate,
   isPaymentLate,
 } from "@views/client/modules/invoices/utils";
-import { Tag } from "@atoms/badge/tag";
-import { twMerge } from "tailwind-merge";
-import { InputOutlinedDefaultBorders } from "@atoms/styles/inputs";
+import { Invoices } from "./types/types";
 
 export const useInvoiceDefaultModel: () => Partial<Invoices> = () => {
   const { client } = useCurrentClient();
@@ -36,7 +37,6 @@ export const InvoicesColumns: Column<Invoices>[] = [
     title: "Date",
     thClassName: "w-16",
     render: (invoice) => {
-      console.log(invoice);
       return (
         <Base className="whitespace-nowrap">
           {invoice.emit_date
@@ -74,30 +74,42 @@ export const InvoicesColumns: Column<Invoices>[] = [
     ),
   },
   {
-    title: "Tags",
+    title: "Étiquettes",
+    thClassName: "w-1",
+    cellClassName: "justify-end",
+    headClassName: "justify-end",
     render: (invoice) => (
-      <Base className="whitespace-nowrap">
+      <Base className="whitespace-nowrap space-x-2 flex flex-row items-center">
         <TagsInput size="md" value={invoice.tags} disabled />
-        {invoice.signature_date &&
-          invoice.state === "signed" &&
+        <UsersInput size="md" value={invoice.assigned} disabled />
+        {["quotes"].includes(invoice.type) &&
+          invoice.state !== "closed" &&
+          isComplete(invoice) && (
+            <Badge size="2" color={"green"}>
+              À facturer
+            </Badge>
+          )}
+        {["quotes"].includes(invoice.type) &&
+          invoice.wait_for_completion_since &&
+          invoice.state !== "closed" &&
+          !isComplete(invoice) &&
+          invoice.state === "purchase_order" &&
           isDeliveryLate(invoice) && (
-            <Tag
-              className={twMerge(InputOutlinedDefaultBorders + " rounded-full")}
-              color={"red"}
-            >
+            <Badge size="2" color={"red"}>
               Livraison en retard
-            </Tag>
+            </Badge>
           )}
-        {invoice.signature_date &&
-          invoice.state === "signed" &&
+        {["invoices", "supplier_invoices"].includes(invoice.type) &&
+          invoice.wait_for_completion_since &&
+          invoice.state === "purchase_order" &&
           isPaymentLate(invoice) && (
-            <Tag
-              className={twMerge(InputOutlinedDefaultBorders + " rounded-full")}
-              color={"red"}
-            >
+            <Badge size="2" color={"red"}>
               Paiement en retard
-            </Tag>
+            </Badge>
           )}
+        {invoice.type === "invoices" && (
+          <TagPaymentCompletion invoice={invoice} />
+        )}
       </Base>
     ),
   },
@@ -116,7 +128,7 @@ export const InvoicesColumns: Column<Invoices>[] = [
   },
   {
     title: "Statut",
-    thClassName: "w-48",
+    thClassName: "w-1",
     cellClassName: "justify-end",
     headClassName: "justify-end",
     render: (invoice) => (

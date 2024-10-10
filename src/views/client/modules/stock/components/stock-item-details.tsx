@@ -1,5 +1,6 @@
 import { Button } from "@atoms/button/button";
 import { Card } from "@atoms/card";
+import { Unit } from "@atoms/input/input-unit";
 import { PageLoader } from "@atoms/page-loader";
 import { SectionSmall } from "@atoms/text";
 import { CustomFieldsInput } from "@components/custom-fields-input";
@@ -12,9 +13,11 @@ import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
 import { Articles } from "@features/articles/types/types";
 import { useClients } from "@features/clients/state/use-clients";
+import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
 import { StockItems } from "@features/stock/types/types";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
+import { DivideIcon } from "@heroicons/react/16/solid";
 import {
   ArrowRightIcon,
   BuildingStorefrontIcon,
@@ -27,10 +30,14 @@ import {
 import { DocumentIcon } from "@heroicons/react/24/outline";
 import { CubeIcon } from "@heroicons/react/24/solid";
 import { EditorInput } from "@molecules/editor-input";
+import { Callout } from "@radix-ui/themes";
 import { PageBlockHr } from "@views/client/_layout/page";
 import { useEffect, useState } from "react";
 import { InvoiceRestDocument } from "../../invoices/components/invoice-lines-input/invoice-input-rest-card";
 import { StockItemStatus } from "./stock-item-status";
+import { useSetRecoilState } from "recoil";
+import { SubdivideStockModalAtom } from "./subdivide-modal";
+import { Tracability } from "./tracability";
 
 export const StockItemsDetailsPage = ({
   readonly,
@@ -42,7 +49,7 @@ export const StockItemsDetailsPage = ({
   const { client: clientUser } = useClients();
   const client = clientUser!.client!;
 
-  const [article, setArticle] = useState<Articles | null>(null);
+  const setSubdivideModal = useSetRecoilState(SubdivideStockModalAtom);
 
   const {
     isPending,
@@ -51,6 +58,10 @@ export const StockItemsDetailsPage = ({
     setDraft,
     save: _save,
   } = useReadDraftRest<StockItems>("stock_items", id || "new", readonly);
+
+  const [article, setArticle] = useState<Articles | null>(null);
+  const { invoice: quote } = useInvoice(draft.for_rel_quote);
+  const { invoice: order } = useInvoice(draft.from_rel_supplier_quote);
 
   useEffect(() => {
     if (!isPending && draft)
@@ -74,8 +85,8 @@ export const StockItemsDetailsPage = ({
           />
           <UsersInput
             size="md"
-            value={ctrl("assignees").value}
-            onChange={ctrl("assignees").onChange}
+            value={ctrl("assigned").value}
+            onChange={ctrl("assigned").onChange}
           />
           <StockItemStatus
             value={draft.state}
@@ -165,16 +176,29 @@ export const StockItemsDetailsPage = ({
                 placeholder="Aucun"
                 label="Quantité"
               >
-                {ctrl("quantity").value || 1} {article.unit || "unité"}
+                {ctrl("quantity").value || 1} <Unit unit={article.unit} />
               </InputButton>
-              {false && (!readonly || ctrl("location").value) && (
-                <Button
-                  data-tooltip="Localisation"
-                  theme="outlined"
+              {(!readonly || ctrl("location").value) && (
+                <RestDocumentsInput
+                  entity="stock_locations"
+                  size="lg"
+                  label="Localisation"
+                  placeholder="Non renseigné"
                   icon={(p) => <MapPinIcon {...p} />}
-                >
-                  Localisation
-                </Button>
+                  ctrl={ctrl("location")}
+                />
+              )}
+              <div className="grow" />
+              {(!readonly || ctrl("from_rel_original_stock_item").value) && (
+                <RestDocumentsInput
+                  entity="stock_items"
+                  size="lg"
+                  label="Élément d'origine"
+                  placeholder="Aucun élément d'origine"
+                  icon={(p) => <DivideIcon {...p} />}
+                  value={ctrl("from_rel_original_stock_item").value}
+                  onChange={ctrl("from_rel_original_stock_item").onChange}
+                />
               )}
             </div>
           </div>
@@ -189,7 +213,12 @@ export const StockItemsDetailsPage = ({
               <InvoiceRestDocument
                 label="Commande d'origine"
                 placeholder="Sélectionner une commande"
-                filter={{ type: "supplier_quotes" } as Partial<Invoices>}
+                filter={
+                  {
+                    type: "supplier_quotes",
+                    "articles.all": draft.article,
+                  } as Partial<Invoices>
+                }
                 icon={(p) => <ShoppingCartIcon {...p} />}
                 size="xl"
                 value={ctrl("from_rel_supplier_quote").value}
@@ -210,6 +239,17 @@ export const StockItemsDetailsPage = ({
               <RestDocumentsInput
                 label="Chez le contact"
                 placeholder="Sélectionner un contact"
+                filter={
+                  quote || order
+                    ? ({
+                        id: [
+                          quote?.client,
+                          quote?.contact,
+                          order?.supplier,
+                        ].filter(Boolean),
+                      } as any)
+                    : {}
+                }
                 entity="contacts"
                 icon={(p) => <MapPinIcon {...p} />}
                 size="xl"
@@ -248,19 +288,37 @@ export const StockItemsDetailsPage = ({
           </div>
         )}
 
-        {!!article && false && (
+        {!!article && readonly && (
           <div>
-            <SectionSmall className="mt-8 mb-2">Actions</SectionSmall>
-            <Button theme="outlined">Subdiviser le lot</Button>
-
-            <RestDocumentsInput
-              entity="stock_items"
-              size="md"
-              label="Élement d'origine"
-              placeholder="Aucun élément d'origine"
-            />
-
             <SectionSmall className="mt-8 mb-2">Traçabilité</SectionSmall>
+            <Callout.Root size={"1"} className="mb-2">
+              Retrouvez l'historique d'utilisation de la pièce, lot d'origine ou
+              article d'origine en cas de pièce détachée.
+            </Callout.Root>
+            <div className="space-x-2">
+              <Button
+                theme="outlined"
+                size="sm"
+                onClick={() => {
+                  setSubdivideModal({
+                    open: true,
+                    item: draft,
+                  });
+                }}
+              >
+                Subdiviser le lot
+              </Button>
+            </div>
+            {!!article && readonly && (
+              <div className="mt-4">
+                <Tracability id={draft.id} />
+              </div>
+            )}
+          </div>
+        )}
+
+        {false && !!article && readonly && (
+          <div>
             <SectionSmall className="mt-8 mb-2">
               Commentaires et historique
             </SectionSmall>

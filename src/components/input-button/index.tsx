@@ -51,7 +51,7 @@ export const InputButton = <T,>(props: InputButtonProps<T>) => {
     return (
       <div
         className={twMerge(
-          "h-max whitespace-normal py-0.5 text-opacity-100 text-black flex items-center",
+          "h-max whitespace-normal py-0.5 text-opacity-100 text-black dark:text-white flex items-center",
           props.className
         )}
       >
@@ -120,14 +120,16 @@ export const InputButton = <T,>(props: InputButtonProps<T>) => {
                 )}
               />
             )}
-            <Button
-              size="md"
-              className="mt-4 float-right"
-              onClick={() => setOpen(false)}
-              shortcut={["esc", "enter"]}
-            >
-              Fermer
-            </Button>
+            <div className="flex justify-end">
+              <Button
+                size="md"
+                className="mt-4"
+                onClick={() => setOpen(false)}
+                shortcut={["esc", "enter"]}
+              >
+                Fermer
+              </Button>
+            </div>
           </ModalContent>
         </Modal>
       )}

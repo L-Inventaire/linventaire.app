@@ -16,6 +16,7 @@
   "dependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@craco/craco": "^6.4.3",
+    "@documenso/embed-react": "^0.1.0",
     "@editorjs/checklist": "^1.6.0",
     "@editorjs/delimiter": "^1.4.0",
     "@editorjs/editorjs": "^2.29.0",

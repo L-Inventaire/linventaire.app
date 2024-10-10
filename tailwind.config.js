@@ -48,6 +48,17 @@ module.exports = {
         lg: "10px",
         xl: "24px",
       },
+      zIndex: {
+        10: 10,
+        20: 20,
+        30: 30,
+        40: 40,
+        50: 50,
+        60: 60,
+        70: 70,
+        80: 80,
+        90: 90,
+      },
       colors: {
         slate: {
           DEFAULT: "#EDEDED",
@@ -87,6 +98,10 @@ module.exports = {
     "z-30",
     "z-40",
     "z-50",
+    "z-60",
+    "z-70",
+    "z-80",
+    "z-90",
     "pl-9",
     "transition-all",
     "bg-gradient-to-r",

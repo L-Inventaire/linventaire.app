@@ -1,5 +1,6 @@
 import { Button } from "@atoms/button/button";
 import { DropDownAtom, DropDownMenuType } from "@atoms/dropdown";
+import { Unit } from "@atoms/input/input-unit";
 import { Base, BaseSmall, Info } from "@atoms/text";
 import {
   FormContextContext,
@@ -8,7 +9,7 @@ import {
 import { InputButton } from "@components/input-button";
 import { useArticle } from "@features/articles/hooks/use-articles";
 import { InvoiceLine, Invoices } from "@features/invoices/types/types";
-import { tvaOptions, unitOptions } from "@features/utils/constants";
+import { tvaOptions } from "@features/utils/constants";
 import { formatAmount, getTextFromHtml } from "@features/utils/format/strings";
 import {
   CheckIcon,
@@ -26,7 +27,8 @@ import {
   EllipsisVerticalIcon,
   TrashIcon,
 } from "@heroicons/react/20/solid";
-import _ from "lodash";
+import { Badge, Box, Card, Code, Flex, Text } from "@radix-ui/themes";
+import { frequencyOptions } from "@views/client/modules/articles/components/article-details";
 import { useContext, useEffect, useState } from "react";
 import { useDrag, useDragLayer, useDrop } from "react-dnd";
 import { useSetRecoilState } from "recoil";
@@ -38,7 +40,6 @@ import { InvoiceDiscountInput } from "./components/discount-input";
 import { InvoiceLineArticleInput } from "./components/line-article";
 import { InvoiceLinePriceInput } from "./components/line-price";
 import { InvoiceLineQuantityInput } from "./components/line-quantity";
-import { Box, Card, Flex, Code, Text } from "@radix-ui/themes";
 
 export const InvoiceLineInput = (props: {
   invoice?: Invoices;
@@ -110,7 +111,7 @@ export const InvoiceLineInput = (props: {
         <Card
           variant="ghost"
           className={twMerge(
-            "w-full p-0 border m-0",
+            "w-full p-0 border m-0 dark:border-slate-700",
             !value.optional_checked &&
               value.optional &&
               "border-dashed shadow-none"
@@ -161,7 +162,7 @@ export const InvoiceLineInput = (props: {
               {!isSeparation && (
                 <Box
                   className={twMerge(
-                    "text-right w-1/5 shrink-0 border-l",
+                    "text-right w-1/5 shrink-0 border-l dark:border-slate-700",
                     !value.optional_checked && value.optional && "border-dashed"
                   )}
                 >
@@ -177,14 +178,23 @@ export const InvoiceLineInput = (props: {
                     value={value.quantity}
                   >
                     <Text as="div" size="2" weight="bold">
-                      {(value.quantity || 1) +
-                        " " +
-                        (unitOptions.find((a) => a.value === value.unit)
-                          ?.label ||
-                          unitOptions.find((a) => a.value === "unit")?.label)}
+                      {value.quantity || 1} <Unit unit={value?.unit} />
                     </Text>
                     <Text as="div" color="gray" size="2">
-                      -
+                      {value.subscription &&
+                      frequencyOptions?.find(
+                        (a) => a.value === value.subscription
+                      )?.label ? (
+                        <Badge size="1" color="blue">
+                          {
+                            frequencyOptions?.find(
+                              (a) => a.value === value.subscription
+                            )?.label
+                          }
+                        </Badge>
+                      ) : (
+                        "-"
+                      )}
                     </Text>
                   </InputButton>
                 </Box>
@@ -192,7 +202,7 @@ export const InvoiceLineInput = (props: {
               {(!isSeparation || value.type === "correction") && (
                 <Box
                   className={twMerge(
-                    "text-right w-1/5 shrink-0 border-l",
+                    "text-right w-1/5 shrink-0 border-l dark:border-slate-700",
                     !value.optional_checked && value.optional && "border-dashed"
                   )}
                 >
@@ -200,7 +210,7 @@ export const InvoiceLineInput = (props: {
                     readonly={readonly}
                     theme="invisible"
                     data-tooltip={readonly ? "Prix total HT" : "Prix unitaire"}
-                    className="rounded-none  h-full w-full flex grow p-3 m-0 box-border text-right justify-end"
+                    className="rounded-none h-full w-full flex grow p-3 m-0 box-border text-right justify-end"
                     label="Prix et TVA"
                     placeholder="Prix et TVA"
                     content={
@@ -223,7 +233,12 @@ export const InvoiceLineInput = (props: {
                         props.invoice?.currency || "EUR"
                       )}
                     </Text>
-                    <Text as="div" color="gray" size="2">
+                    <Text
+                      as="div"
+                      color="gray"
+                      size="2"
+                      className="whitespace-nowrap"
+                    >
                       {getTvaValue(value.tva || "0")
                         ? "TVA " + getTvaValue(value.tva || "0") * 100 + "%"
                         : tvaOptions.find((a) => a.value === value.tva)?.label}
@@ -245,7 +260,7 @@ export const InvoiceLineInput = (props: {
                 align="center"
                 gap="3"
                 className={twMerge(
-                  "p-3 border-t",
+                  "p-3 border-t dark:border-slate-700",
                   !value.optional_checked && value.optional && "border-dashed"
                 )}
               >
@@ -334,7 +349,7 @@ export const InvoiceLineInput = (props: {
                           {value.optional_checked ? (
                             <CheckIcon className="w-4 h-4" />
                           ) : (
-                            <div className="w-1 h-1 dark:bg-white bg-black opacity-50" />
+                            <div className="w-1 h-1 dark:bg-white bg-black dark:bg-white opacity-50" />
                           )}
                         </div>
                       ) : (

@@ -70,8 +70,8 @@ export const InvoicePaymentInput = ({
         </Info>
 
         {invoice.type === "invoices" &&
-          invoice.signature_date &&
-          invoice.state === "signed" && (
+          invoice.wait_for_completion_since &&
+          invoice.state === "purchase_order" && (
             <>
               <Info className={"text-blue-500"}>
                 Signé, paiement avant le :{" "}

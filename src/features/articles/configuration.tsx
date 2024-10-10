@@ -9,6 +9,7 @@ import { getTvaValue } from "@views/client/modules/invoices/utils";
 import { getArticleIcon } from "@views/client/modules/articles/components/article-icon";
 import { Base, Info } from "@atoms/text";
 import { Column } from "@molecules/table/table";
+import { UsersInput } from "@components/input-rest/users";
 
 export const useArticleDefaultModel: () => Partial<Articles> = () => ({
   type: "product",
@@ -44,9 +45,12 @@ export const ArticlesColumns: Column<Articles>[] = [
   {
     title: "Étiquettes",
     thClassName: "w-1",
+    cellClassName: "justify-end",
+    headClassName: "justify-end",
     render: (article) => (
-      <div className="w-full flex space-x-1 items-center whitespace-nowrap">
+      <div className="space-x-2">
         <TagsInput size="md" value={article.tags} disabled />
+        <UsersInput size="md" value={article.assigned} disabled />
       </div>
     ),
   },

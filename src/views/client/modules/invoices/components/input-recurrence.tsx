@@ -6,7 +6,10 @@ import { InputButton } from "@components/input-button";
 import { Invoices } from "@features/invoices/types/types";
 import { formatTime } from "@features/utils/format/dates";
 import { ArrowPathIcon } from "@heroicons/react/20/solid";
+import { Blockquote } from "@radix-ui/themes";
 import { ModalHr, PageColumns } from "@views/client/_layout/page";
+import _ from "lodash";
+import { frequencyOptions } from "../../articles/components/article-details";
 
 export const InvoiceRecurrenceInput = ({
   ctrl,
@@ -19,11 +22,14 @@ export const InvoiceRecurrenceInput = ({
   readonly?: boolean;
   btnKey?: string;
 }) => {
-  const frequencyOptions = [
-    { value: "weekly", label: "Hebdomadaire" },
-    { value: "monthly", label: "Mensuelle" },
-    { value: "yearly", label: "Annuelle" },
-  ];
+  const hasSubscription = !!invoice.content?.find((a) => a.subscription);
+  const subscriptions = _.uniq(
+    invoice.content?.map((a) => a.subscription)
+  ).filter(Boolean) as string[];
+  const frequencyOrder = ["daily", "weekly", "monthly", "yearly"];
+  const minimalFrequency = _.minBy(subscriptions, (a) =>
+    frequencyOrder.indexOf(a)
+  );
 
   const getAllDates = (max = 100) => {
     let hasMore = false;
@@ -39,9 +45,9 @@ export const InvoiceRecurrenceInput = ({
     while (date <= end) {
       dates.push(date);
       const nextDate = new Date(date);
-      if (invoice.subscription?.frequency === "weekly")
+      if (minimalFrequency === "weekly")
         nextDate.setDate(nextDate.getDate() + 7);
-      else if (invoice.subscription?.frequency === "monthly")
+      else if (minimalFrequency === "monthly")
         nextDate.setMonth(nextDate.getMonth() + 1);
       else nextDate.setFullYear(nextDate.getFullYear() + 1);
       if (dates.length > max) {
@@ -55,6 +61,8 @@ export const InvoiceRecurrenceInput = ({
 
   const { dates, hasMore } = getAllDates(25);
 
+  if (!hasSubscription) return null;
+
   return (
     <InputButton
       btnKey={btnKey}
@@ -63,95 +71,75 @@ export const InvoiceRecurrenceInput = ({
       readonly={readonly}
       content={
         <>
-          <Info>
-            Activez la récurrence pour dupliquer cette facture automatiquement.
-          </Info>
-          <FormInput
-            type="boolean"
-            placeholder="Activer la récurrence"
-            onChange={(e) => {
-              ctrl("subscription").onChange({
-                enabled: e,
-                frequency: invoice?.subscription?.frequency || "monthly",
-                start: invoice?.subscription?.start || Date.now(),
-                end:
-                  invoice?.subscription?.end ||
-                  Date.now() + 1000 * 60 * 60 * 24 * 365,
-                as_draft: true,
-              });
-            }}
-            value={ctrl("subscription.enabled").value}
-          />
-          {ctrl("subscription.enabled").value && (
-            <>
-              <PageColumns>
-                <FormInput
-                  type="select"
-                  label="Fréquence"
-                  ctrl={ctrl("subscription.frequency")}
-                  options={frequencyOptions}
-                />
-                <FormInput
-                  type="date"
-                  label="Début (inclus)"
-                  ctrl={ctrl("subscription.start")}
-                />
-                <FormInput
-                  type="date"
-                  label="Fin (inclus)"
-                  ctrl={ctrl("subscription.end")}
-                />
-              </PageColumns>
+          <br />
+          {subscriptions.length > 1 && (
+            <Blockquote className="mb-4">
+              Vous avez plusieurs articles avec des fréquences différentes, la
+              facture sera dupliquée pour chaque groupes d'articles partageant
+              la même fréquence à partir de la prochaine facture.
+            </Blockquote>
+          )}
+          <PageColumns>
+            <FormInput
+              type="date"
+              label="Début (inclus)"
+              ctrl={ctrl("subscription.start")}
+            />
+            <FormInput
+              type="date"
+              label="Fin (inclus)"
+              ctrl={ctrl("subscription.end")}
+            />
+          </PageColumns>
 
-              <div className="mt-2" />
-              <Info>
-                Prochaines factures:
-                <br />
-                {(() => {
-                  return [
-                    ...dates.map((d) => (
+          <div className="mt-2" />
+          <Info>
+            Prochaines factures:
+            <br />
+            {(() => {
+              return [
+                ...dates.map((d) => (
+                  <Tag
+                    size="xs"
+                    icon={<></>}
+                    key={d}
+                    noColor
+                    className="bg-white mr-1 mb-1 text-slate-800"
+                  >
+                    {formatTime(d, {
+                      keepDate: true,
+                      hideTime: true,
+                    })}
+                  </Tag>
+                )),
+                ...(hasMore
+                  ? [
                       <Tag
                         size="xs"
                         icon={<></>}
-                        key={d}
+                        key={"..."}
                         noColor
                         className="bg-white mr-1 mb-1 text-slate-800"
                       >
-                        {formatTime(d, {
-                          keepDate: true,
-                          hideTime: true,
-                        })}
-                      </Tag>
-                    )),
-                    ...(hasMore
-                      ? [
-                          <Tag
-                            size="xs"
-                            icon={<></>}
-                            key={"..."}
-                            noColor
-                            className="bg-white mr-1 mb-1 text-slate-800"
-                          >
-                            ...
-                          </Tag>,
-                        ]
-                      : []),
-                  ];
-                })()}
-              </Info>
+                        ...
+                      </Tag>,
+                    ]
+                  : []),
+              ];
+            })()}
+          </Info>
 
-              <ModalHr />
-              <FormInput
-                type="boolean"
-                placeholder="Dupliquer en tant que brouillon"
-                ctrl={ctrl("subscription.as_draft")}
-              />
-              <Info>
-                Par défaut les factures sont dupliquées et envoyées au client
-                pour paiement (tacite reconduction).
-              </Info>
-            </>
-          )}
+          <ModalHr />
+          <FormInput
+            type="boolean"
+            placeholder="Dupliquer en tant que brouillon"
+            ctrl={ctrl("subscription.as_draft")}
+          />
+          <Info>
+            Par défaut les factures sont dupliquées et envoyées au client pour
+            paiement (tacite reconduction). Cocher cette case pour ne pas
+            envoyer la facture.
+          </Info>
         </>
       }
       value={invoice.subscription?.enabled}
@@ -164,12 +152,7 @@ export const InvoiceRecurrenceInput = ({
         </Base>
         <Info>
           {dates.length} {hasMore ? "+" : ""} factures (
-          {
-            frequencyOptions.find(
-              (a) => a.value === invoice.subscription?.frequency
-            )?.label
-          }
-          )
+          {frequencyOptions.find((a) => a.value === minimalFrequency)?.label})
         </Info>
         <Info>
           Début le{" "}

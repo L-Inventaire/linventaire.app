@@ -67,7 +67,29 @@
       "payment_terms": "Conditions Générales de Vente",
       "tva": "Mention de TVA",
       "branding_placeholder": "Afficher le logo de linventaire.app sur les factures",
-      "attachments": "Documents liés"
+      "attachments": "Documents liés",
+      "other": {
+        "delivery_date": "Date de livraison",
+        "delivery_delay": "Délai de livraison",
+        "days": "jours",
+        "delivery_address": "Adresse de livraison",
+        "emit_date": "Date d'émission",
+        "payment_date": "Paiement avant le",
+        "delay": "Délai de paiement",
+        "payment_method": "Moyens de paiement",
+        "no_payment_method": "Aucun moyen de paiement",
+        "payment_terms": "Conditions de paiement",
+        "late_penalty": "Pénalité de retard",
+        "recovery_fee": "Frais de recouvrement",
+        "bank_details": "Relevé d'identité bancaire",
+        "recurrence": "Facture à tacite reconduction",
+        "frequency": {
+          "monthly": "Mensuel",
+          "weekly": "Hebdomadaire",
+          "yearly": "Annuel"
+        },
+        "recurrence_between": "entre le {{start}} et le {{end}}"
+      }
     }
   },
   "menu": {
@@ -165,9 +187,75 @@
       "go_to": "Ouvrir"
     }
   },
+  "stock": {
+    "locations": {
+      "type": {
+        "warehouse": "Entrepôt",
+        "shelf": "Étagère"
+      }
+    }
+  },
   "documents": {
     "index": {
       "title": "Documents partagés"
+    }
+  },
+  "atoms": {
+    "input": {
+      "unit": {
+        "categories": {
+          "general": "Général",
+          "length": "Longueur",
+          "mass": "Poids",
+          "volume": "Volume",
+          "temperature": "Température",
+          "time": "Temps",
+          "area": "Surface",
+          "speed": "Vitesse"
+        },
+        "unit": "unité",
+        "ms": "ms",
+        "s": "s",
+        "min": "minutes",
+        "h": "heures",
+        "d": "jours",
+        "w": "semaines",
+        "mo": "mois",
+        "y": "ans",
+        "mm": "mm",
+        "cm": "cm",
+        "m": "m",
+        "km": "km",
+        "in": "po",
+        "ft": "pi",
+        "yd": "yd",
+        "mi": "mi",
+        "mg": "mg",
+        "g": "g",
+        "kg": "kg",
+        "t": "t",
+        "oz": "oz",
+        "lb": "lb",
+        "°C": "°C",
+        "°F": "°F",
+        "K": "K",
+        "ml": "ml",
+        "cl": "cl",
+        "dl": "dl",
+        "l": "l",
+        "m³": "m³",
+        "in³": "po³",
+        "ft³": "pi³",
+        "mm²": "mm²",
+        "cm²": "cm²",
+        "m²": "m²",
+        "ha": "ha",
+        "km²": "km²",
+        "in²": "po²",
+        "ft²": "pi²",
+        "yd²": "yd²",
+        "mi²": "mi²"
+      }
     }
   }
 }

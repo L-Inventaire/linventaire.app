@@ -1,50 +1,38 @@
-
-.lamp {
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  z-index: 0;
-  overflow: hidden;
-  /*background: linear-gradient(to right, #FBE7C650, #B4F8C850, #A0E7E550, #FFAEBC50);*/
-  /* Vibrant colors intead, no pastel */
-  background: linear-gradient(to right, #FF000080, #FF00FF80, #0000FF80, #00FFFF80);
-  animation: colorAnimation 20s ease-in-out infinite;
+/* 3D deformation and rotation with perspective */
+.animated-background-parent {
+  perspective: 404px;
+  transform-style: preserve-3d;
 }
 
-.lava {
-  filter: url("#goo");
-  position: absolute;
-  overflow: hidden;
-  height: 100%;
-  width: 100%;
-  top: 0;
-  left: 0;
+.animated-background {
+  transform: scaleX(2) rotateX(20deg) rotateZ(0deg) translateY(-10%);
 }
 
-.blob {
-  transform: translateX(-5000%);
-  position: absolute;
-  border-radius: 50%;
-  animation-timing-function: linear;
-  animation-fill-mode: forwards; /* Ensures the blob is removed after animation */
+/* Animate from 10% to 100% opacity and loop */
+.animated-line-pulse {
+  animation: line-pulse 3s infinite;
 }
 
-.move-left {
-  animation-name: moveLeft;
+@keyframes line-pulse {
+  0%, 100% {
+    opacity: 0.1;
+  }
+  80% {
+    opacity: 1;
+  }
 }
 
-.move-right {
-  animation-name: moveRight;
+/* Animate from transform-x -100% to +500%, it should be like a pulse */
+.animated-line-move {
+  transform: translateX(-100%);
+  animation: line-move 10s infinite ease-out;
 }
 
-@keyframes moveLeft {
-  from { transform: translateX(0vw); } /* Start from the right side of the screen */
-  to { transform: translateX(-200vw); } /* End at the left side of the screen */
-}
-
-@keyframes moveRight {
-  from { transform: translateX(-0vw); } /* Start from the left side of the screen */
-  to { transform: translateX(200vw); } /* End at the right side of the screen */
+@keyframes line-move {
+  0% {
+    transform: translateX(-100%);
+  }
+  20%, 100% {
+    transform: translateX(800%);
+  }
 }

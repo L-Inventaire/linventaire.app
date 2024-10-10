@@ -93,7 +93,7 @@ export const PageBlock = (props: {
       onClick={() => props.closable && !isOpen && setIsOpen(!isOpen)}
     >
       <div
-        className="float-right space-x-2"
+        className="float-right space-x-2 items-center flex"
         onClick={(e) => e.stopPropagation()}
       >
         {props.actions}

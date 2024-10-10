@@ -5,7 +5,7 @@ import { Invoices } from "@features/invoices/types/types";
 import { StockItems } from "@features/stock/types/types";
 import { CubeIcon, TruckIcon } from "@heroicons/react/16/solid";
 import { useSetRecoilState } from "recoil";
-import { renderCompletion } from "../../invoices-details";
+import { renderStockCompletion } from "../../invoices-details";
 import { twMerge } from "tailwind-merge";
 
 export const CompletionTags = (props: {
@@ -15,12 +15,12 @@ export const CompletionTags = (props: {
   short?: boolean;
   overflow?: boolean;
 }) => {
-  const readyCompletion = renderCompletion(
+  const readyCompletion = renderStockCompletion(
     props.lines,
     "ready",
     props.overflow
   );
-  const deliveredCompletion = renderCompletion(
+  const deliveredCompletion = renderStockCompletion(
     props.lines,
     "delivered",
     props.overflow

@@ -22,7 +22,6 @@ export type Invoices = RestEntity & {
     | "purchase_order"
     | "partial_paid"
     | "paid"
-    | "signed"
     | "closed"
     | "completed";
 
@@ -46,7 +45,7 @@ export type Invoices = RestEntity & {
   delivery_date: number;
   delivery_delay: number;
 
-  signature_date: number | null;
+  wait_for_completion_since: number | null;
 
   content?: InvoiceLine[];
   discount?: InvoiceDiscount;
@@ -123,6 +122,7 @@ export type InvoiceLine = {
   unit_price?: number;
   tva?: string;
   discount?: InvoiceDiscount;
+  subscription?: string; // Nullable
 
   quantity_ready?: number; //Quantity received or sent to determine if the line is ready to be invoices
   quantity_delivered?: number; //Quantity delivered or received to determine if the line is ready to be invoices

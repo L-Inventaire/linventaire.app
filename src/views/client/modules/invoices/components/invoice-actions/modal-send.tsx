@@ -19,6 +19,7 @@ import { atom, useRecoilState } from "recoil";
 import { getPdfPreview } from "../invoices-preview/invoices-preview";
 import { SigningSessionsApiClient } from "@features/documents/api-client/api-client";
 import { useParams } from "react-router-dom";
+import Radio from "@atoms/input/input-select-radio";
 
 export const InvoiceSendModalAtom = atom<boolean>({
   key: "InvoiceSendModalAtom",
@@ -49,6 +50,7 @@ export const InvoiceSendModalContent = ({
     id || "new"
   );
   const [newMails, setNewMails] = useState<string>("");
+  const [finalState, setFinalState] = useState<"sent" | "draft">("sent");
 
   const client = useContact(draft?.client);
   const contact = useContact(draft?.contact);
@@ -74,6 +76,20 @@ export const InvoiceSendModalContent = ({
         Choisir les destinataires de ce document. Les adresses emails des
         contacts principaux sont déjà ajoutées mais peuvent être retirés.
       </Info>
+
+      <Radio
+        label="Statut final"
+        className="flex w-full shadow-none"
+        value={finalState}
+        onChange={(e) => {
+          setFinalState(e as any);
+        }}
+        placeholder={"Statut"}
+        options={[
+          { label: "Brouillon", value: "draft" },
+          { label: "Envoyé", value: "sent" },
+        ]}
+      />
 
       <ModalHr />
 
@@ -155,8 +171,12 @@ export const InvoiceSendModalContent = ({
                 return;
               }
 
-              console.log(draft.state);
-              await save({ state: "sent" });
+              if (finalState === "draft") {
+                await save({ state: "draft" });
+              }
+              if (finalState === "sent") {
+                await save({ state: "sent" });
+              }
 
               SigningSessionsApiClient.sendInvoice(
                 clientId,
