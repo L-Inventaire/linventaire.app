@@ -6,7 +6,6 @@ import { formatTime } from "@features/utils/format/dates";
 import { formatAmount } from "@features/utils/format/strings";
 import { EditorInput } from "@molecules/editor-input";
 import { Column } from "@molecules/table/table";
-import { AccountingAccountsDetailsPage } from "@views/client/modules/accounting/components/accounting-accounts-details";
 import { AccountingTransactionsDetailsPage } from "@views/client/modules/accounting/components/accounting-transactions-details";
 import { InvoiceRestDocument } from "@views/client/modules/invoices/components/invoice-lines-input/invoice-input-rest-card";
 import { twMerge } from "tailwind-merge";
@@ -104,10 +103,6 @@ export const AccountingAccountsColumns: Column<AccountingAccounts>[] = [
 ];
 
 registerCtrlKRestEntity<AccountingAccounts>("accounting_accounts", {
-  renderEditor: (props) => (
-    <AccountingAccountsDetailsPage readonly={false} id={props.id} />
-  ),
   renderResult: AccountingAccountsColumns,
   useDefaultData: useAccountingAccountDefaultModel,
-  viewRoute: ROUTES.StockView,
 });

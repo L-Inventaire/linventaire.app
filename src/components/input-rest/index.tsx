@@ -168,6 +168,8 @@ export const RestDocumentsInput = <T extends RestEntity>(
     );
   }
 
+  if (!items?.data?.list?.length && disabled) return <></>;
+
   return (
     <div
       onClick={onClick}
@@ -246,29 +248,31 @@ export const RestDocumentsInput = <T extends RestEntity>(
                           }}
                         />
                       )}
-                    <Button
-                      data-tooltip="Supprimer"
-                      className={twMerge(
-                        "text-red-500 dark:text-red-500 w-0 ml-0.5 overflow-hidden",
-                        value && "w-5 ml-px transition-all delay-200"
-                      )}
-                      theme="invisible"
-                      size="xs"
-                      icon={(p) => <TrashIcon {...p} />}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        if (typeof props.max !== "number") {
-                          const onChange =
-                            props.onChange || props.ctrl?.onChange;
-                          !disabled && onChange?.("", null);
-                        } else {
-                          const onChange =
-                            props.onChange || props.ctrl?.onChange;
-                          !disabled && onChange?.([], []);
-                        }
-                      }}
-                    />
+                    {value?.[0] && (
+                      <Button
+                        data-tooltip="Supprimer"
+                        className={twMerge(
+                          "text-red-500 dark:text-red-500 w-0 ml-0.5 overflow-hidden",
+                          value && "w-5 ml-px transition-all delay-200"
+                        )}
+                        theme="invisible"
+                        size="xs"
+                        icon={(p) => <TrashIcon {...p} />}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (typeof props.max !== "number") {
+                            const onChange =
+                              props.onChange || props.ctrl?.onChange;
+                            !disabled && onChange?.("", null);
+                          } else {
+                            const onChange =
+                              props.onChange || props.ctrl?.onChange;
+                            !disabled && onChange?.([], []);
+                          }
+                        }}
+                      />
+                    )}
                   </div>
                 </div>
               )}

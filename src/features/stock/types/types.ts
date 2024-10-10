@@ -26,7 +26,7 @@ export type StockItems = RestEntity & {
   notes: string;
   documents: string[];
   tags: string[];
-  assignees: string[];
+  assigned: string[];
 };
 
 export type StockLocations = RestEntity & {

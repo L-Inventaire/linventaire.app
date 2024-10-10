@@ -39,6 +39,7 @@ export type Contacts = {
   notes: string;
   documents: string[];
   tags: string[];
+  assigned: string[];
 
   fields: any;
 };

@@ -10,7 +10,6 @@ import { Articles } from "@features/articles/types/types";
 import { tvaOptions } from "@features/utils/constants";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { EditorInput } from "@molecules/editor-input";
-import { Heading } from "@radix-ui/themes";
 import { PageBlock, PageColumns } from "@views/client/_layout/page";
 import { ArticleSuppliersInput } from "./article-suppliers-input";
 
@@ -116,13 +115,18 @@ export const ArticlesDetailsPage = ({
                     type="select"
                     options={tvaOptions}
                   />
-                  <Heading size="2" className="mb-2">
-                    Unité
-                  </Heading>
-                  <InputUnit
-                    value={ctrl("unit").value}
-                    onValueChange={ctrl("unit").onChange}
-                  />
+                  <div className="w-1/3">
+                    <InputLabel
+                      label="Unité"
+                      input={
+                        <InputUnit
+                          className="w-full"
+                          value={ctrl("unit").value}
+                          onValueChange={ctrl("unit").onChange}
+                        />
+                      }
+                    />
+                  </div>
                 </PageColumns>
 
                 <PageColumns>

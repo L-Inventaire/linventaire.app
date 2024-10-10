@@ -13,6 +13,7 @@ import { ServiceItemsDetailsPage } from "@views/client/modules/service/component
 import { ServiceTimesDetailsPage } from "@views/client/modules/service/components/service-times-details";
 import { ServiceItems, ServiceTimes } from "./types/types";
 import { Unit } from "@atoms/input/input-unit";
+import { TagsInput } from "@components/input-rest/tags";
 
 export const useServiceItemDefaultModel: () => Partial<ServiceItems> =
   () => ({});
@@ -41,6 +42,7 @@ export const ServiceItemsColumns: Column<ServiceItems>[] = [
     title: "Client",
     thClassName: "w-1",
     cellClassName: "justify-end",
+    headClassName: "justify-end",
     render: (item) => (
       <>
         <RestDocumentsInput
@@ -57,13 +59,15 @@ export const ServiceItemsColumns: Column<ServiceItems>[] = [
     ),
   },
   {
-    title: "Assigné",
+    title: "Étiquettes et assigné",
     thClassName: "w-1",
     cellClassName: "justify-end",
+    headClassName: "justify-end",
     render: (item) => (
-      <>
+      <div className="space-x-2">
+        <TagsInput value={item.tags} disabled />
         <UsersInput value={item.assigned} disabled />
-      </>
+      </div>
     ),
   },
   {

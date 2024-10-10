@@ -32,6 +32,7 @@ export const InvoiceLineQuantityInput = (props: {
       <div className="space-y-1">
         <Heading size="2">Unité</Heading>
         <InputUnit
+          className="w-full"
           value={ctrl("unit").value}
           onValueChange={ctrl("unit").onChange}
         />

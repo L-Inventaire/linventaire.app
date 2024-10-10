@@ -18,6 +18,7 @@ import { Tag } from "@atoms/badge/tag";
 import { twMerge } from "tailwind-merge";
 import { InputOutlinedDefaultBorders } from "@atoms/styles/inputs";
 import { TagPaymentCompletion } from "@views/client/modules/invoices/components/tag-payment-completion";
+import { UsersInput } from "@components/input-rest/users";
 
 export const useInvoiceDefaultModel: () => Partial<Invoices> = () => {
   const { client } = useCurrentClient();
@@ -74,10 +75,14 @@ export const InvoicesColumns: Column<Invoices>[] = [
     ),
   },
   {
-    title: "Tags",
+    title: "Étiquettes",
+    thClassName: "w-1",
+    cellClassName: "justify-end",
+    headClassName: "justify-end",
     render: (invoice) => (
-      <Base className="whitespace-nowrap">
+      <Base className="whitespace-nowrap space-x-2">
         <TagsInput size="md" value={invoice.tags} disabled />
+        <UsersInput size="md" value={invoice.assigned} disabled />
         {invoice.purchase_order_date &&
           invoice.state === "signed" &&
           isDeliveryLate(invoice) && (
@@ -119,7 +124,7 @@ export const InvoicesColumns: Column<Invoices>[] = [
   },
   {
     title: "Statut",
-    thClassName: "w-48",
+    thClassName: "w-1",
     cellClassName: "justify-end",
     headClassName: "justify-end",
     render: (invoice) => (

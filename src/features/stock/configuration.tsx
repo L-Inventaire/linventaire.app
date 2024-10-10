@@ -6,26 +6,32 @@ import { getContactName } from "@features/contacts/types/types";
 import { registerCtrlKRestEntity } from "@features/ctrlk";
 import { ROUTES } from "@features/routes";
 import { formatNumber } from "@features/utils/format/strings";
-import { UserIcon } from "@heroicons/react/16/solid";
+import { MapPinIcon, UserIcon } from "@heroicons/react/16/solid";
 import { Column } from "@molecules/table/table";
 import { getArticleIcon } from "@views/client/modules/articles/components/article-icon";
 import { StockItemsDetailsPage } from "@views/client/modules/stock/components/stock-item-details";
 import { StockItemStatus } from "@views/client/modules/stock/components/stock-item-status";
-import { StockLocationsDetailsPage } from "@views/client/modules/stock/components/stock-location-details";
 import { useTranslation } from "react-i18next";
 import { useStockLocations } from "./hooks/use-stock-locations";
 import { StockItems, StockLocations } from "./types/types";
+import { useArticle } from "@features/articles/hooks/use-articles";
+import { Unit } from "@atoms/input/input-unit";
+import { Badge } from "@radix-ui/themes";
+import { TagsInput } from "@components/input-rest/tags";
+import { UsersInput } from "@components/input-rest/users";
 
 export const useStockItemDefaultModel: () => Partial<StockItems> = () => ({});
 
 export const StockItemsColumns: Column<StockItems>[] = [
   {
     thClassName: "w-1",
+    title: "Numéro de série",
     render: (item) => (
       <Base className="opacity-50 whitespace-nowrap">{item.serial_number}</Base>
     ),
   },
   {
+    title: "Article",
     render: (item) => (
       <RestDocumentsInput
         disabled
@@ -37,40 +43,69 @@ export const StockItemsColumns: Column<StockItems>[] = [
     ),
   },
   {
+    title: "Étiquettes",
     thClassName: "w-1",
     cellClassName: "justify-end",
+    headClassName: "justify-end",
     render: (item) => (
-      <>
-        <RestDocumentsInput
-          label="Fournisseur"
-          placeholder="Aucun fournisseur"
-          entity="contacts"
-          value={item.client}
-          icon={(p) => <UserIcon {...p} />}
-          render={(c) => getContactName(c)}
-          size="sm"
-          disabled
-        />
-      </>
+      <div className="space-x-2">
+        <TagsInput value={item.tags} disabled />
+        <UsersInput value={item.assigned} disabled />
+      </div>
     ),
   },
   {
+    title: "Localisation",
     thClassName: "w-1",
     cellClassName: "justify-end",
     render: (item) => (
-      <Button size="sm" theme="outlined">
-        {formatNumber(item.quantity || 0)}
-        {" / "}
-        {formatNumber(item.original_quantity || 0)}
-      </Button>
+      <div className="space-x-2">
+        {item.location && (
+          <RestDocumentsInput
+            entity="stock_locations"
+            value={item.location}
+            icon={(p) => <MapPinIcon {...p} />}
+            size="sm"
+            disabled
+          />
+        )}
+        {item.client && (
+          <RestDocumentsInput
+            entity="contacts"
+            value={item.client}
+            icon={(p) => <UserIcon {...p} />}
+            render={(c) => getContactName(c)}
+            size="sm"
+            disabled
+          />
+        )}
+      </div>
     ),
   },
   {
+    title: "Quantité",
     thClassName: "w-1",
     cellClassName: "justify-end",
+    headClassName: "justify-end",
+    render: (item) => <Quantity item={item} />,
+  },
+  {
+    title: "Statut",
+    thClassName: "w-1",
+    cellClassName: "justify-end",
+    headClassName: "justify-end",
     render: (item) => <StockItemStatus size="sm" readonly value={item.state} />,
   },
 ];
+
+const Quantity = (props: { item: StockItems }) => {
+  const { article } = useArticle(props.item.article);
+  return (
+    <Badge className="whitespace-nowrap">
+      {formatNumber(props.item.quantity)} <Unit unit={article?.unit} />
+    </Badge>
+  );
+};
 
 registerCtrlKRestEntity<StockItems>("stock_items", {
   renderEditor: (props) => (
@@ -102,12 +137,8 @@ export const StockLocationsColumns: Column<StockLocations>[] = [
 ];
 
 registerCtrlKRestEntity<StockLocations>("stock_locations", {
-  renderEditor: (props) => (
-    <StockLocationsDetailsPage readonly={false} id={props.id} />
-  ),
   renderResult: StockLocationsColumns,
   useDefaultData: useStockLocationDefaultModel,
-  viewRoute: ROUTES.StockView,
 });
 
 const StockParent = ({ id }: { id: string }) => {

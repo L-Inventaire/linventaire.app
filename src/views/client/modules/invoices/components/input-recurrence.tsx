@@ -6,7 +6,7 @@ import { InputButton } from "@components/input-button";
 import { Invoices } from "@features/invoices/types/types";
 import { formatTime } from "@features/utils/format/dates";
 import { ArrowPathIcon } from "@heroicons/react/20/solid";
-import { Callout } from "@radix-ui/themes";
+import { Blockquote } from "@radix-ui/themes";
 import { ModalHr, PageColumns } from "@views/client/_layout/page";
 import _ from "lodash";
 import { frequencyOptions } from "../../articles/components/article-details";
@@ -73,13 +73,11 @@ export const InvoiceRecurrenceInput = ({
         <>
           <br />
           {subscriptions.length > 1 && (
-            <Callout.Root className="mb-4">
-              <Callout.Text>
-                Vous avez plusieurs articles avec des fréquences différentes, la
-                facture sera dupliquée pour chaque groupes d'articles partageant
-                la même fréquence à partir de la prochaine facture.
-              </Callout.Text>
-            </Callout.Root>
+            <Blockquote className="mb-4">
+              Vous avez plusieurs articles avec des fréquences différentes, la
+              facture sera dupliquée pour chaque groupes d'articles partageant
+              la même fréquence à partir de la prochaine facture.
+            </Blockquote>
           )}
           <PageColumns>
             <FormInput

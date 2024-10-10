@@ -1,5 +1,5 @@
 import { Select } from "@radix-ui/themes";
-import { useTranslation } from "react-i18next";
+import { TFunction, useTranslation } from "react-i18next";
 
 /** An input to select a unit and functions to convert them */
 export const supportedUnits = {
@@ -11,21 +11,28 @@ export const supportedUnits = {
   area: ["cm²", "m²", "ha", "km²"],
 };
 
-export const Unit = (props: { unit?: string }) => {
-  const { t } = useTranslation();
-  return t("atoms.input.unit." + (props.unit || "unit"), {
-    fallback: props.unit,
+export const getUnitLabel = (
+  unit: string = "",
+  t: TFunction<"translation", undefined>
+) => {
+  return t("atoms.input.unit." + (unit || "unit"), {
+    defaultValue: unit,
   });
 };
 
-export const InputUnit = (props: Select.RootProps) => {
+export const Unit = (props: { unit?: string }) => {
+  const { t } = useTranslation();
+  return getUnitLabel(props.unit || "unit", t);
+};
+
+export const InputUnit = (props: Select.RootProps & { className?: string }) => {
   const { t } = useTranslation();
 
   return (
     <Select.Root {...props}>
-      <Select.Trigger className="w-full">
+      <Select.Trigger className={props.className}>
         {t("atoms.input.unit." + (props.value || "unit"), {
-          fallback: props.value,
+          defaultValue: props.value,
         })}
       </Select.Trigger>
       <Select.Content>
