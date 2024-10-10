@@ -1,4 +1,3 @@
-import { Tag } from "@atoms/badge/tag";
 import { Button } from "@atoms/button/button";
 import { PageLoader } from "@atoms/page-loader";
 import { Section } from "@atoms/text";
@@ -25,7 +24,6 @@ import { getFormattedNumerotation } from "@features/utils/format/numerotation";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import {
   BuildingStorefrontIcon,
-  CurrencyDollarIcon,
   EnvelopeIcon,
   UserIcon,
 } from "@heroicons/react/20/solid";
@@ -35,6 +33,7 @@ import { Callout, Code, Text } from "@radix-ui/themes";
 import { PageColumns } from "@views/client/_layout/page";
 import _ from "lodash";
 import { Fragment, useEffect } from "react";
+import { usePaymentCompletion } from "../hooks/use-payment-completion";
 import { computePricesFromInvoice } from "../utils";
 import { InputDelivery } from "./input-delivery";
 import { InvoiceInputFormat } from "./input-format";
@@ -46,8 +45,6 @@ import { CompletionTags } from "./invoice-lines-input/components/completion-tags
 import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-card";
 import { InvoiceStatus } from "./invoice-status";
 import { RelatedInvoices } from "./related-invoices";
-import { usePaymentCompletion } from "../hooks/use-payment-completion";
-import { twMerge } from "tailwind-merge";
 import { TagPaymentCompletion } from "./tag-payment-completion";
 
 export const computeStockCompletion = (

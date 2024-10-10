@@ -1,6 +1,5 @@
 import { Button } from "@atoms/button/button";
 import { DropDownAtom } from "@atoms/dropdown";
-import { SectionSmall } from "@atoms/text";
 import { useShortcutsContext } from "@features/utils/shortcuts";
 import { Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/16/solid";
