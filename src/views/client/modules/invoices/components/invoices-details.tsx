@@ -33,7 +33,6 @@ import { Callout, Code, Text } from "@radix-ui/themes";
 import { PageColumns } from "@views/client/_layout/page";
 import _ from "lodash";
 import { Fragment, useEffect } from "react";
-import { usePaymentCompletion } from "../hooks/use-payment-completion";
 import { computePricesFromInvoice } from "../utils";
 import { InputDelivery } from "./input-delivery";
 import { InvoiceInputFormat } from "./input-format";
@@ -154,8 +153,6 @@ export const InvoicesDetailsPage = ({
   const hasClientOrSupplier =
     (draft.client && !isSupplierRelated) ||
     (draft.supplier && isSupplierRelated);
-
-  const paymentCompletion = usePaymentCompletion(draft);
 
   useEffect(() => {
     if (!isPending && draft)
