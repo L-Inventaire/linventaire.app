@@ -109,7 +109,7 @@ export const SignedSessionPage = () => {
                     Le document est en cours de signature
                   </Section>
                   <Button onClick={() => refetchSignedDocument()}>
-                    Raffraichir
+                    Rafraîchir
                   </Button>
                 </div>
 

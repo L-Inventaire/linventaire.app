@@ -40,6 +40,7 @@ export const InputDelivery = ({
             <FormInput
               type="radio"
               placeholder={"Type de livraison"}
+              layout="vertical"
               options={[
                 { label: "Délai de livraison", value: "delivery_delay" },
                 { label: "Date de livraison", value: "delivery_date" },
@@ -63,7 +64,6 @@ export const InputDelivery = ({
                 }
               }}
             />
-            {invoice}
             {!!ctrl("delivery_date").value && (
               <FormInput
                 type="date"

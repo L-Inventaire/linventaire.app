@@ -66,8 +66,18 @@ export function Radio(props: RadioProps) {
         props.onChange?.(e?.target?.value ?? "");
       }}
     >
-      {props.options.map((option) => (
-        <div className={twMerge("flex", layout === "horizontal" && "mr-2")}>
+      {props.options.map((option, index) => (
+        <div
+          className={twMerge(
+            "flex",
+            layout === "horizontal" && "mr-2",
+            layout === "vertical" && "mt-2",
+            layout === "vertical" && index === 0 && "mt-2",
+            layout === "vertical" &&
+              index === props.options.length - 1 &&
+              "mb-2"
+          )}
+        >
           <label>
             <input
               type="radio"
