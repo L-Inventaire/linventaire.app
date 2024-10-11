@@ -4,7 +4,7 @@ export type EventItemProps = {
   document: SigningSession;
 };
 
-export const EventItem = ({ document }: EventItemProps) => {
+export const EventItem = (_: EventItemProps) => {
   return (
     <div className="w-full grid grid-cols-3">
       {/* <Base>
