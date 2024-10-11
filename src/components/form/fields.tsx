@@ -52,6 +52,8 @@ export const FormInput = memo(
       values?: any;
       autoFocus?: "scan" | "keyboard" | boolean;
       autoSelect?: boolean;
+      // Radio Input
+      layout?: "horizontal" | "vertical";
     }
   ) => {
     const formContext = useContext(FormContextContext);
@@ -385,6 +387,7 @@ export const FormInput = memo(
                 placeholder={placeholder}
                 disabled={disabled}
                 options={options || []}
+                layout={props.layout || "horizontal"}
               />
             )}
             {props.type === "modal" && (

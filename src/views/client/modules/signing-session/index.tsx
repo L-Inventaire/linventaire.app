@@ -142,68 +142,70 @@ export const SigningSessionPage = () => {
                   </Button>
                 )}
 
-                {invoice?.type === "quotes" && invoice?.state === "sent" && (
-                  <>
-                    <Button
-                      className="mr-2"
-                      onClick={async () => {
-                        const signedSession = await signSigningSession(
-                          options ?? []
-                        );
-                        if (!signedSession.signing_url) {
-                          toast.error(
-                            "An error occurred while signing the document"
-                          );
-                          return;
-                        }
-                        window.open(signedSession.signing_url, "_blank");
-                      }}
-                    >
-                      Accepter et signer
-                    </Button>
-                    {!cancelling && (
+                {invoice?.type === "quotes" &&
+                  invoice?.state === "sent" &&
+                  signingSession.state !== "signed" && (
+                    <>
                       <Button
-                        theme="danger"
+                        className="mr-2"
                         onClick={async () => {
-                          setCancelling(true);
+                          const signedSession = await signSigningSession(
+                            options ?? []
+                          );
+                          if (!signedSession.signing_url) {
+                            toast.error(
+                              "An error occurred while signing the document"
+                            );
+                            return;
+                          }
+                          window.open(signedSession.signing_url);
                         }}
                       >
-                        Refuser
+                        Accepter et signer
                       </Button>
-                    )}
-                    {cancelling && (
-                      <>
-                        <Button
-                          theme="default"
-                          onClick={async () => {
-                            setCancelling(false);
-                          }}
-                          icon={(p) => <XCircleIcon {...p} />}
-                        ></Button>
-                        <Input
-                          className="w-1/2"
-                          value={cancelReason}
-                          onChange={(e) => setCancelReason(e.target.value)}
-                          placeholder="Raison du refus"
-                        />
+                      {!cancelling && (
                         <Button
                           theme="danger"
                           onClick={async () => {
-                            await cancelSigningSession(cancelReason);
-                            await refetchSigningSession();
-
-                            toast.success(
-                              "La signature a été refusée avec succès"
-                            );
-
-                            setCancelling(false);
+                            setCancelling(true);
                           }}
-                          icon={(p) => <CheckIcon {...p} />}
-                        />
-                      </>
-                    )}
-                  </>
-                )}
+                        >
+                          Refuser
+                        </Button>
+                      )}
+                      {cancelling && (
+                        <>
+                          <Button
+                            theme="default"
+                            onClick={async () => {
+                              setCancelling(false);
+                            }}
+                            icon={(p) => <XCircleIcon {...p} />}
+                          ></Button>
+                          <Input
+                            className="w-1/2"
+                            value={cancelReason}
+                            onChange={(e) => setCancelReason(e.target.value)}
+                            placeholder="Raison du refus"
+                          />
+                          <Button
+                            theme="danger"
+                            onClick={async () => {
+                              await cancelSigningSession(cancelReason);
+                              await refetchSigningSession();
+
+                              toast.success(
+                                "La signature a été refusée avec succès"
+                              );
+
+                              setCancelling(false);
+                            }}
+                            icon={(p) => <CheckIcon {...p} />}
+                          />
+                        </>
+                      )}
+                    </>
+                  )}
               </div>
 
               {options.length > 0 && invoice?.type !== "invoices" && (
