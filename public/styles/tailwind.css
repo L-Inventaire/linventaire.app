@@ -1961,6 +1961,10 @@ body :is(.max-w-xs) {
   max-width: 20rem;
 }
 
+body :is(.max-w-2xl) {
+  max-width: 42rem;
+}
+
 body :is(.flex-1) {
   flex: 1 1 0%;
 }
@@ -3508,6 +3512,11 @@ body :is(.py-\[5\.5px\]) {
 body :is(.py-px) {
   padding-top: 1px;
   padding-bottom: 1px;
+}
+
+body :is(.px-6) {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
 }
 
 body :is(.pb-1) {
