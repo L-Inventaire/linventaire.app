@@ -189,15 +189,17 @@ export const StockItemsDetailsPage = ({
                 />
               )}
               <div className="grow" />
-              {(!readonly || ctrl("from_rel_original_stock_item").value) && (
+              {(!readonly ||
+                !!ctrl("from_rel_original_stock_items").value?.length) && (
                 <RestDocumentsInput
                   entity="stock_items"
                   size="lg"
                   label="Élément d'origine"
                   placeholder="Aucun élément d'origine"
                   icon={(p) => <DivideIcon {...p} />}
-                  value={ctrl("from_rel_original_stock_item").value}
-                  onChange={ctrl("from_rel_original_stock_item").onChange}
+                  max={1}
+                  value={ctrl("from_rel_original_stock_items").value}
+                  onChange={ctrl("from_rel_original_stock_items").onChange}
                 />
               )}
             </div>

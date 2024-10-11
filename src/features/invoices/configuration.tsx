@@ -13,7 +13,6 @@ import { InvoiceStatus } from "@views/client/modules/invoices/components/invoice
 import { InvoicesDetailsPage } from "@views/client/modules/invoices/components/invoices-details";
 import { TagPaymentCompletion } from "@views/client/modules/invoices/components/tag-payment-completion";
 import {
-  isComplete,
   isDeliveryLate,
   isPaymentLate,
 } from "@views/client/modules/invoices/utils";
@@ -82,17 +81,15 @@ export const InvoicesColumns: Column<Invoices>[] = [
       <Base className="whitespace-nowrap space-x-2 flex flex-row items-center">
         <TagsInput size="md" value={invoice.tags} disabled />
         <UsersInput size="md" value={invoice.assigned} disabled />
-        {["quotes"].includes(invoice.type) &&
-          invoice.state !== "closed" &&
-          isComplete(invoice) && (
-            <Badge size="2" color={"green"}>
-              À facturer
-            </Badge>
-          )}
+        {["quotes"].includes(invoice.type) && invoice.state === "completed" && (
+          <Badge size="2" color={"green"}>
+            À facturer
+          </Badge>
+        )}
         {["quotes"].includes(invoice.type) &&
           invoice.wait_for_completion_since &&
           invoice.state !== "closed" &&
-          !isComplete(invoice) &&
+          invoice.state !== "completed" &&
           invoice.state === "purchase_order" &&
           isDeliveryLate(invoice) && (
             <Badge size="2" color={"red"}>

@@ -26,6 +26,7 @@ import { InvoiceRestDocument } from "../../invoices/components/invoice-lines-inp
 import { ServiceItemStatus } from "./service-item-status";
 import { Contacts } from "@features/contacts/types/types";
 import { Unit } from "@atoms/input/input-unit";
+import { useInvoice } from "@features/invoices/hooks/use-invoices";
 
 export const ServiceItemsDetailsPage = ({
   readonly,
@@ -45,6 +46,7 @@ export const ServiceItemsDetailsPage = ({
 
   const { article } = useArticle(draft.article);
 
+  const { invoice: quote } = useInvoice(draft.for_rel_quote || "");
   const { service_items: otherServiceItems } = useServiceItems({
     query: { for_rel_quote: draft.for_rel_quote },
   });
@@ -141,7 +143,12 @@ export const ServiceItemsDetailsPage = ({
             label="Client"
             placeholder="Sélectionner un client"
             icon={(p) => <UserIcon {...p} />}
-            filter={{ is_client: true } as Partial<Contacts>}
+            filter={
+              {
+                is_client: true,
+                ...(quote ? { id: [quote.contact, quote.client] } : {}),
+              } as Partial<Contacts>
+            }
           />
 
           <InvoiceRestDocument
@@ -154,6 +161,8 @@ export const ServiceItemsDetailsPage = ({
               {
                 type: "quotes",
                 state: ["draft", "purchase_order", "completed"] as any,
+                ...(draft.article ? { "articles.all": draft.article } : {}),
+                ...(quote ? { client: [quote.client, quote.contact] } : {}),
               } as Partial<Invoices>
             }
           />

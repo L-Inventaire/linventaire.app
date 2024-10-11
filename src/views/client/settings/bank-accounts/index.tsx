@@ -55,8 +55,8 @@ export const BankAccountsPage = () => {
                   input={
                     <PCGInput
                       className="w-full flex justify-start"
-                      value={ctrl("type").value}
-                      onChange={ctrl("type").onChange}
+                      value={ctrl("standard_identifier").value}
+                      onChange={ctrl("standard_identifier").onChange}
                     />
                   }
                 />
