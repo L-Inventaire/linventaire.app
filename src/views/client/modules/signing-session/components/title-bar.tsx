@@ -22,7 +22,7 @@ export const TitleBar = ({
       className={twMerge("w-full mt-6 flex", props.className)}
       {..._.omit(props, "className")}
     >
-      <div className="w-1/4 h-full">
+      <div className="w-full h-full">
         <div className="flex items-center">
           <img
             className="h-6 w-auto dark:hidden"
@@ -39,13 +39,13 @@ export const TitleBar = ({
         <Info>{signingSession.recipient}</Info>
       </div>
 
-      <div className="flex flex-col w-full items-center -m-2.5">
+      <div className="flex flex-col w-full items-center">
         <Title>
-          {invoice?.type === "invoices" ? "Facture" : "Commande"}{" "}
+          {invoice?.type === "invoices" ? "Facture" : "Devis"}{" "}
           {invoice?.reference}
         </Title>
       </div>
-      <div className="w-1/4">
+      <div className="w-full">
         {signingSession.state === "signed" && alerts && (
           <Alert
             title="Le document a déjà été signé"

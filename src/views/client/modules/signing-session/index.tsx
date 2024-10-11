@@ -88,7 +88,7 @@ export const SigningSessionPage = () => {
   return (
     <div
       className={twMerge(
-        "sm:overflow-auto overflow-hidden relative flex w-full grow flex-row bg-slate-50 dark:bg-slate-950 h-screen intro-animated-root z-10"
+        "sm:overflow-auto overflow-hidden relative flex w-full grow flex-row bg-slate-50 dark:bg-slate-950 h-screen intro-animated-root z-10 bg-white"
       )}
     >
       <Page
@@ -98,54 +98,52 @@ export const SigningSessionPage = () => {
           },
         ]}
       >
-        <div className="w-full h-full flex flex-col items-center">
-          <div className="w-full md:w-3/4 bg-white flex flex-col justify-between items-center rounded-md p-6 md:px-24">
-            {/* Logo and title section */}
-            <TitleBar
-              signingSession={signingSession}
-              invoice={invoice}
-              alerts={true}
-            />
+        <div className="w-full h-full flex flex-col items-center grow">
+          <div className="w-full max-w-3xl flex flex-col justify-between items-center rounded-md grow">
+            <div className="w-full">
+              {/* Logo and title section */}
+              <TitleBar
+                signingSession={signingSession}
+                invoice={invoice}
+                alerts={true}
+              />
 
-            {/* Buttons section */}
-            <div className="flex mb-4">
-              {/* <EmbedSignDocument
+              {/* Buttons section */}
+              <div className="flex my-4 w-full flex flex-row justify-center">
+                {/* <EmbedSignDocument
                 token={signingSession.recipient_token}
                 onDocumentError={(error) => {
                   console.log("error", error);
                 }}
               /> */}
 
-              {signingSession.state === "signed" && (
-                <Button
-                  className="mt-2"
-                  onClick={() => {
-                    navigate(
-                      getRoute(ROUTES.SignedDocumentView, {
-                        session: sessionID,
-                      })
-                    );
-                  }}
-                >
-                  Voir le document signé
-                </Button>
-              )}
+                {signingSession.state === "signed" && (
+                  <Button
+                    className="mt-2"
+                    onClick={() => {
+                      navigate(
+                        getRoute(ROUTES.SignedDocumentView, {
+                          session: sessionID,
+                        })
+                      );
+                    }}
+                  >
+                    Voir le document signé
+                  </Button>
+                )}
 
-              {signingSession.state === "sent" && (
-                <Button
-                  className="mt-2"
-                  onClick={() => {
-                    window.open(signingSession.signing_url, "_blank");
-                  }}
-                >
-                  Signer le document
-                </Button>
-              )}
+                {signingSession.state === "sent" && (
+                  <Button
+                    className="mt-2"
+                    onClick={() => {
+                      window.open(signingSession.signing_url, "_blank");
+                    }}
+                  >
+                    Signer le document
+                  </Button>
+                )}
 
-              {!["signed", "sent", "cancelled"].includes(
-                signingSession.state
-              ) &&
-                invoice?.type !== "invoices" && (
+                {invoice?.type === "quotes" && invoice?.state === "sent" && (
                   <>
                     <Button
                       className="mr-2"
@@ -162,7 +160,7 @@ export const SigningSessionPage = () => {
                         window.open(signedSession.signing_url, "_blank");
                       }}
                     >
-                      Signer
+                      Accepter et signer
                     </Button>
                     {!cancelling && (
                       <Button
@@ -207,55 +205,53 @@ export const SigningSessionPage = () => {
                     )}
                   </>
                 )}
-            </div>
-
-            {options.length > 0 && invoice?.type !== "invoices" && (
-              <div className="mb-4">
-                <Section>Options</Section>
-                <div className="flex w-full">
-                  {options.map((option) => (
-                    <div className="ml-2 flex">
-                      <Checkbox
-                        disabled={
-                          signingSession.state === "signed" ||
-                          signingSession.state === "sent"
-                        }
-                        onChange={(value) => {
-                          setOptions((options) =>
-                            options.map((o) =>
-                              o._id === option._id
-                                ? { ...o, optional_checked: value }
-                                : o
-                            )
-                          );
-                        }}
-                        label={option.name}
-                        size={"md"}
-                        value={option.optional_checked}
-                      />
-                    </div>
-                  ))}
-                </div>
               </div>
-            )}
+
+              {options.length > 0 && invoice?.type !== "invoices" && (
+                <div className="mb-4">
+                  <Section>Options</Section>
+                  <div className="flex w-full">
+                    {options.map((option) => (
+                      <div className="ml-2 flex">
+                        <Checkbox
+                          disabled={
+                            signingSession.state === "signed" ||
+                            signingSession.state === "sent"
+                          }
+                          onChange={(value) => {
+                            setOptions((options) =>
+                              options.map((o) =>
+                                o._id === option._id
+                                  ? { ...o, optional_checked: value }
+                                  : o
+                              )
+                            );
+                          }}
+                          label={option.name}
+                          size={"md"}
+                          value={option.optional_checked}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* IFrame section */}
-            <div className="w-full">
-              <div className={styles.videoContainer}>
-                {invoice && (
-                  <iframe
-                    src={InvoicesApiClient.getPdfRoute(
-                      {
-                        client_id: invoice?.client_id ?? "",
-                        id: invoice.id ?? "",
-                      },
-                      options
-                    )}
-                    title="Invoice PDF Preview"
-                  ></iframe>
+            {invoice && (
+              <iframe
+                className="w-full grow flex rounded"
+                src={InvoicesApiClient.getPdfRoute(
+                  {
+                    client_id: invoice?.client_id ?? "",
+                    id: invoice.id ?? "",
+                  },
+                  options
                 )}
-              </div>
-            </div>
+                title="Invoice PDF Preview"
+              ></iframe>
+            )}
 
             <div className="flex flex-col bg-white w-3/4 rounded-md p-3 mt-6">
               {/* <Section>Historique</Section> */}
