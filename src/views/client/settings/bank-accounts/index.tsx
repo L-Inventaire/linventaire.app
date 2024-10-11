@@ -71,7 +71,9 @@ export const BankAccountsPage = () => {
                   }
                 />
                 <Button
-                  disabled={!ctrl("name").value || !ctrl("type").value}
+                  disabled={
+                    !ctrl("name").value || !ctrl("standard_identifier").value
+                  }
                   shortcut={["enter"]}
                   onClick={async () => {
                     await upsert.mutate({
