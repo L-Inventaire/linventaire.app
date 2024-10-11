@@ -21,7 +21,7 @@ export type StockItems = RestEntity & {
   from_rel_supplier_quote: string; // The supplier quote this stock item is from
   location: string; // The location of the stock item
 
-  from_rel_original_stock_item: string; // When we split a stock item, we keep a reference to the original one
+  from_rel_original_stock_items: string[]; // When we split a stock item, we keep a reference to the original one
 
   notes: string;
   documents: string[];

@@ -335,7 +335,7 @@ export const InvoicesDetailsPage = ({
 
             <div className="mb-2">
               <InvoiceStatus
-                readonly={readonly}
+                readonly={true}
                 size="sm"
                 value={draft.state}
                 type={draft.type}

@@ -31,7 +31,8 @@ export const FormContext = ({
   return (
     <FormContextContext.Provider
       value={{
-        readonly: context.readonly || def.readonly,
+        readonly:
+          context.readonly === undefined ? def.readonly : context.readonly,
         alwaysVisible: context.alwaysVisible || def.alwaysVisible,
         size: context.size || def.size,
         highlight: context.highlight || def.highlight,

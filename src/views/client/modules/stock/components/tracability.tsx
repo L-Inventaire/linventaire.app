@@ -1,5 +1,6 @@
 import { Unit } from "@atoms/input/input-unit";
 import Link from "@atoms/link";
+import { buildQueryFromMap } from "@components/search-bar/utils/utils";
 import { useArticle } from "@features/articles/hooks/use-articles";
 import { getRoute, ROUTES } from "@features/routes";
 import {
@@ -17,7 +18,7 @@ import { twMerge } from "tailwind-merge";
 export const Tracability = ({ id }: { id: string }) => {
   const { stock_item: item } = useStockItem(id);
   const { stock_item: parent } = useStockItem(
-    item?.from_rel_original_stock_item || ""
+    item?.from_rel_original_stock_items?.[0] || ""
   );
   return (
     <PageBlock>
@@ -42,9 +43,9 @@ const SubTracability = ({
   current?: string;
 }) => {
   const { stock_items: children } = useStockItems({
-    query: {
-      from_rel_original_stock_item: parent.id || "nothing",
-    },
+    query: buildQueryFromMap({
+      from_rel_original_stock_items: parent.id || "nothing",
+    }),
   });
   const { article } = useArticle(parent.article || "");
 
@@ -59,7 +60,9 @@ const SubTracability = ({
         to={getRoute(ROUTES.StockView, { id: parent.id || "" })}
       >
         <div className="flex flex-row items-center space-x-2">
-          {depth === 0 && parent.from_rel_original_stock_item && <>...</>}
+          {depth === 0 && !!parent.from_rel_original_stock_items?.length && (
+            <>...</>
+          )}
           <Code>{parent?.serial_number}</Code>{" "}
           <div className="grow text-ellipsis inline-block overflow-hidden whitespace-nowrap">
             {article?.name}

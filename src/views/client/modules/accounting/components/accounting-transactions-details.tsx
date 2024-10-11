@@ -7,14 +7,19 @@ import { RestDocumentsInput } from "@components/input-rest";
 import { FilesInput } from "@components/input-rest/files";
 import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
-import { AccountingTransactions } from "@features/accounting/types/types";
+import { useAccountingAccounts } from "@features/accounting/hooks/use-accounting-accounts";
+import {
+  AccountingAccounts,
+  AccountingTransactions,
+} from "@features/accounting/types/types";
 import { useClients } from "@features/clients/state/use-clients";
+import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { currencyOptions } from "@features/utils/constants";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { ArrowRightIcon } from "@heroicons/react/16/solid";
 import { EditorInput } from "@molecules/editor-input";
-import { InvoiceRestDocument } from "../../invoices/components/invoice-lines-input/invoice-input-rest-card";
 import { useEffect } from "react";
+import { InvoiceRestDocument } from "../../invoices/components/invoice-lines-input/invoice-input-rest-card";
 
 export const AccountingTransactionsDetailsPage = ({
   readonly,
@@ -42,6 +47,57 @@ export const AccountingTransactionsDetailsPage = ({
       });
   }, [draft.transaction_date, draft.currency]);
 
+  const { invoice } = useInvoice(draft.rel_invoices?.[0] || "");
+
+  const isSupplierRelated =
+    invoice?.type === "supplier_invoices" ||
+    invoice?.type === "supplier_credit_notes";
+  const { accounting_accounts: counterpartyAccount } = useAccountingAccounts({
+    query: {
+      contact: isSupplierRelated ? invoice.supplier : invoice?.client,
+      type: isSupplierRelated ? "supplier" : "client",
+    },
+  });
+  const debitForcedToId =
+    invoice?.type === "invoices" || invoice?.type === "supplier_credit_notes";
+  const creditForcedToId =
+    invoice?.type === "supplier_invoices" || invoice?.type === "credit_notes";
+
+  useEffect(() => {
+    if (!readonly) {
+      const counterpartyAccountId = counterpartyAccount?.data?.list?.[0]?.id;
+      if (
+        debitForcedToId &&
+        draft.debit !== counterpartyAccountId &&
+        counterpartyAccountId
+      ) {
+        setDraft({
+          ...draft,
+          debit: counterpartyAccountId || "",
+          credit: "",
+        });
+      }
+      if (
+        creditForcedToId &&
+        draft.credit !== counterpartyAccountId &&
+        counterpartyAccountId
+      ) {
+        setDraft({
+          ...draft,
+          debit: "",
+          credit: counterpartyAccountId || "",
+        });
+      }
+    }
+  }, [
+    creditForcedToId,
+    debitForcedToId,
+    readonly,
+    draft.debit,
+    draft.credit,
+    counterpartyAccount?.data?.list?.[0]?.id,
+  ]);
+
   if (isPending) return null;
 
   return (
@@ -61,7 +117,7 @@ export const AccountingTransactionsDetailsPage = ({
 
         <FormInput label="Référence" type="text" ctrl={ctrl("reference")} />
 
-        <div className="flex space-x-2">
+        <div className="flex space-x-2 mt-2">
           <FormInput label="Date" type="date" ctrl={ctrl("transaction_date")} />
           <FormInput
             label="Montant"
@@ -79,26 +135,51 @@ export const AccountingTransactionsDetailsPage = ({
 
         <div className="flex space-x-2 items-center mt-4">
           <RestDocumentsInput
+            disabled={
+              !!counterpartyAccount?.data?.list?.[0]?.id && debitForcedToId
+            }
             entity="accounting_accounts"
             size="xl"
             label="Compte à débiter"
             placeholder="Associer un compte"
+            filter={
+              debitForcedToId
+                ? {
+                    type: isSupplierRelated ? "supplier" : "client",
+                  }
+                : ({
+                    type: "internal",
+                  } as Partial<AccountingAccounts>)
+            }
             ctrl={ctrl("debit")}
           />
           <ArrowRightIcon className="w-4 h-4 shrink-0" />
           <RestDocumentsInput
+            disabled={
+              !!counterpartyAccount?.data?.list?.[0]?.id && creditForcedToId
+            }
             entity="accounting_accounts"
             size="xl"
             label="Compte à créditer"
             placeholder="Associer un compte"
+            filter={
+              creditForcedToId
+                ? {
+                    type: isSupplierRelated ? "supplier" : "client",
+                  }
+                : ({
+                    type: "internal",
+                  } as Partial<AccountingAccounts>)
+            }
             ctrl={ctrl("credit")}
           />
         </div>
 
-        <Section className="mb-2 mt-8">Factures / avoirs liés</Section>
+        <Section className="mb-2 mt-8">Facture / avoir lié</Section>
         <InvoiceRestDocument
           ctrl={ctrl("rel_invoices")}
-          label="Facture liée"
+          label="Document lié"
+          placeholder="Aucun document lié"
           size="xl"
           max={1}
           filter={{

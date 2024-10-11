@@ -1060,10 +1060,6 @@ body :is(.bottom-0) {
   bottom: 0px;
 }
 
-body :is(.bottom-\[10\%\]) {
-  bottom: 10%;
-}
-
 body :is(.left-0) {
   left: 0px;
 }
@@ -1098,10 +1094,6 @@ body :is(.right-0\.5) {
 
 body :is(.right-1) {
   right: 0.25rem;
-}
-
-body :is(.right-16) {
-  right: 4rem;
 }
 
 body :is(.right-2) {
@@ -1365,11 +1357,6 @@ body :is(.my-8) {
   margin-bottom: 2rem;
 }
 
-body :is(.my-auto) {
-  margin-top: auto;
-  margin-bottom: auto;
-}
-
 body :is(.\!-ml-0) {
   margin-left: -0px !important;
 }
@@ -1578,14 +1565,6 @@ body :is(.mt-px) {
   margin-top: 1px;
 }
 
-body :is(.-mt-\[2px\]) {
-  margin-top: -2px;
-}
-
-body :is(.-mt-\[1px\]) {
-  margin-top: -1px;
-}
-
 body :is(.box-border) {
   box-sizing: border-box;
 }
@@ -1738,10 +1717,6 @@ body :is(.h-screen) {
   height: 100vh;
 }
 
-body :is(.h-\[3px\]) {
-  height: 3px;
-}
-
 body :is(.max-h-0) {
   max-height: 0px;
 }
@@ -1814,6 +1789,10 @@ body :is(.w-1\/5) {
   width: 20%;
 }
 
+body :is(.w-1\/6) {
+  width: 16.666667%;
+}
+
 body :is(.w-10) {
   width: 2.5rem;
 }
@@ -1866,10 +1845,6 @@ body :is(.w-4) {
   width: 1rem;
 }
 
-body :is(.w-48) {
-  width: 12rem;
-}
-
 body :is(.w-5) {
   width: 1.25rem;
 }
@@ -1917,14 +1892,6 @@ body :is(.w-full) {
 body :is(.w-max) {
   width: -webkit-max-content;
   width: max-content;
-}
-
-body :is(.w-screen) {
-  width: 100vw;
-}
-
-body :is(.w-1\/6) {
-  width: 16.666667%;
 }
 
 body :is(.min-w-0) {
@@ -1992,14 +1959,6 @@ body :is(.max-w-xl) {
 
 body :is(.max-w-xs) {
   max-width: 20rem;
-}
-
-body :is(.max-w-\[50\%\]) {
-  max-width: 50%;
-}
-
-body :is(.max-w-sm) {
-  max-width: 24rem;
 }
 
 body :is(.flex-1) {
@@ -3322,11 +3281,6 @@ body :is(.bg-slate-800) {
 body :is(.bg-slate-900) {
   --tw-bg-opacity: 1;
   background-color: rgb(17 17 15 / var(--tw-bg-opacity));
-}
-
-body :is(.bg-slate-950) {
-  --tw-bg-opacity: 1;
-  background-color: rgb(5 5 5 / var(--tw-bg-opacity));
 }
 
 body :is(.bg-transparent) {
@@ -5888,6 +5842,10 @@ body :is(.dark\:bg-yellow-900:where(.dark, .dark *)) {
   background-color: rgb(113 63 18 / var(--tw-bg-opacity));
 }
 
+body :is(.dark\:bg-opacity-10:where(.dark, .dark *)) {
+  --tw-bg-opacity: 0.1;
+}
+
 body :is(.dark\:bg-opacity-15:where(.dark, .dark *)) {
   --tw-bg-opacity: 0.15;
 }
@@ -5910,10 +5868,6 @@ body :is(.dark\:bg-opacity-75:where(.dark, .dark *)) {
 
 body :is(.dark\:bg-opacity-80:where(.dark, .dark *)) {
   --tw-bg-opacity: 0.8;
-}
-
-body :is(.dark\:bg-opacity-10:where(.dark, .dark *)) {
-  --tw-bg-opacity: 0.1;
 }
 
 body :is(.dark\:text-blue-100:where(.dark, .dark *)) {

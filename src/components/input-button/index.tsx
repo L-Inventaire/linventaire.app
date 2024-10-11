@@ -47,7 +47,7 @@ export const InputButton = <T,>(props: InputButtonProps<T>) => {
     if (props.autoFocus) setOpen(true);
   }, []);
 
-  if (props.readonly) {
+  if (props.readonly || formContext.readonly) {
     return (
       <div
         className={twMerge(

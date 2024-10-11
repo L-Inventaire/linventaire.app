@@ -243,7 +243,9 @@ const SubdivideStockModalContent = () => {
                 state: status as any,
                 location,
                 client,
-                from_rel_original_stock_item: modal.item?.id,
+                from_rel_original_stock_items: modal.item?.id
+                  ? [modal.item?.id]
+                  : [],
                 notes: "",
                 documents: [],
               });
