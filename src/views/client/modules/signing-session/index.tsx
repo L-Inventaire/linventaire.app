@@ -135,7 +135,7 @@ export const SigningSessionPage = () => {
                   <Button
                     className="mt-2"
                     onClick={() => {
-                      window.open(signingSession.signing_url, "_blank");
+                      window.open(signingSession.signing_url);
                     }}
                   >
                     Signer le document

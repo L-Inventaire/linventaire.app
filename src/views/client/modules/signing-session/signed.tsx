@@ -21,6 +21,7 @@ export const SignedSessionPage = () => {
     refetchSigningSession,
     signedDocument,
     refetchSignedDocument,
+    isLoadingSignedDocument,
   } = useSigningSession(sessionID ?? "");
   const { t } = useTranslation();
 
@@ -109,7 +110,7 @@ export const SignedSessionPage = () => {
                     Le document est en cours de signature
                   </Section>
                   <Button onClick={() => refetchSignedDocument()}>
-                    Raffraichir
+                    Rafraîchir
                   </Button>
                 </div>
 
