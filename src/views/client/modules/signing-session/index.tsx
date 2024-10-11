@@ -16,7 +16,6 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import { TitleBar } from "./components/title-bar";
-import styles from "./index.module.css";
 
 export const SigningSessionPage = () => {
   const navigate = useNavigate();
