@@ -21,7 +21,6 @@ export const SignedSessionPage = () => {
     refetchSigningSession,
     signedDocument,
     refetchSignedDocument,
-    isLoadingSignedDocument,
   } = useSigningSession(sessionID ?? "");
   const { t } = useTranslation();
 
