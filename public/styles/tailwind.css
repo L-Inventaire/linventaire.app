@@ -133,30 +133,30 @@
 }
 
 .dark, .dark-theme {
-  --accent-1: #281c25;
-  --accent-2: #2f232c;
-  --accent-3: #382c35;
-  --accent-4: #3e313b;
-  --accent-5: #443741;
-  --accent-6: #4c3f49;
-  --accent-7: #594b55;
-  --accent-8: #71636d;
-  --accent-9: #fdf2fa;
-  --accent-10: #f4e9f1;
-  --accent-11: #c0b1bc;
-  --accent-12: #f5ebf2;
-  --accent-a1: #f8007906;
-  --accent-a2: #fe68c70e;
-  --accent-a3: #f9a4db19;
-  --accent-a4: #fbafe320;
-  --accent-a5: #fbbce827;
-  --accent-a6: #fdc9ed30;
-  --accent-a7: #fed2ee3f;
-  --accent-a8: #fddef25b;
-  --accent-a9: #fff4fcfd;
-  --accent-a10: #fef3fbf3;
-  --accent-a11: #ffecfab6;
-  --accent-a12: #fef5fbf4;
+  --accent-1: #222222;
+  --accent-2: #2d2d2d;
+  --accent-3: #393939;
+  --accent-4: #3f3f3f;
+  --accent-5: #434343;
+  --accent-6: #4f4f4f;
+  --accent-7: #565656;
+  --accent-8: #707070;
+  --accent-9: #fafafa;
+  --accent-10: #fbfbfb;
+  --accent-11: #fefefe;
+  --accent-12: #ffffff;
+  --accent-a1: #ffffff06;
+  --accent-a2: #ffffff0e;
+  --accent-a3: #ffffff19;
+  --accent-a4: #ffffff20;
+  --accent-a5: #ffffff27;
+  --accent-a6: #ffffff30;
+  --accent-a7: #ffffff3f;
+  --accent-a8: #ffffff5b;
+  --accent-a9: #fffffffd;
+  --accent-a10: #fffffffd;
+  --accent-a11: #fffffff9;
+  --accent-a12: #fffffffd;
   --accent-contrast: #2d1a29;
   --accent-surface: #3b273580;
   --accent-indicator: #fdf2fa;
@@ -1128,10 +1128,6 @@ body :is(.top-full) {
   top: 100%;
 }
 
-body :is(.bottom-7) {
-  bottom: 1.75rem;
-}
-
 body :is(.z-0) {
   z-index: 0;
 }
@@ -1317,6 +1313,11 @@ body :is(.mx-1) {
   margin-right: 0.25rem;
 }
 
+body :is(.mx-1\.5) {
+  margin-left: 0.375rem;
+  margin-right: 0.375rem;
+}
+
 body :is(.mx-2) {
   margin-left: 0.5rem;
   margin-right: 0.5rem;
@@ -1355,16 +1356,6 @@ body :is(.my-6) {
 body :is(.my-8) {
   margin-top: 2rem;
   margin-bottom: 2rem;
-}
-
-body :is(.-mx-1\.5) {
-  margin-left: -0.375rem;
-  margin-right: -0.375rem;
-}
-
-body :is(.mx-1\.5) {
-  margin-left: 0.375rem;
-  margin-right: 0.375rem;
 }
 
 body :is(.\!-ml-0) {
@@ -1425,6 +1416,10 @@ body :is(.-mr-0) {
 
 body :is(.-mr-0\.5) {
   margin-right: -0.125rem;
+}
+
+body :is(.-mr-1) {
+  margin-right: -0.25rem;
 }
 
 body :is(.-mr-px) {
@@ -1573,10 +1568,6 @@ body :is(.mt-8) {
 
 body :is(.mt-px) {
   margin-top: 1px;
-}
-
-body :is(.-mr-1) {
-  margin-right: -0.25rem;
 }
 
 body :is(.box-border) {

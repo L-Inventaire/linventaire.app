@@ -76,7 +76,7 @@ export const EditorInputMentionHelper = () => {
 
   useEffect(() => {
     mentionableUsers = users.map((user) => ({
-      id: user.user_id,
+      id: "mention:" + user.user_id, // mention: is used for backend to find the user to mention
       value: getFullName(user?.user as PublicCustomer),
     }));
   }, [users]);
