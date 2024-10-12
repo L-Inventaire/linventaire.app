@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { ClientsApiClient } from "../api-client/api-client";
 import { ClientsUsers } from "../types/clients";
+import { useClients } from "./use-clients";
 
 export const useClientUsers = (id: string) => {
   const queryClient = useQueryClient();
@@ -52,5 +53,15 @@ export const useClientUsers = (id: string) => {
     remove: remove.mutate,
     update: update.mutate,
     refresh,
+  };
+};
+
+export const useUser = (id: string) => {
+  const { client } = useClients();
+  const { users: _users, loading } = useClientUsers(client?.client_id || "");
+
+  return {
+    loading,
+    user: _users.find((u) => u.user_id === id),
   };
 };

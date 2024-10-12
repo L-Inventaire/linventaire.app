@@ -21,10 +21,58 @@
 
 .editor-input .ql-editor {
   padding: 0 0.25em;
+  line-height: 20px;
+  font-size: 14px;
+}
+
+.editor-input .ql-editor .mention {
+  color: var(--blue-a11);
+  background-color: var(--blue-a3);
+  border-radius: 6px;
+  padding: 0px 2px;
+  padding-bottom: 1px;
+  margin-right: 2px;
+  user-select: all;
+}
+
+.editor-input .ql-mention-list-container {
+  border-radius: var(--radius-4);
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  padding: 4px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: hidden;
+  background-color: var(--base-menu-bg);
+  box-shadow: var(--shadow-5);
+}
+
+.editor-input .ql-mention-list-container .ql-mention-list-item.selected {
+  color: var(--blue-a11);
+  background-color: var(--blue-a3);
+  border-radius: 6px;
+  padding: 0px 4px;
+  padding-bottom: 1px;
+  margin-right: 2px;
+  user-select: all;
+  cursor: pointer;
+}
+
+.editor-input .ql-mention-list-container .ql-mention-list-item.selected:hover {
+  color: var(--blue-a12);
+  background-color: var(--blue-a4);
+}
+
+.editor-input .ql-mention-list-container .ql-mention-list-item:hover {
+  color: var(--gray-a12);
+  background-color: var(--gray-a4);
 }
 
 .editor-input * {
-  font-family: Inter var, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-family: var(--default-font-family);
 }
 
 .editor-input .ql-container {
@@ -67,15 +115,35 @@
 
 .editor-input .ql-toolbar button.ql-active, .editor-input .ql-toolbar button:hover {
   opacity: 1;
-  color: rgb(152, 118, 85);
+  color: #3E63DD;
 }
 
 .editor-input .ql-toolbar button.ql-active .ql-stroke, .editor-input .ql-toolbar button:hover .ql-stroke {
-  stroke: rgb(152, 118, 85);
+  stroke: #3E63DD;
 }
 
 .editor-input .ql-toolbar button.ql-active .ql-fill, .editor-input .ql-toolbar button:hover .ql-fill {
-  fill: rgb(152, 118, 85);
+  fill: #3E63DD;
+}
+
+/* Dark mode */
+.dark {
+  .editor-input .ql-toolbar button.ql-active, .editor-input .ql-toolbar button:hover {
+    opacity: 1;
+    color: #FFFFFF;
+  }
+  
+  .editor-input .ql-toolbar button.ql-active .ql-stroke, .editor-input .ql-toolbar button:hover .ql-stroke {
+    stroke: #FFFFFF;
+  }
+  
+  .editor-input .ql-toolbar button.ql-active .ql-fill, .editor-input .ql-toolbar button:hover .ql-fill {
+    fill: #FFFFFF;
+  }
+
+  .editor-input .ql-editor.ql-blank::before {
+    color: #FFFFFF88;
+  }
 }
 
 .editor-input .ql-toolbar {

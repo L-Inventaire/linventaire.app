@@ -4,7 +4,6 @@ import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { useHasAccess } from "@features/access";
 import { registerRootNavigation } from "@features/ctrlk";
 import { ROUTES, getRoute } from "@features/routes";
-import { DefaultScrollbars } from "@features/utils/scrollbars";
 import { ListBulletIcon } from "@heroicons/react/16/solid";
 import { DocumentIcon, PlusIcon } from "@heroicons/react/24/outline";
 import {
@@ -28,6 +27,7 @@ import { useLocation } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { Account } from "./account";
 import { ResponsiveMenuAtom } from "./header";
+import { ScrollArea } from "@radix-ui/themes";
 
 export const SideBar = () => {
   const { t } = useTranslation();
@@ -42,7 +42,7 @@ export const SideBar = () => {
         (menuOpen ? " translate-x-0 " : " -translate-x-full ")
       }
     >
-      <DefaultScrollbars>
+      <ScrollArea scrollbars="vertical">
         {/* Space for avatar */}
         <div className="h-14 px-2 flex items-center">
           <Account />
@@ -229,7 +229,7 @@ export const SideBar = () => {
 
         {/* Space for logo */}
         <div className="h-2" />
-      </DefaultScrollbars>
+      </ScrollArea>
     </div>
   );
 };

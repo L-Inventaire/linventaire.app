@@ -1,8 +1,8 @@
 import { Button } from "@atoms/button/button";
 import { InputOutlinedDefaultBorders } from "@atoms/styles/inputs";
 import { Section } from "@atoms/text";
-import { DefaultScrollbars } from "@features/utils/scrollbars";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
+import { ScrollArea } from "@radix-ui/themes";
 import { LayoutTitleAtom } from "@views/client/_layout/header";
 import { ErrorBoundary } from "@views/error-boundary";
 import { ReactNode, useEffect, useState } from "react";
@@ -37,9 +37,9 @@ export const Page = (props: {
             {props.bar}
           </div>
         )}
-        <DefaultScrollbars className="p-3 grow">
-          {props.children}
-        </DefaultScrollbars>
+        <ScrollArea className="grow">
+          <div className="p-3">{props.children}</div>
+        </ScrollArea>
         {props.footer && (
           <div className="border-t border-solid border-slate-100 dark:border-slate-700 p-3">
             {props.footer}

@@ -1,17 +1,37 @@
 import { InputOutlinedDefaultBorders } from "@atoms/styles/inputs";
 import { FormContextContext } from "@components/form/formcontext";
-import { useContext, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import ReactQuill from "react-quill";
+import "quill-mention";
+
 import "react-quill/dist/quill.snow.css";
 import { twMerge } from "tailwind-merge";
 import "./index.css";
+import { Mention, MentionBlot } from "../../lib/quill-mentions";
+
+import "quill-mention/autoregister";
+import { useClients } from "@features/clients/state/use-clients";
+import { useClientUsers } from "@features/clients/state/use-client-users";
+import { PublicCustomer } from "@features/customers/types/customers";
+import { getFullName } from "@features/auth/utils";
+
+ReactQuill.Quill.register({
+  "blots/mention": MentionBlot,
+  "modules/mention": Mention,
+});
 
 type EditorInputProps = {
   disabled?: boolean;
   placeholder?: string;
   value?: string;
   onChange?: (e: string) => void;
+  className?: string;
 };
+
+let mentionableUsers: {
+  id: string;
+  value: string;
+}[] = [];
 
 const modules = {
   toolbar: [
@@ -23,6 +43,45 @@ const modules = {
       { indent: "+1" },
     ],
   ],
+  mention: {
+    allowedChars: /^[A-Za-z\sÅÄÖåäö]*$/,
+    mentionDenotationChars: ["@", "#"],
+    source: function (
+      searchTerm: string,
+      renderList: any,
+      mentionChar: string
+    ) {
+      let values: any = [];
+
+      if (mentionChar === "@") {
+        values = mentionableUsers;
+      }
+
+      if (searchTerm.length === 0) {
+        renderList(values, searchTerm);
+      } else {
+        const matches = [];
+        for (let i = 0; i < values.length; i++)
+          if (~values[i].value.toLowerCase().indexOf(searchTerm.toLowerCase()))
+            matches.push(values[i]);
+        renderList(matches, searchTerm);
+      }
+    },
+  },
+};
+
+export const EditorInputMentionHelper = () => {
+  const { client } = useClients();
+  const { users } = useClientUsers(client?.client_id || "");
+
+  useEffect(() => {
+    mentionableUsers = users.map((user) => ({
+      id: user.user_id,
+      value: getFullName(user?.user as PublicCustomer),
+    }));
+  }, [users]);
+
+  return <></>;
 };
 
 export const EditorInput = (props: EditorInputProps) => {
@@ -32,10 +91,12 @@ export const EditorInput = (props: EditorInputProps) => {
   const [focused, setFocused] = useState(false);
 
   const disabled =
-    props.disabled || formContext.disabled || formContext.readonly || false;
+    props.disabled ?? (formContext.disabled || formContext.readonly || false);
 
   const onEditorChange = (value: any) => {
-    props.onChange?.(value);
+    // Test if there is content (remove all html tags)
+    const hasContent = value.replace(/<[^>]+>/g, "").trim().length > 0;
+    props.onChange?.(hasContent ? value : "");
   };
 
   return (
@@ -62,13 +123,14 @@ export const EditorInput = (props: EditorInputProps) => {
       }}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
-      placeholder={props.placeholder || "Cliquer pour ajouter une note"}
+      placeholder={props.placeholder ?? "Cliquer pour ajouter une note"}
       className={twMerge(
         "editor-input",
         disabled && "is-disabled",
         !disabled && "p-2 bg-white dark:bg-slate-950",
         !disabled && InputOutlinedDefaultBorders,
-        focused && "has-focus"
+        focused && "has-focus",
+        props.className
       )}
       theme="snow"
       value={props.value || ""}

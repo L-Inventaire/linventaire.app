@@ -1,10 +1,15 @@
-export type Comments = {
-  client_id: string;
+import { RestEntity } from "@features/utils/rest/types/types";
+
+export type Comments = RestEntity & {
   item_id: string;
-  id: string;
   owner_id: string;
-  created_at: number;
-  edited_at: number;
   content: string;
+  documents: string[];
   type: "event" | "comment";
+  reactions: Reactions[];
 };
+
+class Reactions {
+  reaction = "string";
+  users = ["string"];
+}

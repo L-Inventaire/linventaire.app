@@ -1,11 +1,11 @@
 import { DropDownMenuType, Menu } from "@atoms/dropdown";
 import { useHasAccess } from "@features/access";
+import { ScrollArea } from "@radix-ui/themes";
 import { useLocation } from "react-router-dom";
-import { useSettingsMenu } from "../settings/menu";
-import { useAccountMenu } from "../account/menu";
 import { useRecoilValue } from "recoil";
+import { useAccountMenu } from "../account/menu";
+import { useSettingsMenu } from "../settings/menu";
 import { ResponsiveMenuAtom } from "./header";
-import { DefaultScrollbars } from "@features/utils/scrollbars";
 
 const isPrefix = (location: string, prefix: string) => {
   return (
@@ -48,11 +48,11 @@ export const SecondSideBar = () => {
             : " -translate-x-full ")
         }
       >
-        <DefaultScrollbars>
+        <ScrollArea>
           <div className="p-2">
             <Menu menu={menu} />
           </div>
-        </DefaultScrollbars>
+        </ScrollArea>
       </div>
     </div>
   );
