@@ -1,33 +1,33 @@
-import { FilesInput } from "@components/input-rest/files";
 import { UsersInput } from "@components/input-rest/users";
 import { getAvatarFullUrl, getFullName } from "@features/auth/utils";
-import {
-  useClientUsers,
-  useUser,
-} from "@features/clients/state/use-client-users";
+import { useUser } from "@features/clients/state/use-client-users";
 import { Comments } from "@features/comments/types/types";
 import { PublicCustomer } from "@features/customers/types/customers";
 import {
+  ArchiveBoxArrowDownIcon,
   ArrowUturnLeftIcon,
+  CodeBracketIcon,
   FaceSmileIcon,
-  HandThumbUpIcon,
   PaperAirplaneIcon,
   PaperClipIcon,
+  PencilIcon,
+  TrashIcon,
 } from "@heroicons/react/16/solid";
 import { EditorInput } from "@molecules/editor-input";
 import {
   Avatar,
+  Badge,
   Button,
   Card,
   Heading,
   IconButton,
-  Separator,
   Strong,
   Text,
   Tooltip,
 } from "@radix-ui/themes";
 import { formatDistance } from "date-fns";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
+import { twMerge } from "tailwind-merge";
 
 export const Timeline = ({ entity, id }: { entity: string; id: string }) => {
   return (
@@ -38,7 +38,7 @@ export const Timeline = ({ entity, id }: { entity: string; id: string }) => {
         </Heading>
         <Tooltip content="Subscribe to changes on this document.">
           <Button size="2" variant="ghost">
-            Unsubscribe
+            Subscribe
           </Button>
         </Tooltip>
         <UsersInput
@@ -52,31 +52,14 @@ export const Timeline = ({ entity, id }: { entity: string; id: string }) => {
 
       <div className="mt-3">
         {[1, 1].map((a, i) => (
-          <div className="flex items-center space-x-2 mt-2">
-            <div className="w-6 h-6 relative">
-              <Avatar
-                variant="solid"
-                style={{ backgroundColor: "#FFD700" }}
-                className="w-4 h-4 m-1"
-                radius="full"
-                size="1"
-                src="https://www.gravatar.com/avatar/c1bd974477471c6a0287e3262082a2a7?rating=PG&size=100&default=identicon%202x"
-                fallback="RM"
-              />
-              {i !== 0 && (
-                <div className="absolute bg-slate-100 dark:bg-slate-700 bottom-6 left-0 right-0 mx-auto w-px h-2" />
-              )}
-            </div>
-            <Text size="2" className="text-gray-500">
-              <Strong className="text-black dark:text-white">
-                Romaric Mourgues
-              </Strong>{" "}
-              a créé ce document •{" "}
-              {formatDistance(new Date("2024-10-10"), new Date(), {
-                addSuffix: true,
-              })}
-            </Text>
-          </div>
+          <EventLine
+            comment={{
+              id: "1",
+              content: "Hey, premier mock de commentaire ! 🚀",
+              owner_id: "4b230201-6d25-4be6-9baf-23c13f1bcd9d",
+            }}
+            first={i === 0}
+          />
         ))}
 
         <CommentCard
@@ -86,11 +69,131 @@ export const Timeline = ({ entity, id }: { entity: string; id: string }) => {
             owner_id: "4b230201-6d25-4be6-9baf-23c13f1bcd9d",
           }}
         />
+
+        <EventLine
+          comment={{
+            id: "1",
+            content: "Hey, premier mock de commentaire ! 🚀",
+            owner_id: "system",
+          }}
+          name="Système"
+          icon={(p) => <CodeBracketIcon {...p} />}
+          first
+        />
+        <EventLine
+          comment={{
+            id: "1",
+            content: "Hey, premier mock de commentaire ! 🚀",
+            owner_id: "4b230201-6d25-4be6-9baf-23c13f1bcd9d",
+          }}
+        />
+        <EventLine
+          comment={{
+            id: "1",
+            content: "Hey, premier mock de commentaire ! 🚀",
+            owner_id: "4b230201-6d25-4be6-9baf-23c13f1bcd9d",
+          }}
+          icon={(p) => <PencilIcon {...p} />}
+          message="a modifié le document"
+        />
+        <EventLine
+          comment={{
+            id: "1",
+            content: "Hey, premier mock de commentaire ! 🚀",
+            owner_id: "4b230201-6d25-4be6-9baf-23c13f1bcd9d",
+          }}
+          icon={(p) => (
+            <TrashIcon className={twMerge(p.className, "text-red-500")} />
+          )}
+          message={
+            <>
+              a <Badge color="red">supprimé</Badge> le document
+            </>
+          }
+        />
+        <EventLine
+          comment={{
+            id: "1",
+            content: "Hey, premier mock de commentaire ! 🚀",
+            owner_id: "4b230201-6d25-4be6-9baf-23c13f1bcd9d",
+          }}
+          icon={(p) => (
+            <ArchiveBoxArrowDownIcon
+              className={twMerge(p.className, "text-green-500")}
+            />
+          )}
+          message={
+            <>
+              a <Badge color="green">restauré</Badge> le document
+            </>
+          }
+          first
+        />
+        <EventLine
+          comment={{
+            id: "1",
+            content: "Hey, premier mock de commentaire ! 🚀",
+            owner_id: "4b230201-6d25-4be6-9baf-23c13f1bcd9d",
+          }}
+          icon={(p) => <PencilIcon {...p} />}
+          message="a modifié le document"
+        />
       </div>
-      <div className="mt-4">
+      <div className="mt-6">
         <CommentCreate onComment={() => {}} />
       </div>
     </>
+  );
+};
+
+const EventLine = ({
+  comment,
+  first,
+  message,
+  icon,
+  name,
+}: {
+  comment: Partial<Comments>;
+  first?: boolean;
+  message?: string | ReactNode;
+  icon?: (props: { className: string }) => ReactNode;
+  name?: string;
+}) => {
+  const { user } = useUser(comment.owner_id || "");
+  const fullName =
+    getFullName(user?.user as PublicCustomer) || user?.user?.email || "Unknown";
+  return (
+    <div className="flex items-center space-x-2 mt-3 mx-1.5">
+      <div className="w-6 h-6 relative -mr-1">
+        {!icon && (
+          <Avatar
+            variant="solid"
+            style={{ backgroundColor: "#FFD700" }}
+            className="w-4 h-4 m-1"
+            radius="full"
+            size="1"
+            src={
+              getAvatarFullUrl((user?.user as PublicCustomer)?.avatar) ||
+              undefined
+            }
+            fallback={fullName[0]}
+          />
+        )}
+        {!!icon && icon({ className: "w-4 h-4 m-1 text-gray-500" })}
+        {!first && (
+          <div className="absolute bg-slate-100 dark:bg-slate-700 bottom-6 left-0 right-0 mx-auto w-px h-3" />
+        )}
+      </div>
+      <Text size="2" className="text-gray-500">
+        <Strong truncate className="text-black dark:text-white">
+          {name || fullName}
+        </Strong>{" "}
+        {message || comment?.content} •{" "}
+        {formatDistance(new Date(comment.created_at || 0), new Date(), {
+          addSuffix: true,
+        })}
+      </Text>
+    </div>
   );
 };
 
@@ -99,13 +202,14 @@ const CommentCard = ({ comment }: { comment: Partial<Comments> }) => {
   const fullName =
     getFullName(user?.user as PublicCustomer) || user?.user?.email || "Unknown";
   return (
-    <Card className="mt-2 space-y-2 group/comment">
+    <Card className="mb-2 mt-4 space-y-2 group/comment">
       <div className="w-full flex items-center space-x-2">
-        <div className="w-6 h-6">
+        <div className="w-4 h-4 flex items-start">
           <Avatar
             variant="solid"
             style={{ backgroundColor: "#FFD700" }}
             radius="full"
+            className="w-4 h-4"
             size="1"
             src={
               getAvatarFullUrl((user?.user as PublicCustomer)?.avatar) ||

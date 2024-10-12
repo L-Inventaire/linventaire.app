@@ -1060,6 +1060,10 @@ body :is(.bottom-0) {
   bottom: 0px;
 }
 
+body :is(.bottom-6) {
+  bottom: 1.5rem;
+}
+
 body :is(.left-0) {
   left: 0px;
 }
@@ -1124,24 +1128,8 @@ body :is(.top-full) {
   top: 100%;
 }
 
-body :is(.top-6) {
-  top: 1.5rem;
-}
-
-body :is(.top-7) {
-  top: 1.75rem;
-}
-
-body :is(.top-8) {
-  top: 2rem;
-}
-
-body :is(.right-px) {
-  right: 1px;
-}
-
-body :is(.bottom-6) {
-  bottom: 1.5rem;
+body :is(.bottom-7) {
+  bottom: 1.75rem;
 }
 
 body :is(.z-0) {
@@ -1369,6 +1357,16 @@ body :is(.my-8) {
   margin-bottom: 2rem;
 }
 
+body :is(.-mx-1\.5) {
+  margin-left: -0.375rem;
+  margin-right: -0.375rem;
+}
+
+body :is(.mx-1\.5) {
+  margin-left: 0.375rem;
+  margin-right: 0.375rem;
+}
+
 body :is(.\!-ml-0) {
   margin-left: -0px !important;
 }
@@ -1577,12 +1575,8 @@ body :is(.mt-px) {
   margin-top: 1px;
 }
 
-body :is(.mt-0\.5) {
-  margin-top: 0.125rem;
-}
-
-body :is(.-mt-4) {
-  margin-top: -1rem;
+body :is(.-mr-1) {
+  margin-right: -0.25rem;
 }
 
 body :is(.box-border) {
@@ -1997,12 +1991,12 @@ body :is(.flex-shrink-0) {
   flex-shrink: 0;
 }
 
-body :is(.shrink-0) {
-  flex-shrink: 0;
-}
-
 body :is(.shrink) {
   flex-shrink: 1;
+}
+
+body :is(.shrink-0) {
+  flex-shrink: 0;
 }
 
 body :is(.flex-grow) {
@@ -2076,6 +2070,11 @@ body :is(.translate-y-px) {
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
+body :is(.-rotate-90) {
+  --tw-rotate: -90deg;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
 body :is(.rotate-0) {
   --tw-rotate: 0deg;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
@@ -2083,16 +2082,6 @@ body :is(.rotate-0) {
 
 body :is(.rotate-\[-120deg\]) {
   --tw-rotate: -120deg;
-  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
-}
-
-body :is(.rotate-90) {
-  --tw-rotate: 90deg;
-  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
-}
-
-body :is(.-rotate-90) {
-  --tw-rotate: -90deg;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
@@ -2298,6 +2287,12 @@ body :is(.overflow-visible) {
 
 body :is(.overflow-y-auto) {
   overflow-y: auto;
+}
+
+body :is(.truncate) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 body :is(.text-ellipsis) {
@@ -4567,11 +4562,6 @@ body :is(.hover\:border-slate-200:hover) {
   border-color: rgb(198 198 198 / var(--tw-border-opacity));
 }
 
-body :is(.hover\:border-white:hover) {
-  --tw-border-opacity: 1;
-  border-color: rgb(255 255 255 / var(--tw-border-opacity));
-}
-
 body :is(.hover\:bg-blue-500:hover) {
   --tw-bg-opacity: 1;
   background-color: rgb(59 130 246 / var(--tw-bg-opacity));
@@ -4695,14 +4685,6 @@ body :is(.group:focus-within .group-focus-within\:block) {
   display: block;
 }
 
-body :is(.group\/comment:hover .group-hover\/comment\:visible) {
-  visibility: visible;
-}
-
-body :is(.group\/comment:hover .group-hover\/comment\:block) {
-  display: block;
-}
-
 body :is(.group\/user:hover .group-hover\/user\:translate-y-0) {
   --tw-translate-y: 0px;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
@@ -4733,6 +4715,10 @@ body :is(.group\/checkbox:hover .group-hover\/checkbox\:opacity-100) {
   opacity: 1;
 }
 
+body :is(.group\/comment:hover .group-hover\/comment\:opacity-100) {
+  opacity: 1;
+}
+
 body :is(.group\/invoice-line:hover .group-hover\/invoice-line\:opacity-100) {
   opacity: 1;
 }
@@ -4742,10 +4728,6 @@ body :is(.group\/item:hover .group-hover\/item\:opacity-100) {
 }
 
 body :is(.group\/user:hover .group-hover\/user\:opacity-100) {
-  opacity: 1;
-}
-
-body :is(.group\/comment:hover .group-hover\/comment\:opacity-100) {
   opacity: 1;
 }
 
@@ -5837,6 +5819,10 @@ body :is(.dark\:bg-slate-990:where(.dark, .dark *)) {
   background-color: rgb(0 0 0 / var(--tw-bg-opacity));
 }
 
+body :is(.dark\:bg-transparent:where(.dark, .dark *)) {
+  background-color: transparent;
+}
+
 body :is(.dark\:bg-white:where(.dark, .dark *)) {
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
@@ -5890,10 +5876,6 @@ body :is(.dark\:bg-yellow-800:where(.dark, .dark *)) {
 body :is(.dark\:bg-yellow-900:where(.dark, .dark *)) {
   --tw-bg-opacity: 1;
   background-color: rgb(113 63 18 / var(--tw-bg-opacity));
-}
-
-body :is(.dark\:bg-transparent:where(.dark, .dark *)) {
-  background-color: transparent;
 }
 
 body :is(.dark\:bg-opacity-10:where(.dark, .dark *)) {
