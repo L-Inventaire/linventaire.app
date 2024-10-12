@@ -6,4 +6,12 @@ const Keys = {
   DOWN: "ArrowDown",
 };
 
-export {Keys};
+const KeysCodes = {
+  TAB: 9,
+  ENTER: 13,
+  ESCAPE: 27,
+  UP: 38,
+  DOWN: 40,
+};
+
+export { Keys, KeysCodes };

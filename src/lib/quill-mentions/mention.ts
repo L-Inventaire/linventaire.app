@@ -1,5 +1,5 @@
 import Quill from "quill";
-import { Keys } from "./constants";
+import { Keys, KeysCodes } from "./constants";
 import {
   attachDataValues,
   getMentionCharIndex,
@@ -325,11 +325,9 @@ export class Mention extends Module<MentionOption> {
       this.selectHandler.bind(this)
     );
 
-    if (quill.keyboard.bindings[Keys.TAB]) {
-      quill.keyboard.bindings[Keys.TAB].unshift(
-        quill.keyboard.bindings[Keys.TAB].pop()!
-      );
-    }
+    quill.keyboard.bindings[KeysCodes.TAB].unshift(
+      quill.keyboard.bindings[KeysCodes.TAB].pop()!
+    );
 
     for (let selectKey of this.options.selectKeys ?? []) {
       quill.keyboard.addBinding(
@@ -339,11 +337,9 @@ export class Mention extends Module<MentionOption> {
         this.selectHandler.bind(this)
       );
     }
-    if (quill.keyboard.bindings[Keys.ENTER]) {
-      quill.keyboard.bindings[Keys.ENTER].unshift(
-        quill.keyboard.bindings[Keys.ENTER].pop()!
-      );
-    }
+    quill.keyboard.bindings[KeysCodes.ENTER].unshift(
+      quill.keyboard.bindings[KeysCodes.ENTER].pop()!
+    );
 
     quill.keyboard.addBinding(
       {

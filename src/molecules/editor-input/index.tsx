@@ -1,19 +1,19 @@
 import { InputOutlinedDefaultBorders } from "@atoms/styles/inputs";
 import { FormContextContext } from "@components/form/formcontext";
+import "quill-mention";
 import { useContext, useEffect, useRef, useState } from "react";
 import ReactQuill from "react-quill";
-import "quill-mention";
 
 import "react-quill/dist/quill.snow.css";
 import { twMerge } from "tailwind-merge";
-import "./index.css";
 import { Mention, MentionBlot } from "../../lib/quill-mentions";
+import "./index.css";
 
-import "quill-mention/autoregister";
-import { useClients } from "@features/clients/state/use-clients";
-import { useClientUsers } from "@features/clients/state/use-client-users";
-import { PublicCustomer } from "@features/customers/types/customers";
 import { getFullName } from "@features/auth/utils";
+import { useClientUsers } from "@features/clients/state/use-client-users";
+import { useClients } from "@features/clients/state/use-clients";
+import { PublicCustomer } from "@features/customers/types/customers";
+import "quill-mention/autoregister";
 
 ReactQuill.Quill.register({
   "blots/mention": MentionBlot,
