@@ -14,6 +14,8 @@ import {
 import { useSetRecoilState } from "recoil";
 import { getPdfPreview } from "../../invoices-preview/invoices-preview";
 import { InvoiceSendModalAtom } from "../modal-send";
+import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
+import { AccountingTransactions } from "@features/accounting/types/types";
 
 export const InvoicesActions = ({
   id,
@@ -31,6 +33,8 @@ export const InvoicesActions = ({
   );
   const disabled =
     readonly || draft.state === "closed" || draft.state === "completed";
+
+  const edit = useEditFromCtrlK();
 
   return (
     <>
@@ -113,6 +117,14 @@ export const InvoicesActions = ({
             disabled={disabled}
             size="lg"
             icon={(p) => <CheckIcon {...p} />}
+            onClick={() => {
+              edit<AccountingTransactions>("accounting_transactions", "", {
+                rel_invoices: [draft.id],
+                currency: draft.currency,
+                amount: draft.total?.total_with_taxes || 0,
+                reference: draft.reference,
+              });
+            }}
           >
             Enregistrer un paiement
           </Button>
