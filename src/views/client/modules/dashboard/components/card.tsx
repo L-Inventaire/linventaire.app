@@ -4,7 +4,7 @@ import React from "react";
 import { twMerge } from "tailwind-merge";
 
 type DashboardCardProps = {
-  title: string;
+  title?: string;
   icon?: (p: any) => React.ReactNode;
 } & React.ComponentProps<"div">;
 
@@ -22,13 +22,15 @@ const DashboardCard = ({
       )}
       {..._.omit(props, "className")}
     >
-      <div className="flex w-full justify-between items-center">
-        <Section className="font-normal m-0">{title}</Section>
-        {icon &&
-          icon({
-            className: "h-4 w-4 opacity-80 shrink-0",
-          })}
-      </div>
+      {(title || icon) && (
+        <div className="flex w-full justify-between items-center">
+          {title && <Section className="font-normal m-0">{title}</Section>}
+          {icon &&
+            icon({
+              className: "h-4 w-4 opacity-80 shrink-0",
+            })}
+        </div>
+      )}
 
       {children}
     </div>

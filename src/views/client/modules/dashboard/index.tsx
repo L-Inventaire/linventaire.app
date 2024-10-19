@@ -45,67 +45,63 @@ export const DashboardHomePage = () => {
             tableProps={{
               className: "grid-cols-[1fr_2fr_1fr]",
             }}
-            items={[
-              ...statistics.almostLateDeliveriesEntities,
-              ...statistics.almostLateDeliveriesEntities,
-              ...statistics.almostLateDeliveriesEntities,
-              ...statistics.almostLateDeliveriesEntities,
-              ...statistics.almostLateDeliveriesEntities,
-            ].flatMap((quote, index) => {
-              return [
-                {
-                  row: index,
-                  column: "delivery",
-                  label: formatTime(
-                    computeDeliveryDelayDate(quote).toJSDate(),
-                    {
-                      hideTime: true,
-                    }
-                  ),
-                  props: {
-                    onClick: () => {
-                      navigate(
-                        getRoute(ROUTES.InvoicesView, {
-                          client: clientId,
-                          id: quote.id,
-                        })
-                      );
+            items={statistics.almostLateDeliveriesEntities.flatMap(
+              (quote, index) => {
+                return [
+                  {
+                    row: index,
+                    column: "delivery",
+                    label: formatTime(
+                      computeDeliveryDelayDate(quote).toJSDate(),
+                      {
+                        hideTime: true,
+                      }
+                    ),
+                    props: {
+                      onClick: () => {
+                        navigate(
+                          getRoute(ROUTES.InvoicesView, {
+                            client: clientId,
+                            id: quote.id,
+                          })
+                        );
+                      },
                     },
                   },
-                },
-                {
-                  row: index,
-                  column: "quote",
-                  label: quote.reference,
-                  props: {
-                    onClick: () => {
-                      navigate(
-                        getRoute(ROUTES.InvoicesView, {
-                          client: clientId,
-                          id: quote.id,
-                        })
-                      );
+                  {
+                    row: index,
+                    column: "quote",
+                    label: quote.reference,
+                    props: {
+                      onClick: () => {
+                        navigate(
+                          getRoute(ROUTES.InvoicesView, {
+                            client: clientId,
+                            id: quote.id,
+                          })
+                        );
+                      },
                     },
                   },
-                },
-                {
-                  row: index,
-                  column: "amount",
-                  label: formatAmount(quote.total?.total_with_taxes ?? 0),
-                  props: {
-                    className: "flex justify-end",
-                    onClick: () => {
-                      navigate(
-                        getRoute(ROUTES.InvoicesView, {
-                          client: clientId,
-                          id: quote.id,
-                        })
-                      );
+                  {
+                    row: index,
+                    column: "amount",
+                    label: formatAmount(quote.total?.total_with_taxes ?? 0),
+                    props: {
+                      className: "flex justify-end",
+                      onClick: () => {
+                        navigate(
+                          getRoute(ROUTES.InvoicesView, {
+                            client: clientId,
+                            id: quote.id,
+                          })
+                        );
+                      },
                     },
                   },
-                },
-              ];
-            })}
+                ];
+              }
+            )}
             columns={[
               { label: "Livraison le", value: "delivery" },
               { label: "Devis", value: "quote" },

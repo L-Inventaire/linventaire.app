@@ -1,4 +1,4 @@
-import { Base, Info, Title } from "@atoms/text";
+import { Base, Info, Section, Title } from "@atoms/text";
 import { useStatistics } from "@features/statistics/hooks";
 import { formatAmount } from "@features/utils/format/strings";
 import React from "react";
@@ -13,11 +13,11 @@ const AccountingCard = ({ ...props }: AccountingCardProps) => {
 
   return (
     <DashboardCard
-      title="Bénéfices"
       {...props}
       className={twMerge("flex flex-col justify-between", props.className)}
     >
       <div className="flex flex-col">
+        <Section className="font-normal m-0">Bénéfices</Section>
         <div className="flex flex-col w-full items-end mt-3">
           <Title className="text-green-600">
             {formatAmount(statistics.totalRevenue ?? 0)}

@@ -39,7 +39,7 @@ const TableCard = ({
     >
       <div
         className={twMerge(
-          "grid w-full mt-2 overflow-y-auto h-[calc(100%-2rem)]",
+          "grid w-full mt-2 overflow-y-auto",
           "grid-cols-" + (columns?.length ?? 1),
           tableProps?.className
         )}
