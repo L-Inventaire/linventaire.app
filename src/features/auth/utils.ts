@@ -2,7 +2,7 @@ import environment from "@config/environment";
 import { Customer, PublicCustomer } from "@features/customers/types/customers";
 
 export const getFullName = (user: Customer | PublicCustomer) => {
-  return user.full_name;
+  return user?.full_name;
 };
 
 export const getAvatarFullUrl = (src?: string) => {

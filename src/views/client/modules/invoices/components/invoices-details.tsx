@@ -45,6 +45,7 @@ import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-ca
 import { InvoiceStatus } from "./invoice-status";
 import { RelatedInvoices } from "./related-invoices";
 import { TagPaymentCompletion } from "./tag-payment-completion";
+import { Timeline } from "@molecules/timeline";
 
 export const computeStockCompletion = (
   linesu: Invoices["content"],
@@ -613,12 +614,9 @@ export const InvoicesDetailsPage = ({
                     )}
                   </div>
                 </div>
-                {false && (
-                  <div className="mt-8">
-                    <Section className="mb-2">Discussion</Section>
-                    <div className="space-y-2 mt-2">TODO</div>
-                  </div>
-                )}
+                <br />
+                <br />
+                <Timeline entity="invoices" id={draft.id} />
               </>
             )}
             <br />

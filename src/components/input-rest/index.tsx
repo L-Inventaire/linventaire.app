@@ -56,7 +56,9 @@ export const RestDocumentsInput = <T extends RestEntity>(
   const edit = useEditFromCtrlK();
   const size = props.size || "md";
   const disabled =
-    props.disabled || formContext.disabled || formContext.readonly || false;
+    props.disabled === undefined
+      ? formContext.disabled || formContext.readonly
+      : props.disabled || false;
   const value = props.ctrl?.value || props.value;
 
   const { items } = useRest<T>(props.entity, {
