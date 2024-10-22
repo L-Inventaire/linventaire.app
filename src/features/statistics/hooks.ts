@@ -11,9 +11,12 @@ import { Invoices } from "@features/invoices/types/types";
 
 const blankStatistics: Statistics = {
   totalRevenue: 0,
+  revenue: 0,
   revenueStats: [],
   totalExpenses: 0,
+  expenses: 0,
   benefits: 0,
+  totalBenefits: 0,
   stockEntries: 0,
   stockExits: 0,
   signedQuotes: 0,
@@ -22,6 +25,13 @@ const blankStatistics: Statistics = {
   sentInvoices: 0,
   sentPurchaseOrders: 0,
   almostLateDeliveries: [],
+  totalStockEntries: 0,
+  totalStockExits: 0,
+  totalSignedQuotes: 0,
+  totalSentQuotes: 0,
+  totalPaidInvoices: 0,
+  totalSentInvoices: 0,
+  totalSentPurchaseOrders: 0,
 };
 
 export const useStatistics = (
@@ -109,7 +119,6 @@ export const useStatistics = (
     ];
 
     let weekDates: string[] = [cursor.toISODate() ?? ""];
-
 
     while (allowedMonths.includes(cursor.month)) {
       cursor = cursor.plus({ weeks: 1 });

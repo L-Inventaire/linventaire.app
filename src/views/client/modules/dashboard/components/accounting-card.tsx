@@ -20,16 +20,16 @@ const AccountingCard = ({ ...props }: AccountingCardProps) => {
         <Section className="font-normal m-0">Bénéfices</Section>
         <div className="flex flex-col w-full items-end mt-3">
           <Title className="text-green-600">
-            {formatAmount(statistics.totalRevenue ?? 0)}
+            {formatAmount(statistics.revenue ?? 0)}
           </Title>
-          <Info>sur 1.500.305€</Info>
+          <Info>sur {formatAmount(statistics.totalRevenue ?? 0)}</Info>
         </div>
         <Base className="-mt-1 -mb-1 text-gray-500">-</Base>
         <div className="flex flex-col w-full items-end">
           <Title className="text-red-600">
-            {formatAmount(statistics.totalExpenses ?? 0)}
+            {formatAmount(statistics.expenses ?? 0)}
           </Title>
-          <Info>sur 1.500.305€</Info>
+          <Info>sur {formatAmount(statistics.totalExpenses ?? 0)}</Info>
         </div>
       </div>
 
@@ -39,7 +39,7 @@ const AccountingCard = ({ ...props }: AccountingCardProps) => {
         <Base className="text-gray-500">=</Base>
         <div className="flex flex-col items-end h-1/3">
           <Title className="">{formatAmount(statistics.benefits ?? 0)}</Title>
-          <Info>sur 1.500.305€</Info>
+          <Info>sur {formatAmount(statistics.totalBenefits ?? 0)}</Info>
         </div>
       </div>
     </DashboardCard>

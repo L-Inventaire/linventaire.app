@@ -155,44 +155,44 @@ export const DashboardHomePage = () => {
           <NumberCard
             title="Devis signés"
             number={statistics.signedQuotes ?? 0}
-            totalNumber={434}
+            totalNumber={statistics.totalSignedQuotes ?? 0}
             icon={(props) => <ClipboardIcon {...props} />}
           />
           <NumberCard
             title="Devis envoyés"
             number={statistics.sentQuotes ?? 0}
-            totalNumber={434}
+            totalNumber={statistics.totalSentQuotes ?? 0}
             icon={(props) => <AtSymbolIcon {...props} />}
           />
           <NumberCard
             title="Factures payées"
             number={statistics.paidInvoices ?? 0}
-            totalNumber={434}
+            totalNumber={statistics.totalPaidInvoices ?? 0}
             icon={(props) => <BanknotesIcon {...props} />}
           />
           <NumberCard
             title="Factures envoyées"
             number={statistics.sentInvoices ?? 0}
-            totalNumber={434}
+            totalNumber={statistics.totalSentInvoices ?? 0}
             icon={(props) => <AtSymbolIcon {...props} />}
           />
           <NumberCard
             title="Entrées stock"
             number={statistics.stockEntries ?? 0}
-            totalNumber={434}
+            totalNumber={statistics.totalStockEntries ?? 0}
             icon={(props) => <ArrowTurnRightDownIcon {...props} />}
           />
           <NumberCard
             title="Sorties stock"
             number={statistics.stockExits ?? 0}
-            totalNumber={434}
+            totalNumber={statistics.totalStockExits ?? 0}
             icon={(props) => <ArrowTurnRightUpIcon {...props} />}
           />
           <NumberCard
             title="Commandes envoyées"
             className="lg:col-span-2"
             number={statistics.sentPurchaseOrders ?? 0}
-            totalNumber={434}
+            totalNumber={statistics.totalSentPurchaseOrders ?? 0}
             icon={(props) => <AtSymbolIcon {...props} />}
           />
         </div>
