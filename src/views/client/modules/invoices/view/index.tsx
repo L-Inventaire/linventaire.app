@@ -10,17 +10,30 @@ import { useParams } from "react-router-dom";
 import { InvoicesDetailsPage } from "../components/invoices-details";
 import { getPdfPreview } from "../components/invoices-preview/invoices-preview";
 import { InvoiceActions } from "../components/invoice-actions";
+import { NotFound } from "@atoms/not-found/not-found";
 
 export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
   const { invoice, isPending } = useInvoice(id || "");
 
-  if (!invoice)
+  if (!invoice && isPending)
     return (
       <div className="flex justify-center items-center h-full w-full dark:bg-slate-990 bg-white">
         <PageLoader />
       </div>
     );
+
+  if (!invoice && !isPending) {
+    return (
+      <div className="flex justify-center items-center h-full w-full dark:bg-slate-990 bg-white">
+        <NotFound />
+      </div>
+    );
+  }
+
+  if (!invoice) {
+    return <></>;
+  }
 
   return (
     <Page
