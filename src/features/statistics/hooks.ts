@@ -48,14 +48,29 @@ export const useStatistics = (
     enabled: !!clientID,
   });
 
-  const { invoices: almostLateDeliveries } = useInvoices({
-    query: generateQueryFromMap({
-      id:
-        isErrorResponse(statistics.data ?? {}) || !statistics?.data
-          ? []
-          : (statistics?.data as Statistics)?.almostLateDeliveries || [],
-    }),
-  });
+  const noAlmostLateDeliveries =
+    isErrorResponse(statistics.data ?? {}) ||
+    !statistics?.data ||
+    (!isErrorResponse(statistics.data ?? {}) &&
+      ((statistics?.data as Statistics)?.almostLateDeliveries ?? [])?.length ===
+        0);
+
+  const { invoices: almostLateDeliveries } = useInvoices(
+    noAlmostLateDeliveries
+      ? {
+          query: [
+            {
+              key: "id",
+              values: [{ op: "equals", value: "#" }],
+            },
+          ],
+        }
+      : {
+          query: generateQueryFromMap({
+            id: (statistics?.data as Statistics)?.almostLateDeliveries || [],
+          }),
+        }
+  );
 
   if (!statistics?.data) {
     return {
