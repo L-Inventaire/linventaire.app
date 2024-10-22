@@ -17,10 +17,14 @@ import LineChart from "./components/line-chart";
 import NumberCard from "./components/number-card";
 import TableCard from "./components/table-card";
 import { getRoute, ROUTES } from "@features/routes";
+import { Title } from "@atoms/text";
+import { Button } from "@atoms/button/button";
+import { useState } from "react";
 
 export const DashboardHomePage = () => {
   const { client: clientId } = useParams();
-  const statistics = useStatistics(clientId);
+  const [period, setPeriod] = useState<"week" | "month" | "year">("year");
+  const statistics = useStatistics(clientId, period);
 
   const navigate = useNavigate();
 
@@ -31,12 +35,42 @@ export const DashboardHomePage = () => {
           label: "Tableau de bord",
         },
       ]}
-      className={"h-full"}
     >
-      <div className="flex lg:h-full flex-col lg:flex-row">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_250px_1fr_250px] lg:grid-rows-[calc(50%-5px)_calc(50%-5px)] w-full lg:w-2/3 lg:h-[89vh] gap-[10px] mr-[10px]">
-          <div className="w-full min-h-128 lg:h-full lg:col-span-3">
-            <LineChart />
+      <div className="flex items-center mb-6 ml-3 mt-3">
+        <Title>Dashboard</Title>
+        <div className="w-[1px] min-h-1 h-full bg-slate-200 mx-6">‎</div>
+        <Button
+          theme={period === "week" ? "secondary" : "outlined"}
+          className="mr-1"
+          onClick={() => {
+            setPeriod("week");
+          }}
+        >
+          Semaine
+        </Button>
+        <Button
+          theme={period === "month" ? "secondary" : "outlined"}
+          className="mr-1"
+          onClick={() => {
+            setPeriod("month");
+          }}
+        >
+          Mois
+        </Button>
+        <Button
+          theme={period === "year" ? "secondary" : "outlined"}
+          className="mr-1"
+          onClick={() => {
+            setPeriod("year");
+          }}
+        >
+          Année
+        </Button>
+      </div>
+      <div className="flex h-full flex-col lg:flex-row px-3">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_250px_1fr_250px] lg:grid-rows-[calc(50%-5px)_calc(50%-5px)] w-full lg:w-2/3 gap-[10px] mr-[10px]">
+          <div className="w-full min-h-64 lg:h-full lg:col-span-3">
+            <LineChart period={period} />
           </div>
           <AccountingCard className={"min-h-64"}></AccountingCard>
           <TableCard

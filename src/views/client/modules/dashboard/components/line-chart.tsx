@@ -1,12 +1,22 @@
+import { Info } from "@atoms/text";
 import { useStatistics } from "@features/statistics/hooks";
 import { ResponsiveLine } from "@nivo/line";
 import { useParams } from "react-router-dom";
 
-type LineChartProps = {};
+type LineChartProps = {
+  period: "week" | "month" | "year";
+};
 
-const LineChart = ({ ...props }: LineChartProps) => {
+const LineChart = ({ period, ...props }: LineChartProps) => {
   const { client: clientId } = useParams();
-  const { formattedData } = useStatistics(clientId);
+  const { formattedData } = useStatistics(clientId, period);
+
+  if (!formattedData || formattedData.length === 0)
+    return (
+      <div className="flex justify-center items-center h-full">
+        <Info>No data</Info>
+      </div>
+    );
 
   return (
     <ResponsiveLine

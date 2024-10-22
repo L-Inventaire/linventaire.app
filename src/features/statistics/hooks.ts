@@ -1,6 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { StatisticsApiClient } from "./api-client/api-client";
-import { isErrorResponse } from "@features/utils/rest/types/types";
+import {
+  isErrorResponse,
+  StandardResponse,
+} from "@features/utils/rest/types/types";
 import { DateTime } from "luxon";
 import { useInvoices } from "@features/invoices/hooks/use-invoices";
 import { generateQueryFromMap } from "@components/search-bar/utils/utils";
@@ -9,46 +12,42 @@ import { Invoices } from "@features/invoices/types/types";
 const blankStatistics: Statistics = {
   totalRevenue: 0,
   revenueStats: [],
-  totalExpenses: null,
-  benefits: null,
-  stockEntries: null,
-  stockExits: null,
-  signedQuotes: null,
-  sentQuotes: null,
-  paidInvoices: null,
-  sentInvoices: null,
-  sentPurchaseOrders: null,
-  almostLateDeliveries: null,
+  totalExpenses: 0,
+  benefits: 0,
+  stockEntries: 0,
+  stockExits: 0,
+  signedQuotes: 0,
+  sentQuotes: 0,
+  paidInvoices: 0,
+  sentInvoices: 0,
+  sentPurchaseOrders: 0,
+  almostLateDeliveries: [],
 };
 
 export const useStatistics = (
-  clientID: string | undefined | null
+  clientID: string | undefined | null,
+  period: string = "year"
 ): Statistics & {
   formattedData: any;
   almostLateDeliveriesEntities: Invoices[];
 } => {
   const statistics = useQuery({
-    queryKey: ["statistics", clientID],
-    queryFn: () => StatisticsApiClient.getStatistics(clientID!),
+    queryKey: ["statistics", clientID, period ?? "year"],
+    queryFn: () =>
+      StatisticsApiClient.getStatistics(clientID!, period ?? "year"),
     enabled: !!clientID,
   });
 
   const { invoices: almostLateDeliveries } = useInvoices({
     query: generateQueryFromMap({
-      id: isErrorResponse(statistics.data ?? {})
-        ? []
-        : (statistics.data as Statistics)?.almostLateDeliveries || [],
+      id:
+        isErrorResponse(statistics.data ?? {}) || !statistics?.data
+          ? []
+          : (statistics?.data as Statistics)?.almostLateDeliveries || [],
     }),
   });
 
-  if (!statistics.data)
-    return {
-      ...blankStatistics,
-      formattedData: [],
-      almostLateDeliveriesEntities: [],
-    };
-
-  if (isErrorResponse(statistics.data)) {
+  if (!statistics?.data) {
     return {
       ...blankStatistics,
       formattedData: [],
@@ -56,27 +55,105 @@ export const useStatistics = (
     };
   }
 
-  const locale = navigator.language;
-  const stats = statistics.data.revenueStats;
+  if (isErrorResponse(statistics.data ?? {})) {
+    return {
+      ...blankStatistics,
+      formattedData: [],
+      almostLateDeliveriesEntities: [],
+    };
+  }
 
-  const formattedData = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(
-    (monthNumber) => {
+  const statisticsData = statistics.data as StandardResponse<Statistics>;
+
+  const locale = navigator.language;
+  const stats = statisticsData.revenueStats;
+
+  let formattedData: {
+    x: string;
+    y: string;
+  }[] = [];
+
+  if (period === "year" && stats.length > 0) {
+    formattedData = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(
+      (monthNumber) => {
+        const foundStat = stats.find(
+          (item) =>
+            DateTime.fromISO(item.date).setZone("utc").month === monthNumber
+        );
+        const monthDate = DateTime.local()
+          .set({ month: monthNumber })
+          .setLocale(locale);
+
+        return {
+          x: monthDate.monthShort,
+          y: (foundStat?.net_amount || 0) + " €",
+        };
+      }
+    );
+  }
+
+  if (period === "month" && stats.length > 0) {
+    const firstDate = DateTime.fromISO(stats[0]?.date).setZone("utc");
+
+    let cursor = DateTime.fromISO(stats[0]?.date)
+      .setZone("utc")
+      // Some weeks start on previous month
+      .plus({ days: 3 })
+      .startOf("month")
+      .startOf("week");
+
+    const allowedMonths = [
+      cursor.month,
+      firstDate.month,
+      firstDate.plus({ days: 3 }).month,
+    ];
+
+    let weekDates: string[] = [cursor.toISODate() ?? ""];
+
+
+    while (allowedMonths.includes(cursor.month)) {
+      cursor = cursor.plus({ weeks: 1 });
+      if (!allowedMonths.includes(cursor.month)) break;
+      weekDates.push(cursor.toISODate() ?? "");
+    }
+
+    formattedData = weekDates.map((weekDate) => {
+      const date = DateTime.fromISO(weekDate ?? "now");
       const foundStat = stats.find(
-        (item) => DateTime.fromISO(item.date).month === monthNumber
+        (item) => DateTime.fromISO(item.date).weekNumber === date.weekNumber
       );
-      const monthDate = DateTime.local()
-        .set({ month: monthNumber })
+      const localeDate = DateTime.local()
+        .set({ weekNumber: date.weekNumber })
         .setLocale(locale);
 
       return {
-        x: monthDate.monthShort,
+        x: "W" + localeDate.weekNumber.toString(),
         y: (foundStat?.net_amount || 0) + " €",
       };
-    }
-  );
+    });
+  }
+
+  if (period === "week" && stats.length > 0) {
+    formattedData = [1, 2, 3, 4, 5, 6, 7].map((dayNumber) => {
+      const foundStat = stats.find(
+        (item) =>
+          DateTime.fromISO(item.date).setZone("utc").weekday === dayNumber
+      );
+
+      const firstDay = DateTime.fromISO(stats[0]?.date)
+        .setZone("utc")
+        .startOf("week");
+      const dayDate = firstDay.plus({ days: dayNumber - 1 }).setLocale(locale);
+
+      return {
+        x: dayDate.weekdayShort ?? "err.",
+        y: (foundStat?.net_amount || 0) + " €",
+      };
+    });
+  }
 
   return {
-    ...statistics.data,
+    ...statisticsData,
     formattedData,
     almostLateDeliveriesEntities: almostLateDeliveries?.data?.list ?? [],
   };

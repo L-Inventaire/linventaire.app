@@ -4,9 +4,16 @@ import { StandardOrErrorResponse } from "@features/utils/rest/types/types";
 
 export class StatisticsApiClient {
   static getStatistics = async (
-    clientID: string
+    clientID: string,
+    period: string = "year"
   ): Promise<StandardOrErrorResponse<Statistics>> => {
-    const response = await fetchServer(`/api/statistics/v1/${clientID}/all`, {
+    let uri = `/api/statistics/v1/${clientID}/all`;
+
+    if (period) {
+      uri += "?period=" + period;
+    }
+
+    const response = await fetchServer(uri.toString(), {
       method: "GET",
     });
 
