@@ -25,6 +25,7 @@ const blankStatistics: Statistics = {
   sentInvoices: 0,
   sentPurchaseOrders: 0,
   almostLateDeliveries: [],
+  almostLatePayments: [],
   totalStockEntries: 0,
   totalStockExits: 0,
   totalSignedQuotes: 0,
@@ -40,6 +41,7 @@ export const useStatistics = (
 ): Statistics & {
   formattedData: any;
   almostLateDeliveriesEntities: Invoices[];
+  almostLatePaymentsEntities: Invoices[];
 } => {
   const statistics = useQuery({
     queryKey: ["statistics", clientID, period ?? "year"],
@@ -48,11 +50,19 @@ export const useStatistics = (
     enabled: !!clientID,
   });
 
+  const noStatistics =
+    isErrorResponse(statistics.data ?? {}) || !statistics?.data;
+
   const noAlmostLateDeliveries =
-    isErrorResponse(statistics.data ?? {}) ||
-    !statistics?.data ||
+    noStatistics ||
     (!isErrorResponse(statistics.data ?? {}) &&
       ((statistics?.data as Statistics)?.almostLateDeliveries ?? [])?.length ===
+        0);
+
+  const noAlmostLatePayments =
+    noStatistics ||
+    (!isErrorResponse(statistics.data ?? {}) &&
+      ((statistics?.data as Statistics)?.almostLatePayments ?? [])?.length ===
         0);
 
   const { invoices: almostLateDeliveries } = useInvoices(
@@ -72,11 +82,29 @@ export const useStatistics = (
         }
   );
 
+  const { invoices: almostLatePayments } = useInvoices(
+    noAlmostLatePayments
+      ? {
+          query: [
+            {
+              key: "id",
+              values: [{ op: "equals", value: "#" }],
+            },
+          ],
+        }
+      : {
+          query: generateQueryFromMap({
+            id: (statistics?.data as Statistics)?.almostLatePayments || [],
+          }),
+        }
+  );
+
   if (!statistics?.data) {
     return {
       ...blankStatistics,
       formattedData: [],
       almostLateDeliveriesEntities: [],
+      almostLatePaymentsEntities: [],
     };
   }
 
@@ -85,6 +113,7 @@ export const useStatistics = (
       ...blankStatistics,
       formattedData: [],
       almostLateDeliveriesEntities: [],
+      almostLatePaymentsEntities: [],
     };
   }
 
@@ -180,5 +209,6 @@ export const useStatistics = (
     ...statisticsData,
     formattedData,
     almostLateDeliveriesEntities: almostLateDeliveries?.data?.list ?? [],
+    almostLatePaymentsEntities: almostLatePayments?.data?.list ?? [],
   };
 };

@@ -1,3 +1,6 @@
+import { Button } from "@atoms/button/button";
+import { Title } from "@atoms/text";
+import { getRoute, ROUTES } from "@features/routes";
 import { useStatistics } from "@features/statistics/hooks";
 import { formatTime } from "@features/utils/format/dates";
 import { formatAmount } from "@features/utils/format/strings";
@@ -9,17 +12,13 @@ import {
   ClipboardIcon,
 } from "@heroicons/react/24/outline";
 import { Page } from "@views/client/_layout/page";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { computeDeliveryDelayDate } from "../invoices/utils";
 import AccountingCard from "./components/accounting-card";
-import DashboardCard from "./components/card";
 import LineChart from "./components/line-chart";
 import NumberCard from "./components/number-card";
 import TableCard from "./components/table-card";
-import { getRoute, ROUTES } from "@features/routes";
-import { Title } from "@atoms/text";
-import { Button } from "@atoms/button/button";
-import { useState } from "react";
 
 export const DashboardHomePage = () => {
   const { client: clientId } = useParams();
@@ -146,10 +145,76 @@ export const DashboardHomePage = () => {
               },
             ]}
           />
-          <DashboardCard
+          <TableCard
             title="Paiements bientôt en retard"
             className="lg:col-span-2"
-          ></DashboardCard>
+            tableProps={{
+              className: "grid-cols-[1fr_2fr_1fr]",
+            }}
+            items={statistics.almostLatePaymentsEntities.flatMap(
+              (quote, index) => {
+                return [
+                  {
+                    row: index,
+                    column: "delivery",
+                    label: formatTime(quote.payment_information.computed_date, {
+                      hideTime: true,
+                    }),
+                    props: {
+                      onClick: () => {
+                        navigate(
+                          getRoute(ROUTES.InvoicesView, {
+                            client: clientId,
+                            id: quote.id,
+                          })
+                        );
+                      },
+                    },
+                  },
+                  {
+                    row: index,
+                    column: "quote",
+                    label: quote.reference,
+                    props: {
+                      onClick: () => {
+                        navigate(
+                          getRoute(ROUTES.InvoicesView, {
+                            client: clientId,
+                            id: quote.id,
+                          })
+                        );
+                      },
+                    },
+                  },
+                  {
+                    row: index,
+                    column: "amount",
+                    label: formatAmount(quote.total?.total_with_taxes ?? 0),
+                    props: {
+                      className: "flex justify-end",
+                      onClick: () => {
+                        navigate(
+                          getRoute(ROUTES.InvoicesView, {
+                            client: clientId,
+                            id: quote.id,
+                          })
+                        );
+                      },
+                    },
+                  },
+                ];
+              }
+            )}
+            columns={[
+              { label: "Paiement le", value: "delivery" },
+              { label: "Facture", value: "quote" },
+              {
+                label: "Montant",
+                value: "amount",
+                props: { className: "flex justify-end" },
+              },
+            ]}
+          />
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 flex-grow gap-[10px]">
           <NumberCard

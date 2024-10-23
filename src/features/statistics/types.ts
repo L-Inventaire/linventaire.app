@@ -24,4 +24,5 @@ type Statistics = {
   sentPurchaseOrders: number | null;
   totalSentPurchaseOrders: number | null;
   almostLateDeliveries: string[] | null;
+  almostLatePayments: string[] | null;
 };
