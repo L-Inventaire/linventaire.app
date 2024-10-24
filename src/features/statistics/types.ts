@@ -1,4 +1,4 @@
-type Statistics = {
+type _Statistics = {
   totalRevenue: number;
   revenue: number;
   revenueStats: {
