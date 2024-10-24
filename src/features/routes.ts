@@ -53,6 +53,7 @@ export const ROUTES = {
 
   Invoices: "/:client/i/:type",
   InvoicesView: "/:client/i/all/:id",
+  InvoicesViewNew: "/:client/i/all/:id/new",
   InvoicesEdit: "/:client/i/all/:id/form",
 
   Receipts: "/:client/deliveries",

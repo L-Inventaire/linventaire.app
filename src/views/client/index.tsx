@@ -51,6 +51,7 @@ import { PreferencesPage } from "./settings/preferences";
 import { StockLocationsPage } from "./settings/stock-locations";
 import { TagsPage } from "./settings/tags";
 import { CompanyUsersPage } from "./settings/users";
+import { NewInvoicesViewPage } from "./modules/invoices/view/new-view";
 
 export const BackOfficeRoutes = () => {
   return (
@@ -104,6 +105,11 @@ export const BackOfficeRoutes = () => {
 
         <Route path={ROUTES.Invoices} element={<InvoicesPage />} />
         <Route path={ROUTES.InvoicesView} element={<InvoicesViewPage />} />
+        <Route
+          path={ROUTES.InvoicesViewNew}
+          element={<NewInvoicesViewPage />}
+        />
+
         <Route path={ROUTES.InvoicesEdit} element={<InvoicesEditPage />} />
 
         <Route
