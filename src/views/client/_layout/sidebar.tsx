@@ -23,17 +23,21 @@ import {
   ViewColumnsIcon,
 } from "@heroicons/react/24/solid";
 import { useTranslation } from "react-i18next";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { Account } from "./account";
 import { ResponsiveMenuAtom } from "./header";
 import { ScrollArea } from "@radix-ui/themes";
+import { useStatistics } from "@features/statistics/hooks";
 
 export const SideBar = () => {
   const { t } = useTranslation();
+  const { client: clientId } = useParams();
   const hasAccess = useHasAccess();
   const menuOpen = useRecoilValue(ResponsiveMenuAtom);
   const location = useLocation();
+
+  const statistics = useStatistics(clientId, "year");
 
   return (
     <div
@@ -88,6 +92,11 @@ export const SideBar = () => {
               to={getRoute(ROUTES.Invoices, { type: "quotes" })}
               label={t("menu.quotes")}
               icon={(p) => <DocumentIcon {...p} />}
+              badge={
+                (statistics?.almostLateDeliveries?.length ?? 0) > 0
+                  ? statistics?.almostLateDeliveries?.length.toString()
+                  : undefined
+              }
             />
             <SideMenuItem
               to={getRoute(ROUTES.Invoices, { type: "invoices" })}
@@ -98,6 +107,11 @@ export const SideBar = () => {
                   getRoute(ROUTES.Invoices, { type: "invoices" })
                 ) === 0 &&
                 location.search.indexOf("subscription_enabled%3A1") === -1
+              }
+              badge={
+                (statistics?.almostLatePayments?.length ?? 0) > 0
+                  ? statistics?.almostLateDeliveries?.length.toString()
+                  : undefined
               }
             />
             <SideMenuItem
@@ -240,12 +254,14 @@ const SideMenuItem = ({
   icon,
   active,
   show,
+  badge,
 }: {
   to: string;
   label: string;
   icon: (p: any) => React.ReactNode;
   active?: boolean;
   show?: boolean;
+  badge?: string;
 }) => {
   if (show !== false) {
     registerRootNavigation({
@@ -255,6 +271,13 @@ const SideMenuItem = ({
     });
   }
   return (
-    <MenuItem to={to} label={label} icon={icon} active={active} show={show} />
+    <MenuItem
+      to={to}
+      label={label}
+      icon={icon}
+      active={active}
+      show={show}
+      badge={badge}
+    />
   );
 };
