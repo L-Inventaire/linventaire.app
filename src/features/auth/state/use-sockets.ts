@@ -41,8 +41,17 @@ export const useWebsockets = () => {
             queryClient.invalidateQueries({
               queryKey: invalidated,
             });
-            if (doc.client_id && doc.doc_table && doc.doc_id) {
-              refreshHistory(doc.client_id, doc.doc_table, doc.doc_id);
+            if (
+              doc.doc_pk?.client_id &&
+              doc.doc_table &&
+              doc.doc_pk?.id &&
+              doc.doc_table !== "comments"
+            ) {
+              refreshHistory(
+                doc.doc_pk?.client_id,
+                doc.doc_table,
+                doc.doc_pk?.id
+              ).catch(console.log);
             }
           }
         }
