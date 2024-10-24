@@ -10,9 +10,12 @@ export const AccountingTransactionsViewPage = (_props: {
   readonly?: boolean;
 }) => {
   const { id } = useParams();
-  const { accounting_transaction: item, isPending } = useAccountingTransaction(
-    id || ""
-  );
+  const {
+    accounting_transaction: item,
+    restore,
+    remove,
+    isPending,
+  } = useAccountingTransaction(id || "");
 
   if (!item)
     return (
@@ -40,6 +43,12 @@ export const AccountingTransactionsViewPage = (_props: {
           editRoute={ROUTES.AccountingEdit}
           prefix={<></>}
           suffix={<></>}
+          onRemove={
+            item?.id ? async () => remove.mutateAsync(item?.id) : undefined
+          }
+          onRestore={
+            item?.id ? async () => restore.mutateAsync(item?.id) : undefined
+          }
         />
       }
     >

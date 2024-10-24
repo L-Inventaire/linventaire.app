@@ -1,5 +1,6 @@
 export type RestEntity = {
   id: string;
+  is_deleted: boolean;
   client_id: string;
   revisions: number;
   created_at: string; // Stringified timestamp in ms

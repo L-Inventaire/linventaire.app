@@ -31,7 +31,7 @@ export const ModalEditor = (props: { index: number }) => {
 
   const schema = useRestSchema(currentState.options?.entity || "");
 
-  const { draft, save, isInitiating } = useDraftRest(
+  const { draft, save, isInitiating, remove, restore } = useDraftRest(
     currentState.options?.entity || "",
     currentState.options?.id || "new",
     async (item: RestEntity) => {
@@ -84,6 +84,8 @@ export const ModalEditor = (props: { index: number }) => {
             onSave={async () => {
               await save();
             }}
+            onRemove={draft.id ? remove : undefined}
+            onRestore={draft.id ? restore : undefined}
           />
         </div>
         <Scrollbars>

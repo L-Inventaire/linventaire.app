@@ -5,13 +5,13 @@ import { Contacts } from "@features/contacts/types/types";
 import { ROUTES, getRoute } from "@features/routes";
 import { useNavigateAlt } from "@features/utils/navigate";
 import { PencilIcon } from "@heroicons/react/24/outline";
+import { EditorInput } from "@molecules/editor-input";
 import { Table } from "@molecules/table";
-import { PageBlock } from "@views/client/_layout/page";
+import { Heading } from "@radix-ui/themes";
+import _ from "lodash";
 import { useEffect } from "react";
 import { useSetRecoilState } from "recoil";
 import { ContactRelationModalAtom } from "./relations-modal";
-import _ from "lodash";
-import { EditorInput } from "@molecules/editor-input";
 
 export const RelationsInput = ({
   id,
@@ -44,41 +44,40 @@ export const RelationsInput = ({
   const openRelationsModal = useSetRecoilState(ContactRelationModalAtom);
 
   return (
-    <PageBlock
-      closable
-      title="Relations"
-      actions={
-        <>
-          {!readonly && (
-            <Button
-              size="sm"
-              onClick={() =>
-                openRelationsModal({
-                  open: true,
-                  contact: {
-                    parents: value[0],
-                    parents_roles: value[1],
-                  },
-                  relationId: "",
-                  onRelationChange: (contactId, relation) => {
-                    if (relation) {
-                      onChange([...value[0], contactId], {
-                        ...value[1],
-                        [contactId]: relation,
-                      });
-                    }
-                  },
-                })
-              }
-            >
-              Ajouter une relation
-            </Button>
-          )}
-        </>
-      }
-    >
+    <div>
+      <Heading size="4" className="grow">
+        Relations
+        {!readonly && (
+          <Button
+            className="float-right"
+            size="sm"
+            onClick={() =>
+              openRelationsModal({
+                open: true,
+                contact: {
+                  parents: value[0],
+                  parents_roles: value[1],
+                },
+                relationId: "",
+                onRelationChange: (contactId, relation) => {
+                  if (relation) {
+                    onChange([...value[0], contactId], {
+                      ...value[1],
+                      [contactId]: relation,
+                    });
+                  }
+                },
+              })
+            }
+          >
+            Ajouter une relation
+          </Button>
+        )}
+      </Heading>
+
       <div className="space-y-4 mt-4">
         <Table
+          border
           data={relations?.data?.list || []}
           columns={[
             ...ContactsColumns.filter(
@@ -152,6 +151,6 @@ export const RelationsInput = ({
           }
         />
       </div>
-    </PageBlock>
+    </div>
   );
 };

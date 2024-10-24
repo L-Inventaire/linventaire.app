@@ -2,6 +2,7 @@ import _ from "lodash";
 import { ReactNode, useCallback, useEffect, useState } from "react";
 import "./index.scss";
 import { Column, Pagination, RenderOptions, RenderedTable } from "./table";
+import { twMerge } from "tailwind-merge";
 
 export type TablePropsType<T> = {
   name?: string;
@@ -15,6 +16,7 @@ export type TablePropsType<T> = {
   grid?: boolean;
   cellClassName?: (row: T) => string;
   className?: string;
+  border?: boolean;
   loading?: boolean;
   onRequestData?: (pagination: Pagination) => Promise<void>;
   onFetchExportData?: (pagination: Pagination) => Promise<any[]>;
@@ -64,6 +66,7 @@ export function Grid<T>(
 }
 
 export function Table<T>({
+  border,
   name,
   columns,
   data,
@@ -133,7 +136,10 @@ export function Table<T>({
       loading={loading || internalLoading}
       grid={grid}
       cellClassName={cellClassName}
-      className={className}
+      className={twMerge(
+        border && "border border-slate-50 dark:border-slate-700 rounded-md ",
+        className
+      )}
       onFetchExportData={onFetchExportData}
       checkboxAlwaysVisible={checkboxAlwaysVisible}
       onChangeOrder={(columnIndex, direction) => {

@@ -24,6 +24,7 @@ import { useEffect } from "react";
 import { ContactAccountingAccount } from "./contact-accounting-account";
 import { RelatedInvoicesInput } from "./related-invoices-input";
 import { RelationsInput } from "./relations-input";
+import { Timeline } from "@molecules/timeline";
 
 export const ContactsDetailsPage = ({
   readonly,
@@ -80,7 +81,7 @@ export const ContactsDetailsPage = ({
     <>
       <FormContext readonly={readonly} alwaysVisible>
         <PageColumns>
-          <div className="grow">
+          <div className="grow space-y-6">
             <PageBlock closable title="Général">
               <div className="space-y-2">
                 <FormContext size="md">
@@ -279,20 +280,10 @@ export const ContactsDetailsPage = ({
               }}
             />
             <RelatedInvoicesInput id={contact.id} />
-
-            {false && readonly && (
-              <PageBlock title="Commentaires">
-                <Info>Bientôt disponible</Info>
-              </PageBlock>
-            )}
-            {false && readonly && (
-              <PageBlock title="Revisions">
-                <Info>Bientôt disponible</Info>
-              </PageBlock>
-            )}
+            <Timeline entity={"contacts"} id={contact.id} />
           </div>
           <div className="grow lg:max-w-xl">
-            {id && (contact.is_client || contact.is_supplier) && (
+            {false && id && (contact.is_client || contact.is_supplier) && (
               <PageBlock closable title="Comptabilité">
                 {contact.is_client && (
                   <ContactAccountingAccount type="client" contactId={id} />

@@ -14,7 +14,7 @@ import { NotFound } from "@atoms/not-found/not-found";
 
 export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
-  const { invoice, isPending } = useInvoice(id || "");
+  const { invoice, isPending, remove, restore } = useInvoice(id || "");
 
   if (!invoice && isPending)
     return (
@@ -54,6 +54,16 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
           backRoute={getRoute(ROUTES.Invoices, { type: invoice.type })}
           editRoute={ROUTES.InvoicesEdit}
           onPrint={async () => getPdfPreview(invoice)}
+          onRemove={
+            invoice?.id && invoice?.state === "draft"
+              ? async () => remove.mutateAsync(invoice?.id)
+              : undefined
+          }
+          onRestore={
+            invoice?.id
+              ? async () => restore.mutateAsync(invoice?.id)
+              : undefined
+          }
           suffix={
             <>
               {invoice.type === "quotes" && (

@@ -13,7 +13,7 @@ export const useServiceTimes = (options?: RestOptions<ServiceTimes>) => {
 };
 
 export const useServiceTime = (id: string) => {
-  const rest = useServiceTimes({ query: { id } });
+  const rest = useServiceTimes({ id });
   return {
     service_time: id ? (rest.service_times.data?.list || [])[0] : null,
     isPending: id ? rest.service_times.isPending : false,

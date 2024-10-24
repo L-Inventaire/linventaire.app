@@ -2,6 +2,7 @@ import { Select } from "@radix-ui/themes";
 import { TFunction, useTranslation } from "react-i18next";
 
 /** An input to select a unit and functions to convert them */
+// This is present in backend, keep in sync
 export const supportedUnits = {
   general: ["unit"],
   time: ["min", "h", "d", "w", "mo", "y"],
@@ -61,6 +62,7 @@ export const isConvertable = (from: string, to: string) => {
   );
 };
 
+// This function is also in backend and should be kept in sync
 export const convertUnit = (value: number, from: string, to: string) => {
   if (from === to) return value;
   if (from === "unit" || to === "unit") return value;

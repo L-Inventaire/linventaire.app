@@ -8,7 +8,12 @@ import { StockItemsDetailsPage } from "../components/stock-item-details";
 
 export const StockItemsViewPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
-  const { stock_item: item, isPending } = useStockItem(id || "");
+  const {
+    stock_item: item,
+    isPending,
+    remove,
+    restore,
+  } = useStockItem(id || "");
 
   if (!item)
     return (
@@ -33,6 +38,12 @@ export const StockItemsViewPage = (_props: { readonly?: boolean }) => {
           editRoute={ROUTES.StockEdit}
           prefix={<></>}
           suffix={<></>}
+          onRemove={
+            item?.id ? async () => remove.mutateAsync(item?.id) : undefined
+          }
+          onRestore={
+            item?.id ? async () => restore.mutateAsync(item?.id) : undefined
+          }
         />
       }
     >

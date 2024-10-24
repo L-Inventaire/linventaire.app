@@ -34,7 +34,7 @@ export const Timeline = ({ entity, id }: { entity: string; id: string }) => {
     <>
       <div className="flex items-center space-x-2">
         <Heading size="4" className="grow">
-          Activité
+          Activity
         </Heading>
         <Tooltip content="Subscribe to changes on this document.">
           <Button size="2" variant="ghost">
@@ -51,32 +51,33 @@ export const Timeline = ({ entity, id }: { entity: string; id: string }) => {
       </div>
 
       <div className="mt-3">
-        {[1, 1].map((a, i) => (
-          <EventLine
-            comment={{
-              id: "1",
-              content: "Hey, premier mock de commentaire ! 🚀",
-              owner_id: "4b230201-6d25-4be6-9baf-23c13f1bcd9d",
-            }}
-            first={i === 0}
-          />
-        ))}
+        <EventLine
+          comment={{
+            id: "1",
+            content: "created this document",
+            owner_id: "4b230201-6d25-4be6-9baf-23c13f1bcd9d",
+            created_at: (Date.now() - 1000 * 60 * 60) as any,
+          }}
+          first
+        />
 
         <CommentCard
           comment={{
             id: "1",
-            content: "Hey, premier mock de commentaire ! 🚀",
+            content: "Hey all, first comments on this timeline! 🚀",
             owner_id: "4b230201-6d25-4be6-9baf-23c13f1bcd9d",
+            created_at: (Date.now() - 1000 * 60 * 54) as any,
           }}
         />
 
         <EventLine
           comment={{
             id: "1",
-            content: "Hey, premier mock de commentaire ! 🚀",
+            content: "webhook sent",
             owner_id: "system",
+            created_at: (Date.now() - 1000 * 60 * 45) as any,
           }}
-          name="Système"
+          name="System"
           icon={(p) => <CodeBracketIcon {...p} />}
           first
         />
@@ -85,29 +86,24 @@ export const Timeline = ({ entity, id }: { entity: string; id: string }) => {
             id: "1",
             content: "Hey, premier mock de commentaire ! 🚀",
             owner_id: "4b230201-6d25-4be6-9baf-23c13f1bcd9d",
-          }}
-        />
-        <EventLine
-          comment={{
-            id: "1",
-            content: "Hey, premier mock de commentaire ! 🚀",
-            owner_id: "4b230201-6d25-4be6-9baf-23c13f1bcd9d",
+            created_at: (Date.now() - 1000 * 60 * 30) as any,
           }}
           icon={(p) => <PencilIcon {...p} />}
-          message="a modifié le document"
+          message="updated the document"
         />
         <EventLine
           comment={{
             id: "1",
             content: "Hey, premier mock de commentaire ! 🚀",
             owner_id: "4b230201-6d25-4be6-9baf-23c13f1bcd9d",
+            created_at: (Date.now() - 1000 * 60 * 15) as any,
           }}
           icon={(p) => (
             <TrashIcon className={twMerge(p.className, "text-red-500")} />
           )}
           message={
             <>
-              a <Badge color="red">supprimé</Badge> le document
+              <Badge color="red">deleted</Badge> this document
             </>
           }
         />
@@ -116,6 +112,7 @@ export const Timeline = ({ entity, id }: { entity: string; id: string }) => {
             id: "1",
             content: "Hey, premier mock de commentaire ! 🚀",
             owner_id: "4b230201-6d25-4be6-9baf-23c13f1bcd9d",
+            created_at: (Date.now() - 1000 * 60 * 5) as any,
           }}
           icon={(p) => (
             <ArchiveBoxArrowDownIcon
@@ -124,7 +121,7 @@ export const Timeline = ({ entity, id }: { entity: string; id: string }) => {
           )}
           message={
             <>
-              a <Badge color="green">restauré</Badge> le document
+              <Badge color="green">restored</Badge> this document
             </>
           }
           first
@@ -134,9 +131,10 @@ export const Timeline = ({ entity, id }: { entity: string; id: string }) => {
             id: "1",
             content: "Hey, premier mock de commentaire ! 🚀",
             owner_id: "4b230201-6d25-4be6-9baf-23c13f1bcd9d",
+            created_at: Date.now() as any,
           }}
           icon={(p) => <PencilIcon {...p} />}
-          message="a modifié le document"
+          message="updated the document"
         />
       </div>
       <div className="mt-6">
@@ -262,7 +260,7 @@ const CommentCreate = (props: {
         value={comment}
         onChange={setComment}
         className="border-none bg-transparent dark:bg-transparent p-0"
-        placeholder="Ajouter un commentaire..."
+        placeholder="Leave a comment..."
       />
       <div className="flex items-center space-x-2">
         <div className="grow" />

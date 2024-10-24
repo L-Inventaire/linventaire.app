@@ -17,6 +17,10 @@ export type RestSearchQuery = {
 };
 
 export type RestOptions<T> = {
+  //Use when selecting a specific object
+  id?: string;
+
+  // For search
   query?: RestSearchQuery[] | Partial<T>;
   limit?: number;
   offset?: number;
@@ -95,10 +99,15 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
     staleTime: 1000 * 60 * 5, // 5 minutes
     queryFn:
       options?.queryFn ||
-      (() =>
+      (async () =>
         options?.limit === 0
           ? { total: 0, list: [] }
-          : restApiClient.list(
+          : options?.id
+          ? await (async () => {
+              const tmp = await restApiClient.get(id || "", options!.id!);
+              return { total: 1, list: [tmp] };
+            })()
+          : await restApiClient.list(
               id || "",
               options?.query,
               _.omit(options, "query")
@@ -113,6 +122,15 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
 
   const remove = useMutation({
     mutationFn: (itemId: string) => restApiClient.delete(id || "", itemId),
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: [table, id],
+      });
+    },
+  });
+
+  const restore = useMutation({
+    mutationFn: (itemId: string) => restApiClient.restore(id || "", itemId),
     onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: [table, id],
@@ -151,7 +169,7 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
     },
   });
 
-  return { refresh, items, remove, create, update, upsert };
+  return { refresh, items, remove, restore, create, update, upsert };
 };
 
 export const useRestSchema = (table: string) => {

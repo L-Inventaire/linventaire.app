@@ -1,3 +1,4 @@
+import { Heading } from "@radix-ui/themes";
 import _ from "lodash";
 import { ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
@@ -31,11 +32,17 @@ export const Title = (props: TypedTextProps) =>
 export const Subtitle = (props: TypedTextProps) =>
   Text({ type: "subtitle", ...props });
 
-export const Section = (props: TypedTextProps) =>
-  Text({ type: "section", ...props });
+export const Section = (props: TypedTextProps) => (
+  <Heading size="4" {..._.pick(props, "className", "onClick", "style")}>
+    {props.children}
+  </Heading>
+);
 
-export const SectionSmall = (props: TypedTextProps) =>
-  Text({ type: "section-small", ...props });
+export const SectionSmall = (props: TypedTextProps) => (
+  <Heading size="2" {..._.pick(props, "className", "onClick", "style")}>
+    {props.children}
+  </Heading>
+);
 
 export const Menu = (props: TypedTextProps) => Text({ type: "menu", ...props });
 
