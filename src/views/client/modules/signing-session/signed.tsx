@@ -106,7 +106,9 @@ export const SignedSessionPage = () => {
                 <div className="flex items-center justify-center mb-6">
                   <Loader className="mr-2" />
                   <Section className="m-0 mr-2 font-normal">
-                    Le document est en cours de signature
+                    Merci, la signature du document prendra quelque temps. Vous
+                    pouvez fermer cette page, le document signé vous sera envoyé
+                    par email
                   </Section>
                   <Button onClick={() => refetchSignedDocument()}>
                     Rafraîchir
