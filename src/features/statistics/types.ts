@@ -1,4 +1,4 @@
-type _Statistics = {
+export type Statistics = {
   totalRevenue: number;
   revenue: number;
   revenueStats: {
