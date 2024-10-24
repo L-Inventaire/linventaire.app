@@ -1,8 +1,8 @@
 import { RestEntity } from "@features/utils/rest/types/types";
 
 export type Comments = RestEntity & {
+  item_entity: string;
   item_id: string;
-  owner_id: string;
   content: string;
   documents: string[];
   type: "event" | "comment";

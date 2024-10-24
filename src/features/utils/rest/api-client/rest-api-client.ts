@@ -76,12 +76,19 @@ export class RestApiClient<T> {
   };
 
   create = async (clientId: string, item: Partial<T>): Promise<T> => {
-    return await (
-      await fetchServer(`/api/rest/v1/${clientId}/${this.table}`, {
+    const resp = await await fetchServer(
+      `/api/rest/v1/${clientId}/${this.table}`,
+      {
         method: "POST",
         body: JSON.stringify(item),
-      })
-    ).json();
+      }
+    );
+
+    if (resp.status !== 200) {
+      throw new Error("Error updating data");
+    }
+
+    return resp.json();
   };
 
   update = async (
@@ -89,15 +96,19 @@ export class RestApiClient<T> {
     item: Partial<T>,
     id?: string
   ): Promise<T> => {
-    return await (
-      await fetchServer(
-        `/api/rest/v1/${clientId}/${this.table}/${(item as any).id || id}`,
-        {
-          method: "PUT",
-          body: JSON.stringify(item),
-        }
-      )
-    ).json();
+    const resp = await await fetchServer(
+      `/api/rest/v1/${clientId}/${this.table}/${(item as any).id || id}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(item),
+      }
+    );
+
+    if (resp.status !== 200) {
+      throw new Error("Error updating data");
+    }
+
+    return resp.json();
   };
 
   delete = async (clientId: string, id: string): Promise<void> => {

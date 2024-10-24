@@ -6,12 +6,14 @@ import { io, Socket } from "socket.io-client";
 import { AuthJWT } from "../jwt";
 import { useAuth } from "./use-auth";
 import { queryClient } from "../../../index";
+import { useRefreshRestHistory } from "@features/utils/rest/hooks/use-history";
 
 let socket: Socket<DefaultEventsMap, DefaultEventsMap> | null = null;
 
 export const useWebsockets = () => {
   const { user } = useAuth();
   const { clients } = useClients();
+  const refreshHistory = useRefreshRestHistory();
 
   useEffect(() => {
     if (user?.id) {
@@ -39,6 +41,9 @@ export const useWebsockets = () => {
             queryClient.invalidateQueries({
               queryKey: invalidated,
             });
+            if (doc.client_id && doc.doc_table && doc.doc_id) {
+              refreshHistory(doc.client_id, doc.doc_table, doc.doc_id);
+            }
           }
         }
       });
