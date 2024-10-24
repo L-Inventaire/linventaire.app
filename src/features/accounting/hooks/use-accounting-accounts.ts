@@ -15,7 +15,7 @@ export const useAccountingAccounts = (
 };
 
 export const useAccountingAccount = (id: string) => {
-  const rest = useAccountingAccounts({ query: { id } });
+  const rest = useAccountingAccounts({ id });
   return {
     accounting_transaction: id
       ? (rest.accounting_accounts.data?.list || [])[0]

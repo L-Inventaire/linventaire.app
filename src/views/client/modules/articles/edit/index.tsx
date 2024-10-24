@@ -23,6 +23,8 @@ export const ArticlesEditPage = (_props: { readonly?: boolean }) => {
     draft: article,
     save,
     isInitiating,
+    remove,
+    restore,
   } = useDraftRest<Articles>(
     "articles",
     id || "new",
@@ -48,6 +50,8 @@ export const ArticlesEditPage = (_props: { readonly?: boolean }) => {
           backRoute={ROUTES.Products}
           viewRoute={ROUTES.ProductsView}
           prefix={<span>Créer un article</span>}
+          onRemove={article.id ? remove : undefined}
+          onRestore={article.id ? restore : undefined}
         />
       }
     >

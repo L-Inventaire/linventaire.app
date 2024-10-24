@@ -27,6 +27,7 @@ import { ServiceItemStatus } from "./service-item-status";
 import { Contacts } from "@features/contacts/types/types";
 import { Unit } from "@atoms/input/input-unit";
 import { useInvoice } from "@features/invoices/hooks/use-invoices";
+import { Timeline } from "@molecules/timeline";
 
 export const ServiceItemsDetailsPage = ({
   readonly,
@@ -211,6 +212,10 @@ export const ServiceItemsDetailsPage = ({
             data={otherServiceItems}
             columns={[{ title: "id", render: (i) => i.id }]}
           />
+        </div>
+
+        <div className="mt-8">
+          <Timeline entity="service_items" id={draft.id} />
         </div>
       </FormContext>
     </div>

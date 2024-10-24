@@ -124,6 +124,7 @@ export const Button = (props: ButtonProps) => {
             variant={variant}
             onClick={onClick}
             disabled={disabled}
+            data-tooltip={tooltip}
           >
             {props.icon && props.icon({ className: "w-4 h-4 shrink-0" })}
           </IconButton>
@@ -137,6 +138,7 @@ export const Button = (props: ButtonProps) => {
             variant={variant}
             onClick={onClick}
             disabled={disabled}
+            data-tooltip={tooltip}
           >
             {props.icon && (
               <Spinner loading={loading || false}>

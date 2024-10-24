@@ -20,6 +20,7 @@ import { ArrowRightIcon } from "@heroicons/react/16/solid";
 import { EditorInput } from "@molecules/editor-input";
 import { useEffect } from "react";
 import { InvoiceRestDocument } from "../../invoices/components/invoice-lines-input/invoice-input-rest-card";
+import { Timeline } from "@molecules/timeline";
 
 export const AccountingTransactionsDetailsPage = ({
   readonly,
@@ -189,7 +190,7 @@ export const AccountingTransactionsDetailsPage = ({
               "supplier_invoices",
               "supplier_credit_notes",
             ] as any,
-            state: ["partial_paid", "sent"] as any,
+            state: ["sent"] as any,
           }}
         />
 
@@ -225,6 +226,10 @@ export const AccountingTransactionsDetailsPage = ({
               />
             )}
           </div>
+        </div>
+
+        <div className="mt-8">
+          <Timeline entity="accounting_transactions" id={draft.id} />
         </div>
       </FormContext>
     </div>

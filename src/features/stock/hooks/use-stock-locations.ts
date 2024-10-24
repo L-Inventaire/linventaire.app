@@ -13,7 +13,7 @@ export const useStockLocations = (options?: RestOptions<StockLocations>) => {
 };
 
 export const useStockLocation = (id: string) => {
-  const rest = useStockLocations({ query: { id } });
+  const rest = useStockLocations({ id });
   return {
     stock_location: id ? (rest.stock_locations.data?.list || [])[0] : null,
     isPending: id ? rest.stock_locations.isPending : false,

@@ -229,7 +229,7 @@ export class Mention extends Module<MentionOption> {
     mentionListClass: "ql-mention-list",
     spaceAfterInsert: true,
     selectKeys: [Keys.ENTER],
-    source: (searchTerm, renderList, mentionChar) => {
+    source: (searchTerm, renderList) => {
       renderList(
         [] as {
           id: string;

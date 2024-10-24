@@ -27,14 +27,15 @@ export const ServiceItemsEditPage = (_props: { readonly?: boolean }) => {
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as ServiceItems;
 
-  const { isInitiating, save } = useDraftRest<ServiceItems>(
-    "service_items",
-    id || "new",
-    async (item) => {
-      navigate(getRoute(ROUTES.ServiceItemsView, { id: item.id }));
-    },
-    _.omit(_.merge(defaultModel, initialModel), "reference") as ServiceItems
-  );
+  const { isInitiating, save, draft, remove, restore } =
+    useDraftRest<ServiceItems>(
+      "service_items",
+      id || "new",
+      async (item) => {
+        navigate(getRoute(ROUTES.ServiceItemsView, { id: item.id }));
+      },
+      _.omit(_.merge(defaultModel, initialModel), "reference") as ServiceItems
+    );
 
   return (
     <Page
@@ -52,6 +53,8 @@ export const ServiceItemsEditPage = (_props: { readonly?: boolean }) => {
           backRoute={ROUTES.ServiceItems}
           viewRoute={ROUTES.ServiceItemsView}
           editRoute={ROUTES.ServiceItemsEdit}
+          onRemove={draft.id ? remove : undefined}
+          onRestore={draft.id ? restore : undefined}
         />
       }
     >

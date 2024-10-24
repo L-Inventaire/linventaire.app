@@ -12,7 +12,7 @@ import {
   ChevronUpIcon,
 } from "@heroicons/react/20/solid";
 import {
-  ClockIcon,
+  ArchiveBoxArrowDownIcon,
   DocumentDuplicateIcon,
   EllipsisHorizontalIcon,
   LinkIcon,
@@ -20,6 +20,7 @@ import {
   PrinterIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
+import { Badge } from "@radix-ui/themes";
 import _ from "lodash";
 import { useEffect } from "react";
 import { useSetRecoilState } from "recoil";
@@ -48,6 +49,7 @@ export const DocumentBar = ({
   onPrint?: () => Promise<void>;
   onSave?: () => Promise<any>;
   onRemove?: () => Promise<void>;
+  onRestore?: () => Promise<void>;
 }) => {
   const setMenu = useSetRecoilState(DropDownAtom);
 
@@ -121,6 +123,22 @@ export const DocumentBar = ({
         <>
           {prefix}
           <div className="grow" />
+          {document.is_deleted && (
+            <>
+              <Badge color="red" size="2">
+                Document supprimé
+              </Badge>
+              {props?.onRestore && (
+                <Button
+                  data-tooltip="Restaurer"
+                  size="xs"
+                  theme="invisible"
+                  icon={(p) => <ArchiveBoxArrowDownIcon {...p} />}
+                  onClick={() => props.onRestore?.()}
+                />
+              )}
+            </>
+          )}
           {props.editRoute && (
             <Button
               data-tooltip="Dupliquer"
@@ -162,15 +180,7 @@ export const DocumentBar = ({
               onClick={props.onPrint}
             />
           )}
-          {false && (
-            <Button
-              data-tooltip="Historique"
-              size="xs"
-              theme="invisible"
-              icon={(p) => <ClockIcon {...p} />}
-            />
-          )}
-          {mode === "read" && (
+          {!document.is_deleted && mode === "read" && (
             <Button
               data-tooltip="Modifier"
               size="xs"
@@ -182,7 +192,7 @@ export const DocumentBar = ({
               icon={(p) => <PencilSquareIcon {...p} />}
             />
           )}
-          {!!actionMenu.length && (
+          {!document.is_deleted && !!actionMenu.length && (
             <Button
               size="xs"
               theme="invisible"
@@ -196,7 +206,7 @@ export const DocumentBar = ({
               }}
             />
           )}
-          {mode === "write" && (
+          {!document.is_deleted && mode === "write" && (
             <>
               <Button size="sm" theme="outlined" onClick={cancel}>
                 Annuler
@@ -206,7 +216,7 @@ export const DocumentBar = ({
               </Button>
             </>
           )}
-          {suffix}
+          {!document.is_deleted && suffix}
         </>
       )}
     </div>

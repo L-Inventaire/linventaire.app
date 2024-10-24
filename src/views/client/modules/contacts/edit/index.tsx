@@ -19,7 +19,7 @@ export const ContactsEditPage = (_props: { readonly?: boolean }) => {
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as Contacts;
 
-  const { isInitiating, save } = useDraftRest<Contacts>(
+  const { isInitiating, save, draft, remove, restore } = useDraftRest<Contacts>(
     "contacts",
     id || "new",
     async (item) => {
@@ -44,6 +44,8 @@ export const ContactsEditPage = (_props: { readonly?: boolean }) => {
           backRoute={ROUTES.Contacts}
           viewRoute={ROUTES.ContactsView}
           prefix={<span>Créer un contact</span>}
+          onRemove={draft.id ? remove : undefined}
+          onRestore={draft.id ? restore : undefined}
         />
       }
     >

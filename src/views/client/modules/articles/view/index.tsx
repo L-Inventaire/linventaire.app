@@ -7,7 +7,7 @@ import { ArticlesDetailsPage } from "../components/article-details";
 
 export const ArticlesViewPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
-  const { article, isPending } = useArticle(id || "");
+  const { article, isPending, remove, restore } = useArticle(id || "");
 
   return (
     <Page
@@ -23,6 +23,16 @@ export const ArticlesViewPage = (_props: { readonly?: boolean }) => {
           mode={"read"}
           backRoute={ROUTES.Products}
           editRoute={ROUTES.ProductsEdit}
+          onRemove={
+            article?.id
+              ? async () => remove.mutateAsync(article?.id)
+              : undefined
+          }
+          onRestore={
+            article?.id
+              ? async () => restore.mutateAsync(article?.id)
+              : undefined
+          }
         />
       }
     >

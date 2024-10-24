@@ -29,17 +29,18 @@ export const AccountingTransactionsEditPage = (_props: {
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as AccountingTransactions;
 
-  const { isInitiating, save } = useDraftRest<AccountingTransactions>(
-    "accounting_transactions",
-    id || "new",
-    async (item) => {
-      navigate(getRoute(ROUTES.AccountingView, { id: item.id }));
-    },
-    _.omit(
-      _.merge(defaultModel, initialModel),
-      "reference"
-    ) as AccountingTransactions
-  );
+  const { isInitiating, save, draft, restore, remove } =
+    useDraftRest<AccountingTransactions>(
+      "accounting_transactions",
+      id || "new",
+      async (item) => {
+        navigate(getRoute(ROUTES.AccountingView, { id: item.id }));
+      },
+      _.omit(
+        _.merge(defaultModel, initialModel),
+        "reference"
+      ) as AccountingTransactions
+    );
 
   return (
     <Page
@@ -59,6 +60,8 @@ export const AccountingTransactionsEditPage = (_props: {
           backRoute={ROUTES.Accounting}
           viewRoute={ROUTES.AccountingView}
           editRoute={ROUTES.AccountingEdit}
+          onRemove={draft.id ? remove : undefined}
+          onRestore={draft.id ? restore : undefined}
         />
       }
     >

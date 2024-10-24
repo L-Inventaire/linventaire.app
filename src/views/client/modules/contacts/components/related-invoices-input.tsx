@@ -4,8 +4,9 @@ import { useInvoices } from "@features/invoices/hooks/use-invoices";
 import { ROUTES, getRoute } from "@features/routes";
 import { useNavigateAlt } from "@features/utils/navigate";
 import { Table } from "@molecules/table";
-import { PageBlock } from "@views/client/_layout/page";
+import { Heading } from "@radix-ui/themes";
 import _ from "lodash";
+import { InvoiceStatus } from "../../invoices/components/invoice-status";
 
 export const RelatedInvoicesInput = ({ id }: { id: string }) => {
   const navigate = useNavigateAlt();
@@ -13,34 +14,47 @@ export const RelatedInvoicesInput = ({ id }: { id: string }) => {
   const { invoices: invoicesContact } = useInvoices({
     query: generateQueryFromMap({
       contact: id,
-      state: ["draft", "sent", "purchase_order", "partial_paid", "paid"],
+      state: ["draft", "sent", "purchase_order"],
     }),
     limit: 10,
     asc: false,
-    index: "emit_date",
+    index: "state,type,emit_date",
   });
 
   const { invoices: invoicesClient } = useInvoices({
     query: generateQueryFromMap({
       client: id,
-      state: ["draft", "sent", "purchase_order", "partial_paid", "paid"],
+      state: ["draft", "sent", "purchase_order"],
     }),
     limit: 10,
     asc: false,
-    index: "emit_date",
+    index: "state,type,emit_date",
   });
 
   return (
-    <PageBlock closable title="Documents">
+    <div className="flex flex-col">
+      <Heading size="4" className="grow">
+        Devis, factures et commandes
+      </Heading>
       <div className="space-y-4 mt-4">
         <Table
+          border
           data={_.orderBy(
             _.uniq([
               ...(invoicesContact.data?.list || []),
               ...(invoicesClient.data?.list || []),
-            ]),
-            "emit_date",
-            "desc"
+            ])
+          )}
+          groupBy="state"
+          groupByRender={(row) => (
+            <div className="mt-px">
+              <InvoiceStatus
+                size="xs"
+                readonly
+                value={row.state}
+                type={row.type}
+              />
+            </div>
           )}
           columns={[
             {
@@ -64,6 +78,6 @@ export const RelatedInvoicesInput = ({ id }: { id: string }) => {
           }
         />
       </div>
-    </PageBlock>
+    </div>
   );
 };

@@ -80,9 +80,7 @@ export const InvoicesActions = ({
         </>
       )}
 
-      {(draft.state === "sent" ||
-        draft.state === "partial_paid" ||
-        draft.state === "paid") && (
+      {draft.state === "sent" && (
         <>
           <DropdownButton
             className="m-0"

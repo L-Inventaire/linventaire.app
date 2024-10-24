@@ -29,7 +29,7 @@ export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as Invoices;
 
-  const { isInitiating, save, draft } = useDraftRest<Invoices>(
+  const { isInitiating, save, draft, remove, restore } = useDraftRest<Invoices>(
     "invoices",
     id || "new",
     async (item) => {
@@ -68,6 +68,8 @@ export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
           backRoute={getRoute(ROUTES.Invoices, { type: draft.type })}
           viewRoute={ROUTES.InvoicesView}
           editRoute={ROUTES.InvoicesEdit}
+          onRemove={draft.id ? remove : undefined}
+          onRestore={draft.id ? restore : undefined}
         />
       }
     >
