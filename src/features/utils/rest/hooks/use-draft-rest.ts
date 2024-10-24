@@ -36,7 +36,7 @@ export const useDraftRest = <T extends { id: string }>(
   defaultValue?: Partial<T>,
   readonly = false
 ) => {
-  const { items, upsert } = useRest<T>(table, { query: { id } as any });
+  const { items, upsert, remove, restore } = useRest<T>(table, { id });
   const existingItem = id && id !== "new" ? items?.data?.list?.[0] : null;
 
   const [defaultWasSet, setDefaultWasSet] = useState(false);
@@ -85,6 +85,8 @@ export const useDraftRest = <T extends { id: string }>(
 
   return {
     save,
+    remove: async () => remove.mutateAsync(draft?.id),
+    restore: async () => restore.mutateAsync(draft?.id),
     isInitiating:
       (items.isPending && !items.data) || (defaultValue && !defaultWasSet),
     isPending: upsert.isPending,

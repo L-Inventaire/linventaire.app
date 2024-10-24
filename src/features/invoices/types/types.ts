@@ -15,15 +15,8 @@ export type Invoices = RestEntity & {
     | "supplier_credit_notes"; // invoice, quote, credit_note
 
   // Quotes: “draft”, “sent”, "purchase_order", "completed", "closed”
-  // Invoices and Credit Notes: “draft”, “sent”, "partial", “paid”, "closed"
-  state:
-    | "draft"
-    | "sent"
-    | "purchase_order"
-    | "partial_paid"
-    | "paid"
-    | "closed"
-    | "completed";
+  // Invoices and Credit Notes: “draft”, “sent”, "closed"
+  state: "draft" | "sent" | "purchase_order" | "completed" | "closed";
 
   // For credit notes or supplier credit note: invoices refunded by this credit note
   from_rel_invoice: string[]; // Nullable
@@ -59,8 +52,12 @@ export type Invoices = RestEntity & {
   };
 
   // For partially paid invoices or credit notes, list of payments
-  payments_total: 0; // This one is automatically generated from the payments_executed
-  payments_executed: InvoicePaymentExecuted[]; // List of payments executed
+  payments_total: number; // This one is automatically generated from the payments_executed
+  payments_ids: string[]; // List of payments executed
+
+  // For partially invoiced quotes, list of invoices (or credit notes)
+  invoices_total: number; // Total already invoiced for this quote automatically generated from the invoices
+  invoices_ids: string[]; // List of invoices automatically generated from trigger
 
   payment_information: Payment;
   format?: InvoiceFormat;
@@ -76,14 +73,6 @@ export type Invoices = RestEntity & {
   tags: string[];
 
   fields: any;
-};
-
-export type InvoicePaymentExecuted = {
-  date: number;
-  mode: Payment["mode"];
-  reference: string;
-  amount: 0;
-  notes: string;
 };
 
 export type InvoiceTotal = {

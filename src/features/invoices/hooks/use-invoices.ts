@@ -13,7 +13,7 @@ export const useInvoices = (options?: RestOptions<Invoices>) => {
 };
 
 export const useInvoice = (id: string) => {
-  const rest = useInvoices({ query: { id } });
+  const rest = useInvoices({ id });
   return {
     invoice: id ? (rest.invoices.data?.list || [])[0] : null,
     isPending: id ? rest.invoices.isPending : false,

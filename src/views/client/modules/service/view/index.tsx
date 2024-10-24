@@ -8,7 +8,12 @@ import { ServiceItemsDetailsPage } from "../components/service-items-details";
 
 export const ServiceItemsViewPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
-  const { service_item: item, isPending } = useServiceItem(id || "");
+  const {
+    service_item: item,
+    isPending,
+    remove,
+    restore,
+  } = useServiceItem(id || "");
 
   if (!item)
     return (
@@ -33,6 +38,12 @@ export const ServiceItemsViewPage = (_props: { readonly?: boolean }) => {
           editRoute={ROUTES.ServiceItemsEdit}
           prefix={<></>}
           suffix={<></>}
+          onRemove={
+            item?.id ? async () => remove.mutateAsync(item?.id) : undefined
+          }
+          onRestore={
+            item?.id ? async () => restore.mutateAsync(item?.id) : undefined
+          }
         />
       }
     >

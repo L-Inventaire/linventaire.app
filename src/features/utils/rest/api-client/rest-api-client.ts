@@ -67,6 +67,14 @@ export class RestApiClient<T> {
     throw new Error("Error fetching data");
   };
 
+  get = async (clientId: string, id: string): Promise<T> => {
+    const tmp = await fetchServer(
+      `/api/rest/v1/${clientId}/${this.table}/${id}`
+    );
+    if (tmp.status === 200) return await tmp.json();
+    throw new Error("Error fetching data");
+  };
+
   create = async (clientId: string, item: Partial<T>): Promise<T> => {
     return await (
       await fetchServer(`/api/rest/v1/${clientId}/${this.table}`, {
@@ -95,6 +103,12 @@ export class RestApiClient<T> {
   delete = async (clientId: string, id: string): Promise<void> => {
     await fetchServer(`/api/rest/v1/${clientId}/${this.table}/${id}`, {
       method: "DELETE",
+    });
+  };
+
+  restore = async (clientId: string, id: string): Promise<void> => {
+    await fetchServer(`/api/rest/v1/${clientId}/${this.table}/${id}/restore`, {
+      method: "POST",
     });
   };
 }

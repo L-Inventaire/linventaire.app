@@ -11,7 +11,7 @@ import { ContactsDetailsPage } from "../components/contact-details";
 
 export const ContactsViewPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
-  const { contact, isPending } = useContact(id || "");
+  const { contact, isPending, remove, restore } = useContact(id || "");
 
   return (
     <Page
@@ -27,6 +27,16 @@ export const ContactsViewPage = (_props: { readonly?: boolean }) => {
           mode={"read"}
           backRoute={ROUTES.Contacts}
           editRoute={ROUTES.ContactsEdit}
+          onRemove={
+            contact?.id
+              ? async () => remove.mutateAsync(contact?.id)
+              : undefined
+          }
+          onRestore={
+            contact?.id
+              ? async () => restore.mutateAsync(contact?.id)
+              : undefined
+          }
           suffix={
             <>
               <Button

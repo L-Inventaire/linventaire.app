@@ -13,7 +13,7 @@ export const useServiceItems = (options?: RestOptions<ServiceItems>) => {
 };
 
 export const useServiceItem = (id: string) => {
-  const rest = useServiceItems({ query: { id } });
+  const rest = useServiceItems({ id });
   return {
     service_item: id ? (rest.service_items.data?.list || [])[0] : null,
     isPending: id ? rest.service_items.isPending : false,

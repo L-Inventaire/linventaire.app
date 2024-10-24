@@ -27,14 +27,15 @@ export const StockItemsEditPage = (_props: { readonly?: boolean }) => {
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as StockItems;
 
-  const { isInitiating, save } = useDraftRest<StockItems>(
-    "stock_items",
-    id || "new",
-    async (item) => {
-      navigate(getRoute(ROUTES.StockView, { id: item.id }));
-    },
-    _.omit(_.merge(defaultModel, initialModel), "reference") as StockItems
-  );
+  const { isInitiating, save, remove, restore, draft } =
+    useDraftRest<StockItems>(
+      "stock_items",
+      id || "new",
+      async (item) => {
+        navigate(getRoute(ROUTES.StockView, { id: item.id }));
+      },
+      _.omit(_.merge(defaultModel, initialModel), "reference") as StockItems
+    );
 
   return (
     <Page
@@ -52,6 +53,8 @@ export const StockItemsEditPage = (_props: { readonly?: boolean }) => {
           backRoute={ROUTES.Stock}
           viewRoute={ROUTES.StockView}
           editRoute={ROUTES.StockEdit}
+          onRemove={draft.id ? remove : undefined}
+          onRestore={draft.id ? restore : undefined}
         />
       }
     >

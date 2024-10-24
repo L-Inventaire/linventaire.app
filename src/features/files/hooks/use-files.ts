@@ -13,7 +13,7 @@ export const useFiles = (options?: RestOptions<Files>) => {
 };
 
 export const useFile = (id: string) => {
-  const rest = useFiles({ query: { id }, limit: id ? 1 : 0 });
+  const rest = useFiles({ id, limit: id ? 1 : 0 });
   return {
     file: id ? (rest.files.data?.list || [])[0] : null,
     isPending: id ? rest.files.isPending : false,
