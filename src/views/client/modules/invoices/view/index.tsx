@@ -92,9 +92,7 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
                   size="sm"
                   theme="outlined"
                   shortcut={["shift+a"]}
-                  disabled={
-                    !["sent", "paid", "partial_paid"].includes(invoice.state)
-                  }
+                  disabled={!["sent"].includes(invoice.state)}
                   to={withModel(getRoute(ROUTES.InvoicesEdit, { id: "new" }), {
                     ...invoice,
                     from_rel_quote: [invoice.from_rel_quote],
