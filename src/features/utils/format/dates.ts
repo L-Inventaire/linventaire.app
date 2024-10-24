@@ -18,7 +18,7 @@ export const formatTime = (
   },
   locale?: string
 ) => {
-  time = new Date(time).getTime();
+  time = new Date(parseInt(time as any)).getTime();
   locale = locale || navigator.language;
   const now = Date.now();
   const year = new Date(time).getFullYear();

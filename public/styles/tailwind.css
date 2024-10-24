@@ -1596,10 +1596,6 @@ body :is(.mt-px) {
   margin-top: 1px;
 }
 
-body :is(.mr-3) {
-  margin-right: 0.75rem;
-}
-
 body :is(.box-border) {
   box-sizing: border-box;
 }
@@ -1986,10 +1982,6 @@ body :is(.min-w-full) {
 body :is(.min-w-max) {
   min-width: -webkit-max-content;
   min-width: max-content;
-}
-
-body :is(.min-w-1) {
-  min-width: 0.25rem;
 }
 
 body :is(.max-w-24) {
@@ -5115,10 +5107,6 @@ body :is(.group\/user:hover .group-hover\/user\:opacity-100) {
 
   body :is(.lg\:p-4) {
     padding: 1rem;
-  }
-
-  body :is(.lg\:p-9) {
-    padding: 2.25rem;
   }
 
   body :is(.lg\:pt-2) {
