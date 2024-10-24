@@ -38,6 +38,7 @@ import { StockItemStatus } from "./stock-item-status";
 import { useSetRecoilState } from "recoil";
 import { SubdivideStockModalAtom } from "./subdivide-modal";
 import { Tracability } from "./tracability";
+import { Timeline } from "@molecules/timeline";
 
 export const StockItemsDetailsPage = ({
   readonly,
@@ -411,6 +412,10 @@ export const StockItemsDetailsPage = ({
             />
           </>
         )}
+
+        <div className="mt-8">
+          <Timeline entity="stock_items" id={draft.id} />
+        </div>
       </FormContext>
     </div>
   );

@@ -95,7 +95,12 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
   const queryClient = useQueryClient();
 
   const items = useQuery({
-    queryKey: [table, id, options?.key || "default", options?.query || ""],
+    queryKey: [
+      table,
+      options?.key || "default",
+      id || "query",
+      options?.query || "",
+    ],
     staleTime: 1000 * 60 * 5, // 5 minutes
     queryFn:
       options?.queryFn ||
@@ -105,7 +110,7 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
           : options?.id
           ? await (async () => {
               const tmp = await restApiClient.get(id || "", options!.id!);
-              return { total: 1, list: [tmp] };
+              return { total: tmp ? 1 : 0, list: tmp ? [tmp] : [] };
             })()
           : await restApiClient.list(
               id || "",

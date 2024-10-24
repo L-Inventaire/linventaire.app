@@ -3,6 +3,8 @@ import { getAvatarFullUrl, getFullName } from "@features/auth/utils";
 import { useUser } from "@features/clients/state/use-client-users";
 import { Comments } from "@features/comments/types/types";
 import { PublicCustomer } from "@features/customers/types/customers";
+import { useRestHistory } from "@features/utils/rest/hooks/use-history";
+import { RestEntity } from "@features/utils/rest/types/types";
 import {
   ArchiveBoxArrowDownIcon,
   ArrowUturnLeftIcon,
@@ -25,20 +27,33 @@ import {
   Text,
   Tooltip,
 } from "@radix-ui/themes";
-import { formatDistance } from "date-fns";
+import { format, formatDistance } from "date-fns";
+import _ from "lodash";
 import { ReactNode, useState } from "react";
 import { twMerge } from "tailwind-merge";
 
 export const Timeline = ({ entity, id }: { entity: string; id: string }) => {
+  const { data, fetchNextPage, hasNextPage } = useRestHistory<
+    RestEntity & {
+      operation_timestamp: string;
+      operation: string;
+    }
+  >(entity, id);
+
+  const history = _.reverse(_.flatten(data?.pages.map((a) => a.list)) || []);
+  const current = history[history.length - 1];
+
+  if (!current) return <></>;
+
   return (
     <>
       <div className="flex items-center space-x-2">
         <Heading size="4" className="grow">
-          Activity
+          Activité
         </Heading>
         <Tooltip content="Subscribe to changes on this document.">
           <Button size="2" variant="ghost">
-            Subscribe
+            Être notifié
           </Button>
         </Tooltip>
         <UsersInput
@@ -51,95 +66,175 @@ export const Timeline = ({ entity, id }: { entity: string; id: string }) => {
       </div>
 
       <div className="mt-3">
-        <EventLine
-          comment={{
-            id: "1",
-            content: "created this document",
-            owner_id: "4b230201-6d25-4be6-9baf-23c13f1bcd9d",
-            created_at: (Date.now() - 1000 * 60 * 60) as any,
-          }}
-          first
-        />
+        {!!current && (
+          <EventLine
+            comment={{
+              id: "created",
+              content: "a créé ce document",
+              owner_id: data?.pages[0]?.list[0].created_by,
+              created_at: data?.pages[0]?.list[0].created_at,
+            }}
+            first
+          />
+        )}
+        {hasNextPage && (
+          <Button
+            onClick={() => fetchNextPage()}
+            variant="ghost"
+            color="blue"
+            className="ml-1 block text-center mt-2"
+          >
+            Voir plus...
+          </Button>
+        )}
+        {history.map((a, i) => {
+          const isFirst = i === 0 && !hasNextPage;
+          if (isFirst) return <></>;
 
-        <CommentCard
-          comment={{
-            id: "1",
-            content: "Hey all, first comments on this timeline! 🚀",
-            owner_id: "4b230201-6d25-4be6-9baf-23c13f1bcd9d",
-            created_at: (Date.now() - 1000 * 60 * 54) as any,
-          }}
-        />
+          const prev = history[i - 1] || {};
+          const isComment = a.comment_id;
 
-        <EventLine
-          comment={{
-            id: "1",
-            content: "webhook sent",
-            owner_id: "system",
-            created_at: (Date.now() - 1000 * 60 * 45) as any,
-          }}
-          name="System"
-          icon={(p) => <CodeBracketIcon {...p} />}
-          first
-        />
-        <EventLine
-          comment={{
-            id: "1",
-            content: "Hey, premier mock de commentaire ! 🚀",
-            owner_id: "4b230201-6d25-4be6-9baf-23c13f1bcd9d",
-            created_at: (Date.now() - 1000 * 60 * 30) as any,
-          }}
-          icon={(p) => <PencilIcon {...p} />}
-          message="updated the document"
-        />
-        <EventLine
-          comment={{
-            id: "1",
-            content: "Hey, premier mock de commentaire ! 🚀",
-            owner_id: "4b230201-6d25-4be6-9baf-23c13f1bcd9d",
-            created_at: (Date.now() - 1000 * 60 * 15) as any,
-          }}
-          icon={(p) => (
-            <TrashIcon className={twMerge(p.className, "text-red-500")} />
-          )}
-          message={
-            <>
-              <Badge color="red">deleted</Badge> this document
-            </>
+          if (isComment) {
+            return <CommentCard comment={a} />;
           }
-        />
-        <EventLine
-          comment={{
-            id: "1",
-            content: "Hey, premier mock de commentaire ! 🚀",
-            owner_id: "4b230201-6d25-4be6-9baf-23c13f1bcd9d",
-            created_at: (Date.now() - 1000 * 60 * 5) as any,
-          }}
-          icon={(p) => (
-            <ArchiveBoxArrowDownIcon
-              className={twMerge(p.className, "text-green-500")}
-            />
-          )}
-          message={
-            <>
-              <Badge color="green">restored</Badge> this document
-            </>
+
+          const first =
+            (i === 0 && hasNextPage) ||
+            (!a.is_deleted && prev.is_deleted) ||
+            !!prev.comment_id;
+
+          const isDeleted = a.is_deleted;
+          const isRestore = prev.is_deleted && !isDeleted;
+
+          if (isDeleted) {
+            return (
+              <EventLine
+                comment={{
+                  id: a.revisions.toString(),
+                  owner_id: a.updated_by || a.created_by,
+                  created_at: a.operation_timestamp || a.created_at,
+                }}
+                first={first}
+                icon={(p) => (
+                  <TrashIcon className={twMerge(p.className, "text-red-500")} />
+                )}
+                message={
+                  <>
+                    a <Badge color="red">supprimé</Badge> ce document
+                  </>
+                }
+              />
+            );
           }
-          first
-        />
-        <EventLine
-          comment={{
-            id: "1",
-            content: "Hey, premier mock de commentaire ! 🚀",
-            owner_id: "4b230201-6d25-4be6-9baf-23c13f1bcd9d",
-            created_at: Date.now() as any,
-          }}
-          icon={(p) => <PencilIcon {...p} />}
-          message="updated the document"
-        />
+
+          if (isRestore) {
+            return (
+              <EventLine
+                comment={{
+                  id: a.revisions.toString(),
+                  owner_id: a.updated_by || a.created_by,
+                  created_at: a.operation_timestamp || a.created_at,
+                }}
+                first={first}
+                icon={(p) => (
+                  <ArchiveBoxArrowDownIcon
+                    className={twMerge(p.className, "text-green-500")}
+                  />
+                )}
+                message={
+                  <>
+                    a <Badge color="green">restauré</Badge> ce document
+                  </>
+                }
+              />
+            );
+          }
+
+          if (a.revisions > prev?.revisions) {
+            // List keys that changed in the last revision, and mark all of them as: modified, added, or removed
+            const changes: string[] = [];
+            const added: string[] = [];
+            const removed: string[] = [];
+            Object.keys(
+              _.omit(
+                a,
+                "updated_at",
+                "updated_by",
+                "comment_id",
+                "is_deleted",
+                "operation",
+                "operation_timestamp",
+                "revisions"
+              )
+            ).map((key) => {
+              const prevValue = (prev as any)[key];
+              const newValue = (a as any)[key];
+              if (!_.isEqual(prevValue, newValue)) {
+                if (prevValue === undefined) {
+                  added.push(key);
+                } else if (newValue === undefined) {
+                  removed.push(key);
+                } else {
+                  changes.push(key);
+                }
+              }
+            });
+
+            return (
+              <EventLine
+                first={first}
+                comment={{
+                  id: a.revisions.toString(),
+                  owner_id: a.updated_by || a.created_by,
+                  created_at: a.operation_timestamp || a.created_at,
+                }}
+                name={a.updated_by === "system" ? "System" : undefined}
+                icon={
+                  a.updated_by === "system"
+                    ? (p) => <CodeBracketIcon {...p} />
+                    : (p) => <PencilIcon {...p} />
+                }
+                message={
+                  <div className="space-x-1 inline-block">
+                    a{" "}
+                    {changes.length > 0 && (
+                      <>
+                        modifié{" "}
+                        {changes.map((a) => (
+                          <Badge color="orange">{a}</Badge>
+                        ))}
+                      </>
+                    )}{" "}
+                    {added.length > 0 && (
+                      <>
+                        ajouté{" "}
+                        {changes.map((a) => (
+                          <Badge color="green">{a}</Badge>
+                        ))}
+                      </>
+                    )}{" "}
+                    {removed.length > 0 && (
+                      <>
+                        supprimé{" "}
+                        {changes.map((a) => (
+                          <Badge color="green">{a}</Badge>
+                        ))}
+                      </>
+                    )}
+                  </div>
+                }
+              />
+            );
+          }
+
+          return <></>;
+        })}
       </div>
-      <div className="mt-6">
-        <CommentCreate onComment={() => {}} />
-      </div>
+      {!current.is_deleted && (
+        <div className="mt-6">
+          <CommentCreate onComment={() => {}} />
+        </div>
+      )}
     </>
   );
 };
@@ -187,9 +282,22 @@ const EventLine = ({
           {name || fullName}
         </Strong>{" "}
         {message || comment?.content} •{" "}
-        {formatDistance(new Date(comment.created_at || 0), new Date(), {
-          addSuffix: true,
-        })}
+        <Tooltip
+          content={format(
+            new Date(parseInt(comment.created_at || "0") || 0),
+            "PPpp"
+          )}
+        >
+          <span>
+            {formatDistance(
+              new Date(parseInt(comment.created_at || "0") || 0),
+              new Date(),
+              {
+                addSuffix: true,
+              }
+            )}
+          </span>
+        </Tooltip>
       </Text>
     </div>
   );
@@ -217,10 +325,20 @@ const CommentCard = ({ comment }: { comment: Partial<Comments> }) => {
           />
         </div>
         <Text size="2" className="text-gray-500 grow">
-          <Strong className="text-black dark:text-white">{fullName}</Strong>{" "}
-          {formatDistance(new Date(comment.created_at || 0), new Date(), {
-            addSuffix: true,
-          })}
+          <Strong className="text-black dark:text-white">{fullName}</Strong>
+          {" - "}
+          <Tooltip
+            content={format(
+              new Date(parseInt(comment.created_at || "0") || 0),
+              "PPpp"
+            )}
+          >
+            <span>
+              {formatDistance(new Date(comment.created_at || 0), new Date(), {
+                addSuffix: true,
+              })}
+            </span>
+          </Tooltip>
         </Text>
         {!!comment.content && (
           <div className="flex items-center space-x-2 group-hover/comment:opacity-100 opacity-0 transition-all">
@@ -260,7 +378,7 @@ const CommentCreate = (props: {
         value={comment}
         onChange={setComment}
         className="border-none bg-transparent dark:bg-transparent p-0"
-        placeholder="Leave a comment..."
+        placeholder="Ajouter un commentaire..."
       />
       <div className="flex items-center space-x-2">
         <div className="grow" />

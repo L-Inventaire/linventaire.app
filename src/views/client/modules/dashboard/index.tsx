@@ -36,7 +36,7 @@ export const DashboardHomePage = () => {
       ]}
     >
       <div className="flex items-center mb-6 ml-3 mt-3">
-        <Title>Dashboard</Title>
+        <Title>Tableau de bord</Title>
         <div className="w-[1px] min-h-1 h-full bg-slate-200 mx-6">‎</div>
         <Button
           theme={period === "week" ? "secondary" : "outlined"}

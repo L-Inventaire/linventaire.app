@@ -39,7 +39,7 @@ export class RestApiClient<T> {
     id: string,
     limit: number = 10,
     offset: number = 0
-  ): Promise<{ total: number; list: T[] }> => {
+  ): Promise<{ total: number; list: T[]; has_more: boolean }> => {
     const tmp = await fetchServer(
       `/api/rest/v1/${clientId}/${this.table}/${id}/history?limit=${limit}&offset=${offset}`
     );
