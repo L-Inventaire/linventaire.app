@@ -3,42 +3,44 @@ import { getAvatarFullUrl, getFullName } from "@features/auth/utils";
 import { useUser } from "@features/clients/state/use-client-users";
 import { Comments } from "@features/comments/types/types";
 import { PublicCustomer } from "@features/customers/types/customers";
-import {
-  ArchiveBoxArrowDownIcon,
-  ArrowUturnLeftIcon,
-  CodeBracketIcon,
-  FaceSmileIcon,
-  PaperAirplaneIcon,
-  PaperClipIcon,
-  PencilIcon,
-  TrashIcon,
-} from "@heroicons/react/16/solid";
-import { EditorInput } from "@molecules/editor-input";
+import { useRestHistory } from "@features/utils/rest/hooks/use-history";
+import { RestEntity } from "@features/utils/rest/types/types";
 import {
   Avatar,
-  Badge,
   Button,
-  Card,
   Heading,
-  IconButton,
   Strong,
   Text,
   Tooltip,
 } from "@radix-ui/themes";
-import { formatDistance } from "date-fns";
-import { ReactNode, useState } from "react";
-import { twMerge } from "tailwind-merge";
+import { format, formatDistance } from "date-fns";
+import _ from "lodash";
+import { ReactNode } from "react";
+import { CommentCreate } from "./comments";
+import { getEventLine, prepareHistory } from "./events";
 
 export const Timeline = ({ entity, id }: { entity: string; id: string }) => {
+  const { data, fetchNextPage, hasNextPage } = useRestHistory<
+    RestEntity & {
+      operation_timestamp: string;
+      operation: string;
+    }
+  >(entity, id);
+
+  const history = _.reverse(_.flatten(data?.pages.map((a) => a.list)) || []);
+  const current = history[history.length - 1];
+
+  if (!current) return <></>;
+
   return (
     <>
       <div className="flex items-center space-x-2">
         <Heading size="4" className="grow">
-          Activity
+          Activité
         </Heading>
         <Tooltip content="Subscribe to changes on this document.">
           <Button size="2" variant="ghost">
-            Subscribe
+            Être notifié
           </Button>
         </Tooltip>
         <UsersInput
@@ -51,100 +53,39 @@ export const Timeline = ({ entity, id }: { entity: string; id: string }) => {
       </div>
 
       <div className="mt-3">
-        <EventLine
-          comment={{
-            id: "1",
-            content: "created this document",
-            owner_id: "4b230201-6d25-4be6-9baf-23c13f1bcd9d",
-            created_at: (Date.now() - 1000 * 60 * 60) as any,
-          }}
-          first
-        />
-
-        <CommentCard
-          comment={{
-            id: "1",
-            content: "Hey all, first comments on this timeline! 🚀",
-            owner_id: "4b230201-6d25-4be6-9baf-23c13f1bcd9d",
-            created_at: (Date.now() - 1000 * 60 * 54) as any,
-          }}
-        />
-
-        <EventLine
-          comment={{
-            id: "1",
-            content: "webhook sent",
-            owner_id: "system",
-            created_at: (Date.now() - 1000 * 60 * 45) as any,
-          }}
-          name="System"
-          icon={(p) => <CodeBracketIcon {...p} />}
-          first
-        />
-        <EventLine
-          comment={{
-            id: "1",
-            content: "Hey, premier mock de commentaire ! 🚀",
-            owner_id: "4b230201-6d25-4be6-9baf-23c13f1bcd9d",
-            created_at: (Date.now() - 1000 * 60 * 30) as any,
-          }}
-          icon={(p) => <PencilIcon {...p} />}
-          message="updated the document"
-        />
-        <EventLine
-          comment={{
-            id: "1",
-            content: "Hey, premier mock de commentaire ! 🚀",
-            owner_id: "4b230201-6d25-4be6-9baf-23c13f1bcd9d",
-            created_at: (Date.now() - 1000 * 60 * 15) as any,
-          }}
-          icon={(p) => (
-            <TrashIcon className={twMerge(p.className, "text-red-500")} />
-          )}
-          message={
-            <>
-              <Badge color="red">deleted</Badge> this document
-            </>
-          }
-        />
-        <EventLine
-          comment={{
-            id: "1",
-            content: "Hey, premier mock de commentaire ! 🚀",
-            owner_id: "4b230201-6d25-4be6-9baf-23c13f1bcd9d",
-            created_at: (Date.now() - 1000 * 60 * 5) as any,
-          }}
-          icon={(p) => (
-            <ArchiveBoxArrowDownIcon
-              className={twMerge(p.className, "text-green-500")}
-            />
-          )}
-          message={
-            <>
-              <Badge color="green">restored</Badge> this document
-            </>
-          }
-          first
-        />
-        <EventLine
-          comment={{
-            id: "1",
-            content: "Hey, premier mock de commentaire ! 🚀",
-            owner_id: "4b230201-6d25-4be6-9baf-23c13f1bcd9d",
-            created_at: Date.now() as any,
-          }}
-          icon={(p) => <PencilIcon {...p} />}
-          message="updated the document"
-        />
+        {!!current && (
+          <EventLine
+            comment={{
+              id: "created",
+              content: "a créé ce document",
+              created_by: data?.pages[0]?.list[0].created_by,
+              created_at: data?.pages[0]?.list[0].created_at,
+            }}
+            first
+          />
+        )}
+        {hasNextPage && (
+          <Button
+            onClick={() => fetchNextPage()}
+            variant="ghost"
+            color="blue"
+            className="ml-1 block text-center mt-2"
+          >
+            Voir plus...
+          </Button>
+        )}
+        {prepareHistory(history, hasNextPage).map(getEventLine)}
       </div>
-      <div className="mt-6">
-        <CommentCreate onComment={() => {}} />
-      </div>
+      {!current.is_deleted && (
+        <div className="mt-6">
+          <CommentCreate entity={entity} item={id} />
+        </div>
+      )}
     </>
   );
 };
 
-const EventLine = ({
+export const EventLine = ({
   comment,
   first,
   message,
@@ -157,7 +98,7 @@ const EventLine = ({
   icon?: (props: { className: string }) => ReactNode;
   name?: string;
 }) => {
-  const { user } = useUser(comment.owner_id || "");
+  const { user } = useUser(comment.created_by || "");
   const fullName =
     getFullName(user?.user as PublicCustomer) || user?.user?.email || "Unknown";
   return (
@@ -187,107 +128,23 @@ const EventLine = ({
           {name || fullName}
         </Strong>{" "}
         {message || comment?.content} •{" "}
-        {formatDistance(new Date(comment.created_at || 0), new Date(), {
-          addSuffix: true,
-        })}
+        <Tooltip
+          content={format(
+            new Date(parseInt(comment.created_at || "0") || 0),
+            "PPpp"
+          )}
+        >
+          <span>
+            {formatDistance(
+              new Date(parseInt(comment.created_at || "0") || 0),
+              new Date(),
+              {
+                addSuffix: true,
+              }
+            )}
+          </span>
+        </Tooltip>
       </Text>
     </div>
-  );
-};
-
-const CommentCard = ({ comment }: { comment: Partial<Comments> }) => {
-  const { user } = useUser(comment.owner_id || "");
-  const fullName =
-    getFullName(user?.user as PublicCustomer) || user?.user?.email || "Unknown";
-  return (
-    <Card className="mb-2 mt-4 space-y-2 group/comment">
-      <div className="w-full flex items-center space-x-2">
-        <div className="w-4 h-4 flex items-start">
-          <Avatar
-            variant="solid"
-            style={{ backgroundColor: "#FFD700" }}
-            radius="full"
-            className="w-4 h-4"
-            size="1"
-            src={
-              getAvatarFullUrl((user?.user as PublicCustomer)?.avatar) ||
-              undefined
-            }
-            fallback={fullName[0]}
-          />
-        </div>
-        <Text size="2" className="text-gray-500 grow">
-          <Strong className="text-black dark:text-white">{fullName}</Strong>{" "}
-          {formatDistance(new Date(comment.created_at || 0), new Date(), {
-            addSuffix: true,
-          })}
-        </Text>
-        {!!comment.content && (
-          <div className="flex items-center space-x-2 group-hover/comment:opacity-100 opacity-0 transition-all">
-            <Tooltip content="Ajouter une réaction">
-              <IconButton variant="ghost" radius="full" size="1">
-                <FaceSmileIcon className="w-4 h-4" />
-              </IconButton>
-            </Tooltip>
-            <Tooltip content="Répondre">
-              <IconButton variant="ghost" radius="full" size="1">
-                <ArrowUturnLeftIcon className="w-4 h-4" />
-              </IconButton>
-            </Tooltip>
-          </div>
-        )}
-      </div>
-      {!!comment.content && (
-        <Text size="3" className="block">
-          <EditorInput disabled value={comment.content} placeholder="" />
-        </Text>
-      )}
-    </Card>
-  );
-};
-
-const CommentCreate = (props: {
-  loading?: boolean;
-  onComment: (comment: string, attachments: string[]) => void;
-}) => {
-  const [comment, setComment] = useState("");
-  const [attachments, setAttachments] = useState<string[]>([]);
-
-  return (
-    <Card className="space-y-2" variant="surface">
-      <EditorInput
-        disabled={props.loading || false}
-        value={comment}
-        onChange={setComment}
-        className="border-none bg-transparent dark:bg-transparent p-0"
-        placeholder="Leave a comment..."
-      />
-      <div className="flex items-center space-x-2">
-        <div className="grow" />
-        <Tooltip content="Pièces jointes">
-          <IconButton
-            variant="ghost"
-            radius="full"
-            loading={props.loading}
-            disabled={props.loading}
-          >
-            <PaperClipIcon className="w-4 h-4 -rotate-90" />
-          </IconButton>
-        </Tooltip>
-        <Tooltip content="Envoyer">
-          <IconButton
-            loading={props.loading}
-            variant="solid"
-            radius="full"
-            disabled={props.loading || !comment}
-            onClick={() => {
-              props.onComment(comment, attachments);
-            }}
-          >
-            <PaperAirplaneIcon className="w-4 h-4 -rotate-90" />
-          </IconButton>
-        </Tooltip>
-      </div>
-    </Card>
   );
 };

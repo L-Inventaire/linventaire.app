@@ -5,21 +5,24 @@ import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
 import { ScrollArea } from "@radix-ui/themes";
 import { LayoutTitleAtom } from "@views/client/_layout/header";
 import { ErrorBoundary } from "@views/error-boundary";
-import { ReactNode, useEffect, useState } from "react";
+import _ from "lodash";
+import React, { ReactNode, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
 
-export const Page = (props: {
-  children: ReactNode;
-  bar?: ReactNode;
-  footer?: ReactNode;
-  title?: {
-    label?: string;
-    to?: string;
-    href?: string;
-  }[];
-}) => {
+export const Page = (
+  props: {
+    children: ReactNode;
+    bar?: ReactNode;
+    footer?: ReactNode;
+    title?: {
+      label?: string;
+      to?: string;
+      href?: string;
+    }[];
+  } & Omit<React.ComponentProps<"div">, "title" | "children">
+) => {
   const setTitle = useSetRecoilState(LayoutTitleAtom);
   const location = useParams();
 
@@ -31,14 +34,20 @@ export const Page = (props: {
 
   return (
     <ErrorBoundary>
-      <div className="flex flex-col grow w-full text-black dark:text-white min-h-full sm:bg-transparent">
+      <div
+        className={twMerge(
+          "flex flex-col grow w-full text-black dark:text-white min-h-full sm:bg-transparent",
+          props.className
+        )}
+        {..._.omit(props, "className", "children", "bar", "footer", "title")}
+      >
         {props.bar && (
           <div className="border-b flex min-h-12 border-slate-100 dark:border-slate-700 shrink-0">
             {props.bar}
           </div>
         )}
         <ScrollArea className="grow">
-          <div className="p-3">{props.children}</div>
+          <div className="p-3 h-full">{props.children}</div>
         </ScrollArea>
         {props.footer && (
           <div className="border-t border-solid border-slate-100 dark:border-slate-700 p-3">

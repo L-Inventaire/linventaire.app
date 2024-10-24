@@ -51,23 +51,15 @@ export const InvoiceStatus = ({
 
   const statusPerTypeGrouped = {
     quotes: [["draft"], ["sent"], ["purchase_order", "closed", "completed"]],
-    invoices: [["draft"], ["sent"], ["paid", "partial_paid", "closed"]],
-    credit_notes: [["draft"], ["sent"], ["paid", "partial_paid", "closed"]],
+    invoices: [["draft"], ["sent"], ["closed"]],
+    credit_notes: [["draft"], ["sent"], ["closed"]],
     supplier_quotes: [
       ["draft"],
       ["sent"],
       ["purchase_order", "closed", "completed"],
     ],
-    supplier_invoices: [
-      ["draft"],
-      ["sent"],
-      ["paid", "partial_paid", "closed"],
-    ],
-    supplier_credit_notes: [
-      ["draft"],
-      ["sent"],
-      ["paid", "partial_paid", "closed"],
-    ],
+    supplier_invoices: [["draft"], ["sent"], ["closed"]],
+    supplier_credit_notes: [["draft"], ["sent"], ["closed"]],
   };
 
   if (!statusPerTypeGrouped[type]) {

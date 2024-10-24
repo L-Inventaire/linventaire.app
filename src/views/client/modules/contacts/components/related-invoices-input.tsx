@@ -14,7 +14,7 @@ export const RelatedInvoicesInput = ({ id }: { id: string }) => {
   const { invoices: invoicesContact } = useInvoices({
     query: generateQueryFromMap({
       contact: id,
-      state: ["draft", "sent", "purchase_order", "partial_paid", "paid"],
+      state: ["draft", "sent", "purchase_order"],
     }),
     limit: 10,
     asc: false,
@@ -24,7 +24,7 @@ export const RelatedInvoicesInput = ({ id }: { id: string }) => {
   const { invoices: invoicesClient } = useInvoices({
     query: generateQueryFromMap({
       client: id,
-      state: ["draft", "sent", "purchase_order", "partial_paid", "paid"],
+      state: ["draft", "sent", "purchase_order"],
     }),
     limit: 10,
     asc: false,

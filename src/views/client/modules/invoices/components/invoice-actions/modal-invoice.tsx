@@ -88,7 +88,7 @@ export const InvoiceInvoiceModalContent = ({
   }, [defaultContent]);
 
   const partialInvoice = useQuery({
-    queryKey: ["invoices", "partial", id, selection],
+    queryKey: ["invoices", id, selection],
     queryFn: () => InvoicesApiClient.getPartialInvoice(draft, selection),
   });
 

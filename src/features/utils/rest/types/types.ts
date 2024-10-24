@@ -8,6 +8,7 @@ export type RestEntity = {
   updated_at: string; // Stringified timestamp in ms
   updated_by: string;
   fields: any;
+  comment_id: string;
 };
 
 type SchemaKeyTypes = "text" | "date" | "boolean" | "number" | `type:${string}`;

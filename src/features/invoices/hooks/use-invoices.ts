@@ -3,7 +3,7 @@ import { Invoices } from "../types/types";
 import { useEffect } from "react";
 
 export const useInvoices = (options?: RestOptions<Invoices>) => {
-  const rest = useRest<Invoices>("invoices", options);
+  const rest = useRest<Invoices>("invoices", options ?? {});
 
   useEffect(() => {
     rest.refresh();
