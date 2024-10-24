@@ -1,6 +1,7 @@
 import { fetchServer } from "@features/utils/fetch-server";
 
 import { StandardOrErrorResponse } from "@features/utils/rest/types/types";
+import { Statistics } from "../types";
 
 export class StatisticsApiClient {
   static getStatistics = async (

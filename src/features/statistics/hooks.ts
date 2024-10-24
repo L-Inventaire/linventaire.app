@@ -8,6 +8,7 @@ import { DateTime } from "luxon";
 import { useInvoices } from "@features/invoices/hooks/use-invoices";
 import { generateQueryFromMap } from "@components/search-bar/utils/utils";
 import { Invoices } from "@features/invoices/types/types";
+import { Statistics } from "./types";
 
 const blankStatistics: Statistics = {
   totalRevenue: 0,
