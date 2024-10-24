@@ -7,10 +7,10 @@ import {
 } from "@heroicons/react/16/solid";
 import { Badge } from "@radix-ui/themes";
 import _ from "lodash";
+import { Fragment } from "react/jsx-runtime";
 import { twMerge } from "tailwind-merge";
 import { EventLine } from ".";
 import { CommentCard } from "./comments";
-import { Fragment } from "react/jsx-runtime";
 
 type PreparedEventLine = {
   isIgnore: boolean;
@@ -141,7 +141,7 @@ export const getEventLine = ({
         "operation_timestamp",
         "revisions"
       )
-    ).map((key) => {
+    ).forEach((key) => {
       const prevValue = (prev as any)[key];
       const newValue = (a as any)[key];
       if (!_.isEqual(prevValue, newValue)) {
