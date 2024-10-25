@@ -28,6 +28,9 @@ import { QuotesActions } from "./quotes";
 import { SupplierInvoicesActions } from "./supplier-invoices";
 import { SupplierQuotesActions } from "./supplier-quotes";
 import { InvoiceInvoiceModal } from "./modal-invoice";
+import { AccountingTransactions } from "@features/accounting/types/types";
+import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
+import { StockItems } from "@features/stock/types/types";
 
 export const InvoiceActions = ({
   id,
@@ -38,6 +41,7 @@ export const InvoiceActions = ({
 }) => {
   const { client: clientUser } = useClients();
   const client = clientUser!.client!;
+  const edit = useEditFromCtrlK();
 
   const navigate = useNavigateAlt();
   const { draft, save: _save } = useReadDraftRest<Invoices>(
@@ -360,7 +364,17 @@ export const InvoiceActions = ({
                         theme="outlined"
                         icon={(p) => <TruckIcon {...p} />}
                         onClick={() => {
-                          // TODO
+                          edit<StockItems>("stock_items", "", {
+                            from_rel_supplier_quote: draft.id,
+
+                            // TODO: we need a real modal here to select articles and stuff
+                            article: draft.content?.find(
+                              (a) =>
+                                a.article &&
+                                (a.type === "product" ||
+                                  a.type === "consumable")
+                            )?.article,
+                          });
                         }}
                       >
                         Réception
@@ -371,7 +385,16 @@ export const InvoiceActions = ({
                       size="lg"
                       icon={(p) => <CheckIcon {...p} />}
                       onClick={() => {
-                        // TODO
+                        edit<AccountingTransactions>(
+                          "accounting_transactions",
+                          "",
+                          {
+                            rel_invoices: [draft.id],
+                            currency: draft.currency,
+                            amount: draft.total?.total_with_taxes || 0,
+                            reference: draft.reference,
+                          }
+                        );
                       }}
                     >
                       Enregistrer un paiement
