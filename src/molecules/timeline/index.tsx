@@ -3,12 +3,17 @@ import { getAvatarFullUrl, getFullName } from "@features/auth/utils";
 import { useUser } from "@features/clients/state/use-client-users";
 import { Comments } from "@features/comments/types/types";
 import { PublicCustomer } from "@features/customers/types/customers";
+import { getRoute } from "@features/routes";
+import { useNavigateAlt } from "@features/utils/navigate";
 import { useRestHistory } from "@features/utils/rest/hooks/use-history";
 import { RestEntity } from "@features/utils/rest/types/types";
+import { EyeIcon } from "@heroicons/react/24/outline";
 import {
   Avatar,
   Button,
+  Callout,
   Heading,
+  IconButton,
   Strong,
   Text,
   Tooltip,
@@ -18,8 +23,21 @@ import _ from "lodash";
 import { ReactNode } from "react";
 import { CommentCreate } from "./comments";
 import { getEventLine, prepareHistory } from "./events";
+import { formatTime } from "@features/utils/format/dates";
 
-export const Timeline = ({ entity, id }: { entity: string; id: string }) => {
+export const Timeline = ({
+  entity,
+  id,
+  viewRoute,
+}: {
+  entity: string;
+  id: string;
+  viewRoute?: string;
+}) => {
+  const isRevision = id.includes("~");
+  const revision = id.split("~")[1];
+  const navigate = useNavigateAlt();
+
   const { data, fetchNextPage, hasNextPage } = useRestHistory<
     RestEntity & {
       operation_timestamp: string;
@@ -34,6 +52,26 @@ export const Timeline = ({ entity, id }: { entity: string; id: string }) => {
 
   return (
     <>
+      {isRevision && (
+        <Callout.Root className="text-center mb-4" color="bronze">
+          <div>
+            Vous consultez une version antérieure datant du{" "}
+            {formatTime(revision)}.
+            {viewRoute && (
+              <Button
+                onClick={() =>
+                  navigate(getRoute(viewRoute, { id: id.split("~")[0] }))
+                }
+                variant="solid"
+                className="block text-center mt-2"
+              >
+                Retourner à la version actuelle
+              </Button>
+            )}
+          </div>
+        </Callout.Root>
+      )}
+
       <div className="flex items-center space-x-2">
         <Heading size="4" className="grow">
           Activité
@@ -74,7 +112,7 @@ export const Timeline = ({ entity, id }: { entity: string; id: string }) => {
             Voir plus...
           </Button>
         )}
-        {prepareHistory(history, hasNextPage).map(getEventLine)}
+        {prepareHistory(history, hasNextPage, { viewRoute }).map(getEventLine)}
       </div>
       {!current.is_deleted && (
         <div className="mt-6">
@@ -91,18 +129,23 @@ export const EventLine = ({
   message,
   icon,
   name,
+  revision,
+  viewRoute,
 }: {
   comment: Partial<Comments>;
   first?: boolean;
   message?: string | ReactNode;
   icon?: (props: { className: string }) => ReactNode;
   name?: string;
+  revision?: string;
+  viewRoute?: string;
 }) => {
+  const navigate = useNavigateAlt();
   const { user } = useUser(comment.created_by || "");
   const fullName =
     getFullName(user?.user as PublicCustomer) || user?.user?.email || "Unknown";
   return (
-    <div className="flex items-center space-x-2 mt-3 mx-1.5">
+    <div className="flex items-center space-x-2 mt-3 mx-1.5 group/event">
       <div className="w-6 h-6 relative -mr-1">
         {!icon && (
           <Avatar
@@ -145,6 +188,18 @@ export const EventLine = ({
           </span>
         </Tooltip>
       </Text>
+      {!!viewRoute && !!revision && (
+        <IconButton
+          data-tooltip="Ouvrir cette version"
+          className="group-hover/event:opacity-100 opacity-0"
+          onClick={(event: any) =>
+            navigate(getRoute(viewRoute, { id: revision }), { event })
+          }
+          variant="ghost"
+        >
+          <EyeIcon className="w-4 h-4" />
+        </IconButton>
+      )}
     </div>
   );
 };

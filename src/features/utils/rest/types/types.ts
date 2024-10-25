@@ -3,6 +3,7 @@ export type RestEntity = {
   is_deleted: boolean;
   client_id: string;
   revisions: number;
+  restored_from: string;
   created_at: string; // Stringified timestamp in ms
   created_by: string;
   updated_at: string; // Stringified timestamp in ms

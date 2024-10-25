@@ -21,6 +21,7 @@ import { EditorInput } from "@molecules/editor-input";
 import { useEffect } from "react";
 import { InvoiceRestDocument } from "../../invoices/components/invoice-lines-input/invoice-input-rest-card";
 import { Timeline } from "@molecules/timeline";
+import { ROUTES } from "@features/routes";
 
 export const AccountingTransactionsDetailsPage = ({
   readonly,
@@ -229,7 +230,11 @@ export const AccountingTransactionsDetailsPage = ({
         </div>
 
         <div className="mt-8">
-          <Timeline entity="accounting_transactions" id={draft.id} />
+          <Timeline
+            entity="accounting_transactions"
+            id={draft.id}
+            viewRoute={ROUTES.AccountingView}
+          />
         </div>
       </FormContext>
     </div>

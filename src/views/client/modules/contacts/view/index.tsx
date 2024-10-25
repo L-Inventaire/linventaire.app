@@ -27,6 +27,7 @@ export const ContactsViewPage = (_props: { readonly?: boolean }) => {
           mode={"read"}
           backRoute={ROUTES.Contacts}
           editRoute={ROUTES.ContactsEdit}
+          viewRoute={ROUTES.ContactsView}
           onRemove={
             contact?.id
               ? async () => remove.mutateAsync(contact?.id)

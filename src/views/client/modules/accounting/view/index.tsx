@@ -41,6 +41,7 @@ export const AccountingTransactionsViewPage = (_props: {
           mode={"read"}
           backRoute={ROUTES.Accounting}
           editRoute={ROUTES.AccountingEdit}
+          viewRoute={ROUTES.AccountingView}
           prefix={<></>}
           suffix={<></>}
           onRemove={
