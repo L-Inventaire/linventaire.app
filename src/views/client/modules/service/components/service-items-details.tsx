@@ -28,6 +28,7 @@ import { Contacts } from "@features/contacts/types/types";
 import { Unit } from "@atoms/input/input-unit";
 import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { Timeline } from "@molecules/timeline";
+import { ROUTES } from "@features/routes";
 
 export const ServiceItemsDetailsPage = ({
   readonly,
@@ -215,7 +216,11 @@ export const ServiceItemsDetailsPage = ({
         </div>
 
         <div className="mt-8">
-          <Timeline entity="service_items" id={draft.id} />
+          <Timeline
+            entity="service_items"
+            id={draft.id}
+            viewRoute={ROUTES.ServiceItemsView}
+          />
         </div>
       </FormContext>
     </div>

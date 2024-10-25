@@ -36,6 +36,7 @@ export const StockItemsViewPage = (_props: { readonly?: boolean }) => {
           mode={"read"}
           backRoute={ROUTES.Stock}
           editRoute={ROUTES.StockEdit}
+          viewRoute={ROUTES.StockView}
           prefix={<></>}
           suffix={<></>}
           onRemove={

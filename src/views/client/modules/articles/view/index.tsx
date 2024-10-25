@@ -23,6 +23,7 @@ export const ArticlesViewPage = (_props: { readonly?: boolean }) => {
           mode={"read"}
           backRoute={ROUTES.Products}
           editRoute={ROUTES.ProductsEdit}
+          viewRoute={ROUTES.ProductsView}
           onRemove={
             article?.id
               ? async () => remove.mutateAsync(article?.id)

@@ -36,6 +36,7 @@ export const ServiceItemsViewPage = (_props: { readonly?: boolean }) => {
           mode={"read"}
           backRoute={ROUTES.ServiceItems}
           editRoute={ROUTES.ServiceItemsEdit}
+          viewRoute={ROUTES.ServiceItemsView}
           prefix={<></>}
           suffix={<></>}
           onRemove={

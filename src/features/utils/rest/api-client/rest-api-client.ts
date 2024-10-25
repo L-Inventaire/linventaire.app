@@ -112,14 +112,26 @@ export class RestApiClient<T> {
   };
 
   delete = async (clientId: string, id: string): Promise<void> => {
-    await fetchServer(`/api/rest/v1/${clientId}/${this.table}/${id}`, {
-      method: "DELETE",
-    });
+    const res = await fetchServer(
+      `/api/rest/v1/${clientId}/${this.table}/${id}`,
+      {
+        method: "DELETE",
+      }
+    );
+    if (res.status !== 200) {
+      throw new Error("Error deleting data");
+    }
   };
 
   restore = async (clientId: string, id: string): Promise<void> => {
-    await fetchServer(`/api/rest/v1/${clientId}/${this.table}/${id}/restore`, {
-      method: "POST",
-    });
+    const res = await fetchServer(
+      `/api/rest/v1/${clientId}/${this.table}/${id}/restore`,
+      {
+        method: "POST",
+      }
+    );
+    if (res.status !== 200) {
+      throw new Error("Error restoring data");
+    }
   };
 }

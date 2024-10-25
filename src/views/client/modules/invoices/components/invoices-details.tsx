@@ -29,6 +29,7 @@ import {
 } from "@heroicons/react/20/solid";
 import { EditorInput } from "@molecules/editor-input";
 import { Table } from "@molecules/table";
+import { Timeline } from "@molecules/timeline";
 import { Callout, Code, Text } from "@radix-ui/themes";
 import { PageColumns } from "@views/client/_layout/page";
 import _ from "lodash";
@@ -45,7 +46,7 @@ import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-ca
 import { InvoiceStatus } from "./invoice-status";
 import { RelatedInvoices } from "./related-invoices";
 import { TagPaymentCompletion } from "./tag-payment-completion";
-import { Timeline } from "@molecules/timeline";
+import { ROUTES } from "@features/routes";
 
 export const computeStockCompletion = (
   linesu: Invoices["content"],
@@ -616,7 +617,11 @@ export const InvoicesDetailsPage = ({
                 </div>
                 <br />
                 <br />
-                <Timeline entity="invoices" id={draft.id} />
+                <Timeline
+                  entity="invoices"
+                  id={draft.id}
+                  viewRoute={ROUTES.InvoicesView}
+                />
               </>
             )}
             <br />

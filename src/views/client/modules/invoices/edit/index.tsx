@@ -23,6 +23,7 @@ export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
   let { id } = useParams();
   id = id === "new" ? "" : id || "";
   const navigate = useNavigate();
+  const isRevision = id?.includes("~");
 
   const defaultModel = useInvoiceDefaultModel();
   const initialModel = JSON.parse(
@@ -57,7 +58,9 @@ export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
         },
         { label: id ? "Modifier" : "Créer" },
       ]}
-      footer={<InvoiceActions id={id} readonly={false} />}
+      footer={
+        isRevision ? undefined : <InvoiceActions id={id} readonly={false} />
+      }
       bar={
         <DocumentBar
           loading={isInitiating || loading}

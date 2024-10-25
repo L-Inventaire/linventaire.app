@@ -39,6 +39,7 @@ import { useSetRecoilState } from "recoil";
 import { SubdivideStockModalAtom } from "./subdivide-modal";
 import { Tracability } from "./tracability";
 import { Timeline } from "@molecules/timeline";
+import { ROUTES } from "@features/routes";
 
 export const StockItemsDetailsPage = ({
   readonly,
@@ -414,7 +415,11 @@ export const StockItemsDetailsPage = ({
         )}
 
         <div className="mt-8">
-          <Timeline entity="stock_items" id={draft.id} />
+          <Timeline
+            entity="stock_items"
+            id={draft.id}
+            viewRoute={ROUTES.StockView}
+          />
         </div>
       </FormContext>
     </div>

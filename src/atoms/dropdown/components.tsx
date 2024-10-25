@@ -1,6 +1,7 @@
 import Link from "@atoms/link";
 import { Base, Info } from "@atoms/text";
 import { ChevronDownIcon } from "@heroicons/react/16/solid";
+import { Badge } from "@radix-ui/themes";
 import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
@@ -48,6 +49,7 @@ export const MenuItem = ({
   show,
   className,
   suffix,
+  badge,
 }: {
   active?: boolean;
   icon?: (p: any) => React.ReactNode;
@@ -57,6 +59,7 @@ export const MenuItem = ({
   show?: boolean;
   className?: string;
   suffix?: React.ReactNode;
+  badge?: string;
 }) => {
   const autoScrollRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
@@ -95,6 +98,12 @@ export const MenuItem = ({
       </Base>
       {suffix}
       <div ref={autoScrollRef} className="h-24 absolute" />
+      <div></div>
+      {badge && (
+        <Badge color="red" variant="outline" highContrast>
+          {badge}
+        </Badge>
+      )}
     </Link>
   );
 };
