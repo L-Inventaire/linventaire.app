@@ -15,6 +15,7 @@ import { NotFound } from "@atoms/not-found/not-found";
 export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
   const { invoice, isPending, remove, restore } = useInvoice(id || "");
+  const isRevision = id?.includes("~");
 
   if (!invoice && isPending)
     return (
@@ -44,7 +45,9 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
         },
         { label: invoice.reference || "" },
       ]}
-      footer={<InvoiceActions id={id} readonly={true} />}
+      footer={
+        isRevision ? undefined : <InvoiceActions id={id} readonly={true} />
+      }
       bar={
         <DocumentBar
           loading={isPending && !invoice}
@@ -53,6 +56,7 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
           mode={"read"}
           backRoute={getRoute(ROUTES.Invoices, { type: invoice.type })}
           editRoute={ROUTES.InvoicesEdit}
+          viewRoute={ROUTES.InvoicesView}
           onPrint={async () => getPdfPreview(invoice)}
           onRemove={
             invoice?.id && invoice?.state === "draft"

@@ -4,6 +4,7 @@ import { withModel } from "@components/search-bar/utils/as-model";
 import { useRegisterActiveSelection } from "@features/ctrlk/use-register-current-selection";
 import { getRoute } from "@features/routes";
 import { copyToClipboard } from "@features/utils/clipboard";
+import { formatTime } from "@features/utils/format/dates";
 import { useNavigateAlt } from "@features/utils/navigate";
 import { RestEntity } from "@features/utils/rest/types/types";
 import {
@@ -13,6 +14,7 @@ import {
 } from "@heroicons/react/20/solid";
 import {
   ArchiveBoxArrowDownIcon,
+  ArrowUturnLeftIcon,
   DocumentDuplicateIcon,
   EllipsisHorizontalIcon,
   LinkIcon,
@@ -20,9 +22,10 @@ import {
   PrinterIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-import { Badge } from "@radix-ui/themes";
+import { Badge, Separator } from "@radix-ui/themes";
 import _ from "lodash";
 import { useEffect } from "react";
+import toast from "react-hot-toast";
 import { useSetRecoilState } from "recoil";
 
 export const DocumentBar = ({
@@ -51,6 +54,9 @@ export const DocumentBar = ({
   onRemove?: () => Promise<void>;
   onRestore?: () => Promise<void>;
 }) => {
+  const isRevision = document.id?.includes("~");
+  const revision = document.id?.split("~")[1];
+
   const setMenu = useSetRecoilState(DropDownAtom);
 
   const navigate = useNavigateAlt();
@@ -121,9 +127,54 @@ export const DocumentBar = ({
       </div>
       {!loading && (
         <>
-          {prefix}
+          {!document.is_deleted && !isRevision && prefix}
           <div className="grow" />
-          {document.is_deleted && (
+          {isRevision && (
+            <>
+              <Badge color="bronze" size="2">
+                Vous consultez une version antérieure ({formatTime(revision)})
+              </Badge>
+              {props?.onRestore && (
+                <Button
+                  color="green"
+                  data-tooltip="Restaurer cette version"
+                  size="xs"
+                  theme="invisible"
+                  icon={(p) => <ArchiveBoxArrowDownIcon {...p} />}
+                  onClick={async () => {
+                    try {
+                      await props.onRestore?.();
+                      navigate(
+                        getRoute(props.viewRoute || "/", {
+                          id: document.id.split("~")[0],
+                        })
+                      );
+                    } catch {
+                      toast.error("Impossible de restaurer le document");
+                    }
+                  }}
+                />
+              )}
+              {props.viewRoute && (
+                <Button
+                  color="green"
+                  data-tooltip="Revenir à la dernière version"
+                  size="xs"
+                  theme="invisible"
+                  icon={(p) => <ArrowUturnLeftIcon {...p} />}
+                  onClick={() => {
+                    navigate(
+                      getRoute(props.viewRoute || "/", {
+                        id: document.id.split("~")[0],
+                      })
+                    );
+                  }}
+                />
+              )}
+              <Separator orientation="vertical" />
+            </>
+          )}
+          {document.is_deleted && !isRevision && (
             <>
               <Badge color="red" size="2">
                 Document supprimé
@@ -134,9 +185,21 @@ export const DocumentBar = ({
                   size="xs"
                   theme="invisible"
                   icon={(p) => <ArchiveBoxArrowDownIcon {...p} />}
-                  onClick={() => props.onRestore?.()}
+                  onClick={async () => {
+                    try {
+                      await props.onRestore?.();
+                      navigate(
+                        getRoute(props.viewRoute || "/", {
+                          id: document.id.split("~")[0],
+                        })
+                      );
+                    } catch {
+                      toast.error("Impossible de restaurer le document");
+                    }
+                  }}
                 />
               )}
+              <Separator orientation="vertical" />
             </>
           )}
           {props.editRoute && (
@@ -180,7 +243,7 @@ export const DocumentBar = ({
               onClick={props.onPrint}
             />
           )}
-          {!document.is_deleted && mode === "read" && (
+          {!isRevision && !document.is_deleted && mode === "read" && (
             <Button
               data-tooltip="Modifier"
               size="xs"
@@ -192,7 +255,7 @@ export const DocumentBar = ({
               icon={(p) => <PencilSquareIcon {...p} />}
             />
           )}
-          {!document.is_deleted && !!actionMenu.length && (
+          {!isRevision && !document.is_deleted && !!actionMenu.length && (
             <Button
               size="xs"
               theme="invisible"
@@ -206,7 +269,7 @@ export const DocumentBar = ({
               }}
             />
           )}
-          {!document.is_deleted && mode === "write" && (
+          {!isRevision && !document.is_deleted && mode === "write" && (
             <>
               <Button size="sm" theme="outlined" onClick={cancel}>
                 Annuler
@@ -216,7 +279,7 @@ export const DocumentBar = ({
               </Button>
             </>
           )}
-          {!document.is_deleted && suffix}
+          {!isRevision && !document.is_deleted && suffix}
         </>
       )}
     </div>

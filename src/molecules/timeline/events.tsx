@@ -19,6 +19,7 @@ type PreparedEventLine = {
   isRestore: boolean;
   isEdit: boolean;
   isFirstInLine: boolean;
+  viewRoute?: string;
   key: string;
   item: RestEntity & any;
   previousItem: RestEntity & any;
@@ -26,7 +27,8 @@ type PreparedEventLine = {
 
 export const prepareHistory = (
   history: (RestEntity & any)[],
-  hasNextPage: boolean
+  hasNextPage: boolean,
+  options: { viewRoute?: string } = {}
 ) => {
   return history.map((a, i) => {
     const isIgnore = i === 0 && !hasNextPage;
@@ -50,6 +52,7 @@ export const prepareHistory = (
       isRestore,
       isEdit,
       isFirstInLine,
+      viewRoute: options.viewRoute,
       key: `${a.revisions}-${a.operation_timestamp}`,
       item: a,
       previousItem: prev,
@@ -64,6 +67,7 @@ export const getEventLine = ({
   isRestore,
   isEdit,
   isFirstInLine,
+  viewRoute,
   key,
   item,
   previousItem,
@@ -88,6 +92,8 @@ export const getEventLine = ({
           created_by: a.updated_by || a.created_by,
           created_at: a.operation_timestamp || a.created_at,
         }}
+        viewRoute={viewRoute}
+        revision={a.id + "~" + a.operation_timestamp}
         first={isFirstInLine}
         icon={(p) => (
           <TrashIcon className={twMerge(p.className, "text-red-500")} />
@@ -110,6 +116,8 @@ export const getEventLine = ({
           created_by: a.updated_by || a.created_by,
           created_at: a.operation_timestamp || a.created_at,
         }}
+        viewRoute={viewRoute}
+        revision={a.id + "~" + a.operation_timestamp}
         first={isFirstInLine}
         icon={(p) => (
           <ArchiveBoxArrowDownIcon
@@ -155,10 +163,16 @@ export const getEventLine = ({
       }
     });
 
+    if (changes.length === 0 && added.length === 0 && removed.length === 0) {
+      return <Fragment key={key} />;
+    }
+
     return (
       <EventLine
         key={key}
         first={isFirstInLine}
+        viewRoute={viewRoute}
+        revision={a.id + "~" + a.operation_timestamp}
         comment={{
           id: a.revisions.toString(),
           created_by: a.updated_by || a.created_by,

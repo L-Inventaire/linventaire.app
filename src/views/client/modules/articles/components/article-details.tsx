@@ -13,6 +13,7 @@ import { EditorInput } from "@molecules/editor-input";
 import { PageBlock, PageColumns } from "@views/client/_layout/page";
 import { ArticleSuppliersInput } from "./article-suppliers-input";
 import { Timeline } from "@molecules/timeline";
+import { ROUTES } from "@features/routes";
 
 export const frequencyOptions = [
   { value: "", label: "Pas de renouvellement" },
@@ -189,7 +190,11 @@ export const ArticlesDetailsPage = ({
             </PageBlock>
 
             <div className="mt-8">
-              <Timeline entity="articles" id={draft.id} />
+              <Timeline
+                entity="articles"
+                id={draft.id}
+                viewRoute={ROUTES.ProductsView}
+              />
             </div>
           </div>
           <div className="grow lg:max-w-xl">

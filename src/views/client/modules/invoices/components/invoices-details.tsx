@@ -46,6 +46,7 @@ import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-ca
 import { InvoiceStatus } from "./invoice-status";
 import { RelatedInvoices } from "./related-invoices";
 import { TagPaymentCompletion } from "./tag-payment-completion";
+import { ROUTES } from "@features/routes";
 
 export const computeStockCompletion = (
   linesu: Invoices["content"],
@@ -616,7 +617,11 @@ export const InvoicesDetailsPage = ({
                 </div>
                 <br />
                 <br />
-                <Timeline entity="invoices" id={draft.id} />
+                <Timeline
+                  entity="invoices"
+                  id={draft.id}
+                  viewRoute={ROUTES.InvoicesView}
+                />
               </>
             )}
             <br />

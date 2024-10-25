@@ -25,6 +25,7 @@ import { ContactAccountingAccount } from "./contact-accounting-account";
 import { RelatedInvoicesInput } from "./related-invoices-input";
 import { RelationsInput } from "./relations-input";
 import { Timeline } from "@molecules/timeline";
+import { ROUTES } from "@features/routes";
 
 export const ContactsDetailsPage = ({
   readonly,
@@ -280,7 +281,11 @@ export const ContactsDetailsPage = ({
               }}
             />
             <RelatedInvoicesInput id={contact.id} />
-            <Timeline entity={"contacts"} id={contact.id} />
+            <Timeline
+              entity={"contacts"}
+              id={contact.id}
+              viewRoute={ROUTES.ContactsView}
+            />
           </div>
           <div className="grow lg:max-w-xl">
             {false && id && (contact.is_client || contact.is_supplier) && (
