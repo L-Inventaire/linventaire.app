@@ -51,23 +51,22 @@ export const ContactsDetailsPage = ({
             client?.client_id || "",
             contact.business_registered_id
           );
-          setContact(
-            (prev: Partial<Contacts>) =>
-              ({
-                business_registered_name: value?.name,
-                delivery_address: prev.delivery_address,
-                ..._.omitBy(prev, _.isEmpty),
-                address: {
-                  address_line_1: value?.address?.address_line_1,
-                  address_line_2: value?.address?.address_line_2,
-                  city: value?.address?.city,
-                  region: value?.address?.region,
-                  zip: value?.address?.zip,
-                  country: value?.address?.country,
-                  ..._.omitBy(prev.address, _.isEmpty),
-                },
-              } as Partial<Contacts> as Contacts)
-          );
+          setContact((prev: Partial<Contacts>) => {
+            return {
+              business_registered_name: value?.name,
+              delivery_address: prev.delivery_address,
+              ..._.omitBy(prev, (a) => _.isEmpty(a) && !_.isBoolean(a)),
+              address: {
+                address_line_1: value?.address?.address_line_1,
+                address_line_2: value?.address?.address_line_2,
+                city: value?.address?.city,
+                region: value?.address?.region,
+                zip: value?.address?.zip,
+                country: value?.address?.country,
+                ..._.omitBy(prev.address, _.isEmpty),
+              },
+            } as Partial<Contacts> as Contacts;
+          });
         },
         {
           key: "sirene",
@@ -77,6 +76,8 @@ export const ContactsDetailsPage = ({
   }, [contact.business_registered_id]);
 
   if (isPending || (id && contact.id !== id)) return <PageLoader />;
+
+  console.log("contacttt", contact.is_client, contact.is_supplier);
 
   return (
     <>
