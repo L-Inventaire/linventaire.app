@@ -335,7 +335,7 @@ export const InvoicesDetailsPage = ({
               </>
             )}
 
-            <div className="mb-2">
+            <div className="mb-2 flex flex-row">
               <InvoiceStatus
                 readonly={true}
                 size="sm"
@@ -343,6 +343,7 @@ export const InvoicesDetailsPage = ({
                 type={draft.type}
                 onChange={(value) => setDraft({ ...draft, state: value })}
               />
+              <div className="grow" />
               {draft.type === "invoices" && (
                 <TagPaymentCompletion invoice={draft} />
               )}
