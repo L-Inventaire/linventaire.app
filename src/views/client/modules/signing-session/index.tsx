@@ -16,7 +16,6 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import { TitleBar } from "./components/title-bar";
-import { useInvoice } from "@features/invoices/hooks/use-invoices";
 
 export const SigningSessionPage = () => {
   const navigate = useNavigate();
@@ -45,8 +44,6 @@ export const SigningSessionPage = () => {
     signingSession && !isErrorResponse(signingSession)
       ? (signingSession.invoice_snapshot as unknown as Invoices)
       : null;
-
-  const real_invoice = useInvoice(invoice?.id ?? "");
 
   useEffect(() => {
     setOptions(
