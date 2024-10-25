@@ -160,7 +160,7 @@ export const InvoicesDetailsPage = ({
     if (!isPending && draft)
       setDraft((draft: Invoices) => {
         draft = _.cloneDeep(draft);
-        if (!draft.emit_date) draft.emit_date = new Date();
+        if (!draft.emit_date) draft.emit_date = new Date().getTime();
         if (draft.type && !draft.reference) {
           const format = _.get(client.invoices_counters, draft.type)?.format;
           const counter = _.get(client.invoices_counters, draft.type)?.counter;
