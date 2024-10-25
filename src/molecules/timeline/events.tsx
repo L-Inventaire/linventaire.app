@@ -11,9 +11,11 @@ import { Fragment } from "react/jsx-runtime";
 import { twMerge } from "tailwind-merge";
 import { EventLine } from ".";
 import { CommentCard } from "./comments";
+import { formatTime } from "@features/utils/format/dates";
 
 type PreparedEventLine = {
   isIgnore: boolean;
+  isRestoreOldVersion: boolean;
   isComment: boolean;
   isDeleted: boolean;
   isRestore: boolean;
@@ -44,9 +46,12 @@ export const prepareHistory = (
     const isDeleted = a.is_deleted;
     const isRestore = prev.is_deleted && !isDeleted;
     const isEdit = !isDeleted && !isRestore && a.revisions > prev?.revisions;
+    const isRestoreOldVersion =
+      a.restored_from && a.restored_from !== prev.restored_from;
 
     return {
       isIgnore,
+      isRestoreOldVersion,
       isComment,
       isDeleted,
       isRestore,
@@ -62,6 +67,7 @@ export const prepareHistory = (
 
 export const getEventLine = ({
   isIgnore,
+  isRestoreOldVersion,
   isComment,
   isDeleted,
   isRestore,
@@ -127,6 +133,33 @@ export const getEventLine = ({
         message={
           <>
             a <Badge color="green">restauré</Badge> ce document
+          </>
+        }
+      />
+    );
+  }
+
+  if (isRestoreOldVersion) {
+    return (
+      <EventLine
+        key={key}
+        comment={{
+          id: a.revisions.toString(),
+          created_by: a.updated_by || a.created_by,
+          created_at: a.operation_timestamp || a.created_at,
+        }}
+        viewRoute={viewRoute}
+        revision={a.id + "~" + a.operation_timestamp}
+        first={isFirstInLine}
+        icon={(p) => (
+          <ArchiveBoxArrowDownIcon
+            className={twMerge(p.className, "text-yellow-700")}
+          />
+        )}
+        message={
+          <>
+            a <Badge color="brown">restauré</Badge> la version du{" "}
+            {formatTime(a.restored_from)}
           </>
         }
       />
