@@ -34,8 +34,8 @@ export const Timeline = ({
   id: string;
   viewRoute?: string;
 }) => {
-  const isRevision = id.includes("~");
-  const revision = id.split("~")[1];
+  const isRevision = (id || "").includes("~");
+  const revision = (id || "").split("~")[1];
   const navigate = useNavigateAlt();
 
   const { data, fetchNextPage, hasNextPage } = useRestHistory<
