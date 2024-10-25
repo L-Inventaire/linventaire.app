@@ -30,7 +30,7 @@ export type Invoices = RestEntity & {
   client: string; // For client invoices/quotes/credit_notes
 
   contact: string; // Nullable, the person in the client we discuss with
-  emit_date: Date;
+  emit_date: number;
   language: string;
   currency: string;
 
