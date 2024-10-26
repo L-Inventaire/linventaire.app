@@ -10,30 +10,36 @@ import _ from "lodash";
 export const schemaToSearchFields = (
   schema: any,
   translations: {
-    [key: string]: string | { label: string; keywords: string };
+    [key: string]:
+      | boolean
+      | string
+      | { label: string; keywords: string; values?: { [key: string]: {} } };
   } = {}
 ) => {
   if (Object.keys(schema || {}).length === 0) return [];
-  return Object.entries(flattenKeys(schema)).map(([key, value]) => {
-    key = key.replace(/\[0\]$/, "");
-    const tr =
-      typeof translations[key] === "string"
-        ? { label: translations[key], keywords: translations[key] }
-        : (translations[key] as any);
-    return {
-      key,
-      label: tr?.label || key,
-      keywords: [...(tr?.keywords || "").split(" "), key, tr?.label]
-        .filter((a) => a)
-        .map((a) =>
-          a
-            .toLocaleLowerCase()
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-        ),
-      type: value as SearchField["type"],
-    };
-  });
+  return Object.entries(flattenKeys(schema))
+    .filter(([key]) => translations[key] !== false)
+    .map(([key, value]) => {
+      key = key.replace(/\[0\]$/, "");
+      const tr =
+        typeof translations[key] === "string"
+          ? { label: translations[key], keywords: translations[key] }
+          : (translations[key] as any);
+      return {
+        key,
+        label: tr?.label || key,
+        keywords: [...(tr?.keywords || "").split(" "), key, tr?.label]
+          .filter((a) => a)
+          .map((a) =>
+            a
+              .toLocaleLowerCase()
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+          ),
+        type: value as SearchField["type"],
+        values: (translations?.[key] as any)?.values || {},
+      };
+    });
 };
 
 export const labelToVariable = (label: string) =>

@@ -2,7 +2,10 @@ import { Button } from "@atoms/button/button";
 import { Info } from "@atoms/text";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { RestTable } from "@components/table-rest";
-import { ArticlesColumns } from "@features/articles/configuration";
+import {
+  ArticlesColumns,
+  ArticlesFieldsNames,
+} from "@features/articles/configuration";
 import { useArticles } from "@features/articles/hooks/use-articles";
 import { Articles } from "@features/articles/types/types";
 import { ROUTES, getRoute } from "@features/routes";
@@ -16,6 +19,7 @@ import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
+import { formatNumber } from "@features/utils/format/strings";
 
 export const ArticlesPage = () => {
   const [options, setOptions] = useState<RestOptions<Articles>>({
@@ -34,17 +38,7 @@ export const ArticlesPage = () => {
         <SearchBar
           schema={{
             table: "articles",
-            fields: schemaToSearchFields(schema.data, {
-              tags: {
-                label: "Étiquettes",
-                keywords: "tags étiquettes label",
-              },
-              updated_at: "Date de mise à jour",
-              updated_by: {
-                label: "Mis à jour par",
-                keywords: "updated_by mis à jour par auteur utilisateur user",
-              },
-            }),
+            fields: schemaToSearchFields(schema.data, ArticlesFieldsNames()),
           }}
           onChange={(q) =>
             q.valid && setOptions({ ...options, query: q.fields })
@@ -67,7 +61,9 @@ export const ArticlesPage = () => {
     >
       <div className="-m-3">
         <div className="px-3 h-7 w-full bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700">
-          <Info>{articles?.data?.total || 0} articles trouvés</Info>
+          <Info>
+            {formatNumber(articles?.data?.total || 0)} articles trouvés
+          </Info>
         </div>
         <RestTable
           entity="articles"
@@ -75,20 +71,18 @@ export const ArticlesPage = () => {
           onClick={({ id }, event) =>
             navigate(getRoute(ROUTES.ProductsView, { id }), { event })
           }
+          groupBy="type"
+          groupByRender={(type) =>
+            ArticlesColumns.find((c) => c.id === "type")?.render?.(type, {})
+          }
           data={articles}
           onRequestData={async (page) => {
             setOptions({
               ...options,
               limit: page.perPage,
               offset: (page.page - 1) * page.perPage,
-              asc: page.order === "ASC",
-              index:
-                page.orderBy === undefined
-                  ? undefined
-                  : [
-                      "business_name,person_first_name,person_last_name,business_registered_name",
-                      "tags",
-                    ][page.orderBy],
+              asc: true,
+              index: "type,name",
             });
           }}
           columns={ArticlesColumns}

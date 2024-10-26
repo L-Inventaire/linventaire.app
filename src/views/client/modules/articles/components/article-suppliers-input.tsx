@@ -182,29 +182,32 @@ export const ArticleSuppliersInput = ({
                     }
                   }}
                 />
-                <Button
-                  theme="outlined"
-                  size="md"
-                  onClick={() => {
-                    onChange(_.uniq([...value[0], "custom"]), {
-                      ...value[1],
-                      custom: {
-                        reference: "",
-                        price: 0,
-                        delivery_time: 0,
-                        delivery_quantity: 0,
-                      },
-                    });
-                  }}
-                >
-                  Ajouter un coût sans fournisseur
-                </Button>
+                {!value[0].includes("custom") && (
+                  <Button
+                    theme="outlined"
+                    size="md"
+                    onClick={() => {
+                      onChange(_.uniq([...value[0], "custom"]), {
+                        ...value[1],
+                        custom: {
+                          reference: "",
+                          price: 0,
+                          delivery_time: 0,
+                          delivery_quantity: 0,
+                        },
+                      });
+                    }}
+                  >
+                    Ajouter un coût sans fournisseur
+                  </Button>
+                )}
               </div>
             )}
 
             {!!suppliersList?.length && readonly && (
               <>
                 <Table
+                  border
                   data={suppliersList || []}
                   columns={[
                     {

@@ -7,12 +7,15 @@ import { useInvoices } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
 import { getDocumentNamePlurial } from "@features/invoices/utils";
 import { ROUTES, getRoute } from "@features/routes";
+import { formatNumber } from "@features/utils/format/strings";
 import { useNavigateAlt } from "@features/utils/navigate";
 import {
   RestOptions,
   useRestSchema,
+  useRestSuggestions,
 } from "@features/utils/rest/hooks/use-rest";
 import { ArrowUturnLeftIcon, PlusIcon } from "@heroicons/react/24/outline";
+import { Badge, Tabs } from "@radix-ui/themes";
 import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
@@ -23,7 +26,38 @@ import {
 } from "../../../../components/search-bar/utils/utils";
 import { InvoiceStatus } from "./components/invoice-status";
 
+const activeFilter = [
+  {
+    key: "state",
+    not: true,
+    values: [
+      {
+        op: "equals",
+        value: "draft",
+      },
+      {
+        op: "equals",
+        value: "closed",
+      },
+    ],
+  },
+];
+
 export const InvoicesPage = () => {
+  const tabs = {
+    active: { label: "Actifs", filter: activeFilter },
+    draft: {
+      label: "Brouillons",
+      filter: buildQueryFromMap({ state: "draft" }),
+    },
+    closed: {
+      label: "Archivés",
+      filter: buildQueryFromMap({ state: "closed" }),
+    },
+    all: { label: "Tous", filter: [] },
+  };
+  const [activeTab, setActiveTab] = useState("active");
+
   const type: Invoices["type"][] = (useParams().type?.split("+") || [
     "invoices",
   ]) as any;
@@ -33,14 +67,34 @@ export const InvoicesPage = () => {
     query: [],
   });
 
-  const { invoices } = useInvoices({
+  const invoiceFilters = {
     ...options,
     index: "state,emit_date",
     query: [...((options?.query as any) || []), ...buildQueryFromMap({ type })],
+  };
+
+  const { invoices } = useInvoices({
+    ...invoiceFilters,
+    query: [
+      ...invoiceFilters.query,
+      ...((tabs as any)[activeTab]?.filter || []),
+    ],
   });
 
   const schema = useRestSchema("invoices");
   const navigate = useNavigateAlt();
+
+  // Counters
+  const { invoices: draftInvoices } = useInvoices({
+    key: "draftInvoices",
+    limit: 1,
+    query: [...invoiceFilters.query, ...tabs.draft.filter],
+  });
+  const { invoices: activeInvoices } = useInvoices({
+    key: "activeInvoices",
+    limit: 1,
+    query: [...invoiceFilters.query, ...activeFilter],
+  });
 
   return (
     <Page
@@ -152,8 +206,27 @@ export const InvoicesPage = () => {
       }
     >
       <div className="-m-3">
-        <div className="px-3 h-7 w-full bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700">
-          <Info>{invoices?.data?.total || 0} documents trouvés</Info>
+        <div className="px-3 min-h-7 w-full bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700">
+          <Tabs.Root onValueChange={setActiveTab} value={activeTab}>
+            <Tabs.List className="flex space-x-2 -mx-3 -mb-px items-center">
+              {Object.entries(tabs).map(([key, label]) => (
+                <Tabs.Trigger key={key} value={key}>
+                  {label.label}
+                  {["draft", "active"].includes(key) && (
+                    <Badge className="ml-2">
+                      {key === "draft"
+                        ? formatNumber(draftInvoices?.data?.total || 0)
+                        : formatNumber(activeInvoices?.data?.total || 0)}
+                    </Badge>
+                  )}
+                </Tabs.Trigger>
+              ))}
+              <div className="grow" />
+              <Info className="pr-3">
+                {formatNumber(invoices?.data?.total || 0)} documents trouvés
+              </Info>
+            </Tabs.List>
+          </Tabs.Root>
         </div>
         <RestTable
           groupBy="state"

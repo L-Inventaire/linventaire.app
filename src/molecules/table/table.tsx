@@ -89,7 +89,7 @@ const defaultCellClassName = ({
   className?: string;
 }) => {
   return twMerge(
-    "h-full w-full flex items-center min-w-max min-h-12 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800",
+    "h-full w-full flex items-center min-h-12 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800",
     colFirst && "pl-1",
     colLast && "pr-1",
     selected
@@ -337,34 +337,11 @@ export function RenderedTable<T>({
                   {onSelect && (
                     <th
                       className={
-                        "w-8 shrink-0 relative " +
+                        "w-8 shrink-0 relative text-center pl-1 " +
                         (scrollable ? " sticky top-0 " : "")
                       }
                     >
-                      <div
-                        className="absolute z-20 top-0 left-0 "
-                        style={{
-                          boxShadow: "40px 0 20px #F8FAFC",
-                        }}
-                      >
-                        {selected.length > 0 &&
-                          typeof onSelect !== "function" && (
-                            <DropdownButton
-                              theme="primary"
-                              size="md"
-                              menu={onSelect.map((a) => ({
-                                onClick: () => a.callback(selected),
-                                icon: a.icon,
-                                label: a.label,
-                                type: a.type,
-                              }))}
-                              icon={(p) => <ChevronDownIcon {...p} />}
-                            >
-                              {selected.length || 0} item
-                              {selected.length > 1 ? "s" : ""}
-                            </DropdownButton>
-                          )}
-                      </div>
+                      <BaseSmall>#</BaseSmall>
                     </th>
                   )}
                   {columns
@@ -454,7 +431,7 @@ export function RenderedTable<T>({
                       <tr>
                         <td
                           colSpan={columns.length + 1}
-                          className="bg-slate-100 border-b bg-opacity-75 border-b border-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:border-slate-700 pl-8 py-1"
+                          className="bg-slate-100 border-b bg-opacity-75 border-b border-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:border-slate-700 pl-6 py-1"
                         >
                           {props.groupByRender?.(row) ||
                             _.get(row, props.groupBy)}

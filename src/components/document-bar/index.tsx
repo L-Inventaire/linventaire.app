@@ -54,8 +54,8 @@ export const DocumentBar = ({
   onRemove?: () => Promise<void>;
   onRestore?: () => Promise<void>;
 }) => {
-  const isRevision = document.id?.includes("~");
-  const revision = document.id?.split("~")[1];
+  const isRevision = document?.id?.includes("~");
+  const revision = document?.id?.split("~")[1];
 
   const setMenu = useSetRecoilState(DropDownAtom);
 
