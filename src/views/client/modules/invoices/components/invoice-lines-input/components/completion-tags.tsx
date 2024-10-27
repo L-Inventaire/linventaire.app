@@ -3,7 +3,11 @@ import { CtrlKAtom } from "@features/ctrlk/store";
 import { CtrlKPathType } from "@features/ctrlk/types";
 import { Invoices } from "@features/invoices/types/types";
 import { StockItems } from "@features/stock/types/types";
-import { CubeIcon, TruckIcon } from "@heroicons/react/16/solid";
+import {
+  CheckCircleIcon,
+  CubeIcon,
+  TruckIcon,
+} from "@heroicons/react/16/solid";
 import { useSetRecoilState } from "recoil";
 import { renderStockCompletion } from "../../invoices-details";
 import { twMerge } from "tailwind-merge";
@@ -15,6 +19,12 @@ export const CompletionTags = (props: {
   short?: boolean;
   overflow?: boolean;
 }) => {
+  const readyServiceCompletion = renderStockCompletion(
+    props.lines,
+    "delivered",
+    props.overflow,
+    true
+  );
   const readyCompletion = renderStockCompletion(
     props.lines,
     "ready",
@@ -28,7 +38,7 @@ export const CompletionTags = (props: {
 
   const openCtrlK = useSetRecoilState(CtrlKAtom);
 
-  const onClick = (query: string) => {
+  const onClick = (entity: string, query: string) => {
     openCtrlK((states) => [
       ...states,
       {
@@ -36,7 +46,7 @@ export const CompletionTags = (props: {
           {
             mode: "search",
             options: {
-              entity: "stock_items",
+              entity,
               query,
               internalQuery: {
                 [props.invoice?.type === "supplier_quotes"
@@ -61,46 +71,76 @@ export const CompletionTags = (props: {
 
   return (
     <div className="-space-x-px flex">
-      <Tag
-        onClick={() => onClick('!state:"bought"')}
-        className={twMerge("rounded-r-none", shortLeft && "w-5")}
-        noColor
-        size={props.size || "xs"}
-        data-tooltip={"Reservé " + readyCompletion[0] + "%"}
-        icon={
-          <CubeIcon
-            className={`w-3 h-3 mr-1 shrink-0 text-${readyCompletion[1]}-500`}
-          />
-        }
-      >
-        {!shortLeft && (
-          <>
-            {readyCompletion[0] > 100 && "⚠️"}
-            {readyCompletion[0]}%{" "}
-          </>
-        )}
-        {shortLeft && <div />}
-      </Tag>
-      <Tag
-        onClick={() => onClick('state:"delivered","depleted"')}
-        className={twMerge("rounded-l-none", shortRight && "w-5")}
-        noColor
-        size={props.size || "xs"}
-        data-tooltip={"Livré " + deliveredCompletion[0] + "%"}
-        icon={
-          <TruckIcon
-            className={`w-3 h-3 mr-1 shrink-0 text-${deliveredCompletion[1]}-500`}
-          />
-        }
-      >
-        {!shortRight && (
-          <>
-            {deliveredCompletion[0] > 100 && "⚠️"}
-            {deliveredCompletion[0]}%{" "}
-          </>
-        )}
-        {shortRight && <div />}
-      </Tag>
+      {props?.lines?.some((a) => a.type === "service") && (
+        <Tag
+          onClick={() => onClick("service_items", 'state:"done"')}
+          className={twMerge("mr-1", shortLeft && "w-5")}
+          noColor
+          size={props.size || "xs"}
+          data-tooltip={"Service " + readyServiceCompletion[0] + "%"}
+          icon={
+            <CheckCircleIcon
+              className={`w-3 h-3 mr-1 shrink-0 text-${readyServiceCompletion[1]}-500`}
+            />
+          }
+        >
+          {!shortLeft && (
+            <>
+              {readyServiceCompletion[0] > 100 && "⚠️"}
+              {readyServiceCompletion[0]}%{" "}
+            </>
+          )}
+          {shortLeft && <div />}
+        </Tag>
+      )}
+      {props?.lines?.some(
+        (a) => a.type === "product" || a.type === "consumable"
+      ) && (
+        <>
+          <Tag
+            onClick={() => onClick("stock_items", "")}
+            className={twMerge("rounded-r-none", shortLeft && "w-5")}
+            noColor
+            size={props.size || "xs"}
+            data-tooltip={"Reservé " + readyCompletion[0] + "%"}
+            icon={
+              <CubeIcon
+                className={`w-3 h-3 mr-1 shrink-0 text-${readyCompletion[1]}-500`}
+              />
+            }
+          >
+            {!shortLeft && (
+              <>
+                {readyCompletion[0] > 100 && "⚠️"}
+                {readyCompletion[0]}%{" "}
+              </>
+            )}
+            {shortLeft && <div />}
+          </Tag>
+          <Tag
+            onClick={() =>
+              onClick("stock_items", 'state:"delivered","depleted"')
+            }
+            className={twMerge("rounded-l-none", shortRight && "w-5")}
+            noColor
+            size={props.size || "xs"}
+            data-tooltip={"Livré " + deliveredCompletion[0] + "%"}
+            icon={
+              <TruckIcon
+                className={`w-3 h-3 mr-1 shrink-0 text-${deliveredCompletion[1]}-500`}
+              />
+            }
+          >
+            {!shortRight && (
+              <>
+                {deliveredCompletion[0] > 100 && "⚠️"}
+                {deliveredCompletion[0]}%{" "}
+              </>
+            )}
+            {shortRight && <div />}
+          </Tag>
+        </>
+      )}
     </div>
   );
 };

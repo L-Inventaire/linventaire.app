@@ -33,8 +33,7 @@ export const SupplierQuotesActions = ({
     "invoices",
     id || "new"
   );
-  const disabled =
-    readonly || draft.state === "closed" || draft.state === "completed";
+  const disabled = draft.state === "closed" || draft.state === "completed";
 
   return (
     <>
@@ -91,7 +90,6 @@ export const SupplierQuotesActions = ({
           </Button>
         </>
       )}
-
       {draft.state === "purchase_order" && (
         <>
           <DropdownButton
@@ -146,7 +144,6 @@ export const SupplierQuotesActions = ({
           </Button>
         </>
       )}
-
       {draft.state === "closed" && (
         <div>
           <Button disabled={true} size="lg">
@@ -154,7 +151,6 @@ export const SupplierQuotesActions = ({
           </Button>
         </div>
       )}
-
       {draft.state === "completed" && (
         <>
           <DropdownButton

@@ -1,6 +1,5 @@
 import { Unit } from "@atoms/input/input-unit";
 import { SectionSmall } from "@atoms/text";
-import { UsersInput } from "@components/deprecated-users-input";
 import { RestDocumentsInput } from "@components/input-rest";
 import { TagsInput } from "@components/input-rest/tags";
 import { Articles } from "@features/articles/types/types";
@@ -14,6 +13,9 @@ import { ServiceItemStatus } from "@views/client/modules/service/components/serv
 import { ServiceItemsDetailsPage } from "@views/client/modules/service/components/service-items-details";
 import { ServiceTimesDetailsPage } from "@views/client/modules/service/components/service-times-details";
 import { ServiceItems, ServiceTimes } from "./types/types";
+import { InvoiceRestDocument } from "@views/client/modules/invoices/components/invoice-lines-input/invoice-input-rest-card";
+import { Badge } from "@radix-ui/themes";
+import { UsersInput } from "@components/input-rest/users";
 
 export const useServiceItemDefaultModel: () => Partial<ServiceItems> = () => {
   return {
@@ -42,6 +44,22 @@ export const ServiceItemsColumns: Column<ServiceItems>[] = [
     ),
   },
   {
+    title: "Devis",
+    thClassName: "w-1",
+    cellClassName: "justify-end",
+    headClassName: "justify-end",
+    render: (item) => (
+      <>
+        <InvoiceRestDocument
+          label="Devis"
+          placeholder="Aucun devis"
+          value={item.for_rel_quote}
+          disabled
+        />
+      </>
+    ),
+  },
+  {
     title: "Client",
     thClassName: "w-1",
     cellClassName: "justify-end",
@@ -62,7 +80,7 @@ export const ServiceItemsColumns: Column<ServiceItems>[] = [
     ),
   },
   {
-    title: "Étiquettes et assigné",
+    title: "Étiquettes",
     thClassName: "w-1",
     cellClassName: "justify-end",
     headClassName: "justify-end",
@@ -71,6 +89,15 @@ export const ServiceItemsColumns: Column<ServiceItems>[] = [
         <TagsInput value={item.tags} disabled />
         <UsersInput value={item.assigned} disabled />
       </div>
+    ),
+  },
+  {
+    thClassName: "w-1",
+    cellClassName: "justify-end",
+    render: (item) => (
+      <Badge className="whitespace-nowrap">
+        {item.quantity_spent || 0} / {item.quantity_expected || 0}
+      </Badge>
     ),
   },
   {

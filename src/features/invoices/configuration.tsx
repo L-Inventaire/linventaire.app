@@ -17,6 +17,7 @@ import {
   isPaymentLate,
 } from "@views/client/modules/invoices/utils";
 import { Invoices } from "./types/types";
+import { CompletionTags } from "@views/client/modules/invoices/components/invoice-lines-input/components/completion-tags";
 
 export const useInvoiceDefaultModel: () => Partial<Invoices> = () => {
   const { client } = useCurrentClient();
@@ -117,6 +118,17 @@ export const InvoicesColumns: Column<Invoices>[] = [
         <Info>{formatAmount(invoice.total?.total || 0)} HT</Info>
       </Base>
     ),
+  },
+  {
+    thClassName: "w-1",
+    cellClassName: "justify-end",
+    headClassName: "justify-end",
+    render: (invoice) =>
+      invoice.type === "quotes" ? (
+        <CompletionTags invoice={invoice} size="sm" lines={invoice.content} />
+      ) : (
+        <></>
+      ),
   },
   {
     title: "Statut",

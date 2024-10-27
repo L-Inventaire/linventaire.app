@@ -25,7 +25,9 @@ export const InvoiceStatus = ({
     sent:
       type === "quotes" || type === "invoices" || type === "credit_notes"
         ? "Envoyé"
-        : "Demandé",
+        : type === "supplier_quotes"
+        ? "Prix demandé"
+        : "À payer",
     accounted: "Comptabilisé",
     purchase_order: type === "quotes" ? "Accepté" : "Commandé",
     partial_paid: "Paiment partiel",

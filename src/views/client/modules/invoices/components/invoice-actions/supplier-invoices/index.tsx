@@ -24,6 +24,19 @@ export const SupplierInvoicesActions = ({
 
   return (
     <>
+      {draft.state === "draft" && (
+        <Button
+          disabled={disabled}
+          size="lg"
+          icon={(p) => <CheckIcon {...p} />}
+          onClick={() => {
+            _save({ state: "sent" });
+          }}
+        >
+          Comptabiliser
+        </Button>
+      )}
+
       {draft.state === "sent" && (
         <>
           <DropdownButton

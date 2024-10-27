@@ -159,7 +159,6 @@ export const InvoiceActions = ({
           {draft.type === "quotes" && (
             <QuotesActions id={id} readonly={disabled} />
           )}
-
           {draft.type !== "quotes" && !isSupplierRelated && (
             <InvoicesActions id={id} readonly={disabled} />
           )}
@@ -167,11 +166,9 @@ export const InvoiceActions = ({
           {isSupplierQuote && (
             <SupplierQuotesActions id={id} readonly={disabled} />
           )}
-
           {!isSupplierQuote && isSupplierRelated && (
             <SupplierInvoicesActions id={id} readonly={disabled} />
           )}
-
           {false && "to remove" && (
             <>
               {draft.state === "draft" && !isSupplierRelated && (

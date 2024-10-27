@@ -51,11 +51,19 @@ import { ROUTES } from "@features/routes";
 export const computeStockCompletion = (
   linesu: Invoices["content"],
   type: "delivered" | "ready" = "ready",
-  overflow = false
+  overflow = false,
+  service = false
 ) => {
-  const lines = linesu || [];
+  const lines = (linesu || []).filter((a) =>
+    service
+      ? a.type === "service"
+      : a.type === "consumable" || a.type === "product"
+  );
   const total = lines.reduce(
-    (acc, line) => acc + parseFloat((line.quantity as any) || 0),
+    (acc, line) =>
+      acc +
+      parseFloat((line.quantity as any) || 0) *
+        parseFloat((line.unit_price as any) || 0),
     0
   );
   if (total === 0) return 1;
@@ -67,10 +75,13 @@ export const computeStockCompletion = (
       (acc, line) =>
         acc +
         (overflow
-          ? parseFloat((line[column] as any) || 0)
+          ? parseFloat((line[column] as any) || 0) *
+            parseFloat((line.unit_price as any) || 0)
           : Math.min(
-              parseFloat((line.quantity as any) || 0),
-              parseFloat((line[column] as any) || 0)
+              parseFloat((line.quantity as any) || 0) *
+                parseFloat((line.unit_price as any) || 0),
+              parseFloat((line[column] as any) || 0) *
+                parseFloat((line.unit_price as any) || 0)
             )),
       0
     ) / total
@@ -80,9 +91,10 @@ export const computeStockCompletion = (
 export const renderStockCompletion = (
   lines: Invoices["content"],
   type: "delivered" | "ready" = "ready",
-  overflow = false
+  overflow = false,
+  service = false
 ): [number, string] => {
-  const value = computeStockCompletion(lines, type, overflow);
+  const value = computeStockCompletion(lines, type, overflow, service);
   const color = value < 0.5 ? "red" : value < 1 ? "orange" : "green";
   return [Math.round(value * 100), color];
 };
@@ -273,7 +285,11 @@ export const InvoicesDetailsPage = ({
     (a) => a.unit_price && a.quantity && !(a.optional && !a.optional_checked)
   );
 
-  const contentReadonly = readonly || draft.state !== "draft";
+  const contentReadonly =
+    readonly ||
+    // Drafts are always editable
+    // Demandes de prix are also a special case where the client can edit the content
+    !(draft.state === "draft" || (draft.state === "sent" && isSupplierQuote));
 
   return (
     <>
