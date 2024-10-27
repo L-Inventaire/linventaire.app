@@ -12,7 +12,6 @@ import { useNavigateAlt } from "@features/utils/navigate";
 import {
   RestOptions,
   useRestSchema,
-  useRestSuggestions,
 } from "@features/utils/rest/hooks/use-rest";
 import { ArrowUturnLeftIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { Badge, Tabs } from "@radix-ui/themes";
@@ -57,6 +56,7 @@ export const InvoicesPage = () => {
     all: { label: "Tous", filter: [] },
   };
   const [activeTab, setActiveTab] = useState("active");
+  const [didSelectTab, setDidSelectTab] = useState(false);
 
   const type: Invoices["type"][] = (useParams().type?.split("+") || [
     "invoices",
@@ -95,6 +95,18 @@ export const InvoicesPage = () => {
     limit: 1,
     query: [...invoiceFilters.query, ...activeFilter],
   });
+
+  if (
+    !draftInvoices.isPending &&
+    !activeInvoices.isPending &&
+    !invoices.isPending &&
+    activeInvoices?.data?.total === 0 &&
+    (draftInvoices?.data?.total || 0) > 0 &&
+    activeTab === "active" &&
+    !didSelectTab
+  ) {
+    setActiveTab("draft");
+  }
 
   return (
     <Page
@@ -207,7 +219,13 @@ export const InvoicesPage = () => {
     >
       <div className="-m-3">
         <div className="px-3 min-h-7 w-full bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700">
-          <Tabs.Root onValueChange={setActiveTab} value={activeTab}>
+          <Tabs.Root
+            onValueChange={(v) => {
+              setActiveTab(v);
+              setDidSelectTab(true);
+            }}
+            value={activeTab}
+          >
             <Tabs.List className="flex space-x-2 -mx-3 -mb-px items-center">
               {Object.entries(tabs).map(([key, label]) => (
                 <Tabs.Trigger key={key} value={key}>

@@ -29,10 +29,14 @@ export const Timeline = ({
   entity,
   id,
   viewRoute,
+  translations,
 }: {
   entity: string;
   id: string;
   viewRoute?: string;
+  translations?: {
+    [key: string]: { label: string; values?: { [key: string]: string } };
+  };
 }) => {
   const isRevision = (id || "").includes("~");
   const revision = (id || "").split("~")[1];
@@ -112,7 +116,9 @@ export const Timeline = ({
             Voir plus...
           </Button>
         )}
-        {prepareHistory(history, hasNextPage, { viewRoute }).map(getEventLine)}
+        {prepareHistory(history, hasNextPage, { viewRoute }).map((a) =>
+          getEventLine(a, translations)
+        )}
       </div>
       {!current.is_deleted && (
         <div className="mt-6">

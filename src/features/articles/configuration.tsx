@@ -48,7 +48,7 @@ export const ArticlesColumns: Column<Articles>[] = [
   {
     title: "Étiquettes",
     thClassName: "w-1",
-    cellClassName: "justify-end",
+    cellClassName: "justify-end whitespace-nowrap",
     headClassName: "justify-end",
     render: (article) => (
       <div className="space-x-2">
@@ -119,7 +119,7 @@ export const ArticlesFieldsNames = () => ({
     keywords: "préféré aimé favori",
   },
   assigned: {
-    label: "Assigné à",
+    label: "Assignés",
     keywords: "utilisateurs assignés distribution",
   },
   type: {
@@ -146,6 +146,9 @@ export const ArticlesFieldsNames = () => ({
   suppliers: {
     label: "Fournisseurs",
     keywords: "partenaires fournisseurs",
+  },
+  suppliers_details: {
+    label: "Détails fournisseurs",
   },
   "suppliers_details.any.reference": {
     label: "Référence fournisseur",

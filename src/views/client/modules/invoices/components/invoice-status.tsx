@@ -31,7 +31,7 @@ export const InvoiceStatus = ({
     partial_paid: "Paiment partiel",
     paid: "Payé",
     closed: "Fermé",
-    completed: "Complété",
+    completed: "À facturer",
   };
 
   const statusColor = {

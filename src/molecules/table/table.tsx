@@ -1,5 +1,4 @@
 import { Button } from "@atoms/button/button";
-import { DropdownButton } from "@atoms/dropdown";
 import { Checkbox } from "@atoms/input/input-checkbox";
 import Select from "@atoms/input/input-select";
 import { Loader } from "@atoms/loader";
@@ -7,11 +6,7 @@ import { Modal } from "@atoms/modal/modal";
 import { Base, BaseSmall, Info } from "@atoms/text";
 import { useShortcuts } from "@features/utils/shortcuts";
 import { ArrowDownIcon, ArrowUpIcon } from "@heroicons/react/16/solid";
-import {
-  ArrowDownTrayIcon,
-  ChevronDownIcon,
-  CogIcon,
-} from "@heroicons/react/24/outline";
+import { ArrowDownTrayIcon, CogIcon } from "@heroicons/react/24/outline";
 import _ from "lodash";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";

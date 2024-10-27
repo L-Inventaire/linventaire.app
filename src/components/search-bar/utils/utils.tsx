@@ -13,7 +13,7 @@ export const schemaToSearchFields = (
     [key: string]:
       | boolean
       | string
-      | { label: string; keywords: string; values?: { [key: string]: {} } };
+      | { label: string; keywords?: string; values?: { [key: string]: {} } };
   } = {}
 ) => {
   if (Object.keys(schema || {}).length === 0) return [];

@@ -1,21 +1,21 @@
 import { InputLabel } from "@atoms/input/input-decoration-label";
-import { Input } from "@atoms/input/input-text";
 import { InputUnit } from "@atoms/input/input-unit";
 import { PageLoader } from "@atoms/page-loader";
 import { CustomFieldsInput } from "@components/custom-fields-input";
 import { FormInput } from "@components/form/fields";
 import { FormContext } from "@components/form/formcontext";
+import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
 import { Articles } from "@features/articles/types/types";
+import { ROUTES } from "@features/routes";
 import { tvaOptions } from "@features/utils/constants";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { EditorInput } from "@molecules/editor-input";
-import { PageBlock, PageColumns } from "@views/client/_layout/page";
-import { ArticleSuppliersInput } from "./article-suppliers-input";
 import { Timeline } from "@molecules/timeline";
-import { ROUTES } from "@features/routes";
 import { Heading } from "@radix-ui/themes";
-import { TagsInput } from "@components/input-rest/tags";
+import { PageColumns } from "@views/client/_layout/page";
+import { ArticleSuppliersInput } from "./article-suppliers-input";
+import { ArticlesFieldsNames } from "@features/articles/configuration";
 
 export const frequencyOptions = [
   { value: "", label: "Pas de renouvellement" },
@@ -193,6 +193,7 @@ export const ArticlesDetailsPage = ({
                 entity="articles"
                 id={draft.id}
                 viewRoute={ROUTES.ProductsView}
+                translations={ArticlesFieldsNames() as any}
               />
             </div>
           </div>

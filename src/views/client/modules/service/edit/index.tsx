@@ -3,13 +3,15 @@ import { DocumentBar } from "@components/document-bar";
 import { useClients } from "@features/clients/state/use-clients";
 import { ROUTES, getRoute } from "@features/routes";
 import { useServiceItemDefaultModel } from "@features/service/configuration";
-import { ServiceItems } from "@features/service/types/types";
+import { ServiceItems, ServiceTimes } from "@features/service/types/types";
 import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { Page } from "@views/client/_layout/page";
 import _ from "lodash";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ServiceItemsDetailsPage } from "../components/service-items-details";
+import { SpentTime } from "../components/inline-spent-time-input";
+import { useRest } from "@features/utils/rest/hooks/use-rest";
 
 export const ServiceItemsEditPage = (_props: { readonly?: boolean }) => {
   const { refresh, loading } = useClients();
@@ -22,16 +24,29 @@ export const ServiceItemsEditPage = (_props: { readonly?: boolean }) => {
   id = id === "new" ? "" : id || "";
   const navigate = useNavigate();
 
+  const [spentTime, setSpentTime] = useState<SpentTime[]>([]);
+
   const defaultModel = useServiceItemDefaultModel();
   const initialModel = JSON.parse(
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as ServiceItems;
+
+  const { create: saveSpentTime } = useRest<ServiceTimes>("service_times");
 
   const { isInitiating, save, draft, remove, restore } =
     useDraftRest<ServiceItems>(
       "service_items",
       id || "new",
       async (item) => {
+        if (spentTime.length > 0) {
+          // Add spend time also
+          for (const spent of spentTime) {
+            await saveSpentTime.mutateAsync({
+              service: item.id,
+              ...spent,
+            });
+          }
+        }
         navigate(getRoute(ROUTES.ServiceItemsView, { id: item.id }));
       },
       _.omit(_.merge(defaultModel, initialModel), "reference") as ServiceItems
@@ -61,7 +76,11 @@ export const ServiceItemsEditPage = (_props: { readonly?: boolean }) => {
       {isInitiating ? (
         <PageLoader />
       ) : (
-        <ServiceItemsDetailsPage readonly={false} id={id} />
+        <ServiceItemsDetailsPage
+          readonly={false}
+          id={id}
+          onChangeSpentTime={setSpentTime}
+        />
       )}
     </Page>
   );

@@ -81,11 +81,6 @@ export const InvoicesColumns: Column<Invoices>[] = [
       <Base className="whitespace-nowrap space-x-2 flex flex-row items-center">
         <TagsInput size="md" value={invoice.tags} disabled />
         <UsersInput size="md" value={invoice.assigned} disabled />
-        {["quotes"].includes(invoice.type) && invoice.state === "completed" && (
-          <Badge size="2" color={"green"}>
-            À facturer
-          </Badge>
-        )}
         {["quotes"].includes(invoice.type) &&
           invoice.wait_for_completion_since &&
           invoice.state !== "closed" &&

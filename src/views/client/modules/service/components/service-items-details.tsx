@@ -1,4 +1,5 @@
 import { Button } from "@atoms/button/button";
+import { Unit } from "@atoms/input/input-unit";
 import { Section } from "@atoms/text";
 import { CustomFieldsInput } from "@components/custom-fields-input";
 import { FormInput } from "@components/form/fields";
@@ -11,9 +12,15 @@ import { UsersInput } from "@components/input-rest/users";
 import { RestTable } from "@components/table-rest";
 import { useArticle } from "@features/articles/hooks/use-articles";
 import { useAuth } from "@features/auth/state/use-auth";
+import { Contacts } from "@features/contacts/types/types";
 import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
+import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
-import { ServiceTimesColumns } from "@features/service/configuration";
+import { ROUTES } from "@features/routes";
+import {
+  ServiceItemsColumns,
+  ServiceTimesColumns,
+} from "@features/service/configuration";
 import { useServiceItems } from "@features/service/hooks/use-service-items";
 import { useServiceTimes } from "@features/service/hooks/use-service-times";
 import { ServiceItems } from "@features/service/types/types";
@@ -22,20 +29,22 @@ import { ClockIcon, CubeIcon } from "@heroicons/react/16/solid";
 import { UserIcon } from "@heroicons/react/20/solid";
 import { DocumentIcon } from "@heroicons/react/24/outline";
 import { EditorInput } from "@molecules/editor-input";
-import { InvoiceRestDocument } from "../../invoices/components/invoice-lines-input/invoice-input-rest-card";
-import { ServiceItemStatus } from "./service-item-status";
-import { Contacts } from "@features/contacts/types/types";
-import { Unit } from "@atoms/input/input-unit";
-import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { Timeline } from "@molecules/timeline";
-import { ROUTES } from "@features/routes";
+import { Checkbox, Heading } from "@radix-ui/themes";
+import { useEffect, useState } from "react";
+import { InvoiceRestDocument } from "../../invoices/components/invoice-lines-input/invoice-input-rest-card";
+import { InlineSpentTimeInput, SpentTime } from "./inline-spent-time-input";
+import { ServiceItemStatus } from "./service-item-status";
+import { PageLoader } from "@atoms/page-loader";
 
 export const ServiceItemsDetailsPage = ({
   readonly,
   id,
+  onChangeSpentTime,
 }: {
   readonly?: boolean;
   id: string;
+  onChangeSpentTime?: (value: SpentTime[]) => void;
 }) => {
   const { user } = useAuth();
 
@@ -58,12 +67,33 @@ export const ServiceItemsDetailsPage = ({
     query: { service: draft.id },
   });
 
-  if (isPending) return <div>Loading...</div>;
+  const [onCreateAddSpentTime, setOnCreateAddSpentTime] = useState<SpentTime[]>(
+    []
+  );
+  const [markAsDone, setMarkAsDone] = useState<boolean>(false);
+
+  useEffect(() => {
+    const e = onCreateAddSpentTime;
+    if (markAsDone) {
+      ctrl("state").onChange("done");
+    } else if (
+      e.reduce((a, b) => a + b.quantity, 0) >= ctrl("quantity_expected").value
+    ) {
+      ctrl("state").onChange("in_review");
+    } else if (e.reduce((a, b) => a + b.quantity, 0) > 0) {
+      ctrl("state").onChange("in_progress");
+    } else {
+      ctrl("state").onChange("todo");
+    }
+    onChangeSpentTime?.(e);
+  }, [onCreateAddSpentTime, ctrl("quantity_expected").value, markAsDone]);
+
+  if (isPending || (id && draft.id !== id)) return <PageLoader />;
 
   return (
     <div className="w-full max-w-3xl mx-auto">
       <FormContext readonly={readonly} alwaysVisible>
-        <Section>
+        <Heading>
           <div className="float-right space-x-2 items-center flex-row flex">
             <TagsInput ctrl={ctrl("tags")} />
             <UsersInput ctrl={ctrl("assigned")} />
@@ -79,38 +109,60 @@ export const ServiceItemsDetailsPage = ({
             />
           </div>
           Service
-        </Section>
+        </Heading>
 
         <div className="mt-4">
           <FormInput size="lg" label="Titre" type="text" ctrl={ctrl("title")} />
         </div>
 
-        <div className="mt-4">
-          <div className="space-y-2 mt-2">
-            <EditorInput
-              key={readonly ? ctrl("notes").value : undefined}
-              placeholder={
-                readonly ? "Aucune note" : "Cliquez pour ajouter des notes"
-              }
-              disabled={readonly}
-              value={ctrl("notes").value || ""}
-              onChange={(e) => ctrl("notes").onChange(e)}
-            />
-            {(!readonly || ctrl("documents").value?.length) && (
-              <FilesInput
-                disabled={readonly}
-                ctrl={ctrl("documents")}
-                rel={{
-                  table: "invoices",
-                  id: draft.id || "",
-                  field: "documents",
-                }}
-              />
-            )}
-          </div>
+        <div className="flex space-x-2 items-center my-2">
+          <InvoiceRestDocument
+            size="xl"
+            value={ctrl("for_rel_quote").value}
+            onChange={
+              ((e: any, val: Invoices) => {
+                ctrl("for_rel_quote").onChange(e);
+                if (val?.client && val?.contact !== ctrl("client").value) {
+                  ctrl("client").onChange(val.client);
+                }
+                const services =
+                  val?.content?.filter((c) => c.type === "service") || [];
+                if (services.length && !draft.article) {
+                  ctrl("article").onChange(services[0].article);
+                  ctrl("quantity_expected").onChange(services[0].quantity);
+                }
+              }) as any
+            }
+            label="Devis associé"
+            placeholder="Sélectionner le devis associé"
+            icon={(p) => <DocumentIcon {...p} />}
+            filter={
+              {
+                type: "quotes",
+                state: ["purchase_order", "completed"] as any,
+                ...(draft.article ? { "articles.all": draft.article } : {}),
+                ...(ctrl("client").value &&
+                ctrl("client").value !== quote?.client
+                  ? { client: [ctrl("client").value] }
+                  : {}),
+              } as Partial<Invoices>
+            }
+          />
+          <RestDocumentsInput
+            size="xl"
+            entity="contacts"
+            ctrl={ctrl("client")}
+            label="Client"
+            placeholder="Sélectionner un client"
+            icon={(p) => <UserIcon {...p} />}
+            filter={
+              {
+                is_client: true,
+                ...(quote ? { id: [quote.contact, quote.client] } : {}),
+              } as Partial<Contacts>
+            }
+          />
         </div>
-
-        <div className="w-full border-t my-6" />
 
         <div className="mt-4 space-x-2 items-center flex-row flex">
           <RestDocumentsInput
@@ -135,85 +187,105 @@ export const ServiceItemsDetailsPage = ({
           </InputButton>
         </div>
 
-        <div className="w-full border-t my-6" />
-
-        <div className="flex space-x-2 items-center my-2">
-          <RestDocumentsInput
-            size="xl"
-            entity="contacts"
-            ctrl={ctrl("client")}
-            label="Client"
-            placeholder="Sélectionner un client"
-            icon={(p) => <UserIcon {...p} />}
-            filter={
-              {
-                is_client: true,
-                ...(quote ? { id: [quote.contact, quote.client] } : {}),
-              } as Partial<Contacts>
-            }
-          />
-
-          <InvoiceRestDocument
-            size="xl"
-            ctrl={ctrl("for_rel_quote")}
-            label="Devis associé"
-            placeholder="Sélectionner le devis associé"
-            icon={(p) => <DocumentIcon {...p} />}
-            filter={
-              {
-                type: "quotes",
-                state: ["draft", "purchase_order", "completed"] as any,
-                ...(draft.article ? { "articles.all": draft.article } : {}),
-                ...(quote ? { client: [quote.client, quote.contact] } : {}),
-              } as Partial<Invoices>
-            }
-          />
-        </div>
-
-        <div className="w-full border-t my-6" />
-
         <CustomFieldsInput
           className="mt-8"
-          table={"invoices"}
+          table={"service_items"}
           ctrl={ctrl("fields")}
           readonly={readonly}
           entityId={draft.id || ""}
         />
 
-        <div className="mt-8">
-          <Section className="mb-2">
-            <Button
-              theme="primary"
-              size="sm"
-              className="float-right"
-              onClick={() =>
-                createTime("service_times", "new", {
-                  service: draft.id,
-                  assigned: user?.id ? [user?.id] : [],
-                  date: Date.now(),
-                  quantity: 1,
-                })
-              }
-            >
-              Ajouter
-            </Button>
-            Temps passé
-          </Section>
-          <RestTable
-            entity="service_times"
-            data={serviceTimes}
-            columns={ServiceTimesColumns}
-          />
+        {draft?.id && (
+          <div className="mt-12 space-y-4">
+            <Section className="mb-2">
+              <Button
+                theme="primary"
+                size="sm"
+                className="float-right"
+                onClick={() =>
+                  createTime("service_times", "new", {
+                    service: draft.id,
+                    assigned: user?.id ? [user?.id] : [],
+                    date: Date.now(),
+                    quantity: 1,
+                  })
+                }
+              >
+                Ajouter
+              </Button>
+              Temps passé
+            </Section>
+            <RestTable
+              entity="service_times"
+              data={serviceTimes}
+              columns={ServiceTimesColumns}
+            />
+          </div>
+        )}
+
+        {!draft?.id && (
+          <div className="mt-12">
+            <Heading size="4">Temps déjà effectué</Heading>
+            <InlineSpentTimeInput
+              unit={article?.unit}
+              quantity={ctrl("quantity_expected").value}
+              value={onCreateAddSpentTime}
+              onChange={setOnCreateAddSpentTime}
+            />
+            {!!onCreateAddSpentTime.length && (
+              <label className="mt-4 flex space-x-2 items-center">
+                <Checkbox
+                  size="3"
+                  checked={markAsDone}
+                  onCheckedChange={(checked: boolean) => setMarkAsDone(checked)}
+                />
+                <span>Marquer la tache comme terminé</span>
+              </label>
+            )}
+          </div>
+        )}
+
+        <div className="mt-12">
+          <Heading size="4">Notes et documents</Heading>
+          <div className="mt-4">
+            <div className="space-y-2 mt-2">
+              <EditorInput
+                key={readonly ? ctrl("notes").value : undefined}
+                placeholder={
+                  readonly ? "Aucune note" : "Cliquez pour ajouter des notes"
+                }
+                disabled={readonly}
+                value={ctrl("notes").value || ""}
+                onChange={(e) => ctrl("notes").onChange(e)}
+              />
+              {(!readonly || ctrl("documents").value?.length) && (
+                <FilesInput
+                  disabled={readonly}
+                  ctrl={ctrl("documents")}
+                  rel={{
+                    table: "invoices",
+                    id: draft.id || "",
+                    field: "documents",
+                  }}
+                />
+              )}
+            </div>
+          </div>
         </div>
 
-        <div className="mt-8">
-          <Section className="mb-2">Autres taches pour ce devis</Section>
-          <RestTable
-            entity="service_items"
-            data={otherServiceItems}
-            columns={[{ title: "id", render: (i) => i.id }]}
-          />
-        </div>
+        {draft.id && (
+          <>
+            <div className="w-full border-t my-6" />
+            <div className="mt-8">
+              <Section className="mb-2">Autres taches pour ce devis</Section>
+              <RestTable
+                entity="service_items"
+                data={otherServiceItems}
+                columns={ServiceItemsColumns}
+              />
+            </div>
+          </>
+        )}
 
         <div className="mt-8">
           <Timeline
