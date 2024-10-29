@@ -25,4 +25,9 @@ export type Statistics = {
   totalSentPurchaseOrders: number | null;
   almostLateDeliveries: string[] | null;
   almostLatePayments: string[] | null;
+  almostLatePaymentsNoDelay: string[] | null;
+  almostLatePayments30Delay: string[] | null;
+  almostLatePayments60Delay: string[] | null;
+  almostLatePayments90Delay: string[] | null;
+  almostLatePayments120Delay: string[] | null;
 };

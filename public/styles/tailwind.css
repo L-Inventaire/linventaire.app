@@ -1234,6 +1234,10 @@ body :is(.z-\[90\]) {
   z-index: 90;
 }
 
+body :is(.col-span-3) {
+  grid-column: span 3 / span 3;
+}
+
 body :is(.float-right) {
   float: right;
 }
@@ -1611,6 +1615,10 @@ body :is(.mt-px) {
   margin-top: 1px;
 }
 
+body :is(.mr-3) {
+  margin-right: 0.75rem;
+}
+
 body :is(.box-border) {
   box-sizing: border-box;
 }
@@ -1765,6 +1773,10 @@ body :is(.h-px) {
 
 body :is(.h-screen) {
   height: 100vh;
+}
+
+body :is(.h-\[1px\]) {
+  height: 1px;
 }
 
 body :is(.max-h-0) {
@@ -3464,6 +3476,11 @@ body :is(.bg-yellow-900) {
   background-color: rgb(113 63 18 / var(--tw-bg-opacity));
 }
 
+body :is(.bg-gray-300) {
+  --tw-bg-opacity: 1;
+  background-color: rgb(209 213 219 / var(--tw-bg-opacity));
+}
+
 body :is(.bg-opacity-0) {
   --tw-bg-opacity: 0;
 }
@@ -4300,6 +4317,11 @@ body :is(.text-yellow-800) {
 body :is(.text-yellow-900) {
   --tw-text-opacity: 1;
   color: rgb(113 63 18 / var(--tw-text-opacity));
+}
+
+body :is(.text-gray-300) {
+  --tw-text-opacity: 1;
+  color: rgb(209 213 219 / var(--tw-text-opacity));
 }
 
 body :is(.text-opacity-100) {
