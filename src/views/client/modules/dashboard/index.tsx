@@ -34,6 +34,8 @@ export const DashboardHomePage = () => {
           label: "Tableau de bord",
         },
       ]}
+      // scrollAreaProps={{ style: { height: "100vh" } }}
+      scrollAreaChildProps={{ style: { height: "80vh" } }}
     >
       <div className="flex items-center mb-6 ml-3 mt-3">
         <Title>Tableau de bord</Title>
@@ -66,7 +68,7 @@ export const DashboardHomePage = () => {
           Année
         </Button>
       </div>
-      <div className="flex h-full flex-col lg:flex-row px-3">
+      <div className="flex flex-col lg:flex-row px-3 h-full max-h-full">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_250px_1fr_250px] lg:grid-rows-[calc(50%-5px)_calc(50%-5px)] w-full lg:w-2/3 gap-[10px] mr-[10px]">
           <div className="w-full min-h-64 lg:h-full lg:col-span-3">
             <LineChart period={period} />

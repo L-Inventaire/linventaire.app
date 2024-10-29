@@ -3,6 +3,8 @@ import React from "react";
 import { twMerge } from "tailwind-merge";
 import DashboardCard from "./card";
 import _ from "lodash";
+import Scroll from "quill/blots/scroll";
+import { ScrollArea } from "@radix-ui/themes";
 type TableCardProps = {
   title: string;
   items: {
@@ -34,53 +36,58 @@ const TableCard = ({
     <DashboardCard
       icon={icon}
       title={title}
-      className={twMerge("w-full h-full flex-grow", props.className)}
+      className={twMerge(
+        "w-full h-full flex-grow flex flex-col",
+        props.className
+      )}
       {..._.omit(props ?? [], "className")}
     >
-      <div
-        className={twMerge(
-          "grid w-full mt-2 overflow-y-auto",
-          "grid-cols-" + (columns?.length ?? 1),
-          tableProps?.className
-        )}
-        {..._.omit(tableProps, "className")}
-      >
-        {columns.map((col) => (
-          <Base
-            key={col.value}
-            className={twMerge(
-              "text-gray-500 p-2 -ml-2",
-              col?.props?.className
-            )}
-            {..._.omit(col?.props ?? [], "className", "key")}
-          >
-            {col.label}
-          </Base>
-        ))}
+      <ScrollArea className="grow mt-1">
+        <div
+          className={twMerge(
+            "grid w-full overflow-y-auto",
+            "grid-cols-" + (columns?.length ?? 1),
+            tableProps?.className
+          )}
+          {..._.omit(tableProps, "className")}
+        >
+          {columns.map((col) => (
+            <Base
+              key={col.value}
+              className={twMerge(
+                "text-gray-500 p-2 -ml-2",
+                col?.props?.className
+              )}
+              {..._.omit(col?.props ?? [], "className", "key")}
+            >
+              {col.label}
+            </Base>
+          ))}
 
-        {rows.map((row) => {
-          return (
-            <>
-              {columns.map((col) => {
-                const item = items.find(
-                  (item) => item.row === row && item.column === col.value
-                );
-                return (
-                  <div
-                    className={twMerge(
-                      "hover:bg-slate-50 cursor-pointer p-2 -ml-2",
-                      item?.props?.className
-                    )}
-                    {..._.omit(item?.props ?? [], "className")}
-                  >
-                    {item?.label}
-                  </div>
-                );
-              })}
-            </>
-          );
-        })}
-      </div>
+          {rows.map((row) => {
+            return (
+              <>
+                {columns.map((col) => {
+                  const item = items.find(
+                    (item) => item.row === row && item.column === col.value
+                  );
+                  return (
+                    <div
+                      className={twMerge(
+                        "hover:bg-slate-50 cursor-pointer p-2 -ml-2",
+                        item?.props?.className
+                      )}
+                      {..._.omit(item?.props ?? [], "className")}
+                    >
+                      {item?.label}
+                    </div>
+                  );
+                })}
+              </>
+            );
+          })}
+        </div>
+      </ScrollArea>
     </DashboardCard>
   );
 };

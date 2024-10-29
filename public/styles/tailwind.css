@@ -1294,6 +1294,11 @@ body :is(.-mx-2) {
   margin-right: -0.5rem;
 }
 
+body :is(.-mx-3) {
+  margin-left: -0.75rem;
+  margin-right: -0.75rem;
+}
+
 body :is(.-mx-4) {
   margin-left: -1rem;
   margin-right: -1rem;
@@ -1374,11 +1379,6 @@ body :is(.my-8) {
   margin-bottom: 2rem;
 }
 
-body :is(.-mx-3) {
-  margin-left: -0.75rem;
-  margin-right: -0.75rem;
-}
-
 body :is(.\!-ml-0) {
   margin-left: -0px !important;
 }
@@ -1413,6 +1413,10 @@ body :is(.-mb-1) {
 
 body :is(.-mb-6) {
   margin-bottom: -1.5rem;
+}
+
+body :is(.-mb-px) {
+  margin-bottom: -1px;
 }
 
 body :is(.-ml-0) {
@@ -1607,14 +1611,6 @@ body :is(.mt-px) {
   margin-top: 1px;
 }
 
-body :is(.-mb-px) {
-  margin-bottom: -1px;
-}
-
-body :is(.mr-3) {
-  margin-right: 0.75rem;
-}
-
 body :is(.box-border) {
   box-sizing: border-box;
 }
@@ -1779,6 +1775,10 @@ body :is(.max-h-6) {
   max-height: 1.5rem;
 }
 
+body :is(.max-h-full) {
+  max-height: 100%;
+}
+
 body :is(.min-h-0) {
   min-height: 0px;
 }
@@ -1825,6 +1825,10 @@ body :is(.min-h-full) {
 
 body :is(.min-h-screen) {
   min-height: 100vh;
+}
+
+body :is(.min-h-28) {
+  min-height: 7rem;
 }
 
 body :is(.\!w-auto) {
@@ -1968,6 +1972,10 @@ body :is(.w-px) {
   width: 1px;
 }
 
+body :is(.w-\[90\%\]) {
+  width: 90%;
+}
+
 body :is(.min-w-0) {
   min-width: 0px;
 }
@@ -1996,6 +2004,10 @@ body :is(.min-w-fit) {
 
 body :is(.min-w-full) {
   min-width: 100%;
+}
+
+body :is(.min-w-28) {
+  min-width: 7rem;
 }
 
 body :is(.max-w-24) {
