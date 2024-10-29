@@ -12,6 +12,7 @@ import { Statistics } from "./types";
 
 const blankStatistics: Statistics = {
   totalRevenue: 0,
+  totalRevenueTable: [],
   revenue: 0,
   revenueStats: [],
   totalExpenses: 0,

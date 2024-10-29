@@ -5,6 +5,12 @@ export type Statistics = {
     date: string;
     net_amount: number;
   }[];
+  totalRevenueTable: {
+    year: string;
+    month: string;
+    tag: string;
+    net_amount: number;
+  }[];
   expenses: number;
   totalExpenses: number | null;
   benefits: number | null;
