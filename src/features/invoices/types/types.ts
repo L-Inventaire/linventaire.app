@@ -68,7 +68,10 @@ export type Invoices = RestEntity & {
   payment_information: Payment;
   format?: InvoiceFormat;
 
-  recipients?: string[];
+  recipients?: {
+    email: string;
+    role: "signer" | "viewer";
+  }[];
   reminders?: InvoiceReminder;
   subscription?: InvoiceSubscription; // Available only for invoices
 

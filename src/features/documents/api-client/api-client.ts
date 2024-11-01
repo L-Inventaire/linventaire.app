@@ -15,7 +15,11 @@ export class SigningSessionsApiClient {
     return data as SigningSession;
   };
 
-  static async sendInvoice(clientId: string, id: string, recipients: string[]) {
+  static async sendInvoice(
+    clientId: string,
+    id: string,
+    recipients: { email: string; role: "signer" | "viewer" }[]
+  ) {
     const response = await fetchServer(
       `/api/signing-sessions/v1/${clientId}/send-invoice/${id}`,
       {

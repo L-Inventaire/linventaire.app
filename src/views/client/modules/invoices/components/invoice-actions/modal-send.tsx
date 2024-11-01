@@ -2,7 +2,7 @@ import { Button } from "@atoms/button/button";
 import { Checkbox } from "@atoms/input/input-checkbox";
 import { Input } from "@atoms/input/input-text";
 import { Modal, ModalContent } from "@atoms/modal/modal";
-import { Info } from "@atoms/text";
+import { Base, Info } from "@atoms/text";
 import { useContact } from "@features/contacts/hooks/use-contacts";
 import { Invoices } from "@features/invoices/types/types";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
@@ -20,6 +20,7 @@ import { getPdfPreview } from "../invoices-preview/invoices-preview";
 import { SigningSessionsApiClient } from "@features/documents/api-client/api-client";
 import { useParams } from "react-router-dom";
 import Radio from "@atoms/input/input-select-radio";
+import { Flex } from "@radix-ui/themes";
 
 export const InvoiceSendModalAtom = atom<boolean>({
   key: "InvoiceSendModalAtom",
@@ -49,7 +50,7 @@ export const InvoiceSendModalContent = ({
     "invoices",
     id || "new"
   );
-  const [newMails, setNewMails] = useState<string>("");
+  const [newEmail, setNewEmail] = useState<string>("");
   const [finalState, setFinalState] = useState<"sent" | "draft">("sent");
 
   const client = useContact(draft?.client);
@@ -58,14 +59,14 @@ export const InvoiceSendModalContent = ({
   const availableEmails = _.uniq([
     client?.contact?.email,
     contact?.contact?.email,
-    ...(draft.recipients || []),
+    ...(draft.recipients?.map((rec) => rec.email) || []),
   ]).filter(Boolean) as string[];
 
   useEffect(() => {
     if (draft.recipients?.length === 0) {
       setDraft({
         ...draft,
-        recipients: availableEmails,
+        recipients: availableEmails.map((email) => ({ email, role: "signer" })),
       });
     }
   }, []);
@@ -95,10 +96,10 @@ export const InvoiceSendModalContent = ({
 
       <div className="mt-2 space-y-2">
         {availableEmails.map((email) => (
-          <div key={email}>
+          <div key={email} className="flex items-center justify-between">
             <Checkbox
               label={email}
-              value={draft.recipients?.includes(email)}
+              value={!!draft?.recipients?.find((rec) => rec.email === email)}
               icon={
                 [client?.contact?.email, contact?.contact?.email].includes(
                   email
@@ -106,16 +107,54 @@ export const InvoiceSendModalContent = ({
                   ? undefined
                   : (p) => <TrashIcon {...p} />
               }
+              labelWrapperProps={{ className: "max-w-[40%]" }}
+              labelProps={{ className: "truncate w-full block" }}
               onChange={(status) =>
                 setDraft({
                   ...draft,
                   recipients: _.uniq([
-                    ...(draft.recipients || []).filter((a) => a !== email),
-                    ...(status ? [email.toLocaleLowerCase()] : []),
+                    ...(draft.recipients || []).filter(
+                      (rec) => rec.email !== email
+                    ),
+                    ...(status
+                      ? [
+                          {
+                            email: email.toLocaleLowerCase(),
+                            role: "signer" as "signer" | "viewer",
+                          },
+                        ]
+                      : []),
                   ]),
                 })
               }
             />
+            <div className="flex items-center ml-2">
+              <Base className="mr-2 font-semibold">Action</Base>
+
+              <Radio
+                value={
+                  draft?.recipients?.find((rec) => rec.email === email)?.role ??
+                  "signer"
+                }
+                onChange={(e) => {
+                  console.log("e", e);
+                  setDraft((data) => ({
+                    ...data,
+                    recipients: (data.recipients ?? []).map((rec) =>
+                      rec?.email === email
+                        ? { email: rec.email, role: e as "signer" | "viewer" }
+                        : rec
+                    ),
+                  }));
+                }}
+                className="shadow-none m-0"
+                placeholder={"Statut"}
+                options={[
+                  { label: "Signer", value: "signer" },
+                  { label: "Voir", value: "viewer" },
+                ]}
+              />
+            </div>
           </div>
         ))}
       </div>
@@ -123,8 +162,8 @@ export const InvoiceSendModalContent = ({
         <Input
           size="md"
           placeholder="email@gmail.com, email@linventaire.app"
-          value={newMails}
-          onChange={(e) => setNewMails(e.target.value)}
+          value={newEmail}
+          onChange={(e) => setNewEmail(e.target.value)}
         />
         <Button
           theme="outlined"
@@ -134,14 +173,19 @@ export const InvoiceSendModalContent = ({
               ...draft,
               recipients: _.uniq([
                 ...(draft.recipients || []),
-                ...(newMails
-                  .toLocaleLowerCase()
-                  .match(
-                    /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/g
-                  ) || []),
+                ...(
+                  newEmail
+                    .toLocaleLowerCase()
+                    .match(
+                      /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/g
+                    ) || []
+                ).map((email) => ({
+                  email,
+                  role: "signer" as "signer" | "viewer",
+                })),
               ]),
             });
-            setNewMails("");
+            setNewEmail("");
           }}
           shortcut={["enter"]}
         >
