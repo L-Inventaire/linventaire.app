@@ -8,7 +8,7 @@ export type Statistics = {
   totalRevenueTable: {
     year: string;
     month: string;
-    tag: string;
+    tag: string[];
     net_amount: number;
   }[];
   expenses: number;

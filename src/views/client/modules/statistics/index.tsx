@@ -15,7 +15,9 @@ export const StatisticsPage = () => {
 
   const statistics = useStatistics(clientId, "year");
   const data = statistics.totalRevenueTable;
-  const tagIDs = _.uniq(data.flatMap((item) => item.tag));
+  const flatTagIDs = _.uniq(data.flatMap((item) => item.tag));
+  const tagIDs = _.uniq(data.map((item) => item.tag));
+
   const start = DateTime.now().startOf("year");
 
   const [years, setYears] = useState<{ year: number; open: boolean }[]>([]);
@@ -39,7 +41,7 @@ export const StatisticsPage = () => {
 
   const { tags } = useTags({
     query: generateQueryFromMap({
-      id: tagIDs,
+      id: flatTagIDs,
     }),
   });
 
@@ -60,10 +62,13 @@ export const StatisticsPage = () => {
               <Table.Header>
                 <Table.Row>
                   <Table.ColumnHeaderCell>Période</Table.ColumnHeaderCell>
-                  {(tags?.data?.list ?? []).map((tag) => {
+                  {tagIDs.map((tagTable) => {
+                    const foundTags = (tags?.data?.list ?? []).filter((tag) =>
+                      tagTable.includes(tag.id)
+                    );
                     return (
                       <Table.ColumnHeaderCell>
-                        {tag.name}
+                        {foundTags.map((tag) => tag.name).join(", ")}
                       </Table.ColumnHeaderCell>
                     );
                   })}
@@ -107,7 +112,11 @@ export const StatisticsPage = () => {
                                 zone: "utc",
                               }).equals(
                                 DateTime.fromISO(item.month, { zone: "utc" })
-                              ) && item.tag === tag
+                              ) &&
+                              year.year ===
+                                DateTime.fromISO(item.year, { zone: "utc" })
+                                  .year &&
+                              _.isEqual(item.tag, tag)
                             );
                           });
                           return (
