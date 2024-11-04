@@ -43,8 +43,20 @@ const activeFilter = [
 ];
 
 export const InvoicesPage = () => {
+  const type: Invoices["type"][] = (useParams().type?.split("+") || [
+    "invoices",
+  ]) as any;
+
   const tabs = {
     active: { label: "Actifs", filter: activeFilter },
+    ...(type.includes("quotes")
+      ? {
+          recurring: {
+            label: "En abonnement",
+            filter: buildQueryFromMap({ state: "recurring" }),
+          },
+        }
+      : {}),
     draft: {
       label: "Brouillons",
       filter: buildQueryFromMap({ state: "draft" }),
@@ -58,9 +70,6 @@ export const InvoicesPage = () => {
   const [activeTab, setActiveTab] = useState("active");
   const [didSelectTab, setDidSelectTab] = useState(false);
 
-  const type: Invoices["type"][] = (useParams().type?.split("+") || [
-    "invoices",
-  ]) as any;
   const [options, setOptions] = useState<RestOptions<Invoices>>({
     limit: 10,
     offset: 0,
@@ -94,6 +103,11 @@ export const InvoicesPage = () => {
     key: "activeInvoices",
     limit: 1,
     query: [...invoiceFilters.query, ...activeFilter],
+  });
+  const { invoices: recurringInvoices } = useInvoices({
+    key: "recurringInvoices",
+    limit: 1,
+    query: [...invoiceFilters.query, ...(tabs.recurring?.filter || [])],
   });
 
   if (
@@ -230,10 +244,12 @@ export const InvoicesPage = () => {
               {Object.entries(tabs).map(([key, label]) => (
                 <Tabs.Trigger key={key} value={key}>
                   {label.label}
-                  {["draft", "active"].includes(key) && (
+                  {["draft", "active", "recurring"].includes(key) && (
                     <Badge className="ml-2">
                       {key === "draft"
                         ? formatNumber(draftInvoices?.data?.total || 0)
+                        : key === "recurring"
+                        ? formatNumber(recurringInvoices?.data?.total || 0)
                         : formatNumber(activeInvoices?.data?.total || 0)}
                     </Badge>
                   )}

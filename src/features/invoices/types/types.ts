@@ -96,10 +96,12 @@ export type InvoiceReminder = {
 
 export type InvoiceSubscription = {
   enabled: boolean;
-  frequency: string; // "daily" | "weekly" | "monthly" | "yearly"
+  invoice_date: "renewal" | "monday" | "first_workday" | "last_workday";
+  start_type: "acceptance_start" | "acceptance_end" | "date";
   start: number;
+  end_type: "none" | "date";
   end: number;
-  as_draft: boolean;
+  renew_as: "draft" | "sent" | "closed";
 };
 
 export type InvoiceLine = {

@@ -1294,6 +1294,11 @@ body :is(.-mx-2) {
   margin-right: -0.5rem;
 }
 
+body :is(.-mx-3) {
+  margin-left: -0.75rem;
+  margin-right: -0.75rem;
+}
+
 body :is(.-mx-4) {
   margin-left: -1rem;
   margin-right: -1rem;
@@ -1374,11 +1379,6 @@ body :is(.my-8) {
   margin-bottom: 2rem;
 }
 
-body :is(.-mx-3) {
-  margin-left: -0.75rem;
-  margin-right: -0.75rem;
-}
-
 body :is(.\!-ml-0) {
   margin-left: -0px !important;
 }
@@ -1413,6 +1413,10 @@ body :is(.-mb-1) {
 
 body :is(.-mb-6) {
   margin-bottom: -1.5rem;
+}
+
+body :is(.-mb-px) {
+  margin-bottom: -1px;
 }
 
 body :is(.-ml-0) {
@@ -1605,14 +1609,6 @@ body :is(.mt-8) {
 
 body :is(.mt-px) {
   margin-top: 1px;
-}
-
-body :is(.-mb-px) {
-  margin-bottom: -1px;
-}
-
-body :is(.mr-3) {
-  margin-right: 0.75rem;
 }
 
 body :is(.box-border) {
