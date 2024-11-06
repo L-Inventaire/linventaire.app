@@ -8,7 +8,7 @@ export const useRegisterActiveSelection = <T>() => {
     setCtrlK((states) => {
       // If already open we don't want to override the current selection
       if ((states[states.length - 1]?.path?.length || 0) > 0) return states;
-      console.log(states);
+
       return [
         ...(states || []),
         { ...(states[states.length - 1] || {}), selection: { entity, items } },

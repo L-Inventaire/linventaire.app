@@ -112,7 +112,6 @@ export const SigningSessionPage = () => {
                 {/* <EmbedSignDocument
                 token={signingSession.recipient_token}
                 onDocumentError={(error) => {
-                  console.log("error", error);
                 }}
               /> */}
 

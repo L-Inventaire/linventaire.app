@@ -44,7 +44,6 @@ export const CtrlKModal = () => {
     );
   }, [states.length]);
 
-  console.log(states);
   return states.map((state, index) => {
     const setState = (newState: CtrlKStateType<any>) => {
       setStates((states) => {

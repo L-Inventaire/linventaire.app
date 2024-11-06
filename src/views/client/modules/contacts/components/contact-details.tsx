@@ -77,8 +77,6 @@ export const ContactsDetailsPage = ({
 
   if (isPending || (id && contact.id !== id)) return <PageLoader />;
 
-  console.log("contacttt", contact.is_client, contact.is_supplier);
-
   return (
     <>
       <FormContext readonly={readonly} alwaysVisible>
