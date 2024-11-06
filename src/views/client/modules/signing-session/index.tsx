@@ -146,6 +146,8 @@ export const SigningSessionPage = () => {
                   invoice?.state === "sent" &&
                   signingSession.state !== "cancelled" &&
                   signingSession.state !== "signed" &&
+                  signingSession.recipient_role === "signer" &&
+                  !signingSession.expired &&
                   invoice.is_deleted === false && (
                     <>
                       <Button
@@ -210,35 +212,38 @@ export const SigningSessionPage = () => {
                   )}
               </div>
 
-              {options.length > 0 && invoice?.type !== "invoices" && (
-                <div className="mb-4">
-                  <Section>Options</Section>
-                  <div className="flex w-full">
-                    {options.map((option) => (
-                      <div className="ml-2 flex">
-                        <Checkbox
-                          disabled={
-                            signingSession.state === "signed" ||
-                            signingSession.state === "sent"
-                          }
-                          onChange={(value) => {
-                            setOptions((options) =>
-                              options.map((o) =>
-                                o._id === option._id
-                                  ? { ...o, optional_checked: value }
-                                  : o
-                              )
-                            );
-                          }}
-                          label={option.name}
-                          size={"md"}
-                          value={option.optional_checked}
-                        />
-                      </div>
-                    ))}
+              {options.length > 0 &&
+                invoice?.type !== "invoices" &&
+                signingSession.recipient_role === "signer" &&
+                !signingSession.expired && (
+                  <div className="mb-4">
+                    <Section>Options</Section>
+                    <div className="flex w-full">
+                      {options.map((option) => (
+                        <div className="ml-2 flex">
+                          <Checkbox
+                            disabled={
+                              signingSession.state === "signed" ||
+                              signingSession.state === "sent"
+                            }
+                            onChange={(value) => {
+                              setOptions((options) =>
+                                options.map((o) =>
+                                  o._id === option._id
+                                    ? { ...o, optional_checked: value }
+                                    : o
+                                )
+                              );
+                            }}
+                            label={option.name}
+                            size={"md"}
+                            value={option.optional_checked}
+                          />
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
 
             {/* IFrame section */}

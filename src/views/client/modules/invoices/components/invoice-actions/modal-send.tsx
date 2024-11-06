@@ -1,9 +1,11 @@
 import { Button } from "@atoms/button/button";
 import { Checkbox } from "@atoms/input/input-checkbox";
+import Radio from "@atoms/input/input-select-radio";
 import { Input } from "@atoms/input/input-text";
 import { Modal, ModalContent } from "@atoms/modal/modal";
 import { Base, Info } from "@atoms/text";
 import { useContact } from "@features/contacts/hooks/use-contacts";
+import { SigningSessionsApiClient } from "@features/documents/api-client/api-client";
 import { Invoices } from "@features/invoices/types/types";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import {
@@ -15,12 +17,9 @@ import { ModalHr } from "@views/client/_layout/page";
 import _ from "lodash";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useParams } from "react-router-dom";
 import { atom, useRecoilState } from "recoil";
 import { getPdfPreview } from "../invoices-preview/invoices-preview";
-import { SigningSessionsApiClient } from "@features/documents/api-client/api-client";
-import { useParams } from "react-router-dom";
-import Radio from "@atoms/input/input-select-radio";
-import { Flex } from "@radix-ui/themes";
 
 export const InvoiceSendModalAtom = atom<boolean>({
   key: "InvoiceSendModalAtom",
@@ -109,7 +108,7 @@ export const InvoiceSendModalContent = ({
               }
               labelWrapperProps={{ className: "max-w-[40%]" }}
               labelProps={{ className: "truncate w-full block" }}
-              onChange={(status) =>
+              onChange={(status) => {
                 setDraft({
                   ...draft,
                   recipients: _.uniq([
@@ -124,9 +123,9 @@ export const InvoiceSendModalContent = ({
                           },
                         ]
                       : []),
-                  ]),
-                })
-              }
+                  ]).filter((a) => !!a),
+                });
+              }}
             />
             <div className="flex items-center ml-2">
               <Base className="mr-2 font-semibold">Action</Base>
@@ -137,7 +136,6 @@ export const InvoiceSendModalContent = ({
                   "signer"
                 }
                 onChange={(e) => {
-                  console.log("e", e);
                   setDraft((data) => ({
                     ...data,
                     recipients: (data.recipients ?? []).map((rec) =>
@@ -179,10 +177,12 @@ export const InvoiceSendModalContent = ({
                     .match(
                       /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/g
                     ) || []
-                ).map((email) => ({
-                  email,
-                  role: "signer" as "signer" | "viewer",
-                })),
+                )
+                  .map((email) => ({
+                    email,
+                    role: "signer" as "signer" | "viewer",
+                  }))
+                  .filter((a) => !!a),
               ]),
             });
             setNewEmail("");
@@ -205,7 +205,10 @@ export const InvoiceSendModalContent = ({
           Télécharger
         </Button>
         <Button
-          disabled={!draft.recipients?.length}
+          disabled={
+            !(draft.recipients ?? []).filter(Boolean)?.length ||
+            !draft.recipients?.some((rec) => rec.role === "signer")
+          }
           size="sm"
           icon={(p) => <PaperAirplaneIcon {...p} />}
           onClick={async () => {
@@ -236,8 +239,14 @@ export const InvoiceSendModalContent = ({
             }
           }}
         >
-          Envoyer à {draft.recipients?.length || 0} destinataires
+          Envoyer à {(draft.recipients ?? []).filter(Boolean)?.length || 0}{" "}
+          destinataires
         </Button>
+        {!draft.recipients?.some((rec) => rec.role === "signer") && (
+          <Info className="block mt-2 text-red-400">
+            Au moin un destinataire doît être un signataire
+          </Info>
+        )}
       </div>
     </ModalContent>
   );
