@@ -45,8 +45,6 @@ export const StatisticsPage = () => {
     }),
   });
 
-  console.log("years", years);
-
   return (
     <Page
       title={[

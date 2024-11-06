@@ -1779,6 +1779,10 @@ body :is(.h-screen) {
   height: 100vh;
 }
 
+body :is(.h-2\/3) {
+  height: 66.666667%;
+}
+
 body :is(.max-h-0) {
   max-height: 0px;
 }
@@ -2030,6 +2034,10 @@ body :is(.max-w-72) {
   max-width: 18rem;
 }
 
+body :is(.max-w-\[40\%\]) {
+  max-width: 40%;
+}
+
 body :is(.max-w-full) {
   max-width: 100%;
 }
@@ -2048,22 +2056,6 @@ body :is(.max-w-xl) {
 
 body :is(.max-w-xs) {
   max-width: 20rem;
-}
-
-body :is(.max-w-\[50\%\]) {
-  max-width: 50%;
-}
-
-body :is(.max-w-\[30\%\]) {
-  max-width: 30%;
-}
-
-body :is(.max-w-\[45\%\]) {
-  max-width: 45%;
-}
-
-body :is(.max-w-\[40\%\]) {
-  max-width: 40%;
 }
 
 body :is(.flex-1) {
@@ -3561,6 +3553,10 @@ body :is(.p-4) {
 
 body :is(.p-6) {
   padding: 1.5rem;
+}
+
+body :is(.p-10) {
+  padding: 2.5rem;
 }
 
 body :is(.\!px-1) {
