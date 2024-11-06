@@ -227,7 +227,7 @@ export const InvoicesDetailsPage = ({
           />
         ),
         visible: !isSupplierInvoice && !isSupplierQuote,
-        complete: !_.isEqual(
+        with_content: !_.isEqual(
           _.omitBy(draft?.format, (a) => !a),
           _.omitBy(client.invoices, (a) => !a)
         ),
@@ -242,20 +242,7 @@ export const InvoicesDetailsPage = ({
           />
         ),
         visible: !isSupplierRelated,
-        complete: draft.payment_information?.mode?.length,
-      },
-      {
-        component: (
-          <InputDelivery
-            btnKey="invoice-delivery"
-            invoice={draft}
-            ctrl={ctrl}
-            readonly={readonly}
-            contact={contact}
-          />
-        ),
-        visible: !isSupplierRelated,
-        complete: draft.delivery_delay || draft.delivery_address,
+        with_content: draft.payment_information?.mode?.length,
       },
       {
         component: (
@@ -267,23 +254,11 @@ export const InvoicesDetailsPage = ({
           />
         ),
         visible: !isSupplierRelated,
-        complete: draft.reminders?.enabled,
+        with_content: draft.reminders?.enabled,
       },
-      {
-        component: (
-          <InvoiceRecurrenceInput
-            btnKey="invoice-recurrence"
-            invoice={draft}
-            ctrl={ctrl}
-            readonly={readonly}
-          />
-        ),
-        visible: !isSupplierRelated && draft.type !== "credit_notes",
-        complete: draft.subscription?.enabled,
-      },
-    ].filter((a) => a.visible && (a.complete || !readonly)),
+    ].filter((a) => a.visible && (a.with_content || !readonly)),
     (a) => {
-      return a.complete ? -1 : 0;
+      return a.with_content ? -1 : 0;
     }
   );
 
@@ -523,6 +498,34 @@ export const InvoicesDetailsPage = ({
                   />
                   {billableContent.length > 0 && (
                     <>
+                      {!isSupplierRelated && (
+                        <div className="mt-8">
+                          <Section className="mb-2">Livraison</Section>
+                          <InputDelivery
+                            btnKey="invoice-delivery"
+                            invoice={draft}
+                            ctrl={ctrl}
+                            readonly={readonly}
+                            contact={contact}
+                          />
+                        </div>
+                      )}
+
+                      {!!isQuoteRelated &&
+                        !isSupplierRelated &&
+                        draft.state !== "closed" &&
+                        !!draft.content?.find((a) => a.subscription) && (
+                          <div className="mt-8">
+                            <Section className="mb-2">Récurrence</Section>
+                            <InvoiceRecurrenceInput
+                              btnKey="invoice-recurrence"
+                              invoice={draft}
+                              ctrl={ctrl}
+                              readonly={readonly}
+                            />
+                          </div>
+                        )}
+
                       {!!otherInputs.length && (
                         <div className="mt-8">
                           <Section className="mb-2">Autre</Section>
@@ -530,8 +533,8 @@ export const InvoicesDetailsPage = ({
                             {otherInputs.map((a, i) => (
                               <Fragment key={i}>
                                 {i !== 0 &&
-                                  !a.complete &&
-                                  !!otherInputs[i - 1].complete && <br />}
+                                  !a.with_content &&
+                                  !!otherInputs[i - 1].with_content && <br />}
                                 {a.component}
                               </Fragment>
                             ))}
