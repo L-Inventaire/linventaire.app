@@ -37,7 +37,6 @@ export const useWebsockets = () => {
         if (event.event === "invalidated") {
           for (const doc of event.data) {
             const invalidated = [doc.doc_table];
-            console.log("invalidated", invalidated);
             queryClient.invalidateQueries({
               queryKey: invalidated,
             });
@@ -51,7 +50,7 @@ export const useWebsockets = () => {
                 doc.doc_pk?.client_id,
                 doc.doc_table,
                 doc.doc_pk?.id
-              ).catch(console.log);
+              ).catch(console.info);
             }
           }
         }

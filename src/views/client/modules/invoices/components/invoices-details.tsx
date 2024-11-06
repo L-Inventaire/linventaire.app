@@ -47,6 +47,7 @@ import { InvoiceStatus } from "./invoice-status";
 import { RelatedInvoices } from "./related-invoices";
 import { TagPaymentCompletion } from "./tag-payment-completion";
 import { ROUTES } from "@features/routes";
+import { WrongNumerotationFormat } from "@atoms/wrong-format-numerotation";
 
 export const computeStockCompletion = (
   linesu: Invoices["content"],
@@ -206,7 +207,12 @@ export const InvoicesDetailsPage = ({
     }),
   });
 
+  const format = _.get(client.invoices_counters, draft.type)?.format;
+  const counter = _.get(client.invoices_counters, draft.type)?.counter;
+  const errorFormat = !format || !counter;
+
   if (isPending || (id && draft.id !== id) || !client) return <PageLoader />;
+  if (errorFormat) return <WrongNumerotationFormat />;
 
   const otherInputs = _.sortBy(
     [

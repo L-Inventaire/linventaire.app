@@ -6,6 +6,10 @@ import { CheckIcon, EllipsisHorizontalIcon } from "@heroicons/react/16/solid";
 import { getPdfPreview } from "../../invoices-preview/invoices-preview";
 import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { AccountingTransactions } from "@features/accounting/types/types";
+import _ from "lodash";
+import { useClients } from "@features/clients/state/use-clients";
+import { useNavigateAlt } from "@features/utils/navigate";
+import { getRoute, ROUTES } from "@features/routes";
 
 export const SupplierInvoicesActions = ({
   id,
@@ -22,9 +26,29 @@ export const SupplierInvoicesActions = ({
     readonly || draft.state === "closed" || draft.state === "completed";
   const edit = useEditFromCtrlK();
 
+  const { client: clientUser } = useClients();
+  const client = clientUser!.client!;
+  const format = _.get(client.invoices_counters, draft.type)?.format;
+  const counter = _.get(client.invoices_counters, draft.type)?.counter;
+  const errorFormat = !format || !counter;
+
+  const navigate = useNavigateAlt();
+
   return (
     <>
-      {draft.state === "draft" && (
+      {errorFormat && (
+        <Button
+          size="lg"
+          icon={(p) => <CheckIcon {...p} />}
+          onClick={() => {
+            navigate(getRoute(ROUTES.SettingsPreferences));
+          }}
+        >
+          Définir le format de numérotation
+        </Button>
+      )}
+
+      {draft.state === "draft" && !errorFormat && (
         <Button
           disabled={disabled}
           size="lg"
@@ -37,7 +61,7 @@ export const SupplierInvoicesActions = ({
         </Button>
       )}
 
-      {draft.state === "sent" && (
+      {draft.state === "sent" && !errorFormat && (
         <>
           <DropdownButton
             className="m-0"
@@ -67,14 +91,14 @@ export const SupplierInvoicesActions = ({
           </Button>
         </>
       )}
-      {draft.state === "closed" && (
+      {draft.state === "closed" && !errorFormat && (
         <div>
           <Button disabled={true} size="lg">
             Document fermé
           </Button>
         </div>
       )}
-      {draft.state === "completed" && (
+      {draft.state === "completed" && !errorFormat && (
         <div>
           <Button disabled={true} size="lg">
             Facture payée et cloturée

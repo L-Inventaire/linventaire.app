@@ -12,6 +12,7 @@ import { Statistics } from "./types";
 
 const blankStatistics: Statistics = {
   totalRevenue: 0,
+  totalRevenueTable: [],
   revenue: 0,
   revenueStats: [],
   totalExpenses: 0,
@@ -27,6 +28,11 @@ const blankStatistics: Statistics = {
   sentPurchaseOrders: 0,
   almostLateDeliveries: [],
   almostLatePayments: [],
+  almostLatePaymentsNoDelay: [],
+  almostLatePayments30Delay: [],
+  almostLatePayments60Delay: [],
+  almostLatePayments90Delay: [],
+  almostLatePayments120Delay: [],
   totalStockEntries: 0,
   totalStockExits: 0,
   totalSignedQuotes: 0,
@@ -43,6 +49,11 @@ export const useStatistics = (
   formattedData: any;
   almostLateDeliveriesEntities: Invoices[];
   almostLatePaymentsEntities: Invoices[];
+  almostLatePaymentsNoDelayEntities: Invoices[];
+  almostLatePayments30DelayEntities: Invoices[];
+  almostLatePayments60DelayEntities: Invoices[];
+  almostLatePayments90DelayEntities: Invoices[];
+  almostLatePayments120DelayEntities: Invoices[];
 } => {
   const statistics = useQuery({
     queryKey: ["statistics", clientID, period ?? "year"],
@@ -100,12 +111,113 @@ export const useStatistics = (
         }
   );
 
+  const { invoices: almostLatePaymentsNoDelay } = useInvoices(
+    ((statistics?.data as Statistics)?.almostLatePaymentsNoDelay || [])
+      .length === 0
+      ? {
+          query: [
+            {
+              key: "id",
+              values: [{ op: "equals", value: "#" }],
+            },
+          ],
+        }
+      : {
+          query: generateQueryFromMap({
+            id:
+              (statistics?.data as Statistics)?.almostLatePaymentsNoDelay || [],
+          }),
+        }
+  );
+
+  const { invoices: almostLatePayments30Delay } = useInvoices(
+    ((statistics?.data as Statistics)?.almostLatePayments30Delay || [])
+      .length === 0
+      ? {
+          query: [
+            {
+              key: "id",
+              values: [{ op: "equals", value: "#" }],
+            },
+          ],
+        }
+      : {
+          query: generateQueryFromMap({
+            id:
+              (statistics?.data as Statistics)?.almostLatePayments30Delay || [],
+          }),
+        }
+  );
+
+  const { invoices: almostLatePayments60Delay } = useInvoices(
+    ((statistics?.data as Statistics)?.almostLatePayments60Delay || [])
+      .length === 0
+      ? {
+          query: [
+            {
+              key: "id",
+              values: [{ op: "equals", value: "#" }],
+            },
+          ],
+        }
+      : {
+          query: generateQueryFromMap({
+            id:
+              (statistics?.data as Statistics)?.almostLatePayments60Delay || [],
+          }),
+        }
+  );
+
+  const { invoices: almostLatePayments90Delay } = useInvoices(
+    ((statistics?.data as Statistics)?.almostLatePayments90Delay || [])
+      .length === 0
+      ? {
+          query: [
+            {
+              key: "id",
+              values: [{ op: "equals", value: "#" }],
+            },
+          ],
+        }
+      : {
+          query: generateQueryFromMap({
+            id:
+              (statistics?.data as Statistics)?.almostLatePayments90Delay || [],
+          }),
+        }
+  );
+
+  const { invoices: almostLatePayments120Delay } = useInvoices(
+    ((statistics?.data as Statistics)?.almostLatePayments120Delay || [])
+      .length === 0
+      ? {
+          query: [
+            {
+              key: "id",
+              values: [{ op: "equals", value: "#" }],
+            },
+          ],
+        }
+      : {
+          query: generateQueryFromMap({
+            id:
+              (statistics?.data as Statistics)?.almostLatePayments120Delay ||
+              [],
+          }),
+        }
+  );
+
   if (!statistics?.data) {
     return {
       ...blankStatistics,
       formattedData: [],
       almostLateDeliveriesEntities: [],
       almostLatePaymentsEntities: [],
+      almostLatePaymentsNoDelayEntities: [],
+      almostLatePayments30DelayEntities: [],
+      almostLatePayments60DelayEntities: [],
+      almostLatePayments90DelayEntities: [],
+      almostLatePayments120DelayEntities: [],
     };
   }
 
@@ -115,6 +227,11 @@ export const useStatistics = (
       formattedData: [],
       almostLateDeliveriesEntities: [],
       almostLatePaymentsEntities: [],
+      almostLatePaymentsNoDelayEntities: [],
+      almostLatePayments30DelayEntities: [],
+      almostLatePayments60DelayEntities: [],
+      almostLatePayments90DelayEntities: [],
+      almostLatePayments120DelayEntities: [],
     };
   }
 
@@ -211,5 +328,15 @@ export const useStatistics = (
     formattedData,
     almostLateDeliveriesEntities: almostLateDeliveries?.data?.list ?? [],
     almostLatePaymentsEntities: almostLatePayments?.data?.list ?? [],
+    almostLatePaymentsNoDelayEntities:
+      almostLatePaymentsNoDelay?.data?.list ?? [],
+    almostLatePayments30DelayEntities:
+      almostLatePayments30Delay?.data?.list ?? [],
+    almostLatePayments60DelayEntities:
+      almostLatePayments60Delay?.data?.list ?? [],
+    almostLatePayments90DelayEntities:
+      almostLatePayments90Delay?.data?.list ?? [],
+    almostLatePayments120DelayEntities:
+      almostLatePayments120Delay?.data?.list ?? [],
   };
 };

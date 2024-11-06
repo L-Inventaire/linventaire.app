@@ -5,6 +5,12 @@ export type Statistics = {
     date: string;
     net_amount: number;
   }[];
+  totalRevenueTable: {
+    year: string;
+    month: string;
+    tag: string[];
+    net_amount: number;
+  }[];
   expenses: number;
   totalExpenses: number | null;
   benefits: number | null;
@@ -25,4 +31,9 @@ export type Statistics = {
   totalSentPurchaseOrders: number | null;
   almostLateDeliveries: string[] | null;
   almostLatePayments: string[] | null;
+  almostLatePaymentsNoDelay: string[] | null;
+  almostLatePayments30Delay: string[] | null;
+  almostLatePayments60Delay: string[] | null;
+  almostLatePayments90Delay: string[] | null;
+  almostLatePayments120Delay: string[] | null;
 };

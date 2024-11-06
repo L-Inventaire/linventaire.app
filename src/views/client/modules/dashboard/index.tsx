@@ -34,6 +34,8 @@ export const DashboardHomePage = () => {
           label: "Tableau de bord",
         },
       ]}
+      // scrollAreaProps={{ style: { height: "100vh" } }}
+      scrollAreaChildProps={{ style: { height: "80vh" } }}
     >
       <div className="flex items-center mb-6 ml-3 mt-3">
         <Title>Tableau de bord</Title>
@@ -66,7 +68,7 @@ export const DashboardHomePage = () => {
           Année
         </Button>
       </div>
-      <div className="flex h-full flex-col lg:flex-row px-3">
+      <div className="flex flex-col lg:flex-row px-3 h-full max-h-full">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_250px_1fr_250px] lg:grid-rows-[calc(50%-5px)_calc(50%-5px)] w-full lg:w-2/3 gap-[10px] mr-[10px]">
           <div className="w-full min-h-64 lg:h-full lg:col-span-3">
             <LineChart period={period} />
@@ -78,61 +80,64 @@ export const DashboardHomePage = () => {
             tableProps={{
               className: "grid-cols-[1fr_2fr_1fr]",
             }}
-            items={statistics.almostLateDeliveriesEntities.flatMap(
+            rows={statistics.almostLateDeliveriesEntities.flatMap(
               (quote, index) => {
-                return [
-                  {
-                    row: index,
-                    column: "delivery",
-                    label: formatTime(
-                      computeDeliveryDelayDate(quote).toJSDate(),
-                      {
-                        hideTime: true,
-                      }
-                    ),
-                    props: {
-                      onClick: () => {
-                        navigate(
-                          getRoute(ROUTES.InvoicesView, {
-                            client: clientId,
-                            id: quote.id,
-                          })
-                        );
+                return {
+                  key: index.toString(),
+                  items: [
+                    {
+                      row: index,
+                      column: "delivery",
+                      label: formatTime(
+                        computeDeliveryDelayDate(quote).toJSDate(),
+                        {
+                          hideTime: true,
+                        }
+                      ),
+                      props: {
+                        onClick: () => {
+                          navigate(
+                            getRoute(ROUTES.InvoicesView, {
+                              client: clientId,
+                              id: quote.id,
+                            })
+                          );
+                        },
                       },
                     },
-                  },
-                  {
-                    row: index,
-                    column: "quote",
-                    label: quote.reference,
-                    props: {
-                      onClick: () => {
-                        navigate(
-                          getRoute(ROUTES.InvoicesView, {
-                            client: clientId,
-                            id: quote.id,
-                          })
-                        );
+                    {
+                      row: index,
+                      column: "quote",
+                      label: quote.reference,
+                      props: {
+                        onClick: () => {
+                          navigate(
+                            getRoute(ROUTES.InvoicesView, {
+                              client: clientId,
+                              id: quote.id,
+                            })
+                          );
+                        },
                       },
                     },
-                  },
-                  {
-                    row: index,
-                    column: "amount",
-                    label: formatAmount(quote.total?.total_with_taxes ?? 0),
-                    props: {
-                      className: "flex justify-end",
-                      onClick: () => {
-                        navigate(
-                          getRoute(ROUTES.InvoicesView, {
-                            client: clientId,
-                            id: quote.id,
-                          })
-                        );
+                    {
+                      row: index,
+                      column: "amount",
+                      label: formatAmount(quote.total?.total_with_taxes ?? 0),
+                      props: {
+                        className: "flex justify-end",
+                        onClick: () => {
+                          navigate(
+                            getRoute(ROUTES.InvoicesView, {
+                              client: clientId,
+                              id: quote.id,
+                            })
+                          );
+                        },
                       },
                     },
-                  },
-                ];
+                  ],
+                };
               }
             )}
             columns={[
@@ -146,17 +151,48 @@ export const DashboardHomePage = () => {
             ]}
           />
           <TableCard
-            title="Paiements bientôt en retard"
+            title="Paiements en retard"
             className="lg:col-span-2"
             tableProps={{
               className: "grid-cols-[1fr_2fr_1fr]",
             }}
-            items={statistics.almostLatePaymentsEntities.flatMap(
-              (quote, index) => {
-                return [
+            groups={[
+              { key: "delay-soon", label: "Bientôt en retard" },
+              { key: "delay-30", label: "En retard" },
+              { key: "delay-60", label: "30 jours et plus" },
+              { key: "delay-90", label: "60 jours et plus" },
+              { key: "delay-120", label: "90 jours et plus" },
+            ]}
+            rows={[
+              {
+                group: "delay-soon",
+                quotes: statistics.almostLatePaymentsNoDelayEntities,
+              },
+              {
+                group: "delay-30",
+                quotes: statistics.almostLatePayments30DelayEntities,
+              },
+              {
+                group: "delay-60",
+                quotes: statistics.almostLatePayments60DelayEntities,
+              },
+              {
+                group: "delay-90",
+                quotes: statistics.almostLatePayments90DelayEntities,
+              },
+              {
+                group: "delay-120",
+                quotes: statistics.almostLatePayments120DelayEntities,
+              },
+            ].flatMap(({ group, quotes }, index) => {
+              return quotes.map((quote) => ({
+                key: index.toString(),
+                group: group,
+                items: [
                   {
                     row: index,
                     column: "delivery",
+
                     label: formatTime(quote.payment_information.computed_date, {
                       hideTime: true,
                     }),
@@ -202,9 +238,9 @@ export const DashboardHomePage = () => {
                       },
                     },
                   },
-                ];
-              }
-            )}
+                ],
+              }));
+            })}
             columns={[
               { label: "Paiement le", value: "delivery" },
               { label: "Facture", value: "quote" },

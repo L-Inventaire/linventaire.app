@@ -6,7 +6,7 @@ import { SigningSessionsApiClient } from "@features/documents/api-client/api-cli
 import { useSigningSession } from "@features/documents/hooks";
 import { Invoices } from "@features/invoices/types/types";
 import { isErrorResponse } from "@features/utils/rest/types/types";
-import { AspectRatio } from "@radix-ui/themes";
+import { AspectRatio, Card } from "@radix-ui/themes";
 import { Page } from "@views/client/_layout/page";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -83,8 +83,8 @@ export const SignedSessionPage = () => {
           },
         ]}
       >
-        <div className="w-full h-full flex flex-col items-center grow">
-          <div className="max-w-2xl w-full flex flex-col justify-between items-center rounded-md grow">
+        <div className="w-full h-full flex flex-col items-center justify-center grow">
+          <div className="max-w-2xl w-full h-full flex flex-col items-center rounded-md grow">
             <div className="w-full">
               <TitleBar
                 className={"mb-8"}
@@ -101,21 +101,14 @@ export const SignedSessionPage = () => {
                 title="Invoice PDF Preview"
               />
             )}
+            {/* {isLoadingSignedDocument && (
+              <Card className="w-full h-full">
+                <Loader />
+              </Card>
+            )} */}
             {!signedDocument && (
-              <div className="flex flex-col w-full justify-center items-center">
-                <div className="flex items-center justify-center mb-6">
-                  <Loader className="mr-2" />
-                  <Section className="m-0 mr-2 font-normal">
-                    Merci, la signature du document prendra quelque temps. Vous
-                    pouvez fermer cette page, le document signé vous sera envoyé
-                    par email
-                  </Section>
-                  <Button onClick={() => refetchSignedDocument()}>
-                    Rafraîchir
-                  </Button>
-                </div>
-
-                <div className="w-full md:w-1/2 lg:w-1/3">
+              <div className="flex flex-col w-full h-2/3 p-10 justify-center items-center bg-white rounded-lg">
+                <div className="w-full md:w-1/2 mb-6">
                   <AspectRatio ratio={1 / 1} className="flex justify-center">
                     <img
                       className="Image"
@@ -123,6 +116,22 @@ export const SignedSessionPage = () => {
                       alt="Landscape photograph by Tobias Tullius"
                     />
                   </AspectRatio>
+                </div>
+                <div className="flex flex-col items-center justify-center mb-6">
+                  <Section className="m-0 mr-2 font-normal text-center">
+                    Merci, la signature du document prendra quelque temps.
+                    <br /> Le document signé vous sera envoyé par email
+                  </Section>
+
+                  <div className="flex mt-4 justify-center items-center">
+                    <Button
+                      onClick={async () => {
+                        await refetchSignedDocument();
+                      }}
+                    >
+                      Rafraîchir
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}
