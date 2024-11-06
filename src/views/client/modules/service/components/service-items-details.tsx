@@ -73,19 +73,21 @@ export const ServiceItemsDetailsPage = ({
   const [markAsDone, setMarkAsDone] = useState<boolean>(false);
 
   useEffect(() => {
-    const e = onCreateAddSpentTime;
-    if (markAsDone) {
-      ctrl("state").onChange("done");
-    } else if (
-      e.reduce((a, b) => a + b.quantity, 0) >= ctrl("quantity_expected").value
-    ) {
-      ctrl("state").onChange("in_review");
-    } else if (e.reduce((a, b) => a + b.quantity, 0) > 0) {
-      ctrl("state").onChange("in_progress");
-    } else {
-      ctrl("state").onChange("todo");
+    if (!readonly && !draft.id) {
+      const e = onCreateAddSpentTime;
+      if (markAsDone) {
+        ctrl("state").onChange("done");
+      } else if (
+        e.reduce((a, b) => a + b.quantity, 0) >= ctrl("quantity_expected").value
+      ) {
+        ctrl("state").onChange("in_review");
+      } else if (e.reduce((a, b) => a + b.quantity, 0) > 0) {
+        ctrl("state").onChange("in_progress");
+      } else {
+        ctrl("state").onChange("todo");
+      }
+      onChangeSpentTime?.(e);
     }
-    onChangeSpentTime?.(e);
   }, [onCreateAddSpentTime, ctrl("quantity_expected").value, markAsDone]);
 
   if (isPending || (id && draft.id !== id)) return <PageLoader />;

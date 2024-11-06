@@ -119,6 +119,11 @@ export const StockItemsDetailsPage = ({
           icon={(p) => <CubeIcon {...p} />}
           size="xl"
           value={ctrl("article").value}
+          filter={
+            {
+              type: ["product", "consumable"],
+            } as any
+          }
           onChange={(id, article: Articles | null) => {
             ctrl("article").onChange(id);
             ctrl("quantity").onChange(
