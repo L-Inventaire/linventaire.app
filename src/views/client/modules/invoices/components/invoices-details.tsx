@@ -208,8 +208,7 @@ export const InvoicesDetailsPage = ({
   });
 
   const format = _.get(client.invoices_counters, draft.type)?.format;
-  const counter = _.get(client.invoices_counters, draft.type)?.counter;
-  const errorFormat = !format || !counter;
+  const errorFormat = !format;
 
   if (isPending || (id && draft.id !== id) || !client) return <PageLoader />;
   if (errorFormat) return <WrongNumerotationFormat />;

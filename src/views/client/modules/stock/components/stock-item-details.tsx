@@ -17,7 +17,7 @@ import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
 import { StockItems } from "@features/stock/types/types";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
-import { DivideIcon } from "@heroicons/react/16/solid";
+import { DivideIcon, TruckIcon } from "@heroicons/react/16/solid";
 import {
   ArrowRightIcon,
   BuildingStorefrontIcon,
@@ -40,6 +40,9 @@ import { SubdivideStockModalAtom } from "./subdivide-modal";
 import { Tracability } from "./tracability";
 import { Timeline } from "@molecules/timeline";
 import { ROUTES } from "@features/routes";
+import { StockItemsCreateFromOrder } from "./stock-item-create-from-order";
+import { StockItemsCreateFromSupplier } from "./stock-item-create-from-supplier";
+import { Contacts } from "@features/contacts/types/types";
 
 export const StockItemsDetailsPage = ({
   readonly,
@@ -72,6 +75,33 @@ export const StockItemsDetailsPage = ({
         return { ...draft, state: draft?.state || "bought" };
       });
   }, [JSON.stringify(draft), isPending]);
+
+  const [createMode, setCreateMode] = useState<
+    "classic" | "order" | "supplier"
+  >("classic");
+  const [supplier, setSupplier] = useState<string>("");
+  if (createMode === "order") {
+    return (
+      <StockItemsCreateFromOrder
+        onBack={() => {
+          setCreateMode("classic");
+          ctrl("from_rel_supplier_quote").onChange(null);
+        }}
+        order={draft.from_rel_supplier_quote}
+      />
+    );
+  }
+  if (createMode === "supplier") {
+    return (
+      <StockItemsCreateFromSupplier
+        onBack={() => {
+          setCreateMode("classic");
+          setSupplier("");
+        }}
+        supplier={supplier}
+      />
+    );
+  }
 
   if (isPending || (id && draft.id !== id) || !client) return <PageLoader />;
 
@@ -112,26 +142,69 @@ export const StockItemsDetailsPage = ({
           ou d'une commande.
         </Card>
 
-        <RestDocumentsInput
-          label="Article"
-          placeholder="Sélectionner un article"
-          entity="articles"
-          icon={(p) => <CubeIcon {...p} />}
-          size="xl"
-          value={ctrl("article").value}
-          filter={
-            {
-              type: ["product", "consumable"],
-            } as any
-          }
-          onChange={(id, article: Articles | null) => {
-            ctrl("article").onChange(id);
-            ctrl("quantity").onChange(
-              article?.suppliers_details?.[0]?.delivery_quantity || 1
-            );
-          }}
-          onEntityChange={(article) => setArticle(article)}
-        />
+        <div className="space-y-4">
+          <RestDocumentsInput
+            label="Article"
+            placeholder="À partir d'un article"
+            entity="articles"
+            icon={(p) => <CubeIcon {...p} />}
+            size="xl"
+            value={ctrl("article").value}
+            filter={
+              {
+                type: ["product", "consumable"],
+              } as any
+            }
+            onChange={(id, article: Articles | null) => {
+              ctrl("article").onChange(id);
+              ctrl("quantity").onChange(
+                article?.suppliers_details?.[0]?.delivery_quantity || 1
+              );
+            }}
+            onEntityChange={(article) => setArticle(article)}
+          />
+
+          {!ctrl("article").value && !draft.id && (
+            <RestDocumentsInput
+              label="Fournisseur"
+              placeholder="À partir d'un fournisseur"
+              entity="contacts"
+              icon={(p) => <TruckIcon {...p} />}
+              size="xl"
+              value={supplier}
+              filter={
+                {
+                  is_supplier: true,
+                } as Partial<Contacts>
+              }
+              onChange={(id) => {
+                setSupplier(id);
+                setCreateMode("supplier");
+              }}
+            />
+          )}
+
+          {!ctrl("article").value && !draft.id && (
+            <RestDocumentsInput
+              label="Commande"
+              placeholder="À partir d'une commande"
+              entity="invoices"
+              icon={(p) => <ShoppingCartIcon {...p} />}
+              size="xl"
+              value={ctrl("from_rel_supplier_quote").value}
+              filter={
+                {
+                  type: "supplier_quotes",
+                  state: ["sent", "purchase_order", "accepted"],
+                } as any
+              }
+              onChange={(id) => {
+                ctrl("from_rel_supplier_quote").onChange(id);
+                setCreateMode("order");
+              }}
+            />
+          )}
+        </div>
 
         {!article && (
           <>
