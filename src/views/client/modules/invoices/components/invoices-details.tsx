@@ -1,6 +1,7 @@
 import { Button } from "@atoms/button/button";
 import { PageLoader } from "@atoms/page-loader";
 import { Section } from "@atoms/text";
+import { WrongNumerotationFormat } from "@atoms/wrong-format-numerotation";
 import { CustomFieldsInput } from "@components/custom-fields-input";
 import { FormInput } from "@components/form/fields";
 import { FormContext } from "@components/form/formcontext";
@@ -19,6 +20,7 @@ import { Contacts } from "@features/contacts/types/types";
 import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { Invoices } from "@features/invoices/types/types";
 import { getDocumentName } from "@features/invoices/utils";
+import { ROUTES } from "@features/routes";
 import { formatTime } from "@features/utils/format/dates";
 import { getFormattedNumerotation } from "@features/utils/format/numerotation";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
@@ -46,8 +48,6 @@ import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-ca
 import { InvoiceStatus } from "./invoice-status";
 import { RelatedInvoices } from "./related-invoices";
 import { TagPaymentCompletion } from "./tag-payment-completion";
-import { ROUTES } from "@features/routes";
-import { WrongNumerotationFormat } from "@atoms/wrong-format-numerotation";
 
 export const computeStockCompletion = (
   linesu: Invoices["content"],
@@ -576,7 +576,9 @@ export const InvoicesDetailsPage = ({
                           </div>
                         )}
 
-                      {!isQuoteRelated && (
+                      {(!isQuoteRelated ||
+                        isSupplierInvoice ||
+                        isSupplierQuote) && (
                         <div className="mt-8">
                           <Section className="mb-2">Origine</Section>
                           <InvoiceRestDocument
