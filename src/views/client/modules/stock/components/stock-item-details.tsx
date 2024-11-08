@@ -13,8 +13,10 @@ import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
 import { Articles } from "@features/articles/types/types";
 import { useClients } from "@features/clients/state/use-clients";
+import { Contacts } from "@features/contacts/types/types";
 import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
+import { getRoute, ROUTES } from "@features/routes";
 import { StockItems } from "@features/stock/types/types";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { DivideIcon, TruckIcon } from "@heroicons/react/16/solid";
@@ -30,19 +32,17 @@ import {
 import { DocumentIcon } from "@heroicons/react/24/outline";
 import { CubeIcon } from "@heroicons/react/24/solid";
 import { EditorInput } from "@molecules/editor-input";
+import { Timeline } from "@molecules/timeline";
 import { Callout } from "@radix-ui/themes";
 import { PageBlockHr } from "@views/client/_layout/page";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSetRecoilState } from "recoil";
 import { InvoiceRestDocument } from "../../invoices/components/invoice-lines-input/invoice-input-rest-card";
 import { StockItemStatus } from "./stock-item-status";
-import { useSetRecoilState } from "recoil";
 import { SubdivideStockModalAtom } from "./subdivide-modal";
 import { Tracability } from "./tracability";
-import { Timeline } from "@molecules/timeline";
-import { ROUTES } from "@features/routes";
-import { StockItemsCreateFromOrder } from "./stock-item-create-from-order";
-import { StockItemsCreateFromSupplier } from "./stock-item-create-from-supplier";
-import { Contacts } from "@features/contacts/types/types";
+import { QuotesCheckers, SerialNumberCheckers } from "./create-from/checkers";
 
 export const StockItemsDetailsPage = ({
   readonly,
@@ -54,6 +54,7 @@ export const StockItemsDetailsPage = ({
   const { client: clientUser } = useClients();
   const client = clientUser!.client!;
 
+  const navigate = useNavigate();
   const setSubdivideModal = useSetRecoilState(SubdivideStockModalAtom);
 
   const {
@@ -75,33 +76,6 @@ export const StockItemsDetailsPage = ({
         return { ...draft, state: draft?.state || "bought" };
       });
   }, [JSON.stringify(draft), isPending]);
-
-  const [createMode, setCreateMode] = useState<
-    "classic" | "order" | "supplier"
-  >("classic");
-  const [supplier, setSupplier] = useState<string>("");
-  if (createMode === "order") {
-    return (
-      <StockItemsCreateFromOrder
-        onBack={() => {
-          setCreateMode("classic");
-          ctrl("from_rel_supplier_quote").onChange(null);
-        }}
-        order={draft.from_rel_supplier_quote}
-      />
-    );
-  }
-  if (createMode === "supplier") {
-    return (
-      <StockItemsCreateFromSupplier
-        onBack={() => {
-          setCreateMode("classic");
-          setSupplier("");
-        }}
-        supplier={supplier}
-      />
-    );
-  }
 
   if (isPending || (id && draft.id !== id) || !client) return <PageLoader />;
 
@@ -171,15 +145,15 @@ export const StockItemsDetailsPage = ({
               entity="contacts"
               icon={(p) => <TruckIcon {...p} />}
               size="xl"
-              value={supplier}
               filter={
                 {
                   is_supplier: true,
                 } as Partial<Contacts>
               }
               onChange={(id) => {
-                setSupplier(id);
-                setCreateMode("supplier");
+                navigate(
+                  getRoute(ROUTES.StockEditFrom, { from: "supplier", id })
+                );
               }}
             />
           )}
@@ -191,7 +165,6 @@ export const StockItemsDetailsPage = ({
               entity="invoices"
               icon={(p) => <ShoppingCartIcon {...p} />}
               size="xl"
-              value={ctrl("from_rel_supplier_quote").value}
               filter={
                 {
                   type: "supplier_quotes",
@@ -199,8 +172,7 @@ export const StockItemsDetailsPage = ({
                 } as any
               }
               onChange={(id) => {
-                ctrl("from_rel_supplier_quote").onChange(id);
-                setCreateMode("order");
+                navigate(getRoute(ROUTES.StockEditFrom, { from: "order", id }));
               }}
             />
           )}
@@ -312,7 +284,12 @@ export const StockItemsDetailsPage = ({
               <InvoiceRestDocument
                 label="Pour le devis"
                 placeholder="Sélectionner un devis"
-                filter={{ type: "quotes" } as Partial<Invoices>}
+                filter={
+                  {
+                    type: "quotes",
+                    "articles.all": draft.article,
+                  } as Partial<Invoices>
+                }
                 icon={(p) => <DocumentIcon {...p} />}
                 size="xl"
                 value={ctrl("for_rel_quote").value}
@@ -339,6 +316,13 @@ export const StockItemsDetailsPage = ({
                 onChange={ctrl("client").onChange}
               />
             </div>
+          </div>
+        )}
+
+        {!!ctrl("article").value && (
+          <div className="space-y-2 mt-4">
+            <QuotesCheckers items={[draft]} />
+            <SerialNumberCheckers items={[draft]} />
           </div>
         )}
 

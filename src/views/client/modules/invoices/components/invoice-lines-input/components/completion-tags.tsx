@@ -77,7 +77,7 @@ export const CompletionTags = (props: {
           className={twMerge("mr-1", shortLeft && "w-5")}
           noColor
           size={props.size || "xs"}
-          data-tooltip={"Service " + readyServiceCompletion[0] + "%"}
+          data-tooltip={"Executé " + readyServiceCompletion[0] + "%"}
           icon={
             <CheckCircleIcon
               className={`w-3 h-3 mr-1 shrink-0 text-${readyServiceCompletion[1]}-500`}
@@ -97,31 +97,36 @@ export const CompletionTags = (props: {
         (a) => a.type === "product" || a.type === "consumable"
       ) && (
         <>
-          <Tag
-            onClick={() => onClick("stock_items", "")}
-            className={twMerge("rounded-r-none", shortLeft && "w-5")}
-            noColor
-            size={props.size || "xs"}
-            data-tooltip={"Reservé " + readyCompletion[0] + "%"}
-            icon={
-              <CubeIcon
-                className={`w-3 h-3 mr-1 shrink-0 text-${readyCompletion[1]}-500`}
-              />
-            }
-          >
-            {!shortLeft && (
-              <>
-                {readyCompletion[0] > 100 && "⚠️"}
-                {readyCompletion[0]}%{" "}
-              </>
-            )}
-            {shortLeft && <div />}
-          </Tag>
+          {props.invoice?.type !== "supplier_quotes" && (
+            <Tag
+              onClick={() => onClick("stock_items", "")}
+              className={twMerge("rounded-r-none", shortLeft && "w-5")}
+              noColor
+              size={props.size || "xs"}
+              data-tooltip={"Reservé " + readyCompletion[0] + "%"}
+              icon={
+                <CubeIcon
+                  className={`w-3 h-3 mr-1 shrink-0 text-${readyCompletion[1]}-500`}
+                />
+              }
+            >
+              {!shortLeft && (
+                <>
+                  {readyCompletion[0] > 100 && "⚠️"}
+                  {readyCompletion[0]}%{" "}
+                </>
+              )}
+              {shortLeft && <div />}
+            </Tag>
+          )}
           <Tag
             onClick={() =>
               onClick("stock_items", 'state:"delivered","depleted"')
             }
-            className={twMerge("rounded-l-none", shortRight && "w-5")}
+            className={twMerge(
+              props.invoice?.type !== "supplier_quotes" && "rounded-l-none",
+              shortRight && "w-5"
+            )}
             noColor
             size={props.size || "xs"}
             data-tooltip={"Livré " + deliveredCompletion[0] + "%"}

@@ -103,9 +103,9 @@ export const InputWithSuggestions = (props: InputSuggestionProps) => {
   return (
     <div
       className={twMerge(
-        "relative w-full",
+        "relative w-full min-w-16",
         props.wrapperClassName,
-        focus && float && "box-shadow-lg dark:box-shadow-none min-w-64"
+        focus && float && "box-shadow-lg dark:box-shadow-none"
       )}
     >
       <Input
