@@ -47,7 +47,7 @@ export const StockPage = () => {
       label: "Reservé",
       filter: [
         ...buildQueryFromMap({
-          state: ["stock", "in_transit", "delivered"],
+          state: ["stock", "in_transit"],
         }),
         {
           key: "for_rel_quote",

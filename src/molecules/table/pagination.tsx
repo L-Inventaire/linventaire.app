@@ -104,7 +104,7 @@ export function TablePagination({
             </>
           )}
           {!!onChangePage && (
-            <>
+            <div className="items-center flex flex-row">
               <Button
                 theme="default"
                 size="sm"
@@ -160,7 +160,7 @@ export function TablePagination({
                 className="!px-1.5 rounded-l-none shrink-0"
                 icon={(p) => <ChevronDoubleRightIcon {...p} />}
               />
-            </>
+            </div>
           )}
         </div>
       </div>
