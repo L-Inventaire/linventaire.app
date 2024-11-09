@@ -6,6 +6,7 @@ import { Invoices } from "@features/invoices/types/types";
 import { getRoute, ROUTES } from "@features/routes";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import {
+  ArrowPathIcon,
   CheckIcon,
   DocumentCheckIcon,
   EllipsisHorizontalIcon,
@@ -190,10 +191,12 @@ export const QuotesActions = ({
       {draft.state === "recurring" && (
         <div>
           <Button
+            theme="outlined"
             size="lg"
             onClick={() => {
               alert("todo");
             }}
+            icon={(p) => <ArrowPathIcon {...p} />}
           >
             Modifier l'abonnement
           </Button>

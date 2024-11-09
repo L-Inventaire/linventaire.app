@@ -59,20 +59,24 @@ const optionsEndDates = [
 
 const optionsInvoiceDate = [
   {
-    value: "renewal",
+    value: "first_day",
     label: "Date de renouvellement",
+  },
+  {
+    value: "first_workday",
+    label: "Premier jour ouvré de la période",
   },
   {
     value: "monday",
     label: "Lundi suivant la date de renouvellement",
   },
   {
-    value: "first_workday",
-    label: "Premier jour ouvré après la date de renouvellement",
+    value: "last_day",
+    label: "Dernier jour de la période",
   },
   {
     value: "last_workday",
-    label: "Dernier jour ouvré avant la date de renouvellement",
+    label: "Dernier jour ouvré de la période",
   },
 ];
 
@@ -359,13 +363,15 @@ export const InvoiceRecurrenceInput = ({
             : "Une fois terminé, clôturer ce devis."}
         </Info>
         <Info>
-          {invoice.subscription?.invoice_date === "renewal"
+          {invoice.subscription?.invoice_date === "first_day"
             ? "Facturer à date de renouvellement."
             : invoice.subscription?.invoice_date === "monday"
             ? "Facturer le lundi."
             : invoice.subscription?.invoice_date === "first_workday"
             ? "Facturer le premier jour ouvré."
-            : "Facturer le dernier jour ouvré."}
+            : invoice.subscription?.invoice_date === "last_day"
+            ? "Facturer le dernier jour de la période"
+            : "Facturer le dernier jour ouvré de la période."}
         </Info>
         <Info>
           {invoice.subscription?.end_type === "date" && (

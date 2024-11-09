@@ -74,6 +74,8 @@ export type Invoices = RestEntity & {
   }[];
   reminders?: InvoiceReminder;
   subscription?: InvoiceSubscription; // Available only for invoices
+  has_subscription?: boolean; // Automatically generated from the content
+  subscription_started_at?: number; // Automatically generated from the content
 
   attachments: string[];
 
@@ -98,8 +100,12 @@ export type InvoiceReminder = {
 };
 
 export type InvoiceSubscription = {
-  enabled: boolean;
-  invoice_date: "renewal" | "monday" | "first_workday" | "last_workday";
+  invoice_date:
+    | "first_day"
+    | "first_workday"
+    | "monday"
+    | "last_workday"
+    | "last_day";
   start_type: "after_first_invoice" | "acceptance_start" | "date";
   start: number;
   end_type: "none" | "delay" | "date";

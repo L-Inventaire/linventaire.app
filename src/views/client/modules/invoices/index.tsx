@@ -38,6 +38,10 @@ const activeFilter = [
         op: "equals",
         value: "closed",
       },
+      {
+        op: "equals",
+        value: "recurring",
+      },
     ],
   },
 ];

@@ -52,7 +52,9 @@ export const InvoicesColumns: Column<Invoices>[] = [
       <Base className="opacity-50 whitespace-nowrap">
         <BaseSmall>
           {invoice.reference}{" "}
-          {invoice.subscription?.enabled && <span>(Abonnement)</span>}
+          {invoice.content?.some((a) => a.subscription) && (
+            <span>(Abonnement)</span>
+          )}
         </BaseSmall>
         <br />
         <div className="flext items-center jhustify-center">

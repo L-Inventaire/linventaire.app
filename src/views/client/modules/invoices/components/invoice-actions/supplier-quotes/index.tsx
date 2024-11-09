@@ -14,13 +14,12 @@ import {
   EllipsisHorizontalIcon,
   PrinterIcon,
 } from "@heroicons/react/16/solid";
-import { getPdfPreview } from "../../invoices-preview/invoices-preview";
 import { useSetRecoilState } from "recoil";
+import { getPdfPreview } from "../../invoices-preview/invoices-preview";
 import { InvoiceInvoiceModalAtom } from "../modal-invoice";
 
 export const SupplierQuotesActions = ({
   id,
-  readonly,
 }: {
   id?: string;
   readonly?: boolean;
