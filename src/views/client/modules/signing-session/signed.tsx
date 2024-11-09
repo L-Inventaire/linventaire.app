@@ -1,12 +1,11 @@
 import { Button } from "@atoms/button/button";
-import { Loader } from "@atoms/loader";
 import { PageLoader } from "@atoms/page-loader";
 import { Base, Section } from "@atoms/text";
 import { SigningSessionsApiClient } from "@features/documents/api-client/api-client";
 import { useSigningSession } from "@features/documents/hooks";
 import { Invoices } from "@features/invoices/types/types";
 import { isErrorResponse } from "@features/utils/rest/types/types";
-import { AspectRatio, Card } from "@radix-ui/themes";
+import { AspectRatio } from "@radix-ui/themes";
 import { Page } from "@views/client/_layout/page";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
