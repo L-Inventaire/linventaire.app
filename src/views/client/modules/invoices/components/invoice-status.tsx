@@ -32,7 +32,7 @@ export const InvoiceStatus = ({
     purchase_order: type === "quotes" ? "Accepté" : "Commandé",
     partial_paid: "Paiment partiel",
     paid: "Payé",
-    closed: "Fermé",
+    closed: "Terminé",
     completed: "À facturer",
   };
 
@@ -46,7 +46,7 @@ export const InvoiceStatus = ({
     purchase_order: "orange",
     partial_paid: "orange",
     paid: "green",
-    closed: "red",
+    closed: "gray",
     completed: "green",
     signed: "green",
   };

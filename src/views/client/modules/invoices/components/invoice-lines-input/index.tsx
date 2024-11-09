@@ -2,7 +2,10 @@ import { AnimatedHeight } from "@atoms/animated-side/height";
 import { Button } from "@atoms/button/button";
 import { Card } from "@atoms/card";
 import { Base, Info, SectionSmall } from "@atoms/text";
-import { FormControllerFuncType } from "@components/form/formcontext";
+import {
+  FormContextContext,
+  FormControllerFuncType,
+} from "@components/form/formcontext";
 import { InputButton } from "@components/input-button";
 import { FilesInput } from "@components/input-rest/files";
 import { Invoices } from "@features/invoices/types/types";
@@ -13,7 +16,7 @@ import {
   ReceiptPercentIcon,
 } from "@heroicons/react/20/solid";
 import _ from "lodash";
-import { Fragment, useRef } from "react";
+import { Fragment, useContext, useRef } from "react";
 import { twMerge } from "tailwind-merge";
 import { InvoiceDiscountInput } from "./components/discount-input";
 import { DropInvoiceLine, InvoiceLineInput } from "./invoice-line-input";
@@ -22,13 +25,16 @@ export const InvoiceLinesInput = ({
   onChange,
   value,
   ctrl,
-  readonly,
+  ...props
 }: {
   onChange: (v: Invoices) => void;
   value: Invoices;
   ctrl: FormControllerFuncType<Invoices>;
   readonly?: boolean;
 }) => {
+  const formContext = useContext(FormContextContext);
+  const readonly = props.readonly ?? formContext.readonly;
+
   const refTriggerUploadFile = useRef<() => void>(() => {});
   const addLine = () => {
     onChange({

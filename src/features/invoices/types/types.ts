@@ -100,10 +100,11 @@ export type InvoiceReminder = {
 export type InvoiceSubscription = {
   enabled: boolean;
   invoice_date: "renewal" | "monday" | "first_workday" | "last_workday";
-  start_type: "acceptance_start" | "acceptance_end" | "date";
+  start_type: "after_first_invoice" | "acceptance_start" | "date";
   start: number;
-  end_type: "none" | "date";
+  end_type: "none" | "delay" | "date";
   end: number;
+  end_delay?: "1y" | "2y" | "3y";
   renew_as: "draft" | "sent" | "closed";
 };
 

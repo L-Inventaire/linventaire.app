@@ -171,6 +171,7 @@ export const InvoicesPage = () => {
                     { type: "supplier_invoices" }
                   )}
                   icon={(p) => <PlusIcon {...p} />}
+                  shortcut={type.includes("supplier_invoices") ? ["c"] : []}
                 >
                   Facture fournisseur
                 </Button>
@@ -185,6 +186,7 @@ export const InvoicesPage = () => {
                     { type: "supplier_quotes" }
                   )}
                   icon={(p) => <PlusIcon {...p} />}
+                  shortcut={type.includes("supplier_quotes") ? ["c"] : []}
                 >
                   Commande
                 </Button>
@@ -200,6 +202,7 @@ export const InvoicesPage = () => {
                     { type: "credit_notes" }
                   )}
                   icon={(p) => <ArrowUturnLeftIcon {...p} />}
+                  shortcut={type.includes("credit_notes") ? ["c"] : []}
                 >
                   Avoir
                 </Button>
@@ -211,6 +214,7 @@ export const InvoicesPage = () => {
                     { type: "quotes" }
                   )}
                   icon={(p) => <PlusIcon {...p} />}
+                  shortcut={type.includes("quotes") ? ["c"] : []}
                 >
                   Devis
                 </Button>
@@ -222,6 +226,7 @@ export const InvoicesPage = () => {
                     { type: "invoices" }
                   )}
                   icon={(p) => <PlusIcon {...p} />}
+                  shortcut={type.includes("invoices") ? ["c"] : []}
                 >
                   Facture
                 </Button>

@@ -50,7 +50,7 @@ type PropsType<T> = {
   scrollable?: boolean;
   loading?: boolean;
   checkboxAlwaysVisible?: boolean;
-  groupBy?: string;
+  groupBy?: string | ((item: T) => string);
   groupByRender?: (item: T) => ReactNode;
   onSelect?:
     | {
@@ -418,18 +418,25 @@ export function RenderedTable<T>({
                 .includes((row as any)[rowIndex || "id"]);
               const iFirst = i === 0;
               const iLast = i === data.length - 1;
+
+              const getGroupByKey = (item?: T) => {
+                if (typeof props.groupBy === "string") {
+                  return _.get(item, props.groupBy);
+                }
+                return props.groupBy && item ? props.groupBy(item) : "";
+              };
+
               return (
                 <>
                   {props.groupBy &&
-                    _.get(data?.[i] || {}, props.groupBy) !==
-                      _.get(data?.[i - 1] || {}, props.groupBy) && (
+                    getGroupByKey(data?.[i]) !==
+                      getGroupByKey(data?.[i - 1]) && (
                       <tr>
                         <td
                           colSpan={columns.length + 1}
                           className="bg-slate-100 border-b bg-opacity-75 border-b border-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:border-slate-700 pl-6 py-1"
                         >
-                          {props.groupByRender?.(row) ||
-                            _.get(row, props.groupBy)}
+                          {props.groupByRender?.(row) || getGroupByKey(row)}
                         </td>
                       </tr>
                     )}

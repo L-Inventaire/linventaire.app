@@ -33,7 +33,7 @@ export const SupplierQuotesActions = ({
     "invoices",
     id || "new"
   );
-  const disabled = draft.state === "closed" || draft.state === "completed";
+  const disabled = draft.state === "closed";
 
   return (
     <>
@@ -165,8 +165,24 @@ export const SupplierQuotesActions = ({
               },
             ]}
           />
-          <Button disabled={true} size="lg">
-            Document complet
+          <Button
+            disabled={disabled}
+            theme="outlined"
+            size="lg"
+            icon={(p) => <DocumentCheckIcon {...p} />}
+            onClick={(event: any) =>
+              navigate(
+                withModel(getRoute(ROUTES.InvoicesEdit, { id: "new" }), {
+                  ...draft,
+                  type: "supplier_invoices",
+                  state: "draft",
+                  id: "",
+                }),
+                { event }
+              )
+            }
+          >
+            Enregistrer une facture
           </Button>
         </>
       )}

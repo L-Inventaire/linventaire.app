@@ -34,8 +34,7 @@ export const QuotesActions = ({
     "invoices",
     id || "new"
   );
-  const disabled =
-    readonly || draft.state === "closed" || draft.state === "completed";
+  const disabled = readonly || draft.state === "closed";
 
   return (
     <>
@@ -140,7 +139,9 @@ export const QuotesActions = ({
         </>
       )}
 
-      {(draft.state === "purchase_order" || draft.state === "completed") && (
+      {(draft.state === "purchase_order" ||
+        draft.state === "completed" ||
+        draft.state === "recurring") && (
         <>
           <DropdownButton
             theme="invisible"
@@ -184,6 +185,19 @@ export const QuotesActions = ({
             Facturer
           </Button>
         </>
+      )}
+
+      {draft.state === "recurring" && (
+        <div>
+          <Button
+            size="lg"
+            onClick={() => {
+              alert("todo");
+            }}
+          >
+            Modifier l'abonnement
+          </Button>
+        </div>
       )}
 
       {draft.state === "closed" && (

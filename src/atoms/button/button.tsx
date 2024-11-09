@@ -5,7 +5,12 @@ import {
   showShortCut,
   useShortcuts,
 } from "@features/utils/shortcuts";
-import { IconButton, Button as RdxButton, Spinner } from "@radix-ui/themes";
+import {
+  Code,
+  IconButton,
+  Button as RdxButton,
+  Spinner,
+} from "@radix-ui/themes";
 import _ from "lodash";
 import { ReactNode, useRef, useState } from "react";
 
@@ -27,7 +32,7 @@ export interface ButtonProps
   to?: string;
   target?: string;
   icon?: (props: { className: string }) => ReactNode | JSX.Element;
-  "data-tooltip"?: string;
+  "data-tooltip"?: string | ReactNode;
   readonly?: boolean;
   danger?: boolean;
 }
@@ -55,6 +60,23 @@ export const Button = (props: ButtonProps) => {
     }
   );
 
+  const tooltip =
+    props["data-tooltip"] ||
+    (typeof props.children === "string" && props.children) ||
+    props.shortcut?.length ? (
+      <div className="light">
+        {props["data-tooltip"] ||
+          (typeof props.children === "string" ? props.children : "")}
+        {!!props.shortcut?.length && (
+          <Code className="ml-2" variant="solid">
+            {showShortCut(props.shortcut)}
+          </Code>
+        )}
+      </div>
+    ) : (
+      ""
+    );
+
   if (props.to && !disabled) {
     return (
       <Link
@@ -63,21 +85,10 @@ export const Button = (props: ButtonProps) => {
         noColor
         shortcut={props.shortcut}
       >
-        <Button {..._.omit(props, "to", "shortcut")} />
+        <Button {..._.omit(props, "to", "shortcut")} data-tooltip={tooltip} />
       </Link>
     );
   }
-
-  const tooltip = [
-    props["data-tooltip"] || "",
-    props.shortcut &&
-      !props["data-tooltip"] &&
-      typeof props.children === "string" &&
-      props.children,
-    props.shortcut ? `\`${showShortCut(props.shortcut)}\`` : "",
-  ]
-    .filter((a) => a)
-    .join(" ");
 
   const size = {
     xs: "1",
@@ -113,9 +124,9 @@ export const Button = (props: ButtonProps) => {
     : undefined;
 
   return (
-    <Tooltip content={tooltip}>
-      <>
-        {!props.children && (
+    <>
+      {!props.children && (
+        <Tooltip content={tooltip}>
           <IconButton
             size={size}
             className={props.className}
@@ -124,12 +135,13 @@ export const Button = (props: ButtonProps) => {
             variant={variant}
             onClick={onClick}
             disabled={disabled}
-            data-tooltip={tooltip}
           >
             {props.icon && props.icon({ className: "w-4 h-4 shrink-0" })}
           </IconButton>
-        )}
-        {!!props.children && (
+        </Tooltip>
+      )}
+      {!!props.children && (
+        <Tooltip content={tooltip}>
           <RdxButton
             size={size}
             className={props.className}
@@ -138,7 +150,6 @@ export const Button = (props: ButtonProps) => {
             variant={variant}
             onClick={onClick}
             disabled={disabled}
-            data-tooltip={tooltip}
           >
             {props.icon && (
               <Spinner loading={loading || false}>
@@ -147,8 +158,8 @@ export const Button = (props: ButtonProps) => {
             )}
             {props.children}
           </RdxButton>
-        )}
-      </>
-    </Tooltip>
+        </Tooltip>
+      )}
+    </>
   );
 };

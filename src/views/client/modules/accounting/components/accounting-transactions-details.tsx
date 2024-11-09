@@ -41,12 +41,13 @@ export const AccountingTransactionsDetailsPage = ({
     );
 
   useEffect(() => {
-    if (!readonly)
-      setDraft({
+    if (!readonly) {
+      setDraft((draft) => ({
         ...draft,
         transaction_date: draft.transaction_date || new Date().toISOString(),
         currency: draft.currency || client.preferences.currency || "EUR",
-      });
+      }));
+    }
   }, [draft.transaction_date, draft.currency]);
 
   const { invoice } = useInvoice(draft.rel_invoices?.[0] || "");
@@ -73,22 +74,22 @@ export const AccountingTransactionsDetailsPage = ({
         draft.debit !== counterpartyAccountId &&
         counterpartyAccountId
       ) {
-        setDraft({
+        setDraft((draft) => ({
           ...draft,
           debit: counterpartyAccountId || "",
           credit: "",
-        });
+        }));
       }
       if (
         creditForcedToId &&
         draft.credit !== counterpartyAccountId &&
         counterpartyAccountId
       ) {
-        setDraft({
+        setDraft((draft) => ({
           ...draft,
           debit: "",
           credit: counterpartyAccountId || "",
-        });
+        }));
       }
     }
   }, [

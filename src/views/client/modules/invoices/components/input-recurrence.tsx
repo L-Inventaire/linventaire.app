@@ -12,6 +12,85 @@ import _ from "lodash";
 import { useEffect } from "react";
 import { frequencyOptions } from "../../articles/components/article-details";
 
+const optionsDelays = [
+  {
+    value: "1y",
+    label: "1 an",
+  },
+  {
+    value: "2y",
+    label: "2 an",
+  },
+  {
+    value: "3y",
+    label: "3 an",
+  },
+];
+
+const optionsStartDates = [
+  {
+    value: "after_first_invoice",
+    label: "Lorsque la première facture est générée",
+  },
+  {
+    value: "acceptance_start",
+    label: "Lorsque le devis est accepté",
+  },
+  {
+    value: "date",
+    label: "Date spécifique",
+  },
+];
+
+const optionsEndDates = [
+  {
+    value: "none",
+    label: "Ne pas définir de fin",
+  },
+  {
+    value: "delay",
+    label: "Délai",
+  },
+  {
+    value: "date",
+    label: "Date spécifique",
+  },
+];
+
+const optionsInvoiceDate = [
+  {
+    value: "renewal",
+    label: "Date de renouvellement",
+  },
+  {
+    value: "monday",
+    label: "Lundi suivant la date de renouvellement",
+  },
+  {
+    value: "first_workday",
+    label: "Premier jour ouvré après la date de renouvellement",
+  },
+  {
+    value: "last_workday",
+    label: "Dernier jour ouvré avant la date de renouvellement",
+  },
+];
+
+const optionsRenewAs = [
+  {
+    value: "draft",
+    label: "Dupliquer le devis en brouillon",
+  },
+  {
+    value: "sent",
+    label: "Dupliquer le devis et l'envoyer au client",
+  },
+  {
+    value: "closed",
+    label: "Clôturer",
+  },
+];
+
 export const InvoiceRecurrenceInput = ({
   ctrl,
   invoice,
@@ -103,7 +182,7 @@ export const InvoiceRecurrenceInput = ({
 
   useEffect(() => {
     if (!invoice.subscription?.start_type) {
-      ctrl("subscription.start_type").onChange("acceptance_start");
+      ctrl("subscription.start_type").onChange("after_first_invoice");
     }
     if (!invoice.subscription?.end_type) {
       ctrl("subscription.end_type").onChange("none");
@@ -139,21 +218,8 @@ export const InvoiceRecurrenceInput = ({
             <PageColumns>
               <FormInput
                 type="select"
-                label="Début de la facturation"
-                options={[
-                  {
-                    value: "acceptance_start",
-                    label: "Lorsque le devis est accepté",
-                  },
-                  {
-                    value: "acceptance_end",
-                    label: "À la fin de la première période",
-                  },
-                  {
-                    value: "date",
-                    label: "Date spécifique",
-                  },
-                ]}
+                label="Début de la récurrence"
+                options={optionsStartDates}
                 ctrl={ctrl("subscription.start_type")}
               />
               {ctrl("subscription.start_type")?.value === "date" && (
@@ -168,18 +234,17 @@ export const InvoiceRecurrenceInput = ({
               <FormInput
                 type="select"
                 label="Fin de la facturation"
-                options={[
-                  {
-                    value: "none",
-                    label: "Ne pas définir de fin",
-                  },
-                  {
-                    value: "date",
-                    label: "Date spécifique",
-                  },
-                ]}
+                options={optionsEndDates}
                 ctrl={ctrl("subscription.end_type")}
               />
+              {ctrl("subscription.end_type")?.value === "delay" && (
+                <FormInput
+                  type="select"
+                  label="Délai"
+                  ctrl={ctrl("subscription.end_delay")}
+                  options={optionsDelays}
+                />
+              )}
               {ctrl("subscription.end_type")?.value === "date" && (
                 <FormInput
                   type="date"
@@ -192,24 +257,7 @@ export const InvoiceRecurrenceInput = ({
               type="select"
               label="Facturer le"
               ctrl={ctrl("subscription.invoice_date")}
-              options={[
-                {
-                  value: "renewal",
-                  label: "Date de renouvellement",
-                },
-                {
-                  value: "monday",
-                  label: "Lundi suivant la date de renouvellement",
-                },
-                {
-                  value: "first_workday",
-                  label: "Premier jour ouvré après la date de renouvellement",
-                },
-                {
-                  value: "last_workday",
-                  label: "Dernier jour ouvré avant la date de renouvellement",
-                },
-              ]}
+              options={optionsInvoiceDate}
             />
           </div>
 
@@ -221,20 +269,7 @@ export const InvoiceRecurrenceInput = ({
             <FormInput
               type="select"
               ctrl={ctrl("subscription.renew_as")}
-              options={[
-                {
-                  value: "draft",
-                  label: "Dupliquer le devis en brouillon",
-                },
-                {
-                  value: "sent",
-                  label: "Dupliquer le devis et l'envoyer au client",
-                },
-                {
-                  value: "closed",
-                  label: "Clôturer",
-                },
-              ]}
+              options={optionsRenewAs}
             />
             <Info className="block">
               Une fois la période de facturation terminée, le devis peut être
@@ -283,6 +318,47 @@ export const InvoiceRecurrenceInput = ({
     >
       <div className="space-y-0 w-max flex flex-col text-left">
         <Base>
+          Début{" "}
+          {
+            (
+              {
+                after_first_invoice: "après la première facture",
+                acceptance_start: "après l'acceptation",
+                acceptance_end: "à la fin de la première période",
+                date:
+                  "le " +
+                  format(new Date(invoice.subscription?.start || 0), "eee PP"),
+              } as any
+            )[invoice.subscription?.start_type || "date"]
+          }
+          {invoice.subscription?.end_type === "date" ? (
+            <>
+              {" "}
+              {" → "} fin le {format(dates[dates.length - 1], "eee PP")}
+            </>
+          ) : invoice.subscription?.end_type === "delay" ? (
+            <>
+              {" → "}
+              fin{" "}
+              {
+                optionsDelays.find(
+                  (a) => a.value === invoice.subscription?.end_delay
+                )?.label
+              }{" "}
+              plus tard
+            </>
+          ) : (
+            " → pas de fin"
+          )}
+        </Base>
+        <Info>
+          {invoice.subscription?.renew_as === "draft"
+            ? "Une fois terminé, dupliquer le devis en brouillon."
+            : invoice.subscription?.renew_as === "sent"
+            ? "Une fois terminé, dupliquer le devis et l'envoyer au client."
+            : "Une fois terminé, clôturer ce devis."}
+        </Info>
+        <Info>
           {invoice.subscription?.invoice_date === "renewal"
             ? "Facturer à date de renouvellement."
             : invoice.subscription?.invoice_date === "monday"
@@ -290,25 +366,15 @@ export const InvoiceRecurrenceInput = ({
             : invoice.subscription?.invoice_date === "first_workday"
             ? "Facturer le premier jour ouvré."
             : "Facturer le dernier jour ouvré."}
-        </Base>
-        <Info>
-          {dates.length} {hasMore ? "+" : ""} factures (
-          {frequencyOptions.find((a) => a.value === minimalFrequency)?.label})
         </Info>
         <Info>
-          Début le {format(dates[0], "eee PP")}
-          {invoice.subscription?.end_type === "date" ? (
-            <> - fin le {format(dates[dates.length - 1], "eee PP")}</>
-          ) : (
-            " - pas de fin"
+          {invoice.subscription?.end_type === "date" && (
+            <>
+              {dates.length} {hasMore ? "+" : ""} factures{" "}
+            </>
           )}
-        </Info>
-        <Info>
-          {invoice.subscription?.renew_as === "draft"
-            ? "Une fois terminé, dupliquer le devis en brouillon."
-            : invoice.subscription?.renew_as === "sent"
-            ? "Une fois terminé, dupliquer le devis et l'envoyer au client."
-            : "Une fois terminé, clôturer ce devis."}
+          (Facturation minimum:{" "}
+          {frequencyOptions.find((a) => a.value === minimalFrequency)?.label})
         </Info>
       </div>
     </InputButton>

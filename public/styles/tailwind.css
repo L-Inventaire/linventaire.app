@@ -1988,6 +1988,10 @@ body :is(.min-w-0) {
   min-width: 0px;
 }
 
+body :is(.min-w-16) {
+  min-width: 4rem;
+}
+
 body :is(.min-w-28) {
   min-width: 7rem;
 }
@@ -2012,10 +2016,6 @@ body :is(.min-w-fit) {
 
 body :is(.min-w-full) {
   min-width: 100%;
-}
-
-body :is(.min-w-16) {
-  min-width: 4rem;
 }
 
 body :is(.max-w-24) {
