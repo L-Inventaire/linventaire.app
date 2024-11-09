@@ -36,7 +36,10 @@ export const TitleBar = ({
           />
           <Section className="m-0 ml-2 font-normal">L'inventaire</Section>
         </div>
-        <Info>{signingSession.recipient}</Info>
+        <Info>
+          {signingSession.state === "signed" && "Signé par:"}{" "}
+          {signingSession.recipient_email}
+        </Info>
       </div>
 
       <div className="flex flex-col w-full items-center">
@@ -46,6 +49,14 @@ export const TitleBar = ({
         </Title>
       </div>
       <div className="w-full">
+        {signingSession.expired && signingSession.state !== "cancelled" && (
+          <Alert
+            title="Document expiré"
+            theme="warning"
+            icon="CheckCircleIcon"
+            className="p-0 -mt-2"
+          ></Alert>
+        )}
         {signingSession.state === "signed" && alerts && (
           <Alert
             title="Le document a déjà été signé"

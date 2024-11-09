@@ -1,8 +1,7 @@
-import { Tag } from "@atoms/badge/tag";
-import { Button } from "@atoms/button/button";
 import { DropDownAtom, DropDownMenuType } from "@atoms/dropdown";
 import { Base, Info } from "@atoms/text";
 import { ChevronDownIcon, ChevronRightIcon } from "@heroicons/react/16/solid";
+import { Badge, Button } from "@radix-ui/themes";
 import { Fragment, useEffect } from "react";
 import { useSetRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
@@ -45,22 +44,18 @@ export const Stepper = <T extends string>({
 
   if (size === "xs") {
     return (
-      <Tag noColor color={(statusColor as any)[value]} size={size}>
+      <Badge color={(statusColor as any)[value]} size={"1"}>
         {statusName[value] || "-"}
-      </Tag>
+      </Badge>
     );
   }
 
   return (
     <Button
-      className={twMerge(
-        "rounded-full",
-        readonly ? "pointer-events-none " : ""
-      )}
+      className={twMerge("w-max", readonly ? "pointer-events-none " : "")}
       data-tooltip={readonly ? statusName[value] : "Modifier le status" || "-"}
-      theme="outlined"
-      size={size === "sm" ? "sm" : "md"}
-      shortcut={readonly ? undefined : ["u"]}
+      variant="outline"
+      size={size === "sm" ? "1" : "2"}
       onClick={
         !readonly
           ? (e) => {

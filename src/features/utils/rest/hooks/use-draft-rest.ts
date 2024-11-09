@@ -3,6 +3,7 @@ import { useNavigationPrompt } from "@features/utils/use-navigation-prompt";
 import { useCallback, useEffect, useState } from "react";
 import { atomFamily, useRecoilState } from "recoil";
 import { useRest } from "./use-rest";
+import toast from "react-hot-toast";
 
 const RestDraftAtom = atomFamily<any, [string, string | "new"]>({
   key: "RestDraftAtom",
@@ -77,6 +78,7 @@ export const useDraftRest = <T extends { id: string }>(
       } catch (e) {
         setLockNavigation(true);
         console.error(e);
+        toast.error("An error occurred while saving the item");
       }
       return null;
     },

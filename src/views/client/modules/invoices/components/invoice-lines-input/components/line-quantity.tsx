@@ -40,7 +40,7 @@ export const InvoiceLineQuantityInput = (props: {
 
       <FormInput
         type="select"
-        label="Renouvellement"
+        label="Récurrence"
         placeholder="Sélectionner une fréquence"
         ctrl={ctrl("subscription")}
         options={frequencyOptions}

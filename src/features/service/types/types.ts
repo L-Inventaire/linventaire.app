@@ -31,6 +31,6 @@ export type ServiceTimes = RestEntity & {
   description: string;
   quantity: number;
   unit: string;
-  date: string;
+  date: number;
   assigned: string[];
 };

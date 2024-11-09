@@ -1,15 +1,16 @@
-import { Button } from "@atoms/button/button";
+import { Base, Info } from "@atoms/text";
 import { TagsInput } from "@components/input-rest/tags";
+import { UsersInput } from "@components/input-rest/users";
 import { registerCtrlKRestEntity } from "@features/ctrlk";
 import { ROUTES } from "@features/routes";
 import { formatAmount } from "@features/utils/format/strings";
-import { ArticlesDetailsPage } from "@views/client/modules/articles/components/article-details";
-import { Articles } from "./types/types";
-import { getTvaValue } from "@views/client/modules/invoices/utils";
-import { getArticleIcon } from "@views/client/modules/articles/components/article-icon";
-import { Base, Info } from "@atoms/text";
+import { RestFieldsNames } from "@features/utils/rest/configuration";
 import { Column } from "@molecules/table/table";
-import { UsersInput } from "@components/input-rest/users";
+import { Badge } from "@radix-ui/themes";
+import { ArticlesDetailsPage } from "@views/client/modules/articles/components/article-details";
+import { getArticleIcon } from "@views/client/modules/articles/components/article-icon";
+import { getTvaValue } from "@views/client/modules/invoices/utils";
+import { Articles } from "./types/types";
 
 export const useArticleDefaultModel: () => Partial<Articles> = () => ({
   type: "product",
@@ -18,15 +19,17 @@ export const useArticleDefaultModel: () => Partial<Articles> = () => ({
 
 export const ArticlesColumns: Column<Articles>[] = [
   {
+    id: "type",
     title: "Type",
     thClassName: "w-1",
     cellClassName: "justify-start",
     render: (article) => (
-      <Button size="sm" theme="outlined" icon={getArticleIcon(article?.type)}>
+      <Badge color="gray">
+        {getArticleIcon(article?.type)({ className: "w-4 h-4" })}
         {article.type === "consumable" && "Consommable"}
         {article.type === "service" && "Service"}
         {article.type === "product" && "Stockable"}
-      </Button>
+      </Badge>
     ),
   },
   {
@@ -45,7 +48,7 @@ export const ArticlesColumns: Column<Articles>[] = [
   {
     title: "Étiquettes",
     thClassName: "w-1",
-    cellClassName: "justify-end",
+    cellClassName: "justify-end whitespace-nowrap",
     headClassName: "justify-end",
     render: (article) => (
       <div className="space-x-2">
@@ -108,4 +111,107 @@ registerCtrlKRestEntity<Articles>("articles", {
   renderResult: ArticlesColumns,
   useDefaultData: useArticleDefaultModel,
   viewRoute: ROUTES.ProductsView,
+});
+
+export const ArticlesFieldsNames = () => ({
+  favorite: {
+    label: "Favori",
+    keywords: "préféré aimé favori",
+  },
+  assigned: {
+    label: "Assignés",
+    keywords: "utilisateurs assignés distribution",
+  },
+  type: {
+    label: "Type de produit",
+    keywords: "produit service consommable catégorie",
+    values: {
+      product: "Stockable",
+      service: "Service",
+      consumable: "Consommable",
+    },
+  },
+  name: {
+    label: "Nom",
+    keywords: "nom titre désignation",
+  },
+  description: {
+    label: "Description",
+    keywords: "détails explication description",
+  },
+  internal_reference: {
+    label: "Référence interne",
+    keywords: "référence interne identifiant unique",
+  },
+  suppliers: {
+    label: "Fournisseurs",
+    keywords: "partenaires fournisseurs",
+  },
+  suppliers_details: {
+    label: "Détails fournisseurs",
+  },
+  "suppliers_details.any.reference": {
+    label: "Référence fournisseur",
+    keywords: "numéro identifiant fournisseur",
+  },
+  "suppliers_details.any.price": {
+    label: "Prix fournisseur",
+    keywords: "coût prix fournisseur tarif",
+  },
+  "suppliers_details.any.delivery_time": {
+    label: "Délai de livraison",
+    keywords: "temps livraison délai expédition",
+  },
+  "suppliers_details.any.delivery_quantity": {
+    label: "Quantité de livraison",
+    keywords: "quantité expédition livraison",
+  },
+  price: {
+    label: "Prix",
+    keywords: "coût tarif prix",
+  },
+  unit: {
+    label: "Unité",
+    keywords: "unité mesure quantification",
+  },
+  tva: {
+    label: "TVA",
+    keywords: "taxe tva impôt",
+  },
+  subscription: {
+    label: "Abonnement",
+    keywords:
+      "mensuel annuel hebdomadaire souscription récurrent renouvellement",
+    values: {
+      "": "Aucun",
+      monthly: "Mensuel",
+      yearly: "Annuel",
+      weekly: "Hebdomadaire",
+    },
+  },
+  stock_available: {
+    label: "Stock disponible",
+    keywords: "disponible stock inventaire",
+  },
+  stock_reserved: {
+    label: "Stock réservé",
+    keywords: "réservé stock inventaire",
+  },
+  stock_delivered: {
+    label: "Stock livré",
+    keywords: "livré expédié stock",
+  },
+  stock_bought: {
+    label: "Stock acheté",
+    keywords: "acheté achat stock",
+  },
+  documents: {
+    label: "Documents",
+    keywords: "fichiers pièces documents",
+  },
+  fields: {
+    label: "Champs supplémentaires",
+    keywords: "données personnalisées informations supplémentaires",
+  },
+  ...RestFieldsNames(),
 });

@@ -2,7 +2,7 @@ import { Button } from "@atoms/button/button";
 import { InputOutlinedDefaultBorders } from "@atoms/styles/inputs";
 import { Section } from "@atoms/text";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
-import { ScrollArea } from "@radix-ui/themes";
+import { ScrollArea, ScrollAreaProps } from "@radix-ui/themes";
 import { LayoutTitleAtom } from "@views/client/_layout/header";
 import { ErrorBoundary } from "@views/error-boundary";
 import _ from "lodash";
@@ -21,6 +21,8 @@ export const Page = (
       to?: string;
       href?: string;
     }[];
+    scrollAreaProps?: ScrollAreaProps;
+    scrollAreaChildProps?: React.ComponentProps<"div">;
   } & Omit<React.ComponentProps<"div">, "title" | "children">
 ) => {
   const setTitle = useSetRecoilState(LayoutTitleAtom);
@@ -46,8 +48,19 @@ export const Page = (
             {props.bar}
           </div>
         )}
-        <ScrollArea className="grow">
-          <div className="p-3 h-full">{props.children}</div>
+        <ScrollArea
+          className={twMerge("grow", props?.scrollAreaProps?.className)}
+          {...props?.scrollAreaProps}
+        >
+          <div
+            className={twMerge(
+              "p-3 h-full",
+              props?.scrollAreaChildProps?.className
+            )}
+            {...props?.scrollAreaChildProps}
+          >
+            {props.children}
+          </div>
         </ScrollArea>
         {props.footer && (
           <div className="border-t border-solid border-slate-100 dark:border-slate-700 p-3">

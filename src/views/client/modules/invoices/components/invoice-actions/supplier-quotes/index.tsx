@@ -14,13 +14,12 @@ import {
   EllipsisHorizontalIcon,
   PrinterIcon,
 } from "@heroicons/react/16/solid";
-import { getPdfPreview } from "../../invoices-preview/invoices-preview";
 import { useSetRecoilState } from "recoil";
+import { getPdfPreview } from "../../invoices-preview/invoices-preview";
 import { InvoiceInvoiceModalAtom } from "../modal-invoice";
 
 export const SupplierQuotesActions = ({
   id,
-  readonly,
 }: {
   id?: string;
   readonly?: boolean;
@@ -33,8 +32,7 @@ export const SupplierQuotesActions = ({
     "invoices",
     id || "new"
   );
-  const disabled =
-    readonly || draft.state === "closed" || draft.state === "completed";
+  const disabled = draft.state === "closed";
 
   return (
     <>
@@ -91,7 +89,6 @@ export const SupplierQuotesActions = ({
           </Button>
         </>
       )}
-
       {draft.state === "purchase_order" && (
         <>
           <DropdownButton
@@ -146,7 +143,6 @@ export const SupplierQuotesActions = ({
           </Button>
         </>
       )}
-
       {draft.state === "closed" && (
         <div>
           <Button disabled={true} size="lg">
@@ -154,7 +150,6 @@ export const SupplierQuotesActions = ({
           </Button>
         </div>
       )}
-
       {draft.state === "completed" && (
         <>
           <DropdownButton
@@ -169,8 +164,24 @@ export const SupplierQuotesActions = ({
               },
             ]}
           />
-          <Button disabled={true} size="lg">
-            Document complet
+          <Button
+            disabled={disabled}
+            theme="outlined"
+            size="lg"
+            icon={(p) => <DocumentCheckIcon {...p} />}
+            onClick={(event: any) =>
+              navigate(
+                withModel(getRoute(ROUTES.InvoicesEdit, { id: "new" }), {
+                  ...draft,
+                  type: "supplier_invoices",
+                  state: "draft",
+                  id: "",
+                }),
+                { event }
+              )
+            }
+          >
+            Enregistrer une facture
           </Button>
         </>
       )}

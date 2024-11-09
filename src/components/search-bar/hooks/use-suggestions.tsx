@@ -103,7 +103,9 @@ export const useSuggestions = (
           type: "value",
           field: fields.find((f) => f.key === columnSearch[0]),
           value: a.value,
-          render: a.label,
+          render:
+            fields.find((f) => f.key === columnSearch[0])?.values?.[a.value] ||
+            a.label,
           item: a.item,
           count: a.count,
           updated: a.updated,

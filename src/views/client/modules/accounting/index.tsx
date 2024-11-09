@@ -15,12 +15,15 @@ import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
+import { format } from "date-fns";
 
 export const AccountingPage = () => {
   const [options, setOptions] = useState<RestOptions<AccountingTransactions>>({
     limit: 10,
     offset: 0,
     query: [],
+    index: "transaction_date",
+    asc: false,
   });
   const { accounting_transactions } = useAccountingTransactions({
     ...options,
@@ -65,6 +68,10 @@ export const AccountingPage = () => {
           </Info>
         </div>
         <RestTable
+          groupBy={(row) => format(new Date(row.transaction_date), "yyyy-MM")}
+          groupByRender={(row) =>
+            format(new Date(row.transaction_date), "LLLL yyyy")
+          }
           entity="accounting_transactions"
           onClick={({ id }, event) =>
             navigate(getRoute(ROUTES.AccountingView, { id }), { event })
@@ -76,10 +83,9 @@ export const AccountingPage = () => {
               ...options,
               limit: page.perPage,
               offset: (page.page - 1) * page.perPage,
-              asc: page.order === "ASC",
             });
           }}
-          columns={AccountingTransactionsColumns}
+          columns={AccountingTransactionsColumns()}
         />
       </div>
     </Page>

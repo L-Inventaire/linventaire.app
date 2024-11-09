@@ -77,7 +77,7 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
       );
     } catch (e) {
       setStep(0);
-      console.log(e);
+      console.info(e);
       toast.error("Error creating company");
     }
   };

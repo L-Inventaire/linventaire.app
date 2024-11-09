@@ -6,6 +6,7 @@ export type SearchField = {
   label: string;
   key: string;
   keywords: string[];
+  values?: { value: any; label: string }[];
   type:
     | "text"
     | "date"

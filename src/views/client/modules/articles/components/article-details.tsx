@@ -1,22 +1,25 @@
 import { InputLabel } from "@atoms/input/input-decoration-label";
-import { Input } from "@atoms/input/input-text";
 import { InputUnit } from "@atoms/input/input-unit";
 import { PageLoader } from "@atoms/page-loader";
 import { CustomFieldsInput } from "@components/custom-fields-input";
 import { FormInput } from "@components/form/fields";
 import { FormContext } from "@components/form/formcontext";
+import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
 import { Articles } from "@features/articles/types/types";
+import { ROUTES } from "@features/routes";
 import { tvaOptions } from "@features/utils/constants";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { EditorInput } from "@molecules/editor-input";
-import { PageBlock, PageColumns } from "@views/client/_layout/page";
-import { ArticleSuppliersInput } from "./article-suppliers-input";
 import { Timeline } from "@molecules/timeline";
-import { ROUTES } from "@features/routes";
+import { Heading } from "@radix-ui/themes";
+import { PageColumns } from "@views/client/_layout/page";
+import { ArticleSuppliersInput } from "./article-suppliers-input";
+import { ArticlesFieldsNames } from "@features/articles/configuration";
 
 export const frequencyOptions = [
   { value: "", label: "Pas de renouvellement" },
+  { value: "daily", label: "Quotidien" },
   { value: "weekly", label: "Hebdomadaire" },
   { value: "monthly", label: "Mensuel" },
   { value: "yearly", label: "Annuel" },
@@ -39,109 +42,102 @@ export const ArticlesDetailsPage = ({
 
   return (
     <>
-      <FormContext readonly={readonly} alwaysVisible>
-        <PageColumns>
-          <div className="grow">
-            <PageBlock title="Article">
-              <div className="space-y-4">
-                <PageColumns>
-                  <FormInput
-                    className="lg:w-1/4"
-                    ctrl={ctrl("type")}
-                    label="Type"
-                    size="md"
-                    type="select"
-                    options={[
-                      {
-                        value: "product",
-                        label: "Produit",
-                      },
-                      {
-                        value: "service",
-                        label: "Service",
-                      },
-                      {
-                        value: "consumable",
-                        label: "Consommable",
-                      },
-                    ]}
-                  />
-                  <FormInput
-                    className="lg:w-1/4"
-                    ctrl={ctrl("internal_reference")}
-                    label="Référence"
-                    size="md"
-                    type="scan"
-                  />
-                  <FormInput ctrl={ctrl("name")} label="Nom" size="md" />
-                </PageColumns>
-                <InputLabel
-                  label="Description"
-                  input={
-                    <Input
-                      className="w-full"
-                      multiline
-                      disabled={readonly}
-                      value={ctrl("description").value || ""}
-                      onChange={(e) =>
-                        ctrl("description").onChange(e.target.value)
-                      }
-                    />
-                  }
-                />
-                <FormInput ctrl={ctrl("tags")} label="Étiquettes" type="tags" />
-                <InputLabel
-                  label="Assignés"
-                  input={
-                    <UsersInput
-                      disabled={readonly}
-                      value={ctrl("assigned").value || []}
-                      onChange={(e) => ctrl("assigned").onChange(e)}
-                    />
-                  }
-                />
+      <div className="grow lg:w-3/5 max-w-3xl pt-6 mx-auto">
+        <FormContext readonly={readonly} alwaysVisible>
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <div className="space-x-2 flex items-center">
+                <Heading className="grow">Article</Heading>
+                <div className="space-x-2">
+                  <TagsInput ctrl={ctrl("tags")} />
+                  <UsersInput ctrl={ctrl("assigned")} />
+                </div>
               </div>
-            </PageBlock>
-            <PageBlock title="Prix">
-              <div className="space-y-4">
-                <PageColumns>
-                  <FormInput
-                    ctrl={ctrl("price")}
-                    label="Prix"
-                    type="formatted"
-                    format="price"
+              <PageColumns>
+                <FormInput
+                  className="lg:w-1/4"
+                  ctrl={ctrl("type")}
+                  label="Type"
+                  size="md"
+                  type="select"
+                  options={[
+                    {
+                      value: "product",
+                      label: "Produit",
+                    },
+                    {
+                      value: "service",
+                      label: "Service",
+                    },
+                    {
+                      value: "consumable",
+                      label: "Consommable",
+                    },
+                  ]}
+                />
+                <FormInput
+                  className="lg:w-1/4"
+                  ctrl={ctrl("internal_reference")}
+                  label="Référence"
+                  size="md"
+                  type="scan"
+                />
+              </PageColumns>
+              <FormInput ctrl={ctrl("name")} label="Nom" size="lg" />
+              <InputLabel
+                label="Description"
+                input={
+                  <EditorInput
+                    className="w-full"
+                    disabled={readonly}
+                    placeholder={readonly ? "Aucune description" : ""}
+                    value={ctrl("description").value || ""}
+                    onChange={(e) => ctrl("description").onChange(e)}
                   />
-                  <FormInput
-                    ctrl={ctrl("tva")}
-                    label="TVA"
-                    type="select"
-                    options={tvaOptions}
+                }
+              />
+            </div>
+            <div className="space-y-4">
+              <Heading size="4">Prix de vente</Heading>
+              <PageColumns>
+                <FormInput
+                  ctrl={ctrl("price")}
+                  label="Prix"
+                  type="formatted"
+                  format="price"
+                />
+                <FormInput
+                  ctrl={ctrl("tva")}
+                  label="TVA"
+                  type="select"
+                  options={tvaOptions}
+                />
+                <div className="w-1/3">
+                  <InputLabel
+                    label="Unité"
+                    input={
+                      <InputUnit
+                        disabled={readonly}
+                        className="w-full"
+                        value={ctrl("unit").value}
+                        onValueChange={ctrl("unit").onChange}
+                      />
+                    }
                   />
-                  <div className="w-1/3">
-                    <InputLabel
-                      label="Unité"
-                      input={
-                        <InputUnit
-                          className="w-full"
-                          value={ctrl("unit").value}
-                          onValueChange={ctrl("unit").onChange}
-                        />
-                      }
-                    />
-                  </div>
-                </PageColumns>
+                </div>
+              </PageColumns>
 
-                <PageColumns>
-                  <FormInput
-                    type="select"
-                    label="Renouvellement"
-                    ctrl={ctrl("subscription")}
-                    options={frequencyOptions}
-                  />
-                </PageColumns>
-              </div>
-            </PageBlock>
-            <PageBlock title="Fournisseurs">
+              <PageColumns>
+                <FormInput
+                  type="select"
+                  label="Récurrence"
+                  ctrl={ctrl("subscription")}
+                  options={frequencyOptions}
+                />
+              </PageColumns>
+            </div>
+            <div className="space-y-4">
+              <Heading size="4">Fournisseurs et prix d'achat</Heading>
               <ArticleSuppliersInput
                 id={id}
                 readonly={readonly}
@@ -157,56 +153,53 @@ export const ArticlesDetailsPage = ({
                   ctrl("suppliers_details").onChange(details);
                 }}
               />
-            </PageBlock>
-            <PageBlock title="Notes et documents">
-              <div className="space-y-2 mt-4">
-                <InputLabel
-                  label="Notes"
-                  input={
-                    <EditorInput
-                      key={readonly ? ctrl("notes").value : undefined}
-                      placeholder={
-                        readonly
-                          ? "Aucune note"
-                          : "Cliquez pour ajouter des notes"
-                      }
-                      disabled={readonly}
-                      value={ctrl("notes").value || ""}
-                      onChange={(e) => ctrl("notes").onChange(e)}
-                    />
-                  }
-                />
-                <FormInput
-                  type="files"
-                  label="Documents"
-                  ctrl={ctrl("documents")}
-                  rest={{
-                    table: "articles",
-                    id: draft.id || "",
-                    column: "documents",
-                  }}
-                />
-              </div>
-            </PageBlock>
-
-            <div className="mt-8">
-              <Timeline
-                entity="articles"
-                id={draft.id}
-                viewRoute={ROUTES.ProductsView}
+            </div>
+            <div className="space-y-4">
+              <Heading size="4">Notes et documents</Heading>
+              <InputLabel
+                label="Notes"
+                input={
+                  <EditorInput
+                    key={readonly ? ctrl("notes").value : undefined}
+                    placeholder={
+                      readonly
+                        ? "Aucune note"
+                        : "Cliquez pour ajouter des notes"
+                    }
+                    disabled={readonly}
+                    value={ctrl("notes").value || ""}
+                    onChange={(e) => ctrl("notes").onChange(e)}
+                  />
+                }
+              />
+              <FormInput
+                type="files"
+                label="Documents"
+                ctrl={ctrl("documents")}
+                rest={{
+                  table: "articles",
+                  id: draft.id || "",
+                  column: "documents",
+                }}
               />
             </div>
-          </div>
-          <div className="grow lg:max-w-xl">
             <CustomFieldsInput
               table={"articles"}
               ctrl={ctrl("fields")}
               readonly={readonly}
               entityId={draft.id || ""}
             />
+            <div>
+              <Timeline
+                entity="articles"
+                id={draft.id}
+                viewRoute={ROUTES.ProductsView}
+                translations={ArticlesFieldsNames() as any}
+              />
+            </div>
           </div>
-        </PageColumns>
-      </FormContext>
+        </FormContext>
+      </div>
     </>
   );
 };

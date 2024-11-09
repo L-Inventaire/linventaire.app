@@ -17,7 +17,7 @@ const DashboardCard = ({
   return (
     <div
       className={twMerge(
-        "min-w-36 min-h-36 border border-gray-200 rounded-md p-3 px-4",
+        "min-w-28 min-h-28 border border-gray-200 rounded-md p-3 px-4",
         props.className
       )}
       {..._.omit(props, "className")}

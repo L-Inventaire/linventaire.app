@@ -16,6 +16,7 @@ import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
+import { formatNumber } from "@features/utils/format/strings";
 
 export const ContactsPage = () => {
   const [options, setOptions] = useState<RestOptions<Contacts>>({
@@ -79,7 +80,9 @@ export const ContactsPage = () => {
     >
       <div className="-m-3">
         <div className="px-3 h-7 w-full bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700">
-          <Info>{contacts?.data?.total || 0} contacts trouvés</Info>
+          <Info>
+            {formatNumber(contacts?.data?.total || 0)} contacts trouvés
+          </Info>
         </div>
 
         <RestTable

@@ -65,19 +65,24 @@ export const prepareHistory = (
   });
 };
 
-export const getEventLine = ({
-  isIgnore,
-  isRestoreOldVersion,
-  isComment,
-  isDeleted,
-  isRestore,
-  isEdit,
-  isFirstInLine,
-  viewRoute,
-  key,
-  item,
-  previousItem,
-}: PreparedEventLine) => {
+export const getEventLine = (
+  {
+    isIgnore,
+    isRestoreOldVersion,
+    isComment,
+    isDeleted,
+    isRestore,
+    isEdit,
+    isFirstInLine,
+    viewRoute,
+    key,
+    item,
+    previousItem,
+  }: PreparedEventLine,
+  translations?: {
+    [key: string]: { label: string; values?: { [key: string]: string } };
+  }
+) => {
   const a = item;
   const prev = previousItem;
 
@@ -224,7 +229,7 @@ export const getEventLine = ({
               <>
                 modifié{" "}
                 {changes.map((a) => (
-                  <Badge color="orange">{a}</Badge>
+                  <Badge color="orange">{translations?.[a]?.label || a}</Badge>
                 ))}
               </>
             )}{" "}
@@ -232,7 +237,7 @@ export const getEventLine = ({
               <>
                 ajouté{" "}
                 {changes.map((a) => (
-                  <Badge color="green">{a}</Badge>
+                  <Badge color="green">{translations?.[a]?.label || a}</Badge>
                 ))}
               </>
             )}{" "}
@@ -240,7 +245,7 @@ export const getEventLine = ({
               <>
                 supprimé{" "}
                 {changes.map((a) => (
-                  <Badge color="green">{a}</Badge>
+                  <Badge color="green">{translations?.[a]?.label || a}</Badge>
                 ))}
               </>
             )}

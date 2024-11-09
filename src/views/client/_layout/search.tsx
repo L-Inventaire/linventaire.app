@@ -52,14 +52,17 @@ export const Search = () => {
           btnRef={buttonRef}
           shortcut={["cmd+k"]}
           onClick={() => {
-            openCtrlK((state) => ({
-              ...state,
-              path: [
-                {
-                  mode: "action",
-                },
-              ],
-            }));
+            openCtrlK((states) => [
+              ...states,
+              {
+                ...(states[states.length - 1] || {}),
+                path: [
+                  {
+                    mode: "action",
+                  },
+                ],
+              },
+            ]);
           }}
         >
           .

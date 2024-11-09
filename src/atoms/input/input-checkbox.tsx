@@ -1,6 +1,7 @@
 import { CheckIcon } from "@heroicons/react/16/solid";
 import { BaseSmall } from "../text";
 import { twMerge } from "tailwind-merge";
+import _ from "lodash";
 
 export const Checkbox = (props: {
   label?: string;
@@ -10,6 +11,8 @@ export const Checkbox = (props: {
   className?: string;
   disabled?: boolean;
   icon?: (p: { className: string }) => React.ReactNode;
+  labelWrapperProps?: React.HTMLProps<HTMLDivElement>;
+  labelProps?: React.HTMLProps<HTMLDivElement>;
 }) => {
   const renderSwitch = () => {
     const className = props.className || "";
@@ -56,13 +59,20 @@ export const Checkbox = (props: {
 
   if (props.label) {
     return (
-      <div className={"flex flex-row items-center"}>
+      <div
+        className={twMerge(
+          "flex flex-row items-center",
+          props?.labelWrapperProps?.className
+        )}
+        {..._.omit(props?.labelWrapperProps, "className")}
+      >
         {renderSwitch()}
         <BaseSmall
-          className={
-            "ml-2 shrink-0 " +
-            (props.disabled ? "opacity-50" : "cursor-pointer")
-          }
+          className={twMerge(
+            "ml-2 shrink-0 ",
+            props.disabled ? "opacity-50" : "cursor-pointer",
+            props?.labelProps?.className
+          )}
           onClick={(e) => {
             if (!props.disabled) {
               props.onChange &&
@@ -72,6 +82,7 @@ export const Checkbox = (props: {
                 );
             }
           }}
+          {..._.omit(props?.labelProps, "className", "onClick")}
         >
           {props.label}
         </BaseSmall>

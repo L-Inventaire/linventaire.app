@@ -47,7 +47,7 @@ export const StockItemsColumns: Column<StockItems>[] = [
     cellClassName: "justify-end",
     headClassName: "justify-end",
     render: (item) => (
-      <div className="space-x-2">
+      <div className="space-x-2 whitespace-nowrap">
         <TagsInput value={item.tags} disabled />
         <UsersInput value={item.assigned} disabled />
       </div>

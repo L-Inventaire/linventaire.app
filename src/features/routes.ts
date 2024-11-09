@@ -62,6 +62,7 @@ export const ROUTES = {
   Stock: "/:client/stock",
   StockView: "/:client/stock/:id",
   StockEdit: "/:client/stock/:id/form",
+  StockEditFrom: "/:client/stock/from/:from/:id",
 
   Accounting: "/:client/accounting",
   AccountingEdit: "/:client/accounting/:id/form",

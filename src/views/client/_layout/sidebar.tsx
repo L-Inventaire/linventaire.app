@@ -97,6 +97,11 @@ export const SideBar = () => {
                   ? statistics?.almostLateDeliveries?.length.toString()
                   : undefined
               }
+              active={
+                location.pathname.indexOf(
+                  getRoute(ROUTES.Invoices, { type: "quotes" })
+                ) === 0
+              }
             />
             <SideMenuItem
               to={getRoute(ROUTES.Invoices, { type: "invoices" })}
@@ -105,27 +110,12 @@ export const SideBar = () => {
               active={
                 location.pathname.indexOf(
                   getRoute(ROUTES.Invoices, { type: "invoices" })
-                ) === 0 &&
-                location.search.indexOf("subscription_enabled%3A1") === -1
+                ) === 0
               }
               badge={
                 (statistics?.almostLatePayments?.length ?? 0) > 0
                   ? statistics?.almostLateDeliveries?.length.toString()
                   : undefined
-              }
-            />
-            <SideMenuItem
-              to={
-                getRoute(ROUTES.Invoices, { type: "invoices" }) +
-                "?q=subscription_enabled%3A1"
-              }
-              label={t("menu.subscriptions")}
-              icon={(p) => <CalendarDaysIcon {...p} />}
-              active={
-                location.pathname.indexOf(
-                  getRoute(ROUTES.Invoices, { type: "invoices" })
-                ) === 0 &&
-                location.search.indexOf("subscription_enabled%3A1") !== -1
               }
             />
             <SideMenuItem

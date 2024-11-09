@@ -66,6 +66,12 @@
   }
 }
 
+button {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 :root, .light, .light-theme {
   --accent-1: #fdfcfd;
   --accent-2: #faf9fa;
@@ -1228,6 +1234,10 @@ body :is(.z-\[90\]) {
   z-index: 90;
 }
 
+body :is(.col-span-3) {
+  grid-column: span 3 / span 3;
+}
+
 body :is(.float-right) {
   float: right;
 }
@@ -1286,6 +1296,11 @@ body :is(.-mx-1) {
 body :is(.-mx-2) {
   margin-left: -0.5rem;
   margin-right: -0.5rem;
+}
+
+body :is(.-mx-3) {
+  margin-left: -0.75rem;
+  margin-right: -0.75rem;
 }
 
 body :is(.-mx-4) {
@@ -1402,6 +1417,10 @@ body :is(.-mb-1) {
 
 body :is(.-mb-6) {
   margin-bottom: -1.5rem;
+}
+
+body :is(.-mb-px) {
+  margin-bottom: -1px;
 }
 
 body :is(.-ml-0) {
@@ -1548,6 +1567,10 @@ body :is(.mr-2) {
   margin-right: 0.5rem;
 }
 
+body :is(.mr-3) {
+  margin-right: 0.75rem;
+}
+
 body :is(.mr-4) {
   margin-right: 1rem;
 }
@@ -1687,6 +1710,10 @@ body :is(.h-2\.5) {
   height: 0.625rem;
 }
 
+body :is(.h-2\/3) {
+  height: 66.666667%;
+}
+
 body :is(.h-20) {
   height: 5rem;
 }
@@ -1731,6 +1758,10 @@ body :is(.h-9) {
   height: 2.25rem;
 }
 
+body :is(.h-\[1px\]) {
+  height: 1px;
+}
+
 body :is(.h-auto) {
   height: auto;
 }
@@ -1760,6 +1791,10 @@ body :is(.max-h-6) {
   max-height: 1.5rem;
 }
 
+body :is(.max-h-full) {
+  max-height: 100%;
+}
+
 body :is(.min-h-0) {
   min-height: 0px;
 }
@@ -1776,8 +1811,8 @@ body :is(.min-h-12) {
   min-height: 3rem;
 }
 
-body :is(.min-h-36) {
-  min-height: 9rem;
+body :is(.min-h-28) {
+  min-height: 7rem;
 }
 
 body :is(.min-h-5) {
@@ -1953,12 +1988,16 @@ body :is(.min-w-0) {
   min-width: 0px;
 }
 
-body :is(.min-w-32) {
-  min-width: 8rem;
+body :is(.min-w-16) {
+  min-width: 4rem;
 }
 
-body :is(.min-w-36) {
-  min-width: 9rem;
+body :is(.min-w-28) {
+  min-width: 7rem;
+}
+
+body :is(.min-w-32) {
+  min-width: 8rem;
 }
 
 body :is(.min-w-64) {
@@ -1979,11 +2018,6 @@ body :is(.min-w-full) {
   min-width: 100%;
 }
 
-body :is(.min-w-max) {
-  min-width: -webkit-max-content;
-  min-width: max-content;
-}
-
 body :is(.max-w-24) {
   max-width: 6rem;
 }
@@ -2002,6 +2036,10 @@ body :is(.max-w-56) {
 
 body :is(.max-w-72) {
   max-width: 18rem;
+}
+
+body :is(.max-w-\[40\%\]) {
+  max-width: 40%;
 }
 
 body :is(.max-w-full) {
@@ -2324,6 +2362,12 @@ body :is(.space-y-6 > :not([hidden]) ~ :not([hidden])) {
   --tw-space-y-reverse: 0;
   margin-top: calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));
   margin-bottom: calc(1.5rem * var(--tw-space-y-reverse));
+}
+
+body :is(.space-y-8 > :not([hidden]) ~ :not([hidden])) {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(2rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(2rem * var(--tw-space-y-reverse));
 }
 
 body :is(.overflow-auto) {
@@ -3063,6 +3107,11 @@ body :is(.bg-gray-200) {
   background-color: rgb(229 231 235 / var(--tw-bg-opacity));
 }
 
+body :is(.bg-gray-300) {
+  --tw-bg-opacity: 1;
+  background-color: rgb(209 213 219 / var(--tw-bg-opacity));
+}
+
 body :is(.bg-gray-50) {
   --tw-bg-opacity: 1;
   background-color: rgb(249 250 251 / var(--tw-bg-opacity));
@@ -3494,6 +3543,10 @@ body :is(.p-1) {
   padding: 0.25rem;
 }
 
+body :is(.p-10) {
+  padding: 2.5rem;
+}
+
 body :is(.p-2) {
   padding: 0.5rem;
 }
@@ -3638,6 +3691,10 @@ body :is(.pl-4) {
 
 body :is(.pl-5) {
   padding-left: 1.25rem;
+}
+
+body :is(.pl-6) {
+  padding-left: 1.5rem;
 }
 
 body :is(.pl-8) {
@@ -5055,10 +5112,6 @@ body :is(.group\/user:hover .group-hover\/user\:opacity-100) {
 
   body :is(.lg\:h-full) {
     height: 100%;
-  }
-
-  body :is(.lg\:w-1\/3) {
-    width: 33.333333%;
   }
 
   body :is(.lg\:w-1\/4) {

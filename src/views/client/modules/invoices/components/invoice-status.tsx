@@ -25,13 +25,16 @@ export const InvoiceStatus = ({
     sent:
       type === "quotes" || type === "invoices" || type === "credit_notes"
         ? "Envoyé"
-        : "Demandé",
+        : type === "supplier_quotes"
+        ? "Prix demandé"
+        : "À payer",
     accounted: "Comptabilisé",
     purchase_order: type === "quotes" ? "Accepté" : "Commandé",
     partial_paid: "Paiment partiel",
     paid: "Payé",
-    closed: "Fermé",
-    completed: "Complété",
+    closed: "Terminé",
+    completed: "À facturer",
+    recurring: "En récurrence",
   };
 
   const statusColor = {
@@ -44,13 +47,18 @@ export const InvoiceStatus = ({
     purchase_order: "orange",
     partial_paid: "orange",
     paid: "green",
-    closed: "red",
+    closed: "gray",
     completed: "green",
     signed: "green",
+    recurring: "blue",
   };
 
   const statusPerTypeGrouped = {
-    quotes: [["draft"], ["sent"], ["purchase_order", "closed", "completed"]],
+    quotes: [
+      ["draft"],
+      ["sent"],
+      ["purchase_order", "recurring", "closed", "completed"],
+    ],
     invoices: [["draft"], ["sent"], ["closed"]],
     credit_notes: [["draft"], ["sent"], ["closed"]],
     supplier_quotes: [

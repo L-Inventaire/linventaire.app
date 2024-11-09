@@ -47,15 +47,24 @@ import { InvoiceStatus } from "./invoice-status";
 import { RelatedInvoices } from "./related-invoices";
 import { TagPaymentCompletion } from "./tag-payment-completion";
 import { ROUTES } from "@features/routes";
+import { WrongNumerotationFormat } from "@atoms/wrong-format-numerotation";
 
 export const computeStockCompletion = (
   linesu: Invoices["content"],
   type: "delivered" | "ready" = "ready",
-  overflow = false
+  overflow = false,
+  service = false
 ) => {
-  const lines = linesu || [];
+  const lines = (linesu || []).filter((a) =>
+    service
+      ? a.type === "service"
+      : a.type === "consumable" || a.type === "product"
+  );
   const total = lines.reduce(
-    (acc, line) => acc + parseFloat((line.quantity as any) || 0),
+    (acc, line) =>
+      acc +
+      parseFloat((line.quantity as any) || 0) *
+        parseFloat((line.unit_price as any) || 0),
     0
   );
   if (total === 0) return 1;
@@ -67,10 +76,13 @@ export const computeStockCompletion = (
       (acc, line) =>
         acc +
         (overflow
-          ? parseFloat((line[column] as any) || 0)
+          ? parseFloat((line[column] as any) || 0) *
+            parseFloat((line.unit_price as any) || 0)
           : Math.min(
-              parseFloat((line.quantity as any) || 0),
-              parseFloat((line[column] as any) || 0)
+              parseFloat((line.quantity as any) || 0) *
+                parseFloat((line.unit_price as any) || 0),
+              parseFloat((line[column] as any) || 0) *
+                parseFloat((line.unit_price as any) || 0)
             )),
       0
     ) / total
@@ -80,9 +92,10 @@ export const computeStockCompletion = (
 export const renderStockCompletion = (
   lines: Invoices["content"],
   type: "delivered" | "ready" = "ready",
-  overflow = false
+  overflow = false,
+  service = false
 ): [number, string] => {
-  const value = computeStockCompletion(lines, type, overflow);
+  const value = computeStockCompletion(lines, type, overflow, service);
   const color = value < 0.5 ? "red" : value < 1 ? "orange" : "green";
   return [Math.round(value * 100), color];
 };
@@ -194,7 +207,11 @@ export const InvoicesDetailsPage = ({
     }),
   });
 
+  const format = _.get(client.invoices_counters, draft.type)?.format;
+  const errorFormat = !format;
+
   if (isPending || (id && draft.id !== id) || !client) return <PageLoader />;
+  if (errorFormat) return <WrongNumerotationFormat />;
 
   const otherInputs = _.sortBy(
     [
@@ -209,7 +226,7 @@ export const InvoicesDetailsPage = ({
           />
         ),
         visible: !isSupplierInvoice && !isSupplierQuote,
-        complete: !_.isEqual(
+        with_content: !_.isEqual(
           _.omitBy(draft?.format, (a) => !a),
           _.omitBy(client.invoices, (a) => !a)
         ),
@@ -224,20 +241,7 @@ export const InvoicesDetailsPage = ({
           />
         ),
         visible: !isSupplierRelated,
-        complete: draft.payment_information?.mode?.length,
-      },
-      {
-        component: (
-          <InputDelivery
-            btnKey="invoice-delivery"
-            invoice={draft}
-            ctrl={ctrl}
-            readonly={readonly}
-            contact={contact}
-          />
-        ),
-        visible: !isSupplierRelated,
-        complete: draft.delivery_delay || draft.delivery_address,
+        with_content: draft.payment_information?.mode?.length,
       },
       {
         component: (
@@ -249,23 +253,11 @@ export const InvoicesDetailsPage = ({
           />
         ),
         visible: !isSupplierRelated,
-        complete: draft.reminders?.enabled,
+        with_content: draft.reminders?.enabled,
       },
-      {
-        component: (
-          <InvoiceRecurrenceInput
-            btnKey="invoice-recurrence"
-            invoice={draft}
-            ctrl={ctrl}
-            readonly={readonly}
-          />
-        ),
-        visible: !isSupplierRelated && draft.type !== "credit_notes",
-        complete: draft.subscription?.enabled,
-      },
-    ].filter((a) => a.visible && (a.complete || !readonly)),
+    ].filter((a) => a.visible && (a.with_content || !readonly)),
     (a) => {
-      return a.complete ? -1 : 0;
+      return a.with_content ? -1 : 0;
     }
   );
 
@@ -273,7 +265,11 @@ export const InvoicesDetailsPage = ({
     (a) => a.unit_price && a.quantity && !(a.optional && !a.optional_checked)
   );
 
-  const contentReadonly = readonly || draft.state !== "draft";
+  const contentReadonly =
+    readonly ||
+    // Drafts are always editable
+    // Demandes de prix are also a special case where the client can edit the content
+    !(draft.state === "draft" || (draft.state === "sent" && isSupplierQuote));
 
   return (
     <>
@@ -495,12 +491,39 @@ export const InvoicesDetailsPage = ({
                   </Section>
                   <InvoiceLinesInput
                     ctrl={ctrl}
-                    readonly={readonly}
                     value={draft}
                     onChange={setDraft}
                   />
                   {billableContent.length > 0 && (
                     <>
+                      {!!isQuoteRelated &&
+                        !isSupplierRelated &&
+                        draft.state !== "closed" &&
+                        !!draft.content?.find((a) => a.subscription) && (
+                          <div className="mt-8">
+                            <Section className="mb-2">Récurrence</Section>
+                            <InvoiceRecurrenceInput
+                              btnKey="invoice-recurrence"
+                              invoice={draft}
+                              ctrl={ctrl}
+                              readonly={readonly}
+                            />
+                          </div>
+                        )}
+
+                      {!isSupplierRelated && (
+                        <div className="mt-8">
+                          <Section className="mb-2">Livraison</Section>
+                          <InputDelivery
+                            btnKey="invoice-delivery"
+                            invoice={draft}
+                            ctrl={ctrl}
+                            readonly={readonly}
+                            contact={contact}
+                          />
+                        </div>
+                      )}
+
                       {!!otherInputs.length && (
                         <div className="mt-8">
                           <Section className="mb-2">Autre</Section>
@@ -508,8 +531,8 @@ export const InvoicesDetailsPage = ({
                             {otherInputs.map((a, i) => (
                               <Fragment key={i}>
                                 {i !== 0 &&
-                                  !a.complete &&
-                                  !!otherInputs[i - 1].complete && <br />}
+                                  !a.with_content &&
+                                  !!otherInputs[i - 1].with_content && <br />}
                                 {a.component}
                               </Fragment>
                             ))}
@@ -546,7 +569,7 @@ export const InvoicesDetailsPage = ({
                             <Section className="mb-2">Paiements</Section>
                             <Table
                               data={accounting_transactions.data?.list || []}
-                              columns={AccountingTransactionsColumns}
+                              columns={AccountingTransactionsColumns()}
                             />
                           </div>
                         )}

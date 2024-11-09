@@ -2,6 +2,12 @@
 @import '@radix-ui/colors/gray-dark.css';
 
 
+button {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
 :root, .light, .light-theme {
     --accent-1: #fdfcfd;
     --accent-2: #faf9fa;

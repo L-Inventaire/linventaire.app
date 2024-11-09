@@ -148,7 +148,7 @@ export const SearchBarSuggestions = ({
                 type: "menu",
                 className: "group/item",
                 label: (
-                  <div className="flex flex-row space-x items-center overflow-hidden text-ellipsis whitespace-nowrap">
+                  <div className="flex flex-row space-x items-center overflow-hidden text-ellipsis whitespace-nowrap group/item">
                     <Checkbox size="sm" className="mr-2" value={a.active} />
                     {a.field?.type.indexOf("type:") !== 0 && (
                       <span>{(a.render || a.value) as string | ReactNode}</span>
@@ -164,7 +164,7 @@ export const SearchBarSuggestions = ({
                     )}
                     <InfoSmall
                       className={twMerge(
-                        "ml-1 group-hover/item:opacity-100 opacity-0",
+                        "ml-1 group-hover/item:opacity-100 opacity-75",
                         i === selected && "opacity-100"
                       )}
                     >

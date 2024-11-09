@@ -1,5 +1,4 @@
 import { Button } from "@atoms/button/button";
-import { DropdownButton } from "@atoms/dropdown";
 import { Checkbox } from "@atoms/input/input-checkbox";
 import Select from "@atoms/input/input-select";
 import { Loader } from "@atoms/loader";
@@ -7,11 +6,7 @@ import { Modal } from "@atoms/modal/modal";
 import { Base, BaseSmall, Info } from "@atoms/text";
 import { useShortcuts } from "@features/utils/shortcuts";
 import { ArrowDownIcon, ArrowUpIcon } from "@heroicons/react/16/solid";
-import {
-  ArrowDownTrayIcon,
-  ChevronDownIcon,
-  CogIcon,
-} from "@heroicons/react/24/outline";
+import { ArrowDownTrayIcon, CogIcon } from "@heroicons/react/24/outline";
 import _ from "lodash";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -55,7 +50,7 @@ type PropsType<T> = {
   scrollable?: boolean;
   loading?: boolean;
   checkboxAlwaysVisible?: boolean;
-  groupBy?: string;
+  groupBy?: string | ((item: T) => string);
   groupByRender?: (item: T) => ReactNode;
   onSelect?:
     | {
@@ -89,7 +84,7 @@ const defaultCellClassName = ({
   className?: string;
 }) => {
   return twMerge(
-    "h-full w-full flex items-center min-w-max min-h-12 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800",
+    "h-full w-full flex items-center min-h-12 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800",
     colFirst && "pl-1",
     colLast && "pr-1",
     selected
@@ -337,34 +332,11 @@ export function RenderedTable<T>({
                   {onSelect && (
                     <th
                       className={
-                        "w-8 shrink-0 relative " +
+                        "w-8 shrink-0 relative text-center pl-1 " +
                         (scrollable ? " sticky top-0 " : "")
                       }
                     >
-                      <div
-                        className="absolute z-20 top-0 left-0 "
-                        style={{
-                          boxShadow: "40px 0 20px #F8FAFC",
-                        }}
-                      >
-                        {selected.length > 0 &&
-                          typeof onSelect !== "function" && (
-                            <DropdownButton
-                              theme="primary"
-                              size="md"
-                              menu={onSelect.map((a) => ({
-                                onClick: () => a.callback(selected),
-                                icon: a.icon,
-                                label: a.label,
-                                type: a.type,
-                              }))}
-                              icon={(p) => <ChevronDownIcon {...p} />}
-                            >
-                              {selected.length || 0} item
-                              {selected.length > 1 ? "s" : ""}
-                            </DropdownButton>
-                          )}
-                      </div>
+                      <BaseSmall>#</BaseSmall>
                     </th>
                   )}
                   {columns
@@ -446,18 +418,25 @@ export function RenderedTable<T>({
                 .includes((row as any)[rowIndex || "id"]);
               const iFirst = i === 0;
               const iLast = i === data.length - 1;
+
+              const getGroupByKey = (item?: T) => {
+                if (typeof props.groupBy === "string") {
+                  return _.get(item, props.groupBy);
+                }
+                return props.groupBy && item ? props.groupBy(item) : "";
+              };
+
               return (
                 <>
                   {props.groupBy &&
-                    _.get(data?.[i] || {}, props.groupBy) !==
-                      _.get(data?.[i - 1] || {}, props.groupBy) && (
+                    getGroupByKey(data?.[i]) !==
+                      getGroupByKey(data?.[i - 1]) && (
                       <tr>
                         <td
                           colSpan={columns.length + 1}
-                          className="bg-slate-100 border-b bg-opacity-75 border-b border-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:border-slate-700 pl-8 py-1"
+                          className="bg-slate-100 border-b bg-opacity-75 border-b border-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:border-slate-700 pl-6 py-1"
                         >
-                          {props.groupByRender?.(row) ||
-                            _.get(row, props.groupBy)}
+                          {props.groupByRender?.(row) || getGroupByKey(row)}
                         </td>
                       </tr>
                     )}

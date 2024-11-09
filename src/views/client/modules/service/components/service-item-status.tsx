@@ -14,7 +14,7 @@ export const ServiceItemStatus = ({
   size?: "xs" | "sm" | "md" | "md" | "lg";
 }) => {
   const statusName = {
-    backlog: "Backlog",
+    backlog: "Non planifié",
     todo: "À faire",
     in_progress: "En cours",
     in_review: "En revue",

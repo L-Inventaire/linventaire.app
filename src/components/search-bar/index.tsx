@@ -68,7 +68,7 @@ export const SearchBar = ({
     }
     return a;
   });
-  const fields = schema.fields;
+  const fields = schema.fields.filter((a) => a.label);
 
   const [value, setValue] = useState(
     urlSync !== false ? getFromUrl(schema.fields) : ""

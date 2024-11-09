@@ -6,6 +6,7 @@ import { Invoices } from "@features/invoices/types/types";
 import { getRoute, ROUTES } from "@features/routes";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import {
+  ArrowPathIcon,
   CheckIcon,
   DocumentCheckIcon,
   EllipsisHorizontalIcon,
@@ -34,8 +35,7 @@ export const QuotesActions = ({
     "invoices",
     id || "new"
   );
-  const disabled =
-    readonly || draft.state === "closed" || draft.state === "completed";
+  const disabled = readonly || draft.state === "closed";
 
   return (
     <>
@@ -140,7 +140,9 @@ export const QuotesActions = ({
         </>
       )}
 
-      {(draft.state === "purchase_order" || draft.state === "completed") && (
+      {(draft.state === "purchase_order" ||
+        draft.state === "completed" ||
+        draft.state === "recurring") && (
         <>
           <DropdownButton
             theme="invisible"
@@ -184,6 +186,21 @@ export const QuotesActions = ({
             Facturer
           </Button>
         </>
+      )}
+
+      {draft.state === "recurring" && (
+        <div>
+          <Button
+            theme="outlined"
+            size="lg"
+            onClick={() => {
+              alert("todo");
+            }}
+            icon={(p) => <ArrowPathIcon {...p} />}
+          >
+            Modifier l'abonnement
+          </Button>
+        </div>
       )}
 
       {draft.state === "closed" && (

@@ -78,7 +78,7 @@ export function Radio(props: RadioProps) {
               "mb-2"
           )}
         >
-          <label>
+          <label className="flex items-center">
             <input
               type="radio"
               value={option.value}
@@ -87,6 +87,7 @@ export function Radio(props: RadioProps) {
               onChange={() => {
                 /* Do nothing, it's for event bubbling */
               }}
+              className={"mr-1"}
             />{" "}
             {option.label}
           </label>
