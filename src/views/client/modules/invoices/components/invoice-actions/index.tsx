@@ -31,6 +31,7 @@ import { InvoiceInvoiceModal } from "./modal-invoice";
 import { AccountingTransactions } from "@features/accounting/types/types";
 import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { StockItems } from "@features/stock/types/types";
+import { FursnishQuotesModal } from "./modal-furnish-quotes";
 
 export const InvoiceActions = ({
   id,
@@ -141,6 +142,7 @@ export const InvoiceActions = ({
     <div className="text-right space-x-2 flex items-center">
       <InvoiceSendModal id={id} />
       <InvoiceInvoiceModal id={id} />
+      <FursnishQuotesModal id={id} />
 
       <div className="grow"></div>
 

@@ -11,11 +11,14 @@ import { InvoicesDetailsPage } from "../components/invoices-details";
 import { getPdfPreview } from "../components/invoices-preview/invoices-preview";
 import { InvoiceActions } from "../components/invoice-actions";
 import { NotFound } from "@atoms/not-found/not-found";
+import { useSetRecoilState } from "recoil";
+import { FursnishQuotesModalAtom } from "../components/invoice-actions/modal-furnish-quotes";
 
 export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
   const { invoice, isPending, remove, restore } = useInvoice(id || "");
   const isRevision = id?.includes("~");
+  const openFurnishModal = useSetRecoilState(FursnishQuotesModalAtom);
 
   if (!invoice && isPending)
     return (
@@ -91,6 +94,23 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
                   </Button>
                 </>
               )}
+              {invoice.type === "quotes" &&
+                (invoice.content ?? []).some(
+                  (line) => line.type === "product"
+                ) && (
+                  <>
+                    <Button
+                      theme="outlined"
+                      size="sm"
+                      shortcut={["f"]}
+                      onClick={() => {
+                        openFurnishModal(true);
+                      }}
+                    >
+                      Fournir les produits
+                    </Button>
+                  </>
+                )}
               {invoice.type === "invoices" && (
                 <Button
                   size="sm"

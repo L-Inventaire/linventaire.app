@@ -2082,6 +2082,10 @@ body :is(.grow) {
   flex-grow: 1;
 }
 
+body :is(.grow-0) {
+  flex-grow: 0;
+}
+
 body :is(.table-fixed) {
   table-layout: fixed;
 }
