@@ -100,8 +100,7 @@ export const SideBar = () => {
               active={
                 location.pathname.indexOf(
                   getRoute(ROUTES.Invoices, { type: "quotes" })
-                ) === 0 &&
-                location.search.indexOf("subscription_enabled%3A1") === -1
+                ) === 0
               }
             />
             <SideMenuItem
@@ -117,20 +116,6 @@ export const SideBar = () => {
                 (statistics?.almostLatePayments?.length ?? 0) > 0
                   ? statistics?.almostLateDeliveries?.length.toString()
                   : undefined
-              }
-            />
-            <SideMenuItem
-              to={
-                getRoute(ROUTES.Invoices, { type: "quotes" }) +
-                "?q=subscription_enabled%3A1"
-              }
-              label={t("menu.subscriptions")}
-              icon={(p) => <CalendarDaysIcon {...p} />}
-              active={
-                location.pathname.indexOf(
-                  getRoute(ROUTES.Invoices, { type: "quotes" })
-                ) === 0 &&
-                location.search.indexOf("subscription_enabled%3A1") !== -1
               }
             />
             <SideMenuItem

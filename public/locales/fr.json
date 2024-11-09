@@ -84,6 +84,7 @@
         "bank_details": "Relevé d'identité bancaire",
         "recurrence": "Facture à tacite reconduction",
         "frequency": {
+          "daily": "Quotidien",
           "monthly": "Mensuel",
           "weekly": "Hebdomadaire",
           "yearly": "Annuel"

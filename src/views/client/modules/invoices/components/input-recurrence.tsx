@@ -168,7 +168,9 @@ export const InvoiceRecurrenceInput = ({
 
       // Compute next date
       const nextDate = new Date(date);
-      if (minimalFrequency === "weekly")
+      if (minimalFrequency === "daily")
+        nextDate.setDate(nextDate.getDate() + 1);
+      else if (minimalFrequency === "weekly")
         nextDate.setDate(nextDate.getDate() + 7);
       else if (minimalFrequency === "monthly")
         nextDate.setMonth(nextDate.getMonth() + 1);

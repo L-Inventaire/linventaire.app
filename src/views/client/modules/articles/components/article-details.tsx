@@ -19,6 +19,7 @@ import { ArticlesFieldsNames } from "@features/articles/configuration";
 
 export const frequencyOptions = [
   { value: "", label: "Pas de renouvellement" },
+  { value: "daily", label: "Quotidien" },
   { value: "weekly", label: "Hebdomadaire" },
   { value: "monthly", label: "Mensuel" },
   { value: "yearly", label: "Annuel" },
