@@ -11,6 +11,7 @@ import {
 import { useSetRecoilState } from "recoil";
 import { renderStockCompletion } from "../../invoices-details";
 import { twMerge } from "tailwind-merge";
+import _ from "lodash";
 
 export const CompletionTags = (props: {
   invoice: Invoices;
@@ -71,6 +72,10 @@ export const CompletionTags = (props: {
 
   return (
     <div className="-space-x-px flex">
+      {(props?.lines || []).some((a) => a.subscription) &&
+        _.uniq(
+          (props?.lines || [])?.map((a) => a.subscription).filter(Boolean)
+        ).map((s) => <Tag color="blue">{s}</Tag>)}
       {props?.lines?.some((a) => a.type === "service") && (
         <Tag
           onClick={() => onClick("service_items", 'state:"done"')}

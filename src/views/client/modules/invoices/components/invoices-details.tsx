@@ -55,10 +55,12 @@ export const computeStockCompletion = (
   overflow = false,
   service = false
 ) => {
-  const lines = (linesu || []).filter((a) =>
-    service
-      ? a.type === "service"
-      : a.type === "consumable" || a.type === "product"
+  const lines = (linesu || []).filter(
+    (a) =>
+      !a.subscription &&
+      (service
+        ? a.type === "service"
+        : a.type === "consumable" || a.type === "product")
   );
   const total = lines.reduce(
     (acc, line) =>
