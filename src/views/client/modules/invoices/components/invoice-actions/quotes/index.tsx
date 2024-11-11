@@ -19,6 +19,7 @@ import { InvoiceSendModalAtom } from "../modal-send";
 import { useSetRecoilState } from "recoil";
 import { useNavigateAlt } from "@features/utils/navigate";
 import { InvoiceInvoiceModalAtom } from "../modal-invoice";
+import { RecurrenceModalAtom } from "../../input-recurrence";
 
 export const QuotesActions = ({
   id,
@@ -36,6 +37,7 @@ export const QuotesActions = ({
     id || "new"
   );
   const disabled = readonly || draft.state === "closed";
+  const setRecurringModal = useSetRecoilState(RecurrenceModalAtom);
 
   return (
     <>
@@ -193,9 +195,7 @@ export const QuotesActions = ({
           <Button
             theme="outlined"
             size="lg"
-            onClick={() => {
-              alert("todo");
-            }}
+            onClick={() => setRecurringModal(draft?.id)}
             icon={(p) => <ArrowPathIcon {...p} />}
           >
             Modifier l'abonnement

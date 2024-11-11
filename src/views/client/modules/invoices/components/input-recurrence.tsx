@@ -1,16 +1,23 @@
-import { Tag } from "@atoms/badge/tag";
 import { Base, Info } from "@atoms/text";
 import { FormInput } from "@components/form/fields";
-import { FormControllerFuncType } from "@components/form/formcontext";
+import {
+  FormControllerFuncType,
+  useFormController,
+} from "@components/form/formcontext";
 import { InputButton } from "@components/input-button";
 import { Invoices } from "@features/invoices/types/types";
 import { ArrowPathIcon } from "@heroicons/react/20/solid";
-import { Blockquote, Heading } from "@radix-ui/themes";
+import { Blockquote, Button, Heading } from "@radix-ui/themes";
 import { ModalHr, PageColumns } from "@views/client/_layout/page";
 import { format } from "date-fns";
 import _ from "lodash";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { frequencyOptions } from "../../articles/components/article-details";
+import { Modal, ModalContent } from "@atoms/modal/modal";
+import { atom, useRecoilState } from "recoil";
+import { useInvoice } from "@features/invoices/hooks/use-invoices";
+import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
+import toast from "react-hot-toast";
 
 const optionsDelays = [
   {
@@ -209,117 +216,7 @@ export const InvoiceRecurrenceInput = ({
       placeholder="Récurrence"
       icon={(p) => <ArrowPathIcon {...p} />}
       readonly={readonly}
-      content={
-        <>
-          <br />
-          {subscriptions.length > 1 && (
-            <Blockquote className="mb-4">
-              Vous avez plusieurs articles avec des fréquences différentes, la
-              facture sera dupliquée pour chaque groupes d'articles partageant
-              la même fréquence à partir de la prochaine facture.
-            </Blockquote>
-          )}
-
-          <div className="space-y-4">
-            <PageColumns>
-              <FormInput
-                type="select"
-                label="Début de la récurrence"
-                options={optionsStartDates}
-                ctrl={ctrl("subscription.start_type")}
-              />
-              {ctrl("subscription.start_type")?.value === "date" && (
-                <FormInput
-                  type="date"
-                  label="Date (incluse)"
-                  ctrl={ctrl("subscription.start")}
-                />
-              )}
-            </PageColumns>
-            <PageColumns>
-              <FormInput
-                type="select"
-                label="Fin de la facturation"
-                options={optionsEndDates}
-                ctrl={ctrl("subscription.end_type")}
-              />
-              {ctrl("subscription.end_type")?.value === "delay" && (
-                <FormInput
-                  type="select"
-                  label="Délai"
-                  ctrl={ctrl("subscription.end_delay")}
-                  options={optionsDelays}
-                />
-              )}
-              {ctrl("subscription.end_type")?.value === "date" && (
-                <FormInput
-                  type="date"
-                  label="Date (incluse)"
-                  ctrl={ctrl("subscription.end")}
-                />
-              )}
-            </PageColumns>
-            <FormInput
-              type="select"
-              label="Facturer le"
-              ctrl={ctrl("subscription.invoice_date")}
-              options={optionsInvoiceDate}
-            />
-          </div>
-
-          <ModalHr />
-
-          <div className="space-y-4">
-            <Heading size="2">Action en fin de récurrence</Heading>
-
-            <FormInput
-              type="select"
-              ctrl={ctrl("subscription.renew_as")}
-              options={optionsRenewAs}
-            />
-            <Info className="block">
-              Une fois la période de facturation terminée, le devis peut être
-              automatiquement dupliqué en brouillon, ou en devis envoyé au
-              client, ou bien définitivement clôturé.
-            </Info>
-          </div>
-
-          <ModalHr />
-
-          <Info>
-            Prochaines factures:
-            <br />
-            {(() => {
-              return [
-                ...dates.map((d) => (
-                  <Tag
-                    size="xs"
-                    icon={<></>}
-                    key={d}
-                    noColor
-                    className="bg-white mr-1 mb-1 text-slate-800"
-                  >
-                    {format(d, "eee PP")}
-                  </Tag>
-                )),
-                ...(hasMore
-                  ? [
-                      <Tag
-                        size="xs"
-                        icon={<></>}
-                        key={"..."}
-                        noColor
-                        className="bg-white mr-1 mb-1 text-slate-800"
-                      >
-                        ...
-                      </Tag>,
-                    ]
-                  : []),
-              ];
-            })()}
-          </Info>
-        </>
-      }
+      content={<RecurrenceModalContent ctrl={ctrl} invoice={invoice} />}
       value={"true"}
     >
       <div className="space-y-0 w-max flex flex-col text-left">
@@ -386,5 +283,179 @@ export const InvoiceRecurrenceInput = ({
         </Info>
       </div>
     </InputButton>
+  );
+};
+
+export const RecurrenceModalAtom = atom({
+  key: "RecurrenceModalAtom",
+  default: "",
+});
+
+export const RecurrenceModal = () => {
+  const [quoteId, setQuoteId] = useRecoilState(RecurrenceModalAtom);
+  return (
+    <Modal open={!!quoteId} onClose={() => setQuoteId("")}>
+      {!!quoteId && (
+        <ModalContent title="Modifier l'abonnement">
+          <RecurrenceModalPreContent
+            quoteId={quoteId}
+            onClose={() => setQuoteId("")}
+          />
+        </ModalContent>
+      )}
+    </Modal>
+  );
+};
+
+const RecurrenceModalPreContent = ({
+  quoteId,
+  onClose,
+}: {
+  quoteId: string;
+  onClose: () => void;
+}) => {
+  const [loading, setLoading] = useState(false);
+  const [val, setVal] = useState<{ subscription: Invoices["subscription"] }>({
+    subscription: undefined,
+  });
+  const { ctrl } = useFormController(val, setVal);
+  const { invoice: draft, update } = useInvoice(quoteId);
+
+  useEffect(() => {
+    if (draft) {
+      ctrl("subscription").onChange(draft.subscription);
+    }
+  }, [draft?.id]);
+
+  if (!draft) return null;
+
+  return (
+    <>
+      <div className={loading ? "opacity-50 pointer-events-none" : ""}>
+        <RecurrenceModalContent invoice={draft} ctrl={ctrl} onlyEnding />
+      </div>
+      <div className="flex space-between mt-4">
+        <Button loading={loading} variant="outline" onClick={() => onClose()}>
+          Annuler
+        </Button>
+        <div className="grow" />
+        <Button
+          loading={loading}
+          onClick={async () => {
+            setLoading(true);
+            try {
+              await update.mutateAsync({
+                id: draft.id,
+                subscription: ctrl("subscription").value,
+              });
+              onClose();
+            } catch (e) {
+              console.error(e);
+              toast.error("Erreur lors de la modification de l'abonnement");
+            } finally {
+              setLoading(false);
+            }
+          }}
+        >
+          Modifier
+        </Button>
+      </div>
+    </>
+  );
+};
+
+const RecurrenceModalContent = ({
+  ctrl,
+  invoice,
+  onlyEnding,
+}: {
+  ctrl: FormControllerFuncType<Pick<Invoices, "subscription">>;
+  invoice: Invoices;
+  onlyEnding?: boolean;
+}) => {
+  const subscriptions = _.uniq(
+    invoice.content?.map((a) => a.subscription)
+  ).filter(Boolean) as string[];
+  return (
+    <>
+      <br />
+      {subscriptions.length > 1 && (
+        <Blockquote className="mb-4">
+          Vous avez plusieurs articles avec des fréquences différentes, la
+          facture sera dupliquée pour chaque groupes d'articles partageant la
+          même fréquence à partir de la prochaine facture.
+        </Blockquote>
+      )}
+
+      {!onlyEnding && (
+        <>
+          <div className="space-y-4">
+            <PageColumns>
+              <FormInput
+                type="select"
+                label="Début de la récurrence"
+                options={optionsStartDates}
+                ctrl={ctrl("subscription.start_type")}
+              />
+              {ctrl("subscription.start_type")?.value === "date" && (
+                <FormInput
+                  type="date"
+                  label="Date (incluse)"
+                  ctrl={ctrl("subscription.start")}
+                />
+              )}
+            </PageColumns>
+            <FormInput
+              type="select"
+              label="Facturer le"
+              ctrl={ctrl("subscription.invoice_date")}
+              options={optionsInvoiceDate}
+            />
+          </div>
+          <ModalHr />
+        </>
+      )}
+      <div className="space-y-4">
+        <PageColumns>
+          <FormInput
+            type="select"
+            label="Fin de la facturation"
+            options={optionsEndDates}
+            ctrl={ctrl("subscription.end_type")}
+          />
+          {ctrl("subscription.end_type")?.value === "delay" && (
+            <FormInput
+              type="select"
+              label="Délai"
+              ctrl={ctrl("subscription.end_delay")}
+              options={optionsDelays}
+            />
+          )}
+          {ctrl("subscription.end_type")?.value === "date" && (
+            <FormInput
+              type="date"
+              label="Date (incluse)"
+              ctrl={ctrl("subscription.end")}
+            />
+          )}
+        </PageColumns>
+
+        <div className="space-y-2">
+          <Heading size="2" className="pb-0">
+            Action en fin de récurrence
+          </Heading>
+          <FormInput
+            type="select"
+            ctrl={ctrl("subscription.renew_as")}
+            options={optionsRenewAs}
+          />
+          <Info className="block">
+            Une fois la période de facturation terminée, le devis peut être
+            automatiquement dupliqué en brouillon, ou en devis envoyé au client,
+            ou bien définitivement clôturé.
+          </Info>
+        </div>
+      </div>
+    </>
   );
 };

@@ -3773,6 +3773,10 @@ body :is(.pt-8) {
   padding-top: 2rem;
 }
 
+body :is(.pb-0) {
+  padding-bottom: 0px;
+}
+
 body :is(.text-left) {
   text-align: left;
 }
