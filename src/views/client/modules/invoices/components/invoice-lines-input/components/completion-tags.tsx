@@ -4,6 +4,7 @@ import { CtrlKPathType } from "@features/ctrlk/types";
 import { Invoices } from "@features/invoices/types/types";
 import { StockItems } from "@features/stock/types/types";
 import {
+  ArrowPathIcon,
   CheckCircleIcon,
   CubeIcon,
   TruckIcon,
@@ -11,6 +12,8 @@ import {
 import { useSetRecoilState } from "recoil";
 import { renderStockCompletion } from "../../invoices-details";
 import { twMerge } from "tailwind-merge";
+import _ from "lodash";
+import { frequencyOptions } from "@views/client/modules/articles/components/article-details";
 
 export const CompletionTags = (props: {
   invoice: Invoices;
@@ -71,7 +74,24 @@ export const CompletionTags = (props: {
 
   return (
     <div className="-space-x-px flex">
-      {props?.lines?.some((a) => a.type === "service") && (
+      {(props?.lines || []).some((a) => a.subscription) &&
+        _.uniq(
+          (props?.lines || [])?.map((a) => a.subscription).filter(Boolean)
+        ).map((s) => (
+          <Tag
+            color="blue"
+            size={props.size || "xs"}
+            className={twMerge("mr-1")}
+            icon={
+              <ArrowPathIcon
+                className={`w-3 h-3 mr-1 shrink-0 text-blue-500`}
+              />
+            }
+          >
+            {frequencyOptions.find((a) => a.value === s)?.label || s}
+          </Tag>
+        ))}
+      {props?.lines?.some((a) => a.type === "service" && !a.subscription) && (
         <Tag
           onClick={() => onClick("service_items", 'state:"done"')}
           className={twMerge("mr-1", shortLeft && "w-5")}
@@ -94,7 +114,8 @@ export const CompletionTags = (props: {
         </Tag>
       )}
       {props?.lines?.some(
-        (a) => a.type === "product" || a.type === "consumable"
+        (a) =>
+          (a.type === "product" || a.type === "consumable") && !a.subscription
       ) && (
         <>
           {props.invoice?.type !== "supplier_quotes" && (
