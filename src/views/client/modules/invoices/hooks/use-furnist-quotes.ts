@@ -37,6 +37,10 @@ export const useFurnishQuotes = (quotes: Invoices[]) => {
   const grouppedByStocks = _.omit(_.groupBy(furnishesOverride, "stockID"), [
     "undefined",
   ]);
+  const grouppedByArticles = _.omit(_.groupBy(furnishesOverride, "articleID"), [
+    "undefined",
+  ]);
+
   const supplierIDs = furnishesOverride
     .map((furnish) => furnish.supplierID)
     .filter(Boolean);
@@ -91,11 +95,13 @@ export const useFurnishQuotes = (quotes: Invoices[]) => {
     isLoadingFurnishQuotes,
     grouppedBySuppliers,
     grouppedByStocks,
+    grouppedByArticles,
     lockedFurnishes,
     articles,
     suppliers,
     stockFurnishes,
     stocks,
+    lockedFurnishesRefs,
     setLockedFurnishesRefs,
     furnishesOverride,
     setFurnishesOverride,

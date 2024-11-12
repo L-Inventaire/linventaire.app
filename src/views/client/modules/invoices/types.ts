@@ -6,6 +6,7 @@ export type FurnishQuotesResponse = {
 };
 
 export type FurnishQuotesFurnish = {
+  maxAvailable?: number;
   ref: string;
   supplierID?: string;
   stockID?: any;
