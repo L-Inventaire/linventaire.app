@@ -10,6 +10,8 @@ import { buildQueryFromMap } from "@components/search-bar/utils/utils";
 import { CtrlKRestEntities } from "@features/ctrlk";
 import { useCtrlKAsSelect } from "@features/ctrlk/use-ctrlk-as-select";
 import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
+import { getRoute } from "@features/routes";
+import { useNavigateAlt } from "@features/utils/navigate";
 import { useRest } from "@features/utils/rest/hooks/use-rest";
 import { RestEntity } from "@features/utils/rest/types/types";
 import { TrashIcon } from "@heroicons/react/16/solid";
@@ -60,6 +62,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
       ? formContext.disabled || formContext.readonly
       : props.disabled || false;
   const value = props.ctrl?.value || props.value;
+  const navigate = useNavigateAlt();
 
   const { items } = useRest<T>(props.entity, {
     query: buildQueryFromMap({ id: value }),
@@ -90,6 +93,21 @@ export const RestDocumentsInput = <T extends RestEntity>(
       if (disabled && !value) return;
       e.preventDefault();
       e.stopPropagation();
+
+      console.log(props.entity, CtrlKRestEntities?.[props.entity]?.viewRoute);
+
+      // If ctrl or cmd or middle click then navigate
+      if (
+        (e.ctrlKey || e.metaKey || e.button === 1) &&
+        CtrlKRestEntities?.[props.entity]?.viewRoute
+      ) {
+        navigate(
+          getRoute(CtrlKRestEntities?.[props.entity]?.viewRoute || "", {}),
+          { event: e }
+        );
+        return;
+      }
+
       return !disabled
         ? select<T>(
             props.entity,
