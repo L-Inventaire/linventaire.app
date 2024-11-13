@@ -21,7 +21,7 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
 
   const select = useCtrlKAsSelect();
 
-  const { service_items: items } = useServiceItems({
+  const { service_items: items, upsert: upsertServiceItems } = useServiceItems({
     query: buildQueryFromMap({ id: ids?.split(",") }),
     limit: 100,
   });
@@ -46,12 +46,7 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
 
   useEffect(() => {
     if (articles?.data?.list?.length) {
-      const grouped = _.groupBy(
-        clientItems?.filter(
-          (a) => (a.quantity_expected || a.quantity_spent) > 0
-        ),
-        "article"
-      );
+      const grouped = _.groupBy(clientItems, "article");
       setLines({
         ...lines,
         client: lines.client || clientItems?.[0]?.client || "",
@@ -68,7 +63,7 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
             quantity:
               item.reduce(
                 (acc, a) => acc + (a.quantity_spent || a.quantity_expected),
-                0
+                1
               ) || 0,
             unit_price: article?.price || 0,
             unit: article?.unit,
@@ -142,7 +137,7 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
 
             <div className="space-y-2">
               <Callout.Root>
-                Les {keptServices?.length} instances de service suivantes seront
+                {keptServices?.length} instance(s) de service suivantes seront
                 associées au devis:{" "}
                 {(keptServices || []).map((item) => item.title).join(", ")}
               </Callout.Root>
@@ -182,6 +177,13 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
                         });
 
                         // Now affect the lines to the quote
+                        for (const item of keptServices || []) {
+                          await upsertServiceItems.mutateAsync({
+                            id: item.id,
+                            client: item.client || quote.client,
+                            for_rel_quote: quote.id,
+                          });
+                        }
 
                         navigate(
                           getRoute(ROUTES.InvoicesView, { id: quote.id })
@@ -210,6 +212,13 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
                     });
 
                     // Now affect the lines to the quote
+                    for (const item of keptServices || []) {
+                      await upsertServiceItems.mutateAsync({
+                        id: item.id,
+                        client: item.client || quote.client,
+                        for_rel_quote: quote.id,
+                      });
+                    }
 
                     navigate(getRoute(ROUTES.InvoicesView, { id: quote.id }));
                   } finally {
