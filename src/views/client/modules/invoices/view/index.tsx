@@ -6,19 +6,18 @@ import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { getDocumentNamePlurial } from "@features/invoices/utils";
 import { ROUTES, getRoute } from "@features/routes";
 import { Page } from "@views/client/_layout/page";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { InvoicesDetailsPage } from "../components/invoices-details";
 import { getPdfPreview } from "../components/invoices-preview/invoices-preview";
 import { InvoiceActions } from "../components/invoice-actions";
 import { NotFound } from "@atoms/not-found/not-found";
-import { useSetRecoilState } from "recoil";
-import { FursnishQuotesModalAtom } from "../components/invoice-actions/modal-furnish-quotes";
 
 export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
   const { invoice, isPending, remove, restore } = useInvoice(id || "");
   const isRevision = id?.includes("~");
-  const openFurnishModal = useSetRecoilState(FursnishQuotesModalAtom);
+  const navigate = useNavigate();
+  const { client: clientId } = useParams();
 
   if (!invoice && isPending)
     return (
@@ -104,7 +103,19 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
                       size="sm"
                       shortcut={["f"]}
                       onClick={() => {
-                        openFurnishModal(true);
+                        console.log(
+                          "ROUTE",
+                          getRoute(ROUTES.FurnishQuotes, {
+                            client: clientId,
+                            id,
+                          })
+                        );
+                        navigate(
+                          getRoute(ROUTES.FurnishQuotes, {
+                            client: clientId,
+                            id,
+                          })
+                        );
                       }}
                     >
                       Fournir les produits
