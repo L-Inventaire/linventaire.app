@@ -90,6 +90,12 @@ export const ServiceItemsDetailsPage = ({
     }
   }, [onCreateAddSpentTime, ctrl("quantity_expected").value, markAsDone]);
 
+  useEffect(() => {
+    if (draft.state === "done") {
+      setMarkAsDone(true);
+    }
+  }, [draft.state === "done"]);
+
   if (isPending || (id && draft.id !== id)) return <PageLoader />;
 
   return (
