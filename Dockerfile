@@ -1,6 +1,8 @@
 # Stage 1: Build the SPA
 FROM node:20 as build
 
+ARG SENTRY_AUTH_TOKEN
+
 WORKDIR /app
 
 COPY package.json yarn.lock ./
