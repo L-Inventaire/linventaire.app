@@ -54,6 +54,7 @@ export const ROUTES = {
   Invoices: "/:client/i/:type",
   InvoicesView: "/:client/i/all/:id",
   InvoicesEdit: "/:client/i/all/:id/form",
+  InvoicesFromItems: "/:client/i/from",
 
   Receipts: "/:client/deliveries",
   ReceiptsView: "/:client/deliveries/:id",

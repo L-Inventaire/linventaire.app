@@ -122,6 +122,7 @@ export const SupplierQuotesActions = ({
                   ...draft,
                   type: "supplier_invoices",
                   state: "draft",
+                  from_rel_quote: [draft.id],
                   id: "",
                 }),
                 { event }
@@ -135,8 +136,11 @@ export const SupplierQuotesActions = ({
             disabled={disabled}
             size="lg"
             icon={(p) => <CubeIcon {...p} />}
-            onClick={() =>
-              edit("stock_items", undefined, { from_rel_quote: [draft.id] })
+            onClick={(event: any) =>
+              navigate(
+                getRoute(ROUTES.StockEditFrom, { from: "order", id: draft.id }),
+                { event }
+              )
             }
           >
             Réception
@@ -175,6 +179,7 @@ export const SupplierQuotesActions = ({
                   ...draft,
                   type: "supplier_invoices",
                   state: "draft",
+                  from_rel_quote: [draft.id],
                   id: "",
                 }),
                 { event }
