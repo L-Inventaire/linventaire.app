@@ -10,11 +10,14 @@ import { AccountingTransactionsDetailsPage } from "@views/client/modules/account
 import { InvoiceRestDocument } from "@views/client/modules/invoices/components/invoice-lines-input/invoice-input-rest-card";
 import { twMerge } from "tailwind-merge";
 import { AccountingAccounts, AccountingTransactions } from "./types/types";
+import { useAccountingAccounts } from "./hooks/use-accounting-accounts";
 
 export const useAccountingTransactionDefaultModel: () => Partial<AccountingTransactions> =
   () => ({});
 
-export const AccountingTransactionsColumns: Column<AccountingTransactions>[] = [
+export const AccountingTransactionsColumns: (
+  referenceAccounts?: string[]
+) => Column<AccountingTransactions>[] = (referenceAccounts) => [
   {
     title: "Date",
     render: (item) => (
@@ -43,7 +46,7 @@ export const AccountingTransactionsColumns: Column<AccountingTransactions>[] = [
           disabled
           size="md"
         />{" "}
-        {"-> "}
+        {" → "}
         <RestDocumentsInput
           entity="accounting_accounts"
           value={item.credit}
@@ -58,21 +61,55 @@ export const AccountingTransactionsColumns: Column<AccountingTransactions>[] = [
     headClassName: "justify-end",
     cellClassName: "justify-end",
     render: (item) => (
-      <div
-        className={twMerge(item.amount < 0 ? "text-red-600" : "text-green-600")}
-      >
-        {item.amount < 0 ? "" : "+"}
-        {formatAmount(item.amount, item.currency)}
-      </div>
+      <AccountingTransactionAmount
+        item={item}
+        referenceAccounts={referenceAccounts}
+      />
     ),
   },
 ];
+
+const AccountingTransactionAmount = ({
+  item,
+  referenceAccounts,
+}: {
+  item: AccountingTransactions;
+  referenceAccounts?: string[];
+}) => {
+  const { accounting_accounts } = useAccountingAccounts({
+    query: {
+      type: "internal",
+    },
+  });
+  const refs =
+    referenceAccounts || accounting_accounts?.data?.list.map((e) => e.id) || [];
+
+  let signedAmount = item.amount;
+  if (refs.includes(item.debit)) {
+    signedAmount = -item.amount;
+  }
+
+  return (
+    <div
+      className={twMerge(
+        refs?.length === 0
+          ? "text-black dark:text-white"
+          : signedAmount < 0
+          ? "text-red-600"
+          : "text-green-600"
+      )}
+    >
+      {refs?.length === 0 ? "" : signedAmount < 0 ? "" : "+"}
+      {formatAmount(signedAmount, item.currency)}
+    </div>
+  );
+};
 
 registerCtrlKRestEntity<AccountingTransactions>("accounting_transactions", {
   renderEditor: (props) => (
     <AccountingTransactionsDetailsPage readonly={false} id={props.id} />
   ),
-  renderResult: AccountingTransactionsColumns,
+  renderResult: AccountingTransactionsColumns(),
   useDefaultData: useAccountingTransactionDefaultModel,
   viewRoute: ROUTES.StockView,
 });

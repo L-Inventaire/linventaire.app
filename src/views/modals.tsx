@@ -3,6 +3,7 @@ import { CtrlKModal } from "@components/ctrl-k";
 import { ContactRelationModal } from "./client/modules/contacts/components/relations-modal";
 import { SubdivideStockModal } from "./client/modules/stock/components/subdivide-modal";
 import { EditorInputMentionHelper } from "@molecules/editor-input";
+import { RecurrenceModal } from "./client/modules/invoices/components/input-recurrence";
 
 export const Modals = () => {
   return (
@@ -12,6 +13,7 @@ export const Modals = () => {
       <DropDownMenu />
       <ContactRelationModal />
       <SubdivideStockModal />
+      <RecurrenceModal />
     </>
   );
 };

@@ -202,7 +202,7 @@ export const DocumentBar = ({
               <Separator orientation="vertical" />
             </>
           )}
-          {props.editRoute && (
+          {document?.id && props.editRoute && (
             <Button
               data-tooltip="Dupliquer"
               size="xs"
@@ -221,19 +221,21 @@ export const DocumentBar = ({
               }
             />
           )}
-          <Button
-            data-tooltip="Copier le lien"
-            size="xs"
-            theme="invisible"
-            shortcut={["shift+u"]}
-            icon={(p) => <LinkIcon {...p} />}
-            onClick={() =>
-              copyToClipboard(
-                window.location.href,
-                "Lien copié dans le presse-papier"
-              )
-            }
-          />
+          {document?.id && (
+            <Button
+              data-tooltip="Copier le lien"
+              size="xs"
+              theme="invisible"
+              shortcut={["shift+u"]}
+              icon={(p) => <LinkIcon {...p} />}
+              onClick={() =>
+                copyToClipboard(
+                  window.location.href,
+                  "Lien copié dans le presse-papier"
+                )
+              }
+            />
+          )}
           {props.onPrint && (
             <Button
               data-tooltip="Imprimer"
@@ -269,16 +271,19 @@ export const DocumentBar = ({
               }}
             />
           )}
-          {!isRevision && !document.is_deleted && mode === "write" && (
-            <>
-              <Button size="sm" theme="outlined" onClick={cancel}>
-                Annuler
-              </Button>
-              <Button size="sm" onClick={onSave} shortcut={["cmd+s"]}>
-                Sauvegarder
-              </Button>
-            </>
-          )}
+          {!!onSave &&
+            !isRevision &&
+            !document.is_deleted &&
+            mode === "write" && (
+              <>
+                <Button size="sm" theme="outlined" onClick={cancel}>
+                  Annuler
+                </Button>
+                <Button size="sm" onClick={onSave} shortcut={["cmd+s"]}>
+                  Sauvegarder
+                </Button>
+              </>
+            )}
           {!isRevision && !document.is_deleted && suffix}
         </>
       )}

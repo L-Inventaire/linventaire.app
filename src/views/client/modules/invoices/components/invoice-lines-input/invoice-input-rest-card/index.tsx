@@ -5,6 +5,7 @@ import { getContactName } from "@features/contacts/types/types";
 import { Invoices } from "@features/invoices/types/types";
 import { InvoiceStatus } from "../../invoice-status";
 import { CompletionTags } from "../components/completion-tags";
+import { TagPaymentCompletion } from "../../tag-payment-completion";
 
 export const InvoiceRestDocument = (
   props: Omit<RestDocumentProps<Invoices>, "entity">
@@ -20,6 +21,8 @@ export const InvoiceRestDocument = (
 
 const RenderInvoiceCard = ({ invoice }: { invoice: Invoices }) => {
   const { contact } = useContact(invoice.client || invoice.supplier || "");
+  const isQuote =
+    invoice.type === "quotes" || invoice.type === "supplier_quotes";
   return (
     <div className="mt-1">
       <div className="line-clamp-1 text-ellipsis">
@@ -42,7 +45,10 @@ const RenderInvoiceCard = ({ invoice }: { invoice: Invoices }) => {
           size="xs"
         />
         <div className="float-right">
-          <CompletionTags short invoice={invoice} lines={invoice.content} />
+          {isQuote && (
+            <CompletionTags short invoice={invoice} lines={invoice.content} />
+          )}
+          {!isQuote && <TagPaymentCompletion invoice={invoice} size="1" />}
         </div>
       </div>
     </div>

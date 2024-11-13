@@ -55,10 +55,12 @@ export const computeStockCompletion = (
   overflow = false,
   service = false
 ) => {
-  const lines = (linesu || []).filter((a) =>
-    service
-      ? a.type === "service"
-      : a.type === "consumable" || a.type === "product"
+  const lines = (linesu || []).filter(
+    (a) =>
+      !a.subscription &&
+      (service
+        ? a.type === "service"
+        : a.type === "consumable" || a.type === "product")
   );
   const total = lines.reduce(
     (acc, line) =>
@@ -208,8 +210,7 @@ export const InvoicesDetailsPage = ({
   });
 
   const format = _.get(client.invoices_counters, draft.type)?.format;
-  const counter = _.get(client.invoices_counters, draft.type)?.counter;
-  const errorFormat = !format || !counter;
+  const errorFormat = !format;
 
   if (isPending || (id && draft.id !== id) || !client) return <PageLoader />;
   if (errorFormat) return <WrongNumerotationFormat />;
@@ -492,25 +493,11 @@ export const InvoicesDetailsPage = ({
                   </Section>
                   <InvoiceLinesInput
                     ctrl={ctrl}
-                    readonly={readonly}
                     value={draft}
                     onChange={setDraft}
                   />
                   {billableContent.length > 0 && (
                     <>
-                      {!isSupplierRelated && (
-                        <div className="mt-8">
-                          <Section className="mb-2">Livraison</Section>
-                          <InputDelivery
-                            btnKey="invoice-delivery"
-                            invoice={draft}
-                            ctrl={ctrl}
-                            readonly={readonly}
-                            contact={contact}
-                          />
-                        </div>
-                      )}
-
                       {!!isQuoteRelated &&
                         !isSupplierRelated &&
                         draft.state !== "closed" &&
@@ -525,6 +512,19 @@ export const InvoicesDetailsPage = ({
                             />
                           </div>
                         )}
+
+                      {!isSupplierRelated && (
+                        <div className="mt-8">
+                          <Section className="mb-2">Livraison</Section>
+                          <InputDelivery
+                            btnKey="invoice-delivery"
+                            invoice={draft}
+                            ctrl={ctrl}
+                            readonly={readonly}
+                            contact={contact}
+                          />
+                        </div>
+                      )}
 
                       {!!otherInputs.length && (
                         <div className="mt-8">
@@ -571,7 +571,7 @@ export const InvoicesDetailsPage = ({
                             <Section className="mb-2">Paiements</Section>
                             <Table
                               data={accounting_transactions.data?.list || []}
-                              columns={AccountingTransactionsColumns}
+                              columns={AccountingTransactionsColumns()}
                             />
                           </div>
                         )}

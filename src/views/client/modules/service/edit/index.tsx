@@ -38,14 +38,18 @@ export const ServiceItemsEditPage = (_props: { readonly?: boolean }) => {
       "service_items",
       id || "new",
       async (item) => {
-        if (spentTime.length > 0) {
-          // Add spend time also
-          for (const spent of spentTime) {
-            await saveSpentTime.mutateAsync({
-              service: item.id,
-              ...spent,
-            });
+        try {
+          if (spentTime.length > 0) {
+            // Add spend time also
+            for (const spent of spentTime) {
+              await saveSpentTime.mutateAsync({
+                service: item.id,
+                ...spent,
+              });
+            }
           }
+        } catch (e) {
+          console.log(e);
         }
         navigate(getRoute(ROUTES.ServiceItemsView, { id: item.id }));
       },

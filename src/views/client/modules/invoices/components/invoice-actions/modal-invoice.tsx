@@ -77,7 +77,18 @@ export const InvoiceInvoiceModalContent = ({
         quantity: Math.max(0, (a.quantity || 0) - invoicedQuantity),
       };
     })
-    ?.filter((a) => (a.quantity || 0) > 0);
+    ?.filter((a) => (a.quantity || 0) > 0)
+    .map((a) => {
+      return {
+        ...a,
+        quantity:
+          // If there is non subscibables articles then we by default select those ones
+          a.subscription &&
+          draft.content?.some((a) => !a.subscription && (a.quantity || 0) > 0)
+            ? 0
+            : a.quantity,
+      };
+    });
 
   const [selection, setSelection] = useState<InvoiceLine[]>([]);
 
@@ -95,7 +106,11 @@ export const InvoiceInvoiceModalContent = ({
   return (
     <ModalContent title="Créer une facture">
       <Tabs.Root
-        defaultValue="complete"
+        defaultValue={
+          (draft.content || []).some((a) => a.subscription)
+            ? "partial"
+            : "complete"
+        }
         onValueChange={() => {
           setSelection(defaultContent || []);
         }}

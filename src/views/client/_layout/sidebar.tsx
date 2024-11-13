@@ -4,11 +4,11 @@ import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { useHasAccess } from "@features/access";
 import { registerRootNavigation } from "@features/ctrlk";
 import { ROUTES, getRoute } from "@features/routes";
+import { useStatistics } from "@features/statistics/hooks";
 import { ListBulletIcon } from "@heroicons/react/16/solid";
 import { DocumentIcon, PlusIcon } from "@heroicons/react/24/outline";
 import {
   BriefcaseIcon,
-  CalendarDaysIcon,
   ChartBarIcon,
   CodeBracketIcon,
   Cog6ToothIcon,
@@ -22,13 +22,12 @@ import {
   UsersIcon,
   ViewColumnsIcon,
 } from "@heroicons/react/24/solid";
+import { ScrollArea } from "@radix-ui/themes";
 import { useTranslation } from "react-i18next";
 import { useLocation, useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { Account } from "./account";
 import { ResponsiveMenuAtom } from "./header";
-import { ScrollArea } from "@radix-ui/themes";
-import { useStatistics } from "@features/statistics/hooks";
 
 export const SideBar = () => {
   const { t } = useTranslation();
@@ -100,8 +99,7 @@ export const SideBar = () => {
               active={
                 location.pathname.indexOf(
                   getRoute(ROUTES.Invoices, { type: "quotes" })
-                ) === 0 &&
-                location.search.indexOf("subscription_enabled%3A1") === -1
+                ) === 0
               }
             />
             <SideMenuItem
@@ -117,20 +115,6 @@ export const SideBar = () => {
                 (statistics?.almostLatePayments?.length ?? 0) > 0
                   ? statistics?.almostLateDeliveries?.length.toString()
                   : undefined
-              }
-            />
-            <SideMenuItem
-              to={
-                getRoute(ROUTES.Invoices, { type: "quotes" }) +
-                "?q=subscription_enabled%3A1"
-              }
-              label={t("menu.subscriptions")}
-              icon={(p) => <CalendarDaysIcon {...p} />}
-              active={
-                location.pathname.indexOf(
-                  getRoute(ROUTES.Invoices, { type: "quotes" })
-                ) === 0 &&
-                location.search.indexOf("subscription_enabled%3A1") !== -1
               }
             />
             <SideMenuItem

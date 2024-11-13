@@ -2014,6 +2014,10 @@ body :is(.min-w-full) {
   min-width: 100%;
 }
 
+body :is(.min-w-16) {
+  min-width: 4rem;
+}
+
 body :is(.max-w-24) {
   max-width: 6rem;
 }
@@ -2247,10 +2251,6 @@ body :is(.grid-cols-3) {
 
 body :is(.grid-cols-\[1fr_2fr_1fr\]) {
   grid-template-columns: 1fr 2fr 1fr;
-}
-
-body :is(.grid-cols-2) {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 body :is(.flex-row) {
@@ -3666,16 +3666,6 @@ body :is(.py-px) {
   padding-bottom: 1px;
 }
 
-body :is(.px-6) {
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-}
-
-body :is(.px-5) {
-  padding-left: 1.25rem;
-  padding-right: 1.25rem;
-}
-
 body :is(.pb-1) {
   padding-bottom: 0.25rem;
 }
@@ -3794,6 +3784,10 @@ body :is(.pt-6) {
 
 body :is(.pt-8) {
   padding-top: 2rem;
+}
+
+body :is(.pb-0) {
+  padding-bottom: 0px;
 }
 
 body :is(.pr-5) {
@@ -5095,10 +5089,6 @@ body :is(.group\/user:hover .group-hover\/user\:opacity-100) {
     width: 95vw;
   }
 
-  body :is(.md\:grid-cols-2) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   body :is(.md\:flex-row) {
     flex-direction: row;
   }
@@ -5167,10 +5157,6 @@ body :is(.group\/user:hover .group-hover\/user\:opacity-100) {
 
   body :is(.lg\:grid-cols-\[1fr_250px_1fr_250px\]) {
     grid-template-columns: 1fr 250px 1fr 250px;
-  }
-
-  body :is(.lg\:grid-cols-3) {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   body :is(.lg\:grid-rows-\[calc\(50\%-5px\)_calc\(50\%-5px\)\]) {

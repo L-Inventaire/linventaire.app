@@ -6,11 +6,13 @@ import { twMerge } from "tailwind-merge";
 import { usePaymentCompletion } from "../hooks/use-payment-completion";
 
 export type TagPaymentCompletionProps = {
+  size?: "1" | "2";
   invoice: Invoices;
   paymentCompletion?: { value: number; color: string };
-} & Omit<TagProps, "children">;
+} & Omit<TagProps, "children" | "size">;
 
 export const TagPaymentCompletion = ({
+  size,
   invoice,
   paymentCompletion,
   ...props
@@ -21,7 +23,7 @@ export const TagPaymentCompletion = ({
   return (
     <Badge
       color={realPaymentCompletion.color as any}
-      size={"2"}
+      size={size || "2"}
       data-tooltip={props["data-tooltip"] || "% payé"}
     >
       <CurrencyDollarIcon

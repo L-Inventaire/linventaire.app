@@ -90,6 +90,7 @@
         "frequency": {
           "monthly": "Monthly",
           "weekly": "Weekly",
+          "daily": "Daily",
           "yearly": "Yearly"
         },
         "recurrence_between": "between {{start}} and {{end}}"

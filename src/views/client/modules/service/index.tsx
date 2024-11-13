@@ -14,10 +14,54 @@ import { PlusIcon } from "@heroicons/react/16/solid";
 import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
-import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
+import {
+  buildQueryFromMap,
+  schemaToSearchFields,
+} from "../../../../components/search-bar/utils/utils";
 import { ServiceItemStatus } from "./components/service-item-status";
+import { Badge, Tabs } from "@radix-ui/themes";
+import { formatNumber } from "@features/utils/format/strings";
 
 export const ServicePage = () => {
+  const tabs = {
+    active: {
+      label: "Actifs",
+      filter: [
+        {
+          key: "state",
+          not: true,
+          values: [
+            {
+              op: "equals",
+              value: "done",
+            },
+            {
+              op: "equals",
+              value: "cancelled",
+            },
+          ],
+        },
+      ],
+    },
+    no_quote: {
+      label: "À facturer",
+      filter: [
+        ...buildQueryFromMap({ state: "done" }),
+        {
+          key: "for_rel_quote",
+          not: true,
+          values: [{ op: "regex", value: ".+" }],
+        },
+      ],
+    },
+    done: {
+      label: "Fermés",
+      filter: buildQueryFromMap({ state: ["done", "cancelled"] }),
+    },
+    all: { label: "Tous", filter: [] },
+  };
+  const [activeTab, setActiveTab] = useState("active");
+
   const [options, setOptions] = useState<RestOptions<ServiceItems>>({
     limit: 10,
     offset: 0,
@@ -26,11 +70,26 @@ export const ServicePage = () => {
   });
   const { service_items } = useServiceItems({
     ...options,
-    query: [...((options?.query as any) || [])],
+    query: [
+      ...((options?.query as any) || []),
+      ...((tabs as any)[activeTab]?.filter || []),
+    ],
   });
 
-  const schema = useRestSchema("stock_items");
+  const schema = useRestSchema("service_items");
   const navigate = useNavigateAlt();
+
+  // Counters
+  const { service_items: activeServiceItems } = useServiceItems({
+    key: "activeServices",
+    limit: 1,
+    query: [...((options?.query as any) || []), ...tabs.active.filter],
+  });
+  const { service_items: noQuoteServiceItems } = useServiceItems({
+    key: "noQuoteServices",
+    limit: 1,
+    query: [...((options?.query as any) || []), ...tabs.no_quote.filter],
+  });
 
   return (
     <Page
@@ -61,8 +120,33 @@ export const ServicePage = () => {
       }
     >
       <div className="-m-3">
-        <div className="px-3 h-7 w-full bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700">
-          <Info>{service_items?.data?.total || 0} documents trouvés</Info>
+        <div className="px-3 min-h-7 w-full bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700">
+          <Tabs.Root
+            onValueChange={(v) => {
+              setActiveTab(v);
+            }}
+            value={activeTab}
+          >
+            <Tabs.List className="flex space-x-2 -mx-3 -mb-px items-center">
+              {Object.entries(tabs).map(([key, label]) => (
+                <Tabs.Trigger key={key} value={key}>
+                  {label.label}
+                  {["active", "no_quote"].includes(key) && (
+                    <Badge className="ml-2">
+                      {key === "active"
+                        ? formatNumber(activeServiceItems?.data?.total || 0)
+                        : formatNumber(noQuoteServiceItems?.data?.total || 0)}
+                    </Badge>
+                  )}
+                </Tabs.Trigger>
+              ))}
+              <div className="grow" />
+              <Info className="pr-3">
+                {formatNumber(service_items?.data?.total || 0)} documents
+                trouvés
+              </Info>
+            </Tabs.List>
+          </Tabs.Root>
         </div>
         <RestTable
           entity="stock_items"

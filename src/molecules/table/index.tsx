@@ -30,7 +30,7 @@ export type TablePropsType<T> = {
       }[]
     | ((items: T[]) => void);
   selection?: T[];
-  groupBy?: string;
+  groupBy?: string | ((item: T) => string);
   groupByRender?: (item: T) => ReactNode;
   showPagination?: false | "simple" | "full" | true;
   initialPagination?: Pick<

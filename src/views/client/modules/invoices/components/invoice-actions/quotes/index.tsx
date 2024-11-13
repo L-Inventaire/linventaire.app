@@ -6,6 +6,7 @@ import { Invoices } from "@features/invoices/types/types";
 import { getRoute, ROUTES } from "@features/routes";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import {
+  ArrowPathIcon,
   CheckIcon,
   DocumentCheckIcon,
   EllipsisHorizontalIcon,
@@ -18,6 +19,7 @@ import { InvoiceSendModalAtom } from "../modal-send";
 import { useSetRecoilState } from "recoil";
 import { useNavigateAlt } from "@features/utils/navigate";
 import { InvoiceInvoiceModalAtom } from "../modal-invoice";
+import { RecurrenceModalAtom } from "../../input-recurrence";
 
 export const QuotesActions = ({
   id,
@@ -34,8 +36,8 @@ export const QuotesActions = ({
     "invoices",
     id || "new"
   );
-  const disabled =
-    readonly || draft.state === "closed" || draft.state === "completed";
+  const disabled = readonly || draft.state === "closed";
+  const setRecurringModal = useSetRecoilState(RecurrenceModalAtom);
 
   return (
     <>
@@ -140,7 +142,9 @@ export const QuotesActions = ({
         </>
       )}
 
-      {(draft.state === "purchase_order" || draft.state === "completed") && (
+      {(draft.state === "purchase_order" ||
+        draft.state === "completed" ||
+        draft.state === "recurring") && (
         <>
           <DropdownButton
             theme="invisible"
@@ -184,6 +188,19 @@ export const QuotesActions = ({
             Facturer
           </Button>
         </>
+      )}
+
+      {draft.state === "recurring" && (
+        <div>
+          <Button
+            theme="outlined"
+            size="lg"
+            onClick={() => setRecurringModal(draft?.id)}
+            icon={(p) => <ArrowPathIcon {...p} />}
+          >
+            Modifier l'abonnement
+          </Button>
+        </div>
       )}
 
       {draft.state === "closed" && (

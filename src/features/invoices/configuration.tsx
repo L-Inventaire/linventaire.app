@@ -52,7 +52,9 @@ export const InvoicesColumns: Column<Invoices>[] = [
       <Base className="opacity-50 whitespace-nowrap">
         <BaseSmall>
           {invoice.reference}{" "}
-          {invoice.subscription?.enabled && <span>(Abonnement)</span>}
+          {invoice.content?.some((a) => a.subscription) && (
+            <span>(Abonnement)</span>
+          )}
         </BaseSmall>
         <br />
         <div className="flext items-center jhustify-center">
@@ -83,9 +85,6 @@ export const InvoicesColumns: Column<Invoices>[] = [
         <TagsInput size="md" value={invoice.tags} disabled />
         <UsersInput size="md" value={invoice.assigned} disabled />
         {["quotes"].includes(invoice.type) &&
-          invoice.wait_for_completion_since &&
-          invoice.state !== "closed" &&
-          invoice.state !== "completed" &&
           invoice.state === "purchase_order" &&
           isDeliveryLate(invoice) && (
             <Badge size="2" color={"red"}>
@@ -100,6 +99,9 @@ export const InvoicesColumns: Column<Invoices>[] = [
               Paiement en retard
             </Badge>
           )}
+        {(invoice.type === "quotes" || invoice.type === "supplier_quotes") && (
+          <CompletionTags invoice={invoice} size="sm" lines={invoice.content} />
+        )}
         {invoice.type === "invoices" && (
           <TagPaymentCompletion invoice={invoice} />
         )}
@@ -118,17 +120,6 @@ export const InvoicesColumns: Column<Invoices>[] = [
         <Info>{formatAmount(invoice.total?.total || 0)} HT</Info>
       </Base>
     ),
-  },
-  {
-    thClassName: "w-1",
-    cellClassName: "justify-end",
-    headClassName: "justify-end",
-    render: (invoice) =>
-      invoice.type === "quotes" ? (
-        <CompletionTags invoice={invoice} size="sm" lines={invoice.content} />
-      ) : (
-        <></>
-      ),
   },
   {
     title: "Statut",
