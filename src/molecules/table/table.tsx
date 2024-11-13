@@ -14,6 +14,7 @@ import { twMerge } from "tailwind-merge";
 import { TableExportModal } from "./export-modal";
 import { TableOptionsModal } from "./options-modal";
 import { TablePagination, TablePaginationSimple } from "./pagination";
+import { ChevronDownIcon } from "@radix-ui/themes";
 
 export type RenderOptions = {};
 
@@ -52,6 +53,7 @@ type PropsType<T> = {
   checkboxAlwaysVisible?: boolean;
   groupBy?: string | ((item: T) => string);
   groupByRender?: (item: T) => ReactNode;
+  onSelectedActionsClick?: () => void;
   onSelect?:
     | {
         icon?: (props: any) => JSX.Element;
@@ -105,6 +107,7 @@ export function RenderedTable<T>({
   pagination,
   loading,
   scrollable,
+  onSelectedActionsClick,
   onSelect,
   selection,
   onClick,
@@ -328,15 +331,29 @@ export function RenderedTable<T>({
               .map((c) => c.title || "")
               .join("") && (
               <thead>
-                <tr className="bg-slate-50 border-b opacity-50 dark:bg-slate-800 dark:border-slate-700">
+                <tr className="bg-slate-50 border-b bg-opacity-50 dark:bg-slate-800 dark:border-slate-700">
                   {onSelect && (
                     <th
                       className={
-                        "w-8 shrink-0 relative text-center pl-1 " +
+                        "w-8 shrink-0 relative text-center pl-1 relative" +
                         (scrollable ? " sticky top-0 " : "")
                       }
                     >
-                      <BaseSmall>#</BaseSmall>
+                      <BaseSmall className="opacity-50">#</BaseSmall>
+
+                      {!!onSelectedActionsClick && selected.length > 0 && (
+                        <div className="absolute top-0.5 left-2 z-10">
+                          <Button
+                            size="xs"
+                            onClick={() => {
+                              onSelectedActionsClick();
+                            }}
+                          >
+                            <span>Actions</span>{" "}
+                            <ChevronDownIcon className="h-2 w-2 ml-2" />
+                          </Button>
+                        </div>
+                      )}
                     </th>
                   )}
                   {columns
@@ -345,7 +362,7 @@ export function RenderedTable<T>({
                       <th
                         key={i}
                         className={twMerge(
-                          "font-medium px-1 py-1  " +
+                          "font-medium px-1 py-1 opacity-50 " +
                             (column.orderable
                               ? "cursor-pointer hover:bg-opacity-75 "
                               : "") +

@@ -20,6 +20,7 @@ import { useSetRecoilState } from "recoil";
 import { useNavigateAlt } from "@features/utils/navigate";
 import { InvoiceInvoiceModalAtom } from "../modal-invoice";
 import { RecurrenceModalAtom } from "../../input-recurrence";
+import { useInvoices } from "@features/invoices/hooks/use-invoices";
 
 export const QuotesActions = ({
   id,
@@ -32,6 +33,7 @@ export const QuotesActions = ({
   const openSendModal = useSetRecoilState(InvoiceSendModalAtom);
   const openInvoiceModal = useSetRecoilState(InvoiceInvoiceModalAtom);
 
+  const { upsert } = useInvoices();
   const { draft, save: _save } = useReadDraftRest<Invoices>(
     "invoices",
     id || "new"
@@ -43,6 +45,34 @@ export const QuotesActions = ({
     <>
       {draft.state === "draft" && (
         <>
+          <DropdownButton
+            className="m-0"
+            theme="invisible"
+            icon={(p) => <EllipsisHorizontalIcon {...p} />}
+            menu={[
+              {
+                label: "Facturer directement",
+                onClick: async () => {
+                  if (
+                    // TODO: make a better modal
+                    window.confirm(
+                      "Le devis sera marqué comme accepté par le client et une facture sera créée."
+                    )
+                  ) {
+                    await _save({ state: "purchase_order" });
+                    const invoice = await upsert.mutateAsync({
+                      ...draft,
+                      id: "",
+                      from_rel_quote: [draft.id],
+                      state: "draft",
+                      type: "invoices",
+                    });
+                    navigate(getRoute(ROUTES.InvoicesView, { id: invoice.id }));
+                  }
+                },
+              },
+            ]}
+          />
           <DropdownButton
             disabled={disabled}
             className="m-0"

@@ -19,11 +19,8 @@ import { RestEntity } from "@features/utils/rest/types/types";
 import { XMarkIcon } from "@heroicons/react/16/solid";
 import {
   ArrowRightIcon,
-  DocumentDuplicateIcon,
   MagnifyingGlassIcon,
-  PencilIcon,
   PlusIcon,
-  TrashIcon,
 } from "@heroicons/react/24/outline";
 import { Table } from "@molecules/table";
 import _ from "lodash";
@@ -68,11 +65,12 @@ export const SearchCtrlK = ({ index }: { index: number }) => {
   };
 
   const navigateAlt = useNavigateAlt();
-  const close = () =>
+  const close = () => {
     setState({
       path: [],
       selection: { entity: "", items: [] },
     });
+  };
 
   const searchableEntities = useSearchableEntities(index);
   const query = currentState.options?.query || "";
@@ -94,6 +92,8 @@ export const SearchCtrlK = ({ index }: { index: number }) => {
   const schema = useRestSchema(currentEntity || "");
   const { items } = useRest<RestEntity & any>(currentEntity || "", {
     limit: 50,
+    index: CtrlKRestEntities[currentEntity || ""]?.orderBy,
+    asc: !CtrlKRestEntities[currentEntity || ""]?.orderDesc,
     query: [
       ...searchQuery,
       ...buildQueryFromMap(currentState.options?.internalQuery || {}),
@@ -150,28 +150,17 @@ export const SearchCtrlK = ({ index }: { index: number }) => {
                 ...(!!state.selection?.items?.length
                   ? filterSuggestions(
                       query,
-                      true
-                        ? []
-                        : [
-                            {
-                              label: "Modifier 'Étiquettes'...",
-                              keywords: ["tags", "étiquettes", "catégories"],
-                              icon: (p: any) => <PencilIcon {...p} />,
-                            },
-                            {
-                              label: "Dupliquer la sélection",
-                              keywords: ["duplicate", "copy", "cloner"],
-                              icon: (p: any) => (
-                                <DocumentDuplicateIcon {...p} />
-                              ),
-                            },
-                            {
-                              label: "Supprimer la sélection",
-                              keywords: ["delete", "remove", "retirer"],
-                              className: "text-red-500",
-                              icon: (p: any) => <TrashIcon {...p} />,
-                            },
-                          ]
+                      CtrlKRestEntities[state.selection.entity || ""]
+                        ?.actions?.(state.selection?.items)
+                        ?.map((a) => ({
+                          ...a,
+                          icon: a.icon
+                            ? () =>
+                                a.icon?.({
+                                  className: "h-4 w-4 mx-1 opacity-50",
+                                })
+                            : undefined,
+                        })) || []
                     ).map(
                       (a) =>
                         ({
@@ -180,7 +169,7 @@ export const SearchCtrlK = ({ index }: { index: number }) => {
                             <div
                               className={twMerge(
                                 "flex items-center",
-                                a.icon ? "-ml-3" : "-ml-1",
+                                "-ml-1",
                                 a.className
                               )}
                             >
@@ -298,6 +287,10 @@ export const SearchCtrlK = ({ index }: { index: number }) => {
             {currentState.mode === "search" && (
               <div className="my-2 rounded overflow-hidden">
                 <Table
+                  groupBy={CtrlKRestEntities[currentEntity || ""]?.groupBy}
+                  groupByRender={
+                    CtrlKRestEntities[currentEntity || ""]?.groupByRender as any
+                  }
                   onClick={(a, event) => {
                     if (
                       (event.shiftKey && currentState.select) ||

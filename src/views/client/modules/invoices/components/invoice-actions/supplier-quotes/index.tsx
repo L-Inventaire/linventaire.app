@@ -1,7 +1,6 @@
 import { Button } from "@atoms/button/button";
 import { DropdownButton } from "@atoms/dropdown";
 import { withModel } from "@components/search-bar/utils/as-model";
-import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { Invoices } from "@features/invoices/types/types";
 import { getRoute, ROUTES } from "@features/routes";
 import { useNavigateAlt } from "@features/utils/navigate";
@@ -24,7 +23,6 @@ export const SupplierQuotesActions = ({
   id?: string;
   readonly?: boolean;
 }) => {
-  const edit = useEditFromCtrlK();
   const navigate = useNavigateAlt();
   const openInvoiceModal = useSetRecoilState(InvoiceInvoiceModalAtom);
 

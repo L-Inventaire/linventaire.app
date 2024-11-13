@@ -5,8 +5,8 @@ import { TagsInput } from "@components/input-rest/tags";
 import { Articles } from "@features/articles/types/types";
 import { getContactName } from "@features/contacts/types/types";
 import { registerCtrlKRestEntity } from "@features/ctrlk";
-import { ROUTES } from "@features/routes";
-import { UserIcon } from "@heroicons/react/16/solid";
+import { getRoute, ROUTES } from "@features/routes";
+import { DocumentCheckIcon, UserIcon } from "@heroicons/react/16/solid";
 import { Column } from "@molecules/table/table";
 import { getArticleIcon } from "@views/client/modules/articles/components/article-icon";
 import { ServiceItemStatus } from "@views/client/modules/service/components/service-item-status";
@@ -117,6 +117,19 @@ registerCtrlKRestEntity<ServiceItems>("service_items", {
   renderResult: ServiceItemsColumns,
   useDefaultData: useServiceItemDefaultModel,
   viewRoute: ROUTES.ServiceItemsView,
+  actions: (rows) => {
+    return [
+      {
+        label: "Facturer la selection",
+        icon: (p) => <DocumentCheckIcon {...p} />,
+        action: () => {
+          document.location = getRoute(ROUTES.InvoicesFromItems, {
+            ids: rows.map((a) => a.id).join(","),
+          });
+        },
+      },
+    ];
+  },
 });
 
 export const ServiceTimesColumns: Column<ServiceTimes>[] = [

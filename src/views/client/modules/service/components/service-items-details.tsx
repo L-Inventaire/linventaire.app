@@ -159,7 +159,7 @@ export const ServiceItemsDetailsPage = ({
                 filter={
                   {
                     type: "quotes",
-                    state: ["purchase_order", "completed"] as any,
+                    state: ["purchase_order", "completed", "recurring"] as any,
                     ...(draft.article ? { "articles.all": draft.article } : {}),
                     ...(ctrl("client").value &&
                     ctrl("client").value !== quote?.client
