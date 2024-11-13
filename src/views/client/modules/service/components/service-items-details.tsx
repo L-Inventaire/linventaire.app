@@ -303,7 +303,7 @@ export const ServiceItemsDetailsPage = ({
           </>
         )}
 
-        {draft.id && (
+        {draft.id && draft.for_rel_quote && (
           <>
             <div className="w-full border-t my-6" />
             <div className="mt-8">
