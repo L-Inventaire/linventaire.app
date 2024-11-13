@@ -90,6 +90,12 @@ export const ServiceItemsDetailsPage = ({
     }
   }, [onCreateAddSpentTime, ctrl("quantity_expected").value, markAsDone]);
 
+  useEffect(() => {
+    if (draft.state === "done") {
+      setMarkAsDone(true);
+    }
+  }, [draft.state === "done"]);
+
   if (isPending || (id && draft.id !== id)) return <PageLoader />;
 
   return (
@@ -303,7 +309,7 @@ export const ServiceItemsDetailsPage = ({
           </>
         )}
 
-        {draft.id && (
+        {draft.id && draft.for_rel_quote && (
           <>
             <div className="w-full border-t my-6" />
             <div className="mt-8">
