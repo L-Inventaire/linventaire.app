@@ -31,9 +31,12 @@ export const RelatedInvoices = ({
     query: generateQueryFromMap({ id: invoice.from_rel_quote || "none" }),
   });
   const { invoices: siblings } = useInvoices({
-    query: generateQueryFromMap({
-      from_rel_quote: [isQuoteRelated ? invoice.id : invoice.from_rel_quote],
-    }),
+    query: [
+      ...generateQueryFromMap({
+        from_rel_quote: [isQuoteRelated ? invoice.id : invoice.from_rel_quote],
+      }),
+      { key: "id", not: true, values: [{ op: "equals", value: invoice.id }] },
+    ],
   });
 
   if (!quote?.data?.list?.length && !siblings?.data?.list?.length) return null;
