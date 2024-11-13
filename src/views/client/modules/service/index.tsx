@@ -149,7 +149,7 @@ export const ServicePage = () => {
           </Tabs.Root>
         </div>
         <RestTable
-          entity="stock_items"
+          entity="service_items"
           onClick={({ id }, event) =>
             navigate(getRoute(ROUTES.ServiceItemsView, { id }), { event })
           }

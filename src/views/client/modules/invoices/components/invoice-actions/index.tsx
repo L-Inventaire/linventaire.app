@@ -3,16 +3,14 @@ import { Info } from "@atoms/text";
 import { useClients } from "@features/clients/state/use-clients";
 import { useContact } from "@features/contacts/hooks/use-contacts";
 import { getContactName } from "@features/contacts/types/types";
-import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { Invoices } from "@features/invoices/types/types";
 import { getRoute, ROUTES } from "@features/routes";
 import { formatAddress } from "@features/utils/format/address";
 import { useNavigateAlt } from "@features/utils/navigate";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
-import { useSetRecoilState } from "recoil";
 import { InvoicesActions } from "./invoices";
 import { InvoiceInvoiceModal } from "./modal-invoice";
-import { InvoiceSendModal, InvoiceSendModalAtom } from "./modal-send";
+import { InvoiceSendModal } from "./modal-send";
 import { QuotesActions } from "./quotes";
 import { SupplierInvoicesActions } from "./supplier-invoices";
 import { SupplierQuotesActions } from "./supplier-quotes";
@@ -26,7 +24,6 @@ export const InvoiceActions = ({
 }) => {
   const { client: clientUser } = useClients();
   const client = clientUser!.client!;
-  const edit = useEditFromCtrlK();
 
   const navigate = useNavigateAlt();
   const { draft, save: _save } = useReadDraftRest<Invoices>(
@@ -38,8 +35,6 @@ export const InvoiceActions = ({
     const item = await _save();
     if (item) navigate(getRoute(ROUTES.InvoicesView, { id: item?.id }));
   };
-
-  const openSendModal = useSetRecoilState(InvoiceSendModalAtom);
 
   const isSupplierInvoice =
     draft.type === "supplier_credit_notes" ||

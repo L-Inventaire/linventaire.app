@@ -144,4 +144,12 @@ registerCtrlKRestEntity<Invoices>("invoices", {
   renderResult: InvoicesColumns,
   useDefaultData: useInvoiceDefaultModel,
   viewRoute: ROUTES.InvoicesView,
+  orderBy: "state,emit_date",
+  orderDesc: true,
+  groupBy: "state",
+  groupByRender: (row) => (
+    <div className="mt-px">
+      <InvoiceStatus size="xs" readonly value={row.state} type={row.type} />
+    </div>
+  ),
 });

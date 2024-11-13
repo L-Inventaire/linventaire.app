@@ -30,6 +30,18 @@ type RestEntityForCtrlK<T> = {
     callback: (query: string) => Promise<string | void | false>; // Returns the query we want after the creation
     label?: string | ReactNode;
   };
+
+  orderBy?: string;
+  orderDesc?: boolean;
+  groupBy?: string;
+  groupByRender?: (group: T) => ReactNode;
+
+  actions?: (rows: T[]) => {
+    label: string;
+    keywords?: string[];
+    icon?: (p: any) => ReactNode;
+    className?: string;
+  }[];
 };
 
 export let CtrlKRestEntities: {
@@ -38,6 +50,7 @@ export let CtrlKRestEntities: {
   articles: RestEntityForCtrlK<Articles>;
   [key: string]: RestEntityForCtrlK<any>;
 } = {} as any;
+
 export const registerCtrlKRestEntity = <T>(
   entity: string,
   options: RestEntityForCtrlK<T>

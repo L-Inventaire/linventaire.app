@@ -10,7 +10,7 @@ export const useRegisterActiveSelection = <T>() => {
       if ((states[states.length - 1]?.path?.length || 0) > 0) return states;
 
       return [
-        ...(states || []),
+        ...(states.filter((a) => a.path.length > 0) || []),
         { ...(states[states.length - 1] || {}), selection: { entity, items } },
       ];
     });

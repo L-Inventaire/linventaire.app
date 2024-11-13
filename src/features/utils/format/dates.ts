@@ -1,4 +1,4 @@
-import { format, formatDistance } from "date-fns";
+import { format } from "date-fns";
 
 /* Show minimal needed information to get date
  * ex. if it is to_day only show hour and minutes

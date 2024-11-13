@@ -73,7 +73,7 @@ export const CompletionTags = (props: {
   const shortRight = props.short && !shortLeft;
 
   return (
-    <div className="-space-x-px flex">
+    <div className="flex space-x-1">
       {(props?.lines || []).some((a) => a.subscription) &&
         _.uniq(
           (props?.lines || [])?.map((a) => a.subscription).filter(Boolean)
@@ -81,7 +81,6 @@ export const CompletionTags = (props: {
           <Tag
             color="blue"
             size={props.size || "xs"}
-            className={twMerge("mr-1")}
             icon={
               <ArrowPathIcon
                 className={`w-3 h-3 mr-1 shrink-0 text-blue-500`}
@@ -94,7 +93,7 @@ export const CompletionTags = (props: {
       {props?.lines?.some((a) => a.type === "service" && !a.subscription) && (
         <Tag
           onClick={() => onClick("service_items", 'state:"done"')}
-          className={twMerge("mr-1", shortLeft && "w-5")}
+          className={twMerge(shortLeft && "w-5")}
           noColor
           size={props.size || "xs"}
           data-tooltip={"Executé " + readyServiceCompletion[0] + "%"}
@@ -117,7 +116,7 @@ export const CompletionTags = (props: {
         (a) =>
           (a.type === "product" || a.type === "consumable") && !a.subscription
       ) && (
-        <>
+        <div className="flex -space-x-px">
           {props.invoice?.type !== "supplier_quotes" && (
             <Tag
               onClick={() => onClick("stock_items", "")}
@@ -165,7 +164,7 @@ export const CompletionTags = (props: {
             )}
             {shortRight && <div />}
           </Tag>
-        </>
+        </div>
       )}
     </div>
   );

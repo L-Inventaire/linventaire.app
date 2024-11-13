@@ -491,11 +491,7 @@ export const InvoicesDetailsPage = ({
                       </div>
                     )}
                   </Section>
-                  <InvoiceLinesInput
-                    ctrl={ctrl}
-                    value={draft}
-                    onChange={setDraft}
-                  />
+                  <InvoiceLinesInput value={draft} onChange={setDraft} />
                   {billableContent.length > 0 && (
                     <>
                       {!!isQuoteRelated &&

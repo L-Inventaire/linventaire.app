@@ -2,10 +2,7 @@ import { AnimatedHeight } from "@atoms/animated-side/height";
 import { Button } from "@atoms/button/button";
 import { Card } from "@atoms/card";
 import { Base, Info, SectionSmall } from "@atoms/text";
-import {
-  FormContextContext,
-  FormControllerFuncType,
-} from "@components/form/formcontext";
+import { FormContextContext } from "@components/form/formcontext";
 import { InputButton } from "@components/input-button";
 import { FilesInput } from "@components/input-rest/files";
 import { Invoices } from "@features/invoices/types/types";
@@ -24,13 +21,13 @@ import { DropInvoiceLine, InvoiceLineInput } from "./invoice-line-input";
 export const InvoiceLinesInput = ({
   onChange,
   value,
-  ctrl,
   ...props
 }: {
   onChange: (v: Invoices) => void;
   value: Invoices;
-  ctrl: FormControllerFuncType<Invoices>;
   readonly?: boolean;
+  hideAttachments?: boolean;
+  hideDiscount?: boolean;
 }) => {
   const formContext = useContext(FormContextContext);
   const readonly = props.readonly ?? formContext.readonly;
@@ -96,7 +93,16 @@ export const InvoiceLinesInput = ({
             )}
             <InvoiceLineInput
               invoice={value}
-              ctrl={ctrl(`content.${index}`)}
+              ctrl={{
+                onChange: (line) =>
+                  onChange({
+                    ...value,
+                    content: value.content?.map((a) =>
+                      a._id === e._id ? line : a
+                    ),
+                  }),
+                value: e,
+              }}
               onRemove={() => {
                 onChange({
                   ...value,
@@ -170,26 +176,31 @@ export const InvoiceLinesInput = ({
         ))}
       </div>
 
-      <AnimatedHeight className="text-left">
-        {!!ctrl("attachments")?.value?.length && (
-          <Info>Documents envoyés avec la facture</Info>
-        )}
-        <div>
-          <FilesInput
-            ctrl={ctrl("attachments")}
-            rel={{
-              table: "invoices",
-              id: value.id,
-              field: "attachments",
-            }}
-            disabled={readonly}
-            refUploadTrigger={(uploadFile) =>
-              (refTriggerUploadFile.current = uploadFile)
-            }
-          />
-        </div>
-        {!!ctrl("attachments")?.value?.length && <div className="h-6" />}
-      </AnimatedHeight>
+      {!props.hideAttachments && (
+        <AnimatedHeight className="text-left">
+          {!!value?.attachments?.length && (
+            <Info>Documents envoyés avec la facture</Info>
+          )}
+          <div>
+            <FilesInput
+              ctrl={{
+                value: value.attachments,
+                onChange: (attachments) => onChange({ ...value, attachments }),
+              }}
+              rel={{
+                table: "invoices",
+                id: value.id,
+                field: "attachments",
+              }}
+              disabled={readonly}
+              refUploadTrigger={(uploadFile) =>
+                (refTriggerUploadFile.current = uploadFile)
+              }
+            />
+          </div>
+          {!!value?.attachments?.length && <div className="h-6" />}
+        </AnimatedHeight>
+      )}
 
       <AnimatedHeight>
         {!!value?.content?.length && (
@@ -200,7 +211,7 @@ export const InvoiceLinesInput = ({
                 !readonly || value.discount?.value ? "mb-4" : "mb-0"
               )}
             >
-              {!readonly && (
+              {!props.hideAttachments && !readonly && (
                 <Button
                   className="m-0"
                   data-tooltip="Documents à joindre à la facture"
@@ -210,32 +221,35 @@ export const InvoiceLinesInput = ({
                   onClick={refTriggerUploadFile.current}
                 />
               )}
-              {!!(!readonly || value.discount?.value) && (
-                <InputButton
-                  size="sm"
-                  label="Réduction globale"
-                  empty="Pas de réduction globale"
-                  placeholder="Options"
-                  icon={(p) => <ReceiptPercentIcon {...p} />}
-                  content={
-                    <InvoiceDiscountInput
-                      onChange={ctrl("discount").onChange}
-                      value={ctrl("discount").value}
-                    />
-                  }
-                  value={ctrl("discount").value}
-                >
-                  {"- "}
-                  {(ctrl("discount.value").value || 0) > 0 ? (
-                    <>
-                      {value.discount?.mode === "amount"
-                        ? formatAmount(value.discount?.value)
-                        : `${value.discount?.value}%`}
-                    </>
-                  ) : undefined}{" "}
-                  sur le total
-                </InputButton>
-              )}
+              {!props.hideDiscount &&
+                !!(!readonly || value.discount?.value) && (
+                  <InputButton
+                    size="sm"
+                    label="Réduction globale"
+                    empty="Pas de réduction globale"
+                    placeholder="Options"
+                    icon={(p) => <ReceiptPercentIcon {...p} />}
+                    content={
+                      <InvoiceDiscountInput
+                        onChange={(discount) =>
+                          onChange({ ...value, discount })
+                        }
+                        value={value?.discount}
+                      />
+                    }
+                    value={value?.discount}
+                  >
+                    {"- "}
+                    {(value?.discount?.value || 0) > 0 ? (
+                      <>
+                        {value.discount?.mode === "amount"
+                          ? formatAmount(value.discount?.value)
+                          : `${value.discount?.value}%`}
+                      </>
+                    ) : undefined}{" "}
+                    sur le total
+                  </InputButton>
+                )}
               {!readonly && (
                 <Button
                   theme="outlined"
