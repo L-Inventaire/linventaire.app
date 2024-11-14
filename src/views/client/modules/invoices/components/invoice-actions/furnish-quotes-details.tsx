@@ -12,6 +12,7 @@ import { useCallback } from "react";
 import { twMerge } from "tailwind-merge";
 import { FurnishQuotesFurnish } from "../../types";
 import { useFurnishQuotes } from "@features/invoices/hooks/use-furnish-quotes";
+import { prettyContactName } from "@views/client/modules/contacts/utils";
 
 export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
   const quote = useInvoice(id || "");
@@ -439,7 +440,8 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
               return (
                 <Card className="mb-4">
                   <SectionSmall className="mb-4">
-                    Commande @{index + 1}
+                    Commande @{index + 1} -{" "}
+                    {action?.supplier && prettyContactName(action?.supplier)}
                   </SectionSmall>
 
                   {(action.content ?? []).map((line) => {

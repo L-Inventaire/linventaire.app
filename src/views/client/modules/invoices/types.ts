@@ -1,3 +1,4 @@
+import { Contacts } from "@features/contacts/types/types";
 import { InvoiceLine, Invoices } from "@features/invoices/types/types";
 import { StockItems } from "@features/stock/types/types";
 
@@ -15,6 +16,7 @@ export type FurnishInvoiceAction = {
   stockItem?: StockItems;
   furnishes: FurnishQuotesFurnish[];
   content?: InvoiceLine[];
+  supplier?: Contacts;
 };
 
 export type FurnishQuotesFurnish = {
