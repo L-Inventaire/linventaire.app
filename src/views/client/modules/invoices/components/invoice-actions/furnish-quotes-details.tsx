@@ -10,8 +10,8 @@ import { Card, Slider } from "@radix-ui/themes";
 import _, { max } from "lodash";
 import { useCallback } from "react";
 import { twMerge } from "tailwind-merge";
-import { useFurnishQuotes } from "../../hooks/use-furnist-quotes";
 import { FurnishQuotesFurnish } from "../../types";
+import { useFurnishQuotes } from "@features/invoices/hooks/use-furnish-quotes";
 
 export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
   const quote = useInvoice(id || "");

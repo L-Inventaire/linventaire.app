@@ -11,7 +11,7 @@ import _ from "lodash";
 import { useParams } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import { FursnishQuotesDetails } from "../components/invoice-actions/furnish-quotes-details";
-import { useFurnishQuotes } from "../hooks/use-furnist-quotes";
+import { useFurnishQuotes } from "@features/invoices/hooks/use-furnish-quotes";
 
 export const FurnishQuotesPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
