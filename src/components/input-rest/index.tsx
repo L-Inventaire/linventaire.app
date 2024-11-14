@@ -94,15 +94,16 @@ export const RestDocumentsInput = <T extends RestEntity>(
       e.preventDefault();
       e.stopPropagation();
 
-      console.log(props.entity, CtrlKRestEntities?.[props.entity]?.viewRoute);
-
       // If ctrl or cmd or middle click then navigate
       if (
         (e.ctrlKey || e.metaKey || e.button === 1) &&
-        CtrlKRestEntities?.[props.entity]?.viewRoute
+        CtrlKRestEntities?.[props.entity]?.viewRoute &&
+        valuesList?.[0]?.id
       ) {
         navigate(
-          getRoute(CtrlKRestEntities?.[props.entity]?.viewRoute || "", {}),
+          getRoute(CtrlKRestEntities?.[props.entity]?.viewRoute || "", {
+            id: valuesList?.[0]?.id,
+          }),
           { event: e }
         );
         return;
