@@ -178,10 +178,11 @@ export const InvoicesDetailsPage = ({
         if (!draft.emit_date) draft.emit_date = new Date().getTime();
         if (draft.type && !draft.reference) {
           const format = _.get(client.invoices_counters, draft.type)?.format;
-          const counter = _.get(client.invoices_counters, draft.type)?.counter;
+          const counter =
+            _.get(client.invoices_counters, draft.type)?.counter || 1;
           const isDraft = draft.state === "draft";
 
-          if (!format || !counter) {
+          if (!format) {
             draft.reference = "ERR-NO-FORMAT";
           } else {
             draft.reference = getFormattedNumerotation(
