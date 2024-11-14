@@ -7,8 +7,8 @@ import { useQuery } from "@tanstack/react-query";
 import _ from "lodash";
 import { SetStateAction, useEffect } from "react";
 import { atom, useRecoilState } from "recoil";
-import { InvoicesApiClient } from "../api-client/api-client";
-import { FurnishQuotesFurnish } from "../types";
+import { FurnishQuotesFurnish } from "@views/client/modules/invoices/types";
+import { InvoicesApiClient } from "@views/client/modules/invoices/api-client/api-client";
 
 export const FurnishQuotesAtom = atom<{
   furnishesOverride: FurnishQuotesFurnish[];
