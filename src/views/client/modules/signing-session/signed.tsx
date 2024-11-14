@@ -122,15 +122,18 @@ export const SignedSessionPage = () => {
                     <br /> Le document signé vous sera envoyé par email
                   </Section>
 
-                  <div className="flex mt-4 justify-center items-center">
-                    <Button
-                      onClick={async () => {
-                        await refetchSignedDocument();
-                      }}
-                    >
-                      Rafraîchir
-                    </Button>
-                  </div>
+                  {false && (
+                    // It is too slow right now, so we are not showing it until we rethink the user exp
+                    <div className="flex mt-4 justify-center items-center">
+                      <Button
+                        onClick={async () => {
+                          await refetchSignedDocument();
+                        }}
+                      >
+                        Rafraîchir
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

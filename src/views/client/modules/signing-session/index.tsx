@@ -115,7 +115,8 @@ export const SigningSessionPage = () => {
                 }}
               /> */}
 
-                {signingSession.state === "signed" && (
+                {signingSession.state === "signed" && false && (
+                  // Too slow to appear right now, so we remove it until we improve the user exp
                   <Button
                     className="mt-2"
                     onClick={() => {
@@ -180,19 +181,21 @@ export const SigningSessionPage = () => {
                         <>
                           <Button
                             theme="default"
+                            className="-mr-px rounded-r-none"
                             onClick={async () => {
                               setCancelling(false);
                             }}
                             icon={(p) => <XCircleIcon {...p} />}
                           ></Button>
                           <Input
-                            className="w-1/2"
+                            className="-mr-px w-1/2 rounded-none"
                             value={cancelReason}
                             onChange={(e) => setCancelReason(e.target.value)}
                             placeholder="Raison du refus"
                           />
                           <Button
                             theme="danger"
+                            className="rounded-l-none"
                             onClick={async () => {
                               await cancelSigningSession(cancelReason);
                               await refetchSigningSession();
