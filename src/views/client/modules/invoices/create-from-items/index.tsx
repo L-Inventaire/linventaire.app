@@ -167,11 +167,49 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
                       type: "quotes",
                       state: [
                         "draft",
-                        "sent",
-                        "purchase_order",
-                        "completed",
                         "recurring",
+                        "completed",
+                        "purchase_order",
                       ],
+                      client: lines.client,
+                    },
+                    async (quotes: Invoices[]) => {
+                      if (quotes.length === 0) return;
+                      const quote = quotes[0];
+                      setLoading(true);
+                      try {
+                        // Now affect the lines to the quote
+                        for (const item of keptServices || []) {
+                          await upsertServiceItems.mutateAsync({
+                            id: item.id,
+                            client: item.client || quote.client,
+                            for_rel_quote: quote.id,
+                          });
+                        }
+
+                        navigate(
+                          getRoute(ROUTES.InvoicesView, { id: quote.id })
+                        );
+                      } finally {
+                        setLoading(false);
+                      }
+                    }
+                  )
+                }
+              >
+                Associer à un devis (non facturé)
+              </Button>
+              <Button
+                loading={loading}
+                variant="outline"
+                className="mr-2"
+                disabled={missingArticles || !lines.client}
+                onClick={async () =>
+                  select(
+                    "invoices",
+                    {
+                      type: "quotes",
+                      state: ["draft"],
                       client: lines.client,
                     },
                     async (quotes: Invoices[]) => {
