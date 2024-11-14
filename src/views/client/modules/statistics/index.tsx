@@ -16,7 +16,7 @@ export const StatisticsPage = () => {
   const statistics = useStatistics(clientId, "year");
   const data = statistics.totalRevenueTable;
   const flatTagIDs = _.uniq(data.flatMap((item) => item.tag));
-  const tagIDs = _.uniq(data.map((item) => item.tag));
+  const tagIDs = _.uniq(data.map((item) => item.tag)).filter(Boolean);
 
   const start = DateTime.now().startOf("year");
 
@@ -62,7 +62,7 @@ export const StatisticsPage = () => {
                   <Table.ColumnHeaderCell>Période</Table.ColumnHeaderCell>
                   {tagIDs.map((tagTable) => {
                     const foundTags = (tags?.data?.list ?? []).filter((tag) =>
-                      tagTable.includes(tag.id)
+                      (tagTable || []).includes(tag.id)
                     );
                     return (
                       <Table.ColumnHeaderCell>

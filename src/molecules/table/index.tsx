@@ -21,6 +21,7 @@ export type TablePropsType<T> = {
   onRequestData?: (pagination: Pagination) => Promise<void>;
   onFetchExportData?: (pagination: Pagination) => Promise<any[]>;
   onClick?: (item: T, e: MouseEvent) => void;
+  onSelectedActionsClick?: () => void;
   onSelect?:
     | {
         icon?: (props: any) => JSX.Element;
@@ -79,6 +80,7 @@ export function Table<T>({
   onFetchExportData,
   checkboxAlwaysVisible,
   onClick,
+  onSelectedActionsClick,
   onSelect,
   selection,
   loading,
@@ -131,6 +133,7 @@ export function Table<T>({
       pagination={pagination}
       scrollable={scrollable}
       onClick={onClick}
+      onSelectedActionsClick={onSelectedActionsClick}
       onSelect={onSelect}
       selection={selection}
       loading={loading || internalLoading}

@@ -1,3 +1,5 @@
+import { format } from "date-fns";
+
 /* Show minimal needed information to get date
  * ex. if it is to_day only show hour and minutes
  * ex. if it is yesterday show day and hour and minutes
@@ -29,6 +31,11 @@ export const formatTime = (
   nowDay.setHours(0);
   nowDay.setMinutes(0);
   const oneDayLater = time < nowDay.getTime();
+
+  // if it's today
+  if (now - time < 24 * 60 * 60 * 1000) {
+    return format(new Date(time), "HH:mm");
+  }
 
   return new Intl.DateTimeFormat(locale, {
     year: nowYear !== year || options?.keepDate ? "numeric" : undefined,

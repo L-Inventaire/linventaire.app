@@ -53,6 +53,7 @@ import { TagsPage } from "./settings/tags";
 import { CompanyUsersPage } from "./settings/users";
 import { StockItemsFromPage } from "./modules/stock/from";
 import { FurnishQuotesPage } from "./modules/invoices/view/furnish-quotes";
+import { QuoteFromItems } from "./modules/invoices/create-from-items";
 
 export const BackOfficeRoutes = () => {
   return (
@@ -109,6 +110,7 @@ export const BackOfficeRoutes = () => {
         <Route path={ROUTES.InvoicesView} element={<InvoicesViewPage />} />
         <Route path={ROUTES.InvoicesEdit} element={<InvoicesEditPage />} />
         <Route path={ROUTES.FurnishQuotes} element={<FurnishQuotesPage />} />
+        <Route path={ROUTES.InvoicesFromItems} element={<QuoteFromItems />} />
 
         <Route
           path={ROUTES.Settings}

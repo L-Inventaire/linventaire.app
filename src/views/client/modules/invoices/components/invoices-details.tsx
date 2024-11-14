@@ -491,11 +491,7 @@ export const InvoicesDetailsPage = ({
                       </div>
                     )}
                   </Section>
-                  <InvoiceLinesInput
-                    ctrl={ctrl}
-                    value={draft}
-                    onChange={setDraft}
-                  />
+                  <InvoiceLinesInput value={draft} onChange={setDraft} />
                   {billableContent.length > 0 && (
                     <>
                       {!!isQuoteRelated &&
@@ -583,8 +579,20 @@ export const InvoicesDetailsPage = ({
                           <Section className="mb-2">Origine</Section>
                           <InvoiceRestDocument
                             label="Devis d'origine"
+                            placeholder="Aucun devis"
                             ctrl={ctrl("from_rel_quote")}
-                            filter={{ type: "quotes" } as Partial<Invoices>}
+                            filter={
+                              {
+                                type: isSupplierRelated
+                                  ? "supplier_quotes"
+                                  : "quotes",
+                                "articles.all": [
+                                  ...(draft.content || [])
+                                    .map((a) => a.article)
+                                    .filter(Boolean),
+                                ],
+                              } as Partial<Invoices>
+                            }
                             size="xl"
                             max={1}
                           />
