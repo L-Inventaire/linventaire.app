@@ -24,7 +24,6 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
     suppliers,
     stocks,
     actions,
-    furnishesOverride,
     modifiedFurnishes,
     setFurnishesOverride,
     furnishesTextValues,
