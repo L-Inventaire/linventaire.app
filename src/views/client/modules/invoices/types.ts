@@ -1,17 +1,30 @@
-import { InvoiceLine } from "@features/invoices/types/types";
+import { InvoiceLine, Invoices } from "@features/invoices/types/types";
+import { StockItems } from "@features/stock/types/types";
 
 export type FurnishQuotesResponse = {
-  actions: any[];
+  actions: FurnishInvoiceAction[];
   furnishes: FurnishQuotesFurnish[];
 };
 
-export type FurnishQuotesFurnish = {
-  maxAvailable?: number;
+export type FurnishInvoiceAction = {
   ref: string;
-  supplierID?: string;
-  stockID?: any;
+  action: "withdraw-stock" | "order-items";
+  quote: Invoices;
+
+  supplierQuote?: Invoices;
+  stockItem?: StockItems;
+  furnishes: FurnishQuotesFurnish[];
+  content?: InvoiceLine[];
+};
+
+export type FurnishQuotesFurnish = {
+  ref: string;
+  invoiceLines?: InvoiceLine[];
+  maxAvailable?: number;
   quantity: number;
   totalToFurnish: number;
   articleID: string;
-  invoiceLines: InvoiceLine[];
+
+  supplierID?: string;
+  stockID?: string;
 };

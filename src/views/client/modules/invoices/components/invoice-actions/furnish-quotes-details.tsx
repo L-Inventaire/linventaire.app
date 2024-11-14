@@ -1,12 +1,14 @@
 import { Alert } from "@atoms/alert";
 import { Input } from "@atoms/input/input-text";
 import { Loader } from "@atoms/loader";
-import { BaseSmall, Info, Section } from "@atoms/text";
+import { BaseSmall, Info, Section, SectionSmall } from "@atoms/text";
 import { useInvoice } from "@features/invoices/hooks/use-invoices";
+import { debounce } from "@features/utils/debounce";
 import { formatAmount } from "@features/utils/format/strings";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { Card, Slider } from "@radix-ui/themes";
 import _, { max } from "lodash";
+import { useCallback } from "react";
 import { twMerge } from "tailwind-merge";
 import { useFurnishQuotes } from "../../hooks/use-furnist-quotes";
 import { FurnishQuotesFurnish } from "../../types";
@@ -19,6 +21,7 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
     articles,
     suppliers,
     stocks,
+    actions,
     furnishesOverride,
     modifiedFurnishes,
     setFurnishesOverride,
@@ -178,19 +181,37 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
   //     setLockedFurnishesRefs((data) => _.uniq([...data, furnish.ref]));
   // }
 
-  function setArticleQuantity(fur: FurnishQuotesFurnish, value: number) {
-    setFurnishesOverride((data) => {
-      const found = data.find((f) => f.ref === fur.ref);
-      if (found) {
-        return data.map((f) =>
-          f.ref === fur.ref ? { ...f, quantity: value } : f
-        );
-      }
-      return [...data, { ...fur, quantity: value }];
-    });
-  }
+  const setArticleQuantity = useCallback(
+    (fur: FurnishQuotesFurnish, value: number) => {
+      setFurnishesTextValues((data) =>
+        data.map((f) =>
+          f.ref === fur.ref ? { ref: fur.ref, value: value.toString() } : f
+        )
+      );
 
-  if (!furnishQuotes)
+      debounce(
+        () => {
+          setFurnishesOverride((data) => {
+            const found = data.find((f) => f.ref === fur.ref);
+            if (found) {
+              return data.map((f) =>
+                f.ref === fur.ref ? { ...f, quantity: value } : f
+              );
+            }
+            return [...data, { ...fur, quantity: value }];
+          });
+        },
+        {
+          key: "furnish:quotes:set",
+          timeout: 1000,
+          doInitialCall: true,
+        }
+      );
+    },
+    [furnishesTextValues, furnishQuotes]
+  );
+
+  if (!modifiedFurnishes)
     return (
       <Card>
         <Loader />
@@ -207,10 +228,13 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
         if (!grouppedByArticles[article.id]) return false;
 
         return (
-          grouppedByArticles[article.id].reduce(
-            (acc, fur) => acc + fur.quantity,
-            0
-          ) > (_.first(modifiedFurnishes)?.totalToFurnish ?? 0)
+          grouppedByArticles[article.id].reduce((acc, fur) => {
+            const value = parseInt(
+              furnishesTextValues.find((v) => v.ref === fur.ref)?.value ?? "0"
+            );
+
+            return acc + value;
+          }, 0) > (_.first(modifiedFurnishes)?.totalToFurnish ?? 0)
         );
       }) && (
         <Alert
@@ -221,10 +245,17 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
         >
           {(articles?.data?.list ?? []).map((article) => {
             const quantity = grouppedByArticles[article.id].reduce(
-              (acc, fur) => acc + fur.quantity,
+              (acc, fur) => {
+                const value = parseInt(
+                  furnishesTextValues.find((v) => v.ref === fur.ref)?.value ??
+                    "0"
+                );
+                return acc + value;
+              },
               0
             );
             const max = _.first(modifiedFurnishes)?.totalToFurnish ?? 0;
+
             if (quantity > max)
               return (
                 <Info className="text-white">
@@ -326,7 +357,11 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
                             <Slider
                               key={fur.ref}
                               className={"grow mr-3"}
-                              value={[(fur.quantity / maxFurnishable) * 100]}
+                              value={[
+                                (parseInt(furnishText?.value ?? "0") /
+                                  maxFurnishable) *
+                                  100,
+                              ]}
                               onValueChange={(value) => {
                                 setArticleQuantity(
                                   fur,
@@ -397,7 +432,39 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
           </div>
         </div>
         <div>
-          <Section className="mb-6">Commandes & Retraits de stock</Section>
+          <Section className="mb-6">Commandes</Section>
+          {(actions ?? [])
+            .filter((action) => action.action === "order-items")
+            .map((action, index) => {
+              return (
+                <Card className="mb-4">
+                  <SectionSmall className="mb-4">
+                    Commande @{index + 1}
+                  </SectionSmall>
+
+                  {(action.content ?? []).map((line) => {
+                    const article = (articles?.data?.list ?? []).find(
+                      (art) => art.id === line.article
+                    );
+                    return (
+                      <div className="grid grid-cols-4">
+                        <BaseSmall>Article</BaseSmall>
+                        <BaseSmall>Quantité</BaseSmall>
+                        <BaseSmall>Prix unitaire</BaseSmall>
+                        <BaseSmall>Description</BaseSmall>
+
+                        <Info>{article?.name}</Info>
+                        <Info>
+                          {line.quantity} {line.unit}
+                        </Info>
+                        <Info>{formatAmount(line.unit_price ?? 0)}</Info>
+                        <Info>{line.description}</Info>
+                      </div>
+                    );
+                  })}
+                </Card>
+              );
+            })}
         </div>
       </div>
     </div>

@@ -2253,6 +2253,10 @@ body :is(.grid-cols-\[1fr_2fr_1fr\]) {
   grid-template-columns: 1fr 2fr 1fr;
 }
 
+body :is(.grid-cols-4) {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 body :is(.flex-row) {
   flex-direction: row;
 }

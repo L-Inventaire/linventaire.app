@@ -5,7 +5,7 @@ import { Invoices } from "@features/invoices/types/types";
 import { useStockItems } from "@features/stock/hooks/use-stock-items";
 import { useQuery } from "@tanstack/react-query";
 import _ from "lodash";
-import { act, Dispatch, SetStateAction, useEffect, useState } from "react";
+import { SetStateAction, useEffect } from "react";
 import { atom, useRecoilState } from "recoil";
 import { InvoicesApiClient } from "../api-client/api-client";
 import { FurnishQuotesFurnish } from "../types";
@@ -26,23 +26,31 @@ export const useFurnishQuotes = (quotes: Invoices[]) => {
   const client = clientUser!.client!;
   const [state, setState] = useRecoilState(FurnishQuotesAtom);
 
+  const furnishesOverride = state.furnishesOverride;
+  const furnishesTextValues = state.furnishesTextValues;
+
   const {
     data: furnishQuotes,
     isLoading: isLoadingFurnishQuotes,
     isFetching: isFetchingFurnishQuotes,
     refetch: refetchFurnishQuotesQuery,
   } = useQuery({
-    queryKey: ["furnish-quotes", client.id, quotes.map((q) => q.id).join(",")],
+    queryKey: [
+      "furnish-quotes",
+      client.id,
+      quotes.map((q) => q.id).join(","),
+      JSON.stringify(furnishesOverride),
+    ],
+    placeholderData: (prev) => prev,
     queryFn: async () =>
       await InvoicesApiClient.getFurnishQuotes(
         client.id,
-        quotes.map((q) => q.id)
+        quotes.map((q) => q.id),
+        furnishesOverride
       ),
   });
 
   const furnishes = furnishQuotes?.furnishes;
-  const furnishesOverride = state.furnishesOverride;
-  const furnishesTextValues = state.furnishesTextValues;
 
   const setFurnishesOverride = (
     action: SetStateAction<FurnishQuotesFurnish[]>
@@ -200,5 +208,6 @@ export const useFurnishQuotes = (quotes: Invoices[]) => {
     modifiedFurnishes,
     furnishesTextValues,
     setFurnishesTextValues,
+    actions: furnishQuotes?.actions,
   };
 };

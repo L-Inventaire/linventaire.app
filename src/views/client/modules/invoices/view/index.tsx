@@ -103,13 +103,6 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
                       size="sm"
                       shortcut={["f"]}
                       onClick={() => {
-                        console.log(
-                          "ROUTE",
-                          getRoute(ROUTES.FurnishQuotes, {
-                            client: clientId,
-                            id,
-                          })
-                        );
                         navigate(
                           getRoute(ROUTES.FurnishQuotes, {
                             client: clientId,
