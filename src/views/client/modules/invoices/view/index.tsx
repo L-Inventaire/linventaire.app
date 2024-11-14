@@ -6,7 +6,7 @@ import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { getDocumentNamePlurial } from "@features/invoices/utils";
 import { ROUTES, getRoute } from "@features/routes";
 import { Page } from "@views/client/_layout/page";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { InvoicesDetailsPage } from "../components/invoices-details";
 import { getPdfPreview } from "../components/invoices-preview/invoices-preview";
 import { InvoiceActions } from "../components/invoice-actions";
@@ -16,6 +16,8 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
   const { invoice, isPending, remove, restore } = useInvoice(id || "");
   const isRevision = id?.includes("~");
+  const navigate = useNavigate();
+  const { client: clientId } = useParams();
 
   if (!invoice && isPending)
     return (
@@ -91,6 +93,28 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
                   </Button>
                 </>
               )}
+              {invoice.type === "quotes" &&
+                (invoice.content ?? []).some(
+                  (line) => line.type === "product"
+                ) && (
+                  <>
+                    <Button
+                      theme="outlined"
+                      size="sm"
+                      shortcut={["f"]}
+                      onClick={() => {
+                        navigate(
+                          getRoute(ROUTES.FurnishQuotes, {
+                            client: clientId,
+                            id,
+                          })
+                        );
+                      }}
+                    >
+                      Fournir les produits
+                    </Button>
+                  </>
+                )}
               {invoice.type === "invoices" && (
                 <Button
                   size="sm"
