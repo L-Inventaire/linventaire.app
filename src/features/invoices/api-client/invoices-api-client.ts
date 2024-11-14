@@ -1,5 +1,9 @@
 import { fetchServer, getServerUrl } from "@features/utils/fetch-server";
 import { InvoiceLine, Invoices, PartialInvoiceOutType } from "../types/types";
+import {
+  FurnishQuotesFurnish,
+  FurnishQuotesResponse,
+} from "@views/client/modules/invoices/types";
 
 export class InvoicesApiClient {
   static getPdfRoute(
@@ -43,4 +47,40 @@ export class InvoicesApiClient {
     );
     return res.json() as Promise<PartialInvoiceOutType>;
   }
+
+  static getFurnishQuotes = async (
+    clientId: string,
+    quotesIDs: string[],
+    furnishesOverride?: FurnishQuotesFurnish[]
+  ) => {
+    const response = await fetchServer(
+      `/api/invoices/v1/${clientId}/furnish-invoices?quotes=${quotesIDs.join(
+        ","
+      )}`,
+      {
+        method: "POST",
+        body: JSON.stringify({ furnishesOverride }),
+      }
+    );
+    const data = await response.json();
+    return data as FurnishQuotesResponse;
+  };
+
+  static actionFurnishQuotes = async (
+    clientId: string,
+    quotesIDs: string[],
+    furnishesOverride?: FurnishQuotesFurnish[]
+  ) => {
+    const response = await fetchServer(
+      `/api/invoices/v1/${clientId}/action-furnish-invoices?quotes=${quotesIDs.join(
+        ","
+      )}`,
+      {
+        method: "POST",
+        body: JSON.stringify({ furnishesOverride }),
+      }
+    );
+    const data = await response.json();
+    return data as FurnishQuotesResponse;
+  };
 }

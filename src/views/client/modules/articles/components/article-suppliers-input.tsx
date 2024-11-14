@@ -176,7 +176,9 @@ export const ArticleSuppliersInput = ({
                           price: 0,
                           delivery_time: 0,
                           delivery_quantity: 0,
-                          ...((value[1][supplier] || {}) as any),
+                          ...((value[1]
+                            ? value[1][supplier] || {}
+                            : {}) as any),
                         },
                       });
                     }
