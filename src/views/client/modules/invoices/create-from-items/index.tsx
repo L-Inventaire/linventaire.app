@@ -160,7 +160,13 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
                     "invoices",
                     {
                       type: "quotes",
-                      state: "draft",
+                      state: [
+                        "draft",
+                        "sent",
+                        "purchase_order",
+                        "completed",
+                        "recurring",
+                      ],
                       client: lines.client,
                     },
                     async (quotes: Invoices[]) => {
