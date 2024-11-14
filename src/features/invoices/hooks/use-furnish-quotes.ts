@@ -8,7 +8,7 @@ import _ from "lodash";
 import { SetStateAction, useEffect } from "react";
 import { atom, useRecoilState } from "recoil";
 import { FurnishQuotesFurnish } from "@views/client/modules/invoices/types";
-import { InvoicesApiClient } from "@views/client/modules/invoices/api-client/api-client";
+import { InvoicesApiClient } from "../api-client/invoices-api-client";
 
 export const FurnishQuotesAtom = atom<{
   furnishesOverride: FurnishQuotesFurnish[];
@@ -49,6 +49,14 @@ export const useFurnishQuotes = (quotes: Invoices[]) => {
         furnishesOverride
       ),
   });
+
+  function actionFurnishQuotes() {
+    return InvoicesApiClient.actionFurnishQuotes(
+      client.id,
+      quotes.map((quote) => quote.id),
+      furnishesOverride
+    );
+  }
 
   const furnishes = furnishQuotes?.furnishes;
 
@@ -209,5 +217,6 @@ export const useFurnishQuotes = (quotes: Invoices[]) => {
     furnishesTextValues,
     setFurnishesTextValues,
     actions: furnishQuotes?.actions,
+    actionFurnishQuotes,
   };
 };

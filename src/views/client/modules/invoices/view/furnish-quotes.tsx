@@ -12,13 +12,13 @@ import { useParams } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import { FursnishQuotesDetails } from "../components/invoice-actions/furnish-quotes-details";
 import { useFurnishQuotes } from "@features/invoices/hooks/use-furnish-quotes";
+import { InvoicesApiClient } from "@features/invoices/api-client/invoices-api-client";
 
 export const FurnishQuotesPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
   const { invoice: quote, isPending, remove, restore } = useInvoice(id || "");
-  const { refetchFurnishQuotes, isFetchingFurnishQuotes } = useFurnishQuotes(
-    quote ? [quote] : []
-  );
+  const { refetchFurnishQuotes, isFetchingFurnishQuotes, actionFurnishQuotes } =
+    useFurnishQuotes(quote ? [quote] : []);
 
   if (!quote && isPending)
     return (
@@ -53,6 +53,9 @@ export const FurnishQuotesPage = (_props: { readonly?: boolean }) => {
           <Button
             disabled={isFetchingFurnishQuotes}
             loading={isFetchingFurnishQuotes}
+            onClick={async () => {
+              await actionFurnishQuotes();
+            }}
           >
             Fournir
           </Button>
