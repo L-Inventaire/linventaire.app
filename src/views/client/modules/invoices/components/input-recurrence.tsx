@@ -203,7 +203,7 @@ export const InvoiceRecurrenceInput = ({
       ctrl("subscription.renew_as").onChange("draft");
     }
     if (!invoice.subscription?.invoice_date) {
-      ctrl("subscription.invoice_date").onChange("renewal");
+      ctrl("subscription.invoice_date").onChange("first_day");
     }
   }, [invoice.id]);
 
