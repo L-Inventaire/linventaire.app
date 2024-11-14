@@ -2,7 +2,7 @@ import { Alert } from "@atoms/alert";
 import { Input } from "@atoms/input/input-text";
 import { Loader } from "@atoms/loader";
 import { BaseSmall, Info, Section, SectionSmall } from "@atoms/text";
-import { useInvoice } from "@features/invoices/hooks/use-invoices";
+import { useInvoice, useInvoices } from "@features/invoices/hooks/use-invoices";
 import { debounce } from "@features/utils/debounce";
 import { formatAmount } from "@features/utils/format/strings";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
@@ -13,6 +13,7 @@ import { twMerge } from "tailwind-merge";
 import { FurnishQuotesFurnish } from "../../types";
 import { useFurnishQuotes } from "@features/invoices/hooks/use-furnish-quotes";
 import { prettyContactName } from "@views/client/modules/contacts/utils";
+import { generateQueryFromMap } from "@components/search-bar/utils/utils";
 
 export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
   const quote = useInvoice(id || "");
@@ -29,6 +30,15 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
     furnishesTextValues,
     setFurnishesTextValues,
   } = useFurnishQuotes(quote.invoice ? [quote.invoice] : []);
+
+  const { invoices: existantSupplierQuotes } = useInvoices({
+    query: [
+      ...generateQueryFromMap({
+        from_rel_quote: [id ?? "_"],
+        type: "supplier_quotes",
+      }),
+    ],
+  });
 
   // function setTotalArticleQuantity(
   //   articleID: string,
@@ -433,7 +443,7 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
           </div>
         </div>
         <div>
-          <Section className="mb-6">Commandes</Section>
+          <Section className="mb-6">Commandes à créer</Section>
           {(actions ?? [])
             .filter((action) => action.action === "order-items")
             .map((action, index) => {
@@ -467,6 +477,35 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
                 </Card>
               );
             })}
+
+          <Section className="mt-6 mb-6">Commandes existantes</Section>
+          {(existantSupplierQuotes?.data?.list ?? [])?.map((quote) => (
+            <>
+              <Card className="mb-4">
+                <SectionSmall className="mb-4">{quote.reference}</SectionSmall>
+                {(quote.content ?? []).map((line) => {
+                  const article = (articles?.data?.list ?? []).find(
+                    (art) => art.id === line.article
+                  );
+                  return (
+                    <div className="grid grid-cols-4">
+                      <BaseSmall>Article</BaseSmall>
+                      <BaseSmall>Quantité</BaseSmall>
+                      <BaseSmall>Prix unitaire</BaseSmall>
+                      <BaseSmall>Description</BaseSmall>
+
+                      <Info>{article?.name}</Info>
+                      <Info>
+                        {line.quantity} {line.unit}
+                      </Info>
+                      <Info>{formatAmount(line.unit_price ?? 0)}</Info>
+                      <Info>{line.description}</Info>
+                    </div>
+                  );
+                })}
+              </Card>
+            </>
+          ))}
         </div>
       </div>
     </div>
