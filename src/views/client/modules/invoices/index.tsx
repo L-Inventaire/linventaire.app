@@ -66,7 +66,7 @@ export const InvoicesPage = () => {
       filter: buildQueryFromMap({ state: "draft" }),
     },
     closed: {
-      label: "Archivés",
+      label: "Terminés",
       filter: buildQueryFromMap({ state: "closed" }),
     },
     all: { label: "Tous", filter: [] },
