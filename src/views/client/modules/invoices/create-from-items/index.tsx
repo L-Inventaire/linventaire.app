@@ -58,7 +58,12 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
             _id: article?.id,
             article: article?.id || "",
             name: article?.name || "(pas d'article)",
-            description: article?.description || "",
+            description:
+              article?.description ||
+              `(${item
+                .map((a) => a.title)
+                .filter(Boolean)
+                .join(", ")})`,
             type: article?.type,
             quantity:
               item.reduce(
