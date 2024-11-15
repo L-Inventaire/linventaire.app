@@ -24,7 +24,6 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
     suppliers,
     stocks,
     actions,
-    furnishesOverride,
     modifiedFurnishes,
     setFurnishesOverride,
     furnishesTextValues,
@@ -277,7 +276,36 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
           })}
         </Alert>
       )}
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        <div>
+          <Section className="mb-6">Reste à fournir</Section>
+          <div className="w-full grid lg:grid-cols-2 gap-3">
+            {(articles.data?.list ?? []).map((article) => {
+              const articleFurnishes = modifiedFurnishes.filter(
+                (fur) => fur.articleID === article.id
+              );
+              const totalValue = (articleFurnishes ?? []).reduce(
+                (acc, fur) => acc + fur.quantity,
+                0
+              );
+              const totalMax = _.first(modifiedFurnishes)?.totalToFurnish ?? 0;
+
+              return (
+                <Card key={article.id} className="mb-4 flex justify-between">
+                  <BaseSmall>{article.name}</BaseSmall>
+                  <BaseSmall
+                    className={twMerge(
+                      totalMax - totalValue > 0 && "text-red-500"
+                    )}
+                  >
+                    {max([totalMax - totalValue, 0])} / {totalMax}
+                  </BaseSmall>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
         <div>
           <Section className="mb-6">Commandé</Section>
           <div className="w-full grid lg:grid-cols-2 gap-3">
@@ -302,34 +330,6 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
                 <Card key={article.id} className="mb-4 flex justify-between">
                   <BaseSmall>{article.name}</BaseSmall>
                   <BaseSmall>{quantity}</BaseSmall>
-                </Card>
-              );
-            })}
-          </div>
-        </div>
-        <div>
-          <Section className="mb-6">Reste à fournir</Section>
-          <div className="w-full grid lg:grid-cols-2 gap-3">
-            {(articles.data?.list ?? []).map((article) => {
-              const articleFurnishes = modifiedFurnishes.filter(
-                (fur) => fur.articleID === article.id
-              );
-              const totalValue = (articleFurnishes ?? []).reduce(
-                (acc, fur) => acc + fur.quantity,
-                0
-              );
-              const totalMax = _.first(modifiedFurnishes)?.totalToFurnish ?? 0;
-
-              return (
-                <Card key={article.id} className="mb-4 flex justify-between">
-                  <BaseSmall>{article.name}</BaseSmall>
-                  <BaseSmall
-                    className={twMerge(
-                      totalMax - totalValue > 0 && "text-red-500"
-                    )}
-                  >
-                    {max([totalMax - totalValue, 0])} / {totalMax}
-                  </BaseSmall>
                 </Card>
               );
             })}
@@ -477,6 +477,23 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
           <Section className="mb-6">Commandes à créer</Section>
           {(actions ?? [])
             .filter((action) => action.action === "order-items")
+            .filter(
+              (action) =>
+                (action.content ?? []).reduce(
+                  (acc, line) => acc + (line?.quantity ?? 0),
+                  0
+                ) > 0
+            ).length === 0 && <Info>Aucune commande à créer</Info>}
+
+          {(actions ?? [])
+            .filter((action) => action.action === "order-items")
+            .filter(
+              (action) =>
+                (action.content ?? []).reduce(
+                  (acc, line) => acc + (line?.quantity ?? 0),
+                  0
+                ) > 0
+            )
             .map((action, index) => {
               return (
                 <Card className="mb-4">
