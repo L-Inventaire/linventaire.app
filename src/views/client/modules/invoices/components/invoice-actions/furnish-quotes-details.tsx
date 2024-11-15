@@ -15,6 +15,8 @@ import { useCallback } from "react";
 import { twMerge } from "tailwind-merge";
 import { FurnishQuotesFurnish } from "../../types";
 import { useStockItems } from "@features/stock/hooks/use-stock-items";
+import { useNavigate } from "react-router-dom";
+import { getRoute, ROUTES } from "@features/routes";
 
 export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
   const quote = useInvoice(id || "");
@@ -48,6 +50,8 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
       }),
     ],
   });
+
+  const navigate = useNavigate();
 
   // function setTotalArticleQuantity(
   //   articleID: string,
@@ -246,7 +250,7 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
         Définissez les articles que vous souhaitez retirer du stock ou de
         commander chez vos fournisseurs
       </Info>
-      {(articles?.data?.list ?? []).some((article) => {
+      {articles.some((article) => {
         if (!grouppedByArticles[article.id]) return false;
 
         return (
@@ -262,7 +266,7 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
           icon="CheckCircleIcon"
           className="mb-6 max-w-max p-3 pr-5"
         >
-          {(articles?.data?.list ?? []).map((article) => {
+          {articles.map((article) => {
             const quantity = (grouppedByArticles[article.id] ?? []).reduce(
               (acc, fur) => {
                 return acc + fur.quantity;
@@ -285,7 +289,7 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-        {!(articles.data?.list ?? []).some((article) => {
+        {!articles.some((article) => {
           const articleFurnishes = modifiedFurnishes.filter(
             (fur) => fur.articleID === article.id
           );
@@ -298,7 +302,7 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
           </div>
         )}
 
-        {(articles.data?.list ?? []).some((article) => {
+        {articles.some((article) => {
           const articleFurnishes = modifiedFurnishes.filter(
             (fur) => fur.articleID === article.id
           );
@@ -308,7 +312,7 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
           <div>
             <Section className="mb-6">Reste à fournir</Section>
             <div className="w-full grid lg:grid-cols-2 gap-3">
-              {(articles.data?.list ?? []).map((article) => {
+              {articles.map((article) => {
                 const articleFurnishes = modifiedFurnishes.filter(
                   (fur) => fur.articleID === article.id
                 );
@@ -317,18 +321,18 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
                   0
                 );
 
-                const totalMax = _.first(articleFurnishes)?.totalToFurnish ?? 0;
-
                 return (
                   <Card key={article.id} className="mb-4 flex justify-between">
                     <BaseSmall>{article.name}</BaseSmall>
                     <BaseSmall
                       className={twMerge(
-                        totalMax - totalValue > 0 && "text-red-500",
+                        (article.totalToFurnish ?? 0) - totalValue > 0 &&
+                          "text-red-500",
                         "whitespace-nowrap"
                       )}
                     >
-                      {max([totalMax - totalValue, 0])} / {totalMax}
+                      {max([(article.totalToFurnish ?? 0) - totalValue, 0])} /{" "}
+                      {article.totalToFurnish ?? 0}
                     </BaseSmall>
                   </Card>
                 );
@@ -339,7 +343,7 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
         <div>
           <Section className="mb-6">Commandé</Section>
           <div className="w-full grid lg:grid-cols-2 gap-3">
-            {(articles.data?.list ?? []).map((article) => {
+            {articles.map((article) => {
               const articleOrders = (
                 existantSupplierQuotes.data?.list ?? []
               ).filter((quote) =>
@@ -366,7 +370,7 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
           </div>
           <Section className="mb-6">Réservé en stock</Section>
           <div className="w-full grid lg:grid-cols-2 gap-3">
-            {(articles.data?.list ?? []).map((article) => {
+            {articles.map((article) => {
               const articleStocks = (reservedStocks.data?.list ?? []).filter(
                 (stock) => stock.article === article.id
               );
@@ -385,7 +389,7 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
           </div>
         </div>
 
-        {!(articles?.data?.list ?? []).some((article) => {
+        {!articles.some((article) => {
           if (!grouppedByArticles[article.id]) return false;
           const totalMax =
             _.first(grouppedByArticles[article.id])?.totalToFurnish ?? 0;
@@ -397,7 +401,7 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
           </div>
         )}
 
-        {(articles?.data?.list ?? []).some((article) => {
+        {articles.some((article) => {
           if (!grouppedByArticles[article.id]) return false;
           const totalMax =
             _.first(grouppedByArticles[article.id])?.totalToFurnish ?? 0;
@@ -406,19 +410,13 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
           <div>
             <Section className="mb-6">Articles à fournir</Section>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-6">
-              {articles.data?.list.map((article) => {
+              {articles.map((article) => {
                 const articleFurnishes = modifiedFurnishes.filter(
                   (fur) =>
                     fur.articleID === article.id && fur.supplierID !== null
                 );
 
-                const totalMax =
-                  _.first(modifiedFurnishes)?.totalToFurnish ?? 0;
-
-                const totalValue = (articleFurnishes ?? []).reduce(
-                  (acc, fur) => acc + fur.quantity,
-                  0
-                );
+                const totalMax = article.totalToFurnish ?? 0;
 
                 return (
                   <Card key={article.id} className="mb-4 px-4">
@@ -427,6 +425,11 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
                       <ChevronDownIcon className="w-3 h-3 ml-1 text-gray-400" />
                     </div>
                     <div className="mt-2">
+                      {(articleFurnishes ?? []).length === 0 && (
+                        <Info>
+                          Aucun stock ou fournisseur défini pour l'article
+                        </Info>
+                      )}
                       {(articleFurnishes ?? []).map((fur) => {
                         const supplier = (suppliers?.data?.list ?? []).find(
                           (supp) => supp.id === fur?.supplierID
@@ -444,10 +447,10 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
 
                         const maxFurnishable =
                           (fur.maxAvailable
-                            ? supplier
-                              ? totalMax
-                              : stock?.quantity
-                            : 0) ?? 0;
+                            ? fur.maxAvailable
+                            : supplier
+                            ? totalMax
+                            : stock?.quantity) ?? 0;
 
                         const totalValueText = (articleFurnishes ?? []).reduce(
                           (acc, fur) => {
@@ -583,7 +586,7 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
                   </SectionSmall>
 
                   {(action.content ?? []).map((line) => {
-                    const article = (articles?.data?.list ?? []).find(
+                    const article = articles.find(
                       (art) => art.id === line.article
                     );
                     return (
@@ -609,10 +612,15 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
           <Section className="mt-6 mb-6">Commandes existantes</Section>
           {(existantSupplierQuotes?.data?.list ?? [])?.map((quote) => (
             <>
-              <Card className="mb-4">
+              <Card
+                className="mb-4 cursor-pointer"
+                onClick={() => {
+                  navigate(getRoute(ROUTES.InvoicesView, { id: quote.id }));
+                }}
+              >
                 <SectionSmall className="mb-4">{quote.reference}</SectionSmall>
                 {(quote.content ?? []).map((line) => {
-                  const article = (articles?.data?.list ?? []).find(
+                  const article = articles.find(
                     (art) => art.id === line.article
                   );
                   return (
