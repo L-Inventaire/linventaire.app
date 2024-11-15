@@ -2,6 +2,7 @@ import { Button } from "@atoms/button/button";
 import { NotFound } from "@atoms/not-found/not-found";
 import { PageLoader } from "@atoms/page-loader";
 import { DocumentBar } from "@components/document-bar";
+import { useFurnishQuotes } from "@features/invoices/hooks/use-furnish-quotes";
 import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { getDocumentNamePlurial } from "@features/invoices/utils";
 import { ROUTES, getRoute } from "@features/routes";
@@ -11,12 +12,10 @@ import _ from "lodash";
 import { useParams } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import { FursnishQuotesDetails } from "../components/invoice-actions/furnish-quotes-details";
-import { useFurnishQuotes } from "@features/invoices/hooks/use-furnish-quotes";
-import { InvoicesApiClient } from "@features/invoices/api-client/invoices-api-client";
 
 export const FurnishQuotesPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
-  const { invoice: quote, isPending, remove, restore } = useInvoice(id || "");
+  const { invoice: quote, isPending, restore } = useInvoice(id || "");
   const { refetchFurnishQuotes, isFetchingFurnishQuotes, actionFurnishQuotes } =
     useFurnishQuotes(quote ? [quote] : []);
 

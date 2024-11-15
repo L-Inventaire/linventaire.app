@@ -127,32 +127,34 @@ export const InvoiceSendModalContent = ({
                 });
               }}
             />
-            <div className="flex items-center ml-2">
-              <Base className="mr-2 font-semibold">Action</Base>
+            {draft.type === "quotes" && (
+              <div className="flex items-center ml-2">
+                <Base className="mr-2 font-semibold">Action</Base>
 
-              <Radio
-                value={
-                  draft?.recipients?.find((rec) => rec.email === email)?.role ??
-                  "signer"
-                }
-                onChange={(e) => {
-                  setDraft((data) => ({
-                    ...data,
-                    recipients: (data.recipients ?? []).map((rec) =>
-                      rec?.email === email
-                        ? { email: rec.email, role: e as "signer" | "viewer" }
-                        : rec
-                    ),
-                  }));
-                }}
-                className="shadow-none m-0"
-                placeholder={"Statut"}
-                options={[
-                  { label: "Signer", value: "signer" },
-                  { label: "Voir", value: "viewer" },
-                ]}
-              />
-            </div>
+                <Radio
+                  value={
+                    draft?.recipients?.find((rec) => rec.email === email)
+                      ?.role ?? "signer"
+                  }
+                  onChange={(e) => {
+                    setDraft((data) => ({
+                      ...data,
+                      recipients: (data.recipients ?? []).map((rec) =>
+                        rec?.email === email
+                          ? { email: rec.email, role: e as "signer" | "viewer" }
+                          : rec
+                      ),
+                    }));
+                  }}
+                  className="shadow-none m-0"
+                  placeholder={"Statut"}
+                  options={[
+                    { label: "Signer", value: "signer" },
+                    { label: "Voir", value: "viewer" },
+                  ]}
+                />
+              </div>
+            )}
           </div>
         ))}
       </div>

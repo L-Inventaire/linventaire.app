@@ -115,7 +115,7 @@ export const StockItemsCreateFromOrder = ({
       <RestDocumentsInput
         size="xl"
         label="Ajouter un article"
-        placeholder={`Ajouter un article du devis ${order.reference}`}
+        placeholder={`Ajouter un article de la commande ${order.reference}`}
         value={""}
         filter={
           {

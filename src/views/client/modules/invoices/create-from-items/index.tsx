@@ -58,7 +58,12 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
             _id: article?.id,
             article: article?.id || "",
             name: article?.name || "(pas d'article)",
-            description: article?.description || "",
+            description:
+              article?.description ||
+              `(${item
+                .map((a) => a.title)
+                .filter(Boolean)
+                .join(", ")})`,
             type: article?.type,
             quantity:
               item.reduce(
@@ -160,7 +165,51 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
                     "invoices",
                     {
                       type: "quotes",
-                      state: "draft",
+                      state: [
+                        "draft",
+                        "recurring",
+                        "completed",
+                        "purchase_order",
+                      ],
+                      client: lines.client,
+                    },
+                    async (quotes: Invoices[]) => {
+                      if (quotes.length === 0) return;
+                      const quote = quotes[0];
+                      setLoading(true);
+                      try {
+                        // Now affect the lines to the quote
+                        for (const item of keptServices || []) {
+                          await upsertServiceItems.mutateAsync({
+                            id: item.id,
+                            client: item.client || quote.client,
+                            for_rel_quote: quote.id,
+                          });
+                        }
+
+                        navigate(
+                          getRoute(ROUTES.InvoicesView, { id: quote.id })
+                        );
+                      } finally {
+                        setLoading(false);
+                      }
+                    }
+                  )
+                }
+              >
+                Associer à un devis (non facturé)
+              </Button>
+              <Button
+                loading={loading}
+                variant="outline"
+                className="mr-2"
+                disabled={missingArticles || !lines.client}
+                onClick={async () =>
+                  select(
+                    "invoices",
+                    {
+                      type: "quotes",
+                      state: ["draft"],
                       client: lines.client,
                     },
                     async (quotes: Invoices[]) => {

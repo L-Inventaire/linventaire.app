@@ -135,7 +135,11 @@ export const InvoiceLineInput = (props: {
                   }
                   empty="Vide"
                   content={
-                    <InvoiceLineArticleInput {...props} article={article} />
+                    <InvoiceLineArticleInput
+                      {...props}
+                      invoice={props.invoice!}
+                      article={article}
+                    />
                   }
                   value={value.description || value.name || article?.name}
                 >
@@ -491,7 +495,11 @@ export const InvoiceLineInput = (props: {
                 }
                 empty="Vide"
                 content={
-                  <InvoiceLineArticleInput {...props} article={article} />
+                  <InvoiceLineArticleInput
+                    {...props}
+                    invoice={props.invoice!}
+                    article={article}
+                  />
                 }
                 value={value.description || value.name || article?.name}
               >
