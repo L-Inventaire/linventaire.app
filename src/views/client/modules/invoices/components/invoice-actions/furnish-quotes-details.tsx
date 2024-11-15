@@ -1,19 +1,19 @@
 import { Alert } from "@atoms/alert";
 import { Input } from "@atoms/input/input-text";
-import { Loader } from "@atoms/loader";
+import { DelayedLoader } from "@atoms/loader";
 import { BaseSmall, Info, Section, SectionSmall } from "@atoms/text";
+import { generateQueryFromMap } from "@components/search-bar/utils/utils";
+import { useFurnishQuotes } from "@features/invoices/hooks/use-furnish-quotes";
 import { useInvoice, useInvoices } from "@features/invoices/hooks/use-invoices";
 import { debounce } from "@features/utils/debounce";
 import { formatAmount } from "@features/utils/format/strings";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { Card, Slider } from "@radix-ui/themes";
+import { prettyContactName } from "@views/client/modules/contacts/utils";
 import _, { max } from "lodash";
 import { useCallback } from "react";
 import { twMerge } from "tailwind-merge";
 import { FurnishQuotesFurnish } from "../../types";
-import { useFurnishQuotes } from "@features/invoices/hooks/use-furnish-quotes";
-import { prettyContactName } from "@views/client/modules/contacts/utils";
-import { generateQueryFromMap } from "@components/search-bar/utils/utils";
 
 export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
   const quote = useInvoice(id || "");
@@ -193,6 +193,10 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
 
   const setArticleQuantity = useCallback(
     (fur: FurnishQuotesFurnish, value: number) => {
+      console.log("value", value);
+      if (value < 0) return;
+      console.log("test");
+
       setFurnishesTextValues((data) =>
         data.map((f) =>
           f.ref === fur.ref ? { ref: fur.ref, value: value.toString() } : f
@@ -224,7 +228,7 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
   if (!modifiedFurnishes)
     return (
       <Card>
-        <Loader />
+        <DelayedLoader />
       </Card>
     );
 
@@ -239,11 +243,7 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
 
         return (
           (grouppedByArticles[article.id] ?? []).reduce((acc, fur) => {
-            const value = parseInt(
-              furnishesTextValues.find((v) => v.ref === fur.ref)?.value ?? "0"
-            );
-
-            return acc + value;
+            return acc + fur.quantity;
           }, 0) >
           (_.first(grouppedByArticles[article.id] ?? [])?.totalToFurnish ?? 0)
         );
@@ -257,11 +257,7 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
           {(articles?.data?.list ?? []).map((article) => {
             const quantity = (grouppedByArticles[article.id] ?? []).reduce(
               (acc, fur) => {
-                const value = parseInt(
-                  furnishesTextValues.find((v) => v.ref === fur.ref)?.value ??
-                    "0"
-                );
-                return acc + value;
+                return acc + fur.quantity;
               },
               0
             );
@@ -300,7 +296,8 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
                   <BaseSmall>{article.name}</BaseSmall>
                   <BaseSmall
                     className={twMerge(
-                      totalMax - totalValue > 0 && "text-red-500"
+                      totalMax - totalValue > 0 && "text-red-500",
+                      "whitespace-nowrap"
                     )}
                   >
                     {max([totalMax - totalValue, 0])} / {totalMax}
@@ -458,17 +455,6 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
                               <Input
                                 value={furnishText?.value ?? ""}
                                 onChange={(e) => {
-                                  setFurnishesTextValues((data) =>
-                                    data.map((f) =>
-                                      f.ref === fur.ref
-                                        ? {
-                                            ref: fur.ref,
-                                            value: e.target.value,
-                                          }
-                                        : f
-                                    )
-                                  );
-
                                   const value = parseInt(e.target.value);
                                   if (!_.isNaN(value)) {
                                     setArticleQuantity(fur, value);
@@ -484,7 +470,9 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
                                   }ch`,
                                 }}
                               />
-                              <Info className="w-16">/ {maxFurnishable}</Info>
+                              <Info className="w-16 whitespace-nowrap">
+                                / {maxFurnishable}
+                              </Info>
                             </div>
                           </div>
                         );
