@@ -1,7 +1,7 @@
 import { Tag } from "@atoms/badge/tag";
 import { DropDownMenuType, Menu } from "@atoms/dropdown";
 import { Checkbox } from "@atoms/input/input-checkbox";
-import { Loader } from "@atoms/loader";
+import { DelayedLoader, Loader } from "@atoms/loader";
 import { Info, InfoSmall } from "@atoms/text";
 import { RestTag } from "@components/deprecated-rest-tags/index_deprecated";
 import { formatTime } from "@features/utils/format/dates";
@@ -133,7 +133,7 @@ export const SearchBarSuggestions = ({
                   <Info className={twMerge("block", !values.length && "mb-2")}>
                     {loadingSuggestionsValues && (
                       <>
-                        <Loader className={"w-4 h-4 mr-2"} />
+                        <DelayedLoader className={"w-4 h-4 mr-2"} />
                         <Info>Recherche...</Info>
                       </>
                     )}

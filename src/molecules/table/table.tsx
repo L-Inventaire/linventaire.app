@@ -1,7 +1,7 @@
 import { Button } from "@atoms/button/button";
 import { Checkbox } from "@atoms/input/input-checkbox";
 import Select from "@atoms/input/input-select";
-import { Loader } from "@atoms/loader";
+import { DelayedLoader, Loader } from "@atoms/loader";
 import { Modal } from "@atoms/modal/modal";
 import { Base, BaseSmall, Info } from "@atoms/text";
 import { useShortcuts } from "@features/utils/shortcuts";
@@ -240,7 +240,7 @@ export function RenderedTable<T>({
       >
         {loading && (
           <div className="absolute m-auto left-0 top-0 right-0 bottom-0 w-6 h-6 text-center z-10">
-            <Loader color="text-slate-500" />
+            <DelayedLoader color="text-slate-500" />
           </div>
         )}
 

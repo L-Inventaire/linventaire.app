@@ -3,7 +3,7 @@ import { InputLabel } from "@atoms/input/input-decoration-label";
 import { InputImage } from "@atoms/input/input-image";
 import { Input } from "@atoms/input/input-text";
 import Link from "@atoms/link";
-import { Loader } from "@atoms/loader";
+import { DelayedLoader, Loader } from "@atoms/loader";
 import { Base, Info, SectionSmall, Title } from "@atoms/text";
 import { AddressInput } from "@components/input-button/address/form";
 import { Table } from "@molecules/table";
@@ -281,7 +281,7 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
         )}
         {step === 3 && (
           <div className="w-full h-32 flex items-center justify-center">
-            <Loader color="text-slate-500" />
+            <DelayedLoader color="text-slate-500" />
           </div>
         )}
 

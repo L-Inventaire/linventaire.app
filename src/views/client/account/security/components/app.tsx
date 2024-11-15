@@ -1,5 +1,5 @@
 import { Alert } from "@atoms/alert";
-import { Loader } from "@atoms/loader";
+import { DelayedLoader, Loader } from "@atoms/loader";
 import * as Text from "@atoms/text";
 import { MFAVerificationModal } from "@components/auth/mfa-verification-modal";
 import { MethodType } from "@features/customers/api-client/mfa-api-client";
@@ -176,7 +176,7 @@ export const SecurityApp = (props: { mfa?: MethodType }) => {
           )}
           {step === 2 && (
             <div className="text-center my-8">
-              <Loader />
+              <DelayedLoader />
             </div>
           )}
         </ModalContent>

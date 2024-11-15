@@ -3,7 +3,7 @@ import { Button } from "@atoms/button/button";
 import { Input } from "@atoms/input/input-text";
 import { Checkbox } from "@atoms/input/input-checkbox";
 import InputCode from "@atoms/input/input-code";
-import { Loader } from "@atoms/loader";
+import { DelayedLoader, Loader } from "@atoms/loader";
 import environment from "@config/environment";
 import { AuthApiClient } from "@features/auth/api-client/api-client";
 import { Transition } from "@headlessui/react";
@@ -123,7 +123,7 @@ export const VerifyEmail = (props: {
     <>
       {!success && autoRequest && !challenge?.token && (
         <div className="block text-center my-8">
-          <Loader />
+          <DelayedLoader />
         </div>
       )}
 
@@ -248,7 +248,7 @@ export const VerifyEmail = (props: {
         leaveTo="opacity-0"
       >
         <p className="text-center text-md text-black dark:text-white mt-12">
-          <Loader />
+          <DelayedLoader />
           <br />
           <br />
           Your email was verified successfully.

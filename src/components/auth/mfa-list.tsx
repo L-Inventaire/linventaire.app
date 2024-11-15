@@ -1,6 +1,6 @@
 import A from "@atoms/link";
 import { Button } from "@atoms/button/button";
-import { Loader } from "@atoms/loader";
+import { DelayedLoader, Loader } from "@atoms/loader";
 import { VerifyEmail } from "@components/auth/verify-email";
 import { VerifyPhone } from "@components/auth/verify-phone";
 import { AuthApiClient } from "@features/auth/api-client/api-client";
@@ -134,7 +134,7 @@ export const MfaList = (props: {
     <>
       {isLoading && (
         <div className="block text-center py-8">
-          <Loader />
+          <DelayedLoader />
         </div>
       )}
 

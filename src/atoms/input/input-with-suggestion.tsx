@@ -1,4 +1,4 @@
-import { Loader } from "@atoms/loader";
+import { DelayedLoader, Loader } from "@atoms/loader";
 import { BaseSmall } from "@atoms/text";
 import { applySearchFilter } from "@features/utils/format/strings";
 import _ from "lodash";
@@ -140,7 +140,7 @@ export const InputWithSuggestions = (props: InputSuggestionProps) => {
       />
       {props.loading && (
         <div className="absolute top-1/2 right-2 transform -translate-y-1/2 h-full flex items-center">
-          <Loader />
+          <DelayedLoader />
         </div>
       )}
       {focus && !!filteredOptions?.length && (
