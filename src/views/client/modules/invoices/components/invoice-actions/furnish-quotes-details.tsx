@@ -14,9 +14,11 @@ import _, { max } from "lodash";
 import { useCallback } from "react";
 import { twMerge } from "tailwind-merge";
 import { FurnishQuotesFurnish } from "../../types";
+import { useStockItems } from "@features/stock/hooks/use-stock-items";
 
 export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
   const quote = useInvoice(id || "");
+
   const {
     furnishQuotes,
     grouppedByArticles,
@@ -35,6 +37,14 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
       ...generateQueryFromMap({
         from_rel_quote: [id ?? "_"],
         type: "supplier_quotes",
+      }),
+    ],
+  });
+
+  const { stock_items: reservedStocks } = useStockItems({
+    query: [
+      ...generateQueryFromMap({
+        for_rel_quote: id ?? "_",
       }),
     ],
   });
@@ -193,9 +203,7 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
 
   const setArticleQuantity = useCallback(
     (fur: FurnishQuotesFurnish, value: number) => {
-      console.log("value", value);
       if (value < 0) return;
-      console.log("test");
 
       setFurnishesTextValues((data) =>
         data.map((f) =>
@@ -277,36 +285,57 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-        <div>
-          <Section className="mb-6">Reste à fournir</Section>
-          <div className="w-full grid lg:grid-cols-2 gap-3">
-            {(articles.data?.list ?? []).map((article) => {
-              const articleFurnishes = modifiedFurnishes.filter(
-                (fur) => fur.articleID === article.id
-              );
-              const totalValue = (articleFurnishes ?? []).reduce(
-                (acc, fur) => acc + fur.quantity,
-                0
-              );
-
-              const totalMax = _.first(articleFurnishes)?.totalToFurnish ?? 0;
-
-              return (
-                <Card key={article.id} className="mb-4 flex justify-between">
-                  <BaseSmall>{article.name}</BaseSmall>
-                  <BaseSmall
-                    className={twMerge(
-                      totalMax - totalValue > 0 && "text-red-500",
-                      "whitespace-nowrap"
-                    )}
-                  >
-                    {max([totalMax - totalValue, 0])} / {totalMax}
-                  </BaseSmall>
-                </Card>
-              );
-            })}
+        {!(articles.data?.list ?? []).some((article) => {
+          const articleFurnishes = modifiedFurnishes.filter(
+            (fur) => fur.articleID === article.id
+          );
+          const totalMax = _.first(articleFurnishes)?.totalToFurnish ?? 0;
+          return totalMax > 0;
+        }) && (
+          <div>
+            <Section className="mb-6">Reste à fournir</Section>
+            <Info>Aucun article à fournir</Info>
           </div>
-        </div>
+        )}
+
+        {(articles.data?.list ?? []).some((article) => {
+          const articleFurnishes = modifiedFurnishes.filter(
+            (fur) => fur.articleID === article.id
+          );
+          const totalMax = _.first(articleFurnishes)?.totalToFurnish ?? 0;
+          return totalMax > 0;
+        }) && (
+          <div>
+            <Section className="mb-6">Reste à fournir</Section>
+            <div className="w-full grid lg:grid-cols-2 gap-3">
+              {(articles.data?.list ?? []).map((article) => {
+                const articleFurnishes = modifiedFurnishes.filter(
+                  (fur) => fur.articleID === article.id
+                );
+                const totalValue = (articleFurnishes ?? []).reduce(
+                  (acc, fur) => acc + fur.quantity,
+                  0
+                );
+
+                const totalMax = _.first(articleFurnishes)?.totalToFurnish ?? 0;
+
+                return (
+                  <Card key={article.id} className="mb-4 flex justify-between">
+                    <BaseSmall>{article.name}</BaseSmall>
+                    <BaseSmall
+                      className={twMerge(
+                        totalMax - totalValue > 0 && "text-red-500",
+                        "whitespace-nowrap"
+                      )}
+                    >
+                      {max([totalMax - totalValue, 0])} / {totalMax}
+                    </BaseSmall>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        )}
         <div>
           <Section className="mb-6">Commandé</Section>
           <div className="w-full grid lg:grid-cols-2 gap-3">
@@ -335,14 +364,43 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
               );
             })}
           </div>
+          <Section className="mb-6">Réservé en stock</Section>
+          <div className="w-full grid lg:grid-cols-2 gap-3">
+            {(articles.data?.list ?? []).map((article) => {
+              const articleStocks = (reservedStocks.data?.list ?? []).filter(
+                (stock) => stock.article === article.id
+              );
+              const quantity = articleStocks.reduce(
+                (acc, stock) => acc + stock.quantity,
+                0
+              );
+
+              return (
+                <Card key={article.id} className="mb-4 flex justify-between">
+                  <BaseSmall>{article.name}</BaseSmall>
+                  <BaseSmall>{quantity}</BaseSmall>
+                </Card>
+              );
+            })}
+          </div>
         </div>
+
+        {!(articles?.data?.list ?? []).some((article) => {
+          if (!grouppedByArticles[article.id]) return false;
+          const totalMax =
+            _.first(grouppedByArticles[article.id])?.totalToFurnish ?? 0;
+          return totalMax > 0;
+        }) && (
+          <div>
+            <Section className="mb-6">Articles à fournir</Section>
+            <Info>Aucun article à fournir</Info>
+          </div>
+        )}
 
         {(articles?.data?.list ?? []).some((article) => {
           if (!grouppedByArticles[article.id]) return false;
           const totalMax =
             _.first(grouppedByArticles[article.id])?.totalToFurnish ?? 0;
-          console.log("totalMax", totalMax, article.name);
-
           return totalMax > 0;
         }) && (
           <div>
@@ -390,6 +448,16 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
                               ? totalMax
                               : stock?.quantity
                             : 0) ?? 0;
+
+                        const totalValueText = (articleFurnishes ?? []).reduce(
+                          (acc, fur) => {
+                            const text = furnishesTextValues.find(
+                              (v) => v.ref === fur.ref
+                            );
+                            return acc + parseInt(text?.value ?? "0");
+                          },
+                          0
+                        );
 
                         return (
                           <div className="mb-2">
@@ -466,7 +534,7 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
                                 className={twMerge("grow-0 mr-1")}
                                 style={{
                                   width: `${
-                                    totalValue.toString().length + 5
+                                    totalValueText.toString().length + 5
                                   }ch`,
                                 }}
                               />
