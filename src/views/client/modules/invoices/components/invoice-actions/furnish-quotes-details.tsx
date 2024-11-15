@@ -244,7 +244,8 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
             );
 
             return acc + value;
-          }, 0) > (_.first(modifiedFurnishes)?.totalToFurnish ?? 0)
+          }, 0) >
+          (_.first(grouppedByArticles[article.id] ?? [])?.totalToFurnish ?? 0)
         );
       }) && (
         <Alert
@@ -264,7 +265,9 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
               },
               0
             );
-            const max = _.first(modifiedFurnishes)?.totalToFurnish ?? 0;
+            const max =
+              _.first(grouppedByArticles[article.id] ?? [])?.totalToFurnish ??
+              0;
 
             if (quantity > max)
               return (
@@ -289,7 +292,8 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
                 (acc, fur) => acc + fur.quantity,
                 0
               );
-              const totalMax = _.first(modifiedFurnishes)?.totalToFurnish ?? 0;
+
+              const totalMax = _.first(articleFurnishes)?.totalToFurnish ?? 0;
 
               return (
                 <Card key={article.id} className="mb-4 flex justify-between">
@@ -336,143 +340,163 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
           </div>
         </div>
 
-        <div>
-          <Section className="mb-6">Articles à fournir</Section>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-6">
-            {articles.data?.list.map((article) => {
-              const articleFurnishes = modifiedFurnishes.filter(
-                (fur) => fur.articleID === article.id && fur.supplierID !== null
-              );
+        {(articles?.data?.list ?? []).some((article) => {
+          if (!grouppedByArticles[article.id]) return false;
+          const totalMax =
+            _.first(grouppedByArticles[article.id])?.totalToFurnish ?? 0;
+          console.log("totalMax", totalMax, article.name);
 
-              const totalMax = _.first(modifiedFurnishes)?.totalToFurnish ?? 0;
+          return totalMax > 0;
+        }) && (
+          <div>
+            <Section className="mb-6">Articles à fournir</Section>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-6">
+              {articles.data?.list.map((article) => {
+                const articleFurnishes = modifiedFurnishes.filter(
+                  (fur) =>
+                    fur.articleID === article.id && fur.supplierID !== null
+                );
 
-              const totalValue = (articleFurnishes ?? []).reduce(
-                (acc, fur) => acc + fur.quantity,
-                0
-              );
+                const totalMax =
+                  _.first(modifiedFurnishes)?.totalToFurnish ?? 0;
 
-              return (
-                <Card key={article.id} className="mb-4 px-4">
-                  <div className="flex justify-between items-center mb-4">
-                    <Info className="text-slate-900">{article.name}</Info>
-                    <ChevronDownIcon className="w-3 h-3 ml-1 text-gray-400" />
-                  </div>
-                  <div className="mt-2">
-                    {(articleFurnishes ?? []).map((fur) => {
-                      const supplier = (suppliers?.data?.list ?? []).find(
-                        (supp) => supp.id === fur?.supplierID
-                      );
-                      const supplierDetails =
-                        article.suppliers_details?.[supplier?.id ?? ""] ?? {};
+                const totalValue = (articleFurnishes ?? []).reduce(
+                  (acc, fur) => acc + fur.quantity,
+                  0
+                );
 
-                      const stock = (stocks?.data?.list ?? []).find(
-                        (stock) => stock.id === fur?.stockID
-                      );
+                return (
+                  <Card key={article.id} className="mb-4 px-4">
+                    <div className="flex justify-between items-center mb-4">
+                      <Info className="text-slate-900">{article.name}</Info>
+                      <ChevronDownIcon className="w-3 h-3 ml-1 text-gray-400" />
+                    </div>
+                    <div className="mt-2">
+                      {(articleFurnishes ?? []).map((fur) => {
+                        const supplier = (suppliers?.data?.list ?? []).find(
+                          (supp) => supp.id === fur?.supplierID
+                        );
+                        const supplierDetails =
+                          article.suppliers_details?.[supplier?.id ?? ""] ?? {};
 
-                      const furnishText = furnishesTextValues.find(
-                        (v) => v.ref === fur.ref
-                      );
+                        const stock = (stocks?.data?.list ?? []).find(
+                          (stock) => stock.id === fur?.stockID
+                        );
 
-                      const maxFurnishable =
-                        (fur.maxAvailable
-                          ? supplier
-                            ? totalMax
-                            : stock?.quantity
-                          : 0) ?? 0;
+                        const furnishText = furnishesTextValues.find(
+                          (v) => v.ref === fur.ref
+                        );
 
-                      return (
-                        <div className="mb-2">
-                          {supplier && (
-                            <>
-                              <Info className="block text-slate-600">
-                                {supplier.business_registered_name
-                                  ? supplier.business_registered_name + " - "
-                                  : ""}
-                                {supplier.person_last_name +
-                                  " " +
-                                  supplier.person_first_name}
-                              </Info>
-                              {supplierDetails && (
-                                <Info>
-                                  {supplierDetails.price && (
-                                    <>
-                                      prix:{" "}
-                                      {formatAmount(supplierDetails.price)} -{" "}
-                                    </>
-                                  )}
-                                  {supplierDetails.delivery_quantity && (
-                                    <>
-                                      {supplierDetails.delivery_quantity} en
-                                      stock -{" "}
-                                    </>
-                                  )}
-                                  {supplierDetails.delivery_time && (
-                                    <>
-                                      livraison {supplierDetails.delivery_time}j
-                                    </>
-                                  )}
+                        const maxFurnishable =
+                          (fur.maxAvailable
+                            ? supplier
+                              ? totalMax
+                              : stock?.quantity
+                            : 0) ?? 0;
+
+                        return (
+                          <div className="mb-2">
+                            {supplier && (
+                              <>
+                                <Info className="block text-slate-600">
+                                  {supplier.business_registered_name
+                                    ? supplier.business_registered_name + " - "
+                                    : ""}
+                                  {supplier.person_last_name +
+                                    " " +
+                                    supplier.person_first_name}
                                 </Info>
-                              )}
-                            </>
-                          )}
-                          {stock && (
-                            <Info className="block text-slate-600">
-                              Stock{" "}
-                              {stock?.serial_number &&
-                                " - " + stock?.serial_number}
-                            </Info>
-                          )}
-                          <div className="flex w-full items-center justify-between">
-                            <Slider
-                              key={fur.ref}
-                              className={"grow mr-3"}
-                              value={[
-                                (parseInt(furnishText?.value ?? "0") /
-                                  maxFurnishable) *
-                                  100,
-                              ]}
-                              onValueChange={(value) => {
-                                setArticleQuantity(
-                                  fur,
-                                  Math.round((value[0] / 100) * maxFurnishable)
-                                );
-                              }}
-                            />
-                            <Input
-                              value={furnishText?.value ?? ""}
-                              onChange={(e) => {
-                                setFurnishesTextValues((data) =>
-                                  data.map((f) =>
-                                    f.ref === fur.ref
-                                      ? { ref: fur.ref, value: e.target.value }
-                                      : f
-                                  )
-                                );
+                                {supplierDetails && (
+                                  <Info>
+                                    {supplierDetails.price && (
+                                      <>
+                                        prix:{" "}
+                                        {formatAmount(supplierDetails.price)} -{" "}
+                                      </>
+                                    )}
+                                    {supplierDetails.delivery_quantity && (
+                                      <>
+                                        {supplierDetails.delivery_quantity} en
+                                        stock -{" "}
+                                      </>
+                                    )}
+                                    {supplierDetails.delivery_time && (
+                                      <>
+                                        livraison{" "}
+                                        {supplierDetails.delivery_time}j
+                                      </>
+                                    )}
+                                  </Info>
+                                )}
+                              </>
+                            )}
+                            {stock && (
+                              <Info className="block text-slate-600">
+                                Stock{" "}
+                                {stock?.serial_number &&
+                                  " - " + stock?.serial_number}
+                              </Info>
+                            )}
+                            <div className="flex w-full items-center justify-between">
+                              <Slider
+                                key={fur.ref}
+                                className={"grow mr-3"}
+                                value={[
+                                  (parseInt(furnishText?.value ?? "0") /
+                                    maxFurnishable) *
+                                    100,
+                                ]}
+                                onValueChange={(value) => {
+                                  setArticleQuantity(
+                                    fur,
+                                    Math.round(
+                                      (value[0] / 100) * maxFurnishable
+                                    )
+                                  );
+                                }}
+                              />
+                              <Input
+                                value={furnishText?.value ?? ""}
+                                onChange={(e) => {
+                                  setFurnishesTextValues((data) =>
+                                    data.map((f) =>
+                                      f.ref === fur.ref
+                                        ? {
+                                            ref: fur.ref,
+                                            value: e.target.value,
+                                          }
+                                        : f
+                                    )
+                                  );
 
-                                const value = parseInt(e.target.value);
-                                if (!_.isNaN(value)) {
-                                  setArticleQuantity(fur, value);
-                                }
-                              }}
-                              type="number"
-                              pattern="\d*"
-                              size="md"
-                              className={twMerge("grow-0 mr-1")}
-                              style={{
-                                width: `${totalValue.toString().length + 5}ch`,
-                              }}
-                            />
-                            <Info className="w-16">/ {maxFurnishable}</Info>
+                                  const value = parseInt(e.target.value);
+                                  if (!_.isNaN(value)) {
+                                    setArticleQuantity(fur, value);
+                                  }
+                                }}
+                                type="number"
+                                pattern="\d*"
+                                size="md"
+                                className={twMerge("grow-0 mr-1")}
+                                style={{
+                                  width: `${
+                                    totalValue.toString().length + 5
+                                  }ch`,
+                                }}
+                              />
+                              <Info className="w-16">/ {maxFurnishable}</Info>
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </Card>
-              );
-            })}
+                        );
+                      })}
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
+
         <div>
           <Section className="mb-6">Commandes à créer</Section>
           {(actions ?? [])
