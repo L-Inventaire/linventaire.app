@@ -50,12 +50,25 @@ export const useFurnishQuotes = (quotes: Invoices[]) => {
       ),
   });
 
-  function actionFurnishQuotes() {
-    return InvoicesApiClient.actionFurnishQuotes(
+  async function actionFurnishQuotes() {
+    await InvoicesApiClient.actionFurnishQuotes(
       client.id,
       quotes.map((quote) => quote.id),
       furnishesOverride
     );
+    setFurnishesOverride([]);
+
+    await setTimeout(() => {
+      refetchFurnishQuotes();
+    }, 1000);
+
+    // const result = await InvoicesApiClient.getFurnishQuotes(
+    //   client.id,
+    //   quotes.map((quote) => quote.id),
+    //   []
+    // );
+
+    // return result;
   }
 
   const furnishes = furnishQuotes?.furnishes;
