@@ -39,7 +39,7 @@ export const InvoiceLineArticleInput = (props: {
       supplierChanged = true;
     }
     if (article) {
-      let val = value;
+      let val = _.cloneDeep(value);
       if (supplierChanged) {
         val = _.pick(
           value,
