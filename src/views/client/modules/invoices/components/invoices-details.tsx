@@ -451,6 +451,7 @@ export const InvoicesDetailsPage = ({
                           entity="contacts"
                           filter={
                             {
+                              is_client: true,
                               parents: ctrl("client").value,
                             } as Partial<Contacts>
                           }
