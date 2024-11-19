@@ -9,6 +9,7 @@ import { formatTime } from "@features/utils/format/dates";
 import { formatAmount } from "@features/utils/format/strings";
 import { Column } from "@molecules/table/table";
 import { Badge } from "@radix-ui/themes";
+import { CompletionTags } from "@views/client/modules/invoices/components/invoice-lines-input/components/completion-tags";
 import { InvoiceStatus } from "@views/client/modules/invoices/components/invoice-status";
 import { InvoicesDetailsPage } from "@views/client/modules/invoices/components/invoices-details";
 import { TagPaymentCompletion } from "@views/client/modules/invoices/components/tag-payment-completion";
@@ -16,8 +17,8 @@ import {
   isDeliveryLate,
   isPaymentLate,
 } from "@views/client/modules/invoices/utils";
+import _ from "lodash";
 import { Invoices } from "./types/types";
-import { CompletionTags } from "@views/client/modules/invoices/components/invoice-lines-input/components/completion-tags";
 
 export const useInvoiceDefaultModel: () => Partial<Invoices> = () => {
   const { client } = useCurrentClient();
@@ -135,6 +136,37 @@ export const InvoicesColumns: Column<Invoices>[] = [
       />
     ),
   },
+];
+
+export const SupplierQuotesColumns: Column<Invoices>[] = [
+  InvoicesColumns[0],
+  InvoicesColumns[1],
+  InvoicesColumns[2],
+  InvoicesColumns[3],
+  {
+    title: "Fournisseur",
+    render: (invoice) => (
+      <Base className="whitespace-nowrap">
+        <RestDocumentsInput
+          disabled
+          value={invoice.supplier}
+          entity={"contacts"}
+        />
+      </Base>
+    ),
+  },
+  {
+    title: "Articles",
+    render: (invoice) => (
+      <Base className="whitespace-nowrap">
+        {_.slice(invoice.articles.all ?? [], 0, 3).map((article) => (
+          <RestDocumentsInput disabled value={article} entity={"articles"} />
+        ))}
+      </Base>
+    ),
+  },
+  InvoicesColumns[4],
+  InvoicesColumns[5],
 ];
 
 registerCtrlKRestEntity<Invoices>("invoices", {

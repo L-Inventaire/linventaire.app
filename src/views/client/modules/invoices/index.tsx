@@ -2,9 +2,12 @@ import { Button } from "@atoms/button/button";
 import { Info } from "@atoms/text";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { RestTable } from "@components/table-rest";
-import { InvoicesColumns } from "@features/invoices/configuration";
+import {
+  InvoicesColumns,
+  SupplierQuotesColumns,
+} from "@features/invoices/configuration";
 import { useInvoices } from "@features/invoices/hooks/use-invoices";
-import { Invoices } from "@features/invoices/types/types";
+import { Invoices, InvoicesType } from "@features/invoices/types/types";
 import { getDocumentNamePlurial } from "@features/invoices/utils";
 import { ROUTES, getRoute } from "@features/routes";
 import { formatNumber } from "@features/utils/format/strings";
@@ -296,7 +299,11 @@ export const InvoicesPage = () => {
               asc: page.order === "ASC",
             });
           }}
-          columns={InvoicesColumns}
+          columns={
+            type.includes("supplier_quotes")
+              ? SupplierQuotesColumns
+              : InvoicesColumns
+          }
         />
       </div>
     </Page>

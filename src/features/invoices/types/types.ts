@@ -1,18 +1,20 @@
 import { Address, Payment } from "@features/clients/types/clients";
 import { RestEntity } from "@features/utils/rest/types/types";
 
+export type InvoicesType =
+  | "quotes"
+  | "invoices"
+  | "credit_notes"
+  | "supplier_quotes"
+  | "supplier_invoices"
+  | "supplier_credit_notes";
+
 export type Invoices = RestEntity & {
   client_id: string;
   id: string;
 
   assigned: string[];
-  type:
-    | "quotes"
-    | "invoices"
-    | "credit_notes"
-    | "supplier_quotes"
-    | "supplier_invoices"
-    | "supplier_credit_notes"; // invoice, quote, credit_note
+  type: InvoicesType; // invoice, quote, credit_note
 
   // Quotes: “draft”, “sent”, "purchase_order", "completed", "recurring", "closed”
   // Invoices and Credit Notes: “draft”, “sent”, "closed"
