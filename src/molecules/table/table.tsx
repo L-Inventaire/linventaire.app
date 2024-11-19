@@ -451,7 +451,7 @@ export function RenderedTable<T>({
                       <tr>
                         <td
                           colSpan={columns.length + 1}
-                          className="bg-slate-100 border-b bg-opacity-75 border-b border-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:border-slate-700 pl-6 py-1"
+                          className="bg-slate-100 border-b bg-opacity-75 border-slate-100 dark:bg-slate-800 dark:border-slate-700 pl-6 py-1"
                         >
                           {props.groupByRender?.(row) || getGroupByKey(row)}
                         </td>
