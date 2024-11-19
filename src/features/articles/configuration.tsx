@@ -14,6 +14,7 @@ import { Articles } from "./types/types";
 
 export const useArticleDefaultModel: () => Partial<Articles> = () => ({
   type: "product",
+  unit: "unit",
   tva: "20",
 });
 
