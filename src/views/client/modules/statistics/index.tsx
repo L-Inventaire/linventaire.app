@@ -66,6 +66,7 @@ export const StatisticsPage = () => {
                     );
                     return (
                       <Table.ColumnHeaderCell>
+                        {foundTags.length === 0 && "Non classé"}
                         {foundTags.map((tag) => tag.name).join(", ")}
                       </Table.ColumnHeaderCell>
                     );
@@ -119,8 +120,7 @@ export const StatisticsPage = () => {
                           });
                           return (
                             <Table.Cell>
-                              {statFound &&
-                                formatAmount(statFound?.net_amount ?? 0)}
+                              {statFound && formatAmount(statFound?.sum ?? 0)}
                             </Table.Cell>
                           );
                         })}

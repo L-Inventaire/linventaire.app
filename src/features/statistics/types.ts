@@ -6,10 +6,10 @@ export type Statistics = {
     net_amount: number;
   }[];
   totalRevenueTable: {
+    sum: number;
     year: string;
     month: string;
     tag: string[];
-    net_amount: number;
   }[];
   expenses: number;
   totalExpenses: number | null;
