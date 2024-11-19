@@ -592,7 +592,7 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
                     return (
                       <div className="grid grid-cols-4">
                         <BaseSmall>Article</BaseSmall>
-                        <BaseSmall>Quantité</BaseSmall>
+                        <BaseSmall>Quantité / lot</BaseSmall>
                         <BaseSmall>Prix unitaire</BaseSmall>
                         <BaseSmall>Description</BaseSmall>
 
@@ -626,7 +626,7 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
                   return (
                     <div className="grid grid-cols-4">
                       <BaseSmall>Article</BaseSmall>
-                      <BaseSmall>Quantité</BaseSmall>
+                      <BaseSmall>Quantité / lot</BaseSmall>
                       <BaseSmall>Prix unitaire</BaseSmall>
                       <BaseSmall>Description</BaseSmall>
 
