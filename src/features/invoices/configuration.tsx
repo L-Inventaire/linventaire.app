@@ -48,7 +48,7 @@ export const InvoicesColumns: Column<Invoices>[] = [
     },
   },
   {
-    title: "Libellé",
+    title: "Référence",
     render: (invoice) => (
       <Base className="opacity-50 whitespace-nowrap">
         <BaseSmall>
@@ -142,7 +142,6 @@ export const SupplierQuotesColumns: Column<Invoices>[] = [
   InvoicesColumns[0],
   InvoicesColumns[1],
   InvoicesColumns[2],
-  InvoicesColumns[3],
   {
     title: "Fournisseur",
     render: (invoice) => (
@@ -160,11 +159,17 @@ export const SupplierQuotesColumns: Column<Invoices>[] = [
     render: (invoice) => (
       <Base className="whitespace-nowrap">
         {_.slice(invoice.articles.all ?? [], 0, 3).map((article) => (
-          <RestDocumentsInput disabled value={article} entity={"articles"} />
+          <RestDocumentsInput
+            disabled
+            value={article}
+            className="mr-2"
+            entity={"articles"}
+          />
         ))}
       </Base>
     ),
   },
+  InvoicesColumns[3],
   InvoicesColumns[4],
   InvoicesColumns[5],
 ];

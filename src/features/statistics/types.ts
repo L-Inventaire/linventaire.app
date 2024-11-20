@@ -6,7 +6,9 @@ export type Statistics = {
     net_amount: number;
   }[];
   totalRevenueTable: {
-    sum: number;
+    net_amount: number;
+    revenue: number;
+    credit_note_amount: number;
     year: string;
     month: string;
     tag: string[];
