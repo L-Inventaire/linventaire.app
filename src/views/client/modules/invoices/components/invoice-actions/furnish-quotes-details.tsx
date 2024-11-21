@@ -1,28 +1,27 @@
 import { Alert } from "@atoms/alert";
+import { Button } from "@atoms/button/button";
 import { Input } from "@atoms/input/input-text";
 import { DelayedLoader } from "@atoms/loader";
 import { Base, BaseSmall, Info, Section, SectionSmall } from "@atoms/text";
 import { generateQueryFromMap } from "@components/search-bar/utils/utils";
+import { Articles } from "@features/articles/types/types";
+import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { useFurnishQuotes } from "@features/invoices/hooks/use-furnish-quotes";
 import { useInvoice, useInvoices } from "@features/invoices/hooks/use-invoices";
+import { getRoute, ROUTES } from "@features/routes";
+import { useStockItems } from "@features/stock/hooks/use-stock-items";
+import { StockItems } from "@features/stock/types/types";
 import { debounce } from "@features/utils/debounce";
 import { formatAmount } from "@features/utils/format/strings";
+import { CircleStackIcon, UserIcon } from "@heroicons/react/16/solid";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { Card, Slider } from "@radix-ui/themes";
 import { prettyContactName } from "@views/client/modules/contacts/utils";
 import _, { max } from "lodash";
 import { useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import { FurnishQuotesFurnish } from "../../types";
-import { useStockItems } from "@features/stock/hooks/use-stock-items";
-import { useNavigate } from "react-router-dom";
-import { getRoute, ROUTES } from "@features/routes";
-import { Button } from "@atoms/button/button";
-import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
-import { Contacts } from "@features/contacts/types/types";
-import { Articles } from "@features/articles/types/types";
-import { StockItems } from "@features/stock/types/types";
-import { CircleStackIcon, UserIcon } from "@heroicons/react/16/solid";
 
 export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
   const quote = useInvoice(id || "");
