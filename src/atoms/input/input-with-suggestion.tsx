@@ -1,10 +1,10 @@
-import { DelayedLoader, Loader } from "@atoms/loader";
+import { DelayedLoader } from "@atoms/loader";
 import { BaseSmall } from "@atoms/text";
 import { applySearchFilter } from "@features/utils/format/strings";
 import _ from "lodash";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Input, InputProps } from "./input-text";
 import { twMerge } from "tailwind-merge";
+import { Input, InputProps } from "./input-text";
 
 // ... (existing imports)
 

@@ -1,9 +1,9 @@
-import A from "@atoms/link";
 import { Button } from "@atoms/button/button";
-import { Input } from "@atoms/input/input-text";
 import { Checkbox } from "@atoms/input/input-checkbox";
 import InputCode from "@atoms/input/input-code";
-import { DelayedLoader, Loader } from "@atoms/loader";
+import { Input } from "@atoms/input/input-text";
+import A from "@atoms/link";
+import { DelayedLoader } from "@atoms/loader";
 import environment from "@config/environment";
 import { AuthApiClient } from "@features/auth/api-client/api-client";
 import { Transition } from "@headlessui/react";

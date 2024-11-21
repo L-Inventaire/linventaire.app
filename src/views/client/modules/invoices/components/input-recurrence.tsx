@@ -215,7 +215,7 @@ export const InvoiceRecurrenceInput = ({
       placeholder="Récurrence"
       icon={(p) => <ArrowPathIcon {...p} />}
       readonly={readonly}
-      content={<RecurrenceModalContent ctrl={ctrl} invoice={invoice} />}
+      content={() => <RecurrenceModalContent ctrl={ctrl} invoice={invoice} />}
       value={"true"}
     >
       <div className="space-y-0 w-max flex flex-col text-left">

@@ -26,7 +26,7 @@ export const InvoiceReminderInput = ({
         placeholder="Rappels"
         icon={(p) => <BellIcon {...p} />}
         readonly={readonly}
-        content={
+        content={() => (
           <>
             <Info>
               Envoyez un rappel toutes les semaines lorsque votre facture passe
@@ -51,7 +51,7 @@ export const InvoiceReminderInput = ({
               </div>
             )}
           </>
-        }
+        )}
         value={invoice.reminders?.enabled}
       >
         <div className="space-y-0 w-max flex flex-col text-left">

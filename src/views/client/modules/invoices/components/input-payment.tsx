@@ -28,7 +28,7 @@ export const InvoicePaymentInput = ({
       placeholder="Paiement"
       icon={(p) => <BanknotesIcon {...p} />}
       readonly={readonly}
-      content={
+      content={() => (
         <>
           <div className="p-4 border rounded">
             <FormInput
@@ -45,7 +45,7 @@ export const InvoicePaymentInput = ({
             />
           </div>
         </>
-      }
+      )}
       value={invoice.payment_information.mode?.length || undefined}
     >
       <div className="text-left flex flex-col space-y-0 w-max">

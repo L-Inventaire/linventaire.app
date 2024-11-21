@@ -1,12 +1,13 @@
 import { Button } from "@atoms/button/button";
 import { Checkbox } from "@atoms/input/input-checkbox";
 import Select from "@atoms/input/input-select";
-import { DelayedLoader, Loader } from "@atoms/loader";
+import { DelayedLoader } from "@atoms/loader";
 import { Modal } from "@atoms/modal/modal";
 import { Base, BaseSmall, Info } from "@atoms/text";
 import { useShortcuts } from "@features/utils/shortcuts";
 import { ArrowDownIcon, ArrowUpIcon } from "@heroicons/react/16/solid";
 import { ArrowDownTrayIcon, CogIcon } from "@heroicons/react/24/outline";
+import { ChevronDownIcon } from "@radix-ui/themes";
 import _ from "lodash";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -14,7 +15,6 @@ import { twMerge } from "tailwind-merge";
 import { TableExportModal } from "./export-modal";
 import { TableOptionsModal } from "./options-modal";
 import { TablePagination, TablePaginationSimple } from "./pagination";
-import { ChevronDownIcon } from "@radix-ui/themes";
 
 export type RenderOptions = {};
 

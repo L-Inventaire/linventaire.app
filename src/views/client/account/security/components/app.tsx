@@ -1,19 +1,19 @@
 import { Alert } from "@atoms/alert";
-import { DelayedLoader, Loader } from "@atoms/loader";
+import { Button } from "@atoms/button/button";
+import { ButtonConfirm } from "@atoms/button/confirm";
+import { InputLabel } from "@atoms/input/input-decoration-label";
+import { Input } from "@atoms/input/input-text";
+import { DelayedLoader } from "@atoms/loader";
+import { Modal, ModalContent } from "@atoms/modal/modal";
 import * as Text from "@atoms/text";
 import { MFAVerificationModal } from "@components/auth/mfa-verification-modal";
+import { useAuth } from "@features/auth/state/use-auth";
 import { MethodType } from "@features/customers/api-client/mfa-api-client";
 import { useCustomerMfa } from "@features/customers/state/hooks";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { QRCodeCanvas } from "qrcode.react";
 import { useState } from "react";
 import { TOTP } from "totp-generator";
-import { Modal, ModalContent } from "@atoms/modal/modal";
-import { Button } from "@atoms/button/button";
-import { Input } from "@atoms/input/input-text";
-import { InputLabel } from "@atoms/input/input-decoration-label";
-import { ButtonConfirm } from "@atoms/button/confirm";
-import { useAuth } from "@features/auth/state/use-auth";
 
 export const SecurityApp = (props: { mfa?: MethodType }) => {
   const { user } = useAuth();

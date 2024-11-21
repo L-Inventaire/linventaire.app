@@ -368,7 +368,9 @@ export const InvoicesDetailsPage = ({
                     ctrl={ctrl("emit_date")}
                     placeholder="Date d'emission"
                     value={formatTime(ctrl("emit_date").value || 0)}
-                    content={<FormInput ctrl={ctrl("emit_date")} type="date" />}
+                    content={() => (
+                      <FormInput ctrl={ctrl("emit_date")} type="date" />
+                    )}
                     readonly={readonly}
                   >
                     <Text size="2" className="opacity-75" weight="medium">
@@ -391,12 +393,12 @@ export const InvoicesDetailsPage = ({
                     value={formatTime(
                       ctrl("wait_for_completion_since").value || Date.now()
                     )}
-                    content={
+                    content={() => (
                       <FormInput
                         ctrl={ctrl("wait_for_completion_since") || Date.now()}
                         type="date"
                       />
-                    }
+                    )}
                     readonly={readonly}
                   >
                     <Text size="2" className="opacity-75" weight="medium">

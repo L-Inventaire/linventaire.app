@@ -19,6 +19,7 @@ export const InvoiceLineArticleInput = (props: {
   value?: InvoiceLine;
   onChange?: (v: InvoiceLine) => void;
   ctrl?: FormControllerType<InvoiceLine>;
+  close?: () => void;
 }) => {
   const value = props.ctrl?.value || props.value || ({} as InvoiceLine);
   const onChange = props.ctrl?.onChange || props.onChange;
@@ -110,7 +111,7 @@ export const InvoiceLineArticleInput = (props: {
             label="Choisir un article"
             icon={getArticleIcon(article?.type)}
             value={value.article}
-            onChange={(id, article: Articles | null) =>
+            onChange={(id, article: Articles | null) => {
               onChange?.(
                 article
                   ? {
@@ -124,8 +125,9 @@ export const InvoiceLineArticleInput = (props: {
                       unit: "",
                     }
                   : { ...value, article: "" }
-              )
-            }
+              );
+              props.close?.();
+            }}
           />
         )}
 
