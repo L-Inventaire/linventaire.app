@@ -22,6 +22,7 @@ import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import { FurnishQuotesFurnish } from "../../types";
+import { getContactName } from "@features/contacts/types/types";
 
 export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
   const quote = useInvoice(id || "");
@@ -562,12 +563,7 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
                             {supplier && (
                               <>
                                 <Info className="block text-slate-600">
-                                  {supplier.business_registered_name
-                                    ? supplier.business_registered_name + " - "
-                                    : ""}
-                                  {supplier.person_last_name +
-                                    " " +
-                                    supplier.person_first_name}
+                                  {getContactName(supplier)}
                                 </Info>
                                 {supplierDetails && (
                                   <Info>
@@ -577,13 +573,13 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
                                         {formatAmount(supplierDetails.price)} -{" "}
                                       </>
                                     )}
-                                    {supplierDetails.delivery_quantity && (
+                                    {!!supplierDetails.delivery_quantity && (
                                       <>
                                         {supplierDetails.delivery_quantity} en
                                         stock -{" "}
                                       </>
                                     )}
-                                    {supplierDetails.delivery_time && (
+                                    {!!supplierDetails.delivery_time && (
                                       <>
                                         livraison{" "}
                                         {supplierDetails.delivery_time}j
