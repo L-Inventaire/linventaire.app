@@ -29,7 +29,7 @@ import {
 } from "@heroicons/react/20/solid";
 import { Badge, Box, Card, Code, Flex, Text } from "@radix-ui/themes";
 import { frequencyOptions } from "@views/client/modules/articles/components/article-details";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useDrag, useDragLayer, useDrop } from "react-dnd";
 import { useSetRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
@@ -87,6 +87,33 @@ export const InvoiceLineInput = (props: {
   );
   const isSeparation =
     value.type === "separation" || value.type === "correction";
+
+  const previousArticleSupplierValues = useRef("");
+  useEffect(() => {
+    if (props.invoice?.supplier && (article?.id || !article?.price)) {
+      const previousValue = previousArticleSupplierValues.current;
+      const key = props.invoice?.supplier + "-" + article?.id;
+      if (key !== previousArticleSupplierValues.current) {
+        previousArticleSupplierValues.current = key;
+        if (previousValue) {
+          // If there was a value, but this value changed, then we can reset the prices to put the right ones
+          const isSupplierRelated = [
+            "supplier_credit_notes",
+            "supplier_quotes",
+            "supplier_invoices",
+          ].includes(props.invoice?.type || "");
+          const correctPrice = isSupplierRelated
+            ? article?.suppliers_details?.[props.invoice?.supplier]?.price ||
+              article?.suppliers_details?.["custom"]?.price
+            : article?.price || 0;
+          onChange?.({
+            ...value,
+            unit_price: correctPrice,
+          });
+        }
+      }
+    }
+  }, [article?.id, props.invoice?.supplier]);
 
   return (
     <>
