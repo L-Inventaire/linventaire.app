@@ -1,7 +1,7 @@
 import Avatar from "@atoms/avatar/avatar";
 import { Button } from "@atoms/button/button";
 import { InputWithSuggestions } from "@atoms/input/input-with-suggestion";
-import { DelayedLoader, Loader } from "@atoms/loader";
+import { DelayedLoader } from "@atoms/loader";
 import { Info } from "@atoms/text";
 import { RestUserTag } from "@components/deprecated-rest-tags/components/user";
 import { getFullName } from "@features/auth/utils";

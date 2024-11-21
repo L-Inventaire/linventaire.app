@@ -1,7 +1,10 @@
 import { Tag } from "@atoms/badge/tag";
 import { DropDownMenuType, Menu } from "@atoms/dropdown";
 import { Checkbox } from "@atoms/input/input-checkbox";
-import { DelayedLoader, Loader } from "@atoms/loader";
+import InputDate from "@atoms/input/input-date";
+import Select from "@atoms/input/input-select";
+import { Input } from "@atoms/input/input-text";
+import { DelayedLoader } from "@atoms/loader";
 import { Info, InfoSmall } from "@atoms/text";
 import { RestTag } from "@components/deprecated-rest-tags/index_deprecated";
 import { formatTime } from "@features/utils/format/dates";
@@ -15,9 +18,6 @@ import { CaretPositionType } from "./hooks/use-caret";
 import { Suggestions } from "./hooks/use-suggestions";
 import { SearchField } from "./utils/types";
 import { labelToVariable } from "./utils/utils";
-import Select from "@atoms/input/input-select";
-import { Input } from "@atoms/input/input-text";
-import InputDate from "@atoms/input/input-date";
 
 export const SearchBarSuggestions = ({
   suggestions,

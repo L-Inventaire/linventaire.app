@@ -134,13 +134,14 @@ export const InvoiceLineInput = (props: {
                     )
                   }
                   empty="Vide"
-                  content={
+                  content={({ close }) => (
                     <InvoiceLineArticleInput
                       {...props}
                       invoice={props.invoice!}
                       article={article}
+                      close={close}
                     />
-                  }
+                  )}
                   value={value.description || value.name || article?.name}
                 >
                   <Text
@@ -176,9 +177,9 @@ export const InvoiceLineInput = (props: {
                     className="rounded-none  h-full w-full flex grow p-3 m-0 box-border text-right justify-end"
                     label="Quantité"
                     placeholder="Quantité"
-                    content={
+                    content={() => (
                       <InvoiceLineQuantityInput {...props} article={article} />
-                    }
+                    )}
                     value={value.quantity}
                   >
                     <Text as="div" size="2" weight="bold">
@@ -217,7 +218,7 @@ export const InvoiceLineInput = (props: {
                     className="rounded-none h-full w-full flex grow p-3 m-0 box-border text-right justify-end"
                     label="Prix et TVA"
                     placeholder="Prix et TVA"
-                    content={
+                    content={() => (
                       <>
                         <InvoiceLinePriceInput {...props} article={article} />
                         <br />
@@ -228,7 +229,7 @@ export const InvoiceLineInput = (props: {
                           value={value.discount}
                         />
                       </>
-                    }
+                    )}
                     value={value.unit_price}
                   >
                     <Text as="div" size="2" weight="bold">
@@ -494,13 +495,14 @@ export const InvoiceLineInput = (props: {
                   )
                 }
                 empty="Vide"
-                content={
+                content={({ close }) => (
                   <InvoiceLineArticleInput
                     {...props}
                     invoice={props.invoice!}
                     article={article}
+                    close={close}
                   />
-                }
+                )}
                 value={value.description || value.name || article?.name}
               >
                 <div
@@ -624,12 +626,12 @@ export const InvoiceLineInput = (props: {
                 placeholder="Réduction"
                 value={value.discount?.value}
                 icon={(p) => <ReceiptPercentIcon {...p} />}
-                content={
+                content={() => (
                   <InvoiceDiscountInput
                     onChange={(d) => onChange?.({ ...value, discount: d })}
                     value={value.discount}
                   />
-                }
+                )}
               >
                 <BaseSmall>
                   {"- "}

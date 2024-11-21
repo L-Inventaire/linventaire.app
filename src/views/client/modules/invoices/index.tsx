@@ -7,7 +7,7 @@ import {
   SupplierQuotesColumns,
 } from "@features/invoices/configuration";
 import { useInvoices } from "@features/invoices/hooks/use-invoices";
-import { Invoices, InvoicesType } from "@features/invoices/types/types";
+import { Invoices } from "@features/invoices/types/types";
 import { getDocumentNamePlurial } from "@features/invoices/utils";
 import { ROUTES, getRoute } from "@features/routes";
 import { formatNumber } from "@features/utils/format/strings";

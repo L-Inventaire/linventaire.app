@@ -35,7 +35,7 @@ export const InputDelivery = ({
         btnKey={btnKey}
         label="Modifier la livraison"
         icon={(p) => <TruckIcon {...p} />}
-        content={
+        content={() => (
           <div className="space-y-2">
             <FormInput
               type="radio"
@@ -106,7 +106,7 @@ export const InputDelivery = ({
               </>
             )}
           </div>
-        }
+        )}
         value={
           invoice.delivery_delay || invoice.delivery_address
             ? "always"
