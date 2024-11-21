@@ -189,22 +189,6 @@ export const ArticlesFieldsNames = () => ({
       weekly: "Hebdomadaire",
     },
   },
-  stock_available: {
-    label: "Stock disponible",
-    keywords: "disponible stock inventaire",
-  },
-  stock_reserved: {
-    label: "Stock réservé",
-    keywords: "réservé stock inventaire",
-  },
-  stock_delivered: {
-    label: "Stock livré",
-    keywords: "livré expédié stock",
-  },
-  stock_bought: {
-    label: "Stock acheté",
-    keywords: "acheté achat stock",
-  },
   documents: {
     label: "Documents",
     keywords: "fichiers pièces documents",
