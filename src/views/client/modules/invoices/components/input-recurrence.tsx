@@ -66,7 +66,7 @@ const optionsEndDates = [
 const optionsInvoiceDate = [
   {
     value: "first_day",
-    label: "Date de renouvellement",
+    label: "Premier jour de la période",
   },
   {
     value: "first_workday",
@@ -74,7 +74,7 @@ const optionsInvoiceDate = [
   },
   {
     value: "monday",
-    label: "Lundi suivant la date de renouvellement",
+    label: "Premier lundi de la période",
   },
   {
     value: "last_day",
