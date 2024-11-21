@@ -107,7 +107,7 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
       (async () =>
         options?.limit === 0
           ? { total: 0, list: [] }
-          : options?.id
+          : options?.id !== undefined
           ? await (async () => {
               const tmp = await restApiClient.get(id || "", options!.id!);
               return { total: tmp ? 1 : 0, list: tmp ? [tmp] : [] };
