@@ -1,28 +1,27 @@
 import { Alert } from "@atoms/alert";
+import { Button } from "@atoms/button/button";
 import { Input } from "@atoms/input/input-text";
 import { DelayedLoader } from "@atoms/loader";
 import { Base, BaseSmall, Info, Section, SectionSmall } from "@atoms/text";
 import { generateQueryFromMap } from "@components/search-bar/utils/utils";
+import { Articles } from "@features/articles/types/types";
+import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { useFurnishQuotes } from "@features/invoices/hooks/use-furnish-quotes";
 import { useInvoice, useInvoices } from "@features/invoices/hooks/use-invoices";
+import { getRoute, ROUTES } from "@features/routes";
+import { useStockItems } from "@features/stock/hooks/use-stock-items";
+import { StockItems } from "@features/stock/types/types";
 import { debounce } from "@features/utils/debounce";
 import { formatAmount } from "@features/utils/format/strings";
+import { CircleStackIcon, UserIcon } from "@heroicons/react/16/solid";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { Card, Slider } from "@radix-ui/themes";
 import { prettyContactName } from "@views/client/modules/contacts/utils";
 import _, { max } from "lodash";
 import { useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import { FurnishQuotesFurnish } from "../../types";
-import { useStockItems } from "@features/stock/hooks/use-stock-items";
-import { useNavigate } from "react-router-dom";
-import { getRoute, ROUTES } from "@features/routes";
-import { Button } from "@atoms/button/button";
-import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
-import { Contacts } from "@features/contacts/types/types";
-import { Articles } from "@features/articles/types/types";
-import { StockItems } from "@features/stock/types/types";
-import { CircleStackIcon, UserIcon } from "@heroicons/react/16/solid";
 
 export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
   const quote = useInvoice(id || "");
@@ -68,158 +67,6 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
       article: articleID,
     });
   };
-
-  // function setTotalArticleQuantity(
-  //   articleID: string,
-  //   value: number,
-  //   forceValue = false
-  // ) {
-  //   const articleFurnishes = grouppedByArticles[articleID];
-
-  //   const currentValue = (articleFurnishes ?? []).reduce(
-  //     (acc, fur) => acc + fur.quantity,
-  //     0
-  //   );
-  //   const initialDelta = value - currentValue;
-  //   let delta = initialDelta;
-
-  //   let counter = 0;
-  //   const alteredFurnishes: FurnishQuotesFurnish[] = [];
-
-  //   while (Math.abs(delta) > 0 && counter <= Math.abs(initialDelta)) {
-  //     let furnish: FurnishQuotesFurnish | null = null;
-  //     let furnishes = articleFurnishes;
-
-  //     furnishes = furnishes
-  //       .sort((furA, furB) => {
-  //         const locked = modifiedFurnishes.map((fur) => fur.ref);
-  //         if (locked.includes(furA.ref) && locked.includes(furA.ref)) return 0;
-  //         if (locked.includes(furA.ref)) return 1;
-  //         if (locked.includes(furB.ref)) return -1;
-
-  //         if (furA.stockID && furB.stockID) return 0;
-  //         if (furA.stockID) return 1;
-  //         if (furB.stockID) return -1;
-
-  //         return furA.quantity - furB.quantity;
-  //       })
-  //       .filter((fur) => !lockedFurnishesRefs.includes(fur.ref));
-
-  //     if (delta > 0) {
-  //       furnish =
-  //         furnishes.find(
-  //           (fur) =>
-  //             fur.quantity < (fur.maxAvailable ?? 0) &&
-  //             fur.quantity < (fur.totalToFurnish ?? 0)
-  //         ) ?? null;
-
-  //       if (!furnish && forceValue) furnish = _.first(furnishes) ?? null;
-
-  //       if (!furnish) break;
-
-  //       furnish.quantity++;
-  //       delta--;
-  //     }
-  //     if (delta < 0) {
-  //       furnish = furnishes.find((fur) => fur.quantity > 0) ?? null;
-
-  //       if (!furnish) break;
-  //       furnish.quantity--;
-  //       delta++;
-  //     }
-
-  //     if (furnish) alteredFurnishes.push(furnish);
-
-  //     furnish = null;
-  //     counter++;
-  //   }
-
-  //   setFurnishesOverride((data) =>
-  //     _.uniqBy(
-  //       [...data, ...alteredFurnishes].filter(
-  //         Boolean
-  //       ) as FurnishQuotesFurnish[],
-  //       "ref"
-  //     )
-  //   );
-  // }
-
-  // function setArticleQuantity(
-  //   furnish: FurnishQuotesFurnish,
-  //   value: number,
-  //   forceValue = false
-  // ) {
-  //   const articleFurnishes = grouppedByArticles[furnish.articleID];
-
-  //   const max = furnish.maxAvailable ?? furnish.totalToFurnish ?? 0;
-
-  //   const currentValue = furnish.quantity;
-  //   let delta = value - currentValue;
-
-  //   let counter = 0;
-  //   const modifiedFurnishes: FurnishQuotesFurnish[] = [];
-
-  //   while (Math.abs(delta) > 0 && counter <= max) {
-  //     let donorFurnish: FurnishQuotesFurnish | null = null;
-  //     let furnishes = articleFurnishes.filter((fur) => fur.ref !== furnish.ref);
-
-  //     furnishes = furnishes
-  //       .sort((furA, furB) => {
-  //         const locked = modifiedFurnishes.map((fur) => fur.ref);
-  //         if (locked.includes(furA.ref) && locked.includes(furA.ref)) return 0;
-  //         if (locked.includes(furA.ref)) return 1;
-  //         if (locked.includes(furB.ref)) return -1;
-
-  //         if (furA.stockID && furB.stockID) return 0;
-  //         if (furA.stockID) return -1;
-  //         if (furB.stockID) return 1;
-
-  //         return furA.quantity - furB.quantity;
-  //       })
-  //       .filter((fur) => !lockedFurnishesRefs.includes(fur.ref));
-
-  //     if (delta > 0) {
-  //       donorFurnish = furnishes.find((fur) => fur.quantity > 0) ?? null;
-
-  //       if (!donorFurnish && !forceValue) break;
-  //       furnish.quantity++;
-
-  //       if (donorFurnish) donorFurnish.quantity--;
-  //       delta--;
-  //     }
-  //     if (delta < 0) {
-  //       donorFurnish =
-  //         furnishes.find(
-  //           (fur) =>
-  //             fur.quantity < (fur.maxAvailable ?? fur.totalToFurnish ?? 0)
-  //         ) ?? null;
-
-  //       if (!donorFurnish && !forceValue) break;
-  //       furnish.quantity--;
-
-  //       if (donorFurnish) donorFurnish.quantity++;
-  //       delta++;
-  //     }
-
-  //     if (furnish) modifiedFurnishes.push(furnish);
-  //     if (donorFurnish) modifiedFurnishes.push(donorFurnish);
-
-  //     donorFurnish = null;
-  //     counter++;
-  //   }
-
-  //   setFurnishesOverride((data) =>
-  //     _.uniqBy(
-  //       [...data, ...modifiedFurnishes].filter(
-  //         Boolean
-  //       ) as FurnishQuotesFurnish[],
-  //       "ref"
-  //     )
-  //   );
-  //   setModifiedFurnishesRefs((data) => _.uniq([...data, furnish.ref]));
-  //   if (forceValue)
-  //     setLockedFurnishesRefs((data) => _.uniq([...data, furnish.ref]));
-  // }
 
   const setArticleQuantity = useCallback(
     (fur: FurnishQuotesFurnish, value: number) => {
@@ -317,34 +164,6 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
             <Info>
               Impossible de fournir. Vérifiez vos stocks et vos fournisseurs
             </Info>
-            {articles.map((article) => {
-              return (
-                <div
-                  className="flex mt-4 justify-between items-center"
-                  key={article.id}
-                >
-                  <Base>{article.name}</Base>
-                  <div className="flex items-center mt-4">
-                    <Button
-                      theme="outlined"
-                      className="mr-2"
-                      onClick={() => addSupplier(article.id)}
-                      icon={(props) => <UserIcon {...props} />}
-                      data-tooltip="Ajouter un fournisseur"
-                    >
-                      +
-                    </Button>
-                    <Button
-                      onClick={() => addStock(article.id)}
-                      icon={(props) => <CircleStackIcon {...props} />}
-                      data-tooltip="Ajouter un stock"
-                    >
-                      +
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
           </div>
         )}
 
