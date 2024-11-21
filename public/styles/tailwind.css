@@ -2387,6 +2387,10 @@ body :is(.space-y-8 > :not([hidden]) ~ :not([hidden])) {
   margin-bottom: calc(2rem * var(--tw-space-y-reverse));
 }
 
+body :is(.self-end) {
+  align-self: flex-end;
+}
+
 body :is(.overflow-auto) {
   overflow: auto;
 }
@@ -3796,6 +3800,18 @@ body :is(.pt-6) {
 
 body :is(.pt-8) {
   padding-top: 2rem;
+}
+
+body :is(.pb-10) {
+  padding-bottom: 2.5rem;
+}
+
+body :is(.pb-8) {
+  padding-bottom: 2rem;
+}
+
+body :is(.pb-20) {
+  padding-bottom: 5rem;
 }
 
 body :is(.text-left) {

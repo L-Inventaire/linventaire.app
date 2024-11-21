@@ -1,12 +1,13 @@
 import { Button } from "@atoms/button/button";
 import { Checkbox } from "@atoms/input/input-checkbox";
 import Select from "@atoms/input/input-select";
-import { Loader } from "@atoms/loader";
+import { DelayedLoader } from "@atoms/loader";
 import { Modal } from "@atoms/modal/modal";
 import { Base, BaseSmall, Info } from "@atoms/text";
 import { useShortcuts } from "@features/utils/shortcuts";
 import { ArrowDownIcon, ArrowUpIcon } from "@heroicons/react/16/solid";
 import { ArrowDownTrayIcon, CogIcon } from "@heroicons/react/24/outline";
+import { ChevronDownIcon } from "@radix-ui/themes";
 import _ from "lodash";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -14,7 +15,6 @@ import { twMerge } from "tailwind-merge";
 import { TableExportModal } from "./export-modal";
 import { TableOptionsModal } from "./options-modal";
 import { TablePagination, TablePaginationSimple } from "./pagination";
-import { ChevronDownIcon } from "@radix-ui/themes";
 
 export type RenderOptions = {};
 
@@ -240,7 +240,7 @@ export function RenderedTable<T>({
       >
         {loading && (
           <div className="absolute m-auto left-0 top-0 right-0 bottom-0 w-6 h-6 text-center z-10">
-            <Loader color="text-slate-500" />
+            <DelayedLoader color="text-slate-500" />
           </div>
         )}
 
@@ -451,7 +451,7 @@ export function RenderedTable<T>({
                       <tr>
                         <td
                           colSpan={columns.length + 1}
-                          className="bg-slate-100 border-b bg-opacity-75 border-b border-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:border-slate-700 pl-6 py-1"
+                          className="bg-slate-100 border-b bg-opacity-75 border-slate-100 dark:bg-slate-800 dark:border-slate-700 pl-6 py-1"
                         >
                           {props.groupByRender?.(row) || getGroupByKey(row)}
                         </td>

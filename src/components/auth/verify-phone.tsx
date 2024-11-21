@@ -1,9 +1,9 @@
-import A from "@atoms/link";
 import { Button } from "@atoms/button/button";
-import { Input } from "@atoms/input/input-text";
 import InputCode from "@atoms/input/input-code";
 import InputPhone from "@atoms/input/input-phone";
-import { Loader } from "@atoms/loader";
+import { Input } from "@atoms/input/input-text";
+import A from "@atoms/link";
+import { DelayedLoader } from "@atoms/loader";
 import environment from "@config/environment";
 import { AuthApiClient } from "@features/auth/api-client/api-client";
 import { Transition } from "@headlessui/react";
@@ -107,7 +107,7 @@ export const VerifyPhone = (props: {
     <>
       {!success && autoRequest && !challenge?.token && (
         <div className="block text-center my-8">
-          <Loader />
+          <DelayedLoader />
         </div>
       )}
 
@@ -193,7 +193,7 @@ export const VerifyPhone = (props: {
         leaveTo="opacity-0"
       >
         <p className="text-center text-md text-black dark:text-white mt-12">
-          <Loader />
+          <DelayedLoader />
           <br />
           <br />
           Your phone was verified successfully.

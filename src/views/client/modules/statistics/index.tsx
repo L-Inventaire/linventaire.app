@@ -15,8 +15,15 @@ export const StatisticsPage = () => {
 
   const statistics = useStatistics(clientId, "year");
   const data = statistics.totalRevenueTable;
-  const flatTagIDs = _.uniq(data.flatMap((item) => item.tag));
-  const tagIDs = _.uniq(data.map((item) => item.tag)).filter(Boolean);
+  const flatTagIDs = _.uniqBy(
+    data.flatMap((item) => item.tag),
+    (item) => JSON.stringify(item)
+  );
+  const tagIDs = _.uniqBy(
+    data.map((item) => item.tag),
+    (item) => JSON.stringify(item)
+  ).filter(Boolean);
+
 
   const start = DateTime.now().startOf("year");
 
@@ -66,6 +73,7 @@ export const StatisticsPage = () => {
                     );
                     return (
                       <Table.ColumnHeaderCell>
+                        {foundTags.length === 0 && "Non classé"}
                         {foundTags.map((tag) => tag.name).join(", ")}
                       </Table.ColumnHeaderCell>
                     );

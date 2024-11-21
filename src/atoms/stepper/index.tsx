@@ -53,7 +53,7 @@ export const Stepper = <T extends string>({
   return (
     <Button
       className={twMerge("w-max", readonly ? "pointer-events-none " : "")}
-      data-tooltip={readonly ? statusName[value] : "Modifier le status" || "-"}
+      data-tooltip={readonly ? statusName[value] : "Modifier le status"}
       variant="outline"
       size={size === "sm" ? "1" : "2"}
       onClick={

@@ -24,7 +24,7 @@ export type InputButtonProps<T> = Omit<
   placeholder?: string;
   empty?: string;
   label?: string;
-  content?: ReactNode | JSX.Element;
+  content?: ({ close }: { close: () => void }) => ReactNode | JSX.Element;
   autoFocus?: boolean;
 };
 
@@ -103,7 +103,9 @@ export const InputButton = <T,>(props: InputButtonProps<T>) => {
       {!disabled && (
         <Modal open={open} closable onClose={() => setOpen(false)}>
           <ModalContent title={props.label || props.placeholder}>
-            {props.content || (
+            {props.content?.({
+              close: () => setOpen(false),
+            }) || (
               <InputDecorationIcon
                 prefix={props.icon as any}
                 input={(p) => (

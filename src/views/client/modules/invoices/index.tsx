@@ -2,7 +2,10 @@ import { Button } from "@atoms/button/button";
 import { Info } from "@atoms/text";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { RestTable } from "@components/table-rest";
-import { InvoicesColumns } from "@features/invoices/configuration";
+import {
+  InvoicesColumns,
+  SupplierQuotesColumns,
+} from "@features/invoices/configuration";
 import { useInvoices } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
 import { getDocumentNamePlurial } from "@features/invoices/utils";
@@ -32,10 +35,6 @@ const activeFilter = [
     values: [
       {
         op: "equals",
-        value: "draft",
-      },
-      {
-        op: "equals",
         value: "closed",
       },
       {
@@ -53,6 +52,14 @@ export const InvoicesPage = () => {
 
   const tabs = {
     active: { label: "Actifs", filter: activeFilter },
+    ...(!type.includes("supplier_quotes")
+      ? {
+          recurring: {
+            label: "En abonnement",
+            filter: buildQueryFromMap({ state: "recurring" }),
+          },
+        }
+      : {}),
     ...(type.includes("quotes")
       ? {
           recurring: {
@@ -61,10 +68,6 @@ export const InvoicesPage = () => {
           },
         }
       : {}),
-    draft: {
-      label: "Brouillons",
-      filter: buildQueryFromMap({ state: "draft" }),
-    },
     closed: {
       label: "Terminés",
       filter: buildQueryFromMap({ state: "closed" }),
@@ -92,6 +95,7 @@ export const InvoicesPage = () => {
       ...invoiceFilters.query,
       ...((tabs as any)[activeTab]?.filter || []),
     ],
+    asc: true,
   });
 
   const schema = useRestSchema("invoices");
@@ -101,7 +105,7 @@ export const InvoicesPage = () => {
   const { invoices: draftInvoices } = useInvoices({
     key: "draftInvoices",
     limit: 1,
-    query: [...invoiceFilters.query, ...tabs.draft.filter],
+    query: [...buildQueryFromMap({ state: "draft" }), ...invoiceFilters.query],
   });
   const { invoices: activeInvoices } = useInvoices({
     key: "activeInvoices",
@@ -123,7 +127,7 @@ export const InvoicesPage = () => {
     activeTab === "active" &&
     !didSelectTab
   ) {
-    setActiveTab("draft");
+    setActiveTab("active");
   }
 
   return (
@@ -253,11 +257,9 @@ export const InvoicesPage = () => {
               {Object.entries(tabs).map(([key, label]) => (
                 <Tabs.Trigger key={key} value={key}>
                   {label.label}
-                  {["draft", "active", "recurring"].includes(key) && (
+                  {["active", "recurring"].includes(key) && (
                     <Badge className="ml-2">
-                      {key === "draft"
-                        ? formatNumber(draftInvoices?.data?.total || 0)
-                        : key === "recurring"
+                      {key === "recurring"
                         ? formatNumber(recurringInvoices?.data?.total || 0)
                         : formatNumber(activeInvoices?.data?.total || 0)}
                     </Badge>
@@ -297,7 +299,11 @@ export const InvoicesPage = () => {
               asc: page.order === "ASC",
             });
           }}
-          columns={InvoicesColumns}
+          columns={
+            type.includes("supplier_quotes")
+              ? SupplierQuotesColumns
+              : InvoicesColumns
+          }
         />
       </div>
     </Page>

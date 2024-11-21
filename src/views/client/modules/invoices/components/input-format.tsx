@@ -41,7 +41,7 @@ export const InvoiceInputFormat = ({
       }
       icon={(p) => <LanguageIcon {...p} />}
       value={hasContent}
-      content={
+      content={() => (
         <>
           <FormInput
             label="Langue"
@@ -57,7 +57,7 @@ export const InvoiceInputFormat = ({
             hideLinkedDocuments
           />
         </>
-      }
+      )}
     >
       <div className="flex flex-col space-y-0 text-left">
         <Base>

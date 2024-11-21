@@ -5,6 +5,12 @@ import { StockItems } from "@features/stock/types/types";
 export type FurnishQuotesResponse = {
   actions: FurnishInvoiceAction[];
   furnishes: FurnishQuotesFurnish[];
+  articles: {
+    id: string;
+    remainingQuantity: number;
+    totalToFurnish: number;
+    alreadyFurnishedQuantity: number;
+  }[];
 };
 
 export type FurnishInvoiceAction = {

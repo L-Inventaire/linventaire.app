@@ -50,12 +50,25 @@ export const useFurnishQuotes = (quotes: Invoices[]) => {
       ),
   });
 
-  function actionFurnishQuotes() {
-    return InvoicesApiClient.actionFurnishQuotes(
+  async function actionFurnishQuotes() {
+    await InvoicesApiClient.actionFurnishQuotes(
       client.id,
       quotes.map((quote) => quote.id),
       furnishesOverride
     );
+    setFurnishesOverride([]);
+
+    await setTimeout(() => {
+      refetchFurnishQuotes();
+    }, 1000);
+
+    // const result = await InvoicesApiClient.getFurnishQuotes(
+    //   client.id,
+    //   quotes.map((quote) => quote.id),
+    //   []
+    // );
+
+    // return result;
   }
 
   const furnishes = furnishQuotes?.furnishes;
@@ -187,7 +200,11 @@ export const useFurnishQuotes = (quotes: Invoices[]) => {
     query: [
       {
         key: "id",
-        values: articleIDs.map((id) => ({ op: "equals", value: id })),
+        values:
+          (furnishQuotes?.articles ?? []).map((a) => ({
+            op: "equals",
+            value: a.id,
+          })) ?? [],
       },
     ],
     key: "articles_" + articleIDs.join("_"),
@@ -206,7 +223,11 @@ export const useFurnishQuotes = (quotes: Invoices[]) => {
     grouppedBySuppliers,
     grouppedByStocks,
     grouppedByArticles,
-    articles,
+    articles: (articles?.data?.list ?? []).map((a) => {
+      const articleData = furnishQuotes?.articles.find((ad) => ad.id === a.id);
+      return { ...a, ...articleData };
+    }),
+    articlesData: furnishQuotes?.articles,
     suppliers,
     stockFurnishes,
     stocks,

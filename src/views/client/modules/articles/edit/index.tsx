@@ -8,6 +8,7 @@ import { Page } from "@views/client/_layout/page";
 import _ from "lodash";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArticlesDetailsPage } from "../components/article-details";
+import toast from "react-hot-toast";
 
 export const ArticlesEditPage = (_props: { readonly?: boolean }) => {
   let { id } = useParams();
@@ -46,7 +47,17 @@ export const ArticlesEditPage = (_props: { readonly?: boolean }) => {
           entity={"articles"}
           document={article}
           mode={"write"}
-          onSave={async () => await save()}
+          onSave={async () => {
+            if (!article?.name) {
+              toast.error("Vous devez saisir le nom de l'article.");
+              return;
+            }
+            if ((article?.suppliers ?? [])?.length === 0) {
+              toast.error("Vous devez associer au moins un fournisseur.");
+              return;
+            }
+            await save();
+          }}
           backRoute={ROUTES.Products}
           viewRoute={ROUTES.ProductsView}
           prefix={<span>Créer un article</span>}
