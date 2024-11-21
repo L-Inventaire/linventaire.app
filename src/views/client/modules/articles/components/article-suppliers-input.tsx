@@ -124,7 +124,7 @@ export const ArticleSuppliersInput = ({
                       placeholder="Prix"
                     />
                     <FormInput
-                      label="Quantité"
+                      label="Quantité / lot"
                       type="number"
                       value={value[1][contact.id]?.delivery_quantity || 1}
                       onChange={(delivery_quantity: string) => {
@@ -230,7 +230,7 @@ export const ArticleSuppliersInput = ({
                       ),
                     },
                     {
-                      title: "Quantité",
+                      title: "Quantité / lot",
                       thClassName: "w-24",
                       render: (contact) => (
                         <>

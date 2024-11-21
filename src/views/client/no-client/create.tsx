@@ -3,10 +3,9 @@ import { InputLabel } from "@atoms/input/input-decoration-label";
 import { InputImage } from "@atoms/input/input-image";
 import { Input } from "@atoms/input/input-text";
 import Link from "@atoms/link";
-import { Loader } from "@atoms/loader";
+import { DelayedLoader } from "@atoms/loader";
 import { Base, Info, SectionSmall, Title } from "@atoms/text";
 import { AddressInput } from "@components/input-button/address/form";
-import { Table } from "@molecules/table";
 import { DidCreateCompanyOrSignupAtom } from "@features/clients/state/store";
 import { useClients } from "@features/clients/state/use-clients";
 import { Clients } from "@features/clients/types/clients";
@@ -14,6 +13,7 @@ import { ROUTES, getRoute } from "@features/routes";
 import { validateEmail } from "@features/utils/format/strings";
 import { useControlledEffect } from "@features/utils/hooks/use-controlled-effect";
 import { EnvelopeIcon } from "@heroicons/react/24/outline";
+import { Table } from "@molecules/table";
 import _ from "lodash";
 import { useState } from "react";
 import toast from "react-hot-toast";
@@ -281,7 +281,7 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
         )}
         {step === 3 && (
           <div className="w-full h-32 flex items-center justify-center">
-            <Loader color="text-slate-500" />
+            <DelayedLoader color="text-slate-500" />
           </div>
         )}
 

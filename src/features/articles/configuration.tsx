@@ -14,6 +14,7 @@ import { Articles } from "./types/types";
 
 export const useArticleDefaultModel: () => Partial<Articles> = () => ({
   type: "product",
+  unit: "unit",
   tva: "20",
 });
 
@@ -188,22 +189,6 @@ export const ArticlesFieldsNames = () => ({
       yearly: "Annuel",
       weekly: "Hebdomadaire",
     },
-  },
-  stock_available: {
-    label: "Stock disponible",
-    keywords: "disponible stock inventaire",
-  },
-  stock_reserved: {
-    label: "Stock réservé",
-    keywords: "réservé stock inventaire",
-  },
-  stock_delivered: {
-    label: "Stock livré",
-    keywords: "livré expédié stock",
-  },
-  stock_bought: {
-    label: "Stock acheté",
-    keywords: "acheté achat stock",
   },
   documents: {
     label: "Documents",

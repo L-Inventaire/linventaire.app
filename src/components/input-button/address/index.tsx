@@ -11,13 +11,13 @@ export const AddressInputButton = (
     <InputButton
       label={props.label || "Address"}
       {...props}
-      content={
+      content={() => (
         <AddressInput
           value={props.value as any}
           onChange={props.onChange as any}
           autoComplete={props.autoComplete}
         />
-      }
+      )}
     >
       <div className="text-left">
         <AddressInput value={props.value as any} readonly />

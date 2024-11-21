@@ -1,10 +1,10 @@
-import { Loader } from "@atoms/loader";
+import { DelayedLoader } from "@atoms/loader";
 import { BaseSmall } from "@atoms/text";
 import { applySearchFilter } from "@features/utils/format/strings";
 import _ from "lodash";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Input, InputProps } from "./input-text";
 import { twMerge } from "tailwind-merge";
+import { Input, InputProps } from "./input-text";
 
 // ... (existing imports)
 
@@ -140,7 +140,7 @@ export const InputWithSuggestions = (props: InputSuggestionProps) => {
       />
       {props.loading && (
         <div className="absolute top-1/2 right-2 transform -translate-y-1/2 h-full flex items-center">
-          <Loader />
+          <DelayedLoader />
         </div>
       )}
       {focus && !!filteredOptions?.length && (

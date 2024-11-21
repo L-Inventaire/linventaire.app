@@ -1,18 +1,18 @@
-import A from "@atoms/link";
 import { Button } from "@atoms/button/button";
-import { Loader } from "@atoms/loader";
+import { Input } from "@atoms/input/input-text";
+import A from "@atoms/link";
+import { DelayedLoader } from "@atoms/loader";
 import { VerifyEmail } from "@components/auth/verify-email";
 import { VerifyPhone } from "@components/auth/verify-phone";
 import { AuthApiClient } from "@features/auth/api-client/api-client";
+import { AuthJWT } from "@features/auth/jwt";
 import { useAuth } from "@features/auth/state/use-auth";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { VerifyApp } from "./verify-app";
 import { VerifyPassword } from "./verify-password";
-import { useTranslation } from "react-i18next";
-import { Input } from "@atoms/input/input-text";
-import { AuthJWT } from "@features/auth/jwt";
 
 export const MfaList = (props: {
   onTokenExtended?: () => void;
@@ -134,7 +134,7 @@ export const MfaList = (props: {
     <>
       {isLoading && (
         <div className="block text-center py-8">
-          <Loader />
+          <DelayedLoader />
         </div>
       )}
 

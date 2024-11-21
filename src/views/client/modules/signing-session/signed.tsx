@@ -100,11 +100,7 @@ export const SignedSessionPage = () => {
                 title="Invoice PDF Preview"
               />
             )}
-            {/* {isLoadingSignedDocument && (
-              <Card className="w-full h-full">
-                <Loader />
-              </Card>
-            )} */}
+
             {!signedDocument && (
               <div className="flex flex-col w-full h-2/3 p-10 justify-center items-center bg-white rounded-lg">
                 <div className="w-full md:w-1/2 mb-6">

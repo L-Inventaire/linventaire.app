@@ -15,7 +15,9 @@ export const useArticles = (options?: RestOptions<Articles>) => {
 export const useArticle = (id: string) => {
   const rest = useArticles({ id });
   return {
-    article: id ? (rest.articles.data?.list || [])[0] : null,
+    article: id
+      ? (rest.articles.data?.list || []).find((item) => item.id === id)
+      : null,
     isPending: id ? rest.articles.isPending : false,
     ...rest,
   };

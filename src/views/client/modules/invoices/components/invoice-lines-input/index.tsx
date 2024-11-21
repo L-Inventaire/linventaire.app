@@ -229,14 +229,14 @@ export const InvoiceLinesInput = ({
                     empty="Pas de réduction globale"
                     placeholder="Options"
                     icon={(p) => <ReceiptPercentIcon {...p} />}
-                    content={
+                    content={() => (
                       <InvoiceDiscountInput
                         onChange={(discount) =>
                           onChange({ ...value, discount })
                         }
                         value={value?.discount}
                       />
-                    }
+                    )}
                     value={value?.discount}
                   >
                     {"- "}

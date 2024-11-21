@@ -17,6 +17,64 @@
       "title": "Shared Document"
     }
   },
+  "atoms": {
+    "input": {
+      "unit": {
+        "categories": {
+          "general": "General",
+          "length": "Length",
+          "mass": "Mass",
+          "volume": "Volume",
+          "temperature": "Temperature",
+          "time": "Time",
+          "area": "Area",
+          "speed": "Speed"
+        },
+        "unit": "unit",
+        "ms": "ms",
+        "s": "s",
+        "min": "minutes",
+        "h": "hours",
+        "d": "days",
+        "w": "weeks",
+        "mo": "months",
+        "y": "years",
+        "mm": "mm",
+        "cm": "cm",
+        "m": "m",
+        "km": "km",
+        "in": "in",
+        "ft": "ft",
+        "yd": "yd",
+        "mi": "mi",
+        "mg": "mg",
+        "g": "g",
+        "kg": "kg",
+        "t": "t",
+        "oz": "oz",
+        "lb": "lb",
+        "°C": "°C",
+        "°F": "°F",
+        "K": "K",
+        "ml": "ml",
+        "cl": "cl",
+        "dl": "dl",
+        "l": "l",
+        "m³": "m³",
+        "in³": "in³",
+        "ft³": "ft³",
+        "mm²": "mm²",
+        "cm²": "cm²",
+        "m²": "m²",
+        "ha": "ha",
+        "km²": "km²",
+        "in²": "in²",
+        "ft²": "ft²",
+        "yd²": "yd²",
+        "mi²": "mi²"
+      }
+    }
+  },
   "signin": {
     "login": {
       "title": "Hi {{0}}, glad to see you back.",

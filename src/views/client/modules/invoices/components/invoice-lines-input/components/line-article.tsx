@@ -1,4 +1,6 @@
+import { InputLabel } from "@atoms/input/input-decoration-label";
 import Link from "@atoms/link";
+import { RadioCard } from "@atoms/radio-card";
 import { Info } from "@atoms/text";
 import { FormInput } from "@components/form/fields";
 import { FormControllerType } from "@components/form/formcontext";
@@ -7,11 +9,8 @@ import { useArticle } from "@features/articles/hooks/use-articles";
 import { Articles } from "@features/articles/types/types";
 import { InvoiceLine, Invoices } from "@features/invoices/types/types";
 import { EditorInput } from "@molecules/editor-input";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { getArticleIcon } from "../../../../articles/components/article-icon";
-import { RadioCard } from "@atoms/radio-card";
-import { InputLabel } from "@atoms/input/input-decoration-label";
-import _ from "lodash";
 
 export const InvoiceLineArticleInput = (props: {
   invoice: Invoices;
@@ -19,70 +18,18 @@ export const InvoiceLineArticleInput = (props: {
   value?: InvoiceLine;
   onChange?: (v: InvoiceLine) => void;
   ctrl?: FormControllerType<InvoiceLine>;
+  close?: () => void;
 }) => {
   const value = props.ctrl?.value || props.value || ({} as InvoiceLine);
   const onChange = props.ctrl?.onChange || props.onChange;
 
   const { article } = useArticle(value.article || "");
-  const prevSupplier = useRef(props.invoice.supplier);
 
   const [useArticleName, setUseArticleName] = useState(
     !article ||
       (value.name === article?.name &&
         value.description === article?.description)
   );
-
-  useEffect(() => {
-    let supplierChanged = false;
-    if (prevSupplier.current !== props.invoice.supplier) {
-      prevSupplier.current = props.invoice.supplier;
-      supplierChanged = true;
-    }
-    if (article) {
-      let val = value;
-      if (supplierChanged) {
-        val = _.pick(
-          value,
-          "_id",
-          "article",
-          "name",
-          "description",
-          "reference",
-          "subscription",
-          "optional",
-          "optional_checked"
-        ) as InvoiceLine;
-      }
-
-      if (
-        [
-          "supplier_quotes",
-          "supplier_invoices",
-          "supplier_credit_notes",
-        ].includes(props.invoice.type)
-      ) {
-        val.optional = false;
-      }
-
-      onChange?.({
-        ...val,
-        name: val.name || article.name,
-        description: val.description || article.description,
-        type: article.type,
-        tva: val.tva || article.tva,
-        unit_price:
-          val.unit_price ||
-          (["quotes", "invoices", "credit_notes"].includes(props.invoice.type)
-            ? article.price
-            : article.suppliers_details[props.invoice.supplier]?.price ||
-              article.price),
-        unit:
-          val.unit === "unit"
-            ? article.unit
-            : val.unit || article.unit || "unit",
-      });
-    }
-  }, [article?.id, props.invoice?.supplier]);
 
   return (
     <>
@@ -110,22 +57,25 @@ export const InvoiceLineArticleInput = (props: {
             label="Choisir un article"
             icon={getArticleIcon(article?.type)}
             value={value.article}
-            onChange={(id, article: Articles | null) =>
+            filter={
+              props.invoice?.supplier
+                ? ({
+                    suppliers: [props.invoice.supplier],
+                  } as Partial<Articles>)
+                : {}
+            }
+            onChange={(id, article: Articles | null) => {
               onChange?.(
                 article
                   ? {
                       ...value,
+                      ...article,
                       article: id as string,
-                      type: article.type,
-                      name: "",
-                      description: "",
-                      tva: "",
-                      unit_price: 0,
-                      unit: "",
                     }
                   : { ...value, article: "" }
-              )
-            }
+              );
+              props.close?.();
+            }}
           />
         )}
 

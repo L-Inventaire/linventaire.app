@@ -1,12 +1,12 @@
+import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
 
-export const Loader = ({
-  color,
-  className,
-}: {
+export type LoaderProps = {
   color?: string;
   className?: string;
-}) => {
+};
+
+export const Loader = ({ color, className }: LoaderProps) => {
   return (
     <svg
       className={twMerge(
@@ -33,4 +33,21 @@ export const Loader = ({
       ></path>
     </svg>
   );
+};
+
+export type DelayedLoaderProps = { delay?: number } & LoaderProps;
+
+export const DelayedLoader = ({
+  delay = 750,
+  ...props
+}: DelayedLoaderProps) => {
+  const [showSpinner, setShowSpinner] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSpinner(true), delay);
+
+    return () => clearTimeout(timer);
+  });
+
+  return showSpinner && <Loader {...props} />;
 };
