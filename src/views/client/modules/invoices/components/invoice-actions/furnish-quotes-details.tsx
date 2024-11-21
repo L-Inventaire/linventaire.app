@@ -1,7 +1,7 @@
 import { Alert } from "@atoms/alert";
 import { Input } from "@atoms/input/input-text";
 import { DelayedLoader } from "@atoms/loader";
-import { BaseSmall, Info, Section, SectionSmall } from "@atoms/text";
+import { Base, BaseSmall, Info, Section, SectionSmall } from "@atoms/text";
 import { generateQueryFromMap } from "@components/search-bar/utils/utils";
 import { useFurnishQuotes } from "@features/invoices/hooks/use-furnish-quotes";
 import { useInvoice, useInvoices } from "@features/invoices/hooks/use-invoices";
@@ -17,9 +17,16 @@ import { FurnishQuotesFurnish } from "../../types";
 import { useStockItems } from "@features/stock/hooks/use-stock-items";
 import { useNavigate } from "react-router-dom";
 import { getRoute, ROUTES } from "@features/routes";
+import { Button } from "@atoms/button/button";
+import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
+import { Contacts } from "@features/contacts/types/types";
+import { Articles } from "@features/articles/types/types";
+import { StockItems } from "@features/stock/types/types";
+import { CircleStackIcon, UserIcon } from "@heroicons/react/16/solid";
 
 export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
   const quote = useInvoice(id || "");
+  const edit = useEditFromCtrlK();
 
   const {
     furnishQuotes,
@@ -52,6 +59,15 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
   });
 
   const navigate = useNavigate();
+
+  const addSupplier = (articleID: string) => {
+    edit<Articles>("articles", articleID);
+  };
+  const addStock = (articleID: string) => {
+    edit<StockItems>("stock_items", "", {
+      article: articleID,
+    });
+  };
 
   // function setTotalArticleQuantity(
   //   articleID: string,
@@ -298,7 +314,37 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
         }) && (
           <div>
             <Section className="mb-6">Reste à fournir</Section>
-            <Info>Aucun article à fournir</Info>
+            <Info>
+              Impossible de fournir. Vérifiez vos stocks et vos fournisseurs
+            </Info>
+            {articles.map((article) => {
+              return (
+                <div
+                  className="flex mt-4 justify-between items-center"
+                  key={article.id}
+                >
+                  <Base>{article.name}</Base>
+                  <div className="flex items-center mt-4">
+                    <Button
+                      theme="outlined"
+                      className="mr-2"
+                      onClick={() => addSupplier(article.id)}
+                      icon={(props) => <UserIcon {...props} />}
+                      data-tooltip="Ajouter un fournisseur"
+                    >
+                      +
+                    </Button>
+                    <Button
+                      onClick={() => addStock(article.id)}
+                      icon={(props) => <CircleStackIcon {...props} />}
+                      data-tooltip="Ajouter un stock"
+                    >
+                      +
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
 
@@ -395,9 +441,39 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
             _.first(grouppedByArticles[article.id])?.totalToFurnish ?? 0;
           return totalMax > 0;
         }) && (
-          <div>
+          <div className="flex flex-col items-start">
             <Section className="mb-6">Articles à fournir</Section>
-            <Info>Aucun article à fournir</Info>
+            <Info>
+              Impossible de fournir. Vérifiez vos stocks et vos fournisseurs
+            </Info>
+            {articles.map((article) => {
+              return (
+                <div
+                  className="flex w-full mt-4 justify-between items-center"
+                  key={article.id}
+                >
+                  <Base>{article.name}</Base>
+                  <div className="flex items-center mt-4">
+                    <Button
+                      theme="outlined"
+                      className="mr-2"
+                      onClick={() => addSupplier(article.id)}
+                      icon={(props) => <UserIcon {...props} />}
+                      data-tooltip="Ajouter un fournisseur"
+                    >
+                      +
+                    </Button>
+                    <Button
+                      onClick={() => addStock(article.id)}
+                      icon={(props) => <CircleStackIcon {...props} />}
+                      data-tooltip="Ajouter un stock"
+                    >
+                      +
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
 
@@ -426,9 +502,29 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
                     </div>
                     <div className="mt-2">
                       {(articleFurnishes ?? []).length === 0 && (
-                        <Info>
-                          Aucun stock ou fournisseur défini pour l'article
-                        </Info>
+                        <div>
+                          <Info>
+                            Aucun stock ou fournisseur défini pour l'article
+                          </Info>
+                          <div className="flex items-center mt-4">
+                            <Button
+                              theme="outlined"
+                              className="mr-2"
+                              onClick={() => addSupplier(article.id)}
+                              icon={(props) => <UserIcon {...props} />}
+                              data-tooltip="Ajouter un fournisseur"
+                            >
+                              +
+                            </Button>
+                            <Button
+                              onClick={() => addStock(article.id)}
+                              icon={(props) => <CircleStackIcon {...props} />}
+                              data-tooltip="Ajouter un stock"
+                            >
+                              +
+                            </Button>
+                          </div>
+                        </div>
                       )}
                       {(articleFurnishes ?? []).map((fur) => {
                         const supplier = (suppliers?.data?.list ?? []).find(
@@ -544,6 +640,25 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
                               <Info className="w-16 whitespace-nowrap">
                                 / {maxFurnishable}
                               </Info>
+                            </div>
+
+                            <div className="flex items-center mt-4">
+                              <Button
+                                theme="outlined"
+                                className="mr-2"
+                                onClick={() => addSupplier(article.id)}
+                                icon={(props) => <UserIcon {...props} />}
+                                data-tooltip="Ajouter un fournisseur"
+                              >
+                                +
+                              </Button>
+                              <Button
+                                onClick={() => addStock(article.id)}
+                                icon={(props) => <CircleStackIcon {...props} />}
+                                data-tooltip="Ajouter un stock"
+                              >
+                                +
+                              </Button>
                             </div>
                           </div>
                         );
