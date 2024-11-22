@@ -198,13 +198,13 @@ export const FurnishQuotesModalContent = ({
                     </Info>
                     {supplierDetails && (
                       <Info>
-                        {supplierDetails.price && (
+                        {!!supplierDetails.price && (
                           <>prix: {formatAmount(supplierDetails.price)} - </>
                         )}
-                        {supplierDetails.delivery_quantity && (
-                          <>{supplierDetails.delivery_quantity} en stock - </>
+                        {!!supplierDetails.delivery_quantity && (
+                          <>lots de {supplierDetails.delivery_quantity} - </>
                         )}
-                        {supplierDetails.delivery_time && (
+                        {!!supplierDetails.delivery_time && (
                           <>livraison {supplierDetails.delivery_time}j</>
                         )}
                       </Info>

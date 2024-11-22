@@ -288,20 +288,16 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
       {(existantSupplierQuotes?.data?.list ?? []).length > 0 && (
         <div className="grid grid-cols-1 gap-3">
           <Section className="mt-2 mb-4">Commandes existantes</Section>
-          {(existantSupplierQuotes?.data?.list ?? [])?.map((quote) => (
-            <>
-              {(existantSupplierQuotes?.data?.list ?? []) && (
-                <RestTable
-                  onClick={({ id }) =>
-                    navigate(getRoute(ROUTES.InvoicesView, { id }))
-                  }
-                  data={existantSupplierQuotes}
-                  entity="invoices"
-                  columns={SupplierQuotesColumns}
-                />
-              )}
-            </>
-          ))}
+          {(existantSupplierQuotes?.data?.list ?? []) && (
+            <RestTable
+              onClick={({ id }) =>
+                navigate(getRoute(ROUTES.InvoicesView, { id }))
+              }
+              data={existantSupplierQuotes}
+              entity="invoices"
+              columns={SupplierQuotesColumns}
+            />
+          )}
         </div>
       )}
     </div>
