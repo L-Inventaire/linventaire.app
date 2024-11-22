@@ -75,7 +75,7 @@ export const StockItemsCreateFromSupplier = ({
                     {
                       ...stockItem,
                       serial_number: "",
-                      quantity: 0,
+                      quantity: 1,
                       _key: Math.random().toString(),
                     },
                     ...stockItems.slice(index + 1),

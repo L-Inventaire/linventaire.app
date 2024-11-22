@@ -69,8 +69,15 @@ export const InvoiceLineArticleInput = (props: {
                 article
                   ? {
                       ...value,
-                      ...article,
                       article: id as string,
+                      unit_price: article.price,
+                      unit: article.unit,
+                      tva: article.tva,
+                      name: article.name,
+                      description: article.description,
+                      quantity: value.quantity || 1,
+                      subscription: article.subscription,
+                      subscription_duration: article.subscription_duration,
                     }
                   : { ...value, article: "" }
               );

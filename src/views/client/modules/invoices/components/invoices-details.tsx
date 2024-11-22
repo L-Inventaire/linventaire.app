@@ -453,7 +453,6 @@ export const InvoicesDetailsPage = ({
                           entity="contacts"
                           filter={
                             {
-                              is_client: true,
                               parents: ctrl("client").value,
                             } as Partial<Contacts>
                           }
@@ -577,6 +576,7 @@ export const InvoicesDetailsPage = ({
                         )}
 
                       {(!isQuoteRelated ||
+                        draft?.type === "invoices" ||
                         isSupplierInvoice ||
                         isSupplierQuote) && (
                         <div className="mt-8">
@@ -588,7 +588,9 @@ export const InvoicesDetailsPage = ({
                             filter={
                               {
                                 type: isSupplierRelated
-                                  ? "supplier_quotes"
+                                  ? isSupplierQuote
+                                    ? "quotes"
+                                    : "supplier_quotes"
                                   : "quotes",
                                 "articles.all": [
                                   ...(draft.content || [])
