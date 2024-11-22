@@ -207,9 +207,11 @@ export const useFurnishQuotes = (quotes: Invoices[]) => {
     key: "articles_" + articleIDs.join("_"),
   });
 
-  async function refetchFurnishQuotes() {
+  async function refetchFurnishQuotes(reset = true) {
     await refetchFurnishQuotesQuery();
-    setFurnishesOverride([]);
+    if (reset) {
+      setFurnishesOverride([]);
+    }
   }
 
   return {

@@ -75,7 +75,7 @@ export const FurnishQuotesModalContent = ({
 
   const addSupplier = async (articleID: string) => {
     edit<Articles>("articles", articleID, {}, async () => {
-      await refetchFurnishQuotes();
+      await refetchFurnishQuotes(false);
     });
   };
   const addStock = async (articleID: string) => {
@@ -86,7 +86,7 @@ export const FurnishQuotesModalContent = ({
         article: articleID,
       },
       async () => {
-        await refetchFurnishQuotes();
+        await refetchFurnishQuotes(false);
       }
     );
   };

@@ -1,9 +1,11 @@
 import { Alert } from "@atoms/alert";
 import { Unit } from "@atoms/input/input-unit";
 import { DelayedLoader } from "@atoms/loader";
-import { Base, BaseSmall, Info, Section, SectionSmall } from "@atoms/text";
+import { Base, BaseSmall, Info, Section } from "@atoms/text";
 import { generateQueryFromMap } from "@components/search-bar/utils/utils";
+import { RestTable } from "@components/table-rest";
 import { getContactName } from "@features/contacts/types/types";
+import { SupplierQuotesColumns } from "@features/invoices/configuration";
 import { useFurnishQuotes } from "@features/invoices/hooks/use-furnish-quotes";
 import { useInvoice, useInvoices } from "@features/invoices/hooks/use-invoices";
 import { getRoute, ROUTES } from "@features/routes";
@@ -87,7 +89,7 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
 
             if (quantity > max)
               return (
-                <Info className="text-white">
+                <Info className="block text-white">
                   {article.name} - {quantity - max} articles en trop
                 </Info>
               );
@@ -96,261 +98,210 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
         </Alert>
       )}
 
-      {!articles.some((article) => {
-        if (!grouppedByArticles[article.id]) return false;
-        const totalMax =
-          _.first(grouppedByArticles[article.id])?.totalToFurnish ?? 0;
-        return totalMax > 0;
-      }) && (
-        <div className="flex flex-col items-start w-full mb-6">
-          <Section className="mb-6">Articles à fournir</Section>
-          <Info>
-            Impossible de fournir. Vérifiez vos stocks et vos fournisseurs
-          </Info>
-          {articles.map((article) => {
-            return (
-              <div
-                className="flex w-full mt-4 justify-between items-center"
-                key={article.id}
-              >
-                <Base>{article.name}</Base>
-              </div>
-            );
-          })}
-        </div>
-      )}
-      {articles.some((article) => {
-        if (!grouppedByArticles[article.id]) return false;
-        const totalMax =
-          _.first(grouppedByArticles[article.id])?.totalToFurnish ?? 0;
-        return totalMax > 0;
-      }) && (
-        <div className="w-full">
-          <Section className="mb-6">Articles à fournir</Section>
-          <div className="grid grid-cols-1 mb-6">
-            <Table
-              data={articles}
-              columns={[
-                {
-                  title: "Article",
-                  render: (article) => <>{article.name}</>,
+      <div className="w-full">
+        <Section className="mb-6">Articles à fournir</Section>
+        <div className="grid grid-cols-1 mb-6">
+          <Table
+            data={articles}
+            columns={[
+              {
+                title: "Article",
+                render: (article) => <>{article.name}</>,
+              },
+              {
+                title: "Commandé",
+                render: (article) => {
+                  const articleOrders = (
+                    existantSupplierQuotes.data?.list ?? []
+                  ).filter((quote) =>
+                    (quote.content ?? []).some(
+                      (line) => line.article === article.id
+                    )
+                  );
+                  const quantity = articleOrders.reduce(
+                    (acc, order) =>
+                      acc +
+                      (order.content ?? [])
+                        .filter((line) => line.article === article.id)
+                        .reduce((acc, line) => acc + (line.quantity ?? 0), 0),
+                    0
+                  );
+                  return (
+                    <div key={article.id} className="mb-1 flex justify-between">
+                      <BaseSmall>
+                        {quantity} <Unit unit={article.unit} />
+                      </BaseSmall>
+                    </div>
+                  );
                 },
-                {
-                  title: "Commandé",
-                  render: (article) => {
-                    const articleOrders = (
-                      existantSupplierQuotes.data?.list ?? []
-                    ).filter((quote) =>
-                      (quote.content ?? []).some(
-                        (line) => line.article === article.id
-                      )
-                    );
-                    const quantity = articleOrders.reduce(
-                      (acc, order) =>
-                        acc +
-                        (order.content ?? [])
-                          .filter((line) => line.article === article.id)
-                          .reduce((acc, line) => acc + (line.quantity ?? 0), 0),
-                      0
-                    );
-                    return (
-                      <div
-                        key={article.id}
-                        className="mb-1 flex justify-between"
-                      >
-                        <BaseSmall>
-                          {quantity} <Unit unit={article.unit} />
-                        </BaseSmall>
-                      </div>
-                    );
-                  },
+              },
+              {
+                title: "Réservé en stock",
+                render: (article) => {
+                  const articleStocks = (
+                    reservedStocks.data?.list ?? []
+                  ).filter((stock) => stock.article === article.id);
+                  const quantity = articleStocks.reduce(
+                    (acc, stock) => acc + stock.quantity,
+                    0
+                  );
+
+                  return (
+                    <div key={article.id} className="mb-1 flex justify-between">
+                      <BaseSmall>
+                        {quantity} <Unit unit={article.unit} />
+                      </BaseSmall>
+                    </div>
+                  );
                 },
-                {
-                  title: "Réservé en stock",
-                  render: (article) => {
-                    const articleStocks = (
-                      reservedStocks.data?.list ?? []
-                    ).filter((stock) => stock.article === article.id);
-                    const quantity = articleStocks.reduce(
-                      (acc, stock) => acc + stock.quantity,
-                      0
-                    );
+              },
+              {
+                title: "Fournir",
+                render: (article) => {
+                  const furnishes = grouppedByArticles[article.id];
+                  const stocksQuantity = (furnishes ?? [])
+                    .filter((fur) => fur.quantity > 0 && fur.stockID)
+                    .reduce((acc, fur) => acc + fur.quantity, 0);
 
-                    return (
-                      <div
-                        key={article.id}
-                        className="mb-1 flex justify-between"
-                      >
-                        <BaseSmall>
-                          {quantity} <Unit unit={article.unit} />
-                        </BaseSmall>
-                      </div>
-                    );
-                  },
-                },
-                {
-                  title: "Fournir",
-                  render: (article) => {
-                    const furnishes = grouppedByArticles[article.id];
-                    const stocksQuantity = (furnishes ?? [])
-                      .filter((fur) => fur.quantity > 0 && fur.stockID)
-                      .reduce((acc, fur) => acc + fur.quantity, 0);
+                  return (
+                    <Card
+                      onClick={() =>
+                        setModal((data) => ({
+                          ...data,
+                          open: true,
+                          article,
+                          id: id ?? "",
+                        }))
+                      }
+                      className={twMerge(
+                        "flex items-center justify-between w-2/3",
+                        "hover:bg-slate-500 hover:bg-opacity-15 bg-opacity-0 transition-all cursor-pointer"
+                      )}
+                      data-tooltip={
+                        "Répartir les articles à commander entre les fournisseurs et les stocks"
+                      }
+                    >
+                      <div className="w-full h-full grid grid-cols-[1fr_70px] gap-3">
+                        {(furnishes ?? []).filter((fur) => fur.quantity > 0)
+                          .length === 0 && <Base>Fournir</Base>}
+                        {(furnishes ?? [])
+                          .filter((fur) => fur.quantity > 0 && fur.supplierID)
+                          .map((fur) => {
+                            const supplier = (suppliers?.data?.list ?? []).find(
+                              (supp) => supp.id === fur.supplierID
+                            );
 
-                    return (
-                      <Card
-                        onClick={() =>
-                          setModal((data) => ({
-                            ...data,
-                            open: true,
-                            article,
-                            id: id ?? "",
-                          }))
-                        }
-                        className={twMerge(
-                          "flex items-center justify-between w-2/3",
-                          "hover:bg-slate-500 hover:bg-opacity-15 bg-opacity-0 transition-all cursor-pointer"
-                        )}
-                        data-tooltip={
-                          "Répartir les articles à commander entre les fournisseurs et les stocks"
-                        }
-                      >
-                        <div className="w-full h-full flex flex-col justify-center">
-                          {(furnishes ?? []).filter((fur) => fur.quantity > 0)
-                            .length === 0 && <Base>Fournir</Base>}
-                          {(furnishes ?? [])
-                            .filter((fur) => fur.quantity > 0 && fur.supplierID)
-                            .map((fur) => {
-                              const supplier = (
-                                suppliers?.data?.list ?? []
-                              ).find((supp) => supp.id === fur.supplierID);
-
-                              return (
-                                <>
-                                  {!!supplier && (
+                            return (
+                              <>
+                                {!!supplier && (
+                                  <>
+                                    <Base>{getContactName(supplier)}</Base>
                                     <Base>
-                                      {getContactName(supplier)} -{" "}
                                       {fur.quantity}{" "}
                                       <Unit unit={article.unit} />
                                     </Base>
-                                  )}
-                                </>
-                              );
-                            })}
+                                  </>
+                                )}
+                              </>
+                            );
+                          })}
 
-                          {stocksQuantity > 0 && (
+                        {stocksQuantity > 0 && (
+                          <>
+                            <Base>Stock</Base>
                             <Base>
-                              Stock - {stocksQuantity}{" "}
-                              <Unit unit={article.unit} />
+                              {stocksQuantity} <Unit unit={article.unit} />
                             </Base>
-                          )}
-                        </div>
-
-                        <CubeTransparentIcon className="w-6" />
-                      </Card>
-                    );
-                  },
-                },
-                {
-                  title: "Reste à fournir",
-                  render: (article) => {
-                    const articleFurnishes = modifiedFurnishes.filter(
-                      (fur) => fur.articleID === article.id
-                    );
-                    const totalValue = (articleFurnishes ?? []).reduce(
-                      (acc, fur) => acc + fur.quantity,
-                      0
-                    );
-
-                    return (
-                      <div
-                        key={article.id}
-                        className="mb-1 flex justify-between"
-                      >
-                        <BaseSmall
-                          className={twMerge(
-                            (article.totalToFurnish ?? 0) - totalValue > 0 &&
-                              "text-red-500",
-                            "whitespace-nowrap"
-                          )}
-                        >
-                          {max([(article.totalToFurnish ?? 0) - totalValue, 0])}{" "}
-                          / {article.totalToFurnish ?? 0}{" "}
-                          <Unit unit={article.unit} />
-                        </BaseSmall>
+                          </>
+                        )}
                       </div>
-                    );
-                  },
-                },
-                {
-                  title: "Achat total HT",
-                  thClassName: "text-right",
-                  render: (article) => {
-                    const furnishes = modifiedFurnishes.filter(
-                      (fur) => fur.articleID === article.id && fur.supplierID
-                    );
 
-                    const totalValue = (furnishes ?? []).reduce((acc, fur) => {
-                      const supplierDetails =
-                        article.suppliers_details?.[fur.supplierID ?? ""];
-
-                      return acc + fur.quantity * supplierDetails.price;
-                    }, 0);
-
-                    return (
-                      <div
-                        key={article.id}
-                        className="mb-1 w-full flex justify-end"
-                      >
-                        <BaseSmall className="block ml-2">
-                          {formatAmount(totalValue)}
-                        </BaseSmall>
-                      </div>
-                    );
-                  },
-                },
-              ]}
-            />
-          </div>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 gap-3">
-        <Card>
-          <Section className="mt-2 mb-6">Commandes existantes</Section>
-          {(existantSupplierQuotes?.data?.list ?? [])?.map((quote) => (
-            <>
-              <Card
-                className="mb-4 cursor-pointer"
-                onClick={() => {
-                  navigate(getRoute(ROUTES.InvoicesView, { id: quote.id }));
-                }}
-              >
-                <SectionSmall className="mb-4">{quote.reference}</SectionSmall>
-                {(quote.content ?? []).map((line) => {
-                  const article = articles.find(
-                    (art) => art.id === line.article
+                      <CubeTransparentIcon className="w-6" />
+                    </Card>
                   );
-                  return (
-                    <div className="grid grid-cols-4">
-                      <BaseSmall>Article</BaseSmall>
-                      <BaseSmall>Quantité / lot</BaseSmall>
-                      <BaseSmall>Prix unitaire</BaseSmall>
-                      <BaseSmall>Description</BaseSmall>
+                },
+              },
+              {
+                title: "Reste à fournir",
+                render: (article) => {
+                  const articleFurnishes = modifiedFurnishes.filter(
+                    (fur) => fur.articleID === article.id
+                  );
+                  const totalValue = (articleFurnishes ?? []).reduce(
+                    (acc, fur) => acc + fur.quantity,
+                    0
+                  );
 
-                      <Info>{article?.name}</Info>
-                      <Info>
-                        {line.quantity} {line.unit}
-                      </Info>
-                      <Info>{formatAmount(line.unit_price ?? 0)}</Info>
-                      <Info>{line.description}</Info>
+                  return (
+                    <div key={article.id} className="mb-1 flex justify-between">
+                      <BaseSmall
+                        className={twMerge(
+                          (article.totalToFurnish ?? 0) - totalValue > 0 &&
+                            "text-red-500",
+                          article.totalToFurnish === totalValue &&
+                            "text-green-500",
+                          "whitespace-nowrap"
+                        )}
+                      >
+                        {max([(article.totalToFurnish ?? 0) - totalValue, 0])} /{" "}
+                        {article.totalToFurnish ?? 0}{" "}
+                        <Unit unit={article.unit} />
+                      </BaseSmall>
                     </div>
                   );
-                })}
-              </Card>
+                },
+              },
+              {
+                title: "Achat total HT",
+                thClassName: "text-right",
+                render: (article) => {
+                  const furnishes = modifiedFurnishes.filter(
+                    (fur) => fur.articleID === article.id && fur.supplierID
+                  );
+
+                  const totalValue = (furnishes ?? []).reduce((acc, fur) => {
+                    const supplierDetails =
+                      article.suppliers_details?.[fur.supplierID ?? ""];
+
+                    return acc + fur.quantity * supplierDetails.price;
+                  }, 0);
+
+                  return (
+                    <div
+                      key={article.id}
+                      className="mb-1 w-full flex justify-end"
+                    >
+                      <BaseSmall className="block ml-2">
+                        {formatAmount(totalValue)}
+                      </BaseSmall>
+                    </div>
+                  );
+                },
+              },
+            ]}
+          />
+        </div>
+      </div>
+
+      {(existantSupplierQuotes?.data?.list ?? []).length > 0 && (
+        <div className="grid grid-cols-1 gap-3">
+          <Section className="mt-2 mb-4">Commandes existantes</Section>
+          {(existantSupplierQuotes?.data?.list ?? [])?.map((quote) => (
+            <>
+              {(existantSupplierQuotes?.data?.list ?? []) && (
+                <RestTable
+                  onClick={({ id }) =>
+                    navigate(getRoute(ROUTES.InvoicesView, { id }))
+                  }
+                  data={existantSupplierQuotes}
+                  entity="invoices"
+                  columns={SupplierQuotesColumns}
+                />
+              )}
             </>
           ))}
-        </Card>
-      </div>
+        </div>
+      )}
     </div>
   );
 };
