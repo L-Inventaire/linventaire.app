@@ -75,7 +75,7 @@ export const ModalEditor = (props: { index: number }) => {
             entity={currentState.options?.entity || ""}
             document={draft}
             mode={"write"}
-            onClose={() => {
+            onClose={async () => {
               setState({
                 ...state,
                 path: state.path.slice(0, state.path.length - 1),
@@ -83,6 +83,8 @@ export const ModalEditor = (props: { index: number }) => {
             }}
             onSave={async () => {
               await save();
+              if (currentState?.options?.cb)
+                await currentState.options.cb(draft);
             }}
             onRemove={draft.id ? remove : undefined}
             onRestore={draft.id ? restore : undefined}

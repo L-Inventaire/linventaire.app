@@ -7,8 +7,12 @@ import { useQuery } from "@tanstack/react-query";
 import _ from "lodash";
 import { SetStateAction, useEffect } from "react";
 import { atom, useRecoilState } from "recoil";
-import { FurnishQuotesFurnish } from "@views/client/modules/invoices/types";
+import {
+  FurnishQuotesArticle,
+  FurnishQuotesFurnish,
+} from "@views/client/modules/invoices/types";
 import { InvoicesApiClient } from "../api-client/invoices-api-client";
+import { Articles } from "@features/articles/types/types";
 
 export const FurnishQuotesAtom = atom<{
   furnishesOverride: FurnishQuotesFurnish[];
@@ -58,17 +62,9 @@ export const useFurnishQuotes = (quotes: Invoices[]) => {
     );
     setFurnishesOverride([]);
 
-    await setTimeout(() => {
+    setTimeout(() => {
       refetchFurnishQuotes();
     }, 1000);
-
-    // const result = await InvoicesApiClient.getFurnishQuotes(
-    //   client.id,
-    //   quotes.map((quote) => quote.id),
-    //   []
-    // );
-
-    // return result;
   }
 
   const furnishes = furnishQuotes?.furnishes;
@@ -164,6 +160,7 @@ export const useFurnishQuotes = (quotes: Invoices[]) => {
   const supplierIDs = modifiedFurnishes
     .map((furnish) => furnish.supplierID)
     .filter(Boolean);
+
   const stockIDs = modifiedFurnishes
     .map((furnish) => furnish.stockID)
     .filter(Boolean);
@@ -176,7 +173,7 @@ export const useFurnishQuotes = (quotes: Invoices[]) => {
     (furnish) => !!furnish.stockID
   );
 
-  const { contacts: suppliers } = useContacts({
+  const { contacts: suppliers, refresh: refreshSuppliers } = useContacts({
     query: [
       {
         key: "id",
@@ -186,7 +183,7 @@ export const useFurnishQuotes = (quotes: Invoices[]) => {
     key: "suppliers_" + supplierIDs.join("_"),
   });
 
-  const { stock_items: stocks } = useStockItems({
+  const { stock_items: stocks, refresh: refreshStocks } = useStockItems({
     query: [
       {
         key: "id",
@@ -226,11 +223,13 @@ export const useFurnishQuotes = (quotes: Invoices[]) => {
     articles: (articles?.data?.list ?? []).map((a) => {
       const articleData = furnishQuotes?.articles.find((ad) => ad.id === a.id);
       return { ...a, ...articleData };
-    }),
+    }) as (Articles & FurnishQuotesArticle)[],
     articlesData: furnishQuotes?.articles,
     suppliers,
+    refreshSuppliers,
     stockFurnishes,
     stocks,
+    refreshStocks,
     furnishesOverride,
     setFurnishesOverride,
     furnishes: furnishes,
