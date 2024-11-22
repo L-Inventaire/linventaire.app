@@ -238,8 +238,10 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
                         className={twMerge(
                           (article.totalToFurnish ?? 0) - totalValue > 0 &&
                             "text-red-500",
-                          article.totalToFurnish === totalValue &&
-                            "text-green-500",
+                          max([
+                            (article.totalToFurnish ?? 0) - totalValue,
+                            0,
+                          ]) === 0 && "text-green-500",
                           "whitespace-nowrap"
                         )}
                       >
