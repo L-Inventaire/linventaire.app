@@ -128,7 +128,10 @@
         "paid": "Paid"
       },
       "closed": "Closed",
-      "completed": "To be Invoiced",
+      "completed": { 
+        "default":"To invoice",
+        "supplier_quotes": "Received"
+      },
       "recurring": "Recurring"
     }
   },

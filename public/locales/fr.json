@@ -65,7 +65,10 @@
           "paid": "Payé"
         },
         "closed": "Terminé",
-        "completed": "À facturer",
+        "completed": { 
+          "default":"À facturer",
+          "supplier_quotes": "Réceptionné"
+         },
         "recurring": "En récurrence"
     }
   },

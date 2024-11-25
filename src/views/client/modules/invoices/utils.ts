@@ -40,7 +40,10 @@ export const getInvoiceStatusPrettyName = (
     partial_paid: "payment.partial_paid",
     paid: "payment.paid",
     closed: "closed",
-    completed: "completed",
+    completed:
+      type === "supplier_quotes"
+        ? "completed.supplier_quotes"
+        : "completed.default",
     recurring: "recurring",
   };
 
