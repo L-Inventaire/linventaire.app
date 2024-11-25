@@ -77,3 +77,37 @@ export function getPeriodEnd(dateStr: string) {
     ("9999-12-" + maxDay + "T23:59:59").slice((dateStr as string)?.length || 0)
   );
 }
+
+export function timeDecimalToBase60(hourDecimal: number): [number, number] {
+  // Extract the whole hours
+  const hours = Math.floor(hourDecimal);
+
+  // Calculate the remaining minutes in decimal
+  const decimalMinutes = (hourDecimal - hours) * 60;
+
+  // Round minutes to the nearest whole number
+  const minutes = Math.round(decimalMinutes);
+
+  // If rounding minutes results in 60, adjust hours and reset minutes to 0
+  if (minutes === 60) {
+    return [hours + 1, 0];
+  }
+
+  // Format the output as "hours:minutes" with leading zero for minutes if necessary
+  return [hours, minutes];
+}
+
+export function timeBase60ToDecimal(timeArray: number[]): number {
+  // Split the input into hours and minutes
+  const [hours, minutes] = timeArray;
+
+  // Validate the input
+  if (isNaN(hours) || isNaN(minutes) || minutes < 0 || minutes >= 60) {
+    throw new Error(
+      'Invalid time format. Ensure it is in "HH:MM" format with minutes between 0 and 59.'
+    );
+  }
+
+  // Convert hours and minutes to decimal
+  return hours + minutes / 60;
+}

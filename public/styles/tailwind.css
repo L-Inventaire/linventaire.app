@@ -973,6 +973,18 @@ img {
   }
 }
 
+body :is(.sr-only) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 body :is(.pointer-events-none) {
   pointer-events: none;
 }
@@ -1278,6 +1290,11 @@ body :is(.m-auto) {
   margin: auto;
 }
 
+body :is(.\!mx-3) {
+  margin-left: 0.75rem !important;
+  margin-right: 0.75rem !important;
+}
+
 body :is(.\!my-0) {
   margin-top: 0px !important;
   margin-bottom: 0px !important;
@@ -1513,6 +1530,10 @@ body :is(.mb-7) {
 
 body :is(.mb-8) {
   margin-bottom: 2rem;
+}
+
+body :is(.mb-\[3px\]) {
+  margin-bottom: 3px;
 }
 
 body :is(.ml-0) {
@@ -1971,6 +1992,10 @@ body :is(.w-\[200\%\]) {
   width: 200%;
 }
 
+body :is(.w-\[4ch\]) {
+  width: 4ch;
+}
+
 body :is(.w-auto) {
   width: auto;
 }
@@ -2259,10 +2284,6 @@ body :is(.grid-cols-\[1fr_2fr_1fr\]) {
 
 body :is(.grid-cols-\[1fr_70px\]) {
   grid-template-columns: 1fr 70px;
-}
-
-body :is(.grid-cols-4) {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 body :is(.flex-row) {
