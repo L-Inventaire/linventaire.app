@@ -5,6 +5,7 @@ import { twMerge } from "tailwind-merge";
 import "./styles.scss";
 import _, { max, min } from "lodash";
 import { DateTime } from "luxon";
+import { timeDecimalToBase60 } from "@features/utils/format/dates";
 
 interface InputProps
   extends Omit<
@@ -17,6 +18,7 @@ interface InputProps
   hourInputClassName?: string;
   secondsInputClassName?: string;
   value: Date | number[];
+  disabled?: boolean;
   onChange?: (value: Date, numberValue: number[]) => void;
 }
 
@@ -40,6 +42,10 @@ export function InputTime(props: InputProps) {
 }
 
 function InputTimeMain(props: InputProps) {
+  const rootClassName = twMerge(
+    "flex justify-center items-center h-9 border border-slate-100 rounded-md",
+    props.className
+  );
   const inputClassName = "border-none w-[4ch] h-8 rounded-md text-sm";
 
   const _value = _.isArray(props.value)
@@ -85,16 +91,12 @@ function InputTimeMain(props: InputProps) {
     if (props?.onChange) props?.onChange(date.toJSDate(), [value1, value2]);
   }, [textValues]);
 
+  if (props?.disabled) {
+    return <div className={rootClassName}>{_value.join(":")}</div>;
+  }
+
   return (
-    <div
-      className={twMerge(
-        "flex justify-center items-center h-9 border border-slate-100 rounded-md",
-        props.className
-      )}
-    >
-      <label className="sr-only" htmlFor="hours">
-        {props.label || "Hours"}
-      </label>
+    <div className={rootClassName}>
       <input
         type="text"
         value={textValues[0]}

@@ -115,7 +115,7 @@ const SpentTimeLine = (props: {
       {(!props.unit || props.unit === "h") && (
         <InputTime
           label={"Temps passé en " + getUnitLabel(props.unit || "h", t)}
-          onChange={(value, number) => {
+          onChange={(_, number) => {
             const quantity = timeBase60ToDecimal(number);
 
             props.onChange({
