@@ -206,14 +206,14 @@ export const ServiceItemsDetailsPage = ({
               <InputButton
                 label={ctrl("quantity_spent").value || "Temps estimé"}
                 icon={(p) => <ClockIcon {...p} />}
-                placeholder={"Nombre de '" + (article?.unit || "unités") + "'"}
+                placeholder={"Nombre de '" + (article?.unit || "heures") + "'"}
                 ctrl={ctrl("quantity_expected")}
               >
                 {(ctrl("quantity_spent").value || 0) +
                   onCreateAddSpentTime.reduce((a, b) => a + b.quantity, 0) +
                   " / " +
                   (ctrl("quantity_expected").value || 0)}{" "}
-                <Unit unit={article?.unit} />
+                <Unit unit={article?.unit ?? "h"} />
               </InputButton>
             </div>
 
@@ -257,7 +257,7 @@ export const ServiceItemsDetailsPage = ({
               <div className="mt-12">
                 <Heading size="4">Temps déjà effectué</Heading>
                 <InlineSpentTimeInput
-                  unit={article?.unit}
+                  unit={article?.unit ?? "h"}
                   quantity={ctrl("quantity_expected").value}
                   value={onCreateAddSpentTime}
                   onChange={setOnCreateAddSpentTime}

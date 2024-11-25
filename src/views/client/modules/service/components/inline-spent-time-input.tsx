@@ -94,7 +94,7 @@ const SpentTimeLine = (props: {
         }
       />
       <Input
-        label={"Temps passé en " + getUnitLabel(props.unit, t)}
+        label={"Temps passé en " + getUnitLabel(props.unit || "h", t)}
         type="number"
         onChange={(e) =>
           props.onChange({
