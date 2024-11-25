@@ -28,6 +28,8 @@ export const RestTable = <T,>(
       data={props.data?.data?.list || []}
       total={props.data?.data?.total || 0}
       rowIndex="id"
+      controlledPagination={props?.controlledPagination}
+      setControlledPagination={props?.setControlledPagination}
       onSelect={(items) => registerActiveSelection(props.entity, items)}
       onSelectedActionsClick={() =>
         openCtrlK((states) => [

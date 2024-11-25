@@ -27,6 +27,7 @@ import {
   schemaToSearchFields,
 } from "../../../../components/search-bar/utils/utils";
 import { InvoiceStatus } from "./components/invoice-status";
+import { Pagination } from "@molecules/table/table";
 
 const activeFilter = [
   {
@@ -76,6 +77,13 @@ export const InvoicesPage = () => {
   };
   const [activeTab, setActiveTab] = useState("active");
   const [didSelectTab, setDidSelectTab] = useState(false);
+  const [pagination, setPagination] = useState<
+    Omit<Pagination, "total"> & { total?: number }
+  >({
+    page: 1,
+    perPage: 10,
+    order: "ASC",
+  });
 
   const [options, setOptions] = useState<RestOptions<Invoices>>({
     limit: 10,
@@ -153,9 +161,10 @@ export const InvoicesPage = () => {
               },
             }),
           }}
-          onChange={(q) =>
-            q.valid && setOptions({ ...options, query: q.fields })
-          }
+          onChange={(q) => {
+            q.valid && setOptions({ ...options, query: q.fields });
+            setPagination((pagination) => ({ ...pagination, page: 1 }));
+          }}
           suffix={
             ["supplier_invoices", "supplier_credit_notes"].includes(type[0]) ? (
               <>
@@ -304,6 +313,8 @@ export const InvoicesPage = () => {
               ? SupplierQuotesColumns
               : InvoicesColumns
           }
+          controlledPagination={pagination}
+          setControlledPagination={setPagination}
         />
       </div>
     </Page>
