@@ -1,5 +1,11 @@
 import _ from "lodash";
-import { ReactNode, useCallback, useEffect, useState } from "react";
+import React, {
+  Dispatch,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import "./index.scss";
 import { Column, Pagination, RenderOptions, RenderedTable } from "./table";
 import { twMerge } from "tailwind-merge";
@@ -38,6 +44,10 @@ export type TablePropsType<T> = {
     Pagination,
     "order" | "orderBy" | "page" | "perPage"
   >;
+  controlledPagination?: Omit<Pagination, "total"> & { total?: number };
+  setControlledPagination?: Dispatch<
+    React.SetStateAction<Omit<Pagination, "total"> & { total?: number }>
+  >;
 };
 
 export function Grid<T>(
@@ -62,6 +72,8 @@ export function Grid<T>(
           render: () => "",
         })),
       ]}
+      controlledPagination={props?.controlledPagination}
+      setControlledPagination={props?.setControlledPagination}
     />
   );
 }
@@ -87,9 +99,11 @@ export function Table<T>({
   grid,
   cellClassName,
   className,
+  controlledPagination,
+  setControlledPagination,
   ...props
 }: TablePropsType<T>) {
-  const [pagination, setPagination] = useState<Pagination>({
+  const [paginationState, setPaginationState] = useState<Pagination>({
     total: total || 0,
     page: initialPagination?.page || 1,
     perPage: initialPagination?.perPage || 10,
@@ -97,6 +111,17 @@ export function Table<T>({
     order: initialPagination?.order,
   });
   const [internalLoading, setLoading] = useState(false);
+
+  const pagination = controlledPagination
+    ? {
+        ...controlledPagination,
+        total:
+          (controlledPagination?.total ? controlledPagination.total : total) ||
+          0,
+      }
+    : paginationState;
+
+  const setPagination = (setControlledPagination || setPaginationState)!;
 
   const resolve = useCallback(async () => {
     setLoading(true);

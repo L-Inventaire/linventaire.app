@@ -214,14 +214,14 @@ export const SearchBar = ({
                   fields.length === 0 ? "pl-4" : "pl-9"
                 )}
                 value={value}
-                onChange={(e) =>
+                onChange={(e) => {
                   setValue(
                     e.target.value
                       ?.replace(/\n/g, "")
                       .replace(/ +/g, " ")
                       .replace(/^ +/, "") || ""
-                  )
-                }
+                  );
+                }}
               />
             )}
           />

@@ -4,6 +4,7 @@ import { ContactRelationModal } from "./client/modules/contacts/components/relat
 import { SubdivideStockModal } from "./client/modules/stock/components/subdivide-modal";
 import { EditorInputMentionHelper } from "@molecules/editor-input";
 import { RecurrenceModal } from "./client/modules/invoices/components/input-recurrence";
+import { FurnishQuotesModal } from "./client/modules/invoices/components/invoice-actions/furnish-quotes-modal";
 
 export const Modals = () => {
   return (
@@ -14,6 +15,7 @@ export const Modals = () => {
       <ContactRelationModal />
       <SubdivideStockModal />
       <RecurrenceModal />
+      <FurnishQuotesModal />
     </>
   );
 };

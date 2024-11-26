@@ -47,6 +47,31 @@
     },
     "save": "Enregistrer"
   },
+  "invoices": {
+    "states": {
+        "draft": "Brouillon",
+        "sent": {
+          "default": "Envoyé",
+          "quotes": "Prix demandé",
+          "invoices": "À payer"
+        },
+        "accounted": "Comptabilisé",
+        "purchase_order": {
+          "quotes": "Accepté",
+          "supplier_quotes": "Commandé"
+        },
+        "payment": {
+          "partial_paid": "Paiement partiel",
+          "paid": "Payé"
+        },
+        "closed": "Terminé",
+        "completed": { 
+          "default":"À facturer",
+          "supplier_quotes": "Réceptionné"
+         },
+        "recurring": "En récurrence"
+    }
+  },
   "settings": {
     "preferences": {
       "currency": "Devise principale",

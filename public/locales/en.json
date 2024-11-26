@@ -110,6 +110,31 @@
     },
     "save": "Save"
   },
+  "invoices": {
+    "states": {
+      "draft": "Draft",
+      "sent": {
+        "default": "Sent",
+        "quotes": "Quote Sent",
+        "invoices": "To be Paid"
+      },
+      "accounted": "Accounted",
+      "purchase_order": {
+        "quotes": "Accepted",
+        "supplier_quotes": "Ordered"
+      },
+      "payment": {
+        "partial_paid": "Partially Paid",
+        "paid": "Paid"
+      },
+      "closed": "Closed",
+      "completed": { 
+        "default":"To invoice",
+        "supplier_quotes": "Received"
+      },
+      "recurring": "Recurring"
+    }
+  },
   "settings": {
     "preferences": {
       "currency": "Primary currency",

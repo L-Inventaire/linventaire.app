@@ -16,8 +16,12 @@ import { FursnishQuotesDetails } from "../components/invoice-actions/furnish-quo
 export const FurnishQuotesPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
   const { invoice: quote, isPending, restore } = useInvoice(id || "");
-  const { refetchFurnishQuotes, isFetchingFurnishQuotes, actionFurnishQuotes } =
-    useFurnishQuotes(quote ? [quote] : []);
+  const {
+    actions,
+    refetchFurnishQuotes,
+    isFetchingFurnishQuotes,
+    actionFurnishQuotes,
+  } = useFurnishQuotes(quote ? [quote] : []);
 
   if (!quote && isPending)
     return (
@@ -50,13 +54,29 @@ export const FurnishQuotesPage = (_props: { readonly?: boolean }) => {
       footer={
         <div className="flex items-center justify-end">
           <Button
-            disabled={isFetchingFurnishQuotes}
+            disabled={
+              isFetchingFurnishQuotes ||
+              (actions?.filter((action) => action.action === "order-items")
+                .length === 0 &&
+                actions?.filter((action) => action.action === "withdraw-stock")
+                  .length === 0)
+            }
             loading={isFetchingFurnishQuotes}
             onClick={async () => {
               await actionFurnishQuotes();
             }}
           >
-            Fournir
+            Créer{" "}
+            {
+              actions?.filter((action) => action.action === "order-items")
+                .length
+            }{" "}
+            commandes et retirer de{" "}
+            {
+              actions?.filter((action) => action.action === "withdraw-stock")
+                .length
+            }{" "}
+            stocks
           </Button>
         </div>
       }

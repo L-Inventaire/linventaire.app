@@ -9,6 +9,14 @@ export type InvoicesType =
   | "supplier_invoices"
   | "supplier_credit_notes";
 
+export type InvoicesState =
+  | "draft"
+  | "sent"
+  | "purchase_order"
+  | "completed"
+  | "recurring"
+  | "closed";
+
 export type Invoices = RestEntity & {
   client_id: string;
   id: string;
@@ -18,13 +26,7 @@ export type Invoices = RestEntity & {
 
   // Quotes: “draft”, “sent”, "purchase_order", "completed", "recurring", "closed”
   // Invoices and Credit Notes: “draft”, “sent”, "closed"
-  state:
-    | "draft"
-    | "sent"
-    | "purchase_order"
-    | "completed"
-    | "recurring"
-    | "closed";
+  state: InvoicesState;
 
   // For credit notes or supplier credit note: invoices refunded by this credit note
   from_rel_invoice: string[]; // Nullable

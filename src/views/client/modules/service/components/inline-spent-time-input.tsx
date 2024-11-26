@@ -1,9 +1,14 @@
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import { Input } from "@atoms/input/input-text";
+import InputTime from "@atoms/input/input-time";
 import { getUnitLabel } from "@atoms/input/input-unit";
 import { UsersInput } from "@components/input-rest/users";
 import { useAuth } from "@features/auth/state/use-auth";
 import { ServiceTimes } from "@features/service/types/types";
+import {
+  timeBase60ToDecimal,
+  timeDecimalToBase60,
+} from "@features/utils/format/dates";
 import { TrashIcon } from "@heroicons/react/16/solid";
 import { Button, Callout, IconButton } from "@radix-ui/themes";
 import { useTranslation } from "react-i18next";
@@ -20,6 +25,7 @@ export const InlineSpentTimeInput = (props: {
   onChange: (value: SpentTime[]) => void;
 }) => {
   const { user } = useAuth();
+
   return (
     <>
       {!props.value.length && (
@@ -80,7 +86,7 @@ const SpentTimeLine = (props: {
 }) => {
   const { t } = useTranslation();
   return (
-    <div className="flex flex-row space-x-2 w-full items-start">
+    <div className="flex flex-row space-x-2 w-full items-start justify-center">
       <InputLabel
         label="Assigné"
         input={
@@ -93,17 +99,34 @@ const SpentTimeLine = (props: {
           </div>
         }
       />
-      <Input
-        label={"Temps passé en " + getUnitLabel(props.unit, t)}
-        type="number"
-        onChange={(e) =>
-          props.onChange({
-            ...props.value,
-            quantity: parseFloat(e.target.value || "0"),
-          })
-        }
-        value={props.value.quantity || ""}
-      />
+      {!!props.unit && props.unit !== "h" && (
+        <Input
+          label={"Temps passé en " + getUnitLabel(props.unit || "h", t)}
+          type="number"
+          onChange={(e) =>
+            props.onChange({
+              ...props.value,
+              quantity: parseFloat(e.target.value || "0"),
+            })
+          }
+          value={props.value.quantity || ""}
+        />
+      )}
+      {(!props.unit || props.unit === "h") && (
+        <InputTime
+          label={"Temps passé en " + getUnitLabel(props.unit || "h", t)}
+          onChange={(_, number) => {
+            const quantity = timeBase60ToDecimal(number);
+
+            props.onChange({
+              ...props.value,
+              quantity,
+            });
+          }}
+          className={"!mx-3"}
+          value={timeDecimalToBase60(props.value.quantity)}
+        />
+      )}
       <div className="grow">
         <Input
           className="w-full"

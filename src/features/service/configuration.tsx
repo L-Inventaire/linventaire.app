@@ -16,6 +16,7 @@ import { ServiceItems, ServiceTimes } from "./types/types";
 import { InvoiceRestDocument } from "@views/client/modules/invoices/components/invoice-lines-input/invoice-input-rest-card";
 import { Badge } from "@radix-ui/themes";
 import { UsersInput } from "@components/input-rest/users";
+import { timeDecimalToBase60 } from "@features/utils/format/dates";
 
 export const useServiceItemDefaultModel: () => Partial<ServiceItems> = () => {
   return {
@@ -141,7 +142,8 @@ export const ServiceTimesColumns: Column<ServiceTimes>[] = [
     title: "Temps passé",
     render: (item) => (
       <>
-        {item.quantity} <Unit unit={item.unit} />
+        {timeDecimalToBase60(item.quantity).join(":")}{" "}
+        <Unit unit={item.unit || "h"} />
       </>
     ),
   },

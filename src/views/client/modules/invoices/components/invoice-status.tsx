@@ -1,5 +1,6 @@
 import { Stepper } from "@atoms/stepper";
-import { Invoices } from "@features/invoices/types/types";
+import { Invoices, InvoicesState } from "@features/invoices/types/types";
+import { getInvoicesStatusColor, getInvoiceStatusPrettyName } from "../utils";
 
 export const InvoiceStatus = ({
   readonly,
@@ -19,40 +20,6 @@ export const InvoiceStatus = ({
 
   // Invoices / Credit notes / Supplier invoices:
   // draft / accounted / partial_paid / paid / closed
-
-  const statusName = {
-    draft: "Brouillon",
-    sent:
-      type === "quotes" || type === "invoices" || type === "credit_notes"
-        ? "Envoyé"
-        : type === "supplier_quotes"
-        ? "Prix demandé"
-        : "À payer",
-    accounted: "Comptabilisé",
-    purchase_order: type === "quotes" ? "Accepté" : "Commandé",
-    partial_paid: "Paiment partiel",
-    paid: "Payé",
-    closed: "Terminé",
-    completed: "À facturer",
-    recurring: "En récurrence",
-  };
-
-  const statusColor = {
-    draft: "gray",
-    sent:
-      type === "quotes" || type === "invoices" || type === "credit_notes"
-        ? "blue"
-        : "red",
-    accounted: "blue",
-    purchase_order: "orange",
-    partial_paid: "orange",
-    paid: "green",
-    closed: "gray",
-    completed: "green",
-    signed: "green",
-    recurring: "blue",
-  };
-
   const statusPerTypeGrouped = {
     quotes: [
       ["draft"],
@@ -68,7 +35,7 @@ export const InvoiceStatus = ({
     ],
     supplier_invoices: [["draft"], ["sent"], ["closed"]],
     supplier_credit_notes: [["draft"], ["sent"], ["closed"]],
-  };
+  } as { [key: string]: InvoicesState[][] };
 
   if (!statusPerTypeGrouped[type]) {
     return null;
@@ -85,9 +52,9 @@ export const InvoiceStatus = ({
           group.map(
             (status) =>
               ({
-                title: (statusName as any)[status],
-                color: (statusColor as any)[status],
-                value: status,
+                title: getInvoiceStatusPrettyName(status, type),
+                color: getInvoicesStatusColor(status, type),
+                value: status as string,
               } as any)
           ) as any
       )}

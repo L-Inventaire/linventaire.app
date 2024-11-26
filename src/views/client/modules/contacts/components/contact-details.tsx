@@ -279,7 +279,7 @@ export const ContactsDetailsPage = ({
                 ctrl("has_parents").onChange(!!parents.length);
               }}
             />
-            <RelatedInvoicesInput id={contact.id} />
+            {contact.id && <RelatedInvoicesInput id={contact.id} />}
             <Timeline
               entity={"contacts"}
               id={contact.id}
