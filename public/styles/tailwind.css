@@ -4742,6 +4742,16 @@ body :is(.hover\:border-slate-200:hover) {
   border-color: rgb(198 198 198 / var(--tw-border-opacity));
 }
 
+body :is(.hover\:border-slate-300:hover) {
+  --tw-border-opacity: 1;
+  border-color: rgb(172 172 165 / var(--tw-border-opacity));
+}
+
+body :is(.hover\:border-slate-500:hover) {
+  --tw-border-opacity: 1;
+  border-color: rgb(118 118 115 / var(--tw-border-opacity));
+}
+
 body :is(.hover\:bg-blue-500:hover) {
   --tw-bg-opacity: 1;
   background-color: rgb(59 130 246 / var(--tw-bg-opacity));

@@ -11,7 +11,7 @@ import { Page } from "@views/client/_layout/page";
 import _ from "lodash";
 import { useParams } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
-import { FursnishQuotesDetails } from "../components/invoice-actions/furnish-quotes-details";
+import { FurnishQuotesDetails } from "../components/invoice-actions/furnish-quotes-details";
 
 export const FurnishQuotesPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
@@ -71,12 +71,12 @@ export const FurnishQuotesPage = (_props: { readonly?: boolean }) => {
               actions?.filter((action) => action.action === "order-items")
                 .length
             }{" "}
-            commandes et retirer de{" "}
+            commandes et reserver{" "}
             {
               actions?.filter((action) => action.action === "withdraw-stock")
                 .length
             }{" "}
-            stocks
+            éléments du stocks
           </Button>
         </div>
       }
@@ -85,11 +85,8 @@ export const FurnishQuotesPage = (_props: { readonly?: boolean }) => {
           loading={isPending && !quote}
           entity={"invoices"}
           document={quote || { id }}
-          mode={"read"}
+          mode={"write"}
           backRoute={getRoute(ROUTES.Invoices, { type: quote.type })}
-          onRestore={
-            quote?.id ? async () => restore.mutateAsync(quote?.id) : undefined
-          }
           suffix={
             <>
               <Button
@@ -107,7 +104,7 @@ export const FurnishQuotesPage = (_props: { readonly?: boolean }) => {
         />
       }
     >
-      <FursnishQuotesDetails id={id} />
+      <FurnishQuotesDetails id={id} />
     </Page>
   );
 };
