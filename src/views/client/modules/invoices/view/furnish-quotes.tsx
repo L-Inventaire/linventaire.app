@@ -12,10 +12,12 @@ import _ from "lodash";
 import { useParams } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import { FurnishQuotesDetails } from "../components/invoice-actions/furnish-quotes-details";
+import { useState } from "react";
 
 export const FurnishQuotesPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
   const { invoice: quote, isPending, restore } = useInvoice(id || "");
+  const [isLoading, setIsLoading] = useState(false);
   const {
     actions,
     refetchFurnishQuotes,
@@ -56,14 +58,18 @@ export const FurnishQuotesPage = (_props: { readonly?: boolean }) => {
           <Button
             disabled={
               isFetchingFurnishQuotes ||
+              isLoading ||
               (actions?.filter((action) => action.action === "order-items")
                 .length === 0 &&
                 actions?.filter((action) => action.action === "withdraw-stock")
                   .length === 0)
             }
-            loading={isFetchingFurnishQuotes}
+            loading={isLoading || isFetchingFurnishQuotes}
             onClick={async () => {
+              setIsLoading(true);
               await actionFurnishQuotes();
+              await refetchFurnishQuotes();
+              setIsLoading(false);
             }}
           >
             Créer{" "}
