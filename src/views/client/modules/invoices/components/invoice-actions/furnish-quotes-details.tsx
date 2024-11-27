@@ -106,7 +106,9 @@ export const FurnishQuotesDetails = ({ id }: { id?: string }) => {
             columns={[
               {
                 title: "Article",
-                render: (article) => <>{article.name}</>,
+                render: (article) => (
+                  <div className="max-w-md">{article.name}</div>
+                ),
               },
               {
                 title: "Déjà commandé",
