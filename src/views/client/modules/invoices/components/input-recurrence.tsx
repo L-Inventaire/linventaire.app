@@ -25,18 +25,18 @@ const optionsDelays = [
   },
   {
     value: "2y",
-    label: "2 an",
+    label: "2 ans",
   },
   {
     value: "3y",
-    label: "3 an",
+    label: "3 ans",
   },
 ];
 
 const optionsStartDates = [
   {
     value: "after_first_invoice",
-    label: "Lorsque les éléments non récurrents sont facturés",
+    label: "Après la première facture",
   },
   {
     value: "acceptance_start",
@@ -60,6 +60,17 @@ const optionsEndDates = [
   {
     value: "date",
     label: "Date spécifique",
+  },
+];
+
+const optionsInvoiceState = [
+  {
+    value: "draft",
+    label: "Brouillon",
+  },
+  {
+    value: "sent",
+    label: "Envoyé",
   },
 ];
 
@@ -195,6 +206,9 @@ export const InvoiceRecurrenceInput = ({
   useEffect(() => {
     if (!invoice.subscription?.start_type) {
       ctrl("subscription.start_type").onChange("after_first_invoice");
+    }
+    if (!invoice.subscription?.start_type) {
+      ctrl("subscription.invoice_state").onChange("draft");
     }
     if (!invoice.subscription?.end_type) {
       ctrl("subscription.end_type").onChange("none");
@@ -410,6 +424,12 @@ const RecurrenceModalContent = ({
               label="Facturer le"
               ctrl={ctrl("subscription.invoice_date")}
               options={optionsInvoiceDate}
+            />
+            <FormInput
+              type="select"
+              label="État de la facture"
+              ctrl={ctrl("subscription.invoice_state")}
+              options={optionsInvoiceState}
             />
           </div>
           <ModalHr />

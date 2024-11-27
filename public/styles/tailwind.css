@@ -973,18 +973,6 @@ img {
   }
 }
 
-body :is(.sr-only) {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
-}
-
 body :is(.pointer-events-none) {
   pointer-events: none;
 }
@@ -1640,6 +1628,10 @@ body :is(.mt-px) {
   margin-top: 1px;
 }
 
+body :is(.mr-8) {
+  margin-right: 2rem;
+}
+
 body :is(.box-border) {
   box-sizing: border-box;
 }
@@ -2011,6 +2003,10 @@ body :is(.w-max) {
 
 body :is(.w-px) {
   width: 1px;
+}
+
+body :is(.w-40) {
+  width: 10rem;
 }
 
 body :is(.min-w-0) {

@@ -77,7 +77,6 @@ export const InvoiceLineArticleInput = (props: {
                       description: article.description,
                       quantity: value.quantity || 1,
                       subscription: article.subscription,
-                      subscription_duration: article.subscription_duration,
                     }
                   : { ...value, article: "" }
               );

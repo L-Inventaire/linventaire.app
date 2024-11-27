@@ -22,7 +22,11 @@ export const frequencyOptions = [
   { value: "daily", label: "Quotidien" },
   { value: "weekly", label: "Hebdomadaire" },
   { value: "monthly", label: "Mensuel" },
+  { value: "3_monthly", label: "Trimestriel" },
+  { value: "6_monthly", label: "Tous les 6 mois" },
   { value: "yearly", label: "Annuel" },
+  { value: "2_yearly", label: "Tous les 2 ans" },
+  { value: "3_yearly", label: "Tous les 3 ans" },
 ];
 
 export const ArticlesDetailsPage = ({
