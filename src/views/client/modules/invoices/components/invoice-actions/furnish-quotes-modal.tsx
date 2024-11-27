@@ -54,6 +54,7 @@ export const FurnishQuotesModal = () => {
 export const FurnishQuotesModalContent = ({
   id,
   article,
+  onClose,
 }: {
   id: string;
   article: Articles & FurnishQuotesArticle;
@@ -133,14 +134,17 @@ export const FurnishQuotesModalContent = ({
 
   return (
     <ModalContent title={"Fournir"}>
-      <div key={article.id} className="mt-4 mb-1">
+      <div key={article.id} className="mb-1">
         <Base className="block">
-          Fournir {article.name} pour {quote?.reference}
+          Fournir <b>{article.name}</b> pour <b>{quote?.reference}</b>
         </Base>
         <div className="mt-2">
           {(articleFurnishes ?? []).length === 0 && (
             <div>
-              <Info>Aucun stock ou fournisseur défini pour l'article</Info>
+              <Info>
+                Aucun stock ou fournisseur défini pour l'article, cliquer
+                ci-dessous pour modifier l'article ou gérer le stock.
+              </Info>
             </div>
           )}
           {(articleFurnishes ?? []).map((fur) => {
@@ -239,11 +243,11 @@ export const FurnishQuotesModalContent = ({
             );
           })}
 
-          <div className="flex justify-end items-center mt-6 w-full">
+          <div className="mt-4 w-full">
             <Button
-              theme="outlined"
+              theme="invisible"
               size="sm"
-              className="mr-2"
+              className="mb-2 flex"
               onClick={() => addSupplier(article.id)}
               icon={(props) => <TruckIcon {...props} />}
               data-tooltip="Ajouter un fournisseur pour ce produit"
@@ -252,11 +256,24 @@ export const FurnishQuotesModalContent = ({
             </Button>
             <Button
               size="sm"
+              theme="invisible"
               onClick={() => addStock(article.id)}
               icon={(props) => <ViewColumnsIcon {...props} />}
               data-tooltip="Ajouter un élément de stock"
             >
               Ajouter au stock
+            </Button>
+          </div>
+
+          <div className="flex justify-end items-center mt-6 w-full">
+            <Button
+              size="md"
+              onClick={() => {
+                refetchFurnishQuotes(true);
+                onClose();
+              }}
+            >
+              Fermer
             </Button>
           </div>
         </div>
