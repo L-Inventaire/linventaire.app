@@ -1134,6 +1134,22 @@ body :is(.top-full) {
   top: 100%;
 }
 
+body :is(.right-12) {
+  right: 3rem;
+}
+
+body :is(.left-12) {
+  left: 3rem;
+}
+
+body :is(.left-10) {
+  left: 2.5rem;
+}
+
+body :is(.left-8) {
+  left: 2rem;
+}
+
 body :is(.z-0) {
   z-index: 0;
 }
