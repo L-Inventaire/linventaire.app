@@ -1,5 +1,4 @@
 import { Base, BaseSmall, Info } from "@atoms/text";
-import { RestDocumentsInput } from "@components/input-rest";
 import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
 import { useCurrentClient } from "@features/clients/state/use-clients";
@@ -9,7 +8,9 @@ import { formatTime } from "@features/utils/format/dates";
 import { formatAmount } from "@features/utils/format/strings";
 import { Column } from "@molecules/table/table";
 import { Badge } from "@radix-ui/themes";
+import { ContactRestDocument } from "@views/client/modules/contacts/components/contact-input-rest-card";
 import { CompletionTags } from "@views/client/modules/invoices/components/invoice-lines-input/components/completion-tags";
+import { InvoiceRestDocument } from "@views/client/modules/invoices/components/invoice-lines-input/invoice-input-rest-card";
 import { InvoiceStatus } from "@views/client/modules/invoices/components/invoice-status";
 import { InvoicesDetailsPage } from "@views/client/modules/invoices/components/invoices-details";
 import { TagPaymentCompletion } from "@views/client/modules/invoices/components/tag-payment-completion";
@@ -17,10 +18,7 @@ import {
   isDeliveryLate,
   isPaymentLate,
 } from "@views/client/modules/invoices/utils";
-import _ from "lodash";
 import { Invoices } from "./types/types";
-import { InvoiceRestDocument } from "@views/client/modules/invoices/components/invoice-lines-input/invoice-input-rest-card";
-import { ContactRestDocument } from "@views/client/modules/contacts/components/contact-input-rest-card";
 
 export const useInvoiceDefaultModel: () => Partial<Invoices> = () => {
   const { client } = useCurrentClient();

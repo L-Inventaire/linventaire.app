@@ -224,7 +224,7 @@ export const ServiceItemsDetailsPage = ({
               {(!article?.unit || article?.unit === "h") && (
                 <InputTime
                   // label={"Temps passé en " + getUnitLabel(props.unit || "h", t)}
-                  onChange={(value, number) => {
+                  onChange={() => {
                     // const quantity = timeBase60ToDecimal(number);
                     // props.onChange({
                     //   ...props.value,
