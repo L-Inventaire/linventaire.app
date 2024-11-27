@@ -5,7 +5,7 @@ import { Base, BaseSmall, Info, Section } from "@atoms/text";
 import { generateQueryFromMap } from "@components/search-bar/utils/utils";
 import { RestTable } from "@components/table-rest";
 import { getContactName } from "@features/contacts/types/types";
-import { SupplierQuotesColumns } from "@features/invoices/configuration";
+import { InvoicesColumns } from "@features/invoices/configuration";
 import { useFurnishQuotes } from "@features/invoices/hooks/use-furnish-quotes";
 import { useInvoice, useInvoices } from "@features/invoices/hooks/use-invoices";
 import { getRoute, ROUTES } from "@features/routes";
@@ -295,7 +295,7 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
               }
               data={existantSupplierQuotes}
               entity="invoices"
-              columns={SupplierQuotesColumns}
+              columns={InvoicesColumns}
             />
           )}
         </div>

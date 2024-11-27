@@ -266,7 +266,7 @@ export const SearchBar = ({
           )}
         {suffix}
       </div>
-      {suggestions.length > 0 && focusIn && (
+      {suggestions.length > 0 && (focusIn || inlineSuggestions) && (
         <div
           className={twMerge(
             "hidden hover:block text-base z-10 top-full h-max flex items-center bg-white dark:bg-slate-990 dark:border-slate-700 border-t rounded rounded-t-none px-2 py-1",

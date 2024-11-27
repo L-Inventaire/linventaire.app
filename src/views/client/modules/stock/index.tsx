@@ -66,10 +66,10 @@ export const StockPage = () => {
   const [activeTab, setActiveTab] = useState("available");
 
   const [options, setOptions] = useState<RestOptions<StockItems>>({
-    limit: 10,
+    limit: 20,
     offset: 0,
     query: [],
-    index: "state,created_at",
+    index: "state_order,created_at desc",
   });
   const { stock_items } = useStockItems({
     ...options,

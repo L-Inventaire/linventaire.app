@@ -20,7 +20,7 @@ import { formatNumber } from "@features/utils/format/strings";
 
 export const ContactsPage = () => {
   const [options, setOptions] = useState<RestOptions<Contacts>>({
-    limit: 10,
+    limit: 20,
     offset: 0,
     query: [],
   });

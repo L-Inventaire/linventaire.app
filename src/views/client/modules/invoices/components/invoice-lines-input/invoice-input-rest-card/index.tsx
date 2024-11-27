@@ -14,21 +14,26 @@ export const InvoiceRestDocument = (
     <RestDocumentsInput
       {...(props as RestDocumentProps<Invoices>)}
       entity="invoices"
-      render={(invoice) => <RenderInvoiceCard invoice={invoice} />}
+      render={(invoice) => (
+        <RenderInvoiceCard invoice={invoice} size={props.size || "lg"} />
+      )}
     />
   );
 };
 
-const RenderInvoiceCard = ({ invoice }: { invoice: Invoices }) => {
+const RenderInvoiceCard = ({
+  invoice,
+  size,
+}: {
+  invoice: Invoices;
+  size: RestDocumentProps<Invoices>["size"];
+}) => {
   const { contact } = useContact(invoice.client || invoice.supplier || "");
   const isQuote =
     invoice.type === "quotes" || invoice.type === "supplier_quotes";
   return (
-    <div className="mt-1">
+    <div className="whitespace-normal">
       <div className="line-clamp-1 text-ellipsis">
-        {invoice.content?.map((a) => a.name).join(", ")}
-      </div>
-      <Info className="line-clamp-1 text-ellipsis">
         {[
           invoice?.reference,
           contact ? getContactName(contact) : "",
@@ -36,21 +41,28 @@ const RenderInvoiceCard = ({ invoice }: { invoice: Invoices }) => {
         ]
           .filter(Boolean)
           .join(", ")}
-      </Info>
-      <div className="h-6 mt-1">
-        <InvoiceStatus
-          type={invoice.type}
-          value={invoice.state}
-          readonly
-          size="xs"
-        />
-        <div className="float-right">
-          {isQuote && (
-            <CompletionTags short invoice={invoice} lines={invoice.content} />
-          )}
-          {!isQuote && <TagPaymentCompletion invoice={invoice} size="1" />}
-        </div>
       </div>
+      {size === "lg" && (
+        <Info className="line-clamp-1 text-ellipsis">
+          {invoice.content?.map((a) => a.name).join(", ")}
+        </Info>
+      )}
+      {(size === "lg" || size === "md") && (
+        <div className="h-6">
+          <InvoiceStatus
+            type={invoice.type}
+            value={invoice.state}
+            readonly
+            size="xs"
+          />
+          <div className="float-right">
+            {isQuote && (
+              <CompletionTags short invoice={invoice} lines={invoice.content} />
+            )}
+            {!isQuote && <TagPaymentCompletion invoice={invoice} size="1" />}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -19,6 +19,8 @@ import {
 } from "@views/client/modules/invoices/utils";
 import _ from "lodash";
 import { Invoices } from "./types/types";
+import { InvoiceRestDocument } from "@views/client/modules/invoices/components/invoice-lines-input/invoice-input-rest-card";
+import { ContactRestDocument } from "@views/client/modules/contacts/components/contact-input-rest-card";
 
 export const useInvoiceDefaultModel: () => Partial<Invoices> = () => {
   const { client } = useCurrentClient();
@@ -50,7 +52,7 @@ export const InvoicesColumns: Column<Invoices>[] = [
   {
     title: "Référence",
     render: (invoice) => (
-      <Base className="opacity-50 whitespace-nowrap">
+      <Base className="whitespace-nowrap max-w-xs overflow-hidden text-ellipsis">
         <BaseSmall>
           {invoice.reference}{" "}
           {invoice.content?.some((a) => a.subscription) && (
@@ -58,21 +60,40 @@ export const InvoicesColumns: Column<Invoices>[] = [
           )}
         </BaseSmall>
         <br />
-        <div className="flext items-center jhustify-center">
-          <span>{invoice.name || "-"} </span>
+        <div className="opacity-50 text-ellipsis overflow-hidden w-full">
+          {invoice.name || invoice.content?.map((a) => a.name).join(", ")}{" "}
         </div>
       </Base>
     ),
   },
   {
-    title: "Client",
+    title: "Origine",
+    id: "origin",
     render: (invoice) => (
       <Base className="whitespace-nowrap">
-        <RestDocumentsInput
+        <InvoiceRestDocument
+          className="overflow-hidden"
           disabled
-          value={invoice.client}
-          entity={"contacts"}
+          value={invoice.from_rel_quote || invoice.from_rel_invoice}
         />
+      </Base>
+    ),
+  },
+  {
+    title: "Client",
+    id: "client",
+    render: (invoice) => (
+      <Base className="whitespace-nowrap">
+        <ContactRestDocument disabled value={invoice.client} />
+      </Base>
+    ),
+  },
+  {
+    title: "Fournisseur",
+    id: "supplier",
+    render: (invoice) => (
+      <Base className="whitespace-nowrap">
+        <ContactRestDocument disabled value={invoice.supplier} />
       </Base>
     ),
   },
@@ -138,42 +159,6 @@ export const InvoicesColumns: Column<Invoices>[] = [
   },
 ];
 
-export const SupplierQuotesColumns: Column<Invoices>[] = [
-  InvoicesColumns[0],
-  InvoicesColumns[1],
-  InvoicesColumns[2],
-  {
-    title: "Fournisseur",
-    render: (invoice) => (
-      <Base className="whitespace-nowrap">
-        <RestDocumentsInput
-          disabled
-          value={invoice.supplier}
-          entity={"contacts"}
-        />
-      </Base>
-    ),
-  },
-  {
-    title: "Articles",
-    render: (invoice) => (
-      <Base className="whitespace-nowrap">
-        {_.slice(invoice.articles.all ?? [], 0, 3).map((article) => (
-          <RestDocumentsInput
-            disabled
-            value={article}
-            className="mr-2"
-            entity={"articles"}
-          />
-        ))}
-      </Base>
-    ),
-  },
-  InvoicesColumns[3],
-  InvoicesColumns[4],
-  InvoicesColumns[5],
-];
-
 registerCtrlKRestEntity<Invoices>("invoices", {
   renderEditor: (props) => (
     <InvoicesDetailsPage readonly={false} id={props.id} />
@@ -181,7 +166,7 @@ registerCtrlKRestEntity<Invoices>("invoices", {
   renderResult: InvoicesColumns,
   useDefaultData: useInvoiceDefaultModel,
   viewRoute: ROUTES.InvoicesView,
-  orderBy: "state,emit_date",
+  orderBy: "state_order,emit_date",
   orderDesc: true,
   groupBy: "state",
   groupByRender: (row) => (
