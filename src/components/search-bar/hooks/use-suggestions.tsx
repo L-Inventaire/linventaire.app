@@ -62,7 +62,7 @@ export const useSuggestions = (
   const columnSearch = [
     !["boolean", "date", "number"].includes(currentField?.type as string)
       ? currentField?.key
-      : "" || "",
+      : "",
     (inSearchMode ? status.filter?.values[status.value?.index || 0] : "") || "",
   ] as [string, string];
 
@@ -206,6 +206,10 @@ export const useSuggestions = (
   };
 
   const onKeyDown = (e: any) => {
+    if (e.key === "Escape") {
+      setSuggestions([]);
+      return;
+    }
     // Manage arrow keys
     if (e.key === "Backspace" || e.key === "Delete") {
       const status = getCaretPosition();

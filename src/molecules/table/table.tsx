@@ -319,11 +319,11 @@ export function RenderedTable<T>({
         }
 
         <table
-          className={
-            "relative z-0 border-collapse table-fixed w-auto min-w-full " +
-            (loading ? " opacity-75 animate-pulse " : "") +
-            (scrollable ? " scrollable h-full " : "")
-          }
+          className={twMerge(
+            "relative z-0 border-collapse table-fixed w-auto min-w-full",
+            loading && " opacity-75 animate-pulse",
+            scrollable && " scrollable h-full"
+          )}
         >
           {!grid &&
             columns
@@ -335,7 +335,7 @@ export function RenderedTable<T>({
                   {onSelect && (
                     <th
                       className={
-                        "w-8 shrink-0 relative text-center pl-1 relative" +
+                        "w-8 shrink-0 relative text-center pl-1" +
                         (scrollable ? " sticky top-0 " : "")
                       }
                     >

@@ -1,4 +1,9 @@
-import { Invoices } from "@features/invoices/types/types";
+import {
+  Invoices,
+  InvoicesState,
+  InvoicesType,
+} from "@features/invoices/types/types";
+import i18next from "@features/utils/i18n";
 import { DateTime } from "luxon";
 
 export const getTvaValue = (tva: string): number => {
@@ -7,6 +12,65 @@ export const getTvaValue = (tva: string): number => {
     return parseFloat(tva) / 100;
   }
   return 0;
+};
+
+export const getInvoiceStatusPrettyName = (
+  status: InvoicesState,
+  type: InvoicesType
+) => {
+  const prefix = "invoices.states";
+
+  const statusTranslationCode = {
+    draft: "draft",
+    sent:
+      type === "quotes"
+        ? "sent.quotes"
+        : type === "invoices"
+        ? "sent.invoices"
+        : type === "credit_notes"
+        ? "sent.invoices"
+        : type === "supplier_quotes"
+        ? "sent.quotes"
+        : "sent.default",
+    accounted: "accounted",
+    purchase_order:
+      type === "quotes"
+        ? "purchase_order.quotes"
+        : "purchase_order.supplier_quotes",
+    partial_paid: "payment.partial_paid",
+    paid: "payment.paid",
+    closed: "closed",
+    completed:
+      type === "supplier_quotes"
+        ? "completed.supplier_quotes"
+        : "completed.default",
+    recurring: "recurring",
+  };
+
+  return i18next.t(prefix + "." + statusTranslationCode[status]);
+};
+
+export const getInvoicesStatusColor = (
+  state: InvoicesState,
+  type: InvoicesType
+) => {
+  const colors = {
+    draft: "gray",
+    sent:
+      type === "quotes" || type === "invoices" || type === "credit_notes"
+        ? "blue"
+        : "red",
+    accounted: "blue",
+    purchase_order: "orange",
+    partial_paid: "orange",
+    paid: "green",
+    closed: "gray",
+    completed: "green",
+    signed: "green",
+    recurring: "blue",
+  };
+
+  return colors[state];
 };
 
 export const computePricesFromInvoice = (

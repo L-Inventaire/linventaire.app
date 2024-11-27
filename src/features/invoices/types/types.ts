@@ -9,6 +9,14 @@ export type InvoicesType =
   | "supplier_invoices"
   | "supplier_credit_notes";
 
+export type InvoicesState =
+  | "draft"
+  | "sent"
+  | "purchase_order"
+  | "completed"
+  | "recurring"
+  | "closed";
+
 export type Invoices = RestEntity & {
   client_id: string;
   id: string;
@@ -18,13 +26,7 @@ export type Invoices = RestEntity & {
 
   // Quotes: “draft”, “sent”, "purchase_order", "completed", "recurring", "closed”
   // Invoices and Credit Notes: “draft”, “sent”, "closed"
-  state:
-    | "draft"
-    | "sent"
-    | "purchase_order"
-    | "completed"
-    | "recurring"
-    | "closed";
+  state: InvoicesState;
 
   // For credit notes or supplier credit note: invoices refunded by this credit note
   from_rel_invoice: string[]; // Nullable
@@ -86,8 +88,7 @@ export type Invoices = RestEntity & {
   from_subscription: {
     // Only the backend can set this field
     // When invoice was generated from a subscription, details goes there
-    frequency: "daily" | "weekly" | "monthly" | "yearly";
-    frequency_duration: number;
+    frequency: "daily" | "weekly" | "monthly" | "yearly" | string;
     from: number; // Invoiced period start
     to: number; // Invoiced period end
   };
@@ -144,7 +145,7 @@ export type InvoiceLine = {
   unit_price?: number;
   tva?: string;
   discount?: InvoiceDiscount;
-  subscription?: "" | "daily" | "weekly" | "monthly" | "yearly"; // Monthly or yearly subscription
+  subscription?: "" | "daily" | "weekly" | "monthly" | "yearly" | string; // Monthly or yearly subscription
   subscription_duration?: number; // Number of months or years
 
   quantity_ready?: number; //Quantity received or sent to determine if the line is ready to be invoices

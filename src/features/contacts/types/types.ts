@@ -1,7 +1,8 @@
 import { Address } from "@features/clients/types/clients";
 import { formatAddress } from "@features/utils/format/address";
+import { RestEntity } from "@features/utils/rest/types/types";
 
-export type Contacts = {
+export type Contacts = RestEntity & {
   client_id: string;
   updated_by: string;
   id: string;

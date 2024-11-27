@@ -1,5 +1,7 @@
 import { Button } from "@atoms/button/button";
+import InputTime from "@atoms/input/input-time";
 import { Unit } from "@atoms/input/input-unit";
+import { PageLoader } from "@atoms/page-loader";
 import { Section } from "@atoms/text";
 import { CustomFieldsInput } from "@components/custom-fields-input";
 import { FormInput } from "@components/form/fields";
@@ -24,6 +26,7 @@ import {
 import { useServiceItems } from "@features/service/hooks/use-service-items";
 import { useServiceTimes } from "@features/service/hooks/use-service-times";
 import { ServiceItems } from "@features/service/types/types";
+import { timeDecimalToBase60 } from "@features/utils/format/dates";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { ClockIcon, CubeIcon } from "@heroicons/react/16/solid";
 import { UserIcon } from "@heroicons/react/20/solid";
@@ -35,7 +38,6 @@ import { useEffect, useState } from "react";
 import { InvoiceRestDocument } from "../../invoices/components/invoice-lines-input/invoice-input-rest-card";
 import { InlineSpentTimeInput, SpentTime } from "./inline-spent-time-input";
 import { ServiceItemStatus } from "./service-item-status";
-import { PageLoader } from "@atoms/page-loader";
 
 export const ServiceItemsDetailsPage = ({
   readonly,
@@ -203,18 +205,38 @@ export const ServiceItemsDetailsPage = ({
                 }
                 icon={(p) => <CubeIcon {...p} />}
               />
-              <InputButton
-                label={ctrl("quantity_spent").value || "Temps estimé"}
-                icon={(p) => <ClockIcon {...p} />}
-                placeholder={"Nombre de '" + (article?.unit || "unités") + "'"}
-                ctrl={ctrl("quantity_expected")}
-              >
-                {(ctrl("quantity_spent").value || 0) +
-                  onCreateAddSpentTime.reduce((a, b) => a + b.quantity, 0) +
-                  " / " +
-                  (ctrl("quantity_expected").value || 0)}{" "}
-                <Unit unit={article?.unit} />
-              </InputButton>
+              {!!article?.unit && article?.unit !== "h" && (
+                <InputButton
+                  label={ctrl("quantity_spent").value || "Temps estimé"}
+                  icon={(p) => <ClockIcon {...p} />}
+                  placeholder={
+                    "Nombre de '" + (article?.unit || "heures") + "'"
+                  }
+                  ctrl={ctrl("quantity_expected")}
+                >
+                  {(ctrl("quantity_spent").value || 0) +
+                    onCreateAddSpentTime.reduce((a, b) => a + b.quantity, 0) +
+                    " / " +
+                    (ctrl("quantity_expected").value || 0)}{" "}
+                  <Unit unit={article?.unit || "h"} />
+                </InputButton>
+              )}
+              {(!article?.unit || article?.unit === "h") && (
+                <InputTime
+                  // label={"Temps passé en " + getUnitLabel(props.unit || "h", t)}
+                  onChange={(value, number) => {
+                    // const quantity = timeBase60ToDecimal(number);
+                    // props.onChange({
+                    //   ...props.value,
+                    //   quantity,
+                    // });
+                  }}
+                  className={"!mx-3"}
+                  value={timeDecimalToBase60(
+                    ctrl("quantity_expected").value || 0
+                  )}
+                />
+              )}
             </div>
 
             <CustomFieldsInput
@@ -257,7 +279,7 @@ export const ServiceItemsDetailsPage = ({
               <div className="mt-12">
                 <Heading size="4">Temps déjà effectué</Heading>
                 <InlineSpentTimeInput
-                  unit={article?.unit}
+                  unit={article?.unit ?? "h"}
                   quantity={ctrl("quantity_expected").value}
                   value={onCreateAddSpentTime}
                   onChange={setOnCreateAddSpentTime}

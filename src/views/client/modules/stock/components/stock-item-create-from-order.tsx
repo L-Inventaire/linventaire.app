@@ -30,17 +30,19 @@ export const StockItemsCreateFromOrder = ({
   useEffect(() => {
     if (order && !didPrefill) {
       setDidPrefill(true);
-      setStockItems(
+      const t =
         (order.content || [])
           .filter((e) => (e.quantity_ready || 0) < (e.quantity || 0))
-          .map(
-            (e) =>
-              ({
+          .map((e) => {
+            const quantity = Math.max(
+              0,
+              (e.quantity || 0) - (e.quantity_ready || 0)
+            );
+            if (e.type === "product" && (e.quantity || 0) < 50) {
+              // Products will be added 1 by 1 to allow for serial numbers (except if quantity > 50)
+              return Array.from({ length: quantity }).map(() => ({
                 article: e.article,
-                quantity: Math.max(
-                  0,
-                  (e.quantity || 0) - (e.quantity_ready || 0)
-                ),
+                quantity: 1,
                 from_rel_supplier_quote: order.id,
                 for_rel_quote:
                   order.from_rel_quote?.length === 1
@@ -48,9 +50,28 @@ export const StockItemsCreateFromOrder = ({
                     : "",
                 state: "stock",
                 _key: Math.random().toString(),
-              } as StockItems & { _key: string })
-          )
-      );
+              }));
+            } else {
+              return [
+                {
+                  article: e.article,
+                  quantity: Math.max(
+                    0,
+                    (e.quantity || 0) - (e.quantity_ready || 0)
+                  ),
+                  from_rel_supplier_quote: order.id,
+                  for_rel_quote:
+                    order.from_rel_quote?.length === 1
+                      ? order.from_rel_quote?.[0]
+                      : "",
+                  state: "stock",
+                  _key: Math.random().toString(),
+                },
+              ];
+            }
+          })
+          .reduce((acc, val) => acc.concat(val), []) || [];
+      setStockItems(t as (StockItems & { _key: string })[]);
     }
   }, [order?.id]);
 

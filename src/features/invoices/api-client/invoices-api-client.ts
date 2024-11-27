@@ -8,11 +8,11 @@ import {
 export class InvoicesApiClient {
   static getPdfRoute(
     invoice: Pick<Invoices, "id" | "client_id">,
-    options?: InvoiceLine[]
+    options?: (InvoiceLine & { _index?: number })[]
   ) {
     const optionsObject = Object.fromEntries(
       (options ?? []).map((option, index) => [
-        index.toString(),
+        option?._index !== undefined ? option?._index : index.toString(),
         option.optional_checked ? "1" : "0",
       ])
     );

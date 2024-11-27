@@ -5,7 +5,12 @@ import { CtrlKRestEntities } from ".";
 export const useEditFromCtrlK = () => {
   const setCtrlK = useSetRecoilState(CtrlKAtom);
 
-  return <T>(entity: string, id?: string, initialState?: Partial<T>) => {
+  return <T>(
+    entity: string,
+    id?: string,
+    initialState?: Partial<T>,
+    cb?: (entity: T) => Promise<void>
+  ) => {
     if (CtrlKRestEntities[entity]?.renderEditor) {
       setCtrlK((states) => [
         ...states,
@@ -18,6 +23,7 @@ export const useEditFromCtrlK = () => {
                 entity: entity,
                 id,
                 internalQuery: initialState,
+                cb,
               },
             },
           ],
