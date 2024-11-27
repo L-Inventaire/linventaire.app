@@ -16,7 +16,7 @@ import { useState } from "react";
 
 export const FurnishQuotesPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
-  const { invoice: quote, isPending, restore } = useInvoice(id || "");
+  const { invoice: quote, isPending } = useInvoice(id || "");
   const [isLoading, setIsLoading] = useState(false);
   const {
     actions,

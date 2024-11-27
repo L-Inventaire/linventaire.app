@@ -1,11 +1,10 @@
 import { SectionSmall } from "@atoms/text";
+import _, { max, min } from "lodash";
+import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import { twMerge } from "tailwind-merge";
 import "./styles.scss";
-import _, { max, min } from "lodash";
-import { DateTime } from "luxon";
-import { timeDecimalToBase60 } from "@features/utils/format/dates";
 
 interface InputProps
   extends Omit<

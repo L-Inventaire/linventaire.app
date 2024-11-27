@@ -8,11 +8,7 @@ import { useContact } from "@features/contacts/hooks/use-contacts";
 import { SigningSessionsApiClient } from "@features/documents/api-client/api-client";
 import { Invoices } from "@features/invoices/types/types";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
-import {
-  PaperAirplaneIcon,
-  PrinterIcon,
-  TrashIcon,
-} from "@heroicons/react/16/solid";
+import { PaperAirplaneIcon, PrinterIcon } from "@heroicons/react/16/solid";
 import { ModalHr } from "@views/client/_layout/page";
 import _ from "lodash";
 import { useEffect, useState } from "react";

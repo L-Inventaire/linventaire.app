@@ -1090,6 +1090,10 @@ body :is(.left-4) {
   left: 1rem;
 }
 
+body :is(.left-8) {
+  left: 2rem;
+}
+
 body :is(.left-auto) {
   left: auto;
 }
@@ -1132,22 +1136,6 @@ body :is(.top-1\/2) {
 
 body :is(.top-full) {
   top: 100%;
-}
-
-body :is(.right-12) {
-  right: 3rem;
-}
-
-body :is(.left-12) {
-  left: 3rem;
-}
-
-body :is(.left-10) {
-  left: 2.5rem;
-}
-
-body :is(.left-8) {
-  left: 2rem;
 }
 
 body :is(.z-0) {
@@ -1644,10 +1632,6 @@ body :is(.mt-px) {
   margin-top: 1px;
 }
 
-body :is(.mr-8) {
-  margin-right: 2rem;
-}
-
 body :is(.box-border) {
   box-sizing: border-box;
 }
@@ -2021,10 +2005,6 @@ body :is(.w-px) {
   width: 1px;
 }
 
-body :is(.w-40) {
-  width: 10rem;
-}
-
 body :is(.min-w-0) {
   min-width: 0px;
 }
@@ -2106,10 +2086,6 @@ body :is(.max-w-xl) {
 
 body :is(.max-w-xs) {
   max-width: 20rem;
-}
-
-body :is(.max-w-sm) {
-  max-width: 24rem;
 }
 
 body :is(.flex-1) {
@@ -4740,11 +4716,6 @@ body :is(.hover\:border-red-500:hover) {
 body :is(.hover\:border-slate-200:hover) {
   --tw-border-opacity: 1;
   border-color: rgb(198 198 198 / var(--tw-border-opacity));
-}
-
-body :is(.hover\:border-slate-300:hover) {
-  --tw-border-opacity: 1;
-  border-color: rgb(172 172 165 / var(--tw-border-opacity));
 }
 
 body :is(.hover\:border-slate-500:hover) {
