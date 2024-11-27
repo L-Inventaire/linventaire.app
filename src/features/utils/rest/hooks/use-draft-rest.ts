@@ -1,11 +1,17 @@
 import { useFormController } from "@components/form/formcontext";
 import { useNavigationPrompt } from "@features/utils/use-navigation-prompt";
-import { useCallback, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { atomFamily, useRecoilState } from "recoil";
 import { useRest } from "./use-rest";
 import toast from "react-hot-toast";
 
-const RestDraftAtom = atomFamily<any, [string, string | "new"]>({
+const RestDraftAtom = atomFamily<any, [string, string | "new", string]>({
   key: "RestDraftAtom",
   default: {},
   effects_UNSTABLE: (key) => [
@@ -30,6 +36,8 @@ export const useReadDraftRest = <T extends { id: string }>(
   return useDraftRest<T>(table, id, async () => {}, undefined, readonly);
 };
 
+export const DraftContext = createContext({ key: "" });
+
 export const useDraftRest = <T extends { id: string }>(
   table: string,
   id: string | "new",
@@ -39,9 +47,10 @@ export const useDraftRest = <T extends { id: string }>(
 ) => {
   const { items, upsert, remove, restore } = useRest<T>(table, { id });
   const existingItem = id && id !== "new" ? items?.data?.list?.[0] : null;
+  const { key } = useContext(DraftContext);
 
   const [defaultWasSet, setDefaultWasSet] = useState(false);
-  const [draft, setDraft] = useRecoilState<T>(RestDraftAtom([table, id]));
+  const [draft, setDraft] = useRecoilState<T>(RestDraftAtom([table, id, key]));
 
   const { lockNavigation, ctrl, setLockNavigation } = useFormController(
     draft,

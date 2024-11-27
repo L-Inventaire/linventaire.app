@@ -23,7 +23,7 @@ export const Checkbox = (props: {
           "overflow-hidden transition-all shrink-0 flex justify-center items-center border rounded text-white " +
             (props.value
               ? "border-blue-600 bg-blue-600 hover:border-blue-500 hover:bg-blue-500"
-              : "border-blue-200 bg-blue-50 dark:bg-blue-800 dark:border-blue-700 " +
+              : "border-slate-200 bg-slate-50 dark:bg-slate-800 dark:border-slate-700 " +
                 (props.disabled
                   ? ""
                   : "hover:border-slate-200 dark:hover:border-slate-600")) +

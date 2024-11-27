@@ -30,7 +30,9 @@ export const SigningSessionPage = () => {
   } = useSigningSession(sessionID ?? "");
   const { t } = useTranslation();
 
-  const [options, setOptions] = useState<InvoiceLine[]>([]);
+  const [options, setOptions] = useState<(InvoiceLine & { _index: number })[]>(
+    []
+  );
 
   const [cancelling, setCancelling] = useState(false);
   const [cancelReason, setCancelReason] = useState<string>("");
@@ -48,6 +50,7 @@ export const SigningSessionPage = () => {
   useEffect(() => {
     setOptions(
       invoice?.content
+        ?.map((line, i) => ({ ...line, _index: i }))
         ?.filter((line) => line.optional)
         .map((line) => ({ ...line })) ?? []
     );
@@ -220,9 +223,9 @@ export const SigningSessionPage = () => {
                 !signingSession.expired && (
                   <div className="mb-4">
                     <Section>Options</Section>
-                    <div className="flex w-full">
+                    <div className="flex w-full mt-2">
                       {options.map((option) => (
-                        <div className="ml-2 flex">
+                        <div className="flex">
                           <Checkbox
                             disabled={
                               signingSession.state === "signed" ||

@@ -93,19 +93,12 @@ export const InvoiceSendModalContent = ({
 
       <ModalHr />
 
-      <div className="mt-2 space-y-2">
+      <div className="mt-2 space-y-0">
         {availableEmails.map((email) => (
           <div key={email} className="flex items-center justify-between">
             <Checkbox
               label={email}
               value={!!draft?.recipients?.find((rec) => rec.email === email)}
-              icon={
-                [client?.contact?.email, contact?.contact?.email].includes(
-                  email
-                )
-                  ? undefined
-                  : (p) => <TrashIcon {...p} />
-              }
               labelWrapperProps={{ className: "max-w-[40%]" }}
               labelProps={{ className: "truncate w-full block" }}
               onChange={(status) => {
