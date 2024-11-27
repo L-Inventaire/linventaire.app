@@ -12,11 +12,13 @@ import { useFields } from "@features/fields/hooks/use-fields";
 import { Fields } from "@features/fields/types/types";
 import { normalizeStringToKey } from "@features/utils/format/strings";
 import {
+  BriefcaseIcon,
   CubeIcon,
   DocumentTextIcon,
   PencilIcon,
   TrashIcon,
   UserIcon,
+  ViewColumnsIcon,
 } from "@heroicons/react/24/outline";
 import _ from "lodash";
 import { useState } from "react";
@@ -37,6 +39,16 @@ const tables = [
     label: "Articles",
     value: "articles",
     icon: (p: any) => <CubeIcon {...p} />,
+  },
+  {
+    label: "Services",
+    value: "service_items",
+    icon: (p: any) => <BriefcaseIcon {...p} />,
+  },
+  {
+    label: "Stock",
+    value: "stock_items",
+    icon: (p: any) => <ViewColumnsIcon {...p} />,
   },
 ];
 
