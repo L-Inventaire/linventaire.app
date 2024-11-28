@@ -66,13 +66,6 @@ export const RelatedInvoices = ({
     <div className={twMerge("space-y-6", className)}>
       {!!quote?.data?.list?.length && (
         <>
-          {isQuoteRelated && readonly && (
-            <div className="float-right">
-              <Button size="sm" onClick={() => openInvoiceModal(true)}>
-                Facture partielle
-              </Button>
-            </div>
-          )}
           <div>
             <Section className="my-2">Devis lié</Section>
             <RestTable
@@ -86,8 +79,16 @@ export const RelatedInvoices = ({
           </div>
         </>
       )}
-      {!!siblingsInvoices?.data?.list?.length && (
+      {(!!siblingsInvoices?.data?.list?.length ||
+        (isQuoteRelated && readonly)) && (
         <div>
+          {isQuoteRelated && readonly && (
+            <div className="float-right">
+              <Button size="xs" onClick={() => openInvoiceModal(true)}>
+                Facture partielle
+              </Button>
+            </div>
+          )}
           <Section className="my-2">Factures et avoirs liés</Section>
           <RestTable
             onClick={({ id }, event) =>
