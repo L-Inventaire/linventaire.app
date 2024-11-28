@@ -1,3 +1,5 @@
+import InputTime from "@atoms/input/input-time";
+import { getUnitLabel } from "@atoms/input/input-unit";
 import { CustomFieldsInput } from "@components/custom-fields-input";
 import { FormInput } from "@components/form/fields";
 import { FormContext } from "@components/form/formcontext";
@@ -6,9 +8,14 @@ import { UsersInput } from "@components/input-rest/users";
 import { useArticle } from "@features/articles/hooks/use-articles";
 import { useServiceItem } from "@features/service/hooks/use-service-items";
 import { ServiceTimes } from "@features/service/types/types";
+import {
+  timeBase60ToDecimal,
+  timeDecimalToBase60,
+} from "@features/utils/format/dates";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { BriefcaseIcon } from "@heroicons/react/20/solid";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 export const ServiceTimesDetailsPage = ({
   readonly,
@@ -25,6 +32,7 @@ export const ServiceTimesDetailsPage = ({
 
   const { service_item } = useServiceItem(draft.service);
   const { article } = useArticle(service_item?.article || "");
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (article?.unit) {
@@ -64,10 +72,13 @@ export const ServiceTimesDetailsPage = ({
 
         <br />
 
-        <FormInput
-          label={`Quantity (${article?.unit || "units"})`}
-          type="number"
-          ctrl={ctrl("quantity")}
+        <InputTime
+          label={"Temps passé en " + getUnitLabel(article?.unit || "h", t)}
+          value={timeDecimalToBase60(ctrl("quantity").value)}
+          onChange={(_, number) => {
+            const quantity = timeBase60ToDecimal(number);
+            ctrl("quantity").onChange(quantity);
+          }}
         />
 
         <br />

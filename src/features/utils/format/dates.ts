@@ -78,7 +78,13 @@ export function getPeriodEnd(dateStr: string) {
   );
 }
 
-export function timeDecimalToBase60(hourDecimal: number): [number, number] {
+export function timeDecimalToBase60(
+  hourDecimal: number | undefined
+): [number, number] {
+  if (hourDecimal === undefined) {
+    return [0, 0];
+  }
+
   // Extract the whole hours
   const hours = Math.floor(hourDecimal);
 
@@ -97,12 +103,27 @@ export function timeDecimalToBase60(hourDecimal: number): [number, number] {
   return [hours, minutes];
 }
 
+export function prettyPrintTime(timeArray: number[]): string {
+  // Validate the input
+  if (timeArray.length !== 2) {
+    throw new Error('Invalid time format. Ensure it is in "HH:MM" format.');
+  }
+
+  // Extract the hours and minutes
+  const [hours, minutes] = timeArray;
+
+  // Format the output as "HH:MM" with leading zeros if necessary
+  return `${hours.toString().padStart(2, "0")}:${minutes
+    .toString()
+    .padStart(2, "0")}`;
+}
+
 export function timeBase60ToDecimal(timeArray: number[]): number {
   // Split the input into hours and minutes
   const [hours, minutes] = timeArray;
 
   // Validate the input
-  if (isNaN(hours) || isNaN(minutes) || minutes < 0 || minutes >= 60) {
+  if (isNaN(hours) || isNaN(minutes) || minutes < 0 || minutes > 60) {
     throw new Error(
       'Invalid time format. Ensure it is in "HH:MM" format with minutes between 0 and 59.'
     );

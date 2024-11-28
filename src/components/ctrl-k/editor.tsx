@@ -1,17 +1,14 @@
 import { DocumentBar } from "@components/document-bar";
-import {
-  DraftContext,
-  useDraftRest,
-} from "@features/utils/rest/hooks/use-draft-rest";
-import Scrollbars from "react-custom-scrollbars";
-import { useRecoilState } from "recoil";
-import { CtrlKAtom } from "@features/ctrlk/store";
-import _ from "lodash";
-import { RestEntity } from "@features/utils/rest/types/types";
-import { CtrlKRestEntities } from "@features/ctrlk";
-import { useRestSchema } from "@features/utils/rest/hooks/use-rest";
 import { withSearchAsModelObj } from "@components/search-bar/utils/as-model";
 import { buildQueryFromMap } from "@components/search-bar/utils/utils";
+import { CtrlKRestEntities } from "@features/ctrlk";
+import { CtrlKAtom } from "@features/ctrlk/store";
+import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
+import { useRestSchema } from "@features/utils/rest/hooks/use-rest";
+import { RestEntity } from "@features/utils/rest/types/types";
+import _ from "lodash";
+import Scrollbars from "react-custom-scrollbars";
+import { useRecoilState } from "recoil";
 
 export const ModalEditor = (props: { index: number }) => {
   const [states, setStates] = useRecoilState(CtrlKAtom);
