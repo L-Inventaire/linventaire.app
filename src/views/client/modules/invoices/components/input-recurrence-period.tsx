@@ -25,28 +25,36 @@ export const InvoiceRecurrencePeriodInput = ({
 
   useEffect(() => {
     if (!useCustomDate) {
+      const frequencies = _.uniq(
+        invoice.content
+          ?.filter((a) => a.subscription)
+          .map((a) => a.subscription)
+      );
+      const minFrequency =
+        _.minBy(frequencies, (a) => {
+          const t = new Date();
+          applyOffset(t, a!, 1);
+          return t.getTime();
+        }) || "monthly";
       if (!invoice.from_subscription?.from) {
-        const frequency =
-          _.minBy(
-            invoice.content
-              ?.filter((a) => a.subscription)
-              .map((a) => a.subscription),
-            (a) => {
-              const t = new Date();
-              applyOffset(t, a!, 1);
-              return t.getTime();
-            }
-          ) || "monthly";
         const to = new Date();
-        applyOffset(to, frequency, 1);
+        applyOffset(to, minFrequency, 1);
         ctrl("from_subscription").onChange({
           from: Date.now(),
           to: to.getTime(),
-          frequency,
+          frequency: frequencies.length === 1 ? minFrequency : "multiple",
         });
       } else {
         const date = new Date(invoice.from_subscription?.from);
-        applyOffset(date, invoice.from_subscription?.frequency || "monthly", 1);
+        applyOffset(
+          date,
+          (invoice.from_subscription?.frequency === "multiple"
+            ? null
+            : invoice.from_subscription?.frequency) ||
+            minFrequency ||
+            "monthly",
+          1
+        );
         ctrl("from_subscription.to").onChange(date.getTime());
       }
     }

@@ -243,8 +243,7 @@ export const InvoiceRecurrenceInput = ({
           {
             (
               {
-                after_first_invoice:
-                  "après la facturation des éléments non récurrents",
+                after_first_invoice: "après la première facture",
                 acceptance_start: "après l'acceptation",
                 acceptance_end: "à la fin de la première période",
                 date:
