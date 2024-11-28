@@ -70,43 +70,38 @@ export const ModalEditor = (props: { index: number }) => {
   );
 
   return (
-    <DraftContext.Provider
-      value={{ key: "ctrlk_" + props.index + "_" + state.path.length }}
-    >
-      <div className="grow flex-col flex relative">
-        <div className="border-b flex min-h-12 border-slate-100 dark:border-slate-700 shrink-0">
-          <DocumentBar
-            loading={isInitiating}
-            entity={currentState.options?.entity || ""}
-            document={draft}
-            mode={"write"}
-            onClose={async () => {
-              setState({
-                ...state,
-                path: state.path.slice(0, state.path.length - 1),
-              });
-            }}
-            onSave={async () => {
-              await save();
-              if (currentState?.options?.cb)
-                await currentState.options.cb(draft);
-            }}
-            onRemove={draft.id ? remove : undefined}
-            onRestore={draft.id ? restore : undefined}
-          />
-        </div>
-        <Scrollbars>
-          <div className="p-4">
-            {CtrlKRestEntities[currentState.options?.entity || ""]
-              ?.renderEditor &&
-              CtrlKRestEntities[
-                currentState.options?.entity || ""
-              ]?.renderEditor?.({
-                id: currentState.options?.id || "",
-              })}
-          </div>
-        </Scrollbars>
+    <div className="grow flex-col flex relative">
+      <div className="border-b flex min-h-12 border-slate-100 dark:border-slate-700 shrink-0">
+        <DocumentBar
+          loading={isInitiating}
+          entity={currentState.options?.entity || ""}
+          document={draft}
+          mode={"write"}
+          onClose={async () => {
+            setState({
+              ...state,
+              path: state.path.slice(0, state.path.length - 1),
+            });
+          }}
+          onSave={async () => {
+            await save();
+            if (currentState?.options?.cb) await currentState.options.cb(draft);
+          }}
+          onRemove={draft.id ? remove : undefined}
+          onRestore={draft.id ? restore : undefined}
+        />
       </div>
-    </DraftContext.Provider>
+      <Scrollbars>
+        <div className="p-4">
+          {CtrlKRestEntities[currentState.options?.entity || ""]
+            ?.renderEditor &&
+            CtrlKRestEntities[
+              currentState.options?.entity || ""
+            ]?.renderEditor?.({
+              id: currentState.options?.id || "",
+            })}
+        </div>
+      </Scrollbars>
+    </div>
   );
 };
