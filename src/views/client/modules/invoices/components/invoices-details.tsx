@@ -19,7 +19,7 @@ import { useContact } from "@features/contacts/hooks/use-contacts";
 import { Contacts } from "@features/contacts/types/types";
 import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { Invoices } from "@features/invoices/types/types";
-import { applyOffset, getDocumentName } from "@features/invoices/utils";
+import { getDocumentName } from "@features/invoices/utils";
 import { ROUTES } from "@features/routes";
 import { formatTime } from "@features/utils/format/dates";
 import { getFormattedNumerotation } from "@features/utils/format/numerotation";
@@ -41,6 +41,7 @@ import { InputDelivery } from "./input-delivery";
 import { InvoiceInputFormat } from "./input-format";
 import { InvoicePaymentInput } from "./input-payment";
 import { InvoiceRecurrenceInput } from "./input-recurrence";
+import { InvoiceRecurrencePeriodInput } from "./input-recurrence-period";
 import { InvoiceReminderInput } from "./input-reminder";
 import { InvoiceLinesInput } from "./invoice-lines-input";
 import { CompletionTags } from "./invoice-lines-input/components/completion-tags";
@@ -48,7 +49,6 @@ import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-ca
 import { InvoiceStatus } from "./invoice-status";
 import { RelatedInvoices } from "./related-invoices";
 import { TagPaymentCompletion } from "./tag-payment-completion";
-import { InvoiceRecurrencePeriodInput } from "./input-recurrence-period";
 
 export const computeStockCompletion = (
   linesu: Invoices["content"],
