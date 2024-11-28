@@ -87,7 +87,7 @@ export const InputButton = <T,>(props: InputButtonProps<T>) => {
         }}
         readonly={disabled}
         className={twMerge(
-          "h-max whitespace-normal py-[5.5px] text-opacity-100 cursor-pointer",
+          "h-max whitespace-normal py-[5.5px] text-opacity-100 cursor-pointer text-black",
           props.className
         )}
       >

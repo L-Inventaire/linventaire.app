@@ -28,6 +28,7 @@ const RenderInvoiceCard = ({
   invoice: Invoices;
   size: RestDocumentProps<Invoices>["size"];
 }) => {
+  size = size === "xl" ? "lg" : size;
   const { contact } = useContact(invoice.client || invoice.supplier || "");
   const isQuote =
     invoice.type === "quotes" || invoice.type === "supplier_quotes";

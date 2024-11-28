@@ -122,11 +122,13 @@ export type InvoiceSubscription = {
     | "monday"
     | "last_workday"
     | "last_day";
+  invoice_state: "draft" | "sent";
   start_type: "after_first_invoice" | "acceptance_start" | "date";
   start: number;
   end_type: "none" | "delay" | "date";
   end: number;
   end_delay?: "1y" | "2y" | "3y";
+  renew_in_advance: number;
   renew_as: "draft" | "sent" | "closed";
 };
 
