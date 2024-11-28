@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { atom, useRecoilState } from "recoil";
 import { frequencyOptions } from "../../articles/components/article-details";
+import { applyOffset } from "@features/invoices/utils";
 
 const optionsDelays = [
   {
@@ -127,10 +128,11 @@ export const InvoiceRecurrenceInput = ({
   const subscriptions = _.uniq(
     invoice.content?.map((a) => a.subscription)
   ).filter(Boolean) as string[];
-  const frequencyOrder = ["daily", "weekly", "monthly", "yearly"];
-  const minimalFrequency = _.minBy(subscriptions, (a) =>
-    frequencyOrder.indexOf(a)
-  );
+  const minimalFrequency = _.minBy(subscriptions, (a) => {
+    const t = new Date();
+    applyOffset(t, a, 1);
+    return t.getTime();
+  });
 
   const getAllDates = (max = 100) => {
     let hasMore = false;
