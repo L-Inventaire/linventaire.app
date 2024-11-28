@@ -57,11 +57,13 @@ export const SideBar = () => {
             label={t("menu.dashboard")}
             icon={(p) => <HomeIcon {...p} />}
           />
-          <SideMenuItem
-            to={getRoute(ROUTES.Notifications)}
-            label={t("menu.notifications")}
-            icon={(p) => <InboxIcon {...p} />}
-          />
+          {false && (
+            <SideMenuItem
+              to={getRoute(ROUTES.Notifications)}
+              label={t("menu.notifications")}
+              icon={(p) => <InboxIcon {...p} />}
+            />
+          )}
           <SideMenuItem
             to={getRoute(ROUTES.Statistics)}
             label={t("menu.statistics")}

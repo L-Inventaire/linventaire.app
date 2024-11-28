@@ -2,6 +2,52 @@ import { fetchServer } from "@features/utils/fetch-server";
 import _ from "lodash";
 import { SchemaType } from "../types/types";
 
+/** This will group the GET requests into a single batch if requested under 10ms */
+const fetchServerBatch = (() => {
+  let pendingRequests: {
+    [key: string]: {
+      url: string;
+      body?: any;
+      resolve: (res: any) => void;
+    }[];
+  } = {};
+  let timeoutId: { [key: string]: NodeJS.Timeout | null } = {};
+
+  const sendBatchRequest = async (clientId: string) => {
+    const requestsToBatch = _.cloneDeep(pendingRequests);
+    pendingRequests[clientId] = [];
+    timeoutId[clientId] = null;
+
+    const batchBody = requestsToBatch[clientId].map((req) => ({
+      url: req.url,
+      body: req.body || null,
+    }));
+
+    const res = await fetchServer("/api/rest/v1/" + clientId + "/batch", {
+      method: "POST",
+      body: JSON.stringify(batchBody),
+    });
+
+    const jsonResponses = (await res.json()) as { status: number; body: any }[];
+    requestsToBatch[clientId].forEach((req, index) => {
+      req.resolve(jsonResponses[index]);
+    });
+  };
+
+  return (clientId: string, url: string, body?: any): Promise<any> => {
+    return new Promise((resolve) => {
+      pendingRequests[clientId] = pendingRequests[clientId] || [];
+      pendingRequests[clientId].push({ url, body, resolve });
+
+      if (!timeoutId[clientId]) {
+        timeoutId[clientId] = setTimeout(() => {
+          sendBatchRequest(clientId);
+        }, 10); // Delay batching for 10ms
+      }
+    });
+  };
+})();
+
 export class RestApiClient<T> {
   constructor(private table: string) {}
 
@@ -56,22 +102,21 @@ export class RestApiClient<T> {
       asc?: boolean;
     }
   ): Promise<{ total: number; list: T[] }> => {
-    const tmp = await fetchServer(
+    const tmp = await fetchServerBatch(
+      clientId,
       `/api/rest/v1/${clientId}/${this.table}/search?${this.table}`,
-      {
-        method: "POST",
-        body: JSON.stringify({ query, options }),
-      }
+      { query, options }
     );
-    if (tmp.status === 200) return await tmp.json();
+    if (tmp.status === 200) return tmp.body;
     throw new Error("Error fetching data");
   };
 
   get = async (clientId: string, id: string): Promise<T> => {
-    const tmp = await fetchServer(
+    const tmp = await fetchServerBatch(
+      clientId,
       `/api/rest/v1/${clientId}/${this.table}/${id}`
     );
-    if (tmp.status === 200) return await tmp.json();
+    if (tmp.status === 200) return tmp.body;
     throw new Error("Error fetching data");
   };
 

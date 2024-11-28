@@ -26,7 +26,10 @@ import {
 import { useServiceItems } from "@features/service/hooks/use-service-items";
 import { useServiceTimes } from "@features/service/hooks/use-service-times";
 import { ServiceItems } from "@features/service/types/types";
-import { timeDecimalToBase60 } from "@features/utils/format/dates";
+import {
+  timeBase60ToDecimal,
+  timeDecimalToBase60,
+} from "@features/utils/format/dates";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { ClockIcon, CubeIcon } from "@heroicons/react/16/solid";
 import { UserIcon } from "@heroicons/react/20/solid";
@@ -193,6 +196,7 @@ export const ServiceItemsDetailsPage = ({
                 ctrl={ctrl("article")}
                 label="Article"
                 placeholder="Sélectionner un article"
+                className="flex-grow"
                 filter={
                   {
                     type: "service",
@@ -223,15 +227,13 @@ export const ServiceItemsDetailsPage = ({
               )}
               {(!article?.unit || article?.unit === "h") && (
                 <InputTime
-                  // label={"Temps passé en " + getUnitLabel(props.unit || "h", t)}
-                  onChange={() => {
-                    // const quantity = timeBase60ToDecimal(number);
-                    // props.onChange({
-                    //   ...props.value,
-                    //   quantity,
-                    // });
+                  label={"Temps estimé"}
+                  labelProps={{ className: "whitespace-nowrap" }}
+                  onChange={(_, number) => {
+                    const quantity = timeBase60ToDecimal(number);
+                    ctrl("quantity_expected").onChange(quantity);
                   }}
-                  className={"!mx-3"}
+                  className={"!mx-3 flex-grow"}
                   value={timeDecimalToBase60(
                     ctrl("quantity_expected").value || 0
                   )}

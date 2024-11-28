@@ -19,6 +19,7 @@ import {
   isPaymentLate,
 } from "@views/client/modules/invoices/utils";
 import { Invoices } from "./types/types";
+import { format } from "date-fns";
 
 export const useInvoiceDefaultModel: () => Partial<Invoices> = () => {
   const { client } = useCurrentClient();
@@ -53,13 +54,21 @@ export const InvoicesColumns: Column<Invoices>[] = [
       <Base className="whitespace-nowrap max-w-xs overflow-hidden text-ellipsis">
         <BaseSmall>
           {invoice.reference}{" "}
-          {invoice.content?.some((a) => a.subscription) && (
-            <span>(Abonnement)</span>
+          {!!invoice.from_subscription?.from && (
+            <span>
+              {" "}
+              • Du {format(
+                invoice.from_subscription.from,
+                "yyyy-MM-dd"
+              )} au {format(invoice.from_subscription.to, "yyyy-MM-dd")}
+            </span>
           )}
         </BaseSmall>
         <br />
         <div className="opacity-50 text-ellipsis overflow-hidden w-full">
-          {invoice.name || invoice.content?.map((a) => a.name).join(", ")}{" "}
+          {[invoice.name, invoice.content?.map((a) => a.name).join(", ")]
+            .filter(Boolean)
+            .join(" • ")}
         </div>
       </Base>
     ),

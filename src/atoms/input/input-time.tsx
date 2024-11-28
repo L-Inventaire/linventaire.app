@@ -1,10 +1,12 @@
 import { SectionSmall } from "@atoms/text";
 import _, { max, min } from "lodash";
 import { DateTime } from "luxon";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import { twMerge } from "tailwind-merge";
 import "./styles.scss";
+import { FormContextContext } from "@components/form/formcontext";
+import { prettyPrintTime } from "@features/utils/format/dates";
 
 interface InputProps
   extends Omit<
@@ -12,6 +14,7 @@ interface InputProps
     "size" | "onChange" | "value"
   > {
   label?: string;
+  labelProps?: React.HTMLAttributes<HTMLLabelElement>;
   placeholder?: string;
   className?: string;
   hourInputClassName?: string;
@@ -32,7 +35,12 @@ export function InputTime(props: InputProps) {
             props.className
           )}
         >
-          <SectionSmall className="mb-1">{props.label}</SectionSmall>
+          <SectionSmall
+            className={twMerge("mb-1", props?.labelProps?.className)}
+            {..._.omit(props.labelProps, "className")}
+          >
+            {props.label}
+          </SectionSmall>
           <InputTimeMain {..._.omit(props, "className")} />{" "}
         </div>
       )}
@@ -46,6 +54,10 @@ function InputTimeMain(props: InputProps) {
     props.className
   );
   const inputClassName = "border-none w-[4ch] h-8 rounded-md text-sm";
+
+  const formContext = useContext(FormContextContext);
+  const disabled =
+    props.disabled || formContext.disabled || formContext.readonly || false;
 
   const _value = _.isArray(props.value)
     ? props.value
@@ -71,6 +83,10 @@ function InputTimeMain(props: InputProps) {
   );
 
   useEffect(() => {
+    setTextValues(convertValueToText(_value));
+  }, [_value]);
+
+  useEffect(() => {
     let value1 = parseInt(textValues[0]);
     let value2 = parseInt(textValues[1]);
 
@@ -90,8 +106,12 @@ function InputTimeMain(props: InputProps) {
     if (props?.onChange) props?.onChange(date.toJSDate(), [value1, value2]);
   }, [textValues]);
 
-  if (props?.disabled) {
-    return <div className={rootClassName}>{_value.join(":")}</div>;
+  if (disabled) {
+    return (
+      <div className={twMerge(rootClassName, "px-3")}>
+        {prettyPrintTime(_value)}
+      </div>
+    );
   }
 
   return (
