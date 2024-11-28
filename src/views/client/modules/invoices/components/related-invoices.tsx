@@ -26,56 +26,92 @@ export const RelatedInvoices = ({
 
   const isQuoteRelated =
     invoice.type === "quotes" || invoice.type === "supplier_quotes";
+  const isSupplierRelated =
+    invoice.type === "supplier_quotes" ||
+    invoice.type === "supplier_invoices" ||
+    invoice.type === "supplier_credit_notes";
 
   const { invoices: quote } = useInvoices({
     query: generateQueryFromMap({ id: invoice.from_rel_quote || "none" }),
   });
-  const { invoices: siblings } = useInvoices({
+  const { invoices: siblingsInvoices } = useInvoices({
     query: [
       ...generateQueryFromMap({
+        type: isSupplierRelated
+          ? ["supplier_invoices", "supplier_credit_notes"]
+          : ["invoices", "credit_notes"],
+        from_rel_quote: [isQuoteRelated ? invoice.id : invoice.from_rel_quote],
+      }),
+      { key: "id", not: true, values: [{ op: "equals", value: invoice.id }] },
+    ],
+  });
+  const { invoices: siblingsOrders } = useInvoices({
+    query: [
+      ...generateQueryFromMap({
+        type: "supplier_quotes",
         from_rel_quote: [isQuoteRelated ? invoice.id : invoice.from_rel_quote],
       }),
       { key: "id", not: true, values: [{ op: "equals", value: invoice.id }] },
     ],
   });
 
-  if (!quote?.data?.list?.length && !siblings?.data?.list?.length) return null;
+  if (
+    !quote?.data?.list?.length &&
+    !siblingsInvoices?.data?.list?.length &&
+    !siblingsOrders?.data?.list?.length
+  )
+    return null;
 
   return (
     <div className={twMerge("space-y-6", className)}>
-      {isQuoteRelated && readonly && (
-        <div className="float-right">
-          <Button size="sm" onClick={() => openInvoiceModal(true)}>
-            Facture partielle
-          </Button>
+      {!!quote?.data?.list?.length && (
+        <>
+          {isQuoteRelated && readonly && (
+            <div className="float-right">
+              <Button size="sm" onClick={() => openInvoiceModal(true)}>
+                Facture partielle
+              </Button>
+            </div>
+          )}
+          <div>
+            <Section className="my-2">Devis lié</Section>
+            <RestTable
+              onClick={({ id }, event) =>
+                navigate(getRoute(ROUTES.InvoicesView, { id }), { event })
+              }
+              data={quote}
+              entity="invoices"
+              columns={InvoicesColumns}
+            />
+          </div>
+        </>
+      )}
+      {!!siblingsInvoices?.data?.list?.length && (
+        <div>
+          <Section className="my-2">Factures et avoirs liés</Section>
+          <RestTable
+            onClick={({ id }, event) =>
+              navigate(getRoute(ROUTES.InvoicesView, { id }), { event })
+            }
+            data={siblingsInvoices}
+            entity="invoices"
+            columns={InvoicesColumns}
+          />
         </div>
       )}
-      <div>
-        <Section className="my-2">Devis lié</Section>
-        {!!quote?.data?.list?.length && (
+      {!!siblingsOrders?.data?.list?.length && (
+        <div>
+          <Section className="my-2">Commandes liés à ce devis</Section>
           <RestTable
             onClick={({ id }, event) =>
               navigate(getRoute(ROUTES.InvoicesView, { id }), { event })
             }
-            data={quote}
+            data={siblingsOrders}
             entity="invoices"
             columns={InvoicesColumns}
           />
-        )}
-      </div>
-      <div>
-        <Section className="my-2">Factures et avoirs liés</Section>
-        {!!siblings?.data?.list?.length && (
-          <RestTable
-            onClick={({ id }, event) =>
-              navigate(getRoute(ROUTES.InvoicesView, { id }), { event })
-            }
-            data={siblings}
-            entity="invoices"
-            columns={InvoicesColumns}
-          />
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
