@@ -88,8 +88,7 @@ export type Invoices = RestEntity & {
   from_subscription: {
     // Only the backend can set this field
     // When invoice was generated from a subscription, details goes there
-    frequency: "daily" | "weekly" | "monthly" | "yearly";
-    frequency_duration: number;
+    frequency: "daily" | "weekly" | "monthly" | "yearly" | string;
     from: number; // Invoiced period start
     to: number; // Invoiced period end
   };
@@ -146,7 +145,7 @@ export type InvoiceLine = {
   unit_price?: number;
   tva?: string;
   discount?: InvoiceDiscount;
-  subscription?: "" | "daily" | "weekly" | "monthly" | "yearly"; // Monthly or yearly subscription
+  subscription?: "" | "daily" | "weekly" | "monthly" | "yearly" | string; // Monthly or yearly subscription
   subscription_duration?: number; // Number of months or years
 
   quantity_ready?: number; //Quantity received or sent to determine if the line is ready to be invoices

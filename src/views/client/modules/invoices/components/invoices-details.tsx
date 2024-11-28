@@ -582,6 +582,7 @@ export const InvoicesDetailsPage = ({
                         <div className="mt-8">
                           <Section className="mb-2">Origine</Section>
                           <InvoiceRestDocument
+                            disabled={readonly}
                             label="Devis d'origine"
                             placeholder="Aucun devis"
                             ctrl={ctrl("from_rel_quote")}

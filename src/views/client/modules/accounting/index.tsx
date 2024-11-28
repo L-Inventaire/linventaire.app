@@ -19,7 +19,7 @@ import { format } from "date-fns";
 
 export const AccountingPage = () => {
   const [options, setOptions] = useState<RestOptions<AccountingTransactions>>({
-    limit: 10,
+    limit: 20,
     offset: 0,
     query: [],
     index: "transaction_date",

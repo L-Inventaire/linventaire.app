@@ -16,9 +16,8 @@ export const RelatedInvoicesInput = ({ id }: { id: string }) => {
       contact: id,
       state: ["draft", "sent", "purchase_order"],
     }),
-    limit: 10,
-    asc: false,
-    index: "state,type,emit_date",
+    limit: 20,
+    index: "state_order,type,emit_date desc",
   });
 
   const { invoices: invoicesClient } = useInvoices({
@@ -26,9 +25,8 @@ export const RelatedInvoicesInput = ({ id }: { id: string }) => {
       client: id,
       state: ["draft", "sent", "purchase_order"],
     }),
-    limit: 10,
-    asc: false,
-    index: "state,type,emit_date",
+    limit: 20,
+    index: "state_order,type,emit_date desc",
   });
 
   return (

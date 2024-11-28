@@ -63,10 +63,10 @@ export const ServicePage = () => {
   const [activeTab, setActiveTab] = useState("active");
 
   const [options, setOptions] = useState<RestOptions<ServiceItems>>({
-    limit: 10,
+    limit: 20,
     offset: 0,
     query: [],
-    index: "state,created_at",
+    index: "state_order,created_at desc",
   });
   const { service_items } = useServiceItems({
     ...options,

@@ -8,11 +8,7 @@ import { useContact } from "@features/contacts/hooks/use-contacts";
 import { SigningSessionsApiClient } from "@features/documents/api-client/api-client";
 import { Invoices } from "@features/invoices/types/types";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
-import {
-  PaperAirplaneIcon,
-  PrinterIcon,
-  TrashIcon,
-} from "@heroicons/react/16/solid";
+import { PaperAirplaneIcon, PrinterIcon } from "@heroicons/react/16/solid";
 import { ModalHr } from "@views/client/_layout/page";
 import _ from "lodash";
 import { useEffect, useState } from "react";
@@ -93,19 +89,12 @@ export const InvoiceSendModalContent = ({
 
       <ModalHr />
 
-      <div className="mt-2 space-y-2">
+      <div className="mt-2 space-y-0">
         {availableEmails.map((email) => (
           <div key={email} className="flex items-center justify-between">
             <Checkbox
               label={email}
               value={!!draft?.recipients?.find((rec) => rec.email === email)}
-              icon={
-                [client?.contact?.email, contact?.contact?.email].includes(
-                  email
-                )
-                  ? undefined
-                  : (p) => <TrashIcon {...p} />
-              }
               labelWrapperProps={{ className: "max-w-[40%]" }}
               labelProps={{ className: "truncate w-full block" }}
               onChange={(status) => {

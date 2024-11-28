@@ -1,5 +1,8 @@
 import { DocumentBar } from "@components/document-bar";
-import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
+import {
+  DraftContext,
+  useDraftRest,
+} from "@features/utils/rest/hooks/use-draft-rest";
 import Scrollbars from "react-custom-scrollbars";
 import { useRecoilState } from "recoil";
 import { CtrlKAtom } from "@features/ctrlk/store";
@@ -67,7 +70,9 @@ export const ModalEditor = (props: { index: number }) => {
   );
 
   return (
-    <>
+    <DraftContext.Provider
+      value={{ key: "ctrlk_" + props.index + "_" + state.path.length }}
+    >
       <div className="grow flex-col flex relative">
         <div className="border-b flex min-h-12 border-slate-100 dark:border-slate-700 shrink-0">
           <DocumentBar
@@ -102,6 +107,6 @@ export const ModalEditor = (props: { index: number }) => {
           </div>
         </Scrollbars>
       </div>
-    </>
+    </DraftContext.Provider>
   );
 };

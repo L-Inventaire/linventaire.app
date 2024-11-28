@@ -61,10 +61,6 @@ export const useFurnishQuotes = (quotes: Invoices[]) => {
       furnishesOverride
     );
     setFurnishesOverride([]);
-
-    setTimeout(() => {
-      refetchFurnishQuotes();
-    }, 1000);
   }
 
   const furnishes = furnishQuotes?.furnishes;

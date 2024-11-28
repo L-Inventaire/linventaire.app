@@ -21,8 +21,7 @@ export type Articles = RestEntity & {
   price: number;
   unit: string;
   tva: string;
-  subscription: "" | "daily" | "monthly" | "yearly" | "weekly";
-  subscription_duration: number;
+  subscription: "" | "daily" | "monthly" | "yearly" | "weekly" | string;
 
   notes: string;
   documents: string[];

@@ -113,7 +113,7 @@ export const Button = (props: ButtonProps) => {
 
   const onClick = props.onClick
     ? async (e: any) => {
-        if (props.readonly) return;
+        if (props.readonly || props.disabled || props.loading) return;
         asyncTimoutRef.current = setTimeout(() => {
           setAsyncLoading(true);
         }, 500);

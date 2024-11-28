@@ -23,7 +23,7 @@ import { formatNumber } from "@features/utils/format/strings";
 
 export const ArticlesPage = () => {
   const [options, setOptions] = useState<RestOptions<Articles>>({
-    limit: 10,
+    limit: 20,
     offset: 0,
     query: [],
   });

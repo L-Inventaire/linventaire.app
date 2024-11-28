@@ -1,5 +1,7 @@
 import { Button } from "@atoms/button/button";
-import { getUnitLabel, Unit } from "@atoms/input/input-unit";
+import InputTime from "@atoms/input/input-time";
+import { Unit } from "@atoms/input/input-unit";
+import { PageLoader } from "@atoms/page-loader";
 import { Section } from "@atoms/text";
 import { CustomFieldsInput } from "@components/custom-fields-input";
 import { FormInput } from "@components/form/fields";
@@ -24,6 +26,7 @@ import {
 import { useServiceItems } from "@features/service/hooks/use-service-items";
 import { useServiceTimes } from "@features/service/hooks/use-service-times";
 import { ServiceItems } from "@features/service/types/types";
+import { timeDecimalToBase60 } from "@features/utils/format/dates";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { ClockIcon, CubeIcon } from "@heroicons/react/16/solid";
 import { UserIcon } from "@heroicons/react/20/solid";
@@ -35,9 +38,6 @@ import { useEffect, useState } from "react";
 import { InvoiceRestDocument } from "../../invoices/components/invoice-lines-input/invoice-input-rest-card";
 import { InlineSpentTimeInput, SpentTime } from "./inline-spent-time-input";
 import { ServiceItemStatus } from "./service-item-status";
-import { PageLoader } from "@atoms/page-loader";
-import InputTime from "@atoms/input/input-time";
-import { timeDecimalToBase60 } from "@features/utils/format/dates";
 
 export const ServiceItemsDetailsPage = ({
   readonly,
@@ -224,7 +224,7 @@ export const ServiceItemsDetailsPage = ({
               {(!article?.unit || article?.unit === "h") && (
                 <InputTime
                   // label={"Temps passé en " + getUnitLabel(props.unit || "h", t)}
-                  onChange={(value, number) => {
+                  onChange={() => {
                     // const quantity = timeBase60ToDecimal(number);
                     // props.onChange({
                     //   ...props.value,

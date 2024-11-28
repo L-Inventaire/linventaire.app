@@ -72,30 +72,10 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
           }
           suffix={
             <>
-              {invoice.type === "quotes" && (
-                <>
-                  <Button
-                    theme="outlined"
-                    size="sm"
-                    shortcut={["c"]}
-                    to={withModel(
-                      getRoute(ROUTES.InvoicesEdit, { id: "new" }),
-                      {
-                        ...invoice,
-                        from_rel_quote: [invoice.id],
-                        type: "supplier_quotes",
-                        state: "draft",
-                        id: "",
-                      }
-                    )}
-                  >
-                    Démarrer une commande
-                  </Button>
-                </>
-              )}
               {invoice.type === "quotes" &&
                 (invoice.content ?? []).some(
-                  (line) => line.type === "product"
+                  (line) =>
+                    line.type === "product" || line.type === "consumable"
                 ) && (
                   <>
                     <Button

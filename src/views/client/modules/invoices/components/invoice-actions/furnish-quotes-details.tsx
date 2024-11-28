@@ -5,7 +5,7 @@ import { Base, BaseSmall, Info, Section } from "@atoms/text";
 import { generateQueryFromMap } from "@components/search-bar/utils/utils";
 import { RestTable } from "@components/table-rest";
 import { getContactName } from "@features/contacts/types/types";
-import { SupplierQuotesColumns } from "@features/invoices/configuration";
+import { InvoicesColumns } from "@features/invoices/configuration";
 import { useFurnishQuotes } from "@features/invoices/hooks/use-furnish-quotes";
 import { useInvoice, useInvoices } from "@features/invoices/hooks/use-invoices";
 import { getRoute, ROUTES } from "@features/routes";
@@ -20,7 +20,7 @@ import { useSetRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
 import { FurnishQuotesModalAtom } from "./furnish-quotes-modal";
 
-export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
+export const FurnishQuotesDetails = ({ id }: { id?: string }) => {
   const quote = useInvoice(id || "");
 
   const setModal = useSetRecoilState(FurnishQuotesModalAtom);
@@ -28,7 +28,7 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
   const { grouppedByArticles, articles, modifiedFurnishes, suppliers } =
     useFurnishQuotes(quote.invoice ? [quote.invoice] : []);
 
-  const { invoices: existantSupplierQuotes } = useInvoices({
+  const { invoices: existingSupplierQuotes } = useInvoices({
     query: [
       ...generateQueryFromMap({
         from_rel_quote: [id ?? "_"],
@@ -106,13 +106,15 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
             columns={[
               {
                 title: "Article",
-                render: (article) => <>{article.name}</>,
+                render: (article) => (
+                  <div className="max-w-md">{article.name}</div>
+                ),
               },
               {
-                title: "Commandé",
+                title: "Déjà commandé",
                 render: (article) => {
                   const articleOrders = (
-                    existantSupplierQuotes.data?.list ?? []
+                    existingSupplierQuotes.data?.list ?? []
                   ).filter((quote) =>
                     (quote.content ?? []).some(
                       (line) => line.article === article.id
@@ -136,7 +138,7 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
                 },
               },
               {
-                title: "Réservé en stock",
+                title: "Stock reservé ou livré",
                 render: (article) => {
                   const articleStocks = (
                     reservedStocks.data?.list ?? []
@@ -175,7 +177,7 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
                       }
                       className={twMerge(
                         "flex items-center justify-between w-2/3",
-                        "hover:bg-slate-500 hover:bg-opacity-15 bg-opacity-0 transition-all cursor-pointer"
+                        "hover:bg-slate-500 hover:bg-opacity-15 hover:border-slate-500 bg-opacity-0 transition-all cursor-pointer"
                       )}
                       data-tooltip={
                         "Répartir les articles à commander entre les fournisseurs et les stocks"
@@ -183,7 +185,7 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
                     >
                       <div className="w-full h-full grid grid-cols-[1fr_70px] gap-3">
                         {(furnishes ?? []).filter((fur) => fur.quantity > 0)
-                          .length === 0 && <Base>Fournir</Base>}
+                          .length === 0 && <Info>Cliquer pour modifier</Info>}
                         {(furnishes ?? [])
                           .filter((fur) => fur.quantity > 0 && fur.supplierID)
                           .map((fur) => {
@@ -222,7 +224,7 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
                 },
               },
               {
-                title: "Reste à fournir",
+                title: "Reste à fournir après l'opération",
                 render: (article) => {
                   const articleFurnishes = modifiedFurnishes.filter(
                     (fur) => fur.articleID === article.id
@@ -255,7 +257,8 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
               },
               {
                 title: "Achat total HT",
-                thClassName: "text-right",
+                thClassName: "text-right justify-end",
+                headClassName: "text-right justify-end",
                 render: (article) => {
                   const furnishes = modifiedFurnishes.filter(
                     (fur) => fur.articleID === article.id && fur.supplierID
@@ -285,17 +288,17 @@ export const FursnishQuotesDetails = ({ id }: { id?: string }) => {
         </div>
       </div>
 
-      {(existantSupplierQuotes?.data?.list ?? []).length > 0 && (
+      {(existingSupplierQuotes?.data?.list ?? []).length > 0 && (
         <div className="grid grid-cols-1 gap-3">
           <Section className="mt-2 mb-4">Commandes existantes</Section>
-          {(existantSupplierQuotes?.data?.list ?? []) && (
+          {(existingSupplierQuotes?.data?.list ?? []) && (
             <RestTable
               onClick={({ id }) =>
                 navigate(getRoute(ROUTES.InvoicesView, { id }))
               }
-              data={existantSupplierQuotes}
+              data={existingSupplierQuotes}
               entity="invoices"
-              columns={SupplierQuotesColumns}
+              columns={InvoicesColumns}
             />
           )}
         </div>

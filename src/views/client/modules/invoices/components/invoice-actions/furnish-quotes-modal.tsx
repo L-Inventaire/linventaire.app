@@ -10,7 +10,7 @@ import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { StockItems } from "@features/stock/types/types";
 import { debounce } from "@features/utils/debounce";
 import { formatAmount } from "@features/utils/format/strings";
-import { CircleStackIcon, UserIcon } from "@heroicons/react/16/solid";
+import { TruckIcon, ViewColumnsIcon } from "@heroicons/react/16/solid";
 import { Slider } from "@radix-ui/themes";
 import _ from "lodash";
 import { useCallback } from "react";
@@ -54,12 +54,13 @@ export const FurnishQuotesModal = () => {
 export const FurnishQuotesModalContent = ({
   id,
   article,
+  onClose,
 }: {
   id: string;
   article: Articles & FurnishQuotesArticle;
   onClose: () => void;
 }) => {
-  const quote = useInvoice(id || "");
+  const { invoice: quote } = useInvoice(id || "");
   const edit = useEditFromCtrlK();
 
   const {
@@ -71,7 +72,7 @@ export const FurnishQuotesModalContent = ({
     furnishesTextValues,
     setFurnishesTextValues,
     refetchFurnishQuotes,
-  } = useFurnishQuotes(quote.invoice ? [quote.invoice] : []);
+  } = useFurnishQuotes(quote ? [quote] : []);
 
   const addSupplier = async (articleID: string) => {
     edit<Articles>("articles", articleID, {}, async () => {
@@ -84,6 +85,8 @@ export const FurnishQuotesModalContent = ({
       "",
       {
         article: articleID,
+        for_rel_quote: quote?.id,
+        quantity: 1,
       },
       async () => {
         await refetchFurnishQuotes(false);
@@ -131,32 +134,17 @@ export const FurnishQuotesModalContent = ({
 
   return (
     <ModalContent title={"Fournir"}>
-      <div key={article.id} className="mt-4 mb-1 px-4">
-        <Base className="block mb-6">
-          Fournir {article.name} pour {quote.invoice?.reference}
+      <div key={article.id} className="mb-1">
+        <Base className="block">
+          Fournir <b>{article.name}</b> pour <b>{quote?.reference}</b>
         </Base>
         <div className="mt-2">
           {(articleFurnishes ?? []).length === 0 && (
             <div>
-              <Info>Aucun stock ou fournisseur défini pour l'article</Info>
-              <div className="flex items-center mt-4">
-                <Button
-                  theme="outlined"
-                  className="mr-2"
-                  onClick={() => addSupplier(article.id)}
-                  icon={(props) => <UserIcon {...props} />}
-                  data-tooltip="Ajouter un fournisseur"
-                >
-                  +
-                </Button>
-                <Button
-                  onClick={() => addStock(article.id)}
-                  icon={(props) => <CircleStackIcon {...props} />}
-                  data-tooltip="Ajouter un stock"
-                >
-                  +
-                </Button>
-              </div>
+              <Info>
+                Aucun stock ou fournisseur défini pour l'article, cliquer
+                ci-dessous pour modifier l'article ou gérer le stock.
+              </Info>
             </div>
           )}
           {(articleFurnishes ?? []).map((fur) => {
@@ -255,22 +243,37 @@ export const FurnishQuotesModalContent = ({
             );
           })}
 
-          <div className="flex justify-end items-center mt-6 w-full">
+          <div className="mt-4 w-full">
             <Button
-              theme="outlined"
-              className="mr-2"
+              theme="invisible"
+              size="sm"
+              className="mb-2 flex"
               onClick={() => addSupplier(article.id)}
-              icon={(props) => <UserIcon {...props} />}
-              data-tooltip="Ajouter un fournisseur"
+              icon={(props) => <TruckIcon {...props} />}
+              data-tooltip="Ajouter un fournisseur pour ce produit"
             >
-              +
+              Ajouter un fournisseur
             </Button>
             <Button
+              size="sm"
+              theme="invisible"
               onClick={() => addStock(article.id)}
-              icon={(props) => <CircleStackIcon {...props} />}
-              data-tooltip="Ajouter un stock"
+              icon={(props) => <ViewColumnsIcon {...props} />}
+              data-tooltip="Ajouter un élément de stock"
             >
-              +
+              Ajouter au stock
+            </Button>
+          </div>
+
+          <div className="flex justify-end items-center mt-6 w-full">
+            <Button
+              size="md"
+              onClick={() => {
+                refetchFurnishQuotes(true);
+                onClose();
+              }}
+            >
+              Fermer
             </Button>
           </div>
         </div>

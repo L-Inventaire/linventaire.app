@@ -141,8 +141,24 @@ export const SearchBar = ({
     }
   }, [value]);
 
+  const searchBarParent = useRef<HTMLDivElement>(null);
+  const [focusIn, setFocusIn] = useState(false);
+  useEffect(() => {
+    // Detect any click on the window, if it's in the search bar, set focusIn to true
+    const listener = (e: MouseEvent) => {
+      if (searchBarParent.current?.contains(e.target as Node)) {
+        setFocusIn(true);
+      } else {
+        setFocusIn(false);
+      }
+    };
+    window.addEventListener("click", listener);
+    return () => window.removeEventListener("click", listener);
+  }, []);
+
   return (
     <div
+      ref={searchBarParent}
       className={twMerge(
         "grow relative w-full group rounded z-10 transition-all flex-col text-black dark:text-white",
         !inlineSuggestions && "focus-within:shadow-lg",
@@ -250,13 +266,13 @@ export const SearchBar = ({
           )}
         {suffix}
       </div>
-      {suggestions.length > 0 && (
+      {suggestions.length > 0 && (focusIn || inlineSuggestions) && (
         <div
           className={twMerge(
-            "hidden hover:block text-base z-10 right-0 top-full w-full h-max flex items-center bg-white dark:bg-slate-990 dark:border-slate-700 border-t rounded rounded-t-none px-2 py-1",
+            "hidden hover:block text-base z-10 top-full h-max flex items-center bg-white dark:bg-slate-990 dark:border-slate-700 border-t rounded rounded-t-none px-2 py-1",
             inlineSuggestions
-              ? "grow relative block overflow-visible shrink-0"
-              : "group-focus-within:block absolute shadow-lg"
+              ? "grow relative block overflow-visible shrink-0 w-full right-0"
+              : "group-focus-within:block absolute shadow-lg left-8 right-8"
           )}
         >
           <DefaultScrollbars

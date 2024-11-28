@@ -2,10 +2,7 @@ import { Button } from "@atoms/button/button";
 import { Info } from "@atoms/text";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { RestTable } from "@components/table-rest";
-import {
-  InvoicesColumns,
-  SupplierQuotesColumns,
-} from "@features/invoices/configuration";
+import { InvoicesColumns } from "@features/invoices/configuration";
 import { useInvoices } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
 import { getDocumentNamePlurial } from "@features/invoices/utils";
@@ -28,6 +25,7 @@ import {
 } from "../../../../components/search-bar/utils/utils";
 import { InvoiceStatus } from "./components/invoice-status";
 import { Pagination } from "@molecules/table/table";
+import _ from "lodash";
 
 const activeFilter = [
   {
@@ -53,14 +51,6 @@ export const InvoicesPage = () => {
 
   const tabs = {
     active: { label: "Actifs", filter: activeFilter },
-    ...(!type.includes("supplier_quotes")
-      ? {
-          recurring: {
-            label: "En abonnement",
-            filter: buildQueryFromMap({ state: "recurring" }),
-          },
-        }
-      : {}),
     ...(type.includes("quotes")
       ? {
           recurring: {
@@ -81,19 +71,19 @@ export const InvoicesPage = () => {
     Omit<Pagination, "total"> & { total?: number }
   >({
     page: 1,
-    perPage: 10,
+    perPage: 20,
     order: "ASC",
   });
 
   const [options, setOptions] = useState<RestOptions<Invoices>>({
-    limit: 10,
+    limit: 20,
     offset: 0,
     query: [],
   });
 
   const invoiceFilters = {
     ...options,
-    index: "state,emit_date",
+    index: "state_order,emit_date desc",
     query: [...((options?.query as any) || []), ...buildQueryFromMap({ type })],
   };
 
@@ -308,11 +298,20 @@ export const InvoicesPage = () => {
               asc: page.order === "ASC",
             });
           }}
-          columns={
-            type.includes("supplier_quotes")
-              ? SupplierQuotesColumns
-              : InvoicesColumns
-          }
+          columns={InvoicesColumns.filter(
+            (a) =>
+              !(
+                // If Quotes, we have only the client related
+                (
+                  type.includes("quotes")
+                    ? ["supplier", "origin"]
+                    : // If not supplier related then we filter out supplier
+                    type.includes("invoices") || type.includes("credit_notes")
+                    ? ["supplier"]
+                    : []
+                ).includes(a.id || "")
+              )
+          )}
           controlledPagination={pagination}
           setControlledPagination={setPagination}
         />

@@ -109,6 +109,8 @@ registerCtrlKRestEntity<Articles>("articles", {
   renderEditor: (props) => (
     <ArticlesDetailsPage readonly={false} id={props.id} />
   ),
+  groupBy: "type",
+  orderBy: "type,name",
   renderResult: ArticlesColumns,
   useDefaultData: useArticleDefaultModel,
   viewRoute: ROUTES.ProductsView,
