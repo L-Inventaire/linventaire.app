@@ -1,6 +1,6 @@
 import { Button } from "@atoms/button/button";
 import InputTime from "@atoms/input/input-time";
-import { Unit } from "@atoms/input/input-unit";
+import { getUnitLabel, Unit } from "@atoms/input/input-unit";
 import { PageLoader } from "@atoms/page-loader";
 import { Section } from "@atoms/text";
 import { CustomFieldsInput } from "@components/custom-fields-input";
@@ -26,7 +26,10 @@ import {
 import { useServiceItems } from "@features/service/hooks/use-service-items";
 import { useServiceTimes } from "@features/service/hooks/use-service-times";
 import { ServiceItems } from "@features/service/types/types";
-import { timeDecimalToBase60 } from "@features/utils/format/dates";
+import {
+  timeBase60ToDecimal,
+  timeDecimalToBase60,
+} from "@features/utils/format/dates";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { ClockIcon, CubeIcon } from "@heroicons/react/16/solid";
 import { UserIcon } from "@heroicons/react/20/solid";
@@ -38,6 +41,7 @@ import { useEffect, useState } from "react";
 import { InvoiceRestDocument } from "../../invoices/components/invoice-lines-input/invoice-input-rest-card";
 import { InlineSpentTimeInput, SpentTime } from "./inline-spent-time-input";
 import { ServiceItemStatus } from "./service-item-status";
+import { useTranslation } from "react-i18next";
 
 export const ServiceItemsDetailsPage = ({
   readonly,
@@ -193,6 +197,7 @@ export const ServiceItemsDetailsPage = ({
                 ctrl={ctrl("article")}
                 label="Article"
                 placeholder="Sélectionner un article"
+                className="flex-grow"
                 filter={
                   {
                     type: "service",
@@ -223,15 +228,13 @@ export const ServiceItemsDetailsPage = ({
               )}
               {(!article?.unit || article?.unit === "h") && (
                 <InputTime
-                  // label={"Temps passé en " + getUnitLabel(props.unit || "h", t)}
-                  onChange={() => {
-                    // const quantity = timeBase60ToDecimal(number);
-                    // props.onChange({
-                    //   ...props.value,
-                    //   quantity,
-                    // });
+                  label={"Temps estimé"}
+                  labelProps={{ className: "whitespace-nowrap" }}
+                  onChange={(_, number) => {
+                    const quantity = timeBase60ToDecimal(number);
+                    ctrl("quantity_expected").onChange(quantity);
                   }}
-                  className={"!mx-3"}
+                  className={"!mx-3 flex-grow"}
                   value={timeDecimalToBase60(
                     ctrl("quantity_expected").value || 0
                   )}

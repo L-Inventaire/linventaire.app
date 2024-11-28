@@ -5,6 +5,7 @@ import { ModalEditor } from "./editor";
 import { SearchCtrlK } from "./search";
 import { CtrlKStateType } from "@features/ctrlk/types";
 import { useEffect } from "react";
+import { DraftContext } from "@features/utils/rest/hooks/use-draft-rest";
 
 /*
 [selection] Scenario 1:
@@ -78,22 +79,26 @@ export const CtrlKModal = () => {
               : "",
         }}
       >
-        {currentState.mode !== "editor" && (
-          <div className="-m-6" style={{ maxHeight: "inherit" }}>
-            <SearchCtrlK index={index} />
-          </div>
-        )}
-        {currentState.mode === "editor" && (
-          <div
-            className="-m-6 grow flex flex-col"
-            style={{
-              maxHeight: "inherit",
-              height: "calc(100vh - 100px)",
-            }}
-          >
-            <ModalEditor index={index} />
-          </div>
-        )}
+        <DraftContext.Provider
+          value={{ key: "ctrlk_" + index + "_" + state.path.length }}
+        >
+          {currentState.mode !== "editor" && (
+            <div className="-m-6" style={{ maxHeight: "inherit" }}>
+              <SearchCtrlK index={index} />
+            </div>
+          )}
+          {currentState.mode === "editor" && (
+            <div
+              className="-m-6 grow flex flex-col"
+              style={{
+                maxHeight: "inherit",
+                height: "calc(100vh - 100px)",
+              }}
+            >
+              <ModalEditor index={index} />
+            </div>
+          )}
+        </DraftContext.Provider>
       </Modal>
     );
   });

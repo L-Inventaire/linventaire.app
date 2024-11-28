@@ -16,6 +16,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import { TitleBar } from "./components/title-bar";
+import { useInvoice } from "@features/invoices/hooks/use-invoices";
 
 export const SigningSessionPage = () => {
   const navigate = useNavigate();
@@ -36,32 +37,34 @@ export const SigningSessionPage = () => {
 
   const [cancelling, setCancelling] = useState(false);
   const [cancelReason, setCancelReason] = useState<string>("");
-  // const [signingToken, setSigningToken] = useState<string | null>(null);
 
   useEffect(() => {
     viewSigningSession(sessionID ?? "");
   }, [signingSession]);
 
-  const invoice =
+  const invoiceSnapshot =
     signingSession && !isErrorResponse(signingSession)
       ? (signingSession.invoice_snapshot as unknown as Invoices)
       : null;
 
+  // const { invoice } = useInvoice(invoiceSnapshot?.id ?? "");
+
   useEffect(() => {
     setOptions(
-      invoice?.content
+      invoiceSnapshot?.content
         ?.map((line, i) => ({ ...line, _index: i }))
         ?.filter((line) => line.optional)
         .map((line) => ({ ...line })) ?? []
     );
-  }, [invoice]);
+  }, [invoiceSnapshot]);
 
-  if (!signingSession)
+  if (!signingSession) {
     return (
       <div className="flex justify-center items-center h-full w-full dark:bg-wood-990 bg-white">
         <PageLoader />
       </div>
     );
+  }
 
   if (isErrorResponse(signingSession)) {
     return (
@@ -106,17 +109,16 @@ export const SigningSessionPage = () => {
               {/* Logo and title section */}
               <TitleBar
                 signingSession={signingSession}
-                invoice={invoice}
+                invoice={invoiceSnapshot}
                 alerts={true}
               />
 
               {/* Buttons section */}
               <div className="flex my-4 w-full flex flex-row justify-center">
-                {/* <EmbedSignDocument
-                token={signingSession.recipient_token}
-                onDocumentError={(error) => {
-                }}
-              /> */}
+                {/* <EmbedDirectTemplate
+                  token={signingSession.recipient_token}
+                  onDocumentError={(error) => {}}
+                /> */}
 
                 {signingSession.state === "signed" && false && (
                   // Too slow to appear right now, so we remove it until we improve the user exp
@@ -145,13 +147,13 @@ export const SigningSessionPage = () => {
                   </Button>
                 )}
 
-                {invoice?.type === "quotes" &&
-                  invoice?.state === "sent" &&
+                {invoiceSnapshot?.type === "quotes" &&
+                  invoiceSnapshot?.state === "sent" &&
                   signingSession.state !== "cancelled" &&
                   signingSession.state !== "signed" &&
                   signingSession.recipient_role === "signer" &&
                   !signingSession.expired &&
-                  invoice.is_deleted === false && (
+                  invoiceSnapshot.is_deleted === false && (
                     <>
                       <Button
                         className="mr-2"
@@ -218,7 +220,7 @@ export const SigningSessionPage = () => {
               </div>
 
               {options.length > 0 &&
-                invoice?.type !== "invoices" &&
+                invoiceSnapshot?.type !== "invoices" &&
                 signingSession.recipient_role === "signer" &&
                 !signingSession.expired && (
                   <div className="mb-4">
@@ -252,28 +254,19 @@ export const SigningSessionPage = () => {
             </div>
 
             {/* IFrame section */}
-            {invoice && (
+            {invoiceSnapshot && (
               <iframe
                 className="w-full grow flex rounded"
                 src={InvoicesApiClient.getPdfRoute(
                   {
-                    client_id: invoice?.client_id ?? "",
-                    id: invoice.id ?? "",
+                    client_id: invoiceSnapshot?.client_id ?? "",
+                    id: invoiceSnapshot.id ?? "",
                   },
                   options
                 )}
                 title="Invoice PDF Preview"
               ></iframe>
             )}
-
-            <div className="flex flex-col bg-white w-3/4 rounded-md p-3 mt-6">
-              {/* <Section>Historique</Section> */}
-              {/* {(document?.events?.list ?? [])
-                .filter((event) => !!event)
-                .map((event) => (
-                  <EventItem document={document} event={event} />
-                ))} */}
-            </div>
           </div>
         </div>
       </Page>
