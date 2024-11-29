@@ -128,8 +128,8 @@ export const Input = (props: InputProps) => {
                 props.autoSelectAll
               ) {
                 e.target.select();
-                props.onFocus?.(e);
               }
+              props.onFocus?.(e);
             }}
             {..._.omit(
               props,
