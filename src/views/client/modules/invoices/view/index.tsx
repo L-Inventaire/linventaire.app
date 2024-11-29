@@ -11,6 +11,7 @@ import { InvoicesDetailsPage } from "../components/invoices-details";
 import { getPdfPreview } from "../components/invoices-preview/invoices-preview";
 import { InvoiceActions } from "../components/invoice-actions";
 import { NotFound } from "@atoms/not-found/not-found";
+import { useHasAccess } from "@features/access";
 
 export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
@@ -18,6 +19,7 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
   const isRevision = id?.includes("~");
   const navigate = useNavigate();
   const { client: clientId } = useParams();
+  const hasAccess = useHasAccess();
 
   if (!invoice && isPending)
     return (
@@ -57,63 +59,72 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
           document={invoice || { id }}
           mode={"read"}
           backRoute={getRoute(ROUTES.Invoices, { type: invoice.type })}
-          editRoute={ROUTES.InvoicesEdit}
+          editRoute={
+            hasAccess("INVOICES_WRITE") ? ROUTES.InvoicesEdit : undefined
+          }
           viewRoute={ROUTES.InvoicesView}
           onPrint={async () => getPdfPreview(invoice)}
           onRemove={
-            invoice?.id && invoice?.state === "draft"
+            invoice?.id &&
+            invoice?.state === "draft" &&
+            hasAccess("INVOICES_WRITE")
               ? async () => remove.mutateAsync(invoice?.id)
               : undefined
           }
           onRestore={
-            invoice?.id
+            invoice?.id && hasAccess("INVOICES_WRITE")
               ? async () => restore.mutateAsync(invoice?.id)
               : undefined
           }
           suffix={
-            <>
-              {invoice.type === "quotes" &&
-                (invoice.content ?? []).some(
-                  (line) =>
-                    line.type === "product" || line.type === "consumable"
-                ) && (
-                  <>
-                    <Button
-                      theme="outlined"
-                      size="sm"
-                      shortcut={["f"]}
-                      onClick={() => {
-                        navigate(
-                          getRoute(ROUTES.FurnishQuotes, {
-                            client: clientId,
-                            id,
-                          })
-                        );
-                      }}
-                    >
-                      Fournir les produits
-                    </Button>
-                  </>
+            hasAccess("INVOICES_WRITE") ? (
+              <>
+                {invoice.type === "quotes" &&
+                  (invoice.content ?? []).some(
+                    (line) =>
+                      line.type === "product" || line.type === "consumable"
+                  ) && (
+                    <>
+                      <Button
+                        theme="outlined"
+                        size="sm"
+                        shortcut={["f"]}
+                        onClick={() => {
+                          navigate(
+                            getRoute(ROUTES.FurnishQuotes, {
+                              client: clientId,
+                              id,
+                            })
+                          );
+                        }}
+                      >
+                        Fournir les produits
+                      </Button>
+                    </>
+                  )}
+                {invoice.type === "invoices" && (
+                  <Button
+                    size="sm"
+                    theme="outlined"
+                    shortcut={["shift+a"]}
+                    disabled={["draft"].includes(invoice.state)}
+                    to={withModel(
+                      getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+                      {
+                        ...invoice,
+                        from_rel_quote: [invoice.from_rel_quote],
+                        from_rel_invoice: [invoice.id],
+                        type: "credit_notes",
+                        state: "draft",
+                        id: "",
+                      }
+                    )}
+                  >
+                    Créer un avoir
+                  </Button>
                 )}
-              {invoice.type === "invoices" && (
-                <Button
-                  size="sm"
-                  theme="outlined"
-                  shortcut={["shift+a"]}
-                  disabled={["draft"].includes(invoice.state)}
-                  to={withModel(getRoute(ROUTES.InvoicesEdit, { id: "new" }), {
-                    ...invoice,
-                    from_rel_quote: [invoice.from_rel_quote],
-                    from_rel_invoice: [invoice.id],
-                    type: "credit_notes",
-                    state: "draft",
-                    id: "",
-                  })}
-                >
-                  Créer un avoir
-                </Button>
-              )}
-            </>
+              </>
+            ) : undefined
           }
         />
       }
