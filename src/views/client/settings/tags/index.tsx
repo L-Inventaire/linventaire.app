@@ -1,18 +1,19 @@
+import { Tag } from "@atoms/badge/tag";
 import { Button } from "@atoms/button/button";
 import { ButtonConfirm } from "@atoms/button/confirm";
 import { Modal, ModalContent } from "@atoms/modal/modal";
-import { Info, Section } from "@atoms/text";
-import { Table } from "@molecules/table";
-import { useTags } from "@features/tags/hooks/use-tags";
-import { Tags } from "@features/tags/types/types";
-import { useState } from "react";
-import { Page, PageBlock } from "../../_layout/page";
+import { Info } from "@atoms/text";
 import { FormInput } from "@components/form/fields";
 import { useFormController } from "@components/form/formcontext";
-import { Tag } from "@atoms/badge/tag";
-import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
-import _ from "lodash";
 import { useHasAccess } from "@features/access";
+import { useTags } from "@features/tags/hooks/use-tags";
+import { Tags } from "@features/tags/types/types";
+import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { Table } from "@molecules/table";
+import { Heading } from "@radix-ui/themes";
+import _ from "lodash";
+import { useState } from "react";
+import { Page } from "../../_layout/page";
 
 export const TagsPage = () => {
   const { tags, remove, upsert } = useTags();
@@ -22,7 +23,7 @@ export const TagsPage = () => {
 
   return (
     <Page title={[{ label: "Paramètres" }, { label: "Étiquettes" }]}>
-      <PageBlock>
+      <div className="w-full max-w-3xl mx-auto mt-6">
         {hasAccess("TAGS_MANAGE") && (
           <Button
             size="md"
@@ -57,7 +58,7 @@ export const TagsPage = () => {
           )}
         </Modal>
 
-        <Section>Étiquettes</Section>
+        <Heading size="6">Étiquettes</Heading>
         <Info>
           Les étiquettes sont des mots-clés qui vous permettent de classer
           n'importe quel élément de l'inventaire.
@@ -98,7 +99,7 @@ export const TagsPage = () => {
             },
           ]}
         />
-      </PageBlock>
+      </div>
     </Page>
   );
 };

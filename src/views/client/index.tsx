@@ -54,6 +54,7 @@ import { CompanyUsersPage } from "./settings/users";
 import { StockItemsFromPage } from "./modules/stock/from";
 import { FurnishQuotesPage } from "./modules/invoices/view/furnish-quotes";
 import { QuoteFromItems } from "./modules/invoices/create-from-items";
+import { StockAndServicesPreferences } from "./settings/stock-services";
 
 export const BackOfficeRoutes = () => {
   return (
@@ -119,6 +120,10 @@ export const BackOfficeRoutes = () => {
         <Route
           path={ROUTES.SettingsPreferences}
           element={<PreferencesPage />}
+        />
+        <Route
+          path={ROUTES.SettingsStockServices}
+          element={<StockAndServicesPreferences />}
         />
         <Route path={ROUTES.SettingsTags} element={<TagsPage />} />
         <Route path={ROUTES.SettingsCustomFields} element={<FieldsPage />} />

@@ -1,7 +1,7 @@
 import { Button } from "@atoms/button/button";
 import { ButtonConfirm } from "@atoms/button/confirm";
 import { Modal, ModalContent } from "@atoms/modal/modal";
-import { Info, Section } from "@atoms/text";
+import { Info } from "@atoms/text";
 import { FormInput } from "@components/form/fields";
 import { useFormController } from "@components/form/formcontext";
 import { useHasAccess } from "@features/access";
@@ -10,9 +10,10 @@ import { useStockLocations } from "@features/stock/hooks/use-stock-locations";
 import { StockLocations } from "@features/stock/types/types";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { Table } from "@molecules/table";
+import { Heading } from "@radix-ui/themes";
 import _ from "lodash";
 import { useState } from "react";
-import { Page, PageBlock } from "../../_layout/page";
+import { Page } from "../../_layout/page";
 
 export const StockLocationsPage = () => {
   const { stock_locations, remove, upsert } = useStockLocations();
@@ -22,7 +23,7 @@ export const StockLocationsPage = () => {
 
   return (
     <Page title={[{ label: "Paramètres" }, { label: "Lieux de stockage" }]}>
-      <PageBlock>
+      <div className="w-full max-w-3xl mx-auto mt-6">
         {hasAccess("STOCK_MANAGE") && (
           <Button
             size="md"
@@ -98,7 +99,7 @@ export const StockLocationsPage = () => {
           )}
         </Modal>
 
-        <Section>Lieux de stockage</Section>
+        <Heading size="6">Lieux de stockage</Heading>
         <Info>
           Les lieux de stockage permettent de mieux préciser l'emplacement des
           produits dans votre entrepôt.
@@ -134,7 +135,7 @@ export const StockLocationsPage = () => {
             },
           ]}
         />
-      </PageBlock>
+      </div>
     </Page>
   );
 };

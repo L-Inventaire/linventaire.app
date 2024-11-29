@@ -33,6 +33,10 @@ export const useSettingsMenu: MenuIndex = () => {
         to: getRoute(ROUTES.SettingsPreferences),
       },
       {
+        label: t("menu.settings.stock_services"),
+        to: getRoute(ROUTES.SettingsStockServices),
+      },
+      {
         label: t("menu.settings.stock_locations"),
         to: getRoute(ROUTES.SettingsStockLocations),
       },
