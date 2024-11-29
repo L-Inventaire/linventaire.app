@@ -53,7 +53,11 @@
       "sent": {
         "default": "Envoyé",
         "quotes": "Prix demandé",
-        "invoices": "Paiement en attente"
+        "invoices": "Paiement en attente",
+        "credit_notes": "Paiement en attente",
+        "supplier_invoices": "Paiement en attente",
+        "supplier_credit_notes": "Paiement en attente",
+        "supplier_quotes": "Commandé"
       },
       "accounted": "Comptabilisé",
       "purchase_order": {

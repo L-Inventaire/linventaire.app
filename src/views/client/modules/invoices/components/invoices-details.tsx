@@ -41,6 +41,7 @@ import { InputDelivery } from "./input-delivery";
 import { InvoiceInputFormat } from "./input-format";
 import { InvoicePaymentInput } from "./input-payment";
 import { InvoiceRecurrenceInput } from "./input-recurrence";
+import { InvoiceRecurrencePeriodInput } from "./input-recurrence-period";
 import { InvoiceReminderInput } from "./input-reminder";
 import { InvoiceLinesInput } from "./invoice-lines-input";
 import { CompletionTags } from "./invoice-lines-input/components/completion-tags";
@@ -55,12 +56,10 @@ export const computeStockCompletion = (
   overflow = false,
   service = false
 ) => {
-  const lines = (linesu || []).filter(
-    (a) =>
-      !a.subscription &&
-      (service
-        ? a.type === "service"
-        : a.type === "consumable" || a.type === "product")
+  const lines = (linesu || []).filter((a) =>
+    service
+      ? a.type === "service"
+      : a.type === "consumable" || a.type === "product"
   );
   const total = lines.reduce(
     (acc, line) =>
@@ -381,6 +380,16 @@ export const InvoicesDetailsPage = ({
                     </Text>
                   </InputButton>
                 )}
+                {!!draft.subscription_next_invoice_date &&
+                  draft.type === "quotes" &&
+                  draft.state === "recurring" && (
+                    <Text size="2" className="opacity-75" weight="medium">
+                      {"Prochaine facture le "}
+                      {formatTime(draft.subscription_next_invoice_date || 0, {
+                        hideTime: true,
+                      })}
+                    </Text>
+                  )}
                 {!!ctrl("wait_for_completion_since").value && (
                   <InputButton
                     theme="invisible"
@@ -497,14 +506,29 @@ export const InvoicesDetailsPage = ({
                   <InvoiceLinesInput value={draft} onChange={setDraft} />
                   {billableContent.length > 0 && (
                     <>
-                      {!!isQuoteRelated &&
-                        !isSupplierRelated &&
+                      {draft.type === "quotes" &&
                         draft.state !== "closed" &&
                         !!draft.content?.find((a) => a.subscription) && (
                           <div className="mt-8">
                             <Section className="mb-2">Récurrence</Section>
                             <InvoiceRecurrenceInput
                               btnKey="invoice-recurrence"
+                              invoice={draft}
+                              ctrl={ctrl}
+                              readonly={readonly}
+                            />
+                          </div>
+                        )}
+
+                      {!isSupplierRelated &&
+                        draft.type !== "quotes" &&
+                        !!draft.content?.find((a) => a.subscription) && (
+                          <div className="mt-8">
+                            <Section className="mb-2">
+                              Période de récurrence
+                            </Section>
+                            <InvoiceRecurrencePeriodInput
+                              btnKey="invoice-recurrence-period"
                               invoice={draft}
                               ctrl={ctrl}
                               readonly={readonly}

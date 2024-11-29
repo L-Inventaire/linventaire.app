@@ -30,13 +30,13 @@ export const BankAccountsPage = () => {
   return (
     <Page title={[{ label: "Paramètres" }, { label: "Comptes" }]}>
       <PageBlock>
-        {hasAccess("STOCK_MANAGE") && (
+        {hasAccess("ACCOUNTING_MANAGE") && (
           <Button
             size="md"
             className="float-right"
             onClick={() =>
               setEdit({
-                standard_identifier: "411",
+                standard_identifier: "512",
               })
             }
             shortcut={["shift+a"]}

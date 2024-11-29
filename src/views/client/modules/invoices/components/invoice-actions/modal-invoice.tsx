@@ -6,12 +6,11 @@ import { SectionSmall } from "@atoms/text";
 import { withModel } from "@components/search-bar/utils/as-model";
 import { buildQueryFromMap } from "@components/search-bar/utils/utils";
 import { InvoicesApiClient } from "@features/invoices/api-client/invoices-api-client";
-import { useInvoices } from "@features/invoices/hooks/use-invoices";
+import { useInvoice, useInvoices } from "@features/invoices/hooks/use-invoices";
 import { InvoiceLine, Invoices } from "@features/invoices/types/types";
 import { getRoute, ROUTES } from "@features/routes";
 import { formatAmount } from "@features/utils/format/strings";
 import { useNavigateAlt } from "@features/utils/navigate";
-import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import {
   Box,
   Callout,
@@ -48,13 +47,14 @@ export const InvoiceInvoiceModalContent = ({
   id?: string;
   onClose: () => void;
 }) => {
-  const { draft } = useReadDraftRest<Invoices>("invoices", id || "new");
+  const { invoice: quote } = useInvoice(id || "");
 
   const navigate = useNavigateAlt();
 
   const { invoices } = useInvoices({
     query: buildQueryFromMap({
       from_rel_quote: [id],
+      type: "invoices",
     } as Partial<Invoices>),
   });
 
@@ -68,7 +68,7 @@ export const InvoiceInvoiceModalContent = ({
     invoicedArticlesMap[line.article || ""] =
       (invoicedArticlesMap[line.article || ""] || 0) + (line.quantity || 0);
   }
-  const defaultContent = draft.content
+  const defaultContent = quote?.content
     ?.map((a) => {
       const invoicedQuantity = invoicedArticlesMap[a.article || ""] || 0;
       invoicedArticlesMap[a.article || ""] -= a.quantity || 0;
@@ -82,9 +82,9 @@ export const InvoiceInvoiceModalContent = ({
       return {
         ...a,
         quantity:
-          // If there is non subscibables articles then we by default select those ones
+          // If there is non subscribables articles then we by default select those ones
           a.subscription &&
-          draft.content?.some((a) => !a.subscription && (a.quantity || 0) > 0)
+          quote.content?.some((a) => !a.subscription && (a.quantity || 0) > 0)
             ? 0
             : a.quantity,
       };
@@ -93,21 +93,30 @@ export const InvoiceInvoiceModalContent = ({
   const [selection, setSelection] = useState<InvoiceLine[]>([]);
 
   useEffect(() => {
-    if (defaultContent && selection.length === 0) {
+    if (
+      quote &&
+      defaultContent?.length &&
+      selection.length === 0 &&
+      invoices.isFetched
+    ) {
       setSelection(defaultContent);
     }
-  }, [defaultContent]);
+  }, [defaultContent, selection, quote, invoices]);
 
   const partialInvoice = useQuery({
     queryKey: ["invoices", id, selection],
-    queryFn: () => InvoicesApiClient.getPartialInvoice(draft, selection),
+    queryFn: () =>
+      quote ? InvoicesApiClient.getPartialInvoice(quote, selection) : undefined,
   });
+
+  if (!quote || !defaultContent || !invoices.isFetched) return null;
 
   return (
     <ModalContent title="Créer une facture">
       <Tabs.Root
         defaultValue={
-          (draft.content || []).some((a) => a.subscription)
+          (quote?.content || []).some((a) => a.subscription) &&
+          defaultContent?.length
             ? "partial"
             : "complete"
         }
@@ -196,7 +205,7 @@ export const InvoiceInvoiceModalContent = ({
               onClick={(event: any) => {
                 navigate(
                   getRoute(ROUTES.Invoices, { type: "invoices" }) +
-                    `?q=from_rel_quote:"${draft.id}"`,
+                    `?q=from_rel_quote:"${quote?.id}"`,
                   {
                     event,
                   }
@@ -244,8 +253,8 @@ export const InvoiceInvoiceModalContent = ({
                 onClick={() => {
                   navigate(
                     withModel(getRoute(ROUTES.InvoicesEdit, { id: "new" }), {
-                      ...draft,
-                      from_rel_quote: [draft.id],
+                      ...quote,
+                      from_rel_quote: [quote?.id],
                       type: "invoices",
                       state: "draft",
                       id: "",

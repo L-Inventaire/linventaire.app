@@ -74,23 +74,7 @@ export const CompletionTags = (props: {
 
   return (
     <div className="flex space-x-1">
-      {(props?.lines || []).some((a) => a.subscription) &&
-        _.uniq(
-          (props?.lines || [])?.map((a) => a.subscription).filter(Boolean)
-        ).map((s) => (
-          <Tag
-            color="blue"
-            size={props.size || "xs"}
-            icon={
-              <ArrowPathIcon
-                className={`w-3 h-3 mr-1 shrink-0 text-blue-500`}
-              />
-            }
-          >
-            {frequencyOptions.find((a) => a.value === s)?.label || s}
-          </Tag>
-        ))}
-      {props?.lines?.some((a) => a.type === "service" && !a.subscription) && (
+      {props?.lines?.some((a) => a.type === "service") && (
         <Tag
           onClick={() => onClick("service_items", 'state:"done"')}
           className={twMerge(shortLeft && "w-5")}
@@ -113,8 +97,7 @@ export const CompletionTags = (props: {
         </Tag>
       )}
       {props?.lines?.some(
-        (a) =>
-          (a.type === "product" || a.type === "consumable") && !a.subscription
+        (a) => a.type === "product" || a.type === "consumable"
       ) && (
         <div className="flex -space-x-px">
           {props.invoice?.type !== "supplier_quotes" && (
@@ -166,6 +149,22 @@ export const CompletionTags = (props: {
           </Tag>
         </div>
       )}
+      {(props?.lines || []).some((a) => a.subscription) &&
+        _.uniq(
+          (props?.lines || [])?.map((a) => a.subscription).filter(Boolean)
+        ).map((s) => (
+          <Tag
+            color="blue"
+            size={props.size || "xs"}
+            icon={
+              <ArrowPathIcon
+                className={`w-3 h-3 mr-1 shrink-0 text-blue-500`}
+              />
+            }
+          >
+            {frequencyOptions.find((a) => a.value === s)?.label || s}
+          </Tag>
+        ))}
     </div>
   );
 };

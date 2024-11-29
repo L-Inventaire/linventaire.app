@@ -1,6 +1,6 @@
 import { Button } from "@atoms/button/button";
 import InputTime from "@atoms/input/input-time";
-import { getUnitLabel, Unit } from "@atoms/input/input-unit";
+import { Unit } from "@atoms/input/input-unit";
 import { PageLoader } from "@atoms/page-loader";
 import { Section } from "@atoms/text";
 import { CustomFieldsInput } from "@components/custom-fields-input";
@@ -41,7 +41,6 @@ import { useEffect, useState } from "react";
 import { InvoiceRestDocument } from "../../invoices/components/invoice-lines-input/invoice-input-rest-card";
 import { InlineSpentTimeInput, SpentTime } from "./inline-spent-time-input";
 import { ServiceItemStatus } from "./service-item-status";
-import { useTranslation } from "react-i18next";
 
 export const ServiceItemsDetailsPage = ({
   readonly,
