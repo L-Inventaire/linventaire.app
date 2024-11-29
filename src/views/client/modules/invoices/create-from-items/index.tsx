@@ -14,6 +14,7 @@ import _ from "lodash";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { InvoiceLinesInput } from "../components/invoice-lines-input";
+import { computePricesFromInvoice } from "../utils";
 
 export const QuoteFromItems = (_props: { readonly?: boolean }) => {
   const { ids } = useParams();
@@ -47,7 +48,7 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
   useEffect(() => {
     if (articles?.data?.list?.length) {
       const grouped = _.groupBy(clientItems, "article");
-      setLines({
+      const invoice = {
         ...lines,
         client: lines.client || clientItems?.[0]?.client || "",
         content: Object.values(grouped).map((item) => {
@@ -75,7 +76,11 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
             tva: article?.tva || 0,
           } as InvoiceLine;
         }),
-      });
+      };
+
+      invoice.total = computePricesFromInvoice(invoice);
+
+      setLines(invoice);
     }
   }, [lines.client, clientItems?.length, articles?.data?.list?.length]);
 
