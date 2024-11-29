@@ -245,7 +245,7 @@ export const SearchBar = ({
         {fields.length > 0 &&
           document.location.host.indexOf("localhost") > -1 && (
             <Button
-              className="shrink-0"
+              className="shrink-0 hidden md:flex"
               size="sm"
               theme="invisible"
               icon={(p) => <ChevronUpDownIcon {...p} />}
@@ -256,7 +256,7 @@ export const SearchBar = ({
         {showExport !== false &&
           document.location.host.indexOf("localhost") > -1 && (
             <Button
-              className="shrink-0"
+              className="shrink-0 hidden md:flex"
               size="sm"
               theme="invisible"
               icon={(p) => <ArrowDownTrayIcon {...p} />}

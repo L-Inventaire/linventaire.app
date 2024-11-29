@@ -172,6 +172,7 @@ export const InvoicesPage = () => {
                       { type: "supplier_credit_notes" }
                     )}
                     icon={(p) => <ArrowUturnLeftIcon {...p} />}
+                    hideTextOnMobile
                   >
                     Avoir fournisseur
                   </Button>
@@ -184,6 +185,7 @@ export const InvoicesPage = () => {
                     )}
                     icon={(p) => <PlusIcon {...p} />}
                     shortcut={type.includes("supplier_invoices") ? ["c"] : []}
+                    hideTextOnMobile
                   >
                     Facture fournisseur
                   </Button>
@@ -199,6 +201,7 @@ export const InvoicesPage = () => {
                     )}
                     icon={(p) => <PlusIcon {...p} />}
                     shortcut={type.includes("supplier_quotes") ? ["c"] : []}
+                    hideTextOnMobile
                   >
                     Commande
                   </Button>
@@ -215,6 +218,7 @@ export const InvoicesPage = () => {
                     )}
                     icon={(p) => <ArrowUturnLeftIcon {...p} />}
                     shortcut={type.includes("credit_notes") ? ["c"] : []}
+                    hideTextOnMobile
                   >
                     Avoir
                   </Button>
@@ -249,7 +253,7 @@ export const InvoicesPage = () => {
         />
       }
     >
-      <div className="-m-3">
+      <div className="-m-3 overflow-auto max-w-[100vw]">
         <div className="px-3 min-h-7 w-full bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700">
           <Tabs.Root
             onValueChange={(v) => {
@@ -278,6 +282,7 @@ export const InvoicesPage = () => {
             </Tabs.List>
           </Tabs.Root>
         </div>
+
         <RestTable
           groupBy="state"
           groupByRender={(row) => (
