@@ -68,7 +68,7 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
             quantity:
               item.reduce(
                 (acc, a) => acc + (a.quantity_spent || a.quantity_expected),
-                1
+                0
               ) || 0,
             unit_price: article?.price || 0,
             unit: article?.unit,
