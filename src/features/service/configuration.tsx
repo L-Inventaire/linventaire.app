@@ -124,7 +124,7 @@ registerCtrlKRestEntity<ServiceItems>("service_items", {
   actions: (rows) => {
     return [
       {
-        label: "Facturer la selection",
+        label: "Facturer la sélection",
         icon: (p) => <DocumentCheckIcon {...p} />,
         action: () => {
           document.location = getRoute(ROUTES.InvoicesFromItems, {

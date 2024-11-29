@@ -23,6 +23,7 @@ export interface InputProps
   shortcut?: Shortcut[];
   autoFocus?: boolean;
   autoSelect?: boolean;
+  autoSelectAll?: boolean;
 }
 
 export const defaultInputClassName = (_theme: "plain" = "plain") => {
@@ -122,12 +123,17 @@ export const Input = (props: InputProps) => {
               props.className
             }
             onFocus={(e) => {
-              if (props?.type === "number" && e.target.value === "0") {
+              if (
+                (props?.type === "number" && e.target.value === "0") ||
+                props.autoSelectAll
+              ) {
                 e.target.select();
               }
+              props.onFocus?.(e);
             }}
             {..._.omit(
               props,
+              "onFocus",
               "label",
               "inputClassName",
               "className",

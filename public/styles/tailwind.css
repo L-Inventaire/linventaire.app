@@ -1524,10 +1524,6 @@ body :is(.mb-8) {
   margin-bottom: 2rem;
 }
 
-body :is(.mb-\[3px\]) {
-  margin-bottom: 3px;
-}
-
 body :is(.ml-0) {
   margin-left: 0px;
 }
@@ -1984,10 +1980,6 @@ body :is(.w-\[200\%\]) {
   width: 200%;
 }
 
-body :is(.w-\[4ch\]) {
-  width: 4ch;
-}
-
 body :is(.w-auto) {
   width: auto;
 }
@@ -2003,6 +1995,10 @@ body :is(.w-max) {
 
 body :is(.w-px) {
   width: 1px;
+}
+
+body :is(.\!min-w-0) {
+  min-width: 0px !important;
 }
 
 body :is(.min-w-0) {
@@ -2585,6 +2581,10 @@ body :is(.border-b-2) {
 
 body :is(.border-l) {
   border-left-width: 1px;
+}
+
+body :is(.border-l-0) {
+  border-left-width: 0px;
 }
 
 body :is(.border-l-2) {

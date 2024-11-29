@@ -16,7 +16,11 @@ import {
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
 import { RestEntity } from "@features/utils/rest/types/types";
-import { XMarkIcon } from "@heroicons/react/16/solid";
+import {
+  LockClosedIcon,
+  LockOpenIcon,
+  XMarkIcon,
+} from "@heroicons/react/16/solid";
 import {
   ArrowRightIcon,
   MagnifyingGlassIcon,
@@ -89,6 +93,8 @@ export const SearchCtrlK = ({ index }: { index: number }) => {
   const typedQueryStr =
     searchQuery.find((a) => a.key === "query")?.values?.[0]?.value || "";
 
+  const [useInternalQuery, setUseInternalQuery] = useState(true);
+
   const schema = useRestSchema(currentEntity || "");
   const { items } = useRest<RestEntity & any>(currentEntity || "", {
     limit: 50,
@@ -96,7 +102,9 @@ export const SearchCtrlK = ({ index }: { index: number }) => {
     asc: !CtrlKRestEntities[currentEntity || ""]?.orderDesc,
     query: [
       ...searchQuery,
-      ...buildQueryFromMap(currentState.options?.internalQuery || {}),
+      ...(useInternalQuery
+        ? buildQueryFromMap(currentState.options?.internalQuery || {})
+        : []),
     ],
     key: "crtl-k-" + currentEntity + "-" + state.path.length,
     queryFn: CtrlKRestEntities[currentEntity || ""]?.resultList
@@ -134,13 +142,33 @@ export const SearchCtrlK = ({ index }: { index: number }) => {
         showExport={false}
         placeholder={t("ctrlk.search.placeholder")}
         suffix={
-          <Button
-            onClick={() => close()}
-            theme="invisible"
-            data-tooltip="Close"
-            icon={(p) => <XMarkIcon {...p} />}
-            shortcut={["esc"]}
-          />
+          <>
+            <Button
+              onClick={() => setUseInternalQuery(!useInternalQuery)}
+              theme={"invisible"}
+              size="xs"
+              className={useInternalQuery ? "text-blue-500" : ""}
+              data-tooltip={
+                useInternalQuery
+                  ? "Ignorer le filtre contextuel"
+                  : "Utiliser le filtre contextuel"
+              }
+              icon={(p) =>
+                useInternalQuery ? (
+                  <LockClosedIcon {...p} />
+                ) : (
+                  <LockOpenIcon {...p} />
+                )
+              }
+            />
+            <Button
+              onClick={() => close()}
+              theme="invisible"
+              data-tooltip="Fermer"
+              icon={(p) => <XMarkIcon {...p} />}
+              shortcut={["esc"]}
+            />
+          </>
         }
         shortcuts={["cmd+k"]}
         debounce={1}
