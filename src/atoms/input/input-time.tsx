@@ -74,7 +74,7 @@ function InputTimeMain(props: InputProps) {
     setTextValues(convertValueToText(_value));
   }, [_value]);
 
-  useEffect(() => {
+  const onChangeTextValues = (textValues: string[]) => {
     let value1 = parseInt(textValues[0]);
     let value2 = parseInt(textValues[1]);
 
@@ -92,7 +92,7 @@ function InputTimeMain(props: InputProps) {
     });
 
     if (props?.onChange) props?.onChange(date.toJSDate(), [value1, value2]);
-  }, [textValues]);
+  };
 
   if (disabled) {
     return (
@@ -116,6 +116,7 @@ function InputTimeMain(props: InputProps) {
         )}
         onChange={(value) => {
           setTextValues([value, textValues[1]]);
+          onChangeTextValues([value, textValues[1]]);
         }}
       />
       <FormInput
@@ -130,6 +131,7 @@ function InputTimeMain(props: InputProps) {
         )}
         onChange={(value) => {
           setTextValues([textValues[0], value]);
+          onChangeTextValues([textValues[0], value]);
         }}
       />
       <div className="pointer-events-none z-10 absolute w-2 w-full h-full top-0 left-0 items-center justify-center flex">
