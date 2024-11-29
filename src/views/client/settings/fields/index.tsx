@@ -115,6 +115,16 @@ export const FieldsPage = () => {
                     { label: "Fichiers", value: "[type:files]" },
                   ]}
                 />
+                {ctrl("type").value === "select" && (
+                  <FormInput
+                    disabled={!!edit?.id}
+                    label="Valeurs possibles (séparées par des virgules)"
+                    placeholder="Téléphone, Email, Adresse"
+                    type="text"
+                    ctrl={ctrl("options")}
+                  />
+                )}
+                <hr />
                 <FormInput
                   label="Nom de l'attribut"
                   value={edit.name}
@@ -137,15 +147,6 @@ export const FieldsPage = () => {
                   format="code"
                   ctrl={ctrl("code")}
                 />
-                {ctrl("type").value === "select" && (
-                  <FormInput
-                    disabled={!!edit?.id}
-                    label="Valeurs possibles (séparées par des virgules)"
-                    placeholder="Téléphone, Email, Adresse"
-                    type="text"
-                    ctrl={ctrl("options")}
-                  />
-                )}
                 <Button
                   disabled={
                     !edit?.name ||

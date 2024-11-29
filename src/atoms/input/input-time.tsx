@@ -7,12 +7,15 @@ import { twMerge } from "tailwind-merge";
 import "./styles.scss";
 import { FormContextContext } from "@components/form/formcontext";
 import { prettyPrintTime } from "@features/utils/format/dates";
+import { InputLabel } from "./input-decoration-label";
+import { FormInput } from "@components/form/fields";
 
 interface InputProps
   extends Omit<
     React.SelectHTMLAttributes<HTMLSelectElement>,
     "size" | "onChange" | "value"
   > {
+  size?: "sm" | "lg";
   label?: string;
   labelProps?: React.HTMLAttributes<HTMLLabelElement>;
   placeholder?: string;
@@ -29,20 +32,10 @@ export function InputTime(props: InputProps) {
     <>
       {!props.label && <InputTimeMain {...props} />}{" "}
       {!!props.label && (
-        <div
-          className={twMerge(
-            "flex flex-col items-start justify-start",
-            props.className
-          )}
-        >
-          <SectionSmall
-            className={twMerge("mb-1", props?.labelProps?.className)}
-            {..._.omit(props.labelProps, "className")}
-          >
-            {props.label}
-          </SectionSmall>
-          <InputTimeMain {..._.omit(props, "className")} />{" "}
-        </div>
+        <InputLabel
+          label={props.label}
+          input={<InputTimeMain {..._.omit(props, "className")} />}
+        />
       )}
     </>
   );
@@ -69,9 +62,6 @@ function InputTimeMain(props: InputProps) {
   const convertValueToText = (value: number[]) => {
     let val1 = value[0].toString();
     let val2 = value[1].toString();
-    if (val1.length === 1) {
-      val1 = "0" + val1;
-    }
     if (val2.length === 1) {
       val2 = "0" + val2;
     }
@@ -94,7 +84,7 @@ function InputTimeMain(props: InputProps) {
       return;
     }
 
-    value1 = max([0, min([23, value1])]) ?? 0;
+    value1 = max([0, value1]) ?? 0;
     value2 = max([0, min([60, value2])]) ?? 0;
 
     const date = DateTime.now().setZone("UTC").set({
@@ -115,32 +105,38 @@ function InputTimeMain(props: InputProps) {
   }
 
   return (
-    <div className={rootClassName}>
-      <input
+    <div className={"flex relative w-32"}>
+      <FormInput
+        autoSelectAll
+        size={props.size}
         type="text"
         value={textValues[0]}
-        className={twMerge(
-          inputClassName,
-          "mr-1 text-right pr-1 rounded-r-none",
+        className="w-16"
+        inputClassName={twMerge(
+          "!min-w-0 max-w-none! w-16 rounded-r-none border-r-0",
           _.isNaN(parseInt(textValues[0])) && "text-red-500"
         )}
-        onChange={(e) => {
-          setTextValues([e.target.value, textValues[1]]);
+        onChange={(value) => {
+          setTextValues([value, textValues[1]]);
         }}
       />
-      <span className="block mb-[3px]">:</span>
-      <input
+      <FormInput
+        autoSelectAll
+        size={props.size}
         type="text"
         value={textValues[1]}
-        className={twMerge(
-          inputClassName,
-          "ml-1 pl-1 rounded-l-none",
+        className="w-16"
+        inputClassName={twMerge(
+          "!min-w-0 max-w-none! w-16 rounded-l-none border-l-0",
           _.isNaN(parseInt(textValues[1])) && "text-red-500"
         )}
-        onChange={(e) => {
-          setTextValues([textValues[0], e.target.value]);
+        onChange={(value) => {
+          setTextValues([textValues[0], value]);
         }}
       />
+      <div className="pointer-events-none z-10 absolute w-2 w-full h-full top-0 left-0 items-center justify-center flex">
+        <span className="-mt-1">:</span>
+      </div>
     </div>
   );
 }
