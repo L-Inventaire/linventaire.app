@@ -106,7 +106,7 @@ export function Table<T>({
   const [paginationState, setPaginationState] = useState<Pagination>({
     total: total || 0,
     page: initialPagination?.page || 1,
-    perPage: initialPagination?.perPage || 10,
+    perPage: initialPagination?.perPage || 20,
     orderBy: initialPagination?.orderBy,
     order: initialPagination?.order,
   });

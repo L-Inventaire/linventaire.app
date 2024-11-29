@@ -31,6 +31,10 @@ export const getInvoiceStatusPrettyName = (
         ? "sent.invoices"
         : type === "supplier_quotes"
         ? "sent.quotes"
+        : type === "supplier_invoices"
+        ? "sent.supplier_invoices"
+        : type === "supplier_credit_notes"
+        ? "sent.supplier_credit_notes"
         : "sent.default",
     accounted: "accounted",
     purchase_order:

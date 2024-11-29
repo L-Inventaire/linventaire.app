@@ -269,7 +269,6 @@ export const FurnishQuotesModalContent = ({
             <Button
               size="md"
               onClick={() => {
-                refetchFurnishQuotes(true);
                 onClose();
               }}
             >

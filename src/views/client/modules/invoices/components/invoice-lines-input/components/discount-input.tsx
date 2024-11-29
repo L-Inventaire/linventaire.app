@@ -22,7 +22,8 @@ export const InvoiceDiscountInput = (props: {
       <FormInput
         autoFocus
         label={"Type de réduction"}
-        ctrl={ctrl("mode")}
+        value={ctrl("mode").value || "percentage"}
+        onChange={ctrl("mode").onChange}
         type="select"
         options={[
           { value: "percentage", label: "Pourcentage" },
