@@ -53,6 +53,10 @@ export const CustomFieldsInput = ({
                       [f.code]: e,
                     })
                   }
+                  options={(f.options || "")
+                    .split(",")
+                    .map((o) => o.trim())
+                    .map((o) => ({ label: o, value: o }))}
                 />
               )}
               {["type:tags", "type:users", "type:files"].includes(type) && (
