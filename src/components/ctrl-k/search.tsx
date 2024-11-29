@@ -103,7 +103,7 @@ export const SearchCtrlK = ({ index }: { index: number }) => {
     query: [
       ...searchQuery,
       ...(useInternalQuery
-        ? [buildQueryFromMap(currentState.options?.internalQuery || {})]
+        ? buildQueryFromMap(currentState.options?.internalQuery || {})
         : []),
     ],
     key: "crtl-k-" + currentEntity + "-" + state.path.length,

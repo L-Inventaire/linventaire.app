@@ -1524,10 +1524,6 @@ body :is(.mb-8) {
   margin-bottom: 2rem;
 }
 
-body :is(.mb-\[3px\]) {
-  margin-bottom: 3px;
-}
-
 body :is(.ml-0) {
   margin-left: 0px;
 }
@@ -1984,10 +1980,6 @@ body :is(.w-\[200\%\]) {
   width: 200%;
 }
 
-body :is(.w-\[4ch\]) {
-  width: 4ch;
-}
-
 body :is(.w-auto) {
   width: auto;
 }
@@ -2003,6 +1995,10 @@ body :is(.w-max) {
 
 body :is(.w-px) {
   width: 1px;
+}
+
+body :is(.\!min-w-0) {
+  min-width: 0px !important;
 }
 
 body :is(.min-w-0) {
@@ -2037,10 +2033,6 @@ body :is(.min-w-fit) {
 
 body :is(.min-w-full) {
   min-width: 100%;
-}
-
-body :is(.\!min-w-0) {
-  min-width: 0px !important;
 }
 
 body :is(.max-w-24) {
@@ -2090,14 +2082,6 @@ body :is(.max-w-xl) {
 
 body :is(.max-w-xs) {
   max-width: 20rem;
-}
-
-body :is(.max-w-16) {
-  max-width: 4rem;
-}
-
-body :is(.max-w-none) {
-  max-width: none;
 }
 
 body :is(.flex-1) {
@@ -2599,6 +2583,10 @@ body :is(.border-l) {
   border-left-width: 1px;
 }
 
+body :is(.border-l-0) {
+  border-left-width: 0px;
+}
+
 body :is(.border-l-2) {
   border-left-width: 2px;
 }
@@ -2613,10 +2601,6 @@ body :is(.border-r-0) {
 
 body :is(.border-t) {
   border-top-width: 1px;
-}
-
-body :is(.border-l-0) {
-  border-left-width: 0px;
 }
 
 body :is(.\!border-solid) {
