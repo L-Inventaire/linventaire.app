@@ -256,7 +256,7 @@ export const InvoiceInvoiceModalContent = ({
                       ...quote,
                       from_rel_quote: [quote?.id],
                       type: "invoices",
-                      state: "invoice",
+                      state: "draft",
                       id: "",
                       content:
                         partialInvoice.data?.partial_invoice?.content?.filter(

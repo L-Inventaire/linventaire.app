@@ -104,6 +104,8 @@ export const FieldsPage = () => {
                   ctrl={ctrl("type")}
                   options={[
                     // "tags" | "text" | "select" | "date" | "boolean" | "number" | "formatted" | "multiselect" | "phone" | "color" | "scan"
+                    { label: "Selection", value: "select" },
+                    { label: "Selection (multiple)", value: "multiselect" },
                     { label: "Texte", value: "text" },
                     { label: "Nombre", value: "number" },
                     { label: "Booléen", value: "boolean" },
@@ -113,6 +115,16 @@ export const FieldsPage = () => {
                     { label: "Fichiers", value: "[type:files]" },
                   ]}
                 />
+                {ctrl("type").value === "select" && (
+                  <FormInput
+                    disabled={!!edit?.id}
+                    label="Valeurs possibles (séparées par des virgules)"
+                    placeholder="Téléphone, Email, Adresse"
+                    type="text"
+                    ctrl={ctrl("options")}
+                  />
+                )}
+                <hr />
                 <FormInput
                   label="Nom de l'attribut"
                   value={edit.name}

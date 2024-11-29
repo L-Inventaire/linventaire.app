@@ -124,7 +124,7 @@ export const ServiceItemsDetailsPage = ({
           Service
         </Heading>
 
-        <div className="mt-4">
+        <div className="mt-4 flex space-x-2">
           <FormInput
             size="lg"
             label="Description"
@@ -132,6 +132,19 @@ export const ServiceItemsDetailsPage = ({
             type="text"
             ctrl={ctrl("title")}
           />
+          {(!article?.unit || article?.unit === "h") && (
+            <InputTime
+              size="lg"
+              label={"Temps estimé"}
+              labelProps={{ className: "whitespace-nowrap" }}
+              onChange={(_, number) => {
+                const quantity = timeBase60ToDecimal(number);
+                ctrl("quantity_expected").onChange(quantity);
+              }}
+              className={"!mx-3 flex-grow"}
+              value={timeDecimalToBase60(ctrl("quantity_expected").value || 0)}
+            />
+          )}
         </div>
 
         {ctrl("title").value && (
@@ -224,20 +237,6 @@ export const ServiceItemsDetailsPage = ({
                     (ctrl("quantity_expected").value || 0)}{" "}
                   <Unit unit={article?.unit || "h"} />
                 </InputButton>
-              )}
-              {(!article?.unit || article?.unit === "h") && (
-                <InputTime
-                  label={"Temps estimé"}
-                  labelProps={{ className: "whitespace-nowrap" }}
-                  onChange={(_, number) => {
-                    const quantity = timeBase60ToDecimal(number);
-                    ctrl("quantity_expected").onChange(quantity);
-                  }}
-                  className={"!mx-3 flex-grow"}
-                  value={timeDecimalToBase60(
-                    ctrl("quantity_expected").value || 0
-                  )}
-                />
               )}
             </div>
 

@@ -34,6 +34,7 @@ export const FormInput = memo(
   (
     props: Omit<SearchFormFieldType, "key"> & {
       className?: string;
+      inputClassName?: string;
       highlight?: boolean;
       main?: boolean;
       size?: "md" | "sm" | "lg";
@@ -52,6 +53,7 @@ export const FormInput = memo(
       values?: any;
       autoFocus?: "scan" | "keyboard" | boolean;
       autoSelect?: boolean;
+      autoSelectAll?: boolean; // Will select all the content on focus
       // Radio Input
       layout?: "horizontal" | "vertical";
     }
@@ -137,7 +139,10 @@ export const FormInput = memo(
         >
           <InputWithSuggestions
             autoFocus={props.autoFocus}
-            inputClassName={props.type === "scan" ? "to-focus" : ""}
+            inputClassName={twMerge(
+              props.inputClassName,
+              props.type === "scan" ? "to-focus" : ""
+            )}
             options={options}
             loading={optionsLoading}
             highlight={highlight}
@@ -182,7 +187,11 @@ export const FormInput = memo(
                 className="w-full"
                 autoFocus={props.autoFocus}
                 autoSelect={props.autoSelect}
-                inputClassName={props.type === "scan" ? "to-focus" : ""}
+                autoSelectAll={props.autoSelectAll}
+                inputClassName={twMerge(
+                  props.inputClassName,
+                  props.type === "scan" ? "to-focus" : ""
+                )}
                 style={{ minWidth: 128 }}
                 options={options}
                 loading={optionsLoading}
@@ -241,6 +250,7 @@ export const FormInput = memo(
             )}
             {props.type === "formatted" && (
               <InputFormat
+                autoSelectAll={props.autoSelectAll}
                 className="w-full"
                 style={{ minWidth: 128 }}
                 format={props.format || "price"}
