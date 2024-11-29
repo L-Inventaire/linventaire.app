@@ -1,14 +1,13 @@
-import { SectionSmall } from "@atoms/text";
+import { FormInput } from "@components/form/fields";
+import { FormContextContext } from "@components/form/formcontext";
+import { prettyPrintTime } from "@features/utils/format/dates";
 import _, { max, min } from "lodash";
 import { DateTime } from "luxon";
 import { useContext, useEffect, useState } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import { twMerge } from "tailwind-merge";
-import "./styles.scss";
-import { FormContextContext } from "@components/form/formcontext";
-import { prettyPrintTime } from "@features/utils/format/dates";
 import { InputLabel } from "./input-decoration-label";
-import { FormInput } from "@components/form/fields";
+import "./styles.scss";
 
 interface InputProps
   extends Omit<
@@ -46,7 +45,6 @@ function InputTimeMain(props: InputProps) {
     "flex justify-center items-center h-9 border border-slate-100 rounded-md",
     props.className
   );
-  const inputClassName = "border-none w-[4ch] h-8 rounded-md text-sm";
 
   const formContext = useContext(FormContextContext);
   const disabled =
