@@ -26,6 +26,7 @@ import {
 import { InvoiceStatus } from "./components/invoice-status";
 import { Pagination } from "@molecules/table/table";
 import _ from "lodash";
+import { useHasAccess } from "@features/access";
 
 const activeFilter = [
   {
@@ -98,6 +99,7 @@ export const InvoicesPage = () => {
 
   const schema = useRestSchema("invoices");
   const navigate = useNavigateAlt();
+  const hasAccess = useHasAccess();
 
   // Counters
   const { invoices: draftInvoices } = useInvoices({
@@ -156,94 +158,102 @@ export const InvoicesPage = () => {
             setPagination((pagination) => ({ ...pagination, page: 1 }));
           }}
           suffix={
-            ["supplier_invoices", "supplier_credit_notes"].includes(type[0]) ? (
-              <>
-                <Button
-                  size="sm"
-                  theme="outlined"
-                  to={withSearchAsModel(
-                    getRoute(ROUTES.InvoicesEdit, { id: "new" }),
-                    schema.data,
-                    { type: "supplier_credit_notes" }
-                  )}
-                  icon={(p) => <ArrowUturnLeftIcon {...p} />}
-                >
-                  Avoir fournisseur
-                </Button>
-                <Button
-                  size="sm"
-                  to={withSearchAsModel(
-                    getRoute(ROUTES.InvoicesEdit, { id: "new" }),
-                    schema.data,
-                    { type: "supplier_invoices" }
-                  )}
-                  icon={(p) => <PlusIcon {...p} />}
-                  shortcut={type.includes("supplier_invoices") ? ["c"] : []}
-                >
-                  Facture fournisseur
-                </Button>
-              </>
-            ) : ["supplier_quotes"].includes(type[0]) ? (
-              <>
-                <Button
-                  size="sm"
-                  to={withSearchAsModel(
-                    getRoute(ROUTES.InvoicesEdit, { id: "new" }),
-                    schema.data,
-                    { type: "supplier_quotes" }
-                  )}
-                  icon={(p) => <PlusIcon {...p} />}
-                  shortcut={type.includes("supplier_quotes") ? ["c"] : []}
-                >
-                  Commande
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  size="sm"
-                  theme="outlined"
-                  to={withSearchAsModel(
-                    getRoute(ROUTES.InvoicesEdit, { id: "new" }),
-                    schema.data,
-                    { type: "credit_notes" }
-                  )}
-                  icon={(p) => <ArrowUturnLeftIcon {...p} />}
-                  shortcut={type.includes("credit_notes") ? ["c"] : []}
-                >
-                  Avoir
-                </Button>
-                <Button
-                  size="sm"
-                  to={withSearchAsModel(
-                    getRoute(ROUTES.InvoicesEdit, { id: "new" }),
-                    schema.data,
-                    { type: "quotes" }
-                  )}
-                  icon={(p) => <PlusIcon {...p} />}
-                  shortcut={type.includes("quotes") ? ["c"] : []}
-                >
-                  Devis
-                </Button>
-                <Button
-                  size="sm"
-                  to={withSearchAsModel(
-                    getRoute(ROUTES.InvoicesEdit, { id: "new" }),
-                    schema.data,
-                    { type: "invoices" }
-                  )}
-                  icon={(p) => <PlusIcon {...p} />}
-                  shortcut={type.includes("invoices") ? ["c"] : []}
-                >
-                  Facture
-                </Button>
-              </>
-            )
+            hasAccess("INVOICES_WRITE") ? (
+              ["supplier_invoices", "supplier_credit_notes"].includes(
+                type[0]
+              ) ? (
+                <>
+                  <Button
+                    size="sm"
+                    theme="outlined"
+                    to={withSearchAsModel(
+                      getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+                      schema.data,
+                      { type: "supplier_credit_notes" }
+                    )}
+                    icon={(p) => <ArrowUturnLeftIcon {...p} />}
+                    hideTextOnMobile
+                  >
+                    Avoir fournisseur
+                  </Button>
+                  <Button
+                    size="sm"
+                    to={withSearchAsModel(
+                      getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+                      schema.data,
+                      { type: "supplier_invoices" }
+                    )}
+                    icon={(p) => <PlusIcon {...p} />}
+                    shortcut={type.includes("supplier_invoices") ? ["c"] : []}
+                    hideTextOnMobile
+                  >
+                    Facture fournisseur
+                  </Button>
+                </>
+              ) : ["supplier_quotes"].includes(type[0]) ? (
+                <>
+                  <Button
+                    size="sm"
+                    to={withSearchAsModel(
+                      getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+                      schema.data,
+                      { type: "supplier_quotes" }
+                    )}
+                    icon={(p) => <PlusIcon {...p} />}
+                    shortcut={type.includes("supplier_quotes") ? ["c"] : []}
+                    hideTextOnMobile
+                  >
+                    Commande
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    size="sm"
+                    theme="outlined"
+                    to={withSearchAsModel(
+                      getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+                      schema.data,
+                      { type: "credit_notes" }
+                    )}
+                    icon={(p) => <ArrowUturnLeftIcon {...p} />}
+                    shortcut={type.includes("credit_notes") ? ["c"] : []}
+                    hideTextOnMobile
+                  >
+                    Avoir
+                  </Button>
+                  <Button
+                    size="sm"
+                    to={withSearchAsModel(
+                      getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+                      schema.data,
+                      { type: "quotes" }
+                    )}
+                    icon={(p) => <PlusIcon {...p} />}
+                    shortcut={type.includes("quotes") ? ["c"] : []}
+                  >
+                    Devis
+                  </Button>
+                  <Button
+                    size="sm"
+                    to={withSearchAsModel(
+                      getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+                      schema.data,
+                      { type: "invoices" }
+                    )}
+                    icon={(p) => <PlusIcon {...p} />}
+                    shortcut={type.includes("invoices") ? ["c"] : []}
+                  >
+                    Facture
+                  </Button>
+                </>
+              )
+            ) : undefined
           }
         />
       }
     >
-      <div className="-m-3">
+      <div className="-m-3 overflow-auto max-w-[100vw]">
         <div className="px-3 min-h-7 w-full bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700">
           <Tabs.Root
             onValueChange={(v) => {
@@ -272,6 +282,7 @@ export const InvoicesPage = () => {
             </Tabs.List>
           </Tabs.Root>
         </div>
+
         <RestTable
           groupBy="state"
           groupByRender={(row) => (

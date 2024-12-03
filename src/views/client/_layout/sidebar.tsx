@@ -42,7 +42,9 @@ export const SideBar = () => {
     <div
       className={
         "print:hidden sm:translate-x-0 z-10 sm:border-none border-r dark:border-r-950 transition-all sm:block w-64 overflow-hidden fixed h-screen " +
-        (menuOpen ? " bg-white translate-x-0 " : " -translate-x-full ")
+        (menuOpen
+          ? " bg-white dark:bg-slate-950 translate-x-0 "
+          : " -translate-x-full ")
       }
     >
       <ScrollArea scrollbars="vertical">
@@ -52,11 +54,13 @@ export const SideBar = () => {
         </div>
 
         <div className="px-2 space-y-1">
-          <SideMenuItem
-            to={getRoute(ROUTES.Home)}
-            label={t("menu.dashboard")}
-            icon={(p) => <HomeIcon {...p} />}
-          />
+          {hasAccess("ACCOUNTING_READ") && (
+            <SideMenuItem
+              to={getRoute(ROUTES.Home)}
+              label={t("menu.dashboard")}
+              icon={(p) => <HomeIcon {...p} />}
+            />
+          )}
           {false && (
             <SideMenuItem
               to={getRoute(ROUTES.Notifications)}
@@ -64,11 +68,13 @@ export const SideBar = () => {
               icon={(p) => <InboxIcon {...p} />}
             />
           )}
-          <SideMenuItem
-            to={getRoute(ROUTES.Statistics)}
-            label={t("menu.statistics")}
-            icon={(p) => <ChartBarIcon {...p} />}
-          />
+          {hasAccess("ACCOUNTING_READ") && (
+            <SideMenuItem
+              to={getRoute(ROUTES.Statistics)}
+              label={t("menu.statistics")}
+              icon={(p) => <ChartBarIcon {...p} />}
+            />
+          )}
 
           <MenuSection
             className="!mt-6"
@@ -140,11 +146,7 @@ export const SideBar = () => {
                 })}
               />
             }
-            show={
-              hasAccess("ARTICLES_READ") ||
-              hasAccess("INVOICES_READ") ||
-              hasAccess("STOCK_READ")
-            }
+            show={hasAccess("INVOICES_READ")}
           >
             <SideMenuItem
               to={getRoute(ROUTES.Invoices, { type: "supplier_quotes" })}
@@ -161,16 +163,12 @@ export const SideBar = () => {
             />
           </MenuSection>
 
-          <MenuSection
-            className="!mt-6"
-            label={t("menu.activity_title")}
-            show={hasAccess("CONTACTS_READ")}
-          >
+          <MenuSection className="!mt-6" label={t("menu.activity_title")}>
             <SideMenuItem
               to={getRoute(ROUTES.ServiceItems)}
               label={t("menu.consulting")}
               icon={(p) => <BriefcaseIcon {...p} />}
-              show={hasAccess("ONSITE_READ")}
+              show={hasAccess("ONSITE_SERVICES_READ")}
             />
             <SideMenuItem
               to={getRoute(ROUTES.Stock)}
@@ -191,10 +189,15 @@ export const SideBar = () => {
               active={
                 location.pathname.indexOf(getRoute(ROUTES.Contacts)) === 0
               }
+              show={hasAccess("CONTACTS_READ")}
             />
           </MenuSection>
 
-          <MenuSection className="!mt-6" label="Comptabilité">
+          <MenuSection
+            className="!mt-6"
+            label="Comptabilité"
+            show={hasAccess("ACCOUNTING_READ")}
+          >
             <SideMenuItem
               to={getRoute(ROUTES.Accounting)}
               label={t("menu.accounting")}

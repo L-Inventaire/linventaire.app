@@ -71,6 +71,7 @@ export const ContactsPage = () => {
               )}
               icon={(p) => <PlusIcon {...p} />}
               shortcut={["shift+a"]}
+              hideTextOnMobile
             >
               Ajouter un contact
             </Button>
@@ -78,7 +79,7 @@ export const ContactsPage = () => {
         />
       }
     >
-      <div className="-m-3">
+      <div className="-m-3 overflow-auto max-w-[100vw]">
         <div className="px-3 h-7 w-full bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700">
           <Info>
             {formatNumber(contacts?.data?.total || 0)} contacts trouvés

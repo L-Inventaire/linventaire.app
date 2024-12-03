@@ -102,6 +102,7 @@ export const StockPage = () => {
                   navigate(getRoute(ROUTES.StockEdit, { id: "new" }))
                 }
                 icon={(p) => <PlusIcon {...p} />}
+                hideTextOnMobile
               >
                 Ajouter
               </Button>
@@ -110,7 +111,7 @@ export const StockPage = () => {
         />
       }
     >
-      <div className="-m-3">
+      <div className="-m-3 overflow-auto max-w-[100vw]">
         <div className="px-3 min-h-7 w-full bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700">
           <Tabs.Root
             onValueChange={(v) => {

@@ -48,20 +48,25 @@ export const Page = (
             {props.bar}
           </div>
         )}
-        <ScrollArea
-          className={twMerge("grow", props?.scrollAreaProps?.className)}
-          {...props?.scrollAreaProps}
-        >
-          <div
+        <div className="grow relative">
+          <ScrollArea
             className={twMerge(
-              "p-3 h-full",
-              props?.scrollAreaChildProps?.className
+              "!absolute left-0 top-0 w-full h-full",
+              props?.scrollAreaProps?.className
             )}
-            {...props?.scrollAreaChildProps}
+            {...props?.scrollAreaProps}
           >
-            {props.children}
-          </div>
-        </ScrollArea>
+            <div
+              className={twMerge(
+                "p-3 h-full",
+                props?.scrollAreaChildProps?.className
+              )}
+              {...props?.scrollAreaChildProps}
+            >
+              {props.children}
+            </div>
+          </ScrollArea>
+        </div>
         {props.footer && (
           <div className="border-t border-solid border-slate-100 dark:border-slate-700 p-3">
             {props.footer}

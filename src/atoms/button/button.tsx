@@ -13,6 +13,7 @@ import {
 } from "@radix-ui/themes";
 import _ from "lodash";
 import { ReactNode, useRef, useState } from "react";
+import { twMerge } from "tailwind-merge";
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -35,6 +36,7 @@ export interface ButtonProps
   "data-tooltip"?: string | ReactNode;
   readonly?: boolean;
   danger?: boolean;
+  hideTextOnMobile?: boolean;
 }
 
 export const Button = (props: ButtonProps) => {
@@ -144,7 +146,7 @@ export const Button = (props: ButtonProps) => {
         <Tooltip content={tooltip}>
           <RdxButton
             size={size}
-            className={props.className}
+            className={twMerge(props.className)}
             loading={!props.icon && loading}
             color={color}
             variant={variant}
@@ -156,7 +158,9 @@ export const Button = (props: ButtonProps) => {
                 {props.icon({ className: "w-4 h-4 shrink-0" })}
               </Spinner>
             )}
-            {props.children}
+            <span className={props.hideTextOnMobile ? "hidden sm:block" : ""}>
+              {props.children}
+            </span>
           </RdxButton>
         </Tooltip>
       )}

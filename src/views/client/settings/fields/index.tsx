@@ -2,11 +2,10 @@ import { Tag } from "@atoms/badge/tag";
 import { Button } from "@atoms/button/button";
 import { ButtonConfirm } from "@atoms/button/confirm";
 import { Modal, ModalContent } from "@atoms/modal/modal";
-import { Info, Section } from "@atoms/text";
+import { Info } from "@atoms/text";
+import { RestDocumentTag } from "@components/deprecated-rest-tags/components/document";
 import { FormInput } from "@components/form/fields";
 import { useFormController } from "@components/form/formcontext";
-import { RestDocumentTag } from "@components/deprecated-rest-tags/components/document";
-import { Table } from "@molecules/table";
 import { useHasAccess } from "@features/access";
 import { useFields } from "@features/fields/hooks/use-fields";
 import { Fields } from "@features/fields/types/types";
@@ -20,9 +19,11 @@ import {
   UserIcon,
   ViewColumnsIcon,
 } from "@heroicons/react/24/outline";
+import { Table } from "@molecules/table";
+import { Heading } from "@radix-ui/themes";
 import _ from "lodash";
 import { useState } from "react";
-import { Page, PageBlock } from "../../_layout/page";
+import { Page } from "../../_layout/page";
 
 const tables = [
   {
@@ -67,7 +68,7 @@ export const FieldsPage = () => {
 
   return (
     <Page title={[{ label: "Paramètres" }, { label: "Champs personnalisés" }]}>
-      <PageBlock>
+      <div className="w-full max-w-3xl mx-auto mt-6">
         {hasAccess("FIELDS_MANAGE") && (
           <Button
             size="md"
@@ -167,7 +168,7 @@ export const FieldsPage = () => {
           )}
         </Modal>
 
-        <Section>Champs personnalisés</Section>
+        <Heading size="6">Champs personnalisés</Heading>
         <Info>
           Les champs personnalisés vous permettent de personnaliser les
           informations attachés aux objects de votre inventaire.
@@ -235,7 +236,7 @@ export const FieldsPage = () => {
             </div>
           )
         )}
-      </PageBlock>
+      </div>
     </Page>
   );
 };

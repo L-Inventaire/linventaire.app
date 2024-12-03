@@ -75,7 +75,7 @@ export const CompanyUsersPage = () => {
                 a.value.includes("ARTICLES") ||
                 a.value.includes("STOCK") ||
                 a.value.includes("INVOICES") ||
-                a.value.includes("ONSITE")
+                a.value.includes("ONSITE_SERVICES")
             )}
           />
           <Button
@@ -139,7 +139,7 @@ export const CompanyUsersPage = () => {
                       a.value.includes("ARTICLES") ||
                       a.value.includes("STOCK") ||
                       a.value.includes("INVOICES") ||
-                      a.value.includes("ONSITE")
+                      a.value.includes("ONSITE_SERVICES")
                   )}
                 />
                 <Button
@@ -364,7 +364,7 @@ const RolesNames: any = {
   ARTICLES: "Articles",
   STOCK: "Stock et réceptions",
   INVOICES: "Factures, devis et avoirs",
-  ONSITE: "Interventions",
+  ONSITE_SERVICES: "Service",
   MANAGE: "Administration",
   WRITE: "Lecture et modifications",
   READ: "Lecture",
