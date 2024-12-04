@@ -1,6 +1,13 @@
 import { fetchServer } from "@features/utils/fetch-server";
+import { Contacts } from "../types/types";
 
 export class ContactsApiClient {
+  static get = async (contactId: string) => {
+    const response = await fetchServer(`/api/contacts/v1/${contactId}`);
+    const data = await response.json();
+    return data as Contacts;
+  };
+
   static getSireneData = async (
     clientId: string,
     siret: string

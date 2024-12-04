@@ -14,6 +14,7 @@ import { UsersInput } from "@components/input-rest/users";
 import { RestTable } from "@components/table-rest";
 import { useArticle } from "@features/articles/hooks/use-articles";
 import { useAuth } from "@features/auth/state/use-auth";
+import { useContactsRecursively } from "@features/contacts/hooks/use-contacts";
 import { Contacts } from "@features/contacts/types/types";
 import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { useInvoice } from "@features/invoices/hooks/use-invoices";
@@ -100,6 +101,12 @@ export const ServiceItemsDetailsPage = ({
       setMarkAsDone(true);
     }
   }, [draft.state === "done"]);
+
+
+  const quoteContacts = [
+    ...useContactsRecursively(quote?.contact),
+    ...useContactsRecursively(quote?.client),
+  ];
 
   if (isPending || (id && draft.id !== id)) return <PageLoader />;
 
@@ -196,7 +203,11 @@ export const ServiceItemsDetailsPage = ({
                 filter={
                   {
                     is_client: true,
-                    ...(quote ? { id: [quote.contact, quote.client] } : {}),
+                    ...(quote
+                      ? {
+                          id: quoteContacts.map((q) => q.id),
+                        }
+                      : {}),
                   } as Partial<Contacts>
                 }
               />
