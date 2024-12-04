@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { InvoiceLinesInput } from "../components/invoice-lines-input";
 import { computePricesFromInvoice } from "../utils";
+import { useClients } from "@features/clients/state/use-clients";
 
 export const QuoteFromItems = (_props: { readonly?: boolean }) => {
   const { ids } = useParams();
@@ -35,11 +36,14 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
   const usedItems = items?.data?.list;
   const usedItemsClients = _.uniq(usedItems?.map((item) => item.client));
 
+  const { client } = useClients();
+
   const { articles } = useArticles({
     query: buildQueryFromMap({
       id: [
         ...(items?.data?.list.map((item) => item.article) ?? []),
         ...(lines.content?.map((line) => line.article) ?? []),
+        client?.client.service_items?.default_article,
       ],
     }),
     limit: 100,
@@ -57,26 +61,31 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
             const article = (articles.data?.list || []).find(
               (article) => article.id === item[0].article
             );
+            const defaultArticle = (articles.data?.list || []).find(
+              (article) =>
+                article.id === client?.client.service_items?.default_article
+            );
+            const usedArticle = article || defaultArticle;
 
             return {
               _id: article?.id,
-              article: article?.id || "",
-              name: article?.name || "(pas d'article)",
+              article: usedArticle?.id || "",
+              name: usedArticle?.name || "(pas d'article)",
               description:
-                article?.description ||
+                usedArticle?.description ||
                 `(${item
                   .map((a) => a.title)
                   .filter(Boolean)
                   .join(", ")})`,
-              type: article?.type ?? "service",
+              type: usedArticle?.type ?? "service",
               quantity:
                 item.reduce(
                   (acc, a) => acc + (a.quantity_spent || a.quantity_expected),
                   0
                 ) || 0,
-              unit_price: article?.price || 0,
-              unit: article?.unit,
-              tva: article?.tva || 0,
+              unit_price: usedArticle?.price || 0,
+              unit: usedArticle?.unit,
+              tva: usedArticle?.tva || 0,
             } as InvoiceLine;
           }),
       };
