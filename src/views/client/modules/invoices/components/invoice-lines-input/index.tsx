@@ -12,12 +12,12 @@ import {
   PlusIcon,
   ReceiptPercentIcon,
 } from "@heroicons/react/20/solid";
+import { Box, Flex, Heading, Card as RadixCard } from "@radix-ui/themes";
 import _ from "lodash";
 import { Fragment, useContext, useRef } from "react";
 import { twMerge } from "tailwind-merge";
 import { InvoiceDiscountInput } from "./components/discount-input";
 import { DropInvoiceLine, InvoiceLineInput } from "./invoice-line-input";
-import { Box, Flex, Heading, Card as RadixCard, Text } from "@radix-ui/themes";
 
 export const InvoiceLinesInput = ({
   onChange,

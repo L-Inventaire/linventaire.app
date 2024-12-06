@@ -8,6 +8,7 @@ import {
 import { InputButton } from "@components/input-button";
 import { useArticle } from "@features/articles/hooks/use-articles";
 import { Articles } from "@features/articles/types/types";
+import { getCostEstimate } from "@features/articles/utils";
 import { InvoiceLine, Invoices } from "@features/invoices/types/types";
 import { tvaOptions } from "@features/utils/constants";
 import { formatAmount, getTextFromHtml } from "@features/utils/format/strings";
@@ -40,7 +41,6 @@ import { InvoiceDiscountInput } from "./components/discount-input";
 import { InvoiceLineArticleInput } from "./components/line-article";
 import { InvoiceLinePriceInput } from "./components/line-price";
 import { InvoiceLineQuantityInput } from "./components/line-quantity";
-import { getCostEstimate, getGainEstimate } from "@features/articles/utils";
 
 export const InvoiceLineInput = (props: {
   invoice?: Invoices;

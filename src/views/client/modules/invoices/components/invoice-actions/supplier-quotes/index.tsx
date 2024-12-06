@@ -13,9 +13,7 @@ import {
   EllipsisHorizontalIcon,
   PrinterIcon,
 } from "@heroicons/react/16/solid";
-import { useSetRecoilState } from "recoil";
 import { getPdfPreview } from "../../invoices-preview/invoices-preview";
-import { InvoiceInvoiceModalAtom } from "../modal-invoice";
 
 export const SupplierQuotesActions = ({
   id,
@@ -24,7 +22,6 @@ export const SupplierQuotesActions = ({
   readonly?: boolean;
 }) => {
   const navigate = useNavigateAlt();
-  const openInvoiceModal = useSetRecoilState(InvoiceInvoiceModalAtom);
 
   const { draft, save: _save } = useReadDraftRest<Invoices>(
     "invoices",
