@@ -102,10 +102,9 @@ export const ServiceItemsDetailsPage = ({
     }
   }, [draft.state === "done"]);
 
-
   const quoteContacts = [
-    ...useContactsRecursively(quote?.contact),
-    ...useContactsRecursively(quote?.client),
+    ...useContactsRecursively(quote?.contact, 3),
+    ...useContactsRecursively(quote?.client, 3),
   ];
 
   if (isPending || (id && draft.id !== id)) return <PageLoader />;
@@ -201,14 +200,13 @@ export const ServiceItemsDetailsPage = ({
                 placeholder="Sélectionner un client"
                 icon={(p) => <UserIcon {...p} />}
                 filter={
-                  {
-                    is_client: true,
-                    ...(quote
-                      ? {
-                          id: quoteContacts.map((q) => q.id),
-                        }
-                      : {}),
-                  } as Partial<Contacts>
+                  quote
+                    ? {
+                        id: quoteContacts.map((q) => q.id) as unknown as string,
+                      }
+                    : ({
+                        is_client: true,
+                      } as Partial<Contacts>)
                 }
               />
             </div>
