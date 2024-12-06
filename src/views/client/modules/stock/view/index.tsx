@@ -13,6 +13,7 @@ export const StockItemsViewPage = (_props: { readonly?: boolean }) => {
     isPending,
     remove,
     restore,
+    isPendingModification,
   } = useStockItem(id || "");
 
   if (!item)
@@ -24,6 +25,7 @@ export const StockItemsViewPage = (_props: { readonly?: boolean }) => {
 
   return (
     <Page
+      loading={isPendingModification}
       title={[
         { label: "StockItems", to: getRoute(ROUTES.Stock) },
         { label: item.serial_number || "" },

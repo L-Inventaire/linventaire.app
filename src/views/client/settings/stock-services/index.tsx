@@ -14,7 +14,7 @@ import { Page } from "../../_layout/page";
 export const StockAndServicesPreferences = () => {
   const { t } = useTranslation();
 
-  const { update, client: clientUser, loading, refresh } = useClients();
+  const { update, client: clientUser, refresh } = useClients();
   const client = clientUser?.client;
   const hasAccess = useHasAccess();
   const readonly = !hasAccess("CLIENT_MANAGE");

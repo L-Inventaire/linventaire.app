@@ -11,10 +11,12 @@ import { ContactsDetailsPage } from "../components/contact-details";
 
 export const ContactsViewPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
-  const { contact, isPending, remove, restore } = useContact(id || "");
+  const { contact, isPending, remove, restore, isPendingModification } =
+    useContact(id || "");
 
   return (
     <Page
+      loading={isPendingModification}
       title={[
         { label: "Contacts", to: getRoute(ROUTES.Contacts) },
         { label: getContactName(contact || {}) },

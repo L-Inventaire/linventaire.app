@@ -27,7 +27,7 @@ export const StockItemsEditPage = (_props: { readonly?: boolean }) => {
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as StockItems;
 
-  const { isInitiating, save, remove, restore, draft } =
+  const { isInitiating, save, remove, restore, draft, isPendingModification } =
     useDraftRest<StockItems>(
       "stock_items",
       id || "new",
@@ -39,6 +39,7 @@ export const StockItemsEditPage = (_props: { readonly?: boolean }) => {
 
   return (
     <Page
+      loading={isPendingModification}
       title={[
         { label: "Stock", to: getRoute(ROUTES.Stock) },
         { label: id ? "Modifier" : "Créer" },

@@ -19,17 +19,19 @@ export const ContactsEditPage = (_props: { readonly?: boolean }) => {
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as Contacts;
 
-  const { isInitiating, save, draft, remove, restore } = useDraftRest<Contacts>(
-    "contacts",
-    id || "new",
-    async (item) => {
-      navigate(getRoute(ROUTES.ContactsView, { id: item.id }));
-    },
-    _.merge(defaultModel, initialModel) as Contacts
-  );
+  const { isInitiating, save, draft, remove, restore, isPendingModification } =
+    useDraftRest<Contacts>(
+      "contacts",
+      id || "new",
+      async (item) => {
+        navigate(getRoute(ROUTES.ContactsView, { id: item.id }));
+      },
+      _.merge(defaultModel, initialModel) as Contacts
+    );
 
   return (
     <Page
+      loading={isPendingModification}
       title={[
         { label: "Contacts", to: getRoute(ROUTES.Contacts) },
         { label: id ? "Modifier" : "Créer" },

@@ -45,7 +45,10 @@ export const useDraftRest = <T extends { id: string }>(
   defaultValue?: Partial<T>,
   readonly = false
 ) => {
-  const { items, upsert, remove, restore } = useRest<T>(table, { id });
+  const { items, upsert, remove, restore, isPendingModification } = useRest<T>(
+    table,
+    { id }
+  );
   const existingItem = id && id !== "new" ? items?.data?.list?.[0] : null;
   const { key } = useContext(DraftContext);
 
@@ -100,7 +103,8 @@ export const useDraftRest = <T extends { id: string }>(
     restore: async () => restore.mutateAsync(draft?.id),
     isInitiating:
       (items.isPending && !items.data) || (defaultValue && !defaultWasSet),
-    isPending: upsert.isPending,
+    isPending: items.isPending,
+    isPendingModification,
     ctrl,
     draft,
     setDraft: setDraft,

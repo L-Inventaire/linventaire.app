@@ -29,7 +29,7 @@ export const AccountingTransactionsEditPage = (_props: {
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as AccountingTransactions;
 
-  const { isInitiating, save, draft, restore, remove } =
+  const { isInitiating, save, draft, restore, remove, isPendingModification } =
     useDraftRest<AccountingTransactions>(
       "accounting_transactions",
       id || "new",
@@ -44,6 +44,7 @@ export const AccountingTransactionsEditPage = (_props: {
 
   return (
     <Page
+      loading={isPendingModification}
       title={[
         { label: "Accounting", to: getRoute(ROUTES.Accounting) },
         { label: id ? "Modifier" : "Créer" },
