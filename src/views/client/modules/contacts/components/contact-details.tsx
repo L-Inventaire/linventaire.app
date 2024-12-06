@@ -26,6 +26,7 @@ import { RelatedInvoicesInput } from "./related-invoices-input";
 import { RelationsInput } from "./relations-input";
 import { Timeline } from "@molecules/timeline";
 import { ROUTES } from "@features/routes";
+import { ContactsFieldsNames } from "@features/contacts/configuration";
 
 export const ContactsDetailsPage = ({
   readonly,
@@ -281,6 +282,7 @@ export const ContactsDetailsPage = ({
             />
             {contact.id && <RelatedInvoicesInput id={contact.id} />}
             <Timeline
+              translations={ContactsFieldsNames() as any}
               entity={"contacts"}
               id={contact.id}
               viewRoute={ROUTES.ContactsView}

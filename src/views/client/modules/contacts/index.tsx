@@ -2,7 +2,10 @@ import { Button } from "@atoms/button/button";
 import { Info } from "@atoms/text";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { RestTable } from "@components/table-rest";
-import { ContactsColumns } from "@features/contacts/configuration";
+import {
+  ContactsColumns,
+  ContactsFieldsNames,
+} from "@features/contacts/configuration";
 import { useContacts } from "@features/contacts/hooks/use-contacts";
 import { Contacts } from "@features/contacts/types/types";
 import { ROUTES, getRoute } from "@features/routes";
@@ -38,25 +41,7 @@ export const ContactsPage = () => {
         <SearchBar
           schema={{
             table: "contacts",
-            fields: schemaToSearchFields(schema.data, {
-              tags: {
-                label: "Étiquettes",
-                keywords: "tags étiquettes label",
-              },
-              updated_at: "Date de mise à jour",
-              updated_by: {
-                label: "Mis à jour par",
-                keywords: "updated_by mis à jour par auteur utilisateur user",
-              },
-              has_parents: {
-                label: "A un parent",
-                keywords: "parent ayant un parent",
-              },
-              email: "Email",
-              phone: "Téléphone",
-              is_supplier: "Fournisseur",
-              is_client: "Client",
-            }),
+            fields: schemaToSearchFields(schema.data, ContactsFieldsNames()),
           }}
           onChange={(q) =>
             q.valid && setOptions({ ...options, query: q.fields })
