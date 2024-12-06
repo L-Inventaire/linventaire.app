@@ -77,6 +77,11 @@ export type Clients = {
   payment: Payment;
   invoices: Invoices;
   invoices_counters: InvoiceCounters;
+  service_items: ServiceItems;
+};
+
+export type ServiceItems = {
+  default_article: string;
 };
 
 export type InvoiceCounters = {
