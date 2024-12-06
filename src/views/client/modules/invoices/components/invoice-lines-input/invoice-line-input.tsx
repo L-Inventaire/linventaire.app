@@ -1,13 +1,13 @@
 import { Button } from "@atoms/button/button";
 import { DropDownAtom, DropDownMenuType } from "@atoms/dropdown";
 import { Unit } from "@atoms/input/input-unit";
-import { Base, BaseSmall, Info } from "@atoms/text";
 import {
   FormContextContext,
   FormControllerType,
 } from "@components/form/formcontext";
 import { InputButton } from "@components/input-button";
 import { useArticle } from "@features/articles/hooks/use-articles";
+import { Articles } from "@features/articles/types/types";
 import { InvoiceLine, Invoices } from "@features/invoices/types/types";
 import { tvaOptions } from "@features/utils/constants";
 import { formatAmount, getTextFromHtml } from "@features/utils/format/strings";
@@ -40,6 +40,7 @@ import { InvoiceDiscountInput } from "./components/discount-input";
 import { InvoiceLineArticleInput } from "./components/line-article";
 import { InvoiceLinePriceInput } from "./components/line-price";
 import { InvoiceLineQuantityInput } from "./components/line-quantity";
+import { getCostEstimate, getGainEstimate } from "@features/articles/utils";
 
 export const InvoiceLineInput = (props: {
   invoice?: Invoices;
@@ -194,7 +195,7 @@ export const InvoiceLineInput = (props: {
               {!isSeparation && (
                 <Box
                   className={twMerge(
-                    "text-right w-1/5 shrink-0 border-l dark:border-slate-700",
+                    "text-right w-1/6 shrink-0 border-l dark:border-slate-700",
                     !value.optional_checked && value.optional && "border-dashed"
                   )}
                 >
@@ -234,34 +235,20 @@ export const InvoiceLineInput = (props: {
               {(!isSeparation || value.type === "correction") && (
                 <Box
                   className={twMerge(
-                    "text-right w-1/5 shrink-0 border-l dark:border-slate-700",
+                    "text-right w-1/6 shrink-0 border-l dark:border-slate-700",
                     !value.optional_checked && value.optional && "border-dashed"
                   )}
                 >
-                  <InputButton
+                  <PriceInput
                     readonly={readonly}
-                    theme="invisible"
-                    data-tooltip={readonly ? "Prix total HT" : "Prix unitaire"}
-                    className="rounded-none h-full w-full flex grow p-3 m-0 box-border text-right justify-end"
-                    label="Prix et TVA"
-                    placeholder="Prix et TVA"
-                    content={() => (
-                      <>
-                        <InvoiceLinePriceInput {...props} article={article} />
-                        <br />
-                        <InvoiceDiscountInput
-                          onChange={(d) =>
-                            onChange?.({ ...value, discount: d })
-                          }
-                          value={value.discount}
-                        />
-                      </>
-                    )}
-                    value={value.unit_price}
+                    article={article}
+                    value={value}
+                    onChange={(v) => onChange?.(v)}
+                    ctrl={props.ctrl}
                   >
                     <Text as="div" size="2" weight="bold">
                       {formatAmount(
-                        (value.quantity || 0) * (value.unit_price || 0),
+                        value.unit_price || 0,
                         props.invoice?.currency || "EUR"
                       )}
                     </Text>
@@ -274,6 +261,50 @@ export const InvoiceLineInput = (props: {
                       {getTvaValue(value.tva || "0")
                         ? "TVA " + getTvaValue(value.tva || "0") * 100 + "%"
                         : tvaOptions.find((a) => a.value === value.tva)?.label}
+                    </Text>
+                  </PriceInput>
+                </Box>
+              )}
+              {(!isSeparation || value.type === "correction") && (
+                <Box
+                  className={twMerge(
+                    "text-right w-1/5 shrink-0 border-l dark:border-slate-700",
+                    !value.optional_checked && value.optional && "border-dashed"
+                  )}
+                >
+                  <PriceInput
+                    readonly={readonly}
+                    article={article}
+                    value={value}
+                    onChange={(v) => onChange?.(v)}
+                    ctrl={props.ctrl}
+                  >
+                    <Text as="div" size="2" weight="bold">
+                      {formatAmount(
+                        (value.quantity || 0) * (value.unit_price || 0),
+                        props.invoice?.currency || "EUR"
+                      )}
+                    </Text>
+                    {["quotes", "invoices", "credit_notes"].includes(
+                      props.invoice?.type || ""
+                    ) && (
+                      <Text as="div" color="gray" size="2">
+                        Coût max{" "}
+                        {
+                          getCostEstimate(
+                            article!,
+                            false,
+                            value.quantity || 1
+                          ).split("-")[1]
+                        }
+                      </Text>
+                    )}
+                    <Text
+                      as="div"
+                      color="gray"
+                      size="2"
+                      className="whitespace-nowrap"
+                    >
                       {!!value.discount?.value && (
                         <Code color="crimson" className="ml-2">
                           -{" "}
@@ -283,7 +314,7 @@ export const InvoiceLineInput = (props: {
                         </Code>
                       )}
                     </Text>
-                  </InputButton>
+                  </PriceInput>
                 </Box>
               )}
             </Flex>
@@ -484,194 +515,6 @@ export const InvoiceLineInput = (props: {
           </Flex>
         </Card>
       </div>
-      {false && (
-        <>
-          <div
-            ref={dragRef}
-            className={twMerge(
-              "space-x-2 flex w-full items-center opacity-100 transition-all mb-3 group/invoice-line",
-              (deleted || dragging) && "max-h-0 opacity-0 !m-0"
-            )}
-          >
-            <div className="-space-x-px flex items-center grow relative">
-              {!readonly && (
-                <div
-                  className={twMerge(
-                    "absolute w-5 h-5 flex items-center justify-start cursor-grab opacity-0 group-hover/invoice-line:opacity-100 -left-5",
-                    otherDragging && !dragging && "opacity-0"
-                  )}
-                >
-                  <EllipsisVerticalIcon className="w-4 h-4 opacity-25 -ml-0.5" />
-                  <EllipsisVerticalIcon className="w-4 h-4 opacity-25 -ml-3" />
-                </div>
-              )}
-
-              <InputButton
-                autoFocus={!readonly && !value.name}
-                className={twMerge(
-                  "text-left justify-start grow",
-                  hasOptionalArticles && !isSeparation && "rounded-l-none",
-                  !isSeparation && "rounded-r-none"
-                )}
-                placeholder={!isSeparation ? "Article" : "Texte libre"}
-                icon={(p) =>
-                  isSeparation ? (
-                    <Bars3BottomLeftIcon {...p} />
-                  ) : (
-                    getArticleIcon(article?.type)(p)
-                  )
-                }
-                empty="Vide"
-                content={({ close }) => (
-                  <InvoiceLineArticleInput
-                    {...props}
-                    invoice={props.invoice!}
-                    article={article}
-                    close={close}
-                  />
-                )}
-                value={value.description || value.name || article?.name}
-              >
-                <div
-                  className={twMerge(
-                    !isSeparation &&
-                      "overflow-hidden text-ellipsis line-clamp-1"
-                  )}
-                >
-                  <Base className={isSeparation ? "block" : "mr-2"}>
-                    {value.name || article?.name}
-                  </Base>
-                  <Info>
-                    {getTextFromHtml(
-                      value.description || article?.description || ""
-                    )}
-                  </Info>
-                </div>
-              </InputButton>
-            </div>
-            {!readonly && (
-              <div className="-space-x-px shrink-0">
-                <Button
-                  onClick={(e) =>
-                    setMenu({
-                      target: e.currentTarget,
-                      menu: [
-                        ...((!isSeparation
-                          ? [
-                              {
-                                label: value.discount?.value
-                                  ? "Retirer la réduction"
-                                  : "Ajouter une réduction",
-                                icon: (p) => <ReceiptPercentIcon {...p} />,
-                                onClick: () => {
-                                  onChange?.({
-                                    ...value,
-                                    discount: value.discount?.value
-                                      ? undefined
-                                      : {
-                                          value: 10,
-                                          mode: "percentage",
-                                        },
-                                  });
-                                },
-                              },
-                              ...((props.invoice?.type === "quotes"
-                                ? [
-                                    {
-                                      label: value.optional
-                                        ? "Article obligatoire"
-                                        : "Article optionnel",
-                                      icon: (p) =>
-                                        value.optional ? (
-                                          <LockClosedIcon {...p} />
-                                        ) : (
-                                          <CheckCircleIcon {...p} />
-                                        ),
-                                      onClick: () => {
-                                        onChange?.({
-                                          ...value,
-                                          optional: !value.optional,
-                                        });
-                                      },
-                                    },
-                                  ]
-                                : []) as DropDownMenuType),
-                              { type: "divider" },
-                            ]
-                          : []) as DropDownMenuType),
-                        {
-                          label: "Dupliquer",
-                          icon: (p) => <DocumentDuplicateIcon {...p} />,
-                          onClick: props.onDuplicate,
-                        },
-                        {
-                          label: "Déplacer vers le haut",
-                          icon: (p) => <ArrowUpIcon {...p} />,
-                          onClick: props.onMoveUp,
-                        },
-                        {
-                          label: "Déplacer vers le bas",
-                          icon: (p) => <ArrowDownIcon {...p} />,
-                          onClick: props.onMoveDown,
-                        },
-                      ],
-                    })
-                  }
-                  theme="outlined"
-                  className={twMerge("rounded-r-none shrink-0")}
-                  icon={(p) => <EllipsisHorizontalIcon {...p} />}
-                />
-                {props.onRemove && (
-                  <Button
-                    theme="outlined"
-                    data-tooltip="Retirer la ligne"
-                    className="shrink-0 text-red-500 dark:text-red-500 rounded-l-none"
-                    icon={(p) => <TrashIcon {...p} />}
-                    onClick={() => {
-                      setDeleted(true);
-                      setTimeout(props.onRemove!, 300);
-                    }}
-                  />
-                )}
-              </div>
-            )}
-          </div>
-          {!!(value.discount?.value || 0) && (
-            <div
-              className={twMerge(
-                "mb-2 text-right -mt-2 max-h-6 transition-all",
-                readonly ? "" : "mr-16",
-                (deleted || dragging) && "max-h-0 opacity-0 !my-0"
-              )}
-            >
-              <InputButton
-                className={twMerge(
-                  "shrink-0 rounded-t-none -mt-px",
-                  readonly ? "" : "-mr-px"
-                )}
-                label="Réduction"
-                placeholder="Réduction"
-                value={value.discount?.value}
-                icon={(p) => <ReceiptPercentIcon {...p} />}
-                content={() => (
-                  <InvoiceDiscountInput
-                    onChange={(d) => onChange?.({ ...value, discount: d })}
-                    value={value.discount}
-                  />
-                )}
-              >
-                <BaseSmall>
-                  {"- "}
-                  {value.discount?.mode === "percentage"
-                    ? `${value.discount?.value}%`
-                    : formatAmount(value.discount?.value || 0)}{" "}
-                  sur la ligne
-                </BaseSmall>
-              </InputButton>
-            </div>
-          )}
-        </>
-      )}
     </>
   );
 };
@@ -711,5 +554,49 @@ export const DropInvoiceLine = (props: {
         )}
       />
     </div>
+  );
+};
+
+const PriceInput = ({
+  readonly,
+  article,
+  value,
+  onChange,
+  ctrl,
+  children,
+}: {
+  readonly?: boolean;
+  article?: Articles | null;
+  value: InvoiceLine;
+  onChange?: (v: InvoiceLine) => void;
+  ctrl?: FormControllerType<InvoiceLine>;
+  children?: React.ReactNode;
+}) => {
+  return (
+    <InputButton
+      readonly={readonly}
+      theme="invisible"
+      className="rounded-none h-full w-full flex grow p-3 m-0 box-border text-right justify-end"
+      label="Prix et TVA"
+      placeholder="Prix et TVA"
+      content={() => (
+        <>
+          <InvoiceLinePriceInput
+            article={article}
+            value={value}
+            onChange={onChange}
+            ctrl={ctrl}
+          />
+          <br />
+          <InvoiceDiscountInput
+            onChange={(d) => onChange?.({ ...value, discount: d })}
+            value={value.discount}
+          />
+        </>
+      )}
+      value={value.unit_price}
+    >
+      {children}
+    </InputButton>
   );
 };

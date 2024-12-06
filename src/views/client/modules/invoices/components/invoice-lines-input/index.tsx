@@ -17,6 +17,7 @@ import { Fragment, useContext, useRef } from "react";
 import { twMerge } from "tailwind-merge";
 import { InvoiceDiscountInput } from "./components/discount-input";
 import { DropInvoiceLine, InvoiceLineInput } from "./invoice-line-input";
+import { Box, Flex, Heading, Card as RadixCard, Text } from "@radix-ui/themes";
 
 export const InvoiceLinesInput = ({
   onChange,
@@ -53,6 +54,54 @@ export const InvoiceLinesInput = ({
 
   return (
     <>
+      <div
+        className={twMerge(
+          "relative flex w-full items-center opacity-100 transition-all mb-3 group/invoice-line"
+        )}
+      >
+        <RadixCard
+          variant="ghost"
+          className={twMerge("w-full p-0 border m-0 dark:border-slate-700")}
+        >
+          <Flex direction="column">
+            <Flex align="stretch">
+              <Box flexGrow="1">
+                <Heading size={"2"} className="py-1 px-2.5">
+                  Article
+                </Heading>
+              </Box>
+              <Box
+                className={twMerge(
+                  "text-right w-1/6 shrink-0 border-l dark:border-slate-700"
+                )}
+              >
+                <Heading size={"2"} className="py-1 px-2.5">
+                  Quantité
+                </Heading>
+              </Box>
+              <Box
+                className={twMerge(
+                  "text-right w-1/6 shrink-0 border-l dark:border-slate-700"
+                )}
+              >
+                <Heading size={"2"} className="py-1 px-2.5">
+                  Prix U.
+                </Heading>
+              </Box>
+              <Box
+                className={twMerge(
+                  "text-right w-1/5 shrink-0 border-l dark:border-slate-700"
+                )}
+              >
+                <Heading size={"2"} className="py-1 px-2.5">
+                  Total
+                </Heading>
+              </Box>
+            </Flex>
+          </Flex>
+        </RadixCard>
+      </div>
+
       <Card
         show={!(value.content || []).length}
         className="text-center"
