@@ -149,7 +149,7 @@ export const useFurnishQuotes = (quotes: Invoices[]) => {
   const grouppedByStocks = _.omit(_.groupBy(modifiedFurnishes, "stockID"), [
     "undefined",
   ]);
-  const grouppedByArticles = _.omit(_.groupBy(modifiedFurnishes, "articleID"), [
+  const groupedByArticles = _.omit(_.groupBy(modifiedFurnishes, "articleID"), [
     "undefined",
   ]);
 
@@ -217,7 +217,7 @@ export const useFurnishQuotes = (quotes: Invoices[]) => {
     refetchFurnishQuotes,
     grouppedBySuppliers,
     grouppedByStocks,
-    grouppedByArticles,
+    groupedByArticles,
     articles: (articles?.data?.list ?? []).map((a) => {
       const articleData = furnishQuotes?.articles.find((ad) => ad.id === a.id);
       return { ...a, ...articleData };

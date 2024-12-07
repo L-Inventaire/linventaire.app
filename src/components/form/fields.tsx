@@ -250,7 +250,9 @@ export const FormInput = memo(
             )}
             {props.type === "formatted" && (
               <InputFormat
+                autoFocus={!!props.autoFocus}
                 autoSelectAll={props.autoSelectAll}
+                autoSelect={props.autoSelect}
                 className="w-full"
                 style={{ minWidth: 128 }}
                 format={props.format || "price"}
@@ -280,6 +282,9 @@ export const FormInput = memo(
             )}
             {props.type === "number" && (
               <Input
+                autoFocus={!!props.autoFocus}
+                autoSelect={props.autoSelect}
+                autoSelectAll={props.autoSelectAll}
                 className="w-full"
                 highlight={highlight}
                 value={_value as number}

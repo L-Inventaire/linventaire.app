@@ -42,7 +42,9 @@ export const SideBar = () => {
     <div
       className={
         "print:hidden sm:translate-x-0 z-10 sm:border-none border-r dark:border-r-950 transition-all sm:block w-64 overflow-hidden fixed h-screen " +
-        (menuOpen ? " bg-white translate-x-0 " : " -translate-x-full ")
+        (menuOpen
+          ? " bg-white dark:bg-slate-950 translate-x-0 "
+          : " -translate-x-full ")
       }
     >
       <ScrollArea scrollbars="vertical">

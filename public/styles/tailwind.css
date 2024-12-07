@@ -2055,6 +2055,10 @@ body :is(.max-w-72) {
   max-width: 18rem;
 }
 
+body :is(.max-w-\[100vw\]) {
+  max-width: 100vw;
+}
+
 body :is(.max-w-\[40\%\]) {
   max-width: 40%;
 }
@@ -3691,6 +3695,11 @@ body :is(.py-px) {
   padding-bottom: 1px;
 }
 
+body :is(.px-2\.5) {
+  padding-left: 0.625rem;
+  padding-right: 0.625rem;
+}
+
 body :is(.pb-0) {
   padding-bottom: 0px;
 }
@@ -5109,6 +5118,10 @@ body :is(.group\/user:hover .group-hover\/user\:opacity-100) {
 @media (min-width: 768px) {
   body :is(.md\:relative) {
     position: relative;
+  }
+
+  body :is(.md\:flex) {
+    display: flex;
   }
 
   body :is(.md\:w-1\/2) {

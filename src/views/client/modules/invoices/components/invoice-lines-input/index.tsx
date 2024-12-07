@@ -12,6 +12,7 @@ import {
   PlusIcon,
   ReceiptPercentIcon,
 } from "@heroicons/react/20/solid";
+import { Box, Flex, Heading, Card as RadixCard } from "@radix-ui/themes";
 import _ from "lodash";
 import { Fragment, useContext, useRef } from "react";
 import { twMerge } from "tailwind-merge";
@@ -53,6 +54,54 @@ export const InvoiceLinesInput = ({
 
   return (
     <>
+      <div
+        className={twMerge(
+          "relative flex w-full items-center opacity-100 transition-all mb-3 group/invoice-line"
+        )}
+      >
+        <RadixCard
+          variant="ghost"
+          className={twMerge("w-full p-0 border m-0 dark:border-slate-700")}
+        >
+          <Flex direction="column">
+            <Flex align="stretch">
+              <Box flexGrow="1">
+                <Heading size={"2"} className="py-1 px-2.5">
+                  Article
+                </Heading>
+              </Box>
+              <Box
+                className={twMerge(
+                  "text-right w-1/6 shrink-0 border-l dark:border-slate-700"
+                )}
+              >
+                <Heading size={"2"} className="py-1 px-2.5">
+                  Quantité
+                </Heading>
+              </Box>
+              <Box
+                className={twMerge(
+                  "text-right w-1/6 shrink-0 border-l dark:border-slate-700"
+                )}
+              >
+                <Heading size={"2"} className="py-1 px-2.5">
+                  Prix U.
+                </Heading>
+              </Box>
+              <Box
+                className={twMerge(
+                  "text-right w-1/5 shrink-0 border-l dark:border-slate-700"
+                )}
+              >
+                <Heading size={"2"} className="py-1 px-2.5">
+                  Total
+                </Heading>
+              </Box>
+            </Flex>
+          </Flex>
+        </RadixCard>
+      </div>
+
       <Card
         show={!(value.content || []).length}
         className="text-center"

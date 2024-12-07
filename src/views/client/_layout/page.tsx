@@ -14,6 +14,7 @@ import { twMerge } from "tailwind-merge";
 export const Page = (
   props: {
     children: ReactNode;
+    loading?: boolean;
     bar?: ReactNode;
     footer?: ReactNode;
     title?: {
@@ -34,12 +35,18 @@ export const Page = (
     document.title = (props.title || []).map((t) => t.label).join(" - ");
   }, [location.pathname, props.title]);
 
+  // On loading set to true, unfocus everything
+  useEffect(() => {
+    if (props.loading) (document.activeElement as any)?.blur();
+  }, [props.loading]);
+
   return (
     <ErrorBoundary>
       <div
         className={twMerge(
           "flex flex-col grow w-full text-black dark:text-white min-h-full sm:bg-transparent",
-          props.className
+          props.className,
+          props.loading ? "opacity-50 pointer-events-none" : ""
         )}
         {..._.omit(props, "className", "children", "bar", "footer", "title")}
       >
@@ -48,20 +55,25 @@ export const Page = (
             {props.bar}
           </div>
         )}
-        <ScrollArea
-          className={twMerge("grow", props?.scrollAreaProps?.className)}
-          {...props?.scrollAreaProps}
-        >
-          <div
+        <div className="grow relative">
+          <ScrollArea
             className={twMerge(
-              "p-3 h-full",
-              props?.scrollAreaChildProps?.className
+              "!absolute left-0 top-0 w-full h-full",
+              props?.scrollAreaProps?.className
             )}
-            {...props?.scrollAreaChildProps}
+            {...props?.scrollAreaProps}
           >
-            {props.children}
-          </div>
-        </ScrollArea>
+            <div
+              className={twMerge(
+                "p-3 h-full",
+                props?.scrollAreaChildProps?.className
+              )}
+              {...props?.scrollAreaChildProps}
+            >
+              {props.children}
+            </div>
+          </ScrollArea>
+        </div>
         {props.footer && (
           <div className="border-t border-solid border-slate-100 dark:border-slate-700 p-3">
             {props.footer}

@@ -80,6 +80,7 @@ export const ROUTES = {
 
   Settings: "/:client/settings",
   SettingsPreferences: "/:client/settings/preferences",
+  SettingsStockServices: "/:client/settings/stock-services",
   SettingsStockLocations: "/:client/settings/stock-locations",
   SettingsBankAccounts: "/:client/settings/bank-accounts",
   SettingsTags: "/:client/settings/tags",

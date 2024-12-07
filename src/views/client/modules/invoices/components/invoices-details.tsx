@@ -49,6 +49,7 @@ import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-ca
 import { InvoiceStatus } from "./invoice-status";
 import { RelatedInvoices } from "./related-invoices";
 import { TagPaymentCompletion } from "./tag-payment-completion";
+import { useEffectChange } from "@features/utils/hooks/use-changed-effect";
 
 export const computeStockCompletion = (
   linesu: Invoices["content"],
@@ -56,10 +57,12 @@ export const computeStockCompletion = (
   overflow = false,
   service = false
 ) => {
-  const lines = (linesu || []).filter((a) =>
-    service
-      ? a.type === "service"
-      : a.type === "consumable" || a.type === "product"
+  const lines = (linesu || []).filter(
+    (a) =>
+      (service
+        ? a.type === "service"
+        : a.type === "consumable" || a.type === "product") &&
+      !(a.optional && !a.optional_checked)
   );
   const total = lines.reduce(
     (acc, line) =>
@@ -169,6 +172,18 @@ export const InvoicesDetailsPage = ({
   const hasClientOrSupplier =
     (draft.client && !isSupplierRelated) ||
     (draft.supplier && isSupplierRelated);
+
+  useEffectChange(
+    ([prevContact]) => {
+      if (prevContact && prevContact !== (draft.client || draft.supplier)) {
+        setDraft((draft) => ({
+          ...draft,
+          contact: "",
+        }));
+      }
+    },
+    [draft.client || draft.supplier]
+  );
 
   useEffect(() => {
     if (!isPending && draft)
@@ -426,9 +441,9 @@ export const InvoicesDetailsPage = ({
                 <InputButton
                   theme="invisible"
                   size="sm"
-                  className="-mx-1 px-1 -mt-2"
+                  className="-mx-1 px-1"
                   ctrl={ctrl("name")}
-                  placeholder="Titre interne"
+                  placeholder="Désignation"
                 />
               )}
 

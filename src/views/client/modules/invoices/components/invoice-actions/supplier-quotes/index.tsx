@@ -13,9 +13,7 @@ import {
   EllipsisHorizontalIcon,
   PrinterIcon,
 } from "@heroicons/react/16/solid";
-import { useSetRecoilState } from "recoil";
 import { getPdfPreview } from "../../invoices-preview/invoices-preview";
-import { InvoiceInvoiceModalAtom } from "../modal-invoice";
 
 export const SupplierQuotesActions = ({
   id,
@@ -24,13 +22,27 @@ export const SupplierQuotesActions = ({
   readonly?: boolean;
 }) => {
   const navigate = useNavigateAlt();
-  const openInvoiceModal = useSetRecoilState(InvoiceInvoiceModalAtom);
 
   const { draft, save: _save } = useReadDraftRest<Invoices>(
     "invoices",
     id || "new"
   );
   const disabled = draft.state === "closed";
+
+  const commonOptions = [
+    {
+      label: "Accusé de réception...",
+      onClick: () => {
+        //TODO
+      },
+    },
+    {
+      label: "Bordereau de livraison...",
+      onClick: () => {
+        //TODO
+      },
+    },
+  ];
 
   return (
     <>
@@ -43,6 +55,10 @@ export const SupplierQuotesActions = ({
             icon={(p) => <EllipsisHorizontalIcon {...p} />}
             position="top"
             menu={[
+              ...commonOptions,
+              {
+                type: "divider",
+              },
               {
                 label: "Télécharger le PDF",
                 icon: (p) => <PrinterIcon {...p} />,
@@ -95,6 +111,10 @@ export const SupplierQuotesActions = ({
             className="m-0"
             icon={(p) => <EllipsisHorizontalIcon {...p} />}
             menu={[
+              ...commonOptions,
+              {
+                type: "divider",
+              },
               {
                 label: "Télécharger en PDF",
                 onClick: () => getPdfPreview(draft),
@@ -145,13 +165,6 @@ export const SupplierQuotesActions = ({
           </Button>
         </>
       )}
-      {draft.state === "closed" && (
-        <div>
-          <Button disabled={true} size="lg">
-            Document fermé
-          </Button>
-        </div>
-      )}
       {draft.state === "completed" && (
         <>
           <DropdownButton
@@ -159,12 +172,7 @@ export const SupplierQuotesActions = ({
             size="lg"
             className="m-0"
             icon={(p) => <EllipsisHorizontalIcon {...p} />}
-            menu={[
-              {
-                label: "Créer une facture",
-                onClick: () => openInvoiceModal(true),
-              },
-            ]}
+            menu={commonOptions}
           />
           <Button
             disabled={disabled}
@@ -187,6 +195,20 @@ export const SupplierQuotesActions = ({
             Enregistrer une facture
           </Button>
         </>
+      )}
+      {draft.state === "closed" && (
+        <div>
+          <DropdownButton
+            theme="invisible"
+            size="lg"
+            className="m-0"
+            icon={(p) => <EllipsisHorizontalIcon {...p} />}
+            menu={commonOptions}
+          />
+          <Button disabled={true} size="lg">
+            Document fermé
+          </Button>
+        </div>
       )}
     </>
   );

@@ -15,6 +15,7 @@ export const AccountingTransactionsViewPage = (_props: {
     restore,
     remove,
     isPending,
+    isPendingModification,
   } = useAccountingTransaction(id || "");
 
   if (!item)
@@ -26,6 +27,7 @@ export const AccountingTransactionsViewPage = (_props: {
 
   return (
     <Page
+      loading={isPendingModification}
       title={[
         {
           label: "AccountingTransactions",

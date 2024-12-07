@@ -53,6 +53,7 @@ export const AccountingPage = () => {
                   navigate(getRoute(ROUTES.AccountingEdit, { id: "new" }))
                 }
                 icon={(p) => <PlusIcon {...p} />}
+                hideTextOnMobile
               >
                 Ajouter
               </Button>
@@ -61,7 +62,7 @@ export const AccountingPage = () => {
         />
       }
     >
-      <div className="-m-3">
+      <div className="-m-3 overflow-auto max-w-[100vw]">
         <div className="px-3 h-7 w-full bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700">
           <Info>
             {accounting_transactions?.data?.total || 0} documents trouvés

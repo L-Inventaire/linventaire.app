@@ -54,6 +54,7 @@ import { CompanyUsersPage } from "./settings/users";
 import { StockItemsFromPage } from "./modules/stock/from";
 import { FurnishQuotesPage } from "./modules/invoices/view/furnish-quotes";
 import { QuoteFromItems } from "./modules/invoices/create-from-items";
+import { StockAndServicesPreferences } from "./settings/stock-services";
 
 export const BackOfficeRoutes = () => {
   return (
@@ -119,6 +120,10 @@ export const BackOfficeRoutes = () => {
         <Route
           path={ROUTES.SettingsPreferences}
           element={<PreferencesPage />}
+        />
+        <Route
+          path={ROUTES.SettingsStockServices}
+          element={<StockAndServicesPreferences />}
         />
         <Route path={ROUTES.SettingsTags} element={<TagsPage />} />
         <Route path={ROUTES.SettingsCustomFields} element={<FieldsPage />} />
@@ -188,7 +193,7 @@ export const Layout = () => {
           <Header />
           <div
             className={twMerge(
-              "grow flex min-h-0 border-t sm:border shadow-sm bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-700 print:mx-0 sm:mb-2 rounded",
+              "max-w-[100vw] grow flex min-h-0 border-t sm:border shadow-sm bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-700 print:mx-0 sm:mb-2 rounded",
               menuOpen ? "sm:ml-64" : "sm:mr-2 sm:ml-0"
             )}
             onClick={() => setMenuOpen(false)}

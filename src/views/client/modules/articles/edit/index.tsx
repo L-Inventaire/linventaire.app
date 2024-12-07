@@ -26,6 +26,7 @@ export const ArticlesEditPage = (_props: { readonly?: boolean }) => {
     isInitiating,
     remove,
     restore,
+    isPendingModification,
   } = useDraftRest<Articles>(
     "articles",
     id || "new",
@@ -37,6 +38,7 @@ export const ArticlesEditPage = (_props: { readonly?: boolean }) => {
 
   return (
     <Page
+      loading={isPendingModification}
       title={[
         { label: "Articles", to: getRoute(ROUTES.Products) },
         { label: id ? "Modifier" : "Créer" },

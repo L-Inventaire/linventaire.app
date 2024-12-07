@@ -22,11 +22,12 @@ export const InvoiceLinePriceInput = (props: {
   return (
     <div className="space-y-2">
       <FormInput
-        autoFocus
         label={"Prix unitaire HT"}
         ctrl={ctrl("unit_price")}
         type="formatted"
         format="price"
+        autoSelect
+        autoFocus
       />
       <FormInput label="TVA" ctrl={ctrl(`tva`)} options={tvaOptions} />
 

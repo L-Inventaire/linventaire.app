@@ -2,7 +2,6 @@ import { DocumentBar } from "@components/document-bar";
 import { RestDocumentsInput } from "@components/input-rest";
 import { buildQueryFromMap } from "@components/search-bar/utils/utils";
 import { useArticles } from "@features/articles/hooks/use-articles";
-import { useContact } from "@features/contacts/hooks/use-contacts";
 import { useCtrlKAsSelect } from "@features/ctrlk/use-ctrlk-as-select";
 import { useInvoices } from "@features/invoices/hooks/use-invoices";
 import { InvoiceLine, Invoices } from "@features/invoices/types/types";
@@ -15,6 +14,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { InvoiceLinesInput } from "../components/invoice-lines-input";
 import { computePricesFromInvoice } from "../utils";
+import { useClients } from "@features/clients/state/use-clients";
 
 export const QuoteFromItems = (_props: { readonly?: boolean }) => {
   const { ids } = useParams();
@@ -26,69 +26,81 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
     query: buildQueryFromMap({ id: ids?.split(",") }),
     limit: 100,
   });
-  const { articles } = useArticles({
-    query: buildQueryFromMap({
-      id: items?.data?.list.map((item) => item.article),
-    }),
-    limit: 100,
-  });
 
   const { upsert } = useInvoices();
 
   const [loading, setLoading] = useState(false);
 
   const [lines, setLines] = useState<Invoices>([] as any);
-  const { contact: client } = useContact(lines.client);
-  const clientItems = items?.data?.list?.filter(
-    (item) =>
-      [client?.id, ...(client?.parents || [])].includes(item.client) ||
-      !lines.client
-  );
+
+  const usedItems = items?.data?.list;
+  const usedItemsClients = _.uniq(usedItems?.map((item) => item.client));
+
+  const { client } = useClients();
+
+  const { articles } = useArticles({
+    query: buildQueryFromMap({
+      id: [
+        ...(items?.data?.list.map((item) => item.article) ?? []),
+        ...(lines.content?.map((line) => line.article) ?? []),
+        client?.client.service_items?.default_article,
+      ],
+    }),
+    limit: 100,
+  });
 
   useEffect(() => {
     if (articles?.data?.list?.length) {
-      const grouped = _.groupBy(clientItems, "article");
+      const grouped = _.groupBy(usedItems, "article");
       const invoice = {
         ...lines,
-        client: lines.client || clientItems?.[0]?.client || "",
-        content: Object.values(grouped).map((item) => {
-          const article = (articles.data?.list || []).find(
-            (article) => article.id === item[0].article
-          );
-          return {
-            _id: article?.id,
-            article: article?.id || "",
-            name: article?.name || "(pas d'article)",
-            description:
-              article?.description ||
-              `(${item
-                .map((a) => a.title)
-                .filter(Boolean)
-                .join(", ")})`,
-            type: article?.type,
-            quantity:
-              item.reduce(
-                (acc, a) => acc + (a.quantity_spent || a.quantity_expected),
-                0
-              ) || 0,
-            unit_price: article?.price || 0,
-            unit: article?.unit,
-            tva: article?.tva || 0,
-          } as InvoiceLine;
-        }),
+        client: lines.client || usedItems?.[0]?.client || "",
+        content:
+          lines.content ||
+          Object.values(grouped).map((item) => {
+            const article = (articles.data?.list || []).find(
+              (article) => article.id === item[0].article
+            );
+            const defaultArticle = (articles.data?.list || []).find(
+              (article) =>
+                article.id === client?.client.service_items?.default_article
+            );
+            const usedArticle = article || defaultArticle;
+
+            return {
+              _id: article?.id,
+              article: usedArticle?.id || "",
+              name: usedArticle?.name || "(pas d'article)",
+              description:
+                usedArticle?.description ||
+                `(${item
+                  .map((a) => a.title)
+                  .filter(Boolean)
+                  .join(", ")})`,
+              type: usedArticle?.type ?? "service",
+              quantity:
+                item.reduce(
+                  (acc, a) => acc + (a.quantity_spent || a.quantity_expected),
+                  0
+                ) || 0,
+              unit_price: usedArticle?.price || 0,
+              unit: usedArticle?.unit,
+              tva: usedArticle?.tva || 0,
+            } as InvoiceLine;
+          }),
       };
 
       invoice.total = computePricesFromInvoice(invoice);
 
       setLines(invoice);
     }
-  }, [lines.client, clientItems?.length, articles?.data?.list?.length]);
+  }, [lines.client, usedItems?.length, JSON.stringify(articles?.data?.list)]);
+
+  useEffect(() => {
+    setLines((lines) => ({ ...lines, total: computePricesFromInvoice(lines) }));
+  }, [lines.content]);
 
   if (items.isLoading) return <></>;
-
-  const keptServices = clientItems?.filter((a) =>
-    lines.content?.map((a) => a.article)?.includes(a.article)
-  );
 
   const missingArticles = lines.content?.some(
     (a) => !a.article && (a.quantity || 0) > 0
@@ -111,6 +123,12 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
     >
       <div className="w-full max-w-3xl mx-auto space-y-6 mt-4">
         <div className="space-y-2">
+          {usedItemsClients.length > 1 && (
+            <Callout.Root color="orange">
+              Les services sur sites sélectionnés appartiennent à plusieurs
+              clients.
+            </Callout.Root>
+          )}
           <Heading size="4">Créer le devis pour</Heading>
           <RestDocumentsInput
             entity="contacts"
@@ -132,7 +150,7 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
           />
         </div>
 
-        {!!lines.client && !!clientItems?.length && (
+        {!!lines.client && !!usedItems?.length && (
           <>
             <div className="space-y-2">
               <Heading size="4">Lignes à créer</Heading>
@@ -147,9 +165,9 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
 
             <div className="space-y-2">
               <Callout.Root>
-                {keptServices?.length} instance(s) de service suivantes seront
+                {usedItems?.length} instance(s) de service suivantes seront
                 associées au devis:{" "}
-                {(keptServices || []).map((item) => item.title).join(", ")}
+                {(usedItems || []).map((item) => item.title).join(", ")}
               </Callout.Root>
 
               {missingArticles && (
@@ -184,7 +202,7 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
                       setLoading(true);
                       try {
                         // Now affect the lines to the quote
-                        for (const item of keptServices || []) {
+                        for (const item of usedItems || []) {
                           await upsertServiceItems.mutateAsync({
                             id: item.id,
                             client: item.client || quote.client,
@@ -231,7 +249,7 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
                         });
 
                         // Now affect the lines to the quote
-                        for (const item of keptServices || []) {
+                        for (const item of usedItems || []) {
                           await upsertServiceItems.mutateAsync({
                             id: item.id,
                             client: item.client || quote.client,
@@ -266,9 +284,9 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
                     });
 
                     // Now affect the lines to the quote
-                    for (const item of keptServices || []) {
+                    for (const item of usedItems || []) {
                       await upsertServiceItems.mutateAsync({
-                        id: item.id,
+                        ...item,
                         client: item.client || quote.client,
                         for_rel_quote: quote.id,
                       });

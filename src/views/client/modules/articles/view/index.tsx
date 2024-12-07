@@ -7,10 +7,12 @@ import { ArticlesDetailsPage } from "../components/article-details";
 
 export const ArticlesViewPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
-  const { article, isPending, remove, restore } = useArticle(id || "");
+  const { article, isPending, remove, restore, isPendingModification } =
+    useArticle(id || "");
 
   return (
     <Page
+      loading={isPendingModification}
       title={[
         { label: "Articles", to: getRoute(ROUTES.Products) },
         { label: article?.name || "Article" },

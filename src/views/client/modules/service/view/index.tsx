@@ -13,6 +13,7 @@ export const ServiceItemsViewPage = (_props: { readonly?: boolean }) => {
     isPending,
     remove,
     restore,
+    isPendingModification,
   } = useServiceItem(id || "");
 
   if (!item)
@@ -24,6 +25,7 @@ export const ServiceItemsViewPage = (_props: { readonly?: boolean }) => {
 
   return (
     <Page
+      loading={isPendingModification}
       title={[
         { label: "Service", to: getRoute(ROUTES.ServiceItems) },
         { label: item.title || "" },

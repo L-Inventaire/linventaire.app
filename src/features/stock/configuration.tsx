@@ -18,6 +18,7 @@ import { StockItemStatus } from "@views/client/modules/stock/components/stock-it
 import { useTranslation } from "react-i18next";
 import { useStockLocations } from "./hooks/use-stock-locations";
 import { StockItems, StockLocations } from "./types/types";
+import { InvoiceRestDocument } from "@views/client/modules/invoices/components/invoice-lines-input/invoice-input-rest-card";
 
 export const useStockItemDefaultModel: () => Partial<StockItems> = () => ({});
 
@@ -39,6 +40,12 @@ export const StockItemsColumns: Column<StockItems>[] = [
         size="sm"
         icon={(p, article) => getArticleIcon((article as Articles)?.type)(p)}
       />
+    ),
+  },
+  {
+    title: "Devis associé",
+    render: (item) => (
+      <InvoiceRestDocument disabled value={item.for_rel_quote} />
     ),
   },
   {
