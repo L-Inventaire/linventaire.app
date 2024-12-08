@@ -26,6 +26,8 @@ jobs:
         run: yarn install
 
       - name: Build project
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
           rm src/config/environment.ts; cp src/config/environment.ts.prod src/config/environment.ts
           yarn build
