@@ -27,7 +27,7 @@ jobs:
 
       - name: Build project
         run: |
-          RUN rm src/config/environment.ts; cp src/config/environment.ts.prod src/config/environment.ts
+          rm src/config/environment.ts; cp src/config/environment.ts.prod src/config/environment.ts
           yarn build
 
       - name: Configure AWS credentials
