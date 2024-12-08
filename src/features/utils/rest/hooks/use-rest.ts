@@ -1,12 +1,12 @@
 import { useCurrentClient } from "@features/clients/state/use-clients";
+import { LoadingState } from "@features/utils/store/loading-state-atom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import _ from "lodash";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useRecoilState } from "recoil";
 import { useDebounceValue } from "usehooks-ts";
 import { RestApiClient } from "../api-client/rest-api-client";
 import { SchemaType } from "../types/types";
-import { useRecoilState, useRecoilValue } from "recoil";
-import { LoadingState } from "@features/utils/store/loading-state-atom";
 
 const restApiClients: { [key: string]: RestApiClient<any> } = {};
 
