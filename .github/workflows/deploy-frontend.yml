@@ -20,14 +20,16 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: "16" # Adjust Node.js version as needed
+          node-version: "20" # Adjust Node.js version as needed
 
       - name: Install dependencies with Yarn
         run: yarn install
 
       - name: Build project
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
-          RUN rm src/config/environment.ts; cp src/config/environment.ts.prod src/config/environment.ts
+          rm src/config/environment.ts; cp src/config/environment.ts.prod src/config/environment.ts
           yarn build
 
       - name: Configure AWS credentials
