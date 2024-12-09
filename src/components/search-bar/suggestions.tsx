@@ -12,12 +12,14 @@ import {
   InformationCircleIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
-import { ReactNode } from "react";
+import { Dispatch, ReactNode, SetStateAction, useEffect } from "react";
 import { twMerge } from "tailwind-merge";
 import { CaretPositionType } from "./hooks/use-caret";
 import { Suggestions } from "./hooks/use-suggestions";
 import { SearchField } from "./utils/types";
 import { labelToVariable } from "./utils/utils";
+import { ca } from "date-fns/locale";
+import _ from "lodash";
 
 export const SearchBarSuggestions = ({
   suggestions,
@@ -27,6 +29,7 @@ export const SearchBarSuggestions = ({
   searching,
   schema,
   loadingSuggestionsValues,
+  setValue,
 }: {
   suggestions: Suggestions;
   selected: number;
@@ -35,10 +38,12 @@ export const SearchBarSuggestions = ({
   searching: boolean;
   schema: { table: string; fields: SearchField[] };
   loadingSuggestionsValues: boolean;
+  setValue: Dispatch<SetStateAction<string>>;
 }) => {
   const currentField = schema.fields.find(
     (a) => labelToVariable(a.label) === caret.filter?.key
   );
+
   const operators = suggestions.filter((a) => a.type === "operator");
   const fields = suggestions.filter((a) => a.type === "field");
   const values = suggestions.filter((a) => a.type === "value");
@@ -46,6 +51,16 @@ export const SearchBarSuggestions = ({
   searching =
     searching &&
     !["boolean", "date", "number"].includes(currentField?.type || "");
+
+  const regexExtractValues = /([^:]+)([:<>=]*)(\d*)(->)?(\d*)/;
+
+  const isRange = caret.filter?.values_raw.includes("->") ?? "";
+  const min =
+    caret?.filter?.values[0]?.split("->")?.[0]?.replace(/(>=|<=|>|<|=)*/, "") ??
+    "";
+
+  const max = caret?.filter?.values[0]?.split("->")?.[1] ?? "";
+
   return (
     <Menu
       menu={[
@@ -85,7 +100,41 @@ export const SearchBarSuggestions = ({
                     {(currentField.type === "date" ||
                       currentField.type === "number") && (
                       <div className="mb-2 flex space-x-2 items-center max-w-md">
-                        <Select size="md" className="shrink-0 w-max">
+                        <Select
+                          size="md"
+                          className="shrink-0 w-max"
+                          value={
+                            caret.text.current.match(/(>=|<=|->|=|<|>)+/g)?.[0]
+                          }
+                          onChange={(e) => {
+                            setValue((data) => {
+                              if (!caret.text.current.includes("->")) {
+                                const newCurrentTextValue =
+                                  caret.text.current.replace(
+                                    /:(>=|<=|=|<|>)*/g,
+                                    `:${e.target.value}`
+                                  );
+                                const newData = data.replace(
+                                  caret.text.current,
+                                  newCurrentTextValue
+                                );
+                                return newData;
+                              } else {
+                                const newCurrentTextValue = caret.text.current
+                                  .replace(/->([0-9])*/, "")
+                                  .replace(
+                                    /:(>=|<=|=|<|>)*/g,
+                                    `:${e.target.value}`
+                                  );
+                                const newData = data.replace(
+                                  caret.text.current,
+                                  newCurrentTextValue
+                                );
+                                return newData;
+                              }
+                            });
+                          }}
+                        >
                           <option value="">Égal à</option>
                           <option value=">=">Supérieur à</option>
                           <option value="<=">Inférieur à</option>
@@ -101,20 +150,70 @@ export const SearchBarSuggestions = ({
                         {currentField.type === "number" && (
                           <>
                             <Input
-                              value=""
+                              value={min}
                               type="number"
                               pattern="\d*"
                               size="md"
                               className="shrink-0"
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                setValue((data) => {
+                                  const newData = data.replace(
+                                    regexExtractValues,
+                                    (
+                                      __,
+                                      property,
+                                      operator,
+                                      min,
+                                      separator,
+                                      max
+                                    ) => {
+                                      const realValue = max
+                                        ? _.min([value, max])
+                                        : value;
+
+                                      return `${property}${operator}${realValue}${
+                                        separator ?? ""
+                                      }${max ?? ""}`;
+                                    }
+                                  );
+
+                                  // Replace the value part (group 3) with the new value
+                                  return newData;
+                                });
+                              }}
                             />
-                            <span>et</span>
-                            <Input
-                              value=""
-                              type="number"
-                              pattern="\d*"
-                              size="md"
-                              className="shrink-0"
-                            />
+                            {isRange && (
+                              <>
+                                <span>et</span>
+                                <Input
+                                  value={max}
+                                  type="number"
+                                  pattern="\d*"
+                                  size="md"
+                                  className="shrink-0"
+                                  onChange={(e) => {
+                                    const value = e.target.value;
+                                    setValue((data) => {
+                                      const realValue = _.max([
+                                        parseInt(min || "0"),
+                                        parseInt(value || "0"),
+                                      ]);
+
+                                      const newData = data.replace(
+                                        regexExtractValues,
+                                        (_, property, operator, min, __) => {
+                                          return `${property}${operator}${min}->${realValue}`;
+                                        }
+                                      );
+
+                                      // Replace the value part (group 3) with the new value
+                                      return newData;
+                                    });
+                                  }}
+                                />
+                              </>
+                            )}
                           </>
                         )}
                       </div>
