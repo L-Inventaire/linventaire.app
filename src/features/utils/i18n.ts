@@ -4,7 +4,7 @@ import Backend from "i18next-http-backend";
 import LanguageDetector from "i18next-browser-languagedetector";
 import environment from "@config/environment";
 
-const languageDefault = "en";
+const languageDefault = "fr";
 const languageAvailable = ["fr", "en"];
 
 i18n

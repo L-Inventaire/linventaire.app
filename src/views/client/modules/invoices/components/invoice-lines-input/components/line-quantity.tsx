@@ -28,6 +28,7 @@ export const InvoiceLineQuantityInput = (props: {
         type="number"
         ctrl={ctrl("quantity")}
         autoSelect
+        autoFocus
       />
       <div className="space-y-1">
         <Heading size="2">Unité</Heading>

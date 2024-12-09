@@ -16,6 +16,7 @@ import { getTvaValue } from "@views/client/modules/invoices/utils";
 import { Articles } from "./types/types";
 import { ArrowPathIcon } from "@heroicons/react/16/solid";
 import { Tag } from "@atoms/badge/tag";
+import { getCostEstimate } from "./utils";
 
 export const useArticleDefaultModel: () => Partial<Articles> = () => ({
   type: "product",
@@ -86,24 +87,9 @@ export const ArticlesColumns: Column<Articles>[] = [
       Object.values(article.suppliers_details || {})?.filter((a) => a.price)
         ?.length ? (
         <Base className="whitespace-nowrap text-right">
-          {Object.values(article.suppliers_details || {})
-            .filter((a) => a.price)
-            .map((a) => formatAmount(a.price * (1 + getTvaValue(article.tva))))
-            // Keep only min and max
-            .sort()
-            .filter((_, i, arr) => i === 0 || i === arr.length - 1)
-            .join("-")}
+          {getCostEstimate(article)}
           <br />
-          <Info>
-            {Object.values(article.suppliers_details || {})
-              .filter((a) => a.price)
-              .map((a) => formatAmount(a.price))
-              // Keep only min and max
-              .sort()
-              .filter((_, i, arr) => i === 0 || i === arr.length - 1)
-              .join("-")}{" "}
-            HT
-          </Info>
+          <Info>{getCostEstimate(article, false)} HT</Info>
         </Base>
       ) : (
         ""

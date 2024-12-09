@@ -14,6 +14,7 @@ import { twMerge } from "tailwind-merge";
 export const Page = (
   props: {
     children: ReactNode;
+    loading?: boolean;
     bar?: ReactNode;
     footer?: ReactNode;
     title?: {
@@ -34,12 +35,18 @@ export const Page = (
     document.title = (props.title || []).map((t) => t.label).join(" - ");
   }, [location.pathname, props.title]);
 
+  // On loading set to true, unfocus everything
+  useEffect(() => {
+    if (props.loading) (document.activeElement as any)?.blur();
+  }, [props.loading]);
+
   return (
     <ErrorBoundary>
       <div
         className={twMerge(
           "flex flex-col grow w-full text-black dark:text-white min-h-full sm:bg-transparent",
-          props.className
+          props.className,
+          props.loading ? "opacity-50 pointer-events-none" : ""
         )}
         {..._.omit(props, "className", "children", "bar", "footer", "title")}
       >

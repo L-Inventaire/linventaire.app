@@ -1,7 +1,9 @@
 import { useCurrentClient } from "@features/clients/state/use-clients";
+import { LoadingState } from "@features/utils/store/loading-state-atom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import _ from "lodash";
 import { useEffect, useState } from "react";
+import { useRecoilState } from "recoil";
 import { useDebounceValue } from "usehooks-ts";
 import { RestApiClient } from "../api-client/rest-api-client";
 import { SchemaType } from "../types/types";
@@ -27,6 +29,7 @@ export type RestOptions<T> = {
   asc?: boolean;
   index?: string;
   key?: string;
+  ignoreEmptyFilters?: boolean;
   queryFn?: () => Promise<{ total: number; list: T[] }>;
 };
 
@@ -94,29 +97,41 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
   const { id } = useCurrentClient();
   const queryClient = useQueryClient();
 
+  const queryKey = [
+    table,
+    id || "client",
+    options?.key || "default",
+    options?.id || options?.query || "",
+  ];
+
+  const [isPendingModification, setIsPendingModification] = useRecoilState(
+    LoadingState("loading-modification-" + table)
+  );
+
   const items = useQuery({
-    queryKey: [
-      table,
-      id || "client",
-      options?.key || "default",
-      options?.id || options?.query || "",
-    ],
+    queryKey,
     staleTime: 1000 * 60 * 5, // 5 minutes
     queryFn:
       options?.queryFn ||
-      (async () =>
-        options?.limit === 0
-          ? { total: 0, list: [] }
-          : options?.id !== undefined
-          ? await (async () => {
-              const tmp = await restApiClient.get(id || "", options!.id!);
-              return { total: tmp ? 1 : 0, list: tmp ? [tmp] : [] };
-            })()
-          : await restApiClient.list(
-              id || "",
-              options?.query,
-              _.omit(options, "query")
-            )),
+      (async () => {
+        const temp =
+          options?.limit === 0 ||
+          (options?.ignoreEmptyFilters !== false &&
+            (options?.query as any[])?.find((a) => a.values.length === 0))
+            ? { total: 0, list: [] }
+            : options?.id !== undefined
+            ? await (async () => {
+                const tmp = await restApiClient.get(id || "", options!.id!);
+                return { total: tmp ? 1 : 0, list: tmp ? [tmp] : [] };
+              })()
+            : await restApiClient.list(
+                id || "",
+                options?.query,
+                _.omit(options, "query")
+              );
+        setIsPendingModification(false);
+        return temp;
+      }),
     placeholderData: (prev) => prev,
   });
 
@@ -127,6 +142,7 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
 
   const remove = useMutation({
     mutationFn: (itemId: string) => restApiClient.delete(id || "", itemId),
+    onMutate: () => setIsPendingModification(true),
     onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: [table, id],
@@ -136,6 +152,7 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
 
   const restore = useMutation({
     mutationFn: (itemId: string) => restApiClient.restore(id || "", itemId),
+    onMutate: () => setIsPendingModification(true),
     onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: [table, id],
@@ -145,6 +162,7 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
 
   const create = useMutation({
     mutationFn: (item: Partial<T>) => restApiClient.create(id || "", item),
+    onMutate: () => setIsPendingModification(true),
     onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: [table, id],
@@ -155,6 +173,7 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
   const update = useMutation({
     mutationFn: (item: Partial<T>, itemId?: string) =>
       restApiClient.update(id || "", item, itemId),
+    onMutate: () => setIsPendingModification(true),
     onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: [table, id],
@@ -167,6 +186,7 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
       (item as any)?.id || itemId
         ? restApiClient.update(id || "", item, itemId)
         : restApiClient.create(id || "", item),
+    onMutate: () => setIsPendingModification(true),
     onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: [table, id],
@@ -174,7 +194,16 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
     },
   });
 
-  return { refresh, items, remove, restore, create, update, upsert };
+  return {
+    refresh,
+    items,
+    remove,
+    restore,
+    create,
+    update,
+    upsert,
+    isPendingModification,
+  };
 };
 
 export const useRestSchema = (table: string) => {

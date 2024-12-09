@@ -33,7 +33,7 @@ export const ServiceItemsEditPage = (_props: { readonly?: boolean }) => {
 
   const { create: saveSpentTime } = useRest<ServiceTimes>("service_times");
 
-  const { isInitiating, save, draft, remove, restore } =
+  const { isInitiating, save, draft, remove, restore, isPendingModification } =
     useDraftRest<ServiceItems>(
       "service_items",
       id || "new",
@@ -58,6 +58,7 @@ export const ServiceItemsEditPage = (_props: { readonly?: boolean }) => {
 
   return (
     <Page
+      loading={isPendingModification}
       title={[
         { label: "Service", to: getRoute(ROUTES.ServiceItems) },
         { label: id ? "Modifier" : "Créer" },

@@ -36,6 +36,21 @@ export const InvoicesActions = ({
 
   const edit = useEditFromCtrlK();
 
+  const commonOptions = [
+    {
+      label: "Accusé de réception...",
+      onClick: () => {
+        //TODO
+      },
+    },
+    {
+      label: "Bordereau de livraison...",
+      onClick: () => {
+        //TODO
+      },
+    },
+  ];
+
   return (
     <>
       {draft.state === "draft" && (
@@ -47,6 +62,16 @@ export const InvoicesActions = ({
             icon={(p) => <PaperAirplaneIcon {...p} />}
             position="top"
             menu={[
+              {
+                label: "Proforma...",
+                onClick: () => {
+                  //TODO
+                },
+              },
+              ...commonOptions,
+              {
+                type: "divider",
+              },
               {
                 label: "Envoyer par email...",
                 icon: (p) => <PaperAirplaneIcon {...p} />,
@@ -63,15 +88,7 @@ export const InvoicesActions = ({
               {
                 label: "Marquer comme envoyé",
                 icon: (p) => <CheckIcon {...p} />,
-                onClick: () => {
-                  if (
-                    // TODO: make a better modal
-                    window.confirm(
-                      "Marquer comme envoyé ? Le retour en brouillon ne sera plus possible."
-                    )
-                  )
-                    _save({ state: "sent" });
-                },
+                onClick: () => _save({ state: "sent" }),
               },
             ]}
           >
@@ -87,6 +104,10 @@ export const InvoicesActions = ({
             theme="invisible"
             icon={(p) => <EllipsisHorizontalIcon {...p} />}
             menu={[
+              ...commonOptions,
+              {
+                type: "divider",
+              },
               {
                 label: "Envoyer de nouveau...",
                 onClick: () => openSendModal(true),
@@ -131,6 +152,13 @@ export const InvoicesActions = ({
 
       {draft.state === "closed" && (
         <div>
+          <DropdownButton
+            theme="invisible"
+            size="lg"
+            className="m-0"
+            icon={(p) => <EllipsisHorizontalIcon {...p} />}
+            menu={commonOptions}
+          />
           <Button disabled={true} size="lg">
             Document fermé
           </Button>
@@ -138,6 +166,13 @@ export const InvoicesActions = ({
       )}
       {draft.state === "completed" && (
         <div>
+          <DropdownButton
+            theme="invisible"
+            size="lg"
+            className="m-0"
+            icon={(p) => <EllipsisHorizontalIcon {...p} />}
+            menu={commonOptions}
+          />
           <Button disabled={true} size="lg">
             Facture payée et cloturée
           </Button>

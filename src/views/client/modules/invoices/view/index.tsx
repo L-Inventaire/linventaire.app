@@ -15,7 +15,8 @@ import { useHasAccess } from "@features/access";
 
 export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
-  const { invoice, isPending, remove, restore } = useInvoice(id || "");
+  const { invoice, isPending, remove, restore, isPendingModification } =
+    useInvoice(id || "");
   const isRevision = id?.includes("~");
   const navigate = useNavigate();
   const { client: clientId } = useParams();
@@ -42,6 +43,7 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
 
   return (
     <Page
+      loading={isPendingModification}
       title={[
         {
           label: getDocumentNamePlurial(invoice.type),

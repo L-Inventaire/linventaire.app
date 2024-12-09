@@ -41,6 +41,21 @@ export const QuotesActions = ({
   const disabled = readonly || draft.state === "closed";
   const setRecurringModal = useSetRecoilState(RecurrenceModalAtom);
 
+  const commonOptions = [
+    {
+      label: "Accusé de réception...",
+      onClick: () => {
+        //TODO
+      },
+    },
+    {
+      label: "Bordereau de livraison...",
+      onClick: () => {
+        //TODO
+      },
+    },
+  ];
+
   return (
     <>
       {draft.state === "draft" && (
@@ -50,6 +65,12 @@ export const QuotesActions = ({
             theme="invisible"
             icon={(p) => <EllipsisHorizontalIcon {...p} />}
             menu={[
+              {
+                label: "Proforma...",
+                onClick: () => {
+                  //TODO
+                },
+              },
               {
                 label: "Facturer directement",
                 onClick: async () => {
@@ -96,15 +117,7 @@ export const QuotesActions = ({
               {
                 label: "Marquer comme envoyé",
                 icon: (p) => <CheckIcon {...p} />,
-                onClick: () => {
-                  if (
-                    // TODO: make a better modal
-                    window.confirm(
-                      "Marquer comme envoyé ? Le retour en brouillon ne sera plus possible."
-                    )
-                  )
-                    _save({ state: "sent" });
-                },
+                onClick: () => _save({ state: "sent" }),
               },
             ]}
           >
@@ -120,6 +133,16 @@ export const QuotesActions = ({
             theme="invisible"
             icon={(p) => <EllipsisHorizontalIcon {...p} />}
             menu={[
+              ...commonOptions,
+              {
+                label: "Proforma...",
+                onClick: () => {
+                  //TODO
+                },
+              },
+              {
+                type: "divider",
+              },
               {
                 label: "Envoyer de nouveau...",
                 onClick: () => openSendModal(true),
@@ -182,6 +205,16 @@ export const QuotesActions = ({
             className="m-0"
             icon={(p) => <EllipsisHorizontalIcon {...p} />}
             menu={[
+              ...commonOptions,
+              {
+                label: "Proforma...",
+                onClick: () => {
+                  //TODO
+                },
+              },
+              {
+                type: "divider",
+              },
               {
                 label: "Télécharger en PDF",
                 onClick: () => getPdfPreview(draft),
@@ -235,6 +268,13 @@ export const QuotesActions = ({
 
       {draft.state === "closed" && (
         <div>
+          <DropdownButton
+            theme="invisible"
+            size="lg"
+            className="m-0"
+            icon={(p) => <EllipsisHorizontalIcon {...p} />}
+            menu={commonOptions}
+          />
           <Button disabled={true} size="lg">
             Document fermé
           </Button>

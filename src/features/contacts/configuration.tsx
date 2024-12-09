@@ -16,6 +16,7 @@ import { ContactsDetailsPage } from "@views/client/modules/contacts/components/c
 import { Contacts, getContactName } from "./types/types";
 import { Column } from "@molecules/table/table";
 import { UsersInput } from "@components/input-rest/users";
+import { RestFieldsNames } from "@features/utils/rest/configuration";
 
 export const useContactDefaultModel: () => Partial<Contacts> = () => ({
   type: "company",
@@ -130,4 +131,48 @@ registerCtrlKRestEntity<Contacts>("contacts", {
   renderResult: ContactsColumns,
   useDefaultData: useContactDefaultModel,
   viewRoute: ROUTES.ContactsView,
+});
+
+export const ContactsFieldsNames = () => ({
+  has_parents: {
+    label: "A une relation",
+    keywords: "Contact ayant une relation",
+  },
+  email: "Email",
+  phone: "Téléphone",
+  is_supplier: "Fournisseur",
+  is_client: "Client",
+  favorite: "Favoris",
+  parents: "Relations",
+  "parents_roles.any.role": "Rôle",
+  "parents_roles.any.notes": "Notes",
+  type: "Type d'entité",
+  business_name: "Nom de l'entreprise",
+  business_registered_name: "Nom enregistré",
+  business_registered_id: "Numéro d'identification",
+  business_tax_id: "Numéro de TVA",
+  person_first_name: "Prénom",
+  person_last_name: "Nom",
+  language: "Langue",
+  currency: "Devise",
+  emails: "Autre emails",
+  phones: "Autres téléphones",
+  "address.address_line_1": "Adresse - Ligne 1",
+  "address.address_line_2": "Adresse - Ligne 2",
+  "address.region": "Adresse - Région",
+  "address.country": "Adresse - Pays",
+  "address.zip": "Adresse - Code postal",
+  "address.city": "Adresse - Ville",
+  "delivery_address.address_line_1": "Adresse de livraison - Ligne 1",
+  "delivery_address.address_line_2": "Adresse de livraison - Ligne 2",
+  "delivery_address.region": "Adresse de livraison - Région",
+  "delivery_address.country": "Adresse de livraison - Pays",
+  "delivery_address.zip": "Adresse de livraison - Code postal",
+  "delivery_address.city": "Adresse de livraison - Ville",
+  "billing.iban": "Paiements - IBAN",
+  "billing.bic": "Paiements - BIC",
+  "billing.name": "Paiements - Nom",
+  "billing.payment_method": "Paiements - Méthode de paiement",
+  documents: false,
+  ...RestFieldsNames(),
 });

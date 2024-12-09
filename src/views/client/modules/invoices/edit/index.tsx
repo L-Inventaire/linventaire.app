@@ -30,27 +30,29 @@ export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as Invoices;
 
-  const { isInitiating, save, draft, remove, restore } = useDraftRest<Invoices>(
-    "invoices",
-    id || "new",
-    async (item) => {
-      navigate(getRoute(ROUTES.InvoicesView, { id: item.id }));
-    },
-    _.omit(
-      _.merge(defaultModel, {
-        ...initialModel,
-        content: (initialModel.content || []).map((a) => ({
-          ...a,
-          quantity_delivered: 0,
-          quantity_ready: 0,
-        })),
-      }),
-      "reference"
-    ) as Invoices
-  );
+  const { isInitiating, save, draft, remove, restore, isPendingModification } =
+    useDraftRest<Invoices>(
+      "invoices",
+      id || "new",
+      async (item) => {
+        navigate(getRoute(ROUTES.InvoicesView, { id: item.id }));
+      },
+      _.omit(
+        _.merge(defaultModel, {
+          ...initialModel,
+          content: (initialModel.content || []).map((a) => ({
+            ...a,
+            quantity_delivered: 0,
+            quantity_ready: 0,
+          })),
+        }),
+        "reference"
+      ) as Invoices
+    );
 
   return (
     <Page
+      loading={isPendingModification}
       title={[
         {
           label: getDocumentNamePlurial(draft.type),

@@ -25,8 +25,13 @@ export const FurnishQuotesDetails = ({ id }: { id?: string }) => {
 
   const setModal = useSetRecoilState(FurnishQuotesModalAtom);
 
-  const { grouppedByArticles, articles, modifiedFurnishes, suppliers } =
-    useFurnishQuotes(quote.invoice ? [quote.invoice] : []);
+  const {
+    groupedByArticles,
+    articles,
+    modifiedFurnishes,
+    suppliers,
+    isLoadingFurnishQuotes,
+  } = useFurnishQuotes(quote.invoice ? [quote.invoice] : []);
 
   const { invoices: existingSupplierQuotes } = useInvoices({
     query: [
@@ -47,7 +52,7 @@ export const FurnishQuotesDetails = ({ id }: { id?: string }) => {
 
   const navigate = useNavigate();
 
-  if (!modifiedFurnishes)
+  if (!modifiedFurnishes || isLoadingFurnishQuotes)
     return (
       <Card>
         <DelayedLoader />
@@ -61,13 +66,13 @@ export const FurnishQuotesDetails = ({ id }: { id?: string }) => {
         commander chez vos fournisseurs
       </Info>
       {articles.some((article) => {
-        if (!grouppedByArticles[article.id]) return false;
+        if (!groupedByArticles[article.id]) return false;
 
         return (
-          (grouppedByArticles[article.id] ?? []).reduce((acc, fur) => {
+          (groupedByArticles[article.id] ?? []).reduce((acc, fur) => {
             return acc + fur.quantity;
           }, 0) >
-          (_.first(grouppedByArticles[article.id] ?? [])?.totalToFurnish ?? 0)
+          (_.first(groupedByArticles[article.id] ?? [])?.totalToFurnish ?? 0)
         );
       }) && (
         <Alert
@@ -77,15 +82,14 @@ export const FurnishQuotesDetails = ({ id }: { id?: string }) => {
           className="mb-6 max-w-max p-3 pr-5"
         >
           {articles.map((article) => {
-            const quantity = (grouppedByArticles[article.id] ?? []).reduce(
+            const quantity = (groupedByArticles[article.id] ?? []).reduce(
               (acc, fur) => {
                 return acc + fur.quantity;
               },
               0
             );
             const max =
-              _.first(grouppedByArticles[article.id] ?? [])?.totalToFurnish ??
-              0;
+              _.first(groupedByArticles[article.id] ?? [])?.totalToFurnish ?? 0;
 
             if (quantity > max)
               return (
@@ -160,7 +164,7 @@ export const FurnishQuotesDetails = ({ id }: { id?: string }) => {
               {
                 title: "Fournir",
                 render: (article) => {
-                  const furnishes = grouppedByArticles[article.id];
+                  const furnishes = groupedByArticles[article.id];
                   const stocksQuantity = (furnishes ?? [])
                     .filter((fur) => fur.quantity > 0 && fur.stockID)
                     .reduce((acc, fur) => acc + fur.quantity, 0);

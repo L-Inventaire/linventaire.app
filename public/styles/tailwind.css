@@ -3695,6 +3695,11 @@ body :is(.py-px) {
   padding-bottom: 1px;
 }
 
+body :is(.px-2\.5) {
+  padding-left: 0.625rem;
+  padding-right: 0.625rem;
+}
+
 body :is(.pb-0) {
   padding-bottom: 0px;
 }
