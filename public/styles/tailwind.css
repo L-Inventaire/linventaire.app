@@ -1046,10 +1046,6 @@ body :is(.-left-4) {
   left: -1rem;
 }
 
-body :is(.-left-5) {
-  left: -1.25rem;
-}
-
 body :is(.-top-14) {
   top: -3.5rem;
 }
@@ -1287,11 +1283,6 @@ body :is(.\!mx-3) {
   margin-right: 0.75rem !important;
 }
 
-body :is(.\!my-0) {
-  margin-top: 0px !important;
-  margin-bottom: 0px !important;
-}
-
 body :is(.\!my-4) {
   margin-top: 1rem !important;
   margin-bottom: 1rem !important;
@@ -1488,10 +1479,6 @@ body :is(.-mt-2) {
   margin-top: -0.5rem;
 }
 
-body :is(.-mt-px) {
-  margin-top: -1px;
-}
-
 body :is(.mb-0) {
   margin-bottom: 0px;
 }
@@ -1566,10 +1553,6 @@ body :is(.mr-1) {
 
 body :is(.mr-1\.5) {
   margin-right: 0.375rem;
-}
-
-body :is(.mr-16) {
-  margin-right: 4rem;
 }
 
 body :is(.mr-2) {
@@ -1794,10 +1777,6 @@ body :is(.h-screen) {
 
 body :is(.max-h-0) {
   max-height: 0px;
-}
-
-body :is(.max-h-6) {
-  max-height: 1.5rem;
 }
 
 body :is(.max-h-full) {
@@ -3640,6 +3619,11 @@ body :is(.px-2) {
   padding-right: 0.5rem;
 }
 
+body :is(.px-2\.5) {
+  padding-left: 0.625rem;
+  padding-right: 0.625rem;
+}
+
 body :is(.px-3) {
   padding-left: 0.75rem;
   padding-right: 0.75rem;
@@ -3693,11 +3677,6 @@ body :is(.py-\[5\.5px\]) {
 body :is(.py-px) {
   padding-top: 1px;
   padding-bottom: 1px;
-}
-
-body :is(.px-2\.5) {
-  padding-left: 0.625rem;
-  padding-right: 0.625rem;
 }
 
 body :is(.pb-0) {

@@ -154,7 +154,7 @@ export const SearchBarSuggestions = ({
                               type="number"
                               pattern="\d*"
                               size="md"
-                              className="shrink-0"
+                              className="w-28"
                               onChange={(e) => {
                                 const value = e.target.value;
                                 setValue((data) => {
@@ -164,15 +164,11 @@ export const SearchBarSuggestions = ({
                                       __,
                                       property,
                                       operator,
-                                      min,
+                                      ___,
                                       separator,
                                       max
                                     ) => {
-                                      const realValue = max
-                                        ? _.min([value, max])
-                                        : value;
-
-                                      return `${property}${operator}${realValue}${
+                                      return `${property}${operator}${value}${
                                         separator ?? ""
                                       }${max ?? ""}`;
                                     }
@@ -191,19 +187,14 @@ export const SearchBarSuggestions = ({
                                   type="number"
                                   pattern="\d*"
                                   size="md"
-                                  className="shrink-0"
+                                  className="w-28"
                                   onChange={(e) => {
                                     const value = e.target.value;
                                     setValue((data) => {
-                                      const realValue = _.max([
-                                        parseInt(min || "0"),
-                                        parseInt(value || "0"),
-                                      ]);
-
                                       const newData = data.replace(
                                         regexExtractValues,
                                         (_, property, operator, min, __) => {
-                                          return `${property}${operator}${min}->${realValue}`;
+                                          return `${property}${operator}${min}->${value}`;
                                         }
                                       );
 
