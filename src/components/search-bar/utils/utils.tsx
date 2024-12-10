@@ -144,7 +144,9 @@ export const generateQuery = (
                 value = `${value}->${value}`;
               }
 
-              let [min, max] = value.split("->") as [
+              let [min, max] = value
+                .split("->")
+                .map((s) => s.replace(/(>|<|=)/g, "")) as [
                 string | number | Date | null,
                 string | number | Date | null
               ];

@@ -12,14 +12,12 @@ import {
   InformationCircleIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
-import { Dispatch, ReactNode, SetStateAction, useEffect } from "react";
+import { Dispatch, ReactNode, SetStateAction } from "react";
 import { twMerge } from "tailwind-merge";
 import { CaretPositionType } from "./hooks/use-caret";
 import { Suggestions } from "./hooks/use-suggestions";
 import { SearchField } from "./utils/types";
 import { labelToVariable } from "./utils/utils";
-import { ca } from "date-fns/locale";
-import _ from "lodash";
 
 export const SearchBarSuggestions = ({
   suggestions,
