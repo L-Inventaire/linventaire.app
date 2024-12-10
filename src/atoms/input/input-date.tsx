@@ -1,11 +1,12 @@
 import { Base } from "@atoms/text";
 import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
+import _ from "lodash";
 import { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { twMerge } from "tailwind-merge";
 import { defaultInputClassName, errorInputClassName } from "./input-text";
 import "./styles.scss";
-import { twMerge } from "tailwind-merge";
 
 interface InputProps
   extends Omit<
@@ -39,13 +40,26 @@ export function InputDate(props: InputProps) {
     inputClassName = inputClassName + " text-sm h-7 py-0 px-3";
   else inputClassName = inputClassName + " text-sm h-9 py-1";
 
+  const getDateValue = () => {
+    if (!props.value) return null;
+
+    try {
+      const date = new Date(props.value);
+      if (_.isNaN(date.getTime())) return null;
+
+      return date;
+    } catch (e: any) {
+      return null;
+    }
+  };
+
   return (
     <DatePicker
       wrapperClassName={twMerge(active ? "z-10" : "", props.className)}
       dateFormat={"yyyy-MM-dd"}
       placeholderText={props.placeholder || "YYYY-MM-DD"}
       className={twMerge(inputClassName, props.className)}
-      selected={props.value ? new Date(props.value) : null}
+      selected={getDateValue()}
       onChange={(date) => props.onChange?.(date)}
       isClearable
       onFocus={() => setActive(true)}

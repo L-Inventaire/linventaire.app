@@ -18,6 +18,7 @@ import { CaretPositionType } from "./hooks/use-caret";
 import { Suggestions } from "./hooks/use-suggestions";
 import { SearchField } from "./utils/types";
 import { labelToVariable } from "./utils/utils";
+import { DateTime } from "luxon";
 
 export const SearchBarSuggestions = ({
   suggestions,
@@ -50,7 +51,9 @@ export const SearchBarSuggestions = ({
     searching &&
     !["boolean", "date", "number"].includes(currentField?.type || "");
 
-  const regexExtractValues = /([^:]+)([:<>=]*)(\d*)(->)?(\d*)/;
+  const regexExtractValuesNumber = /([^:]+)([:<>=]*)(\d*)(->)?(\d*)/;
+  const regexExtractValuesDate =
+    /([^:]+)([:<>=]*)(\d{4}-\d{2}-\d{2})?(->)?(\d{4}-\d{2}-\d{2})?/;
 
   const isRange = caret.filter?.values_raw.includes("->") ?? "";
   const min =
@@ -119,7 +122,7 @@ export const SearchBarSuggestions = ({
                                 return newData;
                               } else {
                                 const newCurrentTextValue = caret.text.current
-                                  .replace(/->([0-9])*/, "")
+                                  .replace(/->([0-9|-])*/, "")
                                   .replace(
                                     /:(>=|<=|=|<|>)*/g,
                                     `:${e.target.value}`
@@ -140,9 +143,75 @@ export const SearchBarSuggestions = ({
                         </Select>
                         {currentField.type === "date" && (
                           <>
-                            <InputDate size="md" className="shrink-0 w-32" />
-                            <span>et</span>
-                            <InputDate size="md" className="shrink-0 w-32" />
+                            <InputDate
+                              size="md"
+                              className="shrink-0 w-32"
+                              value={min}
+                              onChange={(date) => {
+                                if (!date) return;
+
+                                const datetime = DateTime.fromJSDate(
+                                  date ?? new Date()
+                                );
+                                const value = datetime.toISODate();
+
+                                setValue((data) => {
+                                  const newData = data.replace(
+                                    regexExtractValuesDate,
+                                    (
+                                      __,
+                                      property,
+                                      operator,
+                                      ___,
+                                      separator,
+                                      max
+                                    ) => {
+                                      return `${property}${operator}${value}${
+                                        separator ?? ""
+                                      }${max ?? ""}`;
+                                    }
+                                  );
+                                  return newData;
+                                });
+                              }}
+                            />
+                            {isRange && (
+                              <>
+                                <span>et</span>
+                                <InputDate
+                                  value={max}
+                                  size="md"
+                                  className="shrink-0 w-32"
+                                  onChange={(date) => {
+                                    if (!date) return;
+
+                                    const datetime = DateTime.fromJSDate(
+                                      date ?? new Date()
+                                    );
+                                    const value = datetime.toISODate();
+
+                                    setValue((data) => {
+                                      const newData = data.replace(
+                                        regexExtractValuesDate,
+                                        (
+                                          __,
+                                          property,
+                                          operator,
+                                          min,
+                                          separator,
+                                          ___
+                                        ) => {
+                                          return `${property}${operator}${min}${
+                                            separator ?? ""
+                                          }${value ?? ""}`;
+                                        }
+                                      );
+                                      return newData;
+                                    });
+                                  }}
+                                />
+                              </>
+                            )}
                           </>
                         )}
                         {currentField.type === "number" && (
@@ -157,7 +226,7 @@ export const SearchBarSuggestions = ({
                                 const value = e.target.value;
                                 setValue((data) => {
                                   const newData = data.replace(
-                                    regexExtractValues,
+                                    regexExtractValuesNumber,
                                     (
                                       __,
                                       property,
@@ -190,7 +259,7 @@ export const SearchBarSuggestions = ({
                                     const value = e.target.value;
                                     setValue((data) => {
                                       const newData = data.replace(
-                                        regexExtractValues,
+                                        regexExtractValuesNumber,
                                         (_, property, operator, min, __) => {
                                           return `${property}${operator}${min}->${value}`;
                                         }
