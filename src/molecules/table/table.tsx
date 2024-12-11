@@ -5,16 +5,17 @@ import { DelayedLoader } from "@atoms/loader";
 import { Modal } from "@atoms/modal/modal";
 import { Base, BaseSmall, Info } from "@atoms/text";
 import { useShortcuts } from "@features/utils/shortcuts";
-import { ArrowDownIcon, ArrowUpIcon } from "@heroicons/react/16/solid";
 import { ArrowDownTrayIcon, CogIcon } from "@heroicons/react/24/outline";
 import { ChevronDownIcon } from "@radix-ui/themes";
-import _ from "lodash";
+import _, { groupBy } from "lodash";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { twMerge } from "tailwind-merge";
 import { TableExportModal } from "./export-modal";
 import { TableOptionsModal } from "./options-modal";
 import { TablePagination, TablePaginationSimple } from "./pagination";
+import { TableCellHeader } from "./table-cell-header";
+import { TableCell } from "./table-cell";
 
 export type RenderOptions = {};
 
@@ -53,6 +54,7 @@ type PropsType<T> = {
   checkboxAlwaysVisible?: boolean;
   groupBy?: string | ((item: T) => string);
   groupByRender?: (item: T) => ReactNode;
+  groupByRenderBlank?: boolean;
   onSelectedActionsClick?: () => void;
   onSelect?:
     | {
@@ -70,7 +72,7 @@ type PropsType<T> = {
   onFetchExportData?: (pagination: Pagination) => Promise<T[]>;
 };
 
-const defaultCellClassName = ({
+export const defaultCellClassName = ({
   selected,
   rowOdd,
   colFirst,
@@ -116,6 +118,7 @@ export function RenderedTable<T>({
   onChangePageSize,
   checkboxAlwaysVisible,
   grid,
+  groupByRenderBlank,
   cellClassName,
   className,
   onFetchExportData,
@@ -359,54 +362,16 @@ export function RenderedTable<T>({
                   {columns
                     .filter((a) => !a.hidden)
                     .map((column, i) => (
-                      <th
+                      <TableCellHeader
+                        index={i}
                         key={i}
-                        className={twMerge(
-                          "font-medium px-1 py-1 opacity-50 " +
-                            (column.orderable
-                              ? "cursor-pointer hover:bg-opacity-75 "
-                              : "") +
-                            (scrollable ? " sticky top-0 z-10 " : "") +
-                            (column.thClassName || "")
-                        )}
-                        onClick={() => {
-                          if (column.orderable) {
-                            onChangeOrder &&
-                              onChangeOrder(
-                                i,
-                                pagination?.order === "ASC" ? "DESC" : "ASC"
-                              );
-                          }
-                        }}
-                      >
-                        <div
-                          className={twMerge(
-                            "items-center flex text-slate-500 table-hover-sort-container whitespace-nowrap  " +
-                              (column.headClassName || ""),
-                            i === columns.length - 1 ? "pr-1" : ""
-                          )}
-                        >
-                          <BaseSmall noColor={pagination?.orderBy === i}>
-                            {column.title}
-                          </BaseSmall>
-                          {column.orderable && (
-                            <div className="w-8 flex items-center ml-1">
-                              {pagination?.orderBy === i &&
-                                pagination.order === "DESC" && (
-                                  <ArrowUpIcon className="h-4 w-4 text-slate-500 inline" />
-                                )}
-                              {pagination?.orderBy === i &&
-                                pagination.order !== "DESC" && (
-                                  <ArrowDownIcon className="h-4 w-4 text-slate-500 inline" />
-                                )}
-                              {pagination?.orderBy !== i &&
-                                column.orderable && (
-                                  <ArrowDownIcon className="table-hover-sort h-4 w-4 text-slate-500 opacity-50 inline" />
-                                )}
-                            </div>
-                          )}
-                        </div>
-                      </th>
+                        columns={columns}
+                        column={column}
+                        scrollable={scrollable}
+                        onChangeOrder={onChangeOrder}
+                        pagination={pagination}
+                        header
+                      />
                     ))}
                 </tr>
               </thead>
@@ -448,14 +413,20 @@ export function RenderedTable<T>({
                   {props.groupBy &&
                     getGroupByKey(data?.[i]) !==
                       getGroupByKey(data?.[i - 1]) && (
-                      <tr>
-                        <td
-                          colSpan={columns.length + 1}
-                          className="bg-slate-100 border-b bg-opacity-75 border-slate-100 dark:bg-slate-800 dark:border-slate-700 pl-6 py-1"
-                        >
-                          {props.groupByRender?.(row) || getGroupByKey(row)}
-                        </td>
-                      </tr>
+                      <>
+                        {!groupByRenderBlank && (
+                          <tr>
+                            <td
+                              colSpan={columns.length + 1}
+                              className="bg-slate-100 border-b bg-opacity-75 border-slate-100 dark:bg-slate-800 dark:border-slate-700 pl-6 py-1"
+                            >
+                              {props.groupByRender?.(row) || getGroupByKey(row)}
+                            </td>
+                          </tr>
+                        )}
+                        {(groupByRenderBlank && props.groupByRender?.(row)) ||
+                          getGroupByKey(row)}
+                      </>
                     )}
 
                   <tr
@@ -498,42 +469,16 @@ export function RenderedTable<T>({
                     {columns
                       .filter((a) => !a.hidden)
                       .map((cell, j) => {
-                        const jFirst = j === 0 && !onSelect;
-                        const jLast =
-                          j === columns.filter((a) => !a.hidden).length - 1;
                         return (
-                          <td
-                            key={j}
-                            className={twMerge(
-                              "m-0 p-0 height-table-hack overflow-hidden",
-                              !cell.title && cell.thClassName
-                            )}
-                          >
-                            <div
-                              className={defaultCellClassName({
-                                selected: isSelected,
-                                rowFirst: iFirst,
-                                rowLast: iLast,
-                                rowOdd: i % 2 === 0,
-                                colFirst: jFirst,
-                                colLast: jLast,
-                                className: cell.className || "",
-                              })}
-                            >
-                              <Base
-                                className={
-                                  (jFirst ? "pl-2 " : "") +
-                                  (jLast ? "pr-2 " : "") +
-                                  "w-full py-1 px-1 inline-flex items-center h-full " +
-                                  (cell.cellClassName || "") +
-                                  " " +
-                                  (cellClassName?.(row) || "")
-                                }
-                              >
-                                {cell.render(row, { responsive: false })}
-                              </Base>
-                            </div>
-                          </td>
+                          <TableCell
+                            i={i}
+                            j={j}
+                            key={i}
+                            row={row}
+                            columns={columns}
+                            cell={cell}
+                            data={data}
+                          />
                         );
                       })}
                   </tr>

@@ -39,6 +39,7 @@ export type TablePropsType<T> = {
   selection?: T[];
   groupBy?: string | ((item: T) => string);
   groupByRender?: (item: T) => ReactNode;
+  groupByRenderBlank?: boolean;
   showPagination?: false | "simple" | "full" | true;
   initialPagination?: Pick<
     Pagination,
@@ -164,6 +165,7 @@ export function Table<T>({
       loading={loading || internalLoading}
       grid={grid}
       cellClassName={cellClassName}
+      groupByRenderBlank={props?.groupByRenderBlank}
       className={twMerge(
         border && "border border-slate-50 dark:border-slate-700 rounded-md ",
         className

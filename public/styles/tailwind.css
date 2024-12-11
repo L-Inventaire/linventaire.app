@@ -1611,6 +1611,10 @@ body :is(.mt-px) {
   margin-top: 1px;
 }
 
+body :is(.mb-10) {
+  margin-bottom: 2.5rem;
+}
+
 body :is(.box-border) {
   box-sizing: border-box;
 }
@@ -1644,6 +1648,14 @@ body :is(.inline-flex) {
 
 body :is(.table) {
   display: table;
+}
+
+body :is(.table-cell) {
+  display: table-cell;
+}
+
+body :is(.table-column) {
+  display: table-column;
 }
 
 body :is(.\!grid) {
@@ -1773,6 +1785,10 @@ body :is(.h-px) {
 
 body :is(.h-screen) {
   height: 100vh;
+}
+
+body :is(.h-48) {
+  height: 12rem;
 }
 
 body :is(.max-h-0) {
@@ -1974,6 +1990,10 @@ body :is(.w-max) {
 
 body :is(.w-px) {
   width: 1px;
+}
+
+body :is(.w-48) {
+  width: 12rem;
 }
 
 body :is(.\!min-w-0) {

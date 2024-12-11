@@ -1,3 +1,5 @@
+import { Invoices } from "@features/invoices/types/types";
+
 export type Statistics = {
   totalRevenue: number;
   revenue: number;
@@ -13,6 +15,9 @@ export type Statistics = {
     month: string;
     tag: string[];
   }[];
+  clientBalanceTable: {
+    [key: string]: Invoices[];
+  };
   expenses: number;
   totalExpenses: number | null;
   benefits: number | null;
