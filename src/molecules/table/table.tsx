@@ -3,19 +3,23 @@ import { Checkbox } from "@atoms/input/input-checkbox";
 import Select from "@atoms/input/input-select";
 import { DelayedLoader } from "@atoms/loader";
 import { Modal } from "@atoms/modal/modal";
-import { Base, BaseSmall, Info } from "@atoms/text";
+import { BaseSmall, Info } from "@atoms/text";
 import { useShortcuts } from "@features/utils/shortcuts";
-import { ArrowDownTrayIcon, CogIcon } from "@heroicons/react/24/outline";
+import {
+  ArrowDownTrayIcon,
+  ChevronUpIcon,
+  CogIcon,
+} from "@heroicons/react/24/outline";
 import { ChevronDownIcon } from "@radix-ui/themes";
-import _, { groupBy } from "lodash";
-import { ReactNode, useEffect, useRef, useState } from "react";
+import _ from "lodash";
+import { Fragment, ReactNode, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { twMerge } from "tailwind-merge";
 import { TableExportModal } from "./export-modal";
 import { TableOptionsModal } from "./options-modal";
 import { TablePagination, TablePaginationSimple } from "./pagination";
+import { TableCell, TableCellValue } from "./table-cell";
 import { TableCellHeader } from "./table-cell-header";
-import { TableCell } from "./table-cell";
 
 export type RenderOptions = {};
 
@@ -53,7 +57,13 @@ type PropsType<T> = {
   loading?: boolean;
   checkboxAlwaysVisible?: boolean;
   groupBy?: string | ((item: T) => string);
-  groupByRender?: (item: T) => ReactNode;
+  groupByRender?: (
+    item: T,
+    i: number,
+    renderClosable?: () => ReactNode,
+    toggleGroup?: () => void
+  ) => ReactNode;
+  groupByClosable?: boolean;
   groupByRenderBlank?: boolean;
   onSelectedActionsClick?: () => void;
   onSelect?:
@@ -75,28 +85,26 @@ type PropsType<T> = {
 export const defaultCellClassName = ({
   selected,
   rowOdd,
-  colFirst,
-  colLast,
+  first,
+  last,
   className,
 }: {
   selected: boolean;
-  rowFirst: boolean;
-  rowLast: boolean;
   rowOdd?: boolean;
-  colFirst: boolean;
-  colLast: boolean;
+  first?: boolean;
+  last?: boolean;
   className?: string;
 }) => {
   return twMerge(
     "h-full w-full flex items-center min-h-12 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800",
-    colFirst && "pl-1",
-    colLast && "pr-1",
+    first && "pl-1",
+    last && "pr-1",
     selected
       ? " bg-opacity-20 dark:bg-opacity-20 bg-slate-500 dark:bg-slate-500 group-hover/row:bg-opacity-15 dark:group-hover/row:bg-opacity-15"
       : rowOdd
       ? "dark:bg-opacity-15 bg-opacity-15 group-hover/row:bg-opacity-0 dark:group-hover/row:bg-opacity-0"
       : "dark:bg-opacity-50 bg-opacity-50 group-hover/row:bg-opacity-25 dark:group-hover/row:bg-opacity-25",
-    className || ""
+    className
   );
 };
 
@@ -128,6 +136,33 @@ export function RenderedTable<T>({
   const parentRef = useRef<HTMLDivElement>(null);
   const [exportModal, setExportModal] = useState(false);
   const [optionsModal, setOptionsModal] = useState(false);
+
+  const getGroupByKey = (item?: T) => {
+    if (typeof props.groupBy === "string") {
+      return _.get(item, props.groupBy);
+    }
+    return props.groupBy && item ? props.groupBy(item) : "";
+  };
+
+  const [groupByOpen, setGroupByOpen] = useState<{
+    [key: string]: boolean;
+  }>(
+    props.groupBy
+      ? data
+          .map((row) => getGroupByKey(row))
+          .reduce((acc, key) => ({ ...acc, [key]: true }), {})
+      : {}
+  );
+
+  useEffect(() => {
+    setGroupByOpen(
+      props.groupBy
+        ? data
+            .map((row) => getGroupByKey(row))
+            .reduce((acc, key) => ({ ...acc, [key]: false }), {})
+        : {}
+    );
+  }, [props.groupBy, data]);
 
   const isControlled = selection !== undefined;
 
@@ -364,7 +399,7 @@ export function RenderedTable<T>({
                     .map((column, i) => (
                       <TableCellHeader
                         index={i}
-                        key={i}
+                        key={i + "-" + column.id}
                         columns={columns}
                         column={column}
                         scrollable={scrollable}
@@ -390,7 +425,28 @@ export function RenderedTable<T>({
                 </td>
               </tr>
             )}
-            {data.map((row, i) => {
+            {(props?.groupBy
+              ? data.sort((a, b) => {
+                  const isSelectedA = selected.some(
+                    (s) =>
+                      (s as any)[rowIndex || "id"] ===
+                      (a as any)[rowIndex || "id"]
+                  );
+
+                  const isSelectedB = selected.some(
+                    (s) =>
+                      (s as any)[rowIndex || "id"] ===
+                      (b as any)[rowIndex || "id"]
+                  );
+
+                  if (isSelectedA && isSelectedB) return 0;
+                  if (isSelectedA) return -1;
+                  if (isSelectedB) return 1;
+
+                  return getGroupByKey(a) > getGroupByKey(b) ? 1 : -1;
+                })
+              : data
+            ).map((row, i) => {
               if (onSelect && !rowIndex)
                 throw new Error(
                   "rowIndex is required when onSelect is defined"
@@ -398,91 +454,126 @@ export function RenderedTable<T>({
               const isSelected = selected
                 .map((a) => (a as any)[rowIndex || "id"])
                 .includes((row as any)[rowIndex || "id"]);
-              const iFirst = i === 0;
+              const iFirst = i === 0 && !props?.groupByClosable;
               const iLast = i === data.length - 1;
+              const isGroupBy =
+                props.groupBy &&
+                getGroupByKey(data?.[i]) !== getGroupByKey(data?.[i - 1]);
 
-              const getGroupByKey = (item?: T) => {
-                if (typeof props.groupBy === "string") {
-                  return _.get(item, props.groupBy);
-                }
-                return props.groupBy && item ? props.groupBy(item) : "";
+              const toggleGroup = isGroupBy
+                ? () => {
+                    setGroupByOpen((open) => ({
+                      ...open,
+                      [getGroupByKey(data?.[i])]:
+                        !open[getGroupByKey(data?.[i])],
+                    }));
+                  }
+                : () => {};
+
+              const renderGroupByToggle = () => {
+                return (
+                  <TableCell
+                    className="cursor-pointer"
+                    odd={!!(i % 2)}
+                    first
+                    onClick={toggleGroup}
+                  >
+                    {groupByOpen[getGroupByKey(data?.[i])] && (
+                      <ChevronUpIcon className="w-4" />
+                    )}
+                    {!groupByOpen[getGroupByKey(data?.[i])] && (
+                      <ChevronDownIcon className="w-4" />
+                    )}
+                  </TableCell>
+                );
               };
 
               return (
-                <>
-                  {props.groupBy &&
-                    getGroupByKey(data?.[i]) !==
-                      getGroupByKey(data?.[i - 1]) && (
-                      <>
-                        {!groupByRenderBlank && (
-                          <tr>
-                            <td
-                              colSpan={columns.length + 1}
-                              className="bg-slate-100 border-b bg-opacity-75 border-slate-100 dark:bg-slate-800 dark:border-slate-700 pl-6 py-1"
-                            >
-                              {props.groupByRender?.(row) || getGroupByKey(row)}
-                            </td>
-                          </tr>
-                        )}
-                        {(groupByRenderBlank && props.groupByRender?.(row)) ||
-                          getGroupByKey(row)}
-                      </>
-                    )}
+                <Fragment key={i}>
+                  {isGroupBy && (
+                    <>
+                      {!groupByRenderBlank ? (
+                        <tr>
+                          {props?.groupByClosable && renderGroupByToggle()}
+                          <td
+                            colSpan={columns.length + 1}
+                            className="bg-slate-100 border-b bg-opacity-75 border-slate-100 dark:bg-slate-800 dark:border-slate-700 pl-6 py-1"
+                          >
+                            {props.groupByRender?.(
+                              row,
+                              i,
+                              renderGroupByToggle,
+                              toggleGroup
+                            ) || getGroupByKey(row)}
+                          </td>
+                        </tr>
+                      ) : (
+                        props.groupByRender?.(
+                          row,
+                          i,
+                          renderGroupByToggle,
+                          toggleGroup
+                        ) || getGroupByKey(row)
+                      )}
+                    </>
+                  )}
 
-                  <tr
-                    key={i}
-                    onClick={(e) => onClick && onClick(row, e as any)}
-                    className={twMerge(
-                      "group/row",
-                      onClick && "cursor-pointer"
-                    )}
-                  >
-                    {onSelect && (
-                      <td
-                        className="w-8 m-0 p-0 height-table-hack overflow-hidden group/checkbox shrink-0"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <div
-                          className={defaultCellClassName({
-                            selected: isSelected,
-                            rowFirst: iFirst,
-                            rowLast: iLast,
-                            rowOdd: i % 2 === 0,
-                            colFirst: true,
-                            colLast: false,
-                            className: "pl-0 flex justify-center items-center",
-                          })}
+                  {(!props.groupByClosable ||
+                    groupByOpen[getGroupByKey(data?.[i])]) && (
+                    <tr
+                      key={i}
+                      onClick={(e) => onClick && onClick(row, e as any)}
+                      className={twMerge(
+                        "group/row",
+                        onClick && "cursor-pointer"
+                      )}
+                    >
+                      {onSelect && (
+                        <td
+                          className="w-8 m-0 p-0 height-table-hack overflow-hidden group/checkbox shrink-0"
+                          onClick={(e) => e.stopPropagation()}
                         >
-                          <Checkbox
-                            className={twMerge(
-                              "ml-1 group-hover/checkbox:opacity-100 opacity-0",
-                              checkboxAlwaysVisible && "opacity-100",
-                              isSelected && "opacity-100"
-                            )}
-                            size="sm"
-                            value={isSelected}
-                            onChange={(a, e) => onClickCheckbox(row, a, e)}
-                          />
-                        </div>
-                      </td>
-                    )}
-                    {columns
-                      .filter((a) => !a.hidden)
-                      .map((cell, j) => {
-                        return (
-                          <TableCell
-                            i={i}
-                            j={j}
-                            key={i}
-                            row={row}
-                            columns={columns}
-                            cell={cell}
-                            data={data}
-                          />
-                        );
-                      })}
-                  </tr>
-                </>
+                          <div
+                            className={defaultCellClassName({
+                              selected: isSelected,
+                              first: iFirst,
+                              last: iLast,
+                              rowOdd: (i - 1) % 2 === 0,
+                              className:
+                                "pl-0 flex justify-center items-center",
+                            })}
+                          >
+                            <Checkbox
+                              className={twMerge(
+                                "ml-1 group-hover/checkbox:opacity-100 opacity-0",
+                                checkboxAlwaysVisible && "opacity-100",
+                                isSelected && "opacity-100"
+                              )}
+                              size="sm"
+                              value={isSelected}
+                              onChange={(a, e) => onClickCheckbox(row, a, e)}
+                            />
+                          </div>
+                        </td>
+                      )}
+                      {columns
+                        .filter((a) => !a.hidden)
+                        .map((cell, j) => {
+                          return (
+                            <TableCellValue<T>
+                              i={i}
+                              j={j}
+                              key={i + "-" + j}
+                              row={row}
+                              columns={columns}
+                              cell={cell}
+                              data={data}
+                            />
+                          );
+                        })}
+                    </tr>
+                  )}
+                </Fragment>
               );
             })}
           </tbody>
