@@ -231,9 +231,14 @@ export const InvoicesDetailsPage = ({
   });
 
   useEffect(() => {
-    if (((!draft.contact && contacts?.data?.list?.length) || 0) > 0) {
+    if (
+      !readonly &&
+      !ctrl("contact").value &&
+      (contacts?.data?.list?.length || 0) > 0
+    ) {
       ctrl("contact").onChange(contacts?.data?.list[0].id);
-    } else {
+    }
+    if (!readonly && ctrl("client").value !== draft.client) {
       ctrl("contact").onChange("");
     }
   }, [ctrl("client").value]);
