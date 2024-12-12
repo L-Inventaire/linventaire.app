@@ -18,7 +18,7 @@ import { ArrowUturnLeftIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { Pagination } from "@molecules/table/table";
 import { Badge, Tabs } from "@radix-ui/themes";
 import { Page } from "@views/client/_layout/page";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { SearchBar } from "../../../../components/search-bar";
 import {

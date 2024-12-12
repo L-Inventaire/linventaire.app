@@ -37,7 +37,7 @@ export const ClientBalancePage = () => {
       ["emit_date", "reference"].includes(col?.id ?? "")
     ),
     {
-      title: "1-30",
+      title: "1-30 jours",
       id: "0",
       render: (invoice) => {
         const invoices = data[0];
@@ -48,7 +48,7 @@ export const ClientBalancePage = () => {
       },
     },
     {
-      title: "31-60",
+      title: "31-60 jours",
       id: "30",
       render: (invoice) => {
         const invoices = data[30];
@@ -59,7 +59,7 @@ export const ClientBalancePage = () => {
       },
     },
     {
-      title: "61-90",
+      title: "61-90 jours",
       id: "60",
       render: (invoice) => {
         const invoices = data[60];
@@ -70,7 +70,7 @@ export const ClientBalancePage = () => {
       },
     },
     {
-      title: "91-120",
+      title: "91-120 jours",
       id: "90",
       render: (invoice) => {
         const invoices = data[90];

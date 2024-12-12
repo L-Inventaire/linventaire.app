@@ -13,7 +13,7 @@ export const StatisticsPage = () => {
       case "total-revenue":
         return "Chiffre d'affaires annuel";
       case "client-balance":
-        return "Balance clients";
+        return "Balance clients - retards de paiement";
       default:
         return "Statistiques";
     }
