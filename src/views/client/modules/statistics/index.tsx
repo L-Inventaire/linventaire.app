@@ -27,7 +27,7 @@ export const StatisticsPage = () => {
         },
       ]}
     >
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex justify-between items-center mt-2 mb-8">
         <Title>{getTitle()}</Title>
         <Select
           onChange={(e) => {

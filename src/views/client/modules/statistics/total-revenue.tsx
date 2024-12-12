@@ -1,12 +1,21 @@
+import { Base, Info } from "@atoms/text";
 import { generateQueryFromMap } from "@components/search-bar/utils/utils";
 import { useStatistics } from "@features/statistics/hooks";
 import { useTags } from "@features/tags/hooks/use-tags";
 import { formatAmount } from "@features/utils/format/strings";
-import { Button, Table } from "@radix-ui/themes";
+import { Table } from "@molecules/table";
 import _ from "lodash";
 import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+
+type Row = {
+  year: {
+    year: number;
+    open: boolean;
+  };
+  month: { value: string; label: string };
+};
 
 export const TotalRevenuePage = () => {
   const { client: clientId } = useParams();
@@ -50,89 +59,58 @@ export const TotalRevenuePage = () => {
     }),
   });
 
+  const columns = [
+    {
+      title: "Période",
+      id: "period",
+      render: ({ month }: Row) => month.label,
+    },
+    ...tagIDs.map((tagTable) => {
+      const foundTags = (tags?.data?.list ?? []).filter((tag) =>
+        (tagTable || []).includes(tag.id)
+      );
+
+      return {
+        title:
+          foundTags.length === 0
+            ? "Non classé"
+            : foundTags.map((tag) => tag.name).join(", "),
+        id:
+          foundTags.length === 0
+            ? "non-classified"
+            : foundTags.map((tag) => tag.id).join(","),
+        render: ({ year, month }: Row) => {
+          const statFound = data.find((item) => {
+            return (
+              DateTime.fromISO(month.value, {
+                zone: "utc",
+              }).equals(DateTime.fromISO(item.month, { zone: "utc" })) &&
+              year.year === DateTime.fromISO(item.year, { zone: "utc" }).year &&
+              _.isEqual(
+                item.tag,
+                foundTags.map((tag) => tag.id)
+              )
+            );
+          });
+          return (
+            <>
+              {statFound && formatAmount(statFound?.net_amount ?? 0)}
+              {!statFound && <Info>{formatAmount(0)}</Info>}
+            </>
+          );
+        },
+      };
+    }),
+  ];
+
   return (
     <>
-      {years.map((year) => {
-        return (
-          <>
-            <Table.Root>
-              <Table.Header>
-                <Table.Row>
-                  <Table.ColumnHeaderCell>Période</Table.ColumnHeaderCell>
-                  {tagIDs.map((tagTable) => {
-                    const foundTags = (tags?.data?.list ?? []).filter((tag) =>
-                      (tagTable || []).includes(tag.id)
-                    );
-                    return (
-                      <Table.ColumnHeaderCell>
-                        {foundTags.length === 0 && "Non classé"}
-                        {foundTags.map((tag) => tag.name).join(", ")}
-                      </Table.ColumnHeaderCell>
-                    );
-                  })}
-                </Table.Row>
-                <Table.Row>
-                  <Table.ColumnHeaderCell className={"flex items-center"}>
-                    <Button
-                      className="mr-2"
-                      onClick={() =>
-                        setYears((data) =>
-                          [...data].map((dataYear) =>
-                            dataYear.year === year.year
-                              ? { ...dataYear, open: !year.open }
-                              : dataYear
-                          )
-                        )
-                      }
-                    >
-                      -
-                    </Button>{" "}
-                    {year.year}
-                  </Table.ColumnHeaderCell>
-                  {tagIDs.map(() => {
-                    return (
-                      <Table.ColumnHeaderCell>Total HT.</Table.ColumnHeaderCell>
-                    );
-                  })}
-                </Table.Row>
-              </Table.Header>
-
-              {year.open && (
-                <Table.Body>
-                  {months.map((month) => {
-                    return (
-                      <Table.Row>
-                        <Table.RowHeaderCell>{month.label}</Table.RowHeaderCell>
-                        {tagIDs.map((tag) => {
-                          const statFound = data.find((item) => {
-                            return (
-                              DateTime.fromISO(month.value, {
-                                zone: "utc",
-                              }).equals(
-                                DateTime.fromISO(item.month, { zone: "utc" })
-                              ) &&
-                              year.year ===
-                                DateTime.fromISO(item.year, { zone: "utc" })
-                                  .year &&
-                              _.isEqual(item.tag, tag)
-                            );
-                          });
-                          return (
-                            <Table.Cell>
-                              {statFound &&
-                                formatAmount(statFound?.net_amount ?? 0)}
-                            </Table.Cell>
-                          );
-                        })}
-                      </Table.Row>
-                    );
-                  })}
-                </Table.Body>
-              )}
-            </Table.Root>
-          </>
-        );
-      })}
+      <Table
+        columns={columns}
+        data={years.flatMap((year) => {
+          return months.flatMap((month) => ({ month, year }));
+        })}
+      />
     </>
   );
 };

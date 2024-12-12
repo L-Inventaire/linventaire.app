@@ -456,6 +456,7 @@ export function RenderedTable<T>({
                 .includes((row as any)[rowIndex || "id"]);
               const iFirst = i === 0 && !props?.groupByClosable;
               const iLast = i === data.length - 1;
+
               const isGroupBy =
                 props.groupBy &&
                 getGroupByKey(data?.[i]) !== getGroupByKey(data?.[i - 1]);

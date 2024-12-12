@@ -62,18 +62,16 @@ export function TableCell({
 export function TableCellValue<T>({
   cell,
   row,
-  // onSelect,
-  data,
-  // columns,
+  columns,
   i,
-  // j,
+  j,
   ...props
 }: TableCellValueProps<T>) {
-  const iFirst = i === 0;
-  const iLast = i === data.length - 1;
+  const jFirst = j === 0;
+  const jLast = j === columns?.length - 1;
 
   return (
-    <TableCell odd={!!(i % 2)} first={iFirst} last={iLast} {...props}>
+    <TableCell odd={!!(i % 2)} first={jFirst} last={jLast} {...props}>
       {cell.render(row, { responsive: false })}
     </TableCell>
   );
