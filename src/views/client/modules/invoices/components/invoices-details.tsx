@@ -236,7 +236,7 @@ export const InvoicesDetailsPage = ({
     } else {
       ctrl("contact").onChange("");
     }
-  }, [contacts]);
+  }, [ctrl("client").value]);
 
   const format = _.get(client.invoices_counters, draft.type)?.format;
   const errorFormat = !format;

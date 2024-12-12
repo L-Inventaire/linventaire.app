@@ -2075,10 +2075,6 @@ body :is(.max-w-xs) {
   max-width: 20rem;
 }
 
-body :is(.max-w-10) {
-  max-width: 2.5rem;
-}
-
 body :is(.flex-1) {
   flex: 1 1 0%;
 }
