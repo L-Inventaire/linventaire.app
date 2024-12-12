@@ -6,13 +6,13 @@ import Select from "@atoms/input/input-select";
 import { ClientBalancePage } from "./client-balance";
 
 export const StatisticsPage = () => {
-  const [page, setPage] = useState<string>("total_revenue");
+  const [page, setPage] = useState<string>("total-revenue");
 
   const getTitle = () => {
     switch (page) {
-      case "total_revenue":
+      case "total-revenue":
         return "Chiffre d'affaires annuel";
-      case "client_balance":
+      case "client-balance":
         return "Balance clients";
       default:
         return "Statistiques";
