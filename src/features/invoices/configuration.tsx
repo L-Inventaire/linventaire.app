@@ -37,6 +37,7 @@ export const useInvoiceDefaultModel: () => Partial<Invoices> = () => {
 export const InvoicesColumns: Column<Invoices>[] = [
   {
     title: "Date",
+    id: "emit_date",
     thClassName: "w-16",
     render: (invoice) => {
       return (
@@ -50,6 +51,7 @@ export const InvoicesColumns: Column<Invoices>[] = [
   },
   {
     title: "Référence",
+    id: "reference",
     render: (invoice) => (
       <Base className="whitespace-nowrap max-w-xs overflow-hidden text-ellipsis">
         <BaseSmall>

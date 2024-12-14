@@ -71,7 +71,10 @@ export const extractFilters = (str: string): MatchedStringFilter[] => {
     const values =
       (parts[3] || "").match(/(~([^"]|$)|~?"[^"]*("|$)|[^,]+)/g) || [];
     return {
-      key: key.replace(/^!/, ""),
+      key: key
+        .replace(/^!/, "")
+        .replace(".", "_")
+        .replace(/[\[\]]/g, "_"),
       not: key.startsWith("!"),
       regex: (parts[3] || "").startsWith("~"),
       raw: filter,
@@ -98,6 +101,7 @@ export const generateQuery = (
     .join(" ");
 
   let valid = true;
+
   const result = [
     {
       key: "query",
@@ -109,6 +113,7 @@ export const generateQuery = (
       .filter((a) => a.key)
       .map((a) => {
         const field = fields.find((b) => labelToVariable(b.label) === a.key);
+
         return {
           key: field?.key || a.key,
           not: a.not,
@@ -116,6 +121,7 @@ export const generateQuery = (
           values: a.values.map((value) => {
             value =
               replacementsMap?.[(field?.key || a.key) + ":" + value] || value;
+
             if (field?.type === "text" || field?.type?.indexOf("type:") === 0) {
               const isRegex = a.regex;
               value = value.replace(/(^~?"|"$)/g, "");
@@ -138,7 +144,9 @@ export const generateQuery = (
                 value = `${value}->${value}`;
               }
 
-              let [min, max] = value.split("->") as [
+              let [min, max] = value
+                .split("->")
+                .map((s) => s.replace(/(>|<|=)/g, "")) as [
                 string | number | Date | null,
                 string | number | Date | null
               ];
@@ -148,8 +156,12 @@ export const generateQuery = (
                 // For max we apply a special treatment to *include* it
                 max = max ? new Date(getPeriodEnd(max as string)) : null;
               } else {
-                min = min ? parseFloat(min as string) : null;
-                max = max ? parseFloat(max as string) : null;
+                min = min
+                  ? parseFloat((min as string).replace(/![0-9]/, ""))
+                  : null;
+                max = max
+                  ? parseFloat((max as string).replace(/![0-9]/, ""))
+                  : null;
 
                 if (isNaN(min as number)) min = null;
                 if (isNaN(max as number)) max = null;

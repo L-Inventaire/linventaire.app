@@ -288,6 +288,7 @@ export const SearchBar = ({
               searching={searching}
               schema={schema}
               loadingSuggestionsValues={loadingSuggestionsValues}
+              setValue={setValue}
             />
             {afterSuggestions}
           </DefaultScrollbars>

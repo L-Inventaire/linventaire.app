@@ -15,7 +15,7 @@ import { AccountingTransactionsColumns } from "@features/accounting/configuratio
 import { useAccountingTransactions } from "@features/accounting/hooks/use-accounting-transactions";
 import { AccountingTransactions } from "@features/accounting/types/types";
 import { useClients } from "@features/clients/state/use-clients";
-import { useContact } from "@features/contacts/hooks/use-contacts";
+import { useContact, useContacts } from "@features/contacts/hooks/use-contacts";
 import { Contacts } from "@features/contacts/types/types";
 import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { Invoices } from "@features/invoices/types/types";
@@ -223,6 +223,25 @@ export const InvoicesDetailsPage = ({
       rel_invoices: draft.id,
     }),
   });
+
+  const { contacts } = useContacts({
+    query: buildQueryFromMap({
+      parents: ctrl("client").value,
+    }),
+  });
+
+  useEffect(() => {
+    if (
+      !readonly &&
+      !ctrl("contact").value &&
+      (contacts?.data?.list?.length || 0) > 0
+    ) {
+      ctrl("contact").onChange(contacts?.data?.list[0].id);
+    }
+    if (!readonly && ctrl("client").value !== draft.client) {
+      ctrl("contact").onChange("");
+    }
+  }, [ctrl("client").value]);
 
   const format = _.get(client.invoices_counters, draft.type)?.format;
   const errorFormat = !format;

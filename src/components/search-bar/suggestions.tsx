@@ -12,12 +12,13 @@ import {
   InformationCircleIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
-import { ReactNode } from "react";
+import { Dispatch, ReactNode, SetStateAction } from "react";
 import { twMerge } from "tailwind-merge";
 import { CaretPositionType } from "./hooks/use-caret";
 import { Suggestions } from "./hooks/use-suggestions";
 import { SearchField } from "./utils/types";
 import { labelToVariable } from "./utils/utils";
+import { DateTime } from "luxon";
 
 export const SearchBarSuggestions = ({
   suggestions,
@@ -27,6 +28,7 @@ export const SearchBarSuggestions = ({
   searching,
   schema,
   loadingSuggestionsValues,
+  setValue,
 }: {
   suggestions: Suggestions;
   selected: number;
@@ -35,10 +37,12 @@ export const SearchBarSuggestions = ({
   searching: boolean;
   schema: { table: string; fields: SearchField[] };
   loadingSuggestionsValues: boolean;
+  setValue: Dispatch<SetStateAction<string>>;
 }) => {
   const currentField = schema.fields.find(
     (a) => labelToVariable(a.label) === caret.filter?.key
   );
+
   const operators = suggestions.filter((a) => a.type === "operator");
   const fields = suggestions.filter((a) => a.type === "field");
   const values = suggestions.filter((a) => a.type === "value");
@@ -46,6 +50,18 @@ export const SearchBarSuggestions = ({
   searching =
     searching &&
     !["boolean", "date", "number"].includes(currentField?.type || "");
+
+  const regexExtractValuesNumber = /([^:]+)([:<>=]*)(\d*)(->)?(\d*)/;
+  const regexExtractValuesDate =
+    /([^:]+)([:<>=]*)(\d{4}-\d{2}-\d{2})?(->)?(\d{4}-\d{2}-\d{2})?/;
+
+  const isRange = caret.filter?.values_raw.includes("->") ?? "";
+  const min =
+    caret?.filter?.values[0]?.split("->")?.[0]?.replace(/(>=|<=|>|<|=)*/, "") ??
+    "";
+
+  const max = caret?.filter?.values[0]?.split("->")?.[1] ?? "";
+
   return (
     <Menu
       menu={[
@@ -85,7 +101,41 @@ export const SearchBarSuggestions = ({
                     {(currentField.type === "date" ||
                       currentField.type === "number") && (
                       <div className="mb-2 flex space-x-2 items-center max-w-md">
-                        <Select size="md" className="shrink-0 w-max">
+                        <Select
+                          size="md"
+                          className="shrink-0 w-max"
+                          value={
+                            caret.text.current.match(/(>=|<=|->|=|<|>)+/g)?.[0]
+                          }
+                          onChange={(e) => {
+                            setValue((data) => {
+                              if (!caret.text.current.includes("->")) {
+                                const newCurrentTextValue =
+                                  caret.text.current.replace(
+                                    /:(>=|<=|=|<|>)*/g,
+                                    `:${e.target.value}`
+                                  );
+                                const newData = data.replace(
+                                  caret.text.current,
+                                  newCurrentTextValue
+                                );
+                                return newData;
+                              } else {
+                                const newCurrentTextValue = caret.text.current
+                                  .replace(/->([0-9|-])*/, "")
+                                  .replace(
+                                    /:(>=|<=|=|<|>)*/g,
+                                    `:${e.target.value}`
+                                  );
+                                const newData = data.replace(
+                                  caret.text.current,
+                                  newCurrentTextValue
+                                );
+                                return newData;
+                              }
+                            });
+                          }}
+                        >
                           <option value="">Égal à</option>
                           <option value=">=">Supérieur à</option>
                           <option value="<=">Inférieur à</option>
@@ -93,28 +143,135 @@ export const SearchBarSuggestions = ({
                         </Select>
                         {currentField.type === "date" && (
                           <>
-                            <InputDate size="md" className="shrink-0 w-32" />
-                            <span>et</span>
-                            <InputDate size="md" className="shrink-0 w-32" />
+                            <InputDate
+                              size="md"
+                              className="shrink-0 w-32"
+                              value={min}
+                              onChange={(date) => {
+                                if (!date) return;
+
+                                const datetime = DateTime.fromJSDate(
+                                  date ?? new Date()
+                                );
+                                const value = datetime.toISODate();
+
+                                setValue((data) => {
+                                  const newData = data.replace(
+                                    regexExtractValuesDate,
+                                    (
+                                      __,
+                                      property,
+                                      operator,
+                                      ___,
+                                      separator,
+                                      max
+                                    ) => {
+                                      return `${property}${operator}${value}${
+                                        separator ?? ""
+                                      }${max ?? ""}`;
+                                    }
+                                  );
+                                  return newData;
+                                });
+                              }}
+                            />
+                            {isRange && (
+                              <>
+                                <span>et</span>
+                                <InputDate
+                                  value={max}
+                                  size="md"
+                                  className="shrink-0 w-32"
+                                  onChange={(date) => {
+                                    if (!date) return;
+
+                                    const datetime = DateTime.fromJSDate(
+                                      date ?? new Date()
+                                    );
+                                    const value = datetime.toISODate();
+
+                                    setValue((data) => {
+                                      const newData = data.replace(
+                                        regexExtractValuesDate,
+                                        (
+                                          __,
+                                          property,
+                                          operator,
+                                          min,
+                                          separator,
+                                          ___
+                                        ) => {
+                                          return `${property}${operator}${min}${
+                                            separator ?? ""
+                                          }${value ?? ""}`;
+                                        }
+                                      );
+                                      return newData;
+                                    });
+                                  }}
+                                />
+                              </>
+                            )}
                           </>
                         )}
                         {currentField.type === "number" && (
                           <>
                             <Input
-                              value=""
+                              value={min}
                               type="number"
                               pattern="\d*"
                               size="md"
-                              className="shrink-0"
+                              className="w-28"
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                setValue((data) => {
+                                  const newData = data.replace(
+                                    regexExtractValuesNumber,
+                                    (
+                                      __,
+                                      property,
+                                      operator,
+                                      ___,
+                                      separator,
+                                      max
+                                    ) => {
+                                      return `${property}${operator}${value}${
+                                        separator ?? ""
+                                      }${max ?? ""}`;
+                                    }
+                                  );
+
+                                  // Replace the value part (group 3) with the new value
+                                  return newData;
+                                });
+                              }}
                             />
-                            <span>et</span>
-                            <Input
-                              value=""
-                              type="number"
-                              pattern="\d*"
-                              size="md"
-                              className="shrink-0"
-                            />
+                            {isRange && (
+                              <>
+                                <span>et</span>
+                                <Input
+                                  value={max}
+                                  type="number"
+                                  pattern="\d*"
+                                  size="md"
+                                  className="w-28"
+                                  onChange={(e) => {
+                                    const value = e.target.value;
+                                    setValue((data) => {
+                                      const newData = data.replace(
+                                        regexExtractValuesNumber,
+                                        (_, property, operator, min, __) => {
+                                          return `${property}${operator}${min}->${value}`;
+                                        }
+                                      );
+
+                                      // Replace the value part (group 3) with the new value
+                                      return newData;
+                                    });
+                                  }}
+                                />
+                              </>
+                            )}
                           </>
                         )}
                       </div>

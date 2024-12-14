@@ -38,7 +38,14 @@ export type TablePropsType<T> = {
     | ((items: T[]) => void);
   selection?: T[];
   groupBy?: string | ((item: T) => string);
-  groupByRender?: (item: T) => ReactNode;
+  groupByRender?: (
+    item: T,
+    i: number,
+    renderClosable?: () => ReactNode,
+    toggleGroup?: () => void
+  ) => ReactNode;
+  groupByClosable?: boolean;
+  groupByRenderBlank?: boolean;
   showPagination?: false | "simple" | "full" | true;
   initialPagination?: Pick<
     Pagination,
@@ -81,7 +88,7 @@ export function Grid<T>(
 export function Table<T>({
   border,
   name,
-  columns,
+  columns: userColumns,
   data,
   rowIndex,
   total,
@@ -111,6 +118,19 @@ export function Table<T>({
     order: initialPagination?.order,
   });
   const [internalLoading, setLoading] = useState(false);
+
+  const columns = props?.groupByClosable
+    ? [
+        {
+          title: "",
+          id: "closable",
+          render: function () {
+            return <></>;
+          },
+        },
+        ...userColumns,
+      ]
+    : userColumns;
 
   const pagination = controlledPagination
     ? {
@@ -164,6 +184,7 @@ export function Table<T>({
       loading={loading || internalLoading}
       grid={grid}
       cellClassName={cellClassName}
+      groupByRenderBlank={props?.groupByRenderBlank}
       className={twMerge(
         border && "border border-slate-50 dark:border-slate-700 rounded-md ",
         className
