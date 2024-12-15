@@ -68,13 +68,6 @@ export const SideBar = () => {
               icon={(p) => <InboxIcon {...p} />}
             />
           )}
-          {hasAccess("ACCOUNTING_READ") && (
-            <SideMenuItem
-              to={getRoute(ROUTES.Statistics)}
-              label={t("menu.statistics")}
-              icon={(p) => <ChartBarIcon {...p} />}
-            />
-          )}
 
           <MenuSection
             className="!mt-6"
@@ -202,6 +195,11 @@ export const SideBar = () => {
               to={getRoute(ROUTES.Accounting)}
               label={t("menu.accounting")}
               icon={(p) => <ListBulletIcon {...p} />}
+            />
+            <SideMenuItem
+              to={getRoute(ROUTES.Statistics)}
+              label={t("menu.statistics")}
+              icon={(p) => <ChartBarIcon {...p} />}
             />
           </MenuSection>
 

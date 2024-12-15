@@ -106,6 +106,7 @@ export const TotalRevenuePage = () => {
   return (
     <>
       <Table
+        border
         columns={columns}
         data={years.flatMap((year) => {
           return months.flatMap((month) => ({ month, year }));
