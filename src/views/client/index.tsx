@@ -6,6 +6,7 @@ import { DidCreateCompanyOrSignupAtom } from "@features/clients/state/store";
 import {
   useClients,
   useCurrentClient,
+  useRedirectToHome,
 } from "@features/clients/state/use-clients";
 import { useCustomersConfiguration } from "@features/customers/configuration";
 import { ROUTES, getRoute, useRoutes } from "@features/routes";
