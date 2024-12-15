@@ -128,6 +128,7 @@ export function RenderedTable<T>({
   grid,
   groupByRenderBlank,
   className,
+  cellClassName,
   onFetchExportData,
   ...props
 }: PropsType<T>) {
@@ -452,7 +453,10 @@ export function RenderedTable<T>({
               const renderGroupByToggle = () => {
                 return (
                   <TableCell
-                    className="cursor-pointer"
+                    className={twMerge(
+                      "cursor-pointer",
+                      cellClassName?.(row) || ""
+                    )}
                     odd={!!(i % 2)}
                     first
                     onClick={toggleGroup}
@@ -547,6 +551,11 @@ export function RenderedTable<T>({
                               columns={columns}
                               cell={cell}
                               data={data}
+                              className={
+                                (cell.cellClassName || "") +
+                                " " +
+                                (cellClassName?.(row) || "")
+                              }
                             />
                           );
                         })}

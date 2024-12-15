@@ -240,7 +240,13 @@ export const InvoicesDetailsPage = ({
     readonly ||
     // Drafts are always editable
     // Demandes de prix are also a special case where the client can edit the content
-    !(draft.state === "draft" || (draft.state === "sent" && isSupplierQuote));
+    !(
+      (
+        draft.state === "draft" ||
+        (draft.state === "sent" && isSupplierQuote) ||
+        draft.state === "recurring"
+      ) // TODO: pour le moment on autorise toutes modifications sur un recurring, mais il faudrait ne pouvoir modifier que des lignes en récurrence
+    );
 
   return (
     <>
