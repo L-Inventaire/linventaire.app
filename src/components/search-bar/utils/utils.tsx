@@ -71,10 +71,7 @@ export const extractFilters = (str: string): MatchedStringFilter[] => {
     const values =
       (parts[3] || "").match(/(~([^"]|$)|~?"[^"]*("|$)|[^,]+)/g) || [];
     return {
-      key: key
-        .replace(/^!/, "")
-        .replace(".", "_")
-        .replace(/[\[\]]/g, "_"),
+      key: key.replace(/^!/, "").replace(".", "_").replace(/[[\]]/g, "_"),
       not: key.startsWith("!"),
       regex: (parts[3] || "").startsWith("~"),
       raw: filter,

@@ -1,4 +1,4 @@
-import { Base, Info } from "@atoms/text";
+import { Info } from "@atoms/text";
 import { generateQueryFromMap } from "@components/search-bar/utils/utils";
 import { useStatistics } from "@features/statistics/hooks";
 import { useTags } from "@features/tags/hooks/use-tags";

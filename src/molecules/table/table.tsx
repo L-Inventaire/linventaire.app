@@ -127,7 +127,6 @@ export function RenderedTable<T>({
   checkboxAlwaysVisible,
   grid,
   groupByRenderBlank,
-  cellClassName,
   className,
   onFetchExportData,
   ...props
@@ -425,28 +424,7 @@ export function RenderedTable<T>({
                 </td>
               </tr>
             )}
-            {(props?.groupBy
-              ? data.sort((a, b) => {
-                  const isSelectedA = selected.some(
-                    (s) =>
-                      (s as any)[rowIndex || "id"] ===
-                      (a as any)[rowIndex || "id"]
-                  );
-
-                  const isSelectedB = selected.some(
-                    (s) =>
-                      (s as any)[rowIndex || "id"] ===
-                      (b as any)[rowIndex || "id"]
-                  );
-
-                  if (isSelectedA && isSelectedB) return 0;
-                  if (isSelectedA) return -1;
-                  if (isSelectedB) return 1;
-
-                  return getGroupByKey(a) > getGroupByKey(b) ? 1 : -1;
-                })
-              : data
-            ).map((row, i) => {
+            {data.map((row, i) => {
               if (onSelect && !rowIndex)
                 throw new Error(
                   "rowIndex is required when onSelect is defined"
