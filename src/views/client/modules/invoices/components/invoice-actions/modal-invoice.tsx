@@ -77,18 +77,7 @@ export const InvoiceInvoiceModalContent = ({
         quantity: Math.max(0, (a.quantity || 0) - invoicedQuantity),
       };
     })
-    ?.filter((a) => (a.quantity || 0) > 0)
-    .map((a) => {
-      return {
-        ...a,
-        quantity:
-          // If there is non subscribables articles then we by default select those ones
-          a.subscription &&
-          quote.content?.some((a) => !a.subscription && (a.quantity || 0) > 0)
-            ? 0
-            : a.quantity,
-      };
-    });
+    ?.filter((a) => (a.quantity || 0) > 0);
 
   const [selection, setSelection] = useState<InvoiceLine[]>([]);
 

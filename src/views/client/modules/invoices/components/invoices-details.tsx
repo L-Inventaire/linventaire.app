@@ -456,15 +456,30 @@ export const InvoicesDetailsPage = ({
                   </InputButton>
                 )}
               </Section>
-              {(!readonly || ctrl("name").value) && (
-                <InputButton
-                  theme="invisible"
-                  size="sm"
-                  className="-mx-1 px-1"
-                  ctrl={ctrl("name")}
-                  placeholder="Désignation"
-                />
-              )}
+              <FormContext readonly={readonly} alwaysVisible>
+                {(!readonly || ctrl("name").value) && (
+                  <InputButton
+                    theme="invisible"
+                    size="sm"
+                    className="-mx-1 px-1"
+                    placeholder="Désignation"
+                    content={() => (
+                      <div className="space-y-2 mt-4">
+                        <FormInput ctrl={ctrl("name")} label="Désignation" />
+                        <FormInput
+                          ctrl={ctrl("alt_reference")}
+                          label="Autre référence"
+                        />
+                      </div>
+                    )}
+                    value={
+                      [ctrl("name").value, ctrl("alt_reference").value]
+                        .filter((a) => (a || "").trim())
+                        .join(" - ") || false
+                    }
+                  />
+                )}
+              </FormContext>
 
               {contentReadonly && !readonly && (
                 <Callout.Root className="my-4">
