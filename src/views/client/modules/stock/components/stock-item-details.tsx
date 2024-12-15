@@ -73,9 +73,22 @@ export const StockItemsDetailsPage = ({
     if (!isPending && draft)
       setDraft((draft: StockItems) => {
         // Set auto computed values and defaults
-        return { ...draft, state: draft?.state || "bought" };
+        return {
+          ...draft,
+          state: draft?.state || "stock",
+        };
       });
   }, [JSON.stringify(draft), isPending]);
+
+  useEffect(() => {
+    setDraft((draft: StockItems) => {
+      // Set auto computed values and defaults
+      return {
+        ...draft,
+        client: quote?.client || "",
+      };
+    });
+  }, [quote?.id]);
 
   if (isPending || (id && draft.id !== id) || !client) return <PageLoader />;
 
