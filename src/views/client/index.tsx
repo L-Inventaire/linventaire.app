@@ -6,7 +6,6 @@ import { DidCreateCompanyOrSignupAtom } from "@features/clients/state/store";
 import {
   useClients,
   useCurrentClient,
-  useRedirectToHome,
 } from "@features/clients/state/use-clients";
 import { useCustomersConfiguration } from "@features/customers/configuration";
 import { ROUTES, getRoute, useRoutes } from "@features/routes";
@@ -33,8 +32,10 @@ import { ContactsEditPage } from "./modules/contacts/edit";
 import { ContactsViewPage } from "./modules/contacts/view";
 import { DashboardHomePage } from "./modules/dashboard";
 import { InvoicesPage } from "./modules/invoices";
+import { QuoteFromItems } from "./modules/invoices/create-from-items";
 import { InvoicesEditPage } from "./modules/invoices/edit";
 import { InvoicesViewPage } from "./modules/invoices/view";
+import { FurnishQuotesPage } from "./modules/invoices/view/furnish-quotes";
 import { NotificationsPage } from "./modules/notifications";
 import { ServicePage } from "./modules/service";
 import { ServiceItemsEditPage } from "./modules/service/edit";
@@ -42,6 +43,7 @@ import { ServiceItemsViewPage } from "./modules/service/view";
 import { StatisticsPage } from "./modules/statistics";
 import { StockPage } from "./modules/stock";
 import { StockItemsEditPage } from "./modules/stock/edit";
+import { StockItemsFromPage } from "./modules/stock/from";
 import { StockItemsViewPage } from "./modules/stock/view";
 import { NoClientView } from "./no-client";
 import { BankAccountsPage } from "./settings/bank-accounts";
@@ -50,12 +52,9 @@ import { FieldsPage } from "./settings/fields";
 import { CompanyPlanPage } from "./settings/plan";
 import { PreferencesPage } from "./settings/preferences";
 import { StockLocationsPage } from "./settings/stock-locations";
+import { StockAndServicesPreferences } from "./settings/stock-services";
 import { TagsPage } from "./settings/tags";
 import { CompanyUsersPage } from "./settings/users";
-import { StockItemsFromPage } from "./modules/stock/from";
-import { FurnishQuotesPage } from "./modules/invoices/view/furnish-quotes";
-import { QuoteFromItems } from "./modules/invoices/create-from-items";
-import { StockAndServicesPreferences } from "./settings/stock-services";
 
 export const BackOfficeRoutes = () => {
   return (
