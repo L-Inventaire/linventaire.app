@@ -10,10 +10,10 @@ import {
   TruckIcon,
 } from "@heroicons/react/16/solid";
 import { useSetRecoilState } from "recoil";
-import { renderStockCompletion } from "../../invoices-details";
 import { twMerge } from "tailwind-merge";
 import _ from "lodash";
 import { frequencyOptions } from "@views/client/modules/articles/components/article-details";
+import { renderStockCompletion } from "../../invoice-completions";
 
 export const CompletionTags = (props: {
   invoice: Invoices;

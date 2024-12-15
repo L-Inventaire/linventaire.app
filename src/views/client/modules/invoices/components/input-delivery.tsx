@@ -10,16 +10,33 @@ import { formatTime } from "@features/utils/format/dates";
 import { TruckIcon } from "@heroicons/react/20/solid";
 import { computeDeliveryDelayDate, isDeliveryLate } from "../utils";
 
+export const getBestDeliveryAddress = (
+  client: Contacts,
+  contact?: Contacts
+): Invoices["delivery_address"] => {
+  /**
+   * En priorité celle du contact, puis celle du client sinon, enfin celle par défaut du client si rien ne match
+   */
+  if (contact && contact.other_addresses?.delivery?.address_line_1)
+    return contact.other_addresses.delivery;
+  if (client.other_addresses?.delivery?.address_line_1)
+    return client.other_addresses.delivery;
+  if (contact && contact.address?.address_line_1) return contact.address;
+  return client.address;
+};
+
 export const InputDelivery = ({
   ctrl,
   invoice,
   readonly,
+  client,
   contact,
   btnKey,
 }: {
   ctrl: FormControllerFuncType<Invoices>;
   invoice: Invoices;
   readonly?: boolean;
+  client: Contacts;
   contact?: Contacts | null;
   btnKey?: string;
 }) => {
@@ -87,14 +104,10 @@ export const InputDelivery = ({
                 onChange={(e) =>
                   ctrl("delivery_address").onChange(
                     e
-                      ? ({
-                          address_line_1: contact?.address.address_line_1 || "",
-                          address_line_2: contact?.address.address_line_2 || "",
-                          region: contact?.address.region || "",
-                          country: contact?.address.country || "",
-                          zip: contact?.address.zip || "",
-                          city: contact?.address.city || "",
-                        } as Invoices["delivery_address"])
+                      ? (getBestDeliveryAddress(
+                          client,
+                          contact || undefined
+                        ) as Invoices["delivery_address"])
                       : null
                   )
                 }
