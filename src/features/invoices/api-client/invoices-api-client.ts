@@ -8,10 +8,15 @@ import {
 export class InvoicesApiClient {
   static getPdfRoute(
     invoice: Pick<Invoices, "id" | "client_id">,
-    options?: (InvoiceLine & { _index?: number })[]
+    options?: {
+      checked?: (InvoiceLine & { _index?: number })[];
+      as?: "delivery_slip" | "proforma" | "receipt_acknowledgement" | "";
+      content?: { _index: number; quantity: number }[];
+    }
   ) {
-    const optionsObject = Object.fromEntries(
-      (options ?? []).map((option, index) => [
+    const { checked } = options ?? {};
+    const checkedObject = Object.fromEntries(
+      (checked ?? []).map((option, index) => [
         option?._index !== undefined ? option?._index : index.toString(),
         option.optional_checked ? "1" : "0",
       ])
@@ -19,19 +24,40 @@ export class InvoicesApiClient {
 
     const urlParams = new URLSearchParams();
 
-    if ((options ?? []).length > 0) {
-      urlParams.append("checked", JSON.stringify(optionsObject));
+    if ((checked ?? []).length > 0) {
+      urlParams.append("checked", JSON.stringify(checkedObject));
+    }
+    if (options?.as) {
+      urlParams.append("as", options.as);
+    }
+    if (options?.content && options.content?.length > 0) {
+      urlParams.append("content", JSON.stringify(options.content));
     }
 
     const url = getServerUrl(
       `/api/invoices/v1/${invoice.client_id}/invoice/${invoice.id}/pdf`
     );
 
-    if ((options ?? []).length > 0) {
-      return url + "?" + urlParams.toString();
-    }
+    return url + "?" + urlParams.toString();
+  }
 
-    return url;
+  static async send(
+    invoice: Pick<Invoices, "id" | "client_id">,
+    recipients: string[],
+    options: {
+      checked?: (InvoiceLine & { _index?: number })[];
+      as: "delivery_slip" | "proforma" | "receipt_acknowledgement" | "";
+      content?: { _index: number; quantity: number }[];
+    }
+  ) {
+    const res = await fetchServer(
+      `/api/invoices/v1/${invoice.client_id}/invoice/${invoice.id}/send`,
+      {
+        method: "POST",
+        body: JSON.stringify({ ...options, recipients }),
+      }
+    );
+    return res.json();
   }
 
   static async getPartialInvoice(

@@ -1278,6 +1278,10 @@ body :is(.m-auto) {
   margin: auto;
 }
 
+body :is(.m-2) {
+  margin: 0.5rem;
+}
+
 body :is(.\!mx-3) {
   margin-left: 0.75rem !important;
   margin-right: 0.75rem !important;
@@ -3685,6 +3689,11 @@ body :is(.py-\[5\.5px\]) {
 body :is(.py-px) {
   padding-top: 1px;
   padding-bottom: 1px;
+}
+
+body :is(.px-6) {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
 }
 
 body :is(.pb-0) {

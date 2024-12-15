@@ -66,6 +66,8 @@ export const InvoiceSendModalContent = ({
     }
   }, []);
 
+  const needsSignature = draft.type === "quotes" && finalState !== "draft";
+
   return (
     <ModalContent title="Envoyer le document">
       <Info className="block mb-4">
@@ -116,7 +118,7 @@ export const InvoiceSendModalContent = ({
                 });
               }}
             />
-            {draft.type === "quotes" && (
+            {needsSignature && (
               <div className="flex items-center ml-2">
                 <Base className="mr-2 font-semibold">Action</Base>
 
@@ -198,7 +200,8 @@ export const InvoiceSendModalContent = ({
         <Button
           disabled={
             !(draft.recipients ?? []).filter(Boolean)?.length ||
-            !draft.recipients?.some((rec) => rec.role === "signer")
+            (!draft.recipients?.some((rec) => rec.role === "signer") &&
+              needsSignature)
           }
           size="sm"
           icon={(p) => <PaperAirplaneIcon {...p} />}
@@ -233,11 +236,12 @@ export const InvoiceSendModalContent = ({
           Envoyer à {(draft.recipients ?? []).filter(Boolean)?.length || 0}{" "}
           destinataires
         </Button>
-        {!draft.recipients?.some((rec) => rec.role === "signer") && (
-          <Info className="block mt-2 text-red-400">
-            Au moin un destinataire doît être un signataire
-          </Info>
-        )}
+        {!draft.recipients?.some((rec) => rec.role === "signer") &&
+          needsSignature && (
+            <Info className="block mt-2 text-red-400">
+              Au moins un signataire doît être présent
+            </Info>
+          )}
       </div>
     </ModalContent>
   );

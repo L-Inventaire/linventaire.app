@@ -114,31 +114,38 @@
     "states": {
       "draft": "Draft",
       "sent": {
-      "default": "Sent",
-      "quotes": "Price requested",
-      "invoices": "Payment pending",
-      "credit_notes": "Payment pending",
-      "supplier_invoices": "Payment pending",
-      "supplier_credit_notes": "Payment pending",
-      "supplier_quotes": "Ordered"
+        "default": "Sent",
+        "quotes": "Price requested",
+        "invoices": "Payment pending",
+        "credit_notes": "Payment pending",
+        "supplier_invoices": "Payment pending",
+        "supplier_credit_notes": "Payment pending",
+        "supplier_quotes": "Ordered"
       },
       "accounted": "Accounted",
       "purchase_order": {
-      "quotes": "Accepted",
-      "supplier_quotes": "Ordered"
+        "quotes": "Accepted",
+        "supplier_quotes": "Ordered"
       },
       "payment": {
-      "partial_paid": "Partially paid",
-      "paid": "Paid"
+        "partial_paid": "Partially paid",
+        "paid": "Paid"
       },
       "closed": "Closed",
       "completed": {
-      "default": "To be invoiced",
-      "supplier_quotes": "Received"
+        "default": "To be invoiced",
+        "supplier_quotes": "Received"
       },
       "recurring": "Recurring"
-    }
     },
+    "send-special": {
+      "titles": {
+        "receipt_acknowledgement": "Acknowledgment of receipt",
+        "delivery_slip": "Delivery note",
+        "proforma": "Proforma invoice"
+      }
+    }
+  },
   "settings": {
     "preferences": {
       "currency": "Primary currency",
