@@ -131,8 +131,6 @@ export const InvoicesDetailsPage = ({
       });
   }, [JSON.stringify(draft)]);
 
-  console.log(JSON.stringify(draft));
-
   /**
    * _ si un produit / consommable est ajouté, alors 1. la livraison doit être cochée toute seule
    */
