@@ -34,7 +34,7 @@ export type Contacts = RestEntity & {
   phone: string;
   phones: string[];
   address: Address;
-  delivery_address: Address | null;
+  other_addresses: { delivery: Address | null; billing: Address | null };
   billing: Billing;
 
   notes: string;
