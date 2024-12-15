@@ -18,15 +18,15 @@ import { ArticleSuppliersInput } from "./article-suppliers-input";
 import { ArticlesFieldsNames } from "@features/articles/configuration";
 
 export const frequencyOptions = [
-  { value: "", label: "Pas de renouvellement" },
-  { value: "daily", label: "Quotidien" },
-  { value: "weekly", label: "Hebdomadaire" },
-  { value: "monthly", label: "Mensuel" },
-  { value: "3_monthly", label: "Trimestriel" },
-  { value: "6_monthly", label: "Tous les 6 mois" },
-  { value: "yearly", label: "Annuel" },
-  { value: "2_yearly", label: "Tous les 2 ans" },
-  { value: "3_yearly", label: "Tous les 3 ans" },
+  { value: "", label: "Pas de renouvellement", per_label: "en une fois" },
+  { value: "daily", label: "Quotidien", per_label: "par jour" },
+  { value: "weekly", label: "Hebdomadaire", per_label: "par semaine" },
+  { value: "monthly", label: "Mensuel", per_label: "par mois" },
+  { value: "3_monthly", label: "Trimestriel", per_label: "par trimestre" },
+  { value: "6_monthly", label: "Tous les 6 mois", per_label: "par semestre" },
+  { value: "yearly", label: "Annuel", per_label: "par an" },
+  { value: "2_yearly", label: "Tous les 2 ans", per_label: "tous les 2 ans" },
+  { value: "3_yearly", label: "Tous les 3 ans", per_label: "tous les 3 ans" },
 ];
 
 export const ArticlesDetailsPage = ({
