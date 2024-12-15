@@ -19,10 +19,10 @@ export const getBestDeliveryAddress = (
    */
   if (contact && contact.other_addresses?.delivery?.address_line_1)
     return contact.other_addresses.delivery;
-  if (client.other_addresses?.delivery?.address_line_1)
-    return client.other_addresses.delivery;
+  if (client?.other_addresses?.delivery?.address_line_1)
+    return client?.other_addresses.delivery;
   if (contact && contact.address?.address_line_1) return contact.address;
-  return client.address;
+  return client?.address;
 };
 
 export const InputDelivery = ({

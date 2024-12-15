@@ -50,6 +50,7 @@ import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-ca
 import { InvoiceStatus } from "./invoice-status";
 import { RelatedInvoices } from "./related-invoices";
 import { TagPaymentCompletion } from "./tag-payment-completion";
+import { format as formatDate } from "date-fns";
 
 export const InvoicesDetailsPage = ({
   readonly,
@@ -358,12 +359,33 @@ export const InvoicesDetailsPage = ({
                 {!!draft.subscription_next_invoice_date &&
                   draft.type === "quotes" &&
                   draft.state === "recurring" && (
-                    <Text size="2" className="opacity-75" weight="medium">
-                      {"Prochaine facture le "}
-                      {formatTime(draft.subscription_next_invoice_date || 0, {
-                        hideTime: true,
-                      })}
-                    </Text>
+                    <InputButton
+                      theme="invisible"
+                      className="ml-4"
+                      data-tooltip={new Date(
+                        ctrl("subscription_next_invoice_date").value
+                      ).toDateString()}
+                      ctrl={ctrl("subscription_next_invoice_date")}
+                      placeholder="Prochaine facture"
+                      value={formatTime(
+                        ctrl("subscription_next_invoice_date").value || 0
+                      )}
+                      content={() => (
+                        <FormInput
+                          ctrl={ctrl("subscription_next_invoice_date")}
+                          type="date"
+                        />
+                      )}
+                      readonly={readonly}
+                    >
+                      <Text size="2" className="opacity-75" weight="medium">
+                        {"Prochaine facture le "}
+                        {formatDate(
+                          draft.subscription_next_invoice_date || 0,
+                          "yyyy-MM-dd"
+                        )}
+                      </Text>
+                    </InputButton>
                   )}
                 {!!ctrl("wait_for_completion_since").value && (
                   <InputButton

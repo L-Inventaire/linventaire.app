@@ -120,6 +120,10 @@ export const InvoicesColumns: Column<Invoices>[] = [
       <Base className="whitespace-nowrap space-x-2 flex flex-row items-center">
         <TagsInput size="md" value={invoice.tags} disabled />
         <UsersInput size="md" value={invoice.assigned} disabled />
+
+        {(invoice.type === "quotes" || invoice.type === "supplier_quotes") && (
+          <CompletionTags invoice={invoice} size="sm" lines={invoice.content} />
+        )}
         {["quotes"].includes(invoice.type) &&
           invoice.state === "purchase_order" &&
           isDeliveryLate(invoice) && (
@@ -127,6 +131,10 @@ export const InvoicesColumns: Column<Invoices>[] = [
               Livraison en retard
             </Badge>
           )}
+
+        {invoice.type === "invoices" && (
+          <TagPaymentCompletion invoice={invoice} />
+        )}
         {["invoices", "supplier_invoices"].includes(invoice.type) &&
           invoice.wait_for_completion_since &&
           invoice.state === "purchase_order" &&
@@ -135,12 +143,6 @@ export const InvoicesColumns: Column<Invoices>[] = [
               Paiement en retard
             </Badge>
           )}
-        {(invoice.type === "quotes" || invoice.type === "supplier_quotes") && (
-          <CompletionTags invoice={invoice} size="sm" lines={invoice.content} />
-        )}
-        {invoice.type === "invoices" && (
-          <TagPaymentCompletion invoice={invoice} />
-        )}
       </Base>
     ),
   },
