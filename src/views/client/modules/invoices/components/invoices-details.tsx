@@ -26,6 +26,7 @@ import {
   getFormattedNumerotation,
   useFormattedNumerotationByInvoice,
 } from "@features/utils/format/numerotation";
+import { useEffectChange } from "@features/utils/hooks/use-changed-effect";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import {
   BuildingStorefrontIcon,
@@ -40,7 +41,7 @@ import { PageColumns } from "@views/client/_layout/page";
 import _ from "lodash";
 import { Fragment, useEffect } from "react";
 import { computePricesFromInvoice } from "../utils";
-import { InputDelivery } from "./input-delivery";
+import { getBestDeliveryAddress, InputDelivery } from "./input-delivery";
 import { InvoiceInputFormat } from "./input-format";
 import { InvoicePaymentInput } from "./input-payment";
 import { InvoiceRecurrenceInput } from "./input-recurrence";
@@ -52,99 +53,7 @@ import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-ca
 import { InvoiceStatus } from "./invoice-status";
 import { RelatedInvoices } from "./related-invoices";
 import { TagPaymentCompletion } from "./tag-payment-completion";
-import { useEffectChange } from "@features/utils/hooks/use-changed-effect";
-
-export const computeStockCompletion = (
-  linesu: Invoices["content"],
-  type: "delivered" | "ready" = "ready",
-  overflow = false,
-  service = false
-) => {
-  const lines = (linesu || []).filter(
-    (a) =>
-      (service
-        ? a.type === "service"
-        : a.type === "consumable" || a.type === "product") &&
-      !(a.optional && !a.optional_checked)
-  );
-  const total = lines.reduce(
-    (acc, line) =>
-      acc +
-      parseFloat((line.quantity as any) || 0) *
-        parseFloat((line.unit_price as any) || 0),
-    0
-  );
-  if (total === 0) return 1;
-
-  const column = type === "ready" ? "quantity_ready" : "quantity_delivered";
-
-  return (
-    lines.reduce(
-      (acc, line) =>
-        acc +
-        (overflow
-          ? parseFloat((line[column] as any) || 0) *
-            parseFloat((line.unit_price as any) || 0)
-          : Math.min(
-              parseFloat((line.quantity as any) || 0) *
-                parseFloat((line.unit_price as any) || 0),
-              parseFloat((line[column] as any) || 0) *
-                parseFloat((line.unit_price as any) || 0)
-            )),
-      0
-    ) / total
-  );
-};
-
-export const renderStockCompletion = (
-  lines: Invoices["content"],
-  type: "delivered" | "ready" = "ready",
-  overflow = false,
-  service = false
-): [number, string] => {
-  const value = computeStockCompletion(lines, type, overflow, service);
-  const color = value < 0.5 ? "red" : value < 1 ? "orange" : "green";
-  return [Math.round(value * 100), color];
-};
-
-export const computePaymentCompletion = (
-  linesu: Invoices["content"],
-  type: "delivered" | "ready" = "ready",
-  overflow = false
-) => {
-  const lines = linesu || [];
-  const total = lines.reduce(
-    (acc, line) => acc + parseFloat((line.quantity as any) || 0),
-    0
-  );
-  if (total === 0) return 1;
-
-  const column = type === "ready" ? "quantity_ready" : "quantity_delivered";
-
-  return (
-    lines.reduce(
-      (acc, line) =>
-        acc +
-        (overflow
-          ? parseFloat((line[column] as any) || 0)
-          : Math.min(
-              parseFloat((line.quantity as any) || 0),
-              parseFloat((line[column] as any) || 0)
-            )),
-      0
-    ) / total
-  );
-};
-
-export const renderPaymentCompletion = (
-  lines: Invoices["content"],
-  type: "delivered" | "ready" = "ready",
-  overflow = false
-): [number, string] => {
-  const value = computeStockCompletion(lines, type, overflow);
-  const color = value < 0.5 ? "red" : value < 1 ? "orange" : "green";
-  return [Math.round(value * 100), color];
-};
+import { format as formatDate } from "date-fns";
 
 export const InvoicesDetailsPage = ({
   readonly,
@@ -163,6 +72,9 @@ export const InvoicesDetailsPage = ({
   );
 
   const { contact } = useContact(draft.contact);
+  const { contact: invoiceCounterparty } = useContact(
+    draft.client || draft.supplier
+  );
   const edit = useEditFromCtrlK();
 
   const isQuoteRelated =
@@ -218,9 +130,31 @@ export const InvoicesDetailsPage = ({
         if (!draft.attachments?.length && !isSupplierRelated) {
           draft.attachments = [...(client.invoices.attachments || [])];
         }
+
         return draft;
       });
   }, [JSON.stringify(draft)]);
+
+  /**
+   * _ si un produit / consommable est ajouté, alors 1. la livraison doit être cochée toute seule
+   */
+  useEffectChange(() => {
+    setDraft((draft) => {
+      draft = _.cloneDeep(draft);
+      if (
+        draft.content?.some(
+          (a) => a.type === "product" || a.type === "consumable"
+        )
+      ) {
+        draft.delivery_delay = 30; // TODO ability to set the default somewhere in the app
+        draft.delivery_address = getBestDeliveryAddress(
+          invoiceCounterparty!,
+          contact || undefined
+        );
+      }
+      return draft;
+    });
+  }, [draft.client, draft.supplier, draft.contact, draft.content?.length]);
 
   const { accounting_transactions } = useAccountingTransactions({
     query: buildQueryFromMap({
@@ -309,7 +243,13 @@ export const InvoicesDetailsPage = ({
     readonly ||
     // Drafts are always editable
     // Demandes de prix are also a special case where the client can edit the content
-    !(draft.state === "draft" || (draft.state === "sent" && isSupplierQuote));
+    !(
+      (
+        draft.state === "draft" ||
+        (draft.state === "sent" && isSupplierQuote) ||
+        draft.state === "recurring"
+      ) // TODO: pour le moment on autorise toutes modifications sur un recurring, mais il faudrait ne pouvoir modifier que des lignes en récurrence
+    );
 
   return (
     <>
@@ -421,12 +361,33 @@ export const InvoicesDetailsPage = ({
                 {!!draft.subscription_next_invoice_date &&
                   draft.type === "quotes" &&
                   draft.state === "recurring" && (
-                    <Text size="2" className="opacity-75" weight="medium">
-                      {"Prochaine facture le "}
-                      {formatTime(draft.subscription_next_invoice_date || 0, {
-                        hideTime: true,
-                      })}
-                    </Text>
+                    <InputButton
+                      theme="invisible"
+                      className="ml-4"
+                      data-tooltip={new Date(
+                        ctrl("subscription_next_invoice_date").value
+                      ).toDateString()}
+                      ctrl={ctrl("subscription_next_invoice_date")}
+                      placeholder="Prochaine facture"
+                      value={formatTime(
+                        ctrl("subscription_next_invoice_date").value || 0
+                      )}
+                      content={() => (
+                        <FormInput
+                          ctrl={ctrl("subscription_next_invoice_date")}
+                          type="date"
+                        />
+                      )}
+                      readonly={readonly}
+                    >
+                      <Text size="2" className="opacity-75" weight="medium">
+                        {"Prochaine facture le "}
+                        {formatDate(
+                          draft.subscription_next_invoice_date || 0,
+                          "yyyy-MM-dd"
+                        )}
+                      </Text>
+                    </InputButton>
                   )}
                 {!!ctrl("wait_for_completion_since").value && (
                   <InputButton
@@ -460,15 +421,30 @@ export const InvoicesDetailsPage = ({
                   </InputButton>
                 )}
               </Section>
-              {(!readonly || ctrl("name").value) && (
-                <InputButton
-                  theme="invisible"
-                  size="sm"
-                  className="-mx-1 px-1"
-                  ctrl={ctrl("name")}
-                  placeholder="Désignation"
-                />
-              )}
+              <FormContext readonly={readonly} alwaysVisible>
+                {(!readonly || ctrl("name").value) && (
+                  <InputButton
+                    theme="invisible"
+                    size="sm"
+                    className="-mx-1 px-1"
+                    placeholder="Désignation"
+                    content={() => (
+                      <div className="space-y-2 mt-4">
+                        <FormInput ctrl={ctrl("name")} label="Désignation" />
+                        <FormInput
+                          ctrl={ctrl("alt_reference")}
+                          label="Autre référence"
+                        />
+                      </div>
+                    )}
+                    value={
+                      [ctrl("name").value, ctrl("alt_reference").value]
+                        .filter((a) => (a || "").trim())
+                        .join(" - ") || false
+                    }
+                  />
+                )}
+              </FormContext>
 
               {contentReadonly && !readonly && (
                 <Callout.Root className="my-4">
@@ -582,6 +558,7 @@ export const InvoicesDetailsPage = ({
                             invoice={draft}
                             ctrl={ctrl}
                             readonly={readonly}
+                            client={invoiceCounterparty!}
                             contact={contact}
                           />
                         </div>

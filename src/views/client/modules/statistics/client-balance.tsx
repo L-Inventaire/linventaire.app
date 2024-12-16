@@ -18,7 +18,10 @@ export const ClientBalancePage = () => {
 
   const statistics = useStatistics(clientId, "year");
   const data = statistics.clientBalanceTable;
-  const tableData = Object.values(data).flatMap((item) => item);
+  const tableData = _.sortBy(
+    Object.values(data).flatMap((item) => item),
+    "client"
+  );
   const clientsIDs = _.uniq(tableData.map((item) => item.client));
   const clientsData = useContacts({
     query: buildQueryFromMap({ id: clientsIDs }),

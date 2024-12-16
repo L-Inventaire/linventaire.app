@@ -46,11 +46,19 @@ export const useWebsockets = () => {
               doc.doc_pk?.id &&
               doc.doc_table !== "comments"
             ) {
-              refreshHistory(
-                doc.doc_pk?.client_id,
+              const state = queryClient.getQueryState([
+                "history",
                 doc.doc_table,
-                doc.doc_pk?.id
-              ).catch(console.info);
+                doc.doc_pk?.id,
+              ]);
+              // If history is currently observed
+              if (state) {
+                refreshHistory(
+                  doc.doc_pk?.client_id,
+                  doc.doc_table,
+                  doc.doc_pk?.id
+                ).catch(console.info);
+              }
             }
           }
         }

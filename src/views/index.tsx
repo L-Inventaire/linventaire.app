@@ -14,8 +14,8 @@ import {
 } from "react-router-dom";
 import { BackOfficeRoutes } from "./client";
 import { SigningSessionPage } from "./client/modules/signing-session";
-import { LoginRoutes } from "./signin";
 import { SignedSessionPage } from "./client/modules/signing-session/signed";
+import { LoginRoutes } from "./signin";
 
 const router = createBrowserRouter(
   createRoutesFromElements(

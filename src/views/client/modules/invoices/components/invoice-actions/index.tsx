@@ -14,6 +14,7 @@ import { InvoiceSendModal } from "./modal-send";
 import { QuotesActions } from "./quotes";
 import { SupplierInvoicesActions } from "./supplier-invoices";
 import { SupplierQuotesActions } from "./supplier-quotes";
+import { InvoiceSendSpecialModal } from "./modal-send-special";
 
 export const InvoiceActions = ({
   id,
@@ -120,6 +121,7 @@ export const InvoiceActions = ({
   return (
     <div className="text-right space-x-2 flex items-center">
       <InvoiceSendModal id={id} />
+      <InvoiceSendSpecialModal id={id} />
       <InvoiceInvoiceModal id={id} />
 
       <div className="grow"></div>

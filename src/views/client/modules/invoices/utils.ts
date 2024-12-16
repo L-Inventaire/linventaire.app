@@ -78,7 +78,7 @@ export const getInvoicesStatusColor = (
 };
 
 export const computePricesFromInvoice = (
-  invoice: Invoices
+  invoice: Pick<Invoices, "content" | "discount">
 ): Invoices["total"] => {
   let initial = 0;
   let discount = 0;

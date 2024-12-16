@@ -74,6 +74,13 @@
         "supplier_quotes": "Réceptionné"
       },
       "recurring": "En récurrence"
+    },
+    "send-special": {
+      "titles": {
+        "delivery_slip": "Bon de livraison",
+        "proforma": "Facture proforma",
+        "receipt_acknowledgement": "Accusé de réception"
+      }
     }
   },
   "settings": {
@@ -154,7 +161,7 @@
     },
     "dashboard": "Tableau de bord",
     "notifications": "Notifications",
-    "statistics": "Statistiques",
+    "statistics": "Tableaux",
     "contacts": "Contacts",
     "contacts_title": "Contacts",
     "clients": "Clients",

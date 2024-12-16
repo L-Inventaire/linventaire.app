@@ -261,7 +261,7 @@ export const SigningSessionPage = () => {
                     client_id: invoiceSnapshot?.client_id ?? "",
                     id: invoiceSnapshot.id ?? "",
                   },
-                  options
+                  { checked: options }
                 )}
                 title="Invoice PDF Preview"
               ></iframe>

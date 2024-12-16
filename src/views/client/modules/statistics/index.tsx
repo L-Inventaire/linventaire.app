@@ -15,7 +15,7 @@ export const StatisticsPage = () => {
       case "client-balance":
         return "Balance clients - retards de paiement";
       default:
-        return "Statistiques";
+        return "Comptabilité";
     }
   };
 
@@ -23,7 +23,7 @@ export const StatisticsPage = () => {
     <Page
       title={[
         {
-          label: "Statistiques",
+          label: "Comptabilité",
         },
       ]}
     >

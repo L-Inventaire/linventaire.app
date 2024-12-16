@@ -16,6 +16,7 @@ import { getPdfPreview } from "../../invoices-preview/invoices-preview";
 import { InvoiceSendModalAtom } from "../modal-send";
 import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { AccountingTransactions } from "@features/accounting/types/types";
+import { InvoiceSendSpecialModalAtom } from "../modal-send-special";
 
 export const InvoicesActions = ({
   id,
@@ -26,6 +27,7 @@ export const InvoicesActions = ({
 }) => {
   const navigate = useNavigateAlt();
   const openSendModal = useSetRecoilState(InvoiceSendModalAtom);
+  const openSendSpecialModal = useSetRecoilState(InvoiceSendSpecialModalAtom);
 
   const { draft, save: _save } = useReadDraftRest<Invoices>(
     "invoices",
@@ -40,13 +42,13 @@ export const InvoicesActions = ({
     {
       label: "Accusé de réception...",
       onClick: () => {
-        //TODO
+        openSendSpecialModal("receipt_acknowledgement");
       },
     },
     {
-      label: "Bordereau de livraison...",
+      label: "Bon de livraison...",
       onClick: () => {
-        //TODO
+        openSendSpecialModal("delivery_slip");
       },
     },
   ];
@@ -65,7 +67,7 @@ export const InvoicesActions = ({
               {
                 label: "Proforma...",
                 onClick: () => {
-                  //TODO
+                  openSendSpecialModal("proforma");
                 },
               },
               ...commonOptions,
