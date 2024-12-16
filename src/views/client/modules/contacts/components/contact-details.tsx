@@ -10,10 +10,13 @@ import { FormContext } from "@components/form/formcontext";
 import { AddressInput } from "@components/input-button/address/form";
 import { useClients } from "@features/clients/state/use-clients";
 import { ContactsApiClient } from "@features/contacts/api-client/contacts-api-client";
+import { ContactsFieldsNames } from "@features/contacts/configuration";
 import { Contacts } from "@features/contacts/types/types";
+import { ROUTES } from "@features/routes";
 import { debounce } from "@features/utils/debounce";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { EditorInput } from "@molecules/editor-input";
+import { Timeline } from "@molecules/timeline";
 import {
   PageBlock,
   PageBlockHr,
@@ -24,9 +27,6 @@ import { useEffect } from "react";
 import { ContactAccountingAccount } from "./contact-accounting-account";
 import { RelatedInvoicesInput } from "./related-invoices-input";
 import { RelationsInput } from "./relations-input";
-import { Timeline } from "@molecules/timeline";
-import { ROUTES } from "@features/routes";
-import { ContactsFieldsNames } from "@features/contacts/configuration";
 
 export const ContactsDetailsPage = ({
   readonly,
@@ -280,7 +280,9 @@ export const ContactsDetailsPage = ({
                 ctrl("has_parents").onChange(!!parents.length);
               }}
             />
-            {contact.id && <RelatedInvoicesInput id={contact.id} />}
+            {contact.id && (
+              <RelatedInvoicesInput id={contact.id} readonly={readonly} />
+            )}
             <Timeline
               translations={ContactsFieldsNames() as any}
               entity={"contacts"}

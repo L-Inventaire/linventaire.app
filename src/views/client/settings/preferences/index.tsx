@@ -1,20 +1,21 @@
 import { Button } from "@atoms/button/button";
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import Select from "@atoms/input/input-select";
-import { Info, InfoSmall, Section } from "@atoms/text";
+import { Info, Section } from "@atoms/text";
 import { FormInput } from "@components/form/fields";
 import { InvoiceFormatInput } from "@components/invoice-format-input";
+import { InvoiceNumerotationInput } from "@components/invoice-numerotation-input";
 import { PaymentInput } from "@components/payment-input";
 import { useHasAccess } from "@features/access";
 import { useClients } from "@features/clients/state/use-clients";
-import { Clients } from "@features/clients/types/clients";
+import { Clients, InvoiceCounters } from "@features/clients/types/clients";
+import { InvoiceCountersOverrides } from "@features/contacts/types/types";
 import { currencyOptions } from "@features/utils/constants";
-import { getFormattedNumerotation } from "@features/utils/format/numerotation";
 import { Heading, Tabs } from "@radix-ui/themes";
 import _ from "lodash";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Page, PageColumns } from "../../_layout/page";
+import { Page } from "../../_layout/page";
 
 export const PreferencesPage = () => {
   const { t } = useTranslation();
@@ -43,39 +44,6 @@ export const PreferencesPage = () => {
     setInvoices({ ...client?.invoices });
     setInvoicesCounters({ ...client?.invoices_counters });
   }, [client]);
-
-  const countersDefaults = {
-    quotes: {
-      format: "D-@YYYY-@C",
-      name: "Devis",
-      prefix: "D",
-    },
-    invoices: {
-      format: "F-@YYYY-@C",
-      name: "Factures",
-      prefix: "F",
-    },
-    credit_notes: {
-      format: "AV-@YYYY-@C",
-      name: "Avoirs",
-      prefix: "AV",
-    },
-    supplier_invoices: {
-      format: "FF-@YYYY-@C",
-      name: "Factures Fournisseurs",
-      prefix: "FF",
-    },
-    supplier_credit_notes: {
-      format: "AVF-@YYYY-@C",
-      name: "Avoirs Fournisseurs",
-      prefix: "AVF",
-    },
-    supplier_quotes: {
-      format: "C@C",
-      name: "Commandes",
-      prefix: "C",
-    },
-  };
 
   return (
     <Page title={[{ label: "Paramètres" }, { label: "L'inventaire" }]}>
@@ -238,123 +206,19 @@ export const PreferencesPage = () => {
               Numérotation des factures, devis et avoirs. Les numérotations
               doivent être unqiues pour chaque type de document.
             </Info>
-            <div className="my-4 space-y-4">
-              {(
-                [
-                  "invoices",
-                  "quotes",
-                  "credit_notes",
-                  "supplier_invoices",
-                  "supplier_credit_notes",
-                  "supplier_quotes",
-                ] as (keyof typeof countersDefaults)[]
-              ).map((type) => (
-                <PageColumns>
-                  <FormInput
-                    label={
-                      "Format des " +
-                      countersDefaults[type]?.name +
-                      ": " +
-                      getFormattedNumerotation(
-                        invoicesCounters?.[type]?.format || "",
-                        invoicesCounters?.[type]?.counter || 1
-                      )
-                    }
-                    type="text"
-                    options={[
-                      `${countersDefaults[type]?.prefix}-@YY-@C`,
-                      `${countersDefaults[type]?.prefix}-@YYYY-@CCCC`,
-                      `${countersDefaults[type]?.prefix}-@YYYY-@MM-@CCCCCC`,
-                      `${countersDefaults[type]?.prefix}-@YYYY-@MM#@C`,
-                    ].map((a) => ({
-                      label: a,
-                      value: a,
-                    }))}
-                    placeholder={countersDefaults[type]?.format}
-                    ctrl={{
-                      value: invoicesCounters?.[type]?.format,
-                      onChange: (e) =>
-                        setInvoicesCounters({
-                          ...invoicesCounters,
-                          [type]: {
-                            format: e
-                              .normalize("NFD")
-                              .replace(/\p{Diacritic}/gu, "")
-                              .toLocaleUpperCase(),
-                            counter: invoicesCounters?.[type]?.counter || 1,
-                          },
-                        }),
-                    }}
-                  />
-                  <FormInput
-                    label={"Prochaine valeur"}
-                    placeholder="87"
-                    type="number"
-                    ctrl={{
-                      value: invoicesCounters?.[type]?.counter,
-                      onChange: (e) =>
-                        setInvoicesCounters({
-                          ...invoicesCounters,
-                          [type]: {
-                            format: invoicesCounters?.[type]?.format || "",
-                            counter: e,
-                          },
-                        }),
-                    }}
-                  />
-                </PageColumns>
-              ))}
-            </div>
-            <InfoSmall className="block leading-5">
-              @YYYY: Année au format{" "}
-              {getFormattedNumerotation(
-                "@YYYY",
-                invoicesCounters.invoices?.counter || 1
-              )}
-              <br />
-              @YY: Année au format{" "}
-              {getFormattedNumerotation(
-                "@YY",
-                invoicesCounters.invoices?.counter || 1
-              )}
-              <br />
-              @MM: Mois au format{" "}
-              {getFormattedNumerotation(
-                "@MM",
-                invoicesCounters.invoices?.counter || 1
-              )}
-              <br />
-              @DD: Jour au format{" "}
-              {getFormattedNumerotation(
-                "@DD",
-                invoicesCounters.invoices?.counter || 1
-              )}
-              <br />
-              @CCCCCC: Compteur à 6 chiffres{" "}
-              {getFormattedNumerotation(
-                "@CCCCCC",
-                invoicesCounters.invoices?.counter || 1
-              )}
-              <br />
-              @CCCC: Compteur à 4 chiffres{" "}
-              {getFormattedNumerotation(
-                "@CCCC",
-                invoicesCounters.invoices?.counter || 1
-              )}
-              <br />
-              @CC: Compteur à 2 chiffres{" "}
-              {getFormattedNumerotation(
-                "@CC",
-                invoicesCounters.invoices?.counter || 1
-              )}
-              <br />
-              @C: Compteur à 1 chiffre{" "}
-              {getFormattedNumerotation(
-                "@C",
-                invoicesCounters.invoices?.counter || 1
-              )}
-              <br />
-            </InfoSmall>
+
+            <InvoiceNumerotationInput
+              invoicesCounters={invoicesCounters}
+              setInvoicesCounters={
+                setInvoicesCounters as unknown as Dispatch<
+                  SetStateAction<
+                    Partial<InvoiceCounters | InvoiceCountersOverrides>
+                  >
+                >
+              }
+              isCounters
+            />
+
             {!readonly && (
               <Button
                 className="mt-4"

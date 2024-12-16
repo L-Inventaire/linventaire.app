@@ -22,7 +22,10 @@ import { Invoices } from "@features/invoices/types/types";
 import { getDocumentName } from "@features/invoices/utils";
 import { ROUTES } from "@features/routes";
 import { formatTime } from "@features/utils/format/dates";
-import { getFormattedNumerotation } from "@features/utils/format/numerotation";
+import {
+  getFormattedNumerotation,
+  useFormattedNumerotationByInvoice,
+} from "@features/utils/format/numerotation";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import {
   BuildingStorefrontIcon,
@@ -185,26 +188,27 @@ export const InvoicesDetailsPage = ({
     [draft.client || draft.supplier]
   );
 
+  useEffectChange(
+    ([prevContact]) => {
+      if (prevContact && prevContact !== (draft.client || draft.supplier)) {
+        setDraft((draft) => ({
+          ...draft,
+          reference: reference,
+        }));
+      }
+    },
+    [draft.client, draft.contact]
+  );
+
+  const reference = useFormattedNumerotationByInvoice(draft);
+
   useEffect(() => {
     if (!isPending && draft)
       setDraft((draft: Invoices) => {
         draft = _.cloneDeep(draft);
         if (!draft.emit_date) draft.emit_date = new Date().getTime();
         if (draft.type && !draft.reference) {
-          const format = _.get(client.invoices_counters, draft.type)?.format;
-          const counter =
-            _.get(client.invoices_counters, draft.type)?.counter || 1;
-          const isDraft = draft.state === "draft";
-
-          if (!format) {
-            draft.reference = "ERR-NO-FORMAT";
-          } else {
-            draft.reference = getFormattedNumerotation(
-              format,
-              counter,
-              isDraft
-            );
-          }
+          draft.reference = reference;
         }
         draft.total = computePricesFromInvoice(draft);
         draft.content = (draft.content || []).map((a) => ({
