@@ -55,6 +55,7 @@ import { StockLocationsPage } from "./settings/stock-locations";
 import { StockAndServicesPreferences } from "./settings/stock-services";
 import { TagsPage } from "./settings/tags";
 import { CompanyUsersPage } from "./settings/users";
+import { SetupFeaturebase } from "@views/featurebase";
 
 export const BackOfficeRoutes = () => {
   return (
@@ -154,7 +155,7 @@ export const Layout = () => {
   const [menuOpen, setMenuOpen] = useRecoilState(ResponsiveMenuAtom);
   useWebsockets();
   const { user, logout } = useAuth();
-  const { clients, loading } = useClients();
+  const { client, clients, loading } = useClients();
   const afterSignupOrNewCompany = useRecoilValue(DidCreateCompanyOrSignupAtom);
   const navigate = useNavigate();
   useRoutes();
@@ -174,6 +175,7 @@ export const Layout = () => {
 
   return (
     <>
+      <SetupFeaturebase clientUser={client} />
       {afterSignupOrNewCompany && <Confetti />}
       <div
         className={twMerge(
@@ -205,6 +207,14 @@ export const Layout = () => {
                 (menuOpen ? " opacity-25 pointer-events-none " : "opacity-100 ")
               }
             >
+              <a
+                data-featurebase-link
+                href="https://linventaire.featurebase.app"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Give feedback
+              </a>
               <Outlet />
             </div>
           </div>
