@@ -108,10 +108,18 @@ export const Header = () => {
 
       <div className="hidden lg:inline w-full text-right m-grid-1 mr-1">
         <Button
-          data-tooltip="Support"
+          data-tooltip="Retours / Questions"
           data-position="left"
           size="md"
           theme="invisible"
+          data-featurebase-link
+          onClick={() => {
+            window
+              ?.open("https://linventaire.featurebase.app", "_blank")
+              ?.focus();
+          }}
+          target="_blank"
+          rel="noopener noreferrer"
           icon={(p) => <LifebuoyIcon {...p} />}
         />
         <Button
@@ -119,6 +127,14 @@ export const Header = () => {
           data-position="left"
           size="md"
           theme="invisible"
+          data-featurebase-link
+          onClick={() => {
+            window
+              ?.open("https://linventaire.featurebase.app/fr/help", "_blank")
+              ?.focus();
+          }}
+          target="_blank"
+          rel="noopener noreferrer"
           icon={(p) => <BookOpenIcon {...p} />}
         />
         <Button

@@ -1,3 +1,28 @@
+import { useClients } from "@features/clients/state/use-clients";
+import { useContact } from "@features/contacts/hooks/use-contacts";
+import { Invoices } from "@features/invoices/types/types";
+
+export const useFormattedNumerotationByInvoice = (
+  invoice: Invoices,
+  countOverride?: number | undefined
+) => {
+  const clientUser = useClients();
+  const client = clientUser?.client?.client;
+  const { contact } = useContact(invoice.contact);
+
+  const counter =
+    contact?.invoices_counters?.[invoice.type] ??
+    client?.invoices_counters?.[invoice.type];
+
+  const clientCounter = client?.invoices_counters?.[invoice.type];
+
+  return getFormattedNumerotation(
+    counter?.format ?? "INV-@YYYY-@CCCC",
+    countOverride ?? clientCounter?.counter ?? 0,
+    invoice.state === "draft"
+  );
+};
+
 export const getFormattedNumerotation = (
   format: string,
   counter: number,
