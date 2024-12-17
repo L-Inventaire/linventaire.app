@@ -51,6 +51,11 @@ export const AccountingTransactionsDetailsPage = ({
   }, [draft.transaction_date, draft.currency]);
 
   const { invoice } = useInvoice(draft.rel_invoices?.[0] || "");
+  const { accounting_accounts: internalAccounts } = useAccountingAccounts({
+    query: {
+      type: "internal",
+    },
+  });
 
   const isSupplierRelated =
     invoice?.type === "supplier_invoices" ||
@@ -77,7 +82,10 @@ export const AccountingTransactionsDetailsPage = ({
         setDraft((draft) => ({
           ...draft,
           debit: counterpartyAccountId || "",
-          credit: "",
+          credit:
+            internalAccounts?.data?.total === 1
+              ? internalAccounts?.data?.list?.[0]?.id
+              : "",
         }));
       }
       if (
@@ -87,7 +95,10 @@ export const AccountingTransactionsDetailsPage = ({
       ) {
         setDraft((draft) => ({
           ...draft,
-          debit: "",
+          debit:
+            internalAccounts?.data?.total === 1
+              ? internalAccounts?.data?.list?.[0]?.id
+              : "",
           credit: counterpartyAccountId || "",
         }));
       }

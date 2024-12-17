@@ -9,6 +9,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect } from "react";
 import { ROUTES, getRoute } from "@features/routes";
 import { useAuth } from "@features/auth/state/use-auth";
+import { useHasAccess } from "@features/access";
 
 export const useCurrentClient = () => {
   const { client: clientId } = useParams();
@@ -20,11 +21,33 @@ export const useCurrentClient = () => {
   };
 };
 
+export const useRedirectToHome = () => {
+  const { client: clientId } = useParams();
+  const { user } = useAuth();
+  const { client, loading, clients } = useClients();
+  const hasAccess = useHasAccess();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (clientId && !client && !loading && !!user) {
+      if (hasAccess("ACCOUNTING_READ"))
+        navigate(getRoute(ROUTES.Home, { client: clients[0]?.client.id }));
+      else if (hasAccess("INVOICES_READ"))
+        navigate(getRoute(ROUTES.Invoices, { client: clients[0]?.client.id }));
+      else if (hasAccess("ONSITE_SERVICES_READ"))
+        navigate(
+          getRoute(ROUTES.ServiceItems, { client: clients[0]?.client.id })
+        );
+      else
+        navigate(getRoute(ROUTES.Contacts, { client: clients[0]?.client.id }));
+    }
+  }, [client?.client_id, loading]);
+};
+
 export const useClients = () => {
   const { user } = useAuth();
   const [clients, setClients] = useRecoilState(ClientsState);
   const [loading, setLoading] = useRecoilState(LoadingState("useClients"));
-  const navigate = useNavigate();
   const { client: clientId } = useParams();
   const client = clients.find((c) => c.client.id === clientId);
 
@@ -83,12 +106,6 @@ export const useClients = () => {
     },
     [!!user]
   );
-
-  useEffect(() => {
-    if (clientId && !client && !loading && !!user) {
-      navigate(getRoute(ROUTES.Home, { client: clients[0]?.client.id }));
-    }
-  }, [client?.client_id, loading]);
 
   return {
     loading,

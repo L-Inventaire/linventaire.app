@@ -71,6 +71,10 @@ export type Clients = {
   id: string;
   created_at: number;
   address: Address;
+  other_addresses: {
+    delivery: Address | null;
+    invoicing: Address | null;
+  };
   company: Company;
   preferences: Preferences;
   configuration: Configuration;

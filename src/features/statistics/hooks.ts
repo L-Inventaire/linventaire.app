@@ -40,6 +40,7 @@ const blankStatistics: Statistics = {
   totalPaidInvoices: 0,
   totalSentInvoices: 0,
   totalSentPurchaseOrders: 0,
+  clientBalanceTable: {},
 };
 
 export const useStatistics = (

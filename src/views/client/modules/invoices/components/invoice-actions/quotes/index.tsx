@@ -21,6 +21,7 @@ import { useNavigateAlt } from "@features/utils/navigate";
 import { InvoiceInvoiceModalAtom } from "../modal-invoice";
 import { RecurrenceModalAtom } from "../../input-recurrence";
 import { useInvoices } from "@features/invoices/hooks/use-invoices";
+import { InvoiceSendSpecialModalAtom } from "../modal-send-special";
 
 export const QuotesActions = ({
   id,
@@ -32,6 +33,7 @@ export const QuotesActions = ({
   const navigate = useNavigateAlt();
   const openSendModal = useSetRecoilState(InvoiceSendModalAtom);
   const openInvoiceModal = useSetRecoilState(InvoiceInvoiceModalAtom);
+  const openSendSpecialModal = useSetRecoilState(InvoiceSendSpecialModalAtom);
 
   const { upsert } = useInvoices();
   const { draft, save: _save } = useReadDraftRest<Invoices>(
@@ -45,13 +47,13 @@ export const QuotesActions = ({
     {
       label: "Accusé de réception...",
       onClick: () => {
-        //TODO
+        openSendSpecialModal("receipt_acknowledgement");
       },
     },
     {
-      label: "Bordereau de livraison...",
+      label: "Bon de livraison...",
       onClick: () => {
-        //TODO
+        openSendSpecialModal("delivery_slip");
       },
     },
   ];
@@ -68,7 +70,7 @@ export const QuotesActions = ({
               {
                 label: "Proforma...",
                 onClick: () => {
-                  //TODO
+                  openSendSpecialModal("proforma");
                 },
               },
               {
@@ -137,7 +139,7 @@ export const QuotesActions = ({
               {
                 label: "Proforma...",
                 onClick: () => {
-                  //TODO
+                  openSendSpecialModal("proforma");
                 },
               },
               {
@@ -209,7 +211,7 @@ export const QuotesActions = ({
               {
                 label: "Proforma...",
                 onClick: () => {
-                  //TODO
+                  openSendSpecialModal("proforma");
                 },
               },
               {

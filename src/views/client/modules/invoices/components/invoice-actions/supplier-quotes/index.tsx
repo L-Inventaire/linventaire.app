@@ -29,21 +29,6 @@ export const SupplierQuotesActions = ({
   );
   const disabled = draft.state === "closed";
 
-  const commonOptions = [
-    {
-      label: "Accusé de réception...",
-      onClick: () => {
-        //TODO
-      },
-    },
-    {
-      label: "Bordereau de livraison...",
-      onClick: () => {
-        //TODO
-      },
-    },
-  ];
-
   return (
     <>
       {(draft.state === "draft" || draft.state === "sent") && (
@@ -55,10 +40,6 @@ export const SupplierQuotesActions = ({
             icon={(p) => <EllipsisHorizontalIcon {...p} />}
             position="top"
             menu={[
-              ...commonOptions,
-              {
-                type: "divider",
-              },
               {
                 label: "Télécharger le PDF",
                 icon: (p) => <PrinterIcon {...p} />,
@@ -111,10 +92,6 @@ export const SupplierQuotesActions = ({
             className="m-0"
             icon={(p) => <EllipsisHorizontalIcon {...p} />}
             menu={[
-              ...commonOptions,
-              {
-                type: "divider",
-              },
               {
                 label: "Télécharger en PDF",
                 onClick: () => getPdfPreview(draft),
@@ -167,13 +144,6 @@ export const SupplierQuotesActions = ({
       )}
       {draft.state === "completed" && (
         <>
-          <DropdownButton
-            theme="invisible"
-            size="lg"
-            className="m-0"
-            icon={(p) => <EllipsisHorizontalIcon {...p} />}
-            menu={commonOptions}
-          />
           <Button
             disabled={disabled}
             theme="outlined"
@@ -198,13 +168,6 @@ export const SupplierQuotesActions = ({
       )}
       {draft.state === "closed" && (
         <div>
-          <DropdownButton
-            theme="invisible"
-            size="lg"
-            className="m-0"
-            icon={(p) => <EllipsisHorizontalIcon {...p} />}
-            menu={commonOptions}
-          />
           <Button disabled={true} size="lg">
             Document fermé
           </Button>

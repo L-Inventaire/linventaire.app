@@ -2,6 +2,7 @@ import { Button } from "@atoms/button/button";
 import { Info } from "@atoms/text";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { RestTable } from "@components/table-rest";
+import { useHasAccess } from "@features/access";
 import { InvoicesColumns } from "@features/invoices/configuration";
 import { useInvoices } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
@@ -14,6 +15,7 @@ import {
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
 import { ArrowUturnLeftIcon, PlusIcon } from "@heroicons/react/24/outline";
+import { Pagination } from "@molecules/table/table";
 import { Badge, Tabs } from "@radix-ui/themes";
 import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
@@ -24,9 +26,6 @@ import {
   schemaToSearchFields,
 } from "../../../../components/search-bar/utils/utils";
 import { InvoiceStatus } from "./components/invoice-status";
-import { Pagination } from "@molecules/table/table";
-import _ from "lodash";
-import { useHasAccess } from "@features/access";
 
 const activeFilter = [
   {

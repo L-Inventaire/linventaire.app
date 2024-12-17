@@ -55,7 +55,7 @@ export const ContactsDetailsPage = ({
           setContact((prev: Partial<Contacts>) => {
             return {
               business_registered_name: value?.name,
-              delivery_address: prev.delivery_address,
+              other_addresses: prev.other_addresses || {},
               ..._.omitBy(prev, (a) => _.isEmpty(a) && !_.isBoolean(a)),
               address: {
                 address_line_1: value?.address?.address_line_1,
@@ -299,34 +299,41 @@ export const ContactsDetailsPage = ({
                 )}
               </PageBlock>
             )}
-            <PageBlock closable title="Adresse de facturation">
+            <PageBlock closable title="Adresse principale">
               <AddressInput ctrl={ctrl("address")} autoComplete={false} />
             </PageBlock>
-            <PageBlock closable title="Adresse de livraison">
-              {contact.delivery_address === null && readonly && (
-                <Info>
-                  Adresse de livraison égale à l'adresse de facturation.
-                </Info>
-              )}
-              <FormInput
-                type="boolean"
-                placeholder="Utiliser l'adresse de facturation"
-                onChange={(e) =>
-                  e
-                    ? ctrl("delivery_address").onChange(null)
-                    : ctrl("delivery_address").onChange({ ...contact.address })
-                }
-                value={contact.delivery_address === null}
-              />
-              {contact.delivery_address !== null && (
-                <div className="mt-4">
-                  <AddressInput
-                    ctrl={ctrl("delivery_address")}
-                    autoComplete={false}
+            {["delivery", "billing"].map((a) => {
+              const type = a as "delivery" | "billing";
+              const name = {
+                delivery: "Adresse de livraison",
+                billing: "Adresse de facturation",
+              }[type];
+              const ctrler = ("other_addresses." + type) as any;
+              return (
+                <PageBlock closable title={name}>
+                  {!contact.other_addresses?.[type] && readonly && (
+                    <Info>{name} égale à l'adresse principale.</Info>
+                  )}
+                  <FormInput
+                    type="boolean"
+                    placeholder="Utiliser l'adresse principale"
+                    onChange={(e) =>
+                      e
+                        ? ctrl(ctrler).onChange(null)
+                        : ctrl(ctrler).onChange({
+                            ...contact.address,
+                          })
+                    }
+                    value={!contact.other_addresses?.[type]}
                   />
-                </div>
-              )}
-            </PageBlock>
+                  {!!contact.other_addresses?.[type] && (
+                    <div className="mt-4">
+                      <AddressInput ctrl={ctrl(ctrler)} autoComplete={false} />
+                    </div>
+                  )}
+                </PageBlock>
+              );
+            })}
             <PageBlock
               closable
               title="Coordonnées bancaires"

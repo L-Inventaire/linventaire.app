@@ -193,6 +193,7 @@ export const Login = () => {
             input={
               <div className="flex flex-row">
                 <Input
+                  name="username"
                   size="lg"
                   autoComplete="email"
                   value={email}
@@ -215,6 +216,7 @@ export const Login = () => {
                   <Input
                     autoFocus
                     size="lg"
+                    name="password"
                     value={password}
                     placeholder="••••••••"
                     type="password"

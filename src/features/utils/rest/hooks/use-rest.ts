@@ -1,7 +1,7 @@
 import { useCurrentClient } from "@features/clients/state/use-clients";
 import { LoadingState } from "@features/utils/store/loading-state-atom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import _ from "lodash";
+import _, { isArray } from "lodash";
 import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
 import { useDebounceValue } from "usehooks-ts";
@@ -114,21 +114,23 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
     queryFn:
       options?.queryFn ||
       (async () => {
-        const temp =
+        const invalidRequest =
           options?.limit === 0 ||
           (options?.ignoreEmptyFilters !== false &&
-            (options?.query as any[])?.find((a) => a.values.length === 0))
-            ? { total: 0, list: [] }
-            : options?.id !== undefined
-            ? await (async () => {
-                const tmp = await restApiClient.get(id || "", options!.id!);
-                return { total: tmp ? 1 : 0, list: tmp ? [tmp] : [] };
-              })()
-            : await restApiClient.list(
-                id || "",
-                options?.query,
-                _.omit(options, "query")
-              );
+            isArray(options?.query) &&
+            (options?.query as any[])?.find((a) => a.values.length === 0));
+        const temp = invalidRequest
+          ? { total: 0, list: [] }
+          : options?.id !== undefined
+          ? await (async () => {
+              const tmp = await restApiClient.get(id || "", options!.id!);
+              return { total: tmp ? 1 : 0, list: tmp ? [tmp] : [] };
+            })()
+          : await restApiClient.list(
+              id || "",
+              options?.query,
+              _.omit(options, "query")
+            );
         setIsPendingModification(false);
         return temp;
       }),
