@@ -1134,6 +1134,10 @@ body :is(.top-full) {
   top: 100%;
 }
 
+body :is(.left-1\/2) {
+  left: 50%;
+}
+
 body :is(.z-0) {
   z-index: 0;
 }
@@ -1276,10 +1280,6 @@ body :is(.m-1) {
 
 body :is(.m-auto) {
   margin: auto;
-}
-
-body :is(.m-2) {
-  margin: 0.5rem;
 }
 
 body :is(.\!mx-3) {
@@ -2170,6 +2170,21 @@ body :is(.translate-y-px) {
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
+body :is(.-translate-x-1\/2) {
+  --tw-translate-x: -50%;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+body :is(.translate-x-1\/2) {
+  --tw-translate-x: 50%;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+body :is(.translate-x-1) {
+  --tw-translate-x: 0.25rem;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
 body :is(.-rotate-90) {
   --tw-rotate: -90deg;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
@@ -2182,6 +2197,11 @@ body :is(.rotate-0) {
 
 body :is(.rotate-\[-120deg\]) {
   --tw-rotate: -120deg;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+body :is(.rotate-90) {
+  --tw-rotate: 90deg;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
@@ -3691,11 +3711,6 @@ body :is(.py-px) {
   padding-bottom: 1px;
 }
 
-body :is(.px-6) {
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-}
-
 body :is(.pb-0) {
   padding-bottom: 0px;
 }
@@ -4706,6 +4721,19 @@ body :is(.focus-within\:shadow-lg:focus-within) {
 
 body :is(.hover\:block:hover) {
   display: block;
+}
+
+body :is(.hover\:h-20:hover) {
+  height: 5rem;
+}
+
+body :is(.hover\:w-20:hover) {
+  width: 5rem;
+}
+
+body :is(.hover\:translate-x-0:hover) {
+  --tw-translate-x: 0px;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
 body :is(.hover\:border-blue-500:hover) {
