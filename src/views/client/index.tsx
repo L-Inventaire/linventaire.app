@@ -212,8 +212,9 @@ export const Layout = () => {
                 href="https://linventaire.featurebase.app"
                 target="_blank"
                 rel="noopener noreferrer"
+                className="absolute top-1/2 right-0 transform translate-x-1/2 hover:h-20 max-w-max transition-all -translate-y-1/2 h-8 z-50 p-2 text-xs text-white bg-slate-500 dark:bg-slate-700 rounded-md -rotate-90"
               >
-                Give feedback
+                Donner un avis
               </a>
               <Outlet />
             </div>
