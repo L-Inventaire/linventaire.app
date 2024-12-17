@@ -22,10 +22,7 @@ import { Invoices } from "@features/invoices/types/types";
 import { getDocumentName } from "@features/invoices/utils";
 import { ROUTES } from "@features/routes";
 import { formatTime } from "@features/utils/format/dates";
-import {
-  getFormattedNumerotation,
-  useFormattedNumerotationByInvoice,
-} from "@features/utils/format/numerotation";
+import { useFormattedNumerotationByInvoice } from "@features/utils/format/numerotation";
 import { useEffectChange } from "@features/utils/hooks/use-changed-effect";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import {
@@ -38,6 +35,7 @@ import { Table } from "@molecules/table";
 import { Timeline } from "@molecules/timeline";
 import { Callout, Code, Text } from "@radix-ui/themes";
 import { PageColumns } from "@views/client/_layout/page";
+import { format as formatDate } from "date-fns";
 import _ from "lodash";
 import { Fragment, useEffect } from "react";
 import { computePricesFromInvoice } from "../utils";
@@ -53,7 +51,6 @@ import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-ca
 import { InvoiceStatus } from "./invoice-status";
 import { RelatedInvoices } from "./related-invoices";
 import { TagPaymentCompletion } from "./tag-payment-completion";
-import { format as formatDate } from "date-fns";
 
 export const InvoicesDetailsPage = ({
   readonly,
@@ -168,18 +165,19 @@ export const InvoicesDetailsPage = ({
     }),
   });
 
-  useEffect(() => {
-    if (
-      !readonly &&
-      !ctrl("contact").value &&
-      (contacts?.data?.list?.length || 0) > 0
-    ) {
-      ctrl("contact").onChange(contacts?.data?.list[0].id);
+  useEffectChange(() => {
+    if (!readonly) {
+      if (
+        ctrl("client").value &&
+        !ctrl("contact").value &&
+        (contacts?.data?.list?.length || 0) > 0
+      ) {
+        ctrl("contact").onChange(contacts?.data?.list[0].id);
+      } else {
+        ctrl("contact").onChange("");
+      }
     }
-    if (!readonly && ctrl("client").value !== draft.client) {
-      ctrl("contact").onChange("");
-    }
-  }, [ctrl("client").value]);
+  }, [ctrl("client").value, JSON.stringify(contacts?.data?.list)]);
 
   const format = _.get(client.invoices_counters, draft.type)?.format;
   const errorFormat = !format;
