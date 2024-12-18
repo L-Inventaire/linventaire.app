@@ -46,6 +46,7 @@ export type SearchFormFieldType = {
     | "modal"
     | "phone"
     | "color"
+    | "quantity"
     | "scan"; //Default is text
   rest?: {
     table: string;

@@ -29,6 +29,11 @@ import { FormContextContext, FormControllerType } from "./formcontext";
 import { FormReadonly } from "./readonly";
 import { SearchFormFieldType } from "./types";
 import Radio from "@atoms/input/input-select-radio";
+import InputTime from "@atoms/input/input-time";
+import {
+  timeBase60ToDecimal,
+  timeDecimalToBase60,
+} from "@features/utils/format/dates";
 
 export const FormInput = memo(
   (
@@ -56,6 +61,9 @@ export const FormInput = memo(
       autoSelectAll?: boolean; // Will select all the content on focus
       // Radio Input
       layout?: "horizontal" | "vertical";
+      metadata?: {
+        [key: string]: any;
+      };
     }
   ) => {
     const formContext = useContext(FormContextContext);
@@ -182,6 +190,7 @@ export const FormInput = memo(
           <>
             {(!props.type ||
               props.type === "text" ||
+              (props.type === "quantity" && props.metadata?.unit !== "h") ||
               props.type === "scan") && (
               <InputWithSuggestions
                 className="w-full"
@@ -201,6 +210,16 @@ export const FormInput = memo(
                 size={size}
                 placeholder={placeholder}
                 disabled={disabled}
+              />
+            )}
+            {props.type === "quantity" && props.metadata?.unit === "h" && (
+              <InputTime
+                className={twMerge(props.inputClassName)}
+                onChange={(_, number) => {
+                  const quantity = timeBase60ToDecimal(number);
+                  onChange(quantity);
+                }}
+                value={timeDecimalToBase60(_value)}
               />
             )}
             {props.type === "tags" && (
