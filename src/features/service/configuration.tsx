@@ -20,6 +20,7 @@ import {
   prettyPrintTime,
   timeDecimalToBase60,
 } from "@features/utils/format/dates";
+import { twMerge } from "tailwind-merge";
 
 export const useServiceItemDefaultModel: () => Partial<ServiceItems> = () => {
   return {
@@ -99,8 +100,15 @@ export const ServiceItemsColumns: Column<ServiceItems>[] = [
     thClassName: "w-1",
     cellClassName: "justify-end",
     render: (item) => (
-      <Badge className="whitespace-nowrap">
-        {item.quantity_spent || 0} / {item.quantity_expected || 0}
+      <Badge
+        className={twMerge(
+          "whitespace-nowrap",
+          item.quantity_spent > item.quantity_expected &&
+            "bg-red-100 text-red-800"
+        )}
+      >
+        {prettyPrintTime(timeDecimalToBase60(item.quantity_spent || 0))} /{" "}
+        {prettyPrintTime(timeDecimalToBase60(item.quantity_expected || 0))}
       </Badge>
     ),
   },
