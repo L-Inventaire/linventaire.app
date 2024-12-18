@@ -9,13 +9,19 @@ import { InputFormat } from "@atoms/input/input-format";
 import InputPhone from "@atoms/input/input-phone";
 import Select from "@atoms/input/input-select";
 import SelectMultiple from "@atoms/input/input-select-multiple";
+import Radio from "@atoms/input/input-select-radio";
 import { Input } from "@atoms/input/input-text";
+import InputTime from "@atoms/input/input-time";
 import { InputWithSuggestions } from "@atoms/input/input-with-suggestion";
-import { FilesInput } from "@components/input-rest/files";
-import { RestDocumentsInput } from "@components/input-rest";
-import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/deprecated-users-input";
+import { RestDocumentsInput } from "@components/input-rest";
+import { FilesInput } from "@components/input-rest/files";
+import { TagsInput } from "@components/input-rest/tags";
 import { debounce } from "@features/utils/debounce";
+import {
+  timeBase60ToDecimal,
+  timeDecimalToBase60,
+} from "@features/utils/format/dates";
 import { useControlledEffect } from "@features/utils/hooks/use-controlled-effect";
 import {
   ArrowsPointingOutIcon,
@@ -23,17 +29,13 @@ import {
 } from "@heroicons/react/24/outline";
 import _ from "lodash";
 import { nanoid } from "nanoid";
-import { memo, useContext, useRef, useState } from "react";
+import { memo, SVGProps, useContext, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { FormContextContext, FormControllerType } from "./formcontext";
 import { FormReadonly } from "./readonly";
 import { SearchFormFieldType } from "./types";
-import Radio from "@atoms/input/input-select-radio";
-import InputTime from "@atoms/input/input-time";
-import {
-  timeBase60ToDecimal,
-  timeDecimalToBase60,
-} from "@features/utils/format/dates";
+
+export type ResetProps = Omit<SVGProps<SVGSVGElement>, "ref">;
 
 export const FormInput = memo(
   (
@@ -52,6 +54,9 @@ export const FormInput = memo(
         | Date
         | string[]
         | { label: string; value: string };
+      reset?: boolean;
+      resetProps?: ResetProps;
+      onReset?: () => void;
       onChange?: (value: any, object?: any) => void;
       onSearch?: () => void;
       disabled?: boolean;
@@ -185,6 +190,9 @@ export const FormInput = memo(
     return (
       <InputLabel
         className={twMerge("w-full", props.className || "")}
+        reset={props.reset}
+        onReset={props.onReset}
+        resetProps={props.resetProps}
         label={props.label}
         input={
           <>
@@ -199,7 +207,7 @@ export const FormInput = memo(
                 autoSelectAll={props.autoSelectAll}
                 inputClassName={twMerge(
                   props.inputClassName,
-                  props.type === "scan" ? "to-focus" : ""
+                  props.type === "scan" && "to-focus"
                 )}
                 style={{ minWidth: 128 }}
                 options={options}

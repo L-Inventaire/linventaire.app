@@ -14,6 +14,9 @@ import { useClientUsers } from "@features/clients/state/use-client-users";
 import { useClients } from "@features/clients/state/use-clients";
 import { PublicCustomer } from "@features/customers/types/customers";
 import "quill-mention/autoregister";
+import { ResetProps } from "@components/form/fields";
+import { XMarkIcon } from "@heroicons/react/16/solid";
+import _ from "lodash";
 
 ReactQuill.Quill.register({
   "blots/mention": MentionBlot,
@@ -25,6 +28,9 @@ type EditorInputProps = {
   placeholder?: string;
   value?: string;
   onChange?: (e: string) => void;
+  reset?: boolean;
+  onReset?: () => void;
+  resetProps?: ResetProps;
   className?: string;
 };
 
@@ -100,42 +106,61 @@ export const EditorInput = (props: EditorInputProps) => {
   };
 
   return (
-    <ReactQuill
-      readOnly={disabled}
-      ref={ref}
-      onKeyDown={(e) => {
-        // If escape key is pressed, blur the editor
-        if (e.key === "Escape") {
-          ref.current?.blur();
-          setFocused(false);
-        }
-        // If contains ctrl key, don't stop propagation
-        if (e.ctrlKey || e.metaKey) {
-          return;
-        }
-        e.stopPropagation();
-      }}
-      onKeyUp={(e) => {
-        e.stopPropagation();
-      }}
-      onKeyPress={(e) => {
-        e.stopPropagation();
-      }}
-      onFocus={() => setFocused(true)}
-      onBlur={() => setFocused(false)}
-      placeholder={props.placeholder ?? "Cliquer pour ajouter une note"}
-      className={twMerge(
-        "editor-input",
-        disabled && "is-disabled",
-        !disabled && "p-2 bg-white dark:bg-slate-950",
-        !disabled && InputOutlinedDefaultBorders,
-        focused && "has-focus",
-        props.className
+    <div className="relative">
+      <ReactQuill
+        readOnly={disabled}
+        ref={ref}
+        onKeyDown={(e) => {
+          // If escape key is pressed, blur the editor
+          if (e.key === "Escape") {
+            ref.current?.blur();
+            setFocused(false);
+          }
+          // If contains ctrl key, don't stop propagation
+          if (e.ctrlKey || e.metaKey) {
+            return;
+          }
+          e.stopPropagation();
+        }}
+        onKeyUp={(e) => {
+          e.stopPropagation();
+        }}
+        onKeyPress={(e) => {
+          e.stopPropagation();
+        }}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        placeholder={props.placeholder ?? "Cliquer pour ajouter une note"}
+        className={twMerge(
+          "editor-input",
+          disabled && "is-disabled",
+          !disabled && "p-2 bg-white dark:bg-slate-950",
+          !disabled && InputOutlinedDefaultBorders,
+          focused && "has-focus",
+          props.className
+        )}
+        theme="snow"
+        value={props.value || ""}
+        onChange={onEditorChange}
+        modules={modules}
+      />
+      {props.reset && (
+        <XMarkIcon
+          onClick={props.onReset}
+          className={twMerge(
+            "w-4 h-6 bg-white dark:bg-slate-800 text-xs text-slate-400 cursor-pointer absolute right-2 top-1/2 -translate-y-1/2",
+            props.resetProps?.className
+          )}
+          {..._.omit(
+            props.resetProps,
+            "onClick",
+            "className",
+            "onReset",
+            "onClick",
+            "onCopy"
+          )}
+        />
       )}
-      theme="snow"
-      value={props.value || ""}
-      onChange={onEditorChange}
-      modules={modules}
-    />
+    </div>
   );
 };

@@ -8,11 +8,14 @@ import { Dispatch, SetStateAction } from "react";
 
 type InvoiceFormatInputProps = {
   invoicesCounters: Partial<
-    Clients["invoices_counters"] | Contacts["invoices_counters"]
+    Clients["invoices_counters"] | Contacts["overrides"]["invoices_counters"]
   >;
   setInvoicesCounters: Dispatch<
     SetStateAction<
-      Partial<Clients["invoices_counters"] | Contacts["invoices_counters"]>
+      Partial<
+        | Clients["invoices_counters"]
+        | Contacts["overrides"]["invoices_counters"]
+      >
     >
   >;
   isCounters: boolean;

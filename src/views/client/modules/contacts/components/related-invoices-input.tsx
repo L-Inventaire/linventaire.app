@@ -57,7 +57,7 @@ export const RelatedInvoicesInput = ({
             setModalNumerotation((mod) => ({
               ...mod,
               open: true,
-              invoicesCounters: contact.invoices_counters ?? null,
+              invoicesCounters: contact?.overrides?.invoices_counters ?? null,
               isCounters: false,
               readonly: readonly,
               onSave: async (counters) => {
@@ -65,7 +65,7 @@ export const RelatedInvoicesInput = ({
                   return {
                     ...contact,
                     invoices_counters: {
-                      ...contact.invoices_counters,
+                      ...contact?.overrides?.invoices_counters,
                       ...(counters ?? {}),
                     },
                   };
