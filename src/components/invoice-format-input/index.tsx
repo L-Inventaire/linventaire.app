@@ -6,41 +6,64 @@ import {
   useFormController,
 } from "@components/form/formcontext";
 import { useClients } from "@features/clients/state/use-clients";
-import { Invoices as InvoiceFormat } from "@features/clients/types/clients";
 import { Contacts } from "@features/contacts/types/types";
+import { InvoiceFormat } from "@features/invoices/types/types";
 import { tvaMentionOptions } from "@features/utils/constants";
 import { EditorInput } from "@molecules/editor-input";
 import { PageBlockHr } from "@views/client/_layout/page";
+import _ from "lodash";
 import { useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getDefaultConfig } from "./utils";
 
-export const InvoiceFormatInput = (props: {
-  ctrl: FormControllerType<any>;
+export type InvoiceFormatInputProps = {
+  ctrl: FormControllerType<InvoiceFormat>;
+  ctrlAttachments?: FormControllerType<string[]>;
   contact?: Contacts;
   readonly?: boolean;
   hideLinkedDocuments?: boolean;
-}) => {
+  default?: "client" | "contact";
+};
+
+export const InvoiceFormatInput = (props: InvoiceFormatInputProps) => {
   const { t } = useTranslation();
   const { client } = useClients();
 
-  const defaultConfig = getDefaultConfig(client?.client, props.contact);
+  const defaultConfig = getDefaultConfig(
+    client?.client,
+    props.contact,
+    props?.default ?? "contact"
+  );
+
+  const getValue = (
+    ctrlKey: `${string}.${string}` | "attachments" | keyof InvoiceFormat,
+    key: string
+  ) => {
+    return ctrl(ctrlKey).value === undefined
+      ? _.get(defaultConfig, key)
+      : ctrl(ctrlKey).value;
+  };
 
   const { readonly: contextReadonly } = useContext(FormContextContext);
   const readonly =
     props.readonly === undefined ? contextReadonly : props.readonly;
 
-  const [form, setForm] = useState<Partial<InvoiceFormat>>(
-    props.ctrl.value || {}
+  const [form, setForm] = useState<InvoiceFormat & { attachments: string[] }>({
+    ...props.ctrl.value,
+    attachments: [],
+  });
+  const { ctrl } = useFormController<InvoiceFormat & { attachments: string[] }>(
+    form,
+    setForm
   );
-  const { ctrl } = useFormController<Partial<InvoiceFormat>>(form, setForm);
 
   useEffect(() => {
-    props.ctrl.onChange(form);
+    const formNoAttachments = _.omit(form, "attachments");
+    props.ctrl.onChange(formNoAttachments as InvoiceFormat);
   }, [JSON.stringify(form)]);
 
   useEffect(() => {
-    setForm(props.ctrl.value || {});
+    setForm({ ...props.ctrl.value, attachments: form.attachments });
   }, [JSON.stringify(props.ctrl.value)]);
 
   return (
@@ -63,13 +86,16 @@ export const InvoiceFormatInput = (props: {
         label={t("settings.invoices.footer")}
         input={
           <EditorInput
-            reset={ctrl("footer").value !== defaultConfig?.invoices?.footer}
+            reset={
+              getValue("footer", "invoices.footer") !==
+              defaultConfig?.invoices?.footer
+            }
             onReset={() =>
               ctrl("footer").onChange(defaultConfig?.invoices?.footer)
             }
             disabled={readonly}
             onChange={ctrl("footer").onChange}
-            value={ctrl("footer").value}
+            value={getValue("footer", "invoices.footer")}
           />
         }
       />
@@ -78,7 +104,7 @@ export const InvoiceFormatInput = (props: {
         input={
           <EditorInput
             reset={
-              ctrl("payment_terms").value !==
+              getValue("payment_terms", "invoices.payment_terms") !==
               defaultConfig?.invoices?.payment_terms
             }
             onReset={() =>
@@ -88,7 +114,7 @@ export const InvoiceFormatInput = (props: {
             }
             disabled={readonly}
             onChange={ctrl("payment_terms").onChange}
-            value={ctrl("payment_terms").value}
+            value={getValue("payment_terms", "invoices.payment_terms")}
           />
         }
       />
@@ -100,15 +126,17 @@ export const InvoiceFormatInput = (props: {
         ctrl={ctrl("tva")}
         options={tvaMentionOptions.map((a) => ({ label: a, value: a }))}
       />
-      {!props.hideLinkedDocuments && (
+      {!props.hideLinkedDocuments && props.ctrlAttachments && (
         <FormInput
           type="files"
           reset={
-            ctrl("attachments").value !== defaultConfig?.invoices?.attachments
+            getValue("attachments", "invoices.attachments") !==
+            defaultConfig?.invoices?.attachments
           }
           onReset={() =>
             ctrl("attachments").onChange(defaultConfig?.invoices?.attachments)
           }
+          value={getValue("attachments", "invoices.attachments")}
           label={t("settings.invoices.attachments")}
           readonly={readonly}
           ctrl={ctrl("attachments")}
@@ -119,10 +147,14 @@ export const InvoiceFormatInput = (props: {
       <PageBlockHr />
       <FormInput
         type="boolean"
-        reset={ctrl("branding").value !== defaultConfig?.invoices?.branding}
+        reset={
+          getValue("branding", "invoices.branding") !==
+          defaultConfig?.invoices?.branding
+        }
         onReset={() =>
           ctrl("branding").onChange(defaultConfig?.invoices?.branding)
         }
+        value={getValue("branding", "invoices.branding")}
         label={t("settings.invoices.branding")}
         placeholder={t("settings.invoices.branding_placeholder")}
         readonly={readonly}
@@ -130,8 +162,11 @@ export const InvoiceFormatInput = (props: {
       />
       <FormInput
         type="color"
-        reset={ctrl("color").value !== defaultConfig?.invoices?.color}
+        reset={
+          getValue("color", "invoices.color") !== defaultConfig?.invoices?.color
+        }
         onReset={() => ctrl("color").onChange(defaultConfig?.invoices?.color)}
+        value={getValue("color", "invoices.color")}
         resetProps={{
           className: "right-8",
         }}
@@ -141,8 +176,11 @@ export const InvoiceFormatInput = (props: {
       />
       <FormInput
         type="files"
-        reset={ctrl("logo").value !== defaultConfig?.invoices?.logo}
+        reset={
+          getValue("logo", "invoices.logo") !== defaultConfig?.invoices?.logo
+        }
         onReset={() => ctrl("logo").onChange(defaultConfig?.invoices?.logo)}
+        value={getValue("logo", "invoices.logo")}
         label={t("settings.invoices.logo")}
         readonly={readonly}
         ctrl={ctrl("logo")}
@@ -152,11 +190,13 @@ export const InvoiceFormatInput = (props: {
       <FormInput
         type="files"
         reset={
-          ctrl("footer_logo").value !== defaultConfig?.invoices?.footer_logo
+          getValue("footer_logo", "invoices.footer_logo") !==
+          defaultConfig?.invoices?.footer_logo
         }
         onReset={() =>
           ctrl("footer_logo").onChange(defaultConfig?.invoices?.footer_logo)
         }
+        value={getValue("footer_logo", "invoices.footer_logo")}
         label={t("settings.invoices.footer_logo")}
         readonly={readonly}
         ctrl={ctrl("footer_logo")}
@@ -165,10 +205,14 @@ export const InvoiceFormatInput = (props: {
       />
       <FormInput
         type="select"
-        reset={ctrl("template").value !== defaultConfig?.invoices?.template}
+        reset={
+          getValue("template", "invoices.template") !==
+          defaultConfig?.invoices?.template
+        }
         onReset={() =>
           ctrl("template").onChange(defaultConfig?.invoices?.template)
         }
+        value={getValue("template", "invoices.template")}
         label={t("settings.invoices.template")}
         readonly={readonly}
         ctrl={ctrl("template")}

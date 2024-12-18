@@ -3,15 +3,19 @@ import { InputLabel } from "@atoms/input/input-decoration-label";
 import Select from "@atoms/input/input-select";
 import { Info, Section } from "@atoms/text";
 import { FormInput } from "@components/form/fields";
-import { InvoiceFormatInput } from "@components/invoice-format-input";
 import { InvoiceNumerotationInput } from "@components/invoice-numerotation-input";
 import { PaymentInput } from "@components/payment-input";
 import { useHasAccess } from "@features/access";
 import { useClients } from "@features/clients/state/use-clients";
-import { Clients, InvoiceCounters } from "@features/clients/types/clients";
+import {
+  Clients,
+  InvoiceCounters,
+  Invoices,
+} from "@features/clients/types/clients";
 import { InvoiceCountersOverrides } from "@features/contacts/types/types";
 import { currencyOptions } from "@features/utils/constants";
 import { Heading, Tabs } from "@radix-ui/themes";
+import { InvoiceInputFormat } from "@views/client/modules/invoices/components/input-format";
 import _ from "lodash";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -173,13 +177,16 @@ export const PreferencesPage = () => {
             <Section>Format des factures</Section>
             <Info>Informations par défaut à afficher sur les factures</Info>
             <div className="mt-4 space-y-4">
-              <InvoiceFormatInput
-                readonly={readonly}
+              <InvoiceInputFormat
+                btnKey="invoice-format"
                 ctrl={{
-                  value: invoices,
+                  value: invoices as Invoices,
                   onChange: setInvoices,
                 }}
+                readonly={readonly}
+                client={client}
               />
+
               {!readonly && (
                 <Button
                   className="mt-4"

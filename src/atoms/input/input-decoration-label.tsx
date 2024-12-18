@@ -1,9 +1,9 @@
-import { Heading } from "@radix-ui/themes";
-import { Info } from "../text";
-import { twMerge } from "tailwind-merge";
-import { XMarkIcon } from "@heroicons/react/16/solid";
-import _ from "lodash";
 import { ResetProps } from "@components/form/fields";
+import { XMarkIcon } from "@heroicons/react/16/solid";
+import { Heading } from "@radix-ui/themes";
+import _ from "lodash";
+import { twMerge } from "tailwind-merge";
+import { Info } from "../text";
 export interface InputLabelProps {
   label?: string | React.ReactNode;
   reset?: boolean;

@@ -8,14 +8,16 @@ export type InvoiceDefaultFormatType = {
 
 export const getDefaultConfig = (
   client?: Clients,
-  contact?: Contacts
+  contact?: Contacts,
+  default_?: "client" | "contact"
 ): InvoiceDefaultFormatType | null => {
   if (!client) return null;
 
   const defaultFormat = {
-    invoices: contact?.overrides?.invoices
-      ? contact.overrides.invoices
-      : client.invoices,
+    invoices:
+      contact?.overrides?.invoices && default_ === "contact"
+        ? contact.overrides.invoices
+        : client.invoices,
     payment: contact?.overrides?.payment
       ? contact?.overrides?.payment
       : client.payment,

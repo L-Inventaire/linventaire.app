@@ -1134,14 +1134,6 @@ body :is(.top-full) {
   top: 100%;
 }
 
-body :is(.left-6) {
-  left: 1.5rem;
-}
-
-body :is(.right-10) {
-  right: 2.5rem;
-}
-
 body :is(.z-0) {
   z-index: 0;
 }
@@ -3598,10 +3590,6 @@ body :is(.p-4) {
 
 body :is(.p-6) {
   padding: 1.5rem;
-}
-
-body :is(.p-8) {
-  padding: 2rem;
 }
 
 body :is(.\!px-1) {

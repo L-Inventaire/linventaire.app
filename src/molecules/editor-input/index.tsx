@@ -9,14 +9,14 @@ import { twMerge } from "tailwind-merge";
 import { Mention, MentionBlot } from "../../lib/quill-mentions";
 import "./index.css";
 
+import { ResetProps } from "@components/form/fields";
 import { getFullName } from "@features/auth/utils";
 import { useClientUsers } from "@features/clients/state/use-client-users";
 import { useClients } from "@features/clients/state/use-clients";
 import { PublicCustomer } from "@features/customers/types/customers";
-import "quill-mention/autoregister";
-import { ResetProps } from "@components/form/fields";
 import { XMarkIcon } from "@heroicons/react/16/solid";
 import _ from "lodash";
+import "quill-mention/autoregister";
 
 ReactQuill.Quill.register({
   "blots/mention": MentionBlot,
