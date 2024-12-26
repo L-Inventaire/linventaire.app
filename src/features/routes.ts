@@ -94,5 +94,7 @@ export const ROUTES = {
   SignDocumentView: "/signing-session/:session/view",
   SignedDocumentView: "/signing-session/:session/signed",
 
+  CMSView: "/:client/cms/view",
+
   DevPage: "/:client/dev",
 };
