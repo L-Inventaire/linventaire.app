@@ -6,6 +6,8 @@ import _ from "lodash";
 import { useDragLayer, useDrop } from "react-dnd";
 import { twMerge } from "tailwind-merge";
 import { CMSCard } from "./cms-card";
+import { useCMSItems } from "@features/cms/state/use-cms";
+import { useClients } from "@features/clients/state/use-clients";
 
 type CMSColumnProps = {
   title: string;
@@ -14,6 +16,9 @@ type CMSColumnProps = {
 } & React.HTMLAttributes<HTMLDivElement>;
 
 export const CMSColumn = ({ title, items, ...props }: CMSColumnProps) => {
+  const { create } = useCMSItems();
+  const { client } = useClients();
+
   const [{ isOver, fromThisColumn }, dropRef] = useDrop(
     () => ({
       accept: "cms-item",
@@ -46,7 +51,19 @@ export const CMSColumn = ({ title, items, ...props }: CMSColumnProps) => {
       >
         <div className="flex w-full justify-between items-center">
           <Section className="block mb-2 mt-3">{title}</Section>
-          <IconButton className="cursor-pointer" variant="ghost">
+          <IconButton
+            className="cursor-pointer"
+            variant="ghost"
+            onClick={() => {
+              create.mutate({
+                contacts: ["d1hwu5n9fxc0", "d4wctsrz0n40"],
+                notes: "Mes ptites notes",
+                seller: client?.user_id || "",
+                prev: null,
+                next: null,
+              });
+            }}
+          >
             <PlusCircleIcon width="18" height="18" />
           </IconButton>
         </div>

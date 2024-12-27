@@ -11,14 +11,10 @@ import { twMerge } from "tailwind-merge";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
 import { CMSColumn } from "./components/cms-column";
-import _ from "lodash";
 
 export const CMSPage = () => {
   const [options, setOptions] = useState<RestOptions<CMSItem>>({
-    limit: 20,
-    offset: 0,
     query: [],
-    index: "date",
     asc: false,
   });
   const { cms_items: cms_items_raw } = useCMSItems({
@@ -55,7 +51,7 @@ export const CMSPage = () => {
           )}
         >
           <CMSColumn items={cms_items} title="Nouveau" />
-          <CMSColumn items={cms_items} title="Qualifié" />
+          <CMSColumn items={[]} title="Qualifié" />
           <CMSColumn items={[]} title="Proposition" />
           <CMSColumn items={[]} title="Gagné" />
         </div>

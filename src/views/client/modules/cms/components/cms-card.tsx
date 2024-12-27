@@ -3,6 +3,8 @@ import { CMSItem } from "@features/cms/types/types";
 import _ from "lodash";
 import { useDrag, useDragLayer, useDrop } from "react-dnd";
 import { twMerge } from "tailwind-merge";
+import { prettyContactName } from "../../contacts/utils";
+import { useContacts } from "@features/contacts/hooks/use-contacts";
 
 type CMSCardProps = {
   title?: string;
@@ -33,6 +35,18 @@ export const CMSCard = ({
     isDragging: monitor.isDragging(),
   }));
 
+  const { contacts } = useContacts({
+    query: [
+      {
+        key: "id",
+        values: (cmsItem?.contacts ?? []).map((id) => ({
+          op: "equals",
+          value: id,
+        })),
+      },
+    ],
+    key: "contacts_" + (cmsItem?.contacts ?? []).join("_"),
+  });
   return (
     <div
       ref={dragRef}
@@ -42,7 +56,19 @@ export const CMSCard = ({
       )}
       {..._.omit(props, "className")}
     >
-      <SectionSmall className="p-3">{title || "TEST"}</SectionSmall>
+      <SectionSmall className="p-3">
+        {title ||
+          (cmsItem.contacts ?? [])
+            .map((id) => {
+              const contact = (contacts.data?.list ?? []).find(
+                (c) => c.id === id
+              );
+              if (!contact) return false;
+              return prettyContactName(contact);
+            })
+            .filter(Boolean)
+            .join(", ")}
+      </SectionSmall>
     </div>
   );
 };

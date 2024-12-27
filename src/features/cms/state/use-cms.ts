@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { CMSItem } from "../types/types";
 
 export const useCMSItems = (options?: RestOptions<CMSItem>) => {
-  const rest = useRest<CMSItem>("cms", options);
+  const rest = useRest<CMSItem>("cms_items", options);
 
   useEffect(() => {
     rest.refresh();
