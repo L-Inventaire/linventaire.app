@@ -97,7 +97,7 @@ export const SupplierQuotesActions = ({
                 onClick: () => getPdfPreview(draft),
               },
               {
-                label: "Marquer comme annulé",
+                label: "Clôturer la commande sans facture",
                 onClick: () => {
                   if (window.confirm("Clore définitivement le document?"))
                     _save({ state: "closed" });

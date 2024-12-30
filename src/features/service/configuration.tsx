@@ -18,6 +18,7 @@ import { ServiceItemsDetailsPage } from "@views/client/modules/service/component
 import { ServiceTimesDetailsPage } from "@views/client/modules/service/components/service-times-details";
 import { twMerge } from "tailwind-merge";
 import { ServiceItems, ServiceTimes } from "./types/types";
+import _ from "lodash";
 
 export const useServiceItemDefaultModel: () => Partial<ServiceItems> = () => {
   return {
@@ -127,17 +128,21 @@ registerCtrlKRestEntity<ServiceItems>("service_items", {
   useDefaultData: useServiceItemDefaultModel,
   viewRoute: ROUTES.ServiceItemsView,
   actions: (rows) => {
-    return [
-      {
-        label: "Facturer la sélection",
-        icon: (p) => <DocumentCheckIcon {...p} />,
-        action: () => {
-          document.location = getRoute(ROUTES.InvoicesFromItems, {
-            ids: rows.map((a) => a.id).join(","),
-          });
+    // All from the same client
+    if (_.uniqBy(rows, "client").length === 1) {
+      return [
+        {
+          label: "Facturer la sélection",
+          icon: (p) => <DocumentCheckIcon {...p} />,
+          action: () => {
+            document.location = getRoute(ROUTES.InvoicesFromItems, {
+              ids: rows.map((a) => a.id).join(","),
+            });
+          },
         },
-      },
-    ];
+      ];
+    }
+    return [];
   },
 });
 

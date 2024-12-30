@@ -3,7 +3,7 @@ import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
 import { useCurrentClient } from "@features/clients/state/use-clients";
 import { registerCtrlKRestEntity } from "@features/ctrlk";
-import { ROUTES } from "@features/routes";
+import { getRoute, ROUTES } from "@features/routes";
 import { formatTime } from "@features/utils/format/dates";
 import { formatAmount } from "@features/utils/format/strings";
 import { Column } from "@molecules/table/table";
@@ -23,7 +23,7 @@ import { Invoices } from "./types/types";
 import { format } from "date-fns";
 import _ from "lodash";
 import { Tag } from "@atoms/badge/tag";
-import { ArrowPathIcon } from "@heroicons/react/16/solid";
+import { ArrowPathIcon, RectangleStackIcon } from "@heroicons/react/16/solid";
 import { frequencyOptions } from "@views/client/modules/articles/components/article-details";
 
 export const useInvoiceDefaultModel: () => Partial<Invoices> = () => {
@@ -229,4 +229,24 @@ registerCtrlKRestEntity<Invoices>("invoices", {
       <InvoiceStatus size="xs" readonly value={row.state} type={row.type} />
     </div>
   ),
+  actions: (rows) => {
+    if (
+      rows.length > 1 && // At least 2 rows
+      rows.every((a) => a.type === "quotes") && // All quotes
+      _.uniqBy(rows, "client").length === 1 // All quotes have the same client
+    ) {
+      return [
+        {
+          label: "Regrouper les devis",
+          icon: (p) => <RectangleStackIcon {...p} />,
+          action: () => {
+            document.location = getRoute(ROUTES.InvoicesGroup, {
+              ids: rows.map((a) => a.id).join(","),
+            });
+          },
+        },
+      ];
+    }
+    return [];
+  },
 });

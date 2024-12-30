@@ -143,24 +143,26 @@ export const SearchCtrlK = ({ index }: { index: number }) => {
         placeholder={t("ctrlk.search.placeholder")}
         suffix={
           <>
-            <Button
-              onClick={() => setUseInternalQuery(!useInternalQuery)}
-              theme={"invisible"}
-              size="xs"
-              className={useInternalQuery ? "text-blue-500" : ""}
-              data-tooltip={
-                useInternalQuery
-                  ? "Ignorer le filtre contextuel"
-                  : "Utiliser le filtre contextuel"
-              }
-              icon={(p) =>
-                useInternalQuery ? (
-                  <LockClosedIcon {...p} />
-                ) : (
-                  <LockOpenIcon {...p} />
-                )
-              }
-            />
+            {!!currentState.options?.internalQuery && (
+              <Button
+                onClick={() => setUseInternalQuery(!useInternalQuery)}
+                theme={"invisible"}
+                size="xs"
+                className={useInternalQuery ? "text-blue-500" : ""}
+                data-tooltip={
+                  useInternalQuery
+                    ? "Ignorer le filtre contextuel"
+                    : "Utiliser le filtre contextuel"
+                }
+                icon={(p) =>
+                  useInternalQuery ? (
+                    <LockClosedIcon {...p} />
+                  ) : (
+                    <LockOpenIcon {...p} />
+                  )
+                }
+              />
+            )}
             <Button
               onClick={() => close()}
               theme="invisible"
