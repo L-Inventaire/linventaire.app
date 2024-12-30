@@ -12,6 +12,7 @@ import { Heading } from "@radix-ui/themes";
 import _ from "lodash";
 import { useSetRecoilState } from "recoil";
 import { InvoiceStatus } from "../../invoices/components/invoice-status";
+import { useHasAccess } from "@features/access";
 
 export const RelatedInvoicesInput = ({
   id,
@@ -46,36 +47,41 @@ export const RelatedInvoicesInput = ({
     readonly
   );
 
+  const hasAccess = useHasAccess();
+
   const setModalNumerotation = useSetRecoilState(InvoiceNumerotationModalAtom);
 
   return (
     <div className="flex flex-col">
       <Heading size="4" className="flex items-center justify-between grow">
         <span>Devis, factures et commandes</span>
-        <Button
-          onClick={() => {
-            setModalNumerotation((mod) => ({
-              ...mod,
-              open: true,
-              invoicesCounters: contact?.overrides?.invoices_counters ?? null,
-              isCounters: false,
-              readonly: readonly,
-              onSave: async (counters) => {
-                setContact((contact) => {
-                  return {
-                    ...contact,
-                    invoices_counters: {
-                      ...contact?.overrides?.invoices_counters,
-                      ...(counters ?? {}),
-                    },
-                  };
-                });
-              },
-            }));
-          }}
-        >
-          Numérotation
-        </Button>
+        {false && hasAccess("CLIENT_MANAGE") && (
+          <Button
+            size="sm"
+            onClick={() => {
+              setModalNumerotation((mod) => ({
+                ...mod,
+                open: true,
+                invoicesCounters: contact?.overrides?.invoices_counters ?? null,
+                isCounters: false,
+                readonly: readonly,
+                onSave: async (counters) => {
+                  setContact((contact) => {
+                    return {
+                      ...contact,
+                      invoices_counters: {
+                        ...contact?.overrides?.invoices_counters,
+                        ...(counters ?? {}),
+                      },
+                    };
+                  });
+                },
+              }));
+            }}
+          >
+            Numérotation
+          </Button>
+        )}
       </Heading>
       <div className="space-y-4 mt-4">
         <Table

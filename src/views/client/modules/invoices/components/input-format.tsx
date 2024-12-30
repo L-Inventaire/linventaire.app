@@ -72,7 +72,7 @@ export const InvoiceInputFormat = ({
     >
       <div className="flex flex-col space-y-0 text-left">
         <Base>{languageOptions.find((a) => a.value === language)?.label}</Base>
-        <Info>{ctrl?.value?.tva || "Pas de mention de TVA"}</Info>
+        <Info>{ctrl?.value?.tva || "Format de facture/devis par défaut"}</Info>
         <Info>
           {
             [
