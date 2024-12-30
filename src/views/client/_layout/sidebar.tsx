@@ -88,7 +88,7 @@ export const SideBar = () => {
                 )}
               />
             }
-            show={hasAccess("INVOICES_READ")}
+            show={hasAccess("QUOTES_READ") || hasAccess("INVOICES_READ")}
           >
             <SideMenuItem
               to={getRoute(ROUTES.Invoices, { type: "quotes" })}
@@ -104,6 +104,7 @@ export const SideBar = () => {
                   getRoute(ROUTES.Invoices, { type: "quotes" })
                 ) === 0
               }
+              show={hasAccess("QUOTES_READ")}
             />
             <SideMenuItem
               to={getRoute(ROUTES.Invoices, { type: "invoices" })}
@@ -119,6 +120,7 @@ export const SideBar = () => {
                   ? statistics?.almostLateDeliveries?.length.toString()
                   : undefined
               }
+              show={hasAccess("INVOICES_READ")}
             />
             <SideMenuItem
               to={getRoute(ROUTES.Invoices, { type: "credit_notes" })}
@@ -141,13 +143,16 @@ export const SideBar = () => {
                 })}
               />
             }
-            show={hasAccess("INVOICES_READ")}
+            show={
+              hasAccess("SUPPLIER_QUOTES_READ") ||
+              hasAccess("SUPPLIER_INVOICES_READ")
+            }
           >
             <SideMenuItem
               to={getRoute(ROUTES.Invoices, { type: "supplier_quotes" })}
               label={t("menu.supplier_quotes")}
               icon={(p) => <ShoppingCartIcon {...p} />}
-              show={hasAccess("INVOICES_READ")}
+              show={hasAccess("SUPPLIER_QUOTES_READ")}
             />
             <SideMenuItem
               to={getRoute(ROUTES.Invoices, {
@@ -155,6 +160,7 @@ export const SideBar = () => {
               })}
               label={t("menu.supplier_invoices")}
               icon={(p) => <DocumentArrowDownIcon {...p} />}
+              show={hasAccess("SUPPLIER_INVOICES_READ")}
             />
           </MenuSection>
 
