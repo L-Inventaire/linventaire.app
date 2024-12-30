@@ -1,27 +1,18 @@
 import { DocumentBar } from "@components/document-bar";
 import { buildQueryFromMap } from "@components/search-bar/utils/utils";
-import { useCtrlKAsSelect } from "@features/ctrlk/use-ctrlk-as-select";
 import { useInvoices } from "@features/invoices/hooks/use-invoices";
 import { ROUTES, getRoute } from "@features/routes";
 import { Heading, Text } from "@radix-ui/themes";
 import { Page } from "@views/client/_layout/page";
-import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 export const GroupInvoices = (_props: { readonly?: boolean }) => {
   const { ids } = useParams();
-  const navigate = useNavigate();
 
-  const select = useCtrlKAsSelect();
-
-  const { invoices: items, upsert: upsertServiceItems } = useInvoices({
+  const { invoices: items } = useInvoices({
     query: buildQueryFromMap({ id: ids?.split(",") }),
     limit: 100,
   });
-
-  const { upsert } = useInvoices();
-
-  const [loading, setLoading] = useState(false);
 
   if (items.isLoading) return <></>;
 
