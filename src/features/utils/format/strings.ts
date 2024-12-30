@@ -1,4 +1,5 @@
 import Env from "@config/environment";
+import { prettyPrintTime, timeDecimalToBase60 } from "./dates";
 
 export const validateEmail = (email: string) => {
   return email.match(
@@ -35,6 +36,12 @@ export const formatIBAN = (iban: string) => {
       .replace(/([A-Z0-9]{4})/g, "$1 ")
       .replace(/ $/gm, "")
   );
+};
+
+export const formatQuantity = (quantity?: number, unit = "unité") => {
+  return unit !== "h"
+    ? quantity || 0
+    : prettyPrintTime(timeDecimalToBase60(quantity || 0));
 };
 
 export const formatAmount = (number: number, currency = "EUR") => {

@@ -123,8 +123,8 @@ export const InvoiceLinesInput = ({
       </Card>
 
       <div className="mb-2">
-        {value.content?.map((e, index) => (
-          <Fragment key={e._id}>
+        {value.content?.map((line, index) => (
+          <Fragment key={line._id}>
             {index === 0 && (
               <DropInvoiceLine
                 onMove={(item) =>
@@ -147,23 +147,23 @@ export const InvoiceLinesInput = ({
                   onChange({
                     ...value,
                     content: value.content?.map((a) =>
-                      a._id === e._id ? line : a
+                      a._id === line._id ? line : a
                     ),
                   }),
-                value: e,
+                value: line,
               }}
               onRemove={() => {
                 onChange({
                   ...value,
-                  content: value.content?.filter((a) => a._id !== e._id),
+                  content: value.content?.filter((a) => a._id !== line._id),
                 });
               }}
               onDuplicate={() => {
                 // Add item just after the current one
                 const content = _.cloneDeep(value.content || []);
-                const index = content.findIndex((a) => a._id === e._id);
+                const index = content.findIndex((a) => a._id === line._id);
                 content.splice(index + 1, 0, {
-                  ...e,
+                  ...line,
                   _id: _.uniqueId(),
                 });
                 onChange({
@@ -177,7 +177,9 @@ export const InvoiceLinesInput = ({
                   : () => {
                       // Swap with previous item
                       const content = _.cloneDeep(value.content || []);
-                      const index = content.findIndex((a) => a._id === e._id);
+                      const index = content.findIndex(
+                        (a) => a._id === line._id
+                      );
                       if (index === 0) return;
                       const item = content[index];
                       content[index] = content[index - 1];
@@ -194,7 +196,9 @@ export const InvoiceLinesInput = ({
                   : () => {
                       // Swap with next item
                       const content = _.cloneDeep(value.content || []);
-                      const index = content.findIndex((a) => a._id === e._id);
+                      const index = content.findIndex(
+                        (a) => a._id === line._id
+                      );
                       if (index === content.length - 1) return;
                       const item = content[index];
                       content[index] = content[index + 1];
@@ -208,12 +212,12 @@ export const InvoiceLinesInput = ({
             />
             <DropInvoiceLine
               onMove={(item) => {
-                if (item._id === e._id) return;
-                // Place item after e
+                if (item._id === line._id) return;
+                // Place item after line
                 const content = _.cloneDeep(value.content || []).filter(
                   (a) => a._id !== item._id
                 );
-                const index = content.findIndex((a) => a._id === e._id);
+                const index = content.findIndex((a) => a._id === line._id);
                 content.splice(index + 1, 0, item);
                 onChange({
                   ...value,

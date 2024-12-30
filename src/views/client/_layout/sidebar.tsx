@@ -5,7 +5,7 @@ import { useHasAccess } from "@features/access";
 import { registerRootNavigation } from "@features/ctrlk";
 import { ROUTES, getRoute } from "@features/routes";
 import { useStatistics } from "@features/statistics/hooks";
-import { ListBulletIcon } from "@heroicons/react/16/solid";
+import { AtSymbolIcon, ListBulletIcon } from "@heroicons/react/16/solid";
 import { DocumentIcon, PlusIcon } from "@heroicons/react/24/outline";
 import {
   BriefcaseIcon,
@@ -185,6 +185,13 @@ export const SideBar = () => {
                 location.pathname.indexOf(getRoute(ROUTES.Contacts)) === 0
               }
               show={hasAccess("CONTACTS_READ")}
+            />
+            <SideMenuItem
+              to={getRoute(ROUTES.CMSView)}
+              label={t("menu.cms")}
+              icon={(p) => <AtSymbolIcon {...p} />}
+              active={location.pathname.indexOf(getRoute(ROUTES.CMSView)) === 0}
+              show={hasAccess("CMS_READ")}
             />
           </MenuSection>
 

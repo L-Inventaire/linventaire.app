@@ -11,7 +11,11 @@ import { Articles } from "@features/articles/types/types";
 import { getCostEstimate } from "@features/articles/utils";
 import { InvoiceLine, Invoices } from "@features/invoices/types/types";
 import { tvaOptions } from "@features/utils/constants";
-import { formatAmount, getTextFromHtml } from "@features/utils/format/strings";
+import {
+  formatAmount,
+  formatQuantity,
+  getTextFromHtml,
+} from "@features/utils/format/strings";
 import {
   CheckIcon,
   LockClosedIcon,
@@ -208,10 +212,11 @@ export const InvoiceLineInput = (props: {
                     content={() => (
                       <InvoiceLineQuantityInput {...props} article={article} />
                     )}
-                    value={value.quantity}
+                    value={formatQuantity(value.quantity, value.unit)}
                   >
                     <Text as="div" size="2" weight="bold">
-                      {value.quantity || 1} <Unit unit={value?.unit} />
+                      {formatQuantity(value.quantity || 1, value.unit)}{" "}
+                      <Unit unit={value?.unit} />
                     </Text>
                     <Text as="div" color="gray" size="2">
                       {value.subscription &&

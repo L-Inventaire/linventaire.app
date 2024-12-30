@@ -27,6 +27,8 @@ import { useEffect } from "react";
 import { ContactAccountingAccount } from "./contact-accounting-account";
 import { RelatedInvoicesInput } from "./related-invoices-input";
 import { RelationsInput } from "./relations-input";
+import { InvoiceFormatInput } from "@components/invoice-format-input";
+import { InvoiceInputFormat } from "../../invoices/components/input-format";
 
 export const ContactsDetailsPage = ({
   readonly,
@@ -267,6 +269,15 @@ export const ContactsDetailsPage = ({
                 />
               </div>
             </PageBlock>
+
+            <InvoiceInputFormat
+              btnKey="invoice-format"
+              ctrl={ctrl("format.invoice_format")}
+              readonly={readonly}
+              client={client?.client}
+              default_="client"
+            />
+
             <RelationsInput
               id={contact.id}
               readonly={readonly}

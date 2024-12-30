@@ -11,7 +11,7 @@ export const useFormattedNumerotationByInvoice = (
   const { contact } = useContact(invoice.contact);
 
   const counter =
-    contact?.invoices_counters?.[invoice.type] ??
+    contact?.overrides?.invoices_counters?.[invoice.type] ??
     client?.invoices_counters?.[invoice.type];
 
   const clientCounter = client?.invoices_counters?.[invoice.type];

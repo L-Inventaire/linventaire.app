@@ -1,4 +1,4 @@
-import { Address } from "@features/clients/types/clients";
+import { Address, Invoices, Payment } from "@features/clients/types/clients";
 import { formatAddress } from "@features/utils/format/address";
 import { RestEntity } from "@features/utils/rest/types/types";
 
@@ -36,7 +36,13 @@ export type Contacts = RestEntity & {
   address: Address;
   other_addresses: { delivery: Address | null; billing: Address | null };
   billing: Billing;
-  invoices_counters: InvoiceCountersOverrides;
+
+  // Overrides of the Client values
+  overrides: {
+    payment: Payment;
+    invoices: Invoices;
+    invoices_counters: InvoiceCountersOverrides;
+  };
 
   notes: string;
   documents: string[];
