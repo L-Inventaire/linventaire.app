@@ -116,6 +116,7 @@ let timeout: any = 0;
 let backToInitialSizeTimeout: any = 0;
 
 export const DropDownMenu = () => {
+  const location = useLocation();
   const searchRef = React.useRef<HTMLInputElement>(null);
   const [query] = useState("");
   const [state, setState] = useRecoilState(DropDownAtom);
@@ -123,6 +124,10 @@ export const DropDownMenu = () => {
     typeof state.menu === "function" ? [] : state.menu
   );
   const ref = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMenu([]);
+  }, [location]);
 
   const updatePosition = useCallback(() => {
     clearTimeout(timeout);
