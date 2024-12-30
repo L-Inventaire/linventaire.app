@@ -34,14 +34,14 @@ export const CMSColumn = ({ title, items, ...props }: CMSColumnProps) => {
     [props.onMove]
   );
 
-  const {} = useDragLayer((monitor) => ({
+  useDragLayer((monitor) => ({
     isDragging: monitor.isDragging(),
   }));
 
   return (
     <div
       className={twMerge("flex flex-col flex-1 p-3", props.className)}
-      ref={dropRef}
+      ref={dropRef as any}
       {..._.omit(props, "className")}
     >
       <div
