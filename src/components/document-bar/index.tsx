@@ -106,24 +106,25 @@ export const DocumentBar = ({
           }
           onClick={cancel}
         />
-        {mode === "read" && (
-          <>
-            <Button
-              data-tooltip="Précédent"
-              size="xs"
-              theme="outlined"
-              shortcut={["k"]}
-              icon={(p) => <ChevronUpIcon {...p} />}
-            />
-            <Button
-              data-tooltip="Suivant"
-              size="xs"
-              theme="outlined"
-              shortcut={["j"]}
-              icon={(p) => <ChevronDownIcon {...p} />}
-            />
-          </>
-        )}
+        {mode === "read" &&
+          window.document.location.host.indexOf("localhost") > -1 && (
+            <>
+              <Button
+                data-tooltip="Précédent"
+                size="xs"
+                theme="outlined"
+                shortcut={["k"]}
+                icon={(p) => <ChevronUpIcon {...p} />}
+              />
+              <Button
+                data-tooltip="Suivant"
+                size="xs"
+                theme="outlined"
+                shortcut={["j"]}
+                icon={(p) => <ChevronDownIcon {...p} />}
+              />
+            </>
+          )}
       </div>
       {!loading && (
         <>

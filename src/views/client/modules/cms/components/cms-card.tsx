@@ -1,10 +1,10 @@
 import { SectionSmall } from "@atoms/text";
 import { CMSItem } from "@features/cms/types/types";
+import { useContacts } from "@features/contacts/hooks/use-contacts";
 import _ from "lodash";
-import { useDrag, useDragLayer, useDrop } from "react-dnd";
+import { useDrag, useDragLayer } from "react-dnd";
 import { twMerge } from "tailwind-merge";
 import { prettyContactName } from "../../contacts/utils";
-import { useContacts } from "@features/contacts/hooks/use-contacts";
 
 type CMSCardProps = {
   title?: string;
@@ -19,7 +19,7 @@ export const CMSCard = ({
   readonly,
   ...props
 }: CMSCardProps) => {
-  const [{ dragging }, dragRef] = useDrag(
+  const [dragRef] = useDrag(
     () => ({
       canDrag: !readonly,
       type: "invoice-line",
@@ -31,7 +31,7 @@ export const CMSCard = ({
     [cmsItem, readonly]
   );
 
-  const { isDragging } = useDragLayer((monitor) => ({
+  useDragLayer((monitor) => ({
     isDragging: monitor.isDragging(),
   }));
 
@@ -49,7 +49,7 @@ export const CMSCard = ({
   });
   return (
     <div
-      ref={dragRef}
+      ref={dragRef as any}
       className={twMerge(
         "min-w-52 -mx-2 border border-x-0 border-b-slate-50 border-t-slate-50",
         props.className

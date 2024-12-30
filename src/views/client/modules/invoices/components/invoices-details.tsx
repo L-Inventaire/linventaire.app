@@ -51,7 +51,6 @@ import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-ca
 import { InvoiceStatus } from "./invoice-status";
 import { RelatedInvoices } from "./related-invoices";
 import { TagPaymentCompletion } from "./tag-payment-completion";
-import { getDefaultConfig } from "@components/invoice-format-input/utils";
 
 export const InvoicesDetailsPage = ({
   readonly,
