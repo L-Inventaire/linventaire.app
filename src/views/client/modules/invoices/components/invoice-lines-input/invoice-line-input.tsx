@@ -303,7 +303,7 @@ export const InvoiceLineInput = (props: {
                               false,
                               value.quantity || 1
                             ).split("-")
-                          )}
+                          ) || "non renseigné"}
                         </Text>
                       </Tooltip>
                     )}
