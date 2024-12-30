@@ -4,11 +4,13 @@ import { ROUTES, getRoute } from "@features/routes";
 import { Page } from "@views/client/_layout/page";
 import { useParams } from "react-router-dom";
 import { ArticlesDetailsPage } from "../components/article-details";
+import { useHasAccess } from "@features/access";
 
 export const ArticlesViewPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
   const { article, isPending, remove, restore, isPendingModification } =
     useArticle(id || "");
+  const hasAccess = useHasAccess();
 
   return (
     <Page
@@ -24,15 +26,17 @@ export const ArticlesViewPage = (_props: { readonly?: boolean }) => {
           document={article}
           mode={"read"}
           backRoute={ROUTES.Products}
-          editRoute={ROUTES.ProductsEdit}
+          editRoute={
+            hasAccess("ARTICLES_WRITE") ? ROUTES.ProductsEdit : undefined
+          }
           viewRoute={ROUTES.ProductsView}
           onRemove={
-            article?.id
+            article?.id && hasAccess("ARTICLES_WRITE")
               ? async () => remove.mutateAsync(article?.id)
               : undefined
           }
           onRestore={
-            article?.id
+            article?.id && hasAccess("ARTICLES_WRITE")
               ? async () => restore.mutateAsync(article?.id)
               : undefined
           }

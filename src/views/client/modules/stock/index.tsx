@@ -21,6 +21,7 @@ import {
   schemaToSearchFields,
 } from "../../../../components/search-bar/utils/utils";
 import { StockItemStatus } from "./components/stock-item-status";
+import { useHasAccess } from "@features/access";
 
 export const StockPage = () => {
   const tabs = {
@@ -81,6 +82,7 @@ export const StockPage = () => {
 
   const schema = useRestSchema("stock_items");
   const navigate = useNavigateAlt();
+  const hasAccess = useHasAccess();
 
   return (
     <Page
@@ -96,16 +98,18 @@ export const StockPage = () => {
           }
           suffix={
             <>
-              <Button
-                size="sm"
-                onClick={() =>
-                  navigate(getRoute(ROUTES.StockEdit, { id: "new" }))
-                }
-                icon={(p) => <PlusIcon {...p} />}
-                hideTextOnMobile
-              >
-                Ajouter
-              </Button>
+              {hasAccess("STOCK_WRITE") && (
+                <Button
+                  size="sm"
+                  onClick={() =>
+                    navigate(getRoute(ROUTES.StockEdit, { id: "new" }))
+                  }
+                  icon={(p) => <PlusIcon {...p} />}
+                  hideTextOnMobile
+                >
+                  Ajouter
+                </Button>
+              )}
             </>
           }
         />

@@ -162,89 +162,103 @@ export const InvoicesPage = () => {
                 type[0]
               ) ? (
                 <>
-                  <Button
-                    size="sm"
-                    theme="outlined"
-                    to={withSearchAsModel(
-                      getRoute(ROUTES.InvoicesEdit, { id: "new" }),
-                      schema.data,
-                      { type: "supplier_credit_notes" }
-                    )}
-                    icon={(p) => <ArrowUturnLeftIcon {...p} />}
-                    hideTextOnMobile
-                  >
-                    Avoir fournisseur
-                  </Button>
-                  <Button
-                    size="sm"
-                    to={withSearchAsModel(
-                      getRoute(ROUTES.InvoicesEdit, { id: "new" }),
-                      schema.data,
-                      { type: "supplier_invoices" }
-                    )}
-                    icon={(p) => <PlusIcon {...p} />}
-                    shortcut={type.includes("supplier_invoices") ? ["c"] : []}
-                    hideTextOnMobile
-                  >
-                    Facture fournisseur
-                  </Button>
+                  {hasAccess("SUPPLIER_INVOICES_WRITE") && (
+                    <>
+                      <Button
+                        size="sm"
+                        theme="outlined"
+                        to={withSearchAsModel(
+                          getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+                          schema.data,
+                          { type: "supplier_credit_notes" }
+                        )}
+                        icon={(p) => <ArrowUturnLeftIcon {...p} />}
+                        hideTextOnMobile
+                      >
+                        Avoir fournisseur
+                      </Button>
+                      <Button
+                        size="sm"
+                        to={withSearchAsModel(
+                          getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+                          schema.data,
+                          { type: "supplier_invoices" }
+                        )}
+                        icon={(p) => <PlusIcon {...p} />}
+                        shortcut={
+                          type.includes("supplier_invoices") ? ["c"] : []
+                        }
+                        hideTextOnMobile
+                      >
+                        Facture fournisseur
+                      </Button>
+                    </>
+                  )}
                 </>
               ) : ["supplier_quotes"].includes(type[0]) ? (
                 <>
-                  <Button
-                    size="sm"
-                    to={withSearchAsModel(
-                      getRoute(ROUTES.InvoicesEdit, { id: "new" }),
-                      schema.data,
-                      { type: "supplier_quotes" }
-                    )}
-                    icon={(p) => <PlusIcon {...p} />}
-                    shortcut={type.includes("supplier_quotes") ? ["c"] : []}
-                    hideTextOnMobile
-                  >
-                    Commande
-                  </Button>
+                  {hasAccess("SUPPLIER_QUOTES_WRITE") && (
+                    <Button
+                      size="sm"
+                      to={withSearchAsModel(
+                        getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+                        schema.data,
+                        { type: "supplier_quotes" }
+                      )}
+                      icon={(p) => <PlusIcon {...p} />}
+                      shortcut={type.includes("supplier_quotes") ? ["c"] : []}
+                      hideTextOnMobile
+                    >
+                      Commande
+                    </Button>
+                  )}
                 </>
               ) : (
                 <>
-                  <Button
-                    size="sm"
-                    theme="outlined"
-                    to={withSearchAsModel(
-                      getRoute(ROUTES.InvoicesEdit, { id: "new" }),
-                      schema.data,
-                      { type: "credit_notes" }
-                    )}
-                    icon={(p) => <ArrowUturnLeftIcon {...p} />}
-                    shortcut={type.includes("credit_notes") ? ["c"] : []}
-                    hideTextOnMobile
-                  >
-                    Avoir
-                  </Button>
-                  <Button
-                    size="sm"
-                    to={withSearchAsModel(
-                      getRoute(ROUTES.InvoicesEdit, { id: "new" }),
-                      schema.data,
-                      { type: "quotes" }
-                    )}
-                    icon={(p) => <PlusIcon {...p} />}
-                    shortcut={type.includes("quotes") ? ["c"] : []}
-                  >
-                    Devis
-                  </Button>
-                  <Button
-                    size="sm"
-                    to={withSearchAsModel(
-                      getRoute(ROUTES.InvoicesEdit, { id: "new" }),
-                      schema.data,
-                      { type: "invoices" }
-                    )}
-                    icon={(p) => <PlusIcon {...p} />}
-                    shortcut={type.includes("invoices") ? ["c"] : []}
-                  >
-                    Facture
-                  </Button>
+                  {hasAccess("INVOICES_WRITE") && (
+                    <Button
+                      size="sm"
+                      theme="outlined"
+                      to={withSearchAsModel(
+                        getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+                        schema.data,
+                        { type: "credit_notes" }
+                      )}
+                      icon={(p) => <ArrowUturnLeftIcon {...p} />}
+                      shortcut={type.includes("credit_notes") ? ["c"] : []}
+                      hideTextOnMobile
+                    >
+                      Avoir
+                    </Button>
+                  )}
+                  {hasAccess("QUOTES_WRITE") && (
+                    <Button
+                      size="sm"
+                      to={withSearchAsModel(
+                        getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+                        schema.data,
+                        { type: "quotes" }
+                      )}
+                      icon={(p) => <PlusIcon {...p} />}
+                      shortcut={type.includes("quotes") ? ["c"] : []}
+                    >
+                      Devis
+                    </Button>
+                  )}
+                  {hasAccess("INVOICES_WRITE") && (
+                    <Button
+                      size="sm"
+                      to={withSearchAsModel(
+                        getRoute(ROUTES.InvoicesEdit, { id: "new" }),
+                        schema.data,
+                        { type: "invoices" }
+                      )}
+                      icon={(p) => <PlusIcon {...p} />}
+                      shortcut={type.includes("invoices") ? ["c"] : []}
+                    >
+                      Facture
+                    </Button>
+                  )}
                 </>
               )
             ) : undefined

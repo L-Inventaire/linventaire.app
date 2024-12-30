@@ -8,11 +8,13 @@ import { ROUTES, getRoute } from "@features/routes";
 import { Page } from "@views/client/_layout/page";
 import { useParams } from "react-router-dom";
 import { ContactsDetailsPage } from "../components/contact-details";
+import { useHasAccess } from "@features/access";
 
 export const ContactsViewPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
   const { contact, isPending, remove, restore, isPendingModification } =
     useContact(id || "");
+  const hasAccess = useHasAccess();
 
   return (
     <Page
@@ -28,15 +30,17 @@ export const ContactsViewPage = (_props: { readonly?: boolean }) => {
           document={contact || { id }}
           mode={"read"}
           backRoute={ROUTES.Contacts}
-          editRoute={ROUTES.ContactsEdit}
+          editRoute={
+            hasAccess("CONTACTS_WRITE") ? ROUTES.ContactsEdit : undefined
+          }
           viewRoute={ROUTES.ContactsView}
           onRemove={
-            contact?.id
+            contact?.id && hasAccess("CONTACTS_WRITE")
               ? async () => remove.mutateAsync(contact?.id)
               : undefined
           }
           onRestore={
-            contact?.id
+            contact?.id && hasAccess("CONTACTS_WRITE")
               ? async () => restore.mutateAsync(contact?.id)
               : undefined
           }
