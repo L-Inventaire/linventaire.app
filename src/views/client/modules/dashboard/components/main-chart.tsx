@@ -7,7 +7,7 @@ type LineChartProps = {
   period: "week" | "month" | "year";
 };
 
-const LineChart = ({ period, ...props }: LineChartProps) => {
+const MainChart = ({ period, ...props }: LineChartProps) => {
   const { client: clientId } = useParams();
   const { formattedData } = useStatistics(clientId, period);
 
@@ -84,4 +84,4 @@ const LineChart = ({ period, ...props }: LineChartProps) => {
   );
 };
 
-export default LineChart;
+export default MainChart;

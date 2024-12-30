@@ -46,6 +46,7 @@ import { InvoiceLineArticleInput } from "./components/line-article";
 import { InvoiceLinePriceInput } from "./components/line-price";
 import { InvoiceLineQuantityInput } from "./components/line-quantity";
 import _ from "lodash";
+import { useEffectChange } from "@features/utils/hooks/use-changed-effect";
 
 export const InvoiceLineInput = (props: {
   invoice?: Invoices;
@@ -95,8 +96,12 @@ export const InvoiceLineInput = (props: {
     value.type === "separation" || value.type === "correction";
 
   const previousArticleSupplierValues = useRef("");
-  useEffect(() => {
-    if (props.invoice?.supplier && (article?.id || !article?.price)) {
+  useEffectChange(() => {
+    if (
+      props.invoice?.supplier &&
+      (article?.id || !article?.price) &&
+      !readonly
+    ) {
       const previousValue = previousArticleSupplierValues.current;
       const key = props.invoice?.supplier + "-" + article?.id;
       if (key !== previousArticleSupplierValues.current) {
