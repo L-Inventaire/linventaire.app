@@ -55,6 +55,16 @@ export const CompanyUsersPage = () => {
 
   if (!users) return <></>;
 
+  const manageableRoles = (a: { value: string }) =>
+    a.value.includes("CLIENT_MANAGE") ||
+    a.value.includes("CONTACTS") ||
+    a.value.includes("ARTICLES") ||
+    a.value.includes("STOCK") ||
+    a.value.includes("INVOICES") ||
+    a.value.includes("CMS") ||
+    a.value.includes("QUOTES") ||
+    a.value.includes("ONSITE_SERVICES");
+
   return (
     <Page title={[{ label: "Paramètres" }, { label: "Vos Collaborateurs" }]}>
       <Modal
@@ -68,15 +78,7 @@ export const CompanyUsersPage = () => {
             placeholder="Rôles"
             value={updatingRoles}
             onChange={(e) => setUpdatingRoles(e)}
-            options={getRoles().filter(
-              (a) =>
-                a.value.includes("CLIENT_MANAGE") ||
-                a.value.includes("CONTACTS") ||
-                a.value.includes("ARTICLES") ||
-                a.value.includes("STOCK") ||
-                a.value.includes("INVOICES") ||
-                a.value.includes("ONSITE_SERVICES")
-            )}
+            options={getRoles().filter(manageableRoles)}
           />
           <Button
             className="mt-4"
@@ -132,15 +134,7 @@ export const CompanyUsersPage = () => {
                   placeholder="Rôles"
                   value={inviteesRoles}
                   onChange={(e) => setInviteesRoles(e)}
-                  options={getRoles().filter(
-                    (a) =>
-                      a.value.includes("CLIENT_MANAGE") ||
-                      a.value.includes("CONTACTS") ||
-                      a.value.includes("ARTICLES") ||
-                      a.value.includes("STOCK") ||
-                      a.value.includes("INVOICES") ||
-                      a.value.includes("ONSITE_SERVICES")
-                  )}
+                  options={getRoles().filter(manageableRoles)}
                 />
                 <Button
                   disabled={!invitedEmails.length}
@@ -363,8 +357,12 @@ const RolesNames: any = {
   CONTACTS: "Contacts",
   ARTICLES: "Articles",
   STOCK: "Stock et réceptions",
-  INVOICES: "Factures, devis et avoirs",
+  INVOICES: "Factures et avoirs",
+  QUOTES: "Devis",
+  SUPPLIER_INVOICES: "Factures fournisseurs",
+  SUPPLIER_QUOTES: "Devis fournisseurs",
   ONSITE_SERVICES: "Service",
+  CMS: "CMS",
   MANAGE: "Administration",
   WRITE: "Lecture et modifications",
   READ: "Lecture",
@@ -376,9 +374,9 @@ const getRoles = () =>
       value: level,
       label:
         RolesNames[level] ||
-        (RolesNames[level.split("_")[0]]
-          ? RolesNames[level.split("_")[0]] +
-            ` (${RolesNames[level.split("_")[1]]})`
+        (RolesNames[level.split(/_[A-Z]+$/)[0]]
+          ? RolesNames[level.split(/_[A-Z]+$/)[0]] +
+            ` (${RolesNames[level.split(/_([A-Z]+)$/)[1]]})`
           : level),
     }))
   );

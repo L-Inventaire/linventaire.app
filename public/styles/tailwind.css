@@ -2004,10 +2004,6 @@ body :is(.min-w-32) {
   min-width: 8rem;
 }
 
-body :is(.min-w-52) {
-  min-width: 13rem;
-}
-
 body :is(.min-w-64) {
   min-width: 16rem;
 }
@@ -2024,6 +2020,10 @@ body :is(.min-w-fit) {
 
 body :is(.min-w-full) {
   min-width: 100%;
+}
+
+body :is(.min-w-52) {
+  min-width: 13rem;
 }
 
 body :is(.max-w-24) {
@@ -2261,16 +2261,16 @@ body :is(.grid-cols-3) {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-body :is(.grid-cols-4) {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
 body :is(.grid-cols-\[1fr_2fr_1fr\]) {
   grid-template-columns: 1fr 2fr 1fr;
 }
 
 body :is(.grid-cols-\[1fr_70px\]) {
   grid-template-columns: 1fr 70px;
+}
+
+body :is(.grid-cols-4) {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 body :is(.flex-row) {
@@ -3434,11 +3434,6 @@ body :is(.bg-slate-200) {
   background-color: rgb(198 198 198 / var(--tw-bg-opacity));
 }
 
-body :is(.bg-slate-25) {
-  --tw-bg-opacity: 1;
-  background-color: rgb(249 249 249 / var(--tw-bg-opacity));
-}
-
 body :is(.bg-slate-300) {
   --tw-bg-opacity: 1;
   background-color: rgb(172 172 165 / var(--tw-bg-opacity));
@@ -3536,6 +3531,11 @@ body :is(.bg-yellow-800) {
 body :is(.bg-yellow-900) {
   --tw-bg-opacity: 1;
   background-color: rgb(113 63 18 / var(--tw-bg-opacity));
+}
+
+body :is(.bg-slate-25) {
+  --tw-bg-opacity: 1;
+  background-color: rgb(249 249 249 / var(--tw-bg-opacity));
 }
 
 body :is(.bg-opacity-0) {
