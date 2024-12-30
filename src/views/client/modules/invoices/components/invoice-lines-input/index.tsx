@@ -94,7 +94,7 @@ export const InvoiceLinesInput = ({
                 )}
               >
                 <Heading size={"2"} className="py-1 px-2.5">
-                  Total
+                  Résumé HT
                 </Heading>
               </Box>
             </Flex>

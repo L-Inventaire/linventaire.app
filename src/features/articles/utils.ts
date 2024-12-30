@@ -3,7 +3,7 @@ import { getTvaValue } from "@views/client/modules/invoices/utils";
 import { Articles } from "./types/types";
 
 export const getCostEstimate = (
-  article: Articles,
+  article?: Articles,
   withTva = true,
   quantity = 1
 ) => {
@@ -12,7 +12,9 @@ export const getCostEstimate = (
       .filter((a) => a.price)
       .map((a) =>
         formatAmount(
-          quantity * a.price * (withTva ? 1 + getTvaValue(article.tva) : 1)
+          quantity *
+            a.price *
+            (withTva ? 1 + getTvaValue(article?.tva || "0") : 1)
         )
       )
       // Keep only min and max

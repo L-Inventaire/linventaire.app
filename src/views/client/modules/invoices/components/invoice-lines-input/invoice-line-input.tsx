@@ -32,7 +32,7 @@ import {
   EllipsisVerticalIcon,
   TrashIcon,
 } from "@heroicons/react/20/solid";
-import { Badge, Box, Card, Code, Flex, Text } from "@radix-ui/themes";
+import { Badge, Box, Card, Code, Flex, Text, Tooltip } from "@radix-ui/themes";
 import { frequencyOptions } from "@views/client/modules/articles/components/article-details";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useDrag, useDragLayer, useDrop } from "react-dnd";
@@ -45,6 +45,7 @@ import { InvoiceDiscountInput } from "./components/discount-input";
 import { InvoiceLineArticleInput } from "./components/line-article";
 import { InvoiceLinePriceInput } from "./components/line-price";
 import { InvoiceLineQuantityInput } from "./components/line-quantity";
+import _ from "lodash";
 
 export const InvoiceLineInput = (props: {
   invoice?: Invoices;
@@ -293,16 +294,18 @@ export const InvoiceLineInput = (props: {
                     {["quotes", "invoices", "credit_notes"].includes(
                       props.invoice?.type || ""
                     ) && (
-                      <Text as="div" color="gray" size="2">
-                        Coût max{" "}
-                        {
-                          getCostEstimate(
-                            article!,
-                            false,
-                            value.quantity || 1
-                          ).split("-")[1]
-                        }
-                      </Text>
+                      <Tooltip content="Coût estimé (HT) maximum pour cette ligne">
+                        <Text as="div" color="gray" size="2">
+                          Coût{" "}
+                          {_.last(
+                            getCostEstimate(
+                              article || undefined,
+                              false,
+                              value.quantity || 1
+                            ).split("-")
+                          )}
+                        </Text>
+                      </Tooltip>
                     )}
                     <Text
                       as="div"
