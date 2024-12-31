@@ -9,7 +9,10 @@ import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { SearchBar } from "../../../../components/search-bar";
-import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
+import {
+  generateQueryFromMap,
+  schemaToSearchFields,
+} from "../../../../components/search-bar/utils/utils";
 import { CMSColumn } from "./components/cms-column";
 
 export const CMSPage = () => {
@@ -17,9 +20,9 @@ export const CMSPage = () => {
     query: [],
     asc: false,
   });
-  const { cms_items: cms_items_raw } = useCMSItems({
+  const { cms_items: cms_items_raw, update } = useCMSItems({
     ...options,
-    query: [...((options?.query as any) || [])],
+    query: generateQueryFromMap({ id: [] }),
   });
 
   const schema = useRestSchema("cms");
@@ -50,10 +53,38 @@ export const CMSPage = () => {
             "grid grid-cols-4 w-full flex-1 grow rounded-none"
           )}
         >
-          <CMSColumn items={cms_items} title="Nouveau" />
-          <CMSColumn items={[]} title="Qualifié" />
-          <CMSColumn items={[]} title="Proposition" />
-          <CMSColumn items={[]} title="Gagné" />
+          <CMSColumn
+            type="new"
+            items={cms_items.filter((item) => item.state === "new")}
+            title="Nouveau"
+            onMove={(item) => {
+              update.mutate({ id: item.id, state: "new" });
+            }}
+          />
+          <CMSColumn
+            type="qualified"
+            items={cms_items.filter((item) => item.state === "qualified")}
+            title="Qualifié"
+            onMove={(item) => {
+              update.mutate({ id: item.id, state: "qualified" });
+            }}
+          />
+          <CMSColumn
+            type="proposal"
+            items={cms_items.filter((item) => item.state === "proposal")}
+            title="Proposition"
+            onMove={(item) => {
+              update.mutate({ id: item.id, state: "proposal" });
+            }}
+          />
+          <CMSColumn
+            type="won"
+            items={cms_items.filter((item) => item.state === "won")}
+            title="Gagné"
+            onMove={(item) => {
+              update.mutate({ id: item.id, state: "won" });
+            }}
+          />
         </div>
       </div>
     </Page>

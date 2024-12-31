@@ -13,19 +13,19 @@ type CMSColumnProps = {
   title: string;
   items: CMSItem[];
   onMove?: (value: CMSItem) => void;
+  type: "new" | "qualified" | "proposal" | "won";
 } & React.HTMLAttributes<HTMLDivElement>;
 
-export const CMSColumn = ({ title, items, ...props }: CMSColumnProps) => {
+export const CMSColumn = ({ title, items, type, ...props }: CMSColumnProps) => {
   const { create } = useCMSItems();
   const { client } = useClients();
 
-  const [dropRef] = useDrop(
+  const [__, dropRef] = useDrop(
     () => ({
       accept: "cms-item",
       drop: (value: CMSItem) => {
         if (props.onMove) props.onMove(value);
       },
-
       collect: (monitor) => ({
         isOver: !!monitor.isOver(),
         fromThisColumn: items.map((i) => i.id).includes(monitor.getItem()?.id),
@@ -41,7 +41,7 @@ export const CMSColumn = ({ title, items, ...props }: CMSColumnProps) => {
   return (
     <div
       className={twMerge("flex flex-col flex-1 p-3", props.className)}
-      ref={dropRef as any}
+      ref={dropRef}
       {..._.omit(props, "className")}
     >
       <div
@@ -56,11 +56,10 @@ export const CMSColumn = ({ title, items, ...props }: CMSColumnProps) => {
             variant="ghost"
             onClick={() => {
               create.mutate({
-                contacts: ["d1hwu5n9fxc0", "d4wctsrz0n40"],
+                contacts: ["d1hwu5n9fxc0", "d5fz0qt3z8o0"],
                 notes: "Mes ptites notes",
                 seller: client?.user_id || "",
-                prev: null,
-                next: null,
+                state: type,
               });
             }}
           >
@@ -71,6 +70,7 @@ export const CMSColumn = ({ title, items, ...props }: CMSColumnProps) => {
         <div className="flex-1 grow">
           {items.map((item, index) => (
             <CMSCard
+              key={item.id}
               cmsItem={item}
               className={twMerge(index === 0 && "mt-3")}
             />

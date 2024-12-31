@@ -6,6 +6,7 @@ export type CMSItem = {
   seller: string;
   prev: string | null;
   next: string | null;
+  state: "new" | "qualified" | "proposal" | "won" | "lost";
 };
 
 export type ContactSummary = {
