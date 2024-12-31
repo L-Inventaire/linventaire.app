@@ -16,8 +16,10 @@ export type Statistics = {
     tag: string[];
   }[];
   clientBalanceTable: {
-    [key: string]: Invoices[];
-  };
+    which30days: any;
+    client: string;
+    total: number;
+  }[];
   expenses: number;
   totalExpenses: number | null;
   benefits: number | null;
