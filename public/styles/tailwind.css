@@ -1278,6 +1278,10 @@ body :is(.m-auto) {
   margin: auto;
 }
 
+body :is(.m-4) {
+  margin: 1rem;
+}
+
 body :is(.\!mx-3) {
   margin-left: 0.75rem !important;
   margin-right: 0.75rem !important;

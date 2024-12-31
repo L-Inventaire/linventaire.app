@@ -6,8 +6,10 @@ import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import { IconButton } from "@radix-ui/themes";
 import _ from "lodash";
 import { useDragLayer, useDrop } from "react-dnd";
+import { useSetRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
 import { CMSCard } from "./cms-card";
+import { CMSItemModalAtom } from "./cms-items-modal";
 
 type CMSColumnProps = {
   title: string;
@@ -38,6 +40,8 @@ export const CMSColumn = ({ title, items, type, ...props }: CMSColumnProps) => {
     isDragging: monitor.isDragging(),
   }));
 
+  const setCMSModal = useSetRecoilState(CMSItemModalAtom);
+
   return (
     <div
       className={twMerge("flex flex-col flex-1 p-3", props.className)}
@@ -55,11 +59,14 @@ export const CMSColumn = ({ title, items, type, ...props }: CMSColumnProps) => {
             className="cursor-pointer"
             variant="ghost"
             onClick={() => {
-              create.mutate({
-                contacts: ["d1hwu5n9fxc0", "d5fz0qt3z8o0"],
-                notes: "Mes ptites notes",
-                seller: client?.user_id || "",
-                state: type,
+              setCMSModal({
+                open: true,
+                type,
+                onClose: () =>
+                  setCMSModal((data) => ({ ...data, open: false })),
+                onSave: (value) => {
+                  create.mutate(value);
+                },
               });
             }}
           >
