@@ -5,6 +5,7 @@ import { useAccountingTransaction } from "@features/accounting/hooks/use-account
 import { Page } from "@views/client/_layout/page";
 import { useParams } from "react-router-dom";
 import { AccountingTransactionsDetailsPage } from "../components/accounting-transactions-details";
+import { useHasAccess } from "@features/access";
 
 export const AccountingTransactionsViewPage = (_props: {
   readonly?: boolean;
@@ -17,6 +18,7 @@ export const AccountingTransactionsViewPage = (_props: {
     isPending,
     isPendingModification,
   } = useAccountingTransaction(id || "");
+  const hasAccess = useHasAccess();
 
   if (!item)
     return (
@@ -42,15 +44,21 @@ export const AccountingTransactionsViewPage = (_props: {
           document={item || { id }}
           mode={"read"}
           backRoute={ROUTES.Accounting}
-          editRoute={ROUTES.AccountingEdit}
+          editRoute={
+            hasAccess("ACCOUNTING_WRITE") ? ROUTES.AccountingEdit : undefined
+          }
           viewRoute={ROUTES.AccountingView}
           prefix={<></>}
           suffix={<></>}
           onRemove={
-            item?.id ? async () => remove.mutateAsync(item?.id) : undefined
+            item?.id && hasAccess("ACCOUNTING_WRITE")
+              ? async () => remove.mutateAsync(item?.id)
+              : undefined
           }
           onRestore={
-            item?.id ? async () => restore.mutateAsync(item?.id) : undefined
+            item?.id && hasAccess("ACCOUNTING_WRITE")
+              ? async () => restore.mutateAsync(item?.id)
+              : undefined
           }
         />
       }

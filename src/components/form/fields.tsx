@@ -198,7 +198,6 @@ export const FormInput = memo(
           <>
             {(!props.type ||
               props.type === "text" ||
-              (props.type === "quantity" && props.metadata?.unit !== "h") ||
               props.type === "scan") && (
               <InputWithSuggestions
                 className="w-full"
@@ -307,7 +306,8 @@ export const FormInput = memo(
                 disabled={disabled}
               />
             )}
-            {props.type === "number" && (
+            {(props.type === "number" ||
+              (props.type === "quantity" && props.metadata?.unit !== "h")) && (
               <Input
                 autoFocus={!!props.autoFocus}
                 autoSelect={props.autoSelect}

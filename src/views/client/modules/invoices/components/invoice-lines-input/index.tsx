@@ -56,7 +56,7 @@ export const InvoiceLinesInput = ({
     <>
       <div
         className={twMerge(
-          "relative flex w-full items-center opacity-100 transition-all mb-3 group/invoice-line"
+          "relative flex w-full items-center opacity-100 mb-3 transition-all group/invoice-line"
         )}
       >
         <RadixCard
@@ -94,7 +94,7 @@ export const InvoiceLinesInput = ({
                 )}
               >
                 <Heading size={"2"} className="py-1 px-2.5">
-                  Total
+                  Résumé HT
                 </Heading>
               </Box>
             </Flex>

@@ -24,11 +24,10 @@ import {
 } from "@views/client/_layout/page";
 import _ from "lodash";
 import { useEffect } from "react";
+import { InvoiceInputFormat } from "../../invoices/components/input-format";
 import { ContactAccountingAccount } from "./contact-accounting-account";
 import { RelatedInvoicesInput } from "./related-invoices-input";
 import { RelationsInput } from "./relations-input";
-import { InvoiceFormatInput } from "@components/invoice-format-input";
-import { InvoiceInputFormat } from "../../invoices/components/input-format";
 
 export const ContactsDetailsPage = ({
   readonly,

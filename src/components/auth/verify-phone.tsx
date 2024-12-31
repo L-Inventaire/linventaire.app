@@ -137,7 +137,7 @@ export const VerifyPhone = (props: {
               disabled={!/^\+?[0-9]{5,15}$/.test(phone)}
               onClick={() => requestMfa()}
             >
-              Continue
+              Continuer
               <ArrowRightIcon
                 className="ml-2 -mr-0.5 h-4 w-4"
                 aria-hidden="true"

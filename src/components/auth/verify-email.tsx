@@ -193,7 +193,7 @@ export const VerifyEmail = (props: {
                 (!legalConsent && props.showLegal)
               }
             >
-              Continue
+              Continuer
               <ArrowRightIcon
                 className="ml-2 -mr-0.5 h-4 w-4"
                 aria-hidden="true"

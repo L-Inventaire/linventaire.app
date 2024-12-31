@@ -57,6 +57,7 @@ import { TagsPage } from "./settings/tags";
 import { CompanyUsersPage } from "./settings/users";
 import { SetupFeaturebase } from "@views/featurebase";
 import { CMSPage } from "./modules/cms";
+import { GroupInvoices } from "./modules/invoices/group-items";
 
 export const BackOfficeRoutes = () => {
   return (
@@ -114,6 +115,7 @@ export const BackOfficeRoutes = () => {
         <Route path={ROUTES.InvoicesEdit} element={<InvoicesEditPage />} />
         <Route path={ROUTES.FurnishQuotes} element={<FurnishQuotesPage />} />
         <Route path={ROUTES.InvoicesFromItems} element={<QuoteFromItems />} />
+        <Route path={ROUTES.InvoicesGroup} element={<GroupInvoices />} />
 
         <Route
           path={ROUTES.Settings}

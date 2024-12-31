@@ -41,7 +41,7 @@ export const VerifyApp = (props: {
               props.onComplete({ token: validation_token, email: props.email });
           }}
         >
-          Continue
+          Continuer
           <ArrowRightIcon className="ml-2 -mr-0.5 h-4 w-4" aria-hidden="true" />
         </Button>
       </div>

@@ -155,7 +155,7 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
             />
 
             <InputLabel
-              label="SIRET"
+              label="SIRET (optionnel)"
               className="mt-4"
               input={
                 <Input
@@ -294,9 +294,7 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
                 address.zip &&
                 address.city &&
                 address.country &&
-                address.region &&
-                companyLegalName &&
-                companyRegistrationNumber
+                companyLegalName
               ) &&
                 step === 1)
             }
@@ -310,8 +308,8 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
             }}
           >
             {step === 0 || (step === 2 && invitations.length > 0) || step === 1
-              ? "Continue"
-              : "Skip"}
+              ? "Continuer"
+              : "Ignorer"}
           </Button>
         )}
       </div>

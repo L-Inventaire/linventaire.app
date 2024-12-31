@@ -117,7 +117,7 @@ export const SecurityApp = (props: { mfa?: MethodType }) => {
               <br />
               <div className="text-center">
                 <Button className="mx-2 my-2" onClick={() => setStep(1)}>
-                  Continue
+                  Continuer
                 </Button>
               </div>
             </>

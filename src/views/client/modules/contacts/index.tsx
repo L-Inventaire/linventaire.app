@@ -20,6 +20,7 @@ import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
 import { formatNumber } from "@features/utils/format/strings";
+import { useHasAccess } from "@features/access";
 
 export const ContactsPage = () => {
   const [options, setOptions] = useState<RestOptions<Contacts>>({
@@ -33,6 +34,7 @@ export const ContactsPage = () => {
   });
   const schema = useRestSchema("contacts");
   const navigate = useNavigateAlt();
+  const hasAccess = useHasAccess();
 
   return (
     <Page
@@ -47,19 +49,23 @@ export const ContactsPage = () => {
             q.valid && setOptions({ ...options, query: q.fields })
           }
           suffix={
-            <Button
-              className="shrink-0"
-              size="sm"
-              to={withSearchAsModel(
-                getRoute(ROUTES.ContactsEdit, { id: "new" }),
-                schema.data
+            <>
+              {hasAccess("CONTACTS_WRITE") && (
+                <Button
+                  className="shrink-0"
+                  size="sm"
+                  to={withSearchAsModel(
+                    getRoute(ROUTES.ContactsEdit, { id: "new" }),
+                    schema.data
+                  )}
+                  icon={(p) => <PlusIcon {...p} />}
+                  shortcut={["shift+a"]}
+                  hideTextOnMobile
+                >
+                  Ajouter un contact
+                </Button>
               )}
-              icon={(p) => <PlusIcon {...p} />}
-              shortcut={["shift+a"]}
-              hideTextOnMobile
-            >
-              Ajouter un contact
-            </Button>
+            </>
           }
         />
       }

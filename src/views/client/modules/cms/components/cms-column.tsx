@@ -1,4 +1,6 @@
 import { Section } from "@atoms/text";
+import { useClients } from "@features/clients/state/use-clients";
+import { useCMSItems } from "@features/cms/state/use-cms";
 import { CMSItem } from "@features/cms/types/types";
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import { IconButton } from "@radix-ui/themes";
@@ -6,8 +8,6 @@ import _ from "lodash";
 import { useDragLayer, useDrop } from "react-dnd";
 import { twMerge } from "tailwind-merge";
 import { CMSCard } from "./cms-card";
-import { useCMSItems } from "@features/cms/state/use-cms";
-import { useClients } from "@features/clients/state/use-clients";
 
 type CMSColumnProps = {
   title: string;
@@ -19,7 +19,7 @@ export const CMSColumn = ({ title, items, ...props }: CMSColumnProps) => {
   const { create } = useCMSItems();
   const { client } = useClients();
 
-  const [{ isOver, fromThisColumn }, dropRef] = useDrop(
+  const [dropRef] = useDrop(
     () => ({
       accept: "cms-item",
       drop: (value: CMSItem) => {
@@ -34,14 +34,14 @@ export const CMSColumn = ({ title, items, ...props }: CMSColumnProps) => {
     [props.onMove]
   );
 
-  const { isDragging } = useDragLayer((monitor) => ({
+  useDragLayer((monitor) => ({
     isDragging: monitor.isDragging(),
   }));
 
   return (
     <div
       className={twMerge("flex flex-col flex-1 p-3", props.className)}
-      ref={dropRef}
+      ref={dropRef as any}
       {..._.omit(props, "className")}
     >
       <div

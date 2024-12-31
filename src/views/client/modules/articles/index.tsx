@@ -20,6 +20,7 @@ import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
 import { formatNumber } from "@features/utils/format/strings";
+import { useHasAccess } from "@features/access";
 
 export const ArticlesPage = () => {
   const [options, setOptions] = useState<RestOptions<Articles>>({
@@ -30,6 +31,7 @@ export const ArticlesPage = () => {
   const { articles } = useArticles(options);
   const schema = useRestSchema("articles");
   const navigate = useNavigateAlt();
+  const hasAccess = useHasAccess();
 
   return (
     <Page
@@ -44,18 +46,22 @@ export const ArticlesPage = () => {
             q.valid && setOptions({ ...options, query: q.fields })
           }
           suffix={
-            <Button
-              size="sm"
-              to={withSearchAsModel(
-                getRoute(ROUTES.ProductsEdit, { id: "new" }),
-                schema.data
+            <>
+              {hasAccess("ARTICLES_WRITE") && (
+                <Button
+                  size="sm"
+                  to={withSearchAsModel(
+                    getRoute(ROUTES.ProductsEdit, { id: "new" }),
+                    schema.data
+                  )}
+                  icon={(p) => <PlusIcon {...p} />}
+                  shortcut={["shift+a"]}
+                  hideTextOnMobile
+                >
+                  Ajouter un article
+                </Button>
               )}
-              icon={(p) => <PlusIcon {...p} />}
-              shortcut={["shift+a"]}
-              hideTextOnMobile
-            >
-              Ajouter un article
-            </Button>
+            </>
           }
         />
       }

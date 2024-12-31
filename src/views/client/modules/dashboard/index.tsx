@@ -16,7 +16,7 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { computeDeliveryDelayDate } from "../invoices/utils";
 import AccountingCard from "./components/accounting-card";
-import LineChart from "./components/line-chart";
+import MainChart from "./components/main-chart";
 import NumberCard from "./components/number-card";
 import TableCard from "./components/table-card";
 
@@ -39,39 +39,43 @@ export const DashboardHomePage = () => {
     >
       <div className="flex items-center mb-6 ml-3 mt-3">
         <Title>Tableau de bord</Title>
-        <div className="w-[1px] min-h-1 h-full bg-slate-200 mx-6">‎</div>
-        <Button
-          theme={period === "week" ? "secondary" : "outlined"}
-          className="mr-1"
-          onClick={() => {
-            setPeriod("week");
-          }}
-        >
-          Semaine
-        </Button>
-        <Button
-          theme={period === "month" ? "secondary" : "outlined"}
-          className="mr-1"
-          onClick={() => {
-            setPeriod("month");
-          }}
-        >
-          Mois
-        </Button>
-        <Button
-          theme={period === "year" ? "secondary" : "outlined"}
-          className="mr-1"
-          onClick={() => {
-            setPeriod("year");
-          }}
-        >
-          Année
-        </Button>
+        {false && (
+          <>
+            <div className="w-[1px] min-h-1 h-full bg-slate-200 mx-6">‎</div>
+            <Button
+              theme={period === "week" ? "secondary" : "outlined"}
+              className="mr-1"
+              onClick={() => {
+                setPeriod("week");
+              }}
+            >
+              Semaine
+            </Button>
+            <Button
+              theme={period === "month" ? "secondary" : "outlined"}
+              className="mr-1"
+              onClick={() => {
+                setPeriod("month");
+              }}
+            >
+              Mois
+            </Button>
+            <Button
+              theme={period === "year" ? "secondary" : "outlined"}
+              className="mr-1"
+              onClick={() => {
+                setPeriod("year");
+              }}
+            >
+              Année
+            </Button>
+          </>
+        )}
       </div>
       <div className="flex flex-col lg:flex-row px-3 h-full max-h-full">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_250px_1fr_250px] lg:grid-rows-[calc(50%-5px)_calc(50%-5px)] w-full lg:w-2/3 gap-[10px] mr-[10px]">
           <div className="w-full min-h-64 lg:h-full lg:col-span-3">
-            <LineChart period={period} />
+            <MainChart period={period} />
           </div>
           <AccountingCard className={"min-h-64"}></AccountingCard>
           <TableCard
