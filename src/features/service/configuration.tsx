@@ -1,5 +1,5 @@
 import { Unit } from "@atoms/input/input-unit";
-import { SectionSmall } from "@atoms/text";
+import { Base, SectionSmall } from "@atoms/text";
 import { RestDocumentsInput } from "@components/input-rest";
 import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
@@ -32,9 +32,9 @@ export const ServiceItemsColumns: Column<ServiceItems>[] = [
   {
     title: "Date",
     render: (item) => (
-      <SectionSmall className="whitespace-nowrap">
+      <Base className="whitespace-nowrap">
         {formatTime(item.started_at || item.created_at, { hideTime: true })}
-      </SectionSmall>
+      </Base>
     ),
   },
   {
@@ -50,12 +50,16 @@ export const ServiceItemsColumns: Column<ServiceItems>[] = [
     headClassName: "justify-end",
     render: (item) => (
       <>
-        <InvoiceRestDocument
-          label="Devis"
-          placeholder="Aucun devis"
-          value={item.for_rel_quote}
-          disabled
-        />
+        {item.for_no_quote ? (
+          <Base>Non facturable / contrat</Base>
+        ) : (
+          <InvoiceRestDocument
+            label="Devis"
+            placeholder="Aucun devis"
+            value={item.for_rel_quote}
+            disabled
+          />
+        )}
       </>
     ),
   },

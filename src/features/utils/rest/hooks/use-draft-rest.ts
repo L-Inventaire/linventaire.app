@@ -7,9 +7,9 @@ import {
   useEffect,
   useState,
 } from "react";
+import toast from "react-hot-toast";
 import { atomFamily, useRecoilState } from "recoil";
 import { useRest } from "./use-rest";
-import toast from "react-hot-toast";
 
 const RestDraftAtom = atomFamily<any, [string, string | "new", string]>({
   key: "RestDraftAtom",
@@ -50,10 +50,6 @@ export const useDraftRest = <T extends { id: string }>(
   const existingItem = id && id !== "new" ? items?.data?.list?.[0] : null;
   const { key } = useContext(DraftContext);
 
-  useEffect(() => {
-    refresh();
-  }, [id]);
-
   const [defaultWasSet, setDefaultWasSet] = useState(false);
   const [draft, setDraft] = useRecoilState<T>(RestDraftAtom([table, id, key]));
 
@@ -88,6 +84,7 @@ export const useDraftRest = <T extends { id: string }>(
         setLockNavigation(false);
         const newItem = await upsert.mutateAsync({ ...draft, ...mutation });
         await onSaved(newItem);
+        refresh();
         return newItem;
       } catch (e) {
         setLockNavigation(true);

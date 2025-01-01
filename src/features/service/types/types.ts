@@ -17,6 +17,7 @@ export type ServiceItems = RestEntity & {
 
   client: string; // The client who has this service or plan to have it
   for_rel_quote: string; // The quote or invoice this service is linked to
+  for_no_quote: boolean;
 
   from_rel_original_service_item: string; // Sub tasks
 

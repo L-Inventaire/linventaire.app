@@ -53,6 +53,10 @@ export const ServicePage = () => {
           not: true,
           values: [{ op: "regex", value: ".+" }],
         },
+        {
+          key: "for_no_quote",
+          values: [{ op: "equals", value: true, not: true }],
+        },
       ],
     },
     done: {
