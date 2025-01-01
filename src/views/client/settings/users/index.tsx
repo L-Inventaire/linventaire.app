@@ -1,10 +1,13 @@
+import Avatar from "@atoms/avatar/avatar";
 import { Button } from "@atoms/button/button";
+import { ButtonConfirm } from "@atoms/button/confirm";
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import SelectMultiple from "@atoms/input/input-select-multiple";
 import { Input } from "@atoms/input/input-text";
-import { Info, InfoSmall, Section } from "@atoms/text";
-import { Table } from "@molecules/table";
+import { Modal, ModalContent } from "@atoms/modal/modal";
+import { BaseSmall, Info, Section } from "@atoms/text";
 import { useHasAccess } from "@features/access";
+import { useAuth } from "@features/auth/state/use-auth";
 import { useClientUsers } from "@features/clients/state/use-client-users";
 import { useClients } from "@features/clients/state/use-clients";
 import { ClientsUsers, Role, Roles } from "@features/clients/types/clients";
@@ -13,14 +16,11 @@ import {
   getEmailsFromString,
   getServerUri,
 } from "@features/utils/format/strings";
+import { Table } from "@molecules/table";
+import _ from "lodash";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Page, PageBlock } from "../../_layout/page";
-import _ from "lodash";
-import { ButtonConfirm } from "@atoms/button/confirm";
-import { useAuth } from "@features/auth/state/use-auth";
-import { Modal, ModalContent } from "@atoms/modal/modal";
-import Avatar from "@atoms/avatar/avatar";
 
 export const CompanyUsersPage = () => {
   const { user: me } = useAuth();
@@ -61,7 +61,7 @@ export const CompanyUsersPage = () => {
     a.value.includes("ARTICLES") ||
     a.value.includes("STOCK") ||
     a.value.includes("INVOICES") ||
-    a.value.includes("CMS") ||
+    a.value.includes("CRM") ||
     a.value.includes("QUOTES") ||
     a.value.includes("ONSITE_SERVICES");
 
@@ -208,7 +208,7 @@ export const CompanyUsersPage = () => {
               {
                 title: "Roles",
                 render: (user) => (
-                  <InfoSmall>{roleSumary(user.roles.list)}</InfoSmall>
+                  <BaseSmall>{roleSumary(user.roles.list)}</BaseSmall>
                 ),
               },
               {
@@ -279,7 +279,7 @@ export const CompanyUsersPage = () => {
             {
               title: "Roles",
               render: (user) => (
-                <InfoSmall>{roleSumary(user.roles.list)}</InfoSmall>
+                <BaseSmall>{roleSumary(user.roles.list)}</BaseSmall>
               ),
             },
             {
@@ -324,7 +324,8 @@ const roleSumary = (roles: Role[]) => {
 
   // First remove write and read if manage exists, and read if write exists
   roles = (roles || []).filter((role) => {
-    const [value, level] = role.split("_");
+    const value = role.match(/^(.*)_([A-Z]+)$/)?.[1];
+    const level = role.match(/^(.*)_([A-Z]+)$/)?.[2];
     if (level === "READ") {
       return (
         !roles.includes(`${value}_WRITE` as any) &&
@@ -338,21 +339,32 @@ const roleSumary = (roles: Role[]) => {
   });
 
   const rolesByType = roles.reduce((acc, role) => {
-    const [value, type] = role.split("_");
+    const value = role.match(/^(.*)_([A-Z]+)$/)?.[1];
+    const type = role.match(/^(.*)_([A-Z]+)$/)?.[2] as any;
     if (!acc[type]) {
       acc[type] = [];
     }
-    acc[type].push(value);
+    acc[type].push(RolesNames[value as any] || value);
     return acc;
   }, {} as Record<string, string[]>);
 
-  return Object.entries(rolesByType)
-    .filter(([, values]) => values.length > 0)
-    .map(([type, values]) => `${type}: ${values.join(", ")}`)
-    .join(" - ");
+  return (
+    <>
+      {["READ", "WRITE", "MANAGE"].map(
+        (level) =>
+          rolesByType[level] &&
+          rolesByType[level].length > 0 && (
+            <div key={level}>
+              <b>{RolesNames[level]}</b>: {rolesByType[level].join(", ")}
+            </div>
+          )
+      )}
+    </>
+  );
 };
 
 const RolesNames: any = {
+  CLIENT: "(toute l'entreprise)",
   CLIENT_MANAGE: "Administrateur",
   CONTACTS: "Contacts",
   ARTICLES: "Articles",
@@ -362,7 +374,7 @@ const RolesNames: any = {
   SUPPLIER_INVOICES: "Factures fournisseurs",
   SUPPLIER_QUOTES: "Devis fournisseurs",
   ONSITE_SERVICES: "Service",
-  CMS: "CMS",
+  CRM: "CRM",
   MANAGE: "Administration",
   WRITE: "Lecture et modifications",
   READ: "Lecture",

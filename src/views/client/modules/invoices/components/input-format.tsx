@@ -36,6 +36,7 @@ export const InvoiceInputFormat = ({
   )
     ? undefined
     : true;
+
   return (
     <InputButton
       readonly={readonly}

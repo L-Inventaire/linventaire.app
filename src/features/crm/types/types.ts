@@ -1,10 +1,11 @@
-export type CMSItem = {
+export type CRMItem = {
   id: string;
   contacts: string[];
   notes: string;
-  contact_summaries: ContactSummary[];
   seller: string;
   state: "new" | "qualified" | "proposal" | "won" | "lost";
+
+  contact_summaries?: ContactSummary[];
 };
 
 export type ContactSummary = {

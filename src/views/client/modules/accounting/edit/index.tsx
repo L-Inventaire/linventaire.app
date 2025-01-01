@@ -7,7 +7,7 @@ import { AccountingTransactions } from "@features/accounting/types/types";
 import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { Page } from "@views/client/_layout/page";
 import _ from "lodash";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AccountingTransactionsDetailsPage } from "../components/accounting-transactions-details";
 
@@ -24,7 +24,7 @@ export const AccountingTransactionsEditPage = (_props: {
   id = id === "new" ? "" : id || "";
   const navigate = useNavigate();
 
-  const defaultModel = useAccountingTransactionDefaultModel();
+  const defaultModel = useRef(useAccountingTransactionDefaultModel()).current;
   const initialModel = JSON.parse(
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as AccountingTransactions;

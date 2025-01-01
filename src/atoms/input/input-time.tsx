@@ -14,7 +14,7 @@ interface InputProps
     React.SelectHTMLAttributes<HTMLSelectElement>,
     "size" | "onChange" | "value"
   > {
-  size?: "sm" | "lg";
+  size?: "sm" | "md" | "lg";
   label?: string;
   labelProps?: React.HTMLAttributes<HTMLLabelElement>;
   placeholder?: string;

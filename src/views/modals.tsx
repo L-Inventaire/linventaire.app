@@ -6,7 +6,7 @@ import { EditorInputMentionHelper } from "@molecules/editor-input";
 import { RecurrenceModal } from "./client/modules/invoices/components/input-recurrence";
 import { FurnishQuotesModal } from "./client/modules/invoices/components/invoice-actions/furnish-quotes-modal";
 import { InvoiceNumerotationModal } from "@components/invoice-numerotation-input/modal";
-import { CMSItemsModal } from "./client/modules/cms/components/cms-items-modal";
+import { CRMItemsModal } from "./client/modules/crm/components/crm-items-modal";
 
 export const Modals = () => {
   return (
@@ -19,7 +19,7 @@ export const Modals = () => {
       <RecurrenceModal />
       <FurnishQuotesModal />
       <InvoiceNumerotationModal />
-      <CMSItemsModal />
+      <CRMItemsModal />
     </>
   );
 };
