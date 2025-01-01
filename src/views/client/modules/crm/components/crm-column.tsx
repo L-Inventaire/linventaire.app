@@ -8,6 +8,7 @@ import { useSetRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
 import { CRMCard } from "./crm-card";
 import { CRMItemModalAtom } from "./crm-items-modal";
+import { useHasAccess } from "@features/access";
 
 type CRMColumnProps = {
   title: string;
@@ -37,6 +38,8 @@ export const CRMColumn = ({ title, items, type, ...props }: CRMColumnProps) => {
 
   const setCRMModal = useSetRecoilState(CRMItemModalAtom);
 
+  const hasAccess = useHasAccess();
+
   return (
     <div
       className={twMerge("flex flex-col flex-1", props.className)}
@@ -50,18 +53,20 @@ export const CRMColumn = ({ title, items, type, ...props }: CRMColumnProps) => {
       >
         <div className="flex w-full justify-between items-center">
           <Section className="block mb-2 mt-3">{title}</Section>
-          <IconButton
-            className="cursor-pointer"
-            variant="ghost"
-            onClick={() => {
-              setCRMModal({
-                open: true,
-                type,
-              });
-            }}
-          >
-            <PlusCircleIcon width="18" height="18" />
-          </IconButton>
+          {hasAccess("CRM_WRITE") && (
+            <IconButton
+              className="cursor-pointer"
+              variant="ghost"
+              onClick={() => {
+                setCRMModal({
+                  open: true,
+                  type,
+                });
+              }}
+            >
+              <PlusCircleIcon width="18" height="18" />
+            </IconButton>
+          )}
         </div>
 
         <div className="flex-1 grow space-y-2">
@@ -70,6 +75,7 @@ export const CRMColumn = ({ title, items, type, ...props }: CRMColumnProps) => {
               key={item.id}
               crmItem={item}
               className={twMerge(index === 0 && "mt-3")}
+              readonly={!hasAccess("CRM_WRITE")}
             />
           ))}
         </div>
