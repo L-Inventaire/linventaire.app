@@ -2,7 +2,7 @@ import { Button } from "@atoms/button/button";
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import SelectMultiple from "@atoms/input/input-select-multiple";
 import { Input } from "@atoms/input/input-text";
-import { Info, InfoSmall, Section } from "@atoms/text";
+import { BaseSmall, Info, InfoSmall, Section } from "@atoms/text";
 import { Table } from "@molecules/table";
 import { useHasAccess } from "@features/access";
 import { useClientUsers } from "@features/clients/state/use-client-users";
@@ -208,7 +208,7 @@ export const CompanyUsersPage = () => {
               {
                 title: "Roles",
                 render: (user) => (
-                  <InfoSmall>{roleSumary(user.roles.list)}</InfoSmall>
+                  <BaseSmall>{roleSumary(user.roles.list)}</BaseSmall>
                 ),
               },
               {
@@ -279,7 +279,7 @@ export const CompanyUsersPage = () => {
             {
               title: "Roles",
               render: (user) => (
-                <InfoSmall>{roleSumary(user.roles.list)}</InfoSmall>
+                <BaseSmall>{roleSumary(user.roles.list)}</BaseSmall>
               ),
             },
             {
@@ -324,7 +324,8 @@ const roleSumary = (roles: Role[]) => {
 
   // First remove write and read if manage exists, and read if write exists
   roles = (roles || []).filter((role) => {
-    const [value, level] = role.split("_");
+    const value = role.match(/^(.*)_([A-Z]+)$/)?.[1];
+    const level = role.match(/^(.*)_([A-Z]+)$/)?.[2];
     if (level === "READ") {
       return (
         !roles.includes(`${value}_WRITE` as any) &&
@@ -338,21 +339,32 @@ const roleSumary = (roles: Role[]) => {
   });
 
   const rolesByType = roles.reduce((acc, role) => {
-    const [value, type] = role.split("_");
+    const value = role.match(/^(.*)_([A-Z]+)$/)?.[1];
+    const type = role.match(/^(.*)_([A-Z]+)$/)?.[2] as any;
     if (!acc[type]) {
       acc[type] = [];
     }
-    acc[type].push(value);
+    acc[type].push(RolesNames[value as any] || value);
     return acc;
   }, {} as Record<string, string[]>);
 
-  return Object.entries(rolesByType)
-    .filter(([, values]) => values.length > 0)
-    .map(([type, values]) => `${type}: ${values.join(", ")}`)
-    .join(" - ");
+  return (
+    <>
+      {["READ", "WRITE", "MANAGE"].map(
+        (level) =>
+          rolesByType[level] &&
+          rolesByType[level].length > 0 && (
+            <div key={level}>
+              <b>{RolesNames[level]}</b>: {rolesByType[level].join(", ")}
+            </div>
+          )
+      )}
+    </>
+  );
 };
 
 const RolesNames: any = {
+  CLIENT: "(toute l'entreprise)",
   CLIENT_MANAGE: "Administrateur",
   CONTACTS: "Contacts",
   ARTICLES: "Articles",

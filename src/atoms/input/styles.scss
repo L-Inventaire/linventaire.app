@@ -30,6 +30,10 @@
 
 }
 
+.dark .multiselect-container {
+    --mselect-background-color: #000000;
+}
+
 .multiselect-container {
     cursor: pointer;
     --mselect-background-color: #FFFFFF;
