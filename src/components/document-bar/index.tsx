@@ -33,6 +33,7 @@ export const DocumentBar = ({
   entity,
   document,
   onSave,
+  onSaveDisabled,
   prefix,
   suffix,
   loading,
@@ -51,6 +52,7 @@ export const DocumentBar = ({
   editRoute?: string;
   onPrint?: () => Promise<void>;
   onSave?: () => Promise<any>;
+  onSaveDisabled?: boolean;
   onRemove?: () => Promise<void>;
   onRestore?: () => Promise<void>;
 }) => {
@@ -280,7 +282,12 @@ export const DocumentBar = ({
                 <Button size="sm" theme="outlined" onClick={cancel}>
                   Annuler
                 </Button>
-                <Button size="sm" onClick={onSave} shortcut={["cmd+s"]}>
+                <Button
+                  size="sm"
+                  onClick={onSave}
+                  shortcut={["cmd+s"]}
+                  disabled={onSaveDisabled}
+                >
                   Sauvegarder
                 </Button>
               </>

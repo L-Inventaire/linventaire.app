@@ -9,13 +9,14 @@ import _ from "lodash";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArticlesDetailsPage } from "../components/article-details";
 import toast from "react-hot-toast";
+import { useRef } from "react";
 
 export const ArticlesEditPage = (_props: { readonly?: boolean }) => {
   let { id } = useParams();
   id = id === "new" ? "" : id || "";
   const navigate = useNavigate();
 
-  const defaultModel = useArticleDefaultModel();
+  const defaultModel = useRef(useArticleDefaultModel()).current;
   const initialModel = JSON.parse(
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as Articles;

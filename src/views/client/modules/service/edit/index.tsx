@@ -7,7 +7,7 @@ import { ServiceItems, ServiceTimes } from "@features/service/types/types";
 import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { Page } from "@views/client/_layout/page";
 import _ from "lodash";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ServiceItemsDetailsPage } from "../components/service-items-details";
 import { SpentTime } from "../components/inline-spent-time-input";
@@ -26,7 +26,7 @@ export const ServiceItemsEditPage = (_props: { readonly?: boolean }) => {
 
   const [spentTime, setSpentTime] = useState<SpentTime[]>([]);
 
-  const defaultModel = useServiceItemDefaultModel();
+  const defaultModel = useRef(useServiceItemDefaultModel()).current;
   const initialModel = JSON.parse(
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as ServiceItems;
@@ -69,6 +69,7 @@ export const ServiceItemsEditPage = (_props: { readonly?: boolean }) => {
           entity={"stock_items"}
           document={{ id }}
           mode={"write"}
+          onSaveDisabled={!draft.title || !draft.client}
           onSave={async () => await save()}
           backRoute={ROUTES.ServiceItems}
           viewRoute={ROUTES.ServiceItemsView}

@@ -1779,6 +1779,10 @@ body :is(.h-screen) {
   height: 100vh;
 }
 
+body :is(.h-16) {
+  height: 4rem;
+}
+
 body :is(.max-h-0) {
   max-height: 0px;
 }
@@ -2002,10 +2006,6 @@ body :is(.min-w-28) {
 
 body :is(.min-w-32) {
   min-width: 8rem;
-}
-
-body :is(.min-w-52) {
-  min-width: 13rem;
 }
 
 body :is(.min-w-64) {
@@ -2570,11 +2570,6 @@ body :is(.border-\[0\.5px\]) {
   border-width: 0.5px;
 }
 
-body :is(.border-x-0) {
-  border-left-width: 0px;
-  border-right-width: 0px;
-}
-
 body :is(.border-b) {
   border-bottom-width: 1px;
 }
@@ -3064,16 +3059,6 @@ body :is(.border-yellow-800) {
 body :is(.border-yellow-900) {
   --tw-border-opacity: 1;
   border-color: rgb(113 63 18 / var(--tw-border-opacity));
-}
-
-body :is(.border-b-slate-50) {
-  --tw-border-opacity: 1;
-  border-bottom-color: rgb(237 237 237 / var(--tw-border-opacity));
-}
-
-body :is(.border-t-slate-50) {
-  --tw-border-opacity: 1;
-  border-top-color: rgb(237 237 237 / var(--tw-border-opacity));
 }
 
 body :is(.border-opacity-15) {
