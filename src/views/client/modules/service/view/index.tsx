@@ -5,6 +5,7 @@ import { useServiceItem } from "@features/service/hooks/use-service-items";
 import { Page } from "@views/client/_layout/page";
 import { useParams } from "react-router-dom";
 import { ServiceItemsDetailsPage } from "../components/service-items-details";
+import { useHasAccess } from "@features/access";
 
 export const ServiceItemsViewPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
@@ -15,6 +16,7 @@ export const ServiceItemsViewPage = (_props: { readonly?: boolean }) => {
     restore,
     isPendingModification,
   } = useServiceItem(id || "");
+  const hasAccess = useHasAccess();
 
   if (!item)
     return (
@@ -37,15 +39,23 @@ export const ServiceItemsViewPage = (_props: { readonly?: boolean }) => {
           document={item || { id }}
           mode={"read"}
           backRoute={ROUTES.ServiceItems}
-          editRoute={ROUTES.ServiceItemsEdit}
+          editRoute={
+            hasAccess("ONSITE_SERVICES_WRITE")
+              ? ROUTES.ServiceItemsEdit
+              : undefined
+          }
           viewRoute={ROUTES.ServiceItemsView}
           prefix={<></>}
           suffix={<></>}
           onRemove={
-            item?.id ? async () => remove.mutateAsync(item?.id) : undefined
+            item?.id && hasAccess("ONSITE_SERVICES_WRITE")
+              ? async () => remove.mutateAsync(item?.id)
+              : undefined
           }
           onRestore={
-            item?.id ? async () => restore.mutateAsync(item?.id) : undefined
+            item?.id && hasAccess("ONSITE_SERVICES_WRITE")
+              ? async () => restore.mutateAsync(item?.id)
+              : undefined
           }
         />
       }

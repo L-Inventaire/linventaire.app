@@ -28,7 +28,7 @@ export type RestDocumentProps<T> = {
   entity: string;
   filter?: Partial<T>;
   queryFn?: (ids: string[]) => Promise<{ total: number; list: T[] }>;
-  render?: (value: T) => ReactNode | JSX.Element;
+  render?: (value: T, valuesList?: T[]) => ReactNode | JSX.Element;
   size?: "xs" | "sm" | "md" | "lg" | "xl";
   disabled?: boolean;
   "data-tooltip"?: string;
@@ -136,7 +136,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
   );
 
   if (props.noWrapper) {
-    if (!value || !value?.length) {
+    if (!value || !value?.length || (!valuesList?.length && items.isFetched)) {
       if (disabled) return <></>;
 
       return (
@@ -309,7 +309,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
                 )}
               >
                 {props.render
-                  ? props.render(valuesList[0])
+                  ? props.render(valuesList[0], valuesList)
                   : (valuesList[0] as any)._label}
               </Base>
             )}

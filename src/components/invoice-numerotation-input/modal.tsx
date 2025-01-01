@@ -9,13 +9,15 @@ import { countersDefaults, InvoiceNumerotationInput } from ".";
 export const InvoiceNumerotationModalAtom = atom<{
   open: boolean;
   invoicesCounters: Partial<
-    Clients["invoices_counters"] | Contacts["invoices_counters"]
+    Clients["invoices_counters"] | Contacts["overrides"]["invoices_counters"]
   >;
   isCounters?: boolean;
   readonly?: boolean;
   onClose: () => void;
   onSave: (
-    value: Partial<Clients["invoices_counters"] | Contacts["invoices_counters"]>
+    value: Partial<
+      Clients["invoices_counters"] | Contacts["overrides"]["invoices_counters"]
+    >
   ) => void;
 }>({
   key: "InvoiceNumerotationModalAtom",
@@ -34,10 +36,12 @@ export const InvoiceNumerotationModal = () => {
   const [modal, setModal] = useRecoilState(InvoiceNumerotationModalAtom);
 
   const [inputValue, setInputValue] = useState<
-    Partial<Clients["invoices_counters"] | Contacts["invoices_counters"]>
+    Partial<
+      Clients["invoices_counters"] | Contacts["overrides"]["invoices_counters"]
+    >
   >({
     ...modal.invoicesCounters,
-  } as Clients["invoices_counters"] | Contacts["invoices_counters"]);
+  } as Clients["invoices_counters"] | Contacts["overrides"]["invoices_counters"]);
 
   useEffect(() => {
     setInputValue({ ...modal.invoicesCounters });

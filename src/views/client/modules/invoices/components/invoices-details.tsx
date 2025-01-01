@@ -189,22 +189,6 @@ export const InvoicesDetailsPage = ({
     [
       {
         component: (
-          <InvoiceInputFormat
-            btnKey="invoice-format"
-            ctrl={ctrl}
-            readonly={readonly}
-            client={client}
-            invoice={draft}
-          />
-        ),
-        visible: !isSupplierInvoice && !isSupplierQuote,
-        with_content: !_.isEqual(
-          _.omitBy(draft?.format, (a) => !a),
-          _.omitBy(client.invoices, (a) => !a)
-        ),
-      },
-      {
-        component: (
           <InvoicePaymentInput
             btnKey="invoice-payment"
             invoice={draft}
@@ -562,21 +546,27 @@ export const InvoicesDetailsPage = ({
                         </div>
                       )}
 
-                      {!!otherInputs.length && (
-                        <div className="mt-8">
-                          <Section className="mb-2">Autre</Section>
-                          <div className="m-grid-1">
-                            {otherInputs.map((a, i) => (
-                              <Fragment key={i}>
-                                {i !== 0 &&
-                                  !a.with_content &&
-                                  !!otherInputs[i - 1].with_content && <br />}
-                                {a.component}
-                              </Fragment>
-                            ))}
-                          </div>
+                      <div className="mt-8">
+                        <Section className="mb-2">Autre</Section>
+                        <div className="m-grid-1">
+                          <InvoiceInputFormat
+                            btnKey="invoice-format"
+                            ctrl={ctrl("format")}
+                            ctrlLang={ctrl("language")}
+                            readonly={readonly}
+                            client={client}
+                            language={draft.language}
+                          />
+                          {otherInputs.map((a, i) => (
+                            <Fragment key={i}>
+                              {i !== 0 &&
+                                !a.with_content &&
+                                !!otherInputs[i - 1].with_content && <br />}
+                              {a.component}
+                            </Fragment>
+                          ))}
                         </div>
-                      )}
+                      </div>
 
                       {!isQuoteRelated &&
                         readonly &&

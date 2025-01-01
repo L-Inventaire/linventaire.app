@@ -68,7 +68,7 @@ export const Account = () => {
               ),
             })),
             {
-              label: "Gérer mes entreprise",
+              label: "Entreprises et invitations",
               to: getRoute(ROUTES.AccountClients),
             },
             {

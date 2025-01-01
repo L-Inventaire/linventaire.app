@@ -21,6 +21,7 @@ import {
 import { ServiceItemStatus } from "./components/service-item-status";
 import { Badge, Tabs } from "@radix-ui/themes";
 import { formatNumber } from "@features/utils/format/strings";
+import { useHasAccess } from "@features/access";
 
 export const ServicePage = () => {
   const tabs = {
@@ -52,6 +53,10 @@ export const ServicePage = () => {
           not: true,
           values: [{ op: "regex", value: ".+" }],
         },
+        {
+          key: "for_no_quote",
+          values: [{ op: "equals", value: true, not: true }],
+        },
       ],
     },
     done: {
@@ -78,6 +83,7 @@ export const ServicePage = () => {
 
   const schema = useRestSchema("service_items");
   const navigate = useNavigateAlt();
+  const hasAccess = useHasAccess();
 
   // Counters
   const { service_items: activeServiceItems } = useServiceItems({
@@ -105,16 +111,18 @@ export const ServicePage = () => {
           }
           suffix={
             <>
-              <Button
-                size="sm"
-                onClick={() =>
-                  navigate(getRoute(ROUTES.ServiceItemsEdit, { id: "new" }))
-                }
-                icon={(p) => <PlusIcon {...p} />}
-                hideTextOnMobile
-              >
-                Ajouter
-              </Button>
+              {hasAccess("ONSITE_SERVICES_WRITE") && (
+                <Button
+                  size="sm"
+                  onClick={() =>
+                    navigate(getRoute(ROUTES.ServiceItemsEdit, { id: "new" }))
+                  }
+                  icon={(p) => <PlusIcon {...p} />}
+                  hideTextOnMobile
+                >
+                  Ajouter
+                </Button>
+              )}
             </>
           }
         />

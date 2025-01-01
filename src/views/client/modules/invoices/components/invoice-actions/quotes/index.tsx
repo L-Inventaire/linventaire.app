@@ -222,7 +222,7 @@ export const QuotesActions = ({
                 onClick: () => getPdfPreview(draft),
               },
               {
-                label: "Marquer comme annulé",
+                label: "Clôturer le devis sans facturer",
                 onClick: () => {
                   if (window.confirm("Clore définitivement le document?"))
                     _save({ state: "closed" });

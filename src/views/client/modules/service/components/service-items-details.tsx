@@ -1,12 +1,10 @@
 import { Button } from "@atoms/button/button";
 import InputTime from "@atoms/input/input-time";
-import { Unit } from "@atoms/input/input-unit";
 import { PageLoader } from "@atoms/page-loader";
 import { Section } from "@atoms/text";
 import { CustomFieldsInput } from "@components/custom-fields-input";
 import { FormInput } from "@components/form/fields";
 import { FormContext } from "@components/form/formcontext";
-import { InputButton } from "@components/input-button";
 import { RestDocumentsInput } from "@components/input-rest";
 import { FilesInput } from "@components/input-rest/files";
 import { TagsInput } from "@components/input-rest/tags";
@@ -32,7 +30,7 @@ import {
   timeDecimalToBase60,
 } from "@features/utils/format/dates";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
-import { ClockIcon, CubeIcon } from "@heroicons/react/16/solid";
+import { CubeIcon } from "@heroicons/react/16/solid";
 import { UserIcon } from "@heroicons/react/20/solid";
 import { DocumentIcon } from "@heroicons/react/24/outline";
 import { EditorInput } from "@molecules/editor-input";
@@ -153,100 +151,118 @@ export const ServiceItemsDetailsPage = ({
           )}
         </div>
 
-        {ctrl("title").value && (
+        <div className="mt-4">
+          <RestDocumentsInput
+            size="xl"
+            entity="contacts"
+            ctrl={ctrl("client")}
+            label="Client"
+            placeholder="Sélectionner un client"
+            icon={(p) => <UserIcon {...p} />}
+            filter={
+              quote
+                ? {
+                    id: quoteContacts.map((q) => q.id) as unknown as string,
+                  }
+                : ({
+                    is_client: true,
+                  } as Partial<Contacts>)
+            }
+          />
+        </div>
+
+        {ctrl("title").value && ctrl("client").value && (
           <>
             <Heading size="4" className="mt-8">
-              Détails
+              Facturation
             </Heading>
 
-            <div className="flex space-x-2 items-center my-2">
-              <InvoiceRestDocument
-                size="xl"
-                value={ctrl("for_rel_quote").value}
-                onChange={
-                  ((e: any, val: Invoices) => {
-                    ctrl("for_rel_quote").onChange(e);
-                    if (val?.client && val?.contact !== ctrl("client").value) {
-                      ctrl("client").onChange(val.client);
-                    }
-                    const services =
-                      val?.content?.filter((c) => c.type === "service") || [];
-                    if (services.length && !draft.article) {
-                      ctrl("article").onChange(services[0].article);
-                      ctrl("quantity_expected").onChange(services[0].quantity);
-                    }
-                  }) as any
-                }
-                label="Devis associé"
-                placeholder="Sélectionner le devis associé"
-                icon={(p) => <DocumentIcon {...p} />}
-                filter={
-                  {
-                    type: "quotes",
-                    state: ["purchase_order", "completed", "recurring"] as any,
-                    ...(draft.article ? { "articles.all": draft.article } : {}),
-                    ...(ctrl("client").value &&
-                    ctrl("client").value !== quote?.client
-                      ? { client: [ctrl("client").value] }
-                      : {}),
-                  } as Partial<Invoices>
-                }
-              />
-              <RestDocumentsInput
-                size="xl"
-                entity="contacts"
-                ctrl={ctrl("client")}
-                label="Client"
-                placeholder="Sélectionner un client"
-                icon={(p) => <UserIcon {...p} />}
-                filter={
-                  quote
-                    ? {
-                        id: quoteContacts.map((q) => q.id) as unknown as string,
-                      }
-                    : ({
-                        is_client: true,
-                      } as Partial<Contacts>)
-                }
-              />
-            </div>
-
-            <div className="mt-4 space-x-2 items-center flex-row flex">
-              <RestDocumentsInput
-                size="xl"
-                entity="articles"
-                ctrl={ctrl("article")}
-                label="Article"
-                placeholder="Sélectionner un article"
-                className="flex-grow"
-                filter={
-                  {
-                    type: "service",
-                    ...(ctrl("for_rel_quote").value &&
-                    quote?.content?.map((a) => a.article)?.length &&
-                    !["completed", "closed", "recurring"].includes(quote.state)
-                      ? { id: quote?.content?.map((a) => a.article) }
-                      : {}),
-                  } as any
-                }
-                icon={(p) => <CubeIcon {...p} />}
-              />
-              {!!article?.unit && article?.unit !== "h" && (
-                <InputButton
-                  label={ctrl("quantity_spent").value || "Temps estimé"}
-                  icon={(p) => <ClockIcon {...p} />}
-                  placeholder={
-                    "Nombre de '" + (article?.unit || "heures") + "'"
+            {!!(!readonly || ctrl("for_no_quote").value) && (
+              <label className="mt-1 flex space-x-2 items-center">
+                <Checkbox
+                  disabled={readonly}
+                  size="2"
+                  checked={ctrl("for_no_quote").value}
+                  onCheckedChange={(checked: boolean) =>
+                    ctrl("for_no_quote").onChange(checked)
                   }
-                  ctrl={ctrl("quantity_expected")}
-                >
-                  {(ctrl("quantity_spent").value || 0) +
-                    onCreateAddSpentTime.reduce((a, b) => a + b.quantity, 0) +
-                    " / " +
-                    (ctrl("quantity_expected").value || 0)}{" "}
-                  <Unit unit={article?.unit || "h"} />
-                </InputButton>
+                />
+                <span>Non facturable / Contrat</span>
+              </label>
+            )}
+
+            <div className="flex space-x-2 items-center my-2">
+              {!ctrl("for_no_quote").value && (
+                <div className={"w-1/2"}>
+                  <InvoiceRestDocument
+                    size="xl"
+                    value={ctrl("for_rel_quote").value}
+                    onChange={
+                      ((e: any, val: Invoices) => {
+                        ctrl("for_rel_quote").onChange(e);
+                        if (
+                          val?.client &&
+                          val?.contact !== ctrl("client").value
+                        ) {
+                          ctrl("client").onChange(val.client);
+                        }
+                        const services =
+                          val?.content?.filter((c) => c.type === "service") ||
+                          [];
+                        if (services.length && !draft.article) {
+                          ctrl("article").onChange(services[0].article);
+                          ctrl("quantity_expected").onChange(
+                            services[0].quantity
+                          );
+                        }
+                      }) as any
+                    }
+                    label="Devis associé"
+                    placeholder="Sélectionner le devis associé"
+                    icon={(p) => <DocumentIcon {...p} />}
+                    filter={
+                      {
+                        type: "quotes",
+                        state: [
+                          "purchase_order",
+                          "completed",
+                          "recurring",
+                        ] as any,
+                        ...(draft.article
+                          ? { "articles.all": draft.article }
+                          : {}),
+                        ...(ctrl("client").value &&
+                        ctrl("client").value !== quote?.client
+                          ? { client: [ctrl("client").value] }
+                          : {}),
+                      } as Partial<Invoices>
+                    }
+                  />
+                </div>
               )}
+              <div className={"w-1/2"}>
+                <RestDocumentsInput
+                  size="xl"
+                  entity="articles"
+                  ctrl={ctrl("article")}
+                  label="Article"
+                  placeholder="Sélectionner un article"
+                  className="flex-grow"
+                  filter={
+                    {
+                      type: "service",
+                      ...(ctrl("for_rel_quote").value &&
+                      quote?.content?.map((a) => a.article)?.length &&
+                      !["completed", "closed", "recurring"].includes(
+                        quote.state
+                      )
+                        ? { id: quote?.content?.map((a) => a.article) }
+                        : {}),
+                    } as any
+                  }
+                  icon={(p) => <CubeIcon {...p} />}
+                />
+              </div>
             </div>
 
             <CustomFieldsInput

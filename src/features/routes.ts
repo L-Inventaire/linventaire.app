@@ -56,6 +56,7 @@ export const ROUTES = {
   InvoicesEdit: "/:client/i/all/:id/form",
   FurnishQuotes: "/:client/i/:id/furnish",
   InvoicesFromItems: "/:client/i/from/:ids",
+  InvoicesGroup: "/:client/i/group/:ids",
 
   Receipts: "/:client/deliveries",
   ReceiptsView: "/:client/deliveries/:id",
@@ -93,6 +94,8 @@ export const ROUTES = {
 
   SignDocumentView: "/signing-session/:session/view",
   SignedDocumentView: "/signing-session/:session/signed",
+
+  CRMView: "/:client/crm/view",
 
   DevPage: "/:client/dev",
 };

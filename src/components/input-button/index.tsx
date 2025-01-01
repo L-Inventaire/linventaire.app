@@ -110,16 +110,20 @@ export const InputButton = <T,>(props: InputButtonProps<T>) => {
               <InputDecorationIcon
                 prefix={props.icon as any}
                 input={(p) => (
-                  <Input
-                    {...p}
-                    placeholder={props.placeholder}
-                    autoFocus
-                    autoSelect
-                    value={value}
-                    onChange={(e) => {
-                      if (onChange) onChange(e.target.value as any);
-                    }}
-                  />
+                  <>
+                    {
+                      <Input
+                        {...p}
+                        placeholder={props.placeholder}
+                        autoFocus
+                        autoSelect
+                        value={value}
+                        onChange={(e) => {
+                          if (onChange) onChange(e.target.value as any);
+                        }}
+                      />
+                    }
+                  </>
                 )}
               />
             )}

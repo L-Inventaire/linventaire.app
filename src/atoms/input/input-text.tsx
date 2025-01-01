@@ -66,7 +66,6 @@ export const Input = (props: InputProps) => {
 
   useEffect(() => {
     if (props.autoFocus) {
-      console.log("focus");
       (inputRef as any)?.current?.focus();
     }
   }, [props.autoFocus]);

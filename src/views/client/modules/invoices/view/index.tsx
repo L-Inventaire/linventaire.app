@@ -41,6 +41,17 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
     return <></>;
   }
 
+  // Invoices has a special access right system
+  const hasWriteType =
+    invoice.type === "invoices" || invoice.type === "credit_notes"
+      ? hasAccess("INVOICES_WRITE")
+      : invoice.type === "quotes"
+      ? hasAccess("QUOTES_WRITE")
+      : invoice.type === "supplier_invoices" ||
+        invoice.type === "supplier_credit_notes"
+      ? hasAccess("SUPPLIER_INVOICES_WRITE")
+      : hasAccess("SUPPLIER_QUOTES_WRITE");
+
   return (
     <Page
       loading={isPendingModification}
@@ -61,25 +72,21 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
           document={invoice || { id }}
           mode={"read"}
           backRoute={getRoute(ROUTES.Invoices, { type: invoice.type })}
-          editRoute={
-            hasAccess("INVOICES_WRITE") ? ROUTES.InvoicesEdit : undefined
-          }
+          editRoute={hasWriteType ? ROUTES.InvoicesEdit : undefined}
           viewRoute={ROUTES.InvoicesView}
           onPrint={async () => getPdfPreview(invoice)}
           onRemove={
-            invoice?.id &&
-            invoice?.state === "draft" &&
-            hasAccess("INVOICES_WRITE")
+            invoice?.id && invoice?.state === "draft" && hasWriteType
               ? async () => remove.mutateAsync(invoice?.id)
               : undefined
           }
           onRestore={
-            invoice?.id && hasAccess("INVOICES_WRITE")
+            invoice?.id && hasWriteType
               ? async () => restore.mutateAsync(invoice?.id)
               : undefined
           }
           suffix={
-            hasAccess("INVOICES_WRITE") ? (
+            hasWriteType ? (
               <>
                 {invoice.type === "quotes" &&
                   (invoice.content ?? []).some(

@@ -8,13 +8,14 @@ import { Page } from "@views/client/_layout/page";
 import _ from "lodash";
 import { useNavigate, useParams } from "react-router-dom";
 import { ContactsDetailsPage } from "../components/contact-details";
+import { useRef } from "react";
 
 export const ContactsEditPage = (_props: { readonly?: boolean }) => {
   let { id } = useParams();
   id = id === "new" ? "" : id || "";
   const navigate = useNavigate();
 
-  const defaultModel = useContactDefaultModel();
+  const defaultModel = useRef(useContactDefaultModel()).current;
   const initialModel = JSON.parse(
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as Contacts;

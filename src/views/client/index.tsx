@@ -56,6 +56,8 @@ import { StockAndServicesPreferences } from "./settings/stock-services";
 import { TagsPage } from "./settings/tags";
 import { CompanyUsersPage } from "./settings/users";
 import { SetupFeaturebase } from "@views/featurebase";
+import { CRMPage } from "./modules/crm";
+import { GroupInvoices } from "./modules/invoices/group-items";
 
 export const BackOfficeRoutes = () => {
   return (
@@ -113,6 +115,7 @@ export const BackOfficeRoutes = () => {
         <Route path={ROUTES.InvoicesEdit} element={<InvoicesEditPage />} />
         <Route path={ROUTES.FurnishQuotes} element={<FurnishQuotesPage />} />
         <Route path={ROUTES.InvoicesFromItems} element={<QuoteFromItems />} />
+        <Route path={ROUTES.InvoicesGroup} element={<GroupInvoices />} />
 
         <Route
           path={ROUTES.Settings}
@@ -141,6 +144,8 @@ export const BackOfficeRoutes = () => {
         />
         <Route path={ROUTES.SettingsImport} element={<DevPage />} />
         <Route path={ROUTES.SettingsApi} element={<DevPage />} />
+
+        <Route path={ROUTES.CRMView} element={<CRMPage />} />
 
         <Route path={ROUTES.DevPage} element={<DevPage />} />
       </Route>

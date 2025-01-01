@@ -8,7 +8,11 @@ import { InvoiceNumerotationInput } from "@components/invoice-numerotation-input
 import { PaymentInput } from "@components/payment-input";
 import { useHasAccess } from "@features/access";
 import { useClients } from "@features/clients/state/use-clients";
-import { Clients, InvoiceCounters } from "@features/clients/types/clients";
+import {
+  Clients,
+  InvoiceCounters,
+  Invoices,
+} from "@features/clients/types/clients";
 import { InvoiceCountersOverrides } from "@features/contacts/types/types";
 import { currencyOptions } from "@features/utils/constants";
 import { Heading, Tabs } from "@radix-ui/themes";
@@ -176,23 +180,31 @@ export const PreferencesPage = () => {
               <InvoiceFormatInput
                 readonly={readonly}
                 ctrl={{
-                  value: invoices,
+                  value: invoices as Invoices,
                   onChange: setInvoices,
                 }}
+                ctrlAttachments={{
+                  value: invoices?.attachments || [],
+                  onChange: (attachments) =>
+                    setInvoices({ ...invoices, attachments }),
+                }}
               />
+
               {!readonly && (
                 <Button
                   className="mt-4"
                   theme="primary"
                   size="md"
-                  onClick={() =>
-                    update(client?.id || "", {
-                      invoices: {
-                        ...((client?.invoices || {}) as Clients["invoices"]),
-                        ...invoices,
-                      },
-                    })
-                  }
+                  onClick={async () => {
+                    try {
+                      await update(client?.id || "", {
+                        invoices: {
+                          ...((client?.invoices || {}) as Clients["invoices"]),
+                          ...invoices,
+                        },
+                      });
+                    } catch (error) {}
+                  }}
                   loading={loading}
                 >
                   Enregistrer

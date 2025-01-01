@@ -387,8 +387,10 @@ export function RenderedTable<T>({
                               onSelectedActionsClick();
                             }}
                           >
-                            <span>Actions</span>{" "}
-                            <ChevronDownIcon className="h-2 w-2 ml-2" />
+                            <div className="flex items-center">
+                              <span>Actions</span>{" "}
+                              <ChevronDownIcon className="h-2 w-2 ml-2" />
+                            </div>
                           </Button>
                         </div>
                       )}

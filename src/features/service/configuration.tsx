@@ -1,44 +1,40 @@
 import { Unit } from "@atoms/input/input-unit";
-import { SectionSmall } from "@atoms/text";
+import { Base, SectionSmall } from "@atoms/text";
 import { RestDocumentsInput } from "@components/input-rest";
 import { TagsInput } from "@components/input-rest/tags";
+import { UsersInput } from "@components/input-rest/users";
 import { Articles } from "@features/articles/types/types";
 import { getContactName } from "@features/contacts/types/types";
 import { registerCtrlKRestEntity } from "@features/ctrlk";
 import { getRoute, ROUTES } from "@features/routes";
+import { formatTime } from "@features/utils/format/dates";
+import { formatQuantity } from "@features/utils/format/strings";
 import { DocumentCheckIcon, UserIcon } from "@heroicons/react/16/solid";
 import { Column } from "@molecules/table/table";
+import { Badge } from "@radix-ui/themes";
 import { getArticleIcon } from "@views/client/modules/articles/components/article-icon";
+import { InvoiceRestDocument } from "@views/client/modules/invoices/components/invoice-lines-input/invoice-input-rest-card";
 import { ServiceItemStatus } from "@views/client/modules/service/components/service-item-status";
 import { ServiceItemsDetailsPage } from "@views/client/modules/service/components/service-items-details";
 import { ServiceTimesDetailsPage } from "@views/client/modules/service/components/service-times-details";
+import _ from "lodash";
+import { twMerge } from "tailwind-merge";
 import { ServiceItems, ServiceTimes } from "./types/types";
-import { InvoiceRestDocument } from "@views/client/modules/invoices/components/invoice-lines-input/invoice-input-rest-card";
-import { Badge } from "@radix-ui/themes";
-import { UsersInput } from "@components/input-rest/users";
-import {
-  prettyPrintTime,
-  timeDecimalToBase60,
-} from "@features/utils/format/dates";
 
 export const useServiceItemDefaultModel: () => Partial<ServiceItems> = () => {
   return {
+    started_at: Date.now(),
     state: "todo",
   };
 };
 
 export const ServiceItemsColumns: Column<ServiceItems>[] = [
   {
-    title: "Article",
-    thClassName: "w-1",
+    title: "Date",
     render: (item) => (
-      <RestDocumentsInput
-        disabled
-        value={item.article}
-        entity={"articles"}
-        size="sm"
-        icon={(p, article) => getArticleIcon((article as Articles)?.type)(p)}
-      />
+      <Base className="whitespace-nowrap">
+        {formatTime(item.started_at || item.created_at, { hideTime: true })}
+      </Base>
     ),
   },
   {
@@ -54,12 +50,16 @@ export const ServiceItemsColumns: Column<ServiceItems>[] = [
     headClassName: "justify-end",
     render: (item) => (
       <>
-        <InvoiceRestDocument
-          label="Devis"
-          placeholder="Aucun devis"
-          value={item.for_rel_quote}
-          disabled
-        />
+        {item.for_no_quote ? (
+          <Base>Non facturable / contrat</Base>
+        ) : (
+          <InvoiceRestDocument
+            label="Devis"
+            placeholder="Aucun devis"
+            value={item.for_rel_quote}
+            disabled
+          />
+        )}
       </>
     ),
   },
@@ -84,6 +84,19 @@ export const ServiceItemsColumns: Column<ServiceItems>[] = [
     ),
   },
   {
+    title: "Article",
+    thClassName: "w-1",
+    render: (item) => (
+      <RestDocumentsInput
+        disabled
+        value={item.article}
+        entity={"articles"}
+        size="sm"
+        icon={(p, article) => getArticleIcon((article as Articles)?.type)(p)}
+      />
+    ),
+  },
+  {
     title: "Étiquettes",
     thClassName: "w-1",
     cellClassName: "justify-end",
@@ -99,8 +112,15 @@ export const ServiceItemsColumns: Column<ServiceItems>[] = [
     thClassName: "w-1",
     cellClassName: "justify-end",
     render: (item) => (
-      <Badge className="whitespace-nowrap">
-        {item.quantity_spent || 0} / {item.quantity_expected || 0}
+      <Badge
+        className={twMerge(
+          "whitespace-nowrap",
+          item.quantity_spent > item.quantity_expected &&
+            "bg-red-100 text-red-800"
+        )}
+      >
+        {formatQuantity(item.quantity_spent, "h")} /{" "}
+        {formatQuantity(item.quantity_expected, "h")}
       </Badge>
     ),
   },
@@ -122,17 +142,21 @@ registerCtrlKRestEntity<ServiceItems>("service_items", {
   useDefaultData: useServiceItemDefaultModel,
   viewRoute: ROUTES.ServiceItemsView,
   actions: (rows) => {
-    return [
-      {
-        label: "Facturer la sélection",
-        icon: (p) => <DocumentCheckIcon {...p} />,
-        action: () => {
-          document.location = getRoute(ROUTES.InvoicesFromItems, {
-            ids: rows.map((a) => a.id).join(","),
-          });
+    // All from the same client
+    if (_.uniqBy(rows, "client").length === 1) {
+      return [
+        {
+          label: "Facturer la sélection",
+          icon: (p) => <DocumentCheckIcon {...p} />,
+          action: () => {
+            document.location = getRoute(ROUTES.InvoicesFromItems, {
+              ids: rows.map((a) => a.id).join(","),
+            });
+          },
         },
-      },
-    ];
+      ];
+    }
+    return [];
   },
 });
 
@@ -146,7 +170,7 @@ export const ServiceTimesColumns: Column<ServiceTimes>[] = [
     render: (item) => {
       return (
         <>
-          {prettyPrintTime(timeDecimalToBase60(item.quantity))}{" "}
+          {formatQuantity(item.quantity, item.unit)}{" "}
           <Unit unit={item.unit || "h"} />
         </>
       );

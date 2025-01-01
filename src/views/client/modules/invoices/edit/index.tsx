@@ -8,7 +8,7 @@ import { ROUTES, getRoute } from "@features/routes";
 import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { Page } from "@views/client/_layout/page";
 import _ from "lodash";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { InvoiceActions } from "../components/invoice-actions";
 import { InvoicesDetailsPage } from "../components/invoices-details";
@@ -25,7 +25,7 @@ export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
   const navigate = useNavigate();
   const isRevision = id?.includes("~");
 
-  const defaultModel = useInvoiceDefaultModel();
+  const defaultModel = useRef(useInvoiceDefaultModel()).current;
   const initialModel = JSON.parse(
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as Invoices;

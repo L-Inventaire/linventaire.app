@@ -7,7 +7,7 @@ import { StockItems } from "@features/stock/types/types";
 import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { Page } from "@views/client/_layout/page";
 import _ from "lodash";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { StockItemsDetailsPage } from "../components/stock-item-details";
 
@@ -22,7 +22,7 @@ export const StockItemsEditPage = (_props: { readonly?: boolean }) => {
   id = id === "new" ? "" : id || "";
   const navigate = useNavigate();
 
-  const defaultModel = useStockItemDefaultModel();
+  const defaultModel = useRef(useStockItemDefaultModel()).current;
   const initialModel = JSON.parse(
     new URLSearchParams(window.location.search).get("model") || "{}"
   ) as StockItems;

@@ -16,6 +16,7 @@ import { useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
 import { format } from "date-fns";
+import { useHasAccess } from "@features/access";
 
 export const AccountingPage = () => {
   const [options, setOptions] = useState<RestOptions<AccountingTransactions>>({
@@ -32,6 +33,7 @@ export const AccountingPage = () => {
 
   const schema = useRestSchema("accounting_transactions");
   const navigate = useNavigateAlt();
+  const hasAccess = useHasAccess();
 
   return (
     <Page
@@ -47,16 +49,18 @@ export const AccountingPage = () => {
           }
           suffix={
             <>
-              <Button
-                size="sm"
-                onClick={() =>
-                  navigate(getRoute(ROUTES.AccountingEdit, { id: "new" }))
-                }
-                icon={(p) => <PlusIcon {...p} />}
-                hideTextOnMobile
-              >
-                Ajouter
-              </Button>
+              {hasAccess("ACCOUNTING_WRITE") && (
+                <Button
+                  size="sm"
+                  onClick={() =>
+                    navigate(getRoute(ROUTES.AccountingEdit, { id: "new" }))
+                  }
+                  icon={(p) => <PlusIcon {...p} />}
+                  hideTextOnMobile
+                >
+                  Ajouter
+                </Button>
+              )}
             </>
           }
         />

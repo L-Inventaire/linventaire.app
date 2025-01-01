@@ -25,10 +25,11 @@ export const InvoiceLineQuantityInput = (props: {
     <div className="space-y-2">
       <FormInput
         label="Quantité"
-        type="number"
+        type="quantity"
         ctrl={ctrl("quantity")}
         autoSelect
         autoFocus
+        metadata={{ unit: ctrl("unit").value }}
       />
       <div className="space-y-1">
         <Heading size="2">Unité</Heading>

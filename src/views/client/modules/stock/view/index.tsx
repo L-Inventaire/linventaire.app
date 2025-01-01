@@ -5,6 +5,7 @@ import { useStockItem } from "@features/stock/hooks/use-stock-items";
 import { Page } from "@views/client/_layout/page";
 import { useParams } from "react-router-dom";
 import { StockItemsDetailsPage } from "../components/stock-item-details";
+import { useHasAccess } from "@features/access";
 
 export const StockItemsViewPage = (_props: { readonly?: boolean }) => {
   const { id } = useParams();
@@ -15,6 +16,7 @@ export const StockItemsViewPage = (_props: { readonly?: boolean }) => {
     restore,
     isPendingModification,
   } = useStockItem(id || "");
+  const hasAccess = useHasAccess();
 
   if (!item)
     return (
@@ -37,15 +39,19 @@ export const StockItemsViewPage = (_props: { readonly?: boolean }) => {
           document={item || { id }}
           mode={"read"}
           backRoute={ROUTES.Stock}
-          editRoute={ROUTES.StockEdit}
+          editRoute={hasAccess("STOCK_WRITE") ? ROUTES.StockEdit : undefined}
           viewRoute={ROUTES.StockView}
           prefix={<></>}
           suffix={<></>}
           onRemove={
-            item?.id ? async () => remove.mutateAsync(item?.id) : undefined
+            item?.id && hasAccess("STOCK_WRITE")
+              ? async () => remove.mutateAsync(item?.id)
+              : undefined
           }
           onRestore={
-            item?.id ? async () => restore.mutateAsync(item?.id) : undefined
+            item?.id && hasAccess("STOCK_WRITE")
+              ? async () => restore.mutateAsync(item?.id)
+              : undefined
           }
         />
       }

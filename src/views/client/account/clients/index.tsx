@@ -73,13 +73,14 @@ export const AccountClientsPage = () => {
       <PageBlock>
         <Button
           className="float-right"
-          size="md"
+          size="sm"
           icon={(p) => <PlusIcon {...p} />}
           to={ROUTES.CreateCompany}
         >
           Créer une entreprise
         </Button>
         <Section>Entreprises</Section>
+        <br />
         <Table
           loading={loadingClients}
           data={clients}

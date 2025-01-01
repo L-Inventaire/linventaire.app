@@ -13,9 +13,7 @@ export const Card = (props: {
   show?: boolean;
 }) => {
   return (
-    <div
-      className={props.show !== false ? props.wrapperClassName || "my-4" : ""}
-    >
+    <div className={twMerge(props.show !== false && props.wrapperClassName)}>
       <AnimatedHeight>
         {props.show !== false && (
           <div

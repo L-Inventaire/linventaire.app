@@ -182,7 +182,8 @@
     "settings_title": "Entreprise",
     "users": "Utilisateurs",
     "settings_parent": "Paramètres",
-    "activity_title": "Activité"
+    "activity_title": "Activité",
+    "crm": "CRM"
   },
   "entities": {
     "contacts": {

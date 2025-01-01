@@ -8,6 +8,7 @@ import { useClientUsers } from "@features/clients/state/use-client-users";
 import { useCurrentClient } from "@features/clients/state/use-clients";
 import { PublicCustomer } from "@features/customers/types/customers";
 import { UserCircleIcon } from "@heroicons/react/20/solid";
+import _ from "lodash";
 import { twMerge } from "tailwind-merge";
 
 export const UsersInput = ({
@@ -40,7 +41,7 @@ export const UsersInput = ({
       size={size}
       icon={(p: any) => <UserCircleIcon {...p} />}
       ctrl={props.ctrl}
-      value={value}
+      value={_.isArray(value) ? value : []}
       onChange={onChange}
       noWrapper
       queryFn={async (ids) => {
