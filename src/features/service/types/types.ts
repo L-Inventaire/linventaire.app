@@ -13,6 +13,7 @@ export type ServiceItems = RestEntity & {
   article: string;
   quantity_expected: number; // In hours
   quantity_spent: number; // Precomputed: In hours, computed from service times
+  started_at: number;
 
   client: string; // The client who has this service or plan to have it
   for_rel_quote: string; // The quote or invoice this service is linked to
