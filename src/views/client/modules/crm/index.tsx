@@ -9,20 +9,19 @@ import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { SearchBar } from "../../../../components/search-bar";
-import {
-  generateQueryFromMap,
-  schemaToSearchFields,
-} from "../../../../components/search-bar/utils/utils";
+import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
 import { CRMColumn } from "./components/crm-column";
 
 export const CRMPage = () => {
   const [options, setOptions] = useState<RestOptions<CRMItem>>({
     query: [],
     asc: false,
+    index: "created_at",
+    limit: 500, // TODO: for now it's a hard limit, we should implement pagination
   });
   const { crm_items: crm_items_raw, update } = useCRMItems({
     ...options,
-    query: generateQueryFromMap({ id: [] }),
+    query: options.query,
   });
 
   const schema = useRestSchema("crm");

@@ -64,7 +64,7 @@ export const CRMColumn = ({ title, items, type, ...props }: CRMColumnProps) => {
           </IconButton>
         </div>
 
-        <div className="flex-1 grow">
+        <div className="flex-1 grow space-y-2">
           {items.map((item, index) => (
             <CRMCard
               key={item.id}
