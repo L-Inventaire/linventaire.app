@@ -37,6 +37,8 @@ export const getFormattedNumerotation = (
     (new Date().getMonth() + 1).toString().padStart(2, "0")
   );
   n = n.replace(/@DD/g, new Date().getDate().toString().padStart(2, "0"));
+  n = n.replace(/@CCCCCCCC/g, counter.toString().padStart(8, "0"));
+  n = n.replace(/@CCCCCCC/g, counter.toString().padStart(7, "0"));
   n = n.replace(/@CCCCCC/g, counter.toString().padStart(6, "0"));
   n = n.replace(/@CCCCC/g, counter.toString().padStart(5, "0"));
   n = n.replace(/@CCCC/g, counter.toString().padStart(4, "0"));

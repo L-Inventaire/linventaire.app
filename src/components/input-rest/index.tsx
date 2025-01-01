@@ -136,7 +136,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
   );
 
   if (props.noWrapper) {
-    if (!value || !value?.length) {
+    if (!value || !value?.length || (!valuesList?.length && items.isFetched)) {
       if (disabled) return <></>;
 
       return (

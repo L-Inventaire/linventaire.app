@@ -50,7 +50,7 @@ export const CRMPage = () => {
 
         <div
           className={twMerge(
-            "grid grid-cols-4 w-full flex-1 grow rounded-none"
+            "grid grid-cols-4 w-full flex-1 grow rounded-none space-x-2 p-2"
           )}
         >
           <CRMColumn

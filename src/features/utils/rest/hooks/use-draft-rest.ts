@@ -45,12 +45,14 @@ export const useDraftRest = <T extends { id: string }>(
   defaultValue?: Partial<T>,
   readonly = false
 ) => {
-  const { items, upsert, remove, restore, isPendingModification } = useRest<T>(
-    table,
-    { id }
-  );
+  const { items, upsert, remove, restore, isPendingModification, refresh } =
+    useRest<T>(table, { id });
   const existingItem = id && id !== "new" ? items?.data?.list?.[0] : null;
   const { key } = useContext(DraftContext);
+
+  useEffect(() => {
+    refresh();
+  }, [id]);
 
   const [defaultWasSet, setDefaultWasSet] = useState(false);
   const [draft, setDraft] = useRecoilState<T>(RestDraftAtom([table, id, key]));

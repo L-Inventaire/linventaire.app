@@ -1,5 +1,4 @@
 import { Section } from "@atoms/text";
-import { useCRMItems } from "@features/crm/state/use-crm";
 import { CRMItem } from "@features/crm/types/types";
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import { IconButton } from "@radix-ui/themes";
@@ -18,8 +17,6 @@ type CRMColumnProps = {
 } & React.HTMLAttributes<HTMLDivElement>;
 
 export const CRMColumn = ({ title, items, type, ...props }: CRMColumnProps) => {
-  const { create } = useCRMItems();
-
   const [__, dropRef] = useDrop(
     () => ({
       accept: "crm-item",
@@ -42,7 +39,7 @@ export const CRMColumn = ({ title, items, type, ...props }: CRMColumnProps) => {
 
   return (
     <div
-      className={twMerge("flex flex-col flex-1 p-3", props.className)}
+      className={twMerge("flex flex-col flex-1", props.className)}
       ref={dropRef}
       {..._.omit(props, "className")}
     >
@@ -60,11 +57,6 @@ export const CRMColumn = ({ title, items, type, ...props }: CRMColumnProps) => {
               setCRMModal({
                 open: true,
                 type,
-                onClose: () =>
-                  setCRMModal((data) => ({ ...data, open: false })),
-                onSave: (value) => {
-                  create.mutate(value);
-                },
               });
             }}
           >

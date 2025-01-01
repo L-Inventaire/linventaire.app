@@ -1,11 +1,15 @@
-import { SectionSmall } from "@atoms/text";
+import { UsersInput } from "@components/input-rest/users";
 import { generateQueryFromMap } from "@components/search-bar/utils/utils";
-import { CRMItem } from "@features/crm/types/types";
 import { useContacts } from "@features/contacts/hooks/use-contacts";
+import { CRMItem } from "@features/crm/types/types";
+import { EditorInput } from "@molecules/editor-input";
+import { Card, Heading, Text } from "@radix-ui/themes";
 import _ from "lodash";
 import { useDrag, useDragLayer } from "react-dnd";
+import { useSetRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
 import { prettyContactName } from "../../contacts/utils";
+import { CRMItemModalAtom } from "./crm-items-modal";
 
 type CRMCardProps = {
   title?: string;
@@ -15,6 +19,8 @@ type CRMCardProps = {
 } & React.HTMLAttributes<HTMLDivElement>;
 
 export const CRMCard = ({ crmItem, readonly, ...props }: CRMCardProps) => {
+  const setCRMModal = useSetRecoilState(CRMItemModalAtom);
+
   const [__, dragRef] = useDrag(
     () => ({
       canDrag: !readonly,
@@ -39,15 +45,26 @@ export const CRMCard = ({ crmItem, readonly, ...props }: CRMCardProps) => {
   const contacts = contacts_raw?.data?.list || [];
 
   return (
-    <div
+    <Card
       ref={dragRef as any}
-      className={twMerge(
-        "min-w-52 -mx-2 border border-x-0 border-b-slate-50 border-t-slate-50",
-        props.className
-      )}
+      className={twMerge(props.className)}
       {..._.omit(props, "className")}
+      onClick={() => {
+        setCRMModal({
+          open: true,
+          id: crmItem.id,
+          type: crmItem.state,
+          readonly,
+        });
+      }}
     >
-      <SectionSmall className="p-3">
+      <Heading size="4">
+        <div className="float-right">
+          <UsersInput value={[crmItem.seller]} disabled={true} />
+        </div>
+        <EditorInput value={crmItem.notes} disabled={true} />
+      </Heading>
+      <Text size="2">
         {(crmItem.contacts ?? [])
           .map((id) => {
             const contact = contacts.find((c) => c.id === id);
@@ -56,7 +73,7 @@ export const CRMCard = ({ crmItem, readonly, ...props }: CRMCardProps) => {
           })
           .filter(Boolean)
           .join(", ")}
-      </SectionSmall>
-    </div>
+      </Text>
+    </Card>
   );
 };

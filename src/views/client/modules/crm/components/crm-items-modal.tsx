@@ -1,24 +1,23 @@
 import { Button } from "@atoms/button/button";
-import { Modal } from "@atoms/modal/modal";
-import { Base, Section } from "@atoms/text";
+import { InputLabel } from "@atoms/input/input-decoration-label";
+import { Modal, ModalContent } from "@atoms/modal/modal";
+import { Base } from "@atoms/text";
 import { FormInput } from "@components/form/fields";
 import { RestDocumentsInput } from "@components/input-rest";
 import { UsersInput } from "@components/input-rest/users";
 import { useClients } from "@features/clients/state/use-clients";
-import { CRMItem } from "@features/crm/types/types";
 import { getContactName } from "@features/contacts/types/types";
-import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
+import { CRMItem } from "@features/crm/types/types";
+import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { UserIcon } from "@heroicons/react/24/solid";
+import { EditorInput } from "@molecules/editor-input";
 import { atom, useRecoilState } from "recoil";
-import { twMerge } from "tailwind-merge";
 
 export const CRMItemModalAtom = atom<{
   id?: string;
   open: boolean;
   readonly?: boolean;
-  type: "new" | "qualified" | "proposal" | "won";
-  onClose?: () => void;
-  onSave?: (value: Partial<CRMItem>) => void;
+  type: "new" | "qualified" | "proposal" | "won" | "lost";
 }>({
   key: "CRMItemModalAtom",
   default: {
@@ -26,43 +25,85 @@ export const CRMItemModalAtom = atom<{
     type: "new",
     open: false,
     readonly: false,
-    onClose: () => {},
-    onSave: () => {},
   },
 });
 
 export const CRMItemsModal = () => {
-  const { client } = useClients();
   const [modal, setModal] = useRecoilState(CRMItemModalAtom);
-
-  const { ctrl, draft } = useReadDraftRest<CRMItem>(
-    "crm_items",
-    modal?.id || "new",
-    modal?.readonly
-  );
 
   return (
     <Modal
       open={modal.open}
       onClose={() => {
         setModal((mod) => ({ ...mod, open: false }));
-        modal.onClose?.();
       }}
     >
-      <Section className="mb-4">Enregistrer un prospect</Section>
+      {modal.open && <CRMItemsModalContent />}
+    </Modal>
+  );
+};
+
+export const CRMItemsModalContent = () => {
+  const { client } = useClients();
+  const [modal, setModal] = useRecoilState(CRMItemModalAtom);
+
+  const { ctrl, draft, remove, save, isInitiating } = useDraftRest<CRMItem>(
+    "crm_items",
+    modal?.id || "new",
+    async () => {
+      setModal((mod) => ({ ...mod, open: false }));
+    },
+    {
+      state: modal?.type ?? "new",
+      seller: client?.user_id || "",
+    }
+  );
+
+  if (isInitiating) return <div></div>;
+
+  return (
+    <ModalContent title="Proposition">
       <FormInput
-        autoSelectAll
-        type="text"
-        label="Notes"
-        ctrl={ctrl("notes")}
-        className="w-16 mb-4"
-        inputClassName={twMerge("w-full")}
+        className="mb-4"
+        label="Status"
+        type="select"
+        ctrl={ctrl("state")}
+        readonly={modal.readonly}
+        options={[
+          {
+            label: "Nouveau",
+            value: "new",
+          },
+          {
+            label: "Qualifié",
+            value: "qualified",
+          },
+          {
+            label: "Proposition",
+            value: "proposal",
+          },
+          {
+            label: "Gagné",
+            value: "won",
+          },
+        ]}
+      />
+
+      <InputLabel
+        label="Description"
+        input={
+          <EditorInput
+            disabled={modal.readonly}
+            value={ctrl("notes").value}
+            onChange={ctrl("notes").onChange}
+            className="w-full mb-4"
+          />
+        }
       />
 
       <Base className="block font-bold mb-1">Clients</Base>
-
       <RestDocumentsInput
-        className="mb-4"
+        className="mb-4 w-full"
         label="Clients"
         placeholder="Aucun client"
         entity="contacts"
@@ -75,41 +116,57 @@ export const CRMItemsModal = () => {
 
           return getContactName(contact);
         }}
-        size="sm"
+        size="lg"
         disabled={modal.readonly}
       />
 
       <Base className="block font-bold mb-1">Vendeur</Base>
-
-      <UsersInput ctrl={ctrl("seller")} disabled={modal.readonly} max={1} />
+      <UsersInput
+        value={[ctrl("seller").value]}
+        onChange={(v) => ctrl("seller").onChange(v[0])}
+        disabled={modal.readonly}
+        max={1}
+      />
       <div></div>
 
       {!modal.readonly && (
-        <Button
-          className="mt-4"
-          theme="primary"
-          size="md"
-          disabled={modal.readonly}
-          onClick={() => {
-            if (!draft || modal.readonly) return;
-
-            console.log("TEST", {
-              ...draft,
-              seller: client?.user_id || "",
-              state: modal?.type ?? "new",
-            });
-
-            modal.onSave?.({
-              ...draft,
-              seller: client?.user_id || "",
-              state: modal?.type ?? "new",
-            });
-            modal.onClose?.();
-          }}
-        >
-          Enregistrer
-        </Button>
+        <div className="flex items-center">
+          {!!modal.id && (
+            <Button
+              className="mt-4"
+              theme="danger"
+              size="sm"
+              onClick={() => {
+                remove();
+                setModal((mod) => ({ ...mod, open: false }));
+              }}
+            >
+              Supprimer
+            </Button>
+          )}
+          <div className="grow" />
+          <Button
+            className="mt-4"
+            theme="primary"
+            size="sm"
+            disabled={!draft.state || !draft.notes}
+            onClick={async () => {
+              if (!draft || modal.readonly) return;
+              const res = await save({
+                ...draft,
+                contacts: draft.contacts || [],
+                seller: draft.seller || client?.user_id || "",
+                state: (draft.state || modal?.type) ?? "new",
+              });
+              if (res) {
+                setModal((mod) => ({ ...mod, open: false }));
+              }
+            }}
+          >
+            Enregistrer
+          </Button>
+        </div>
       )}
-    </Modal>
+    </ModalContent>
   );
 };
