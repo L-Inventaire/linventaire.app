@@ -1,10 +1,13 @@
+import Avatar from "@atoms/avatar/avatar";
 import { Button } from "@atoms/button/button";
+import { ButtonConfirm } from "@atoms/button/confirm";
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import SelectMultiple from "@atoms/input/input-select-multiple";
 import { Input } from "@atoms/input/input-text";
-import { BaseSmall, Info, InfoSmall, Section } from "@atoms/text";
-import { Table } from "@molecules/table";
+import { Modal, ModalContent } from "@atoms/modal/modal";
+import { BaseSmall, Info, Section } from "@atoms/text";
 import { useHasAccess } from "@features/access";
+import { useAuth } from "@features/auth/state/use-auth";
 import { useClientUsers } from "@features/clients/state/use-client-users";
 import { useClients } from "@features/clients/state/use-clients";
 import { ClientsUsers, Role, Roles } from "@features/clients/types/clients";
@@ -13,14 +16,11 @@ import {
   getEmailsFromString,
   getServerUri,
 } from "@features/utils/format/strings";
+import { Table } from "@molecules/table";
+import _ from "lodash";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Page, PageBlock } from "../../_layout/page";
-import _ from "lodash";
-import { ButtonConfirm } from "@atoms/button/confirm";
-import { useAuth } from "@features/auth/state/use-auth";
-import { Modal, ModalContent } from "@atoms/modal/modal";
-import Avatar from "@atoms/avatar/avatar";
 
 export const CompanyUsersPage = () => {
   const { user: me } = useAuth();
