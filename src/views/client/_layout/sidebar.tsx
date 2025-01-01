@@ -193,11 +193,11 @@ export const SideBar = () => {
               show={hasAccess("CONTACTS_READ")}
             />
             <SideMenuItem
-              to={getRoute(ROUTES.CMSView)}
-              label={t("menu.cms")}
+              to={getRoute(ROUTES.CRMView)}
+              label={t("menu.crm")}
               icon={(p) => <AtSymbolIcon {...p} />}
-              active={location.pathname.indexOf(getRoute(ROUTES.CMSView)) === 0}
-              show={hasAccess("CMS_READ")}
+              active={location.pathname.indexOf(getRoute(ROUTES.CRMView)) === 0}
+              show={hasAccess("CRM_READ")}
             />
           </MenuSection>
 

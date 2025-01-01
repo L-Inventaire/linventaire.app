@@ -1,31 +1,29 @@
 import { Section } from "@atoms/text";
-import { useClients } from "@features/clients/state/use-clients";
-import { useCMSItems } from "@features/cms/state/use-cms";
-import { CMSItem } from "@features/cms/types/types";
+import { useCRMItems } from "@features/crm/state/use-crm";
+import { CRMItem } from "@features/crm/types/types";
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import { IconButton } from "@radix-ui/themes";
 import _ from "lodash";
 import { useDragLayer, useDrop } from "react-dnd";
 import { useSetRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
-import { CMSCard } from "./cms-card";
-import { CMSItemModalAtom } from "./cms-items-modal";
+import { CRMCard } from "./crm-card";
+import { CRMItemModalAtom } from "./crm-items-modal";
 
-type CMSColumnProps = {
+type CRMColumnProps = {
   title: string;
-  items: CMSItem[];
-  onMove?: (value: CMSItem) => void;
+  items: CRMItem[];
+  onMove?: (value: CRMItem) => void;
   type: "new" | "qualified" | "proposal" | "won";
 } & React.HTMLAttributes<HTMLDivElement>;
 
-export const CMSColumn = ({ title, items, type, ...props }: CMSColumnProps) => {
-  const { create } = useCMSItems();
-  const { client } = useClients();
+export const CRMColumn = ({ title, items, type, ...props }: CRMColumnProps) => {
+  const { create } = useCRMItems();
 
   const [__, dropRef] = useDrop(
     () => ({
-      accept: "cms-item",
-      drop: (value: CMSItem) => {
+      accept: "crm-item",
+      drop: (value: CRMItem) => {
         if (props.onMove) props.onMove(value);
       },
       collect: (monitor) => ({
@@ -40,7 +38,7 @@ export const CMSColumn = ({ title, items, type, ...props }: CMSColumnProps) => {
     isDragging: monitor.isDragging(),
   }));
 
-  const setCMSModal = useSetRecoilState(CMSItemModalAtom);
+  const setCRMModal = useSetRecoilState(CRMItemModalAtom);
 
   return (
     <div
@@ -59,11 +57,11 @@ export const CMSColumn = ({ title, items, type, ...props }: CMSColumnProps) => {
             className="cursor-pointer"
             variant="ghost"
             onClick={() => {
-              setCMSModal({
+              setCRMModal({
                 open: true,
                 type,
                 onClose: () =>
-                  setCMSModal((data) => ({ ...data, open: false })),
+                  setCRMModal((data) => ({ ...data, open: false })),
                 onSave: (value) => {
                   create.mutate(value);
                 },
@@ -76,9 +74,9 @@ export const CMSColumn = ({ title, items, type, ...props }: CMSColumnProps) => {
 
         <div className="flex-1 grow">
           {items.map((item, index) => (
-            <CMSCard
+            <CRMCard
               key={item.id}
-              cmsItem={item}
+              crmItem={item}
               className={twMerge(index === 0 && "mt-3")}
             />
           ))}

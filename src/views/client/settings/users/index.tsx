@@ -61,7 +61,7 @@ export const CompanyUsersPage = () => {
     a.value.includes("ARTICLES") ||
     a.value.includes("STOCK") ||
     a.value.includes("INVOICES") ||
-    a.value.includes("CMS") ||
+    a.value.includes("CRM") ||
     a.value.includes("QUOTES") ||
     a.value.includes("ONSITE_SERVICES");
 
@@ -362,7 +362,7 @@ const RolesNames: any = {
   SUPPLIER_INVOICES: "Factures fournisseurs",
   SUPPLIER_QUOTES: "Devis fournisseurs",
   ONSITE_SERVICES: "Service",
-  CMS: "CMS",
+  CRM: "CRM",
   MANAGE: "Administration",
   WRITE: "Lecture et modifications",
   READ: "Lecture",

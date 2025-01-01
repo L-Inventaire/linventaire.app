@@ -5,23 +5,22 @@ import { FormInput } from "@components/form/fields";
 import { RestDocumentsInput } from "@components/input-rest";
 import { UsersInput } from "@components/input-rest/users";
 import { useClients } from "@features/clients/state/use-clients";
-import { CMSItem } from "@features/cms/types/types";
+import { CRMItem } from "@features/crm/types/types";
 import { getContactName } from "@features/contacts/types/types";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { UserIcon } from "@heroicons/react/24/solid";
-import { useState } from "react";
 import { atom, useRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
 
-export const CMSItemModalAtom = atom<{
+export const CRMItemModalAtom = atom<{
   id?: string;
   open: boolean;
   readonly?: boolean;
   type: "new" | "qualified" | "proposal" | "won";
   onClose?: () => void;
-  onSave?: (value: Partial<CMSItem>) => void;
+  onSave?: (value: Partial<CRMItem>) => void;
 }>({
-  key: "CMSItemModalAtom",
+  key: "CRMItemModalAtom",
   default: {
     id: "new",
     type: "new",
@@ -32,12 +31,12 @@ export const CMSItemModalAtom = atom<{
   },
 });
 
-export const CMSItemsModal = () => {
+export const CRMItemsModal = () => {
   const { client } = useClients();
-  const [modal, setModal] = useRecoilState(CMSItemModalAtom);
+  const [modal, setModal] = useRecoilState(CRMItemModalAtom);
 
-  const { ctrl, draft } = useReadDraftRest<CMSItem>(
-    "cms_items",
+  const { ctrl, draft } = useReadDraftRest<CRMItem>(
+    "crm_items",
     modal?.id || "new",
     modal?.readonly
   );

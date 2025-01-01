@@ -133,7 +133,6 @@ export const ClientBalancePage = () => {
         onClick={(invoice) => {
           navigate(getRoute(ROUTES.InvoicesView, { id: invoice.id }));
         }}
-        defaultGroups={invoices}
         groupByRenderBlank
         groupByRender={(invoice, i, renderClosable, toggleGroup) => {
           const foundClient = clients.find(
@@ -206,7 +205,7 @@ export const ClientBalancePage = () => {
                       >
                         {formatAmount(
                           invoices.find(
-                            (inv) =>
+                            () =>
                               item?.which30days === parseInt(column.id ?? "0")
                           )?.total?.total ?? 0
                         )}
@@ -227,7 +226,7 @@ export const ClientBalancePage = () => {
                         key={j}
                       >
                         {formatAmount(
-                          invoices.find((inv) => (item?.which30days || 0) >= 5)
+                          invoices.find(() => (item?.which30days || 0) >= 5)
                             ?.total?.total ?? 0
                         )}
                       </TableCell>

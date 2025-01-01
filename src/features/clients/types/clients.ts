@@ -72,9 +72,9 @@ export const Roles = [
   "EVENTS_READ",
   "EVENTS_WRITE",
   "EVENTS_MANAGE",
-  "CMS_READ",
-  "CMS_WRITE",
-  "CMS_MANAGE",
+  "CRM_READ",
+  "CRM_WRITE",
+  "CRM_MANAGE",
 ] as const;
 
 export type Role = (typeof Roles)[number];

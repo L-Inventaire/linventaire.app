@@ -1,5 +1,3 @@
-import { Invoices } from "@features/invoices/types/types";
-
 export type Statistics = {
   totalRevenue: number;
   revenue: number;

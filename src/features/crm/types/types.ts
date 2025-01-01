@@ -1,4 +1,4 @@
-export type CMSItem = {
+export type CRMItem = {
   id: string;
   contacts: string[];
   notes: string;

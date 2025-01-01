@@ -1,35 +1,30 @@
 import { SectionSmall } from "@atoms/text";
 import { generateQueryFromMap } from "@components/search-bar/utils/utils";
-import { CMSItem } from "@features/cms/types/types";
+import { CRMItem } from "@features/crm/types/types";
 import { useContacts } from "@features/contacts/hooks/use-contacts";
 import _ from "lodash";
 import { useDrag, useDragLayer } from "react-dnd";
 import { twMerge } from "tailwind-merge";
 import { prettyContactName } from "../../contacts/utils";
 
-type CMSCardProps = {
+type CRMCardProps = {
   title?: string;
   readonly?: boolean;
-  cmsItem: CMSItem;
-  onMove?: (value: CMSItem) => void;
+  crmItem: CRMItem;
+  onMove?: (value: CRMItem) => void;
 } & React.HTMLAttributes<HTMLDivElement>;
 
-export const CMSCard = ({
-  title,
-  cmsItem,
-  readonly,
-  ...props
-}: CMSCardProps) => {
+export const CRMCard = ({ crmItem, readonly, ...props }: CRMCardProps) => {
   const [__, dragRef] = useDrag(
     () => ({
       canDrag: !readonly,
-      type: "cms-item",
-      item: cmsItem,
+      type: "crm-item",
+      item: crmItem,
       collect: (monitor) => ({
         dragging: monitor.isDragging() ? true : false,
       }),
     }),
-    [cmsItem, readonly]
+    [crmItem, readonly]
   );
 
   useDragLayer((monitor) => ({
@@ -37,7 +32,7 @@ export const CMSCard = ({
   }));
 
   const { contacts: contacts_raw } = useContacts({
-    query: generateQueryFromMap({ id: cmsItem.contacts }),
+    query: generateQueryFromMap({ id: crmItem.contacts }),
     key: "contacts_id",
   });
 
@@ -53,7 +48,7 @@ export const CMSCard = ({
       {..._.omit(props, "className")}
     >
       <SectionSmall className="p-3">
-        {(cmsItem.contacts ?? [])
+        {(crmItem.contacts ?? [])
           .map((id) => {
             const contact = contacts.find((c) => c.id === id);
             if (!contact) return false;
