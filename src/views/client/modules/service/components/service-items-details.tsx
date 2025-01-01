@@ -1,12 +1,10 @@
 import { Button } from "@atoms/button/button";
 import InputTime from "@atoms/input/input-time";
-import { Unit } from "@atoms/input/input-unit";
 import { PageLoader } from "@atoms/page-loader";
 import { Section } from "@atoms/text";
 import { CustomFieldsInput } from "@components/custom-fields-input";
 import { FormInput } from "@components/form/fields";
 import { FormContext } from "@components/form/formcontext";
-import { InputButton } from "@components/input-button";
 import { RestDocumentsInput } from "@components/input-rest";
 import { FilesInput } from "@components/input-rest/files";
 import { TagsInput } from "@components/input-rest/tags";
@@ -32,7 +30,7 @@ import {
   timeDecimalToBase60,
 } from "@features/utils/format/dates";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
-import { ClockIcon, CubeIcon } from "@heroicons/react/16/solid";
+import { CubeIcon } from "@heroicons/react/16/solid";
 import { UserIcon } from "@heroicons/react/20/solid";
 import { DocumentIcon } from "@heroicons/react/24/outline";
 import { EditorInput } from "@molecules/editor-input";
