@@ -47,6 +47,7 @@ export type TablePropsType<T> = {
   groupByClosable?: boolean;
   groupByRenderBlank?: boolean;
   showPagination?: false | "simple" | "full" | true;
+  defaultGroups?: T[];
   initialPagination?: Pick<
     Pagination,
     "order" | "orderBy" | "page" | "perPage"
@@ -106,6 +107,7 @@ export function Table<T>({
   grid,
   cellClassName,
   className,
+  defaultGroups,
   controlledPagination,
   setControlledPagination,
   ...props

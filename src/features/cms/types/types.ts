@@ -4,8 +4,7 @@ export type CMSItem = {
   notes: string;
   contact_summaries: ContactSummary[];
   seller: string;
-  prev: string | null;
-  next: string | null;
+  state: "new" | "qualified" | "proposal" | "won" | "lost";
 };
 
 export type ContactSummary = {

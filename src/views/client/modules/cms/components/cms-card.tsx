@@ -1,4 +1,5 @@
 import { SectionSmall } from "@atoms/text";
+import { generateQueryFromMap } from "@components/search-bar/utils/utils";
 import { CMSItem } from "@features/cms/types/types";
 import { useContacts } from "@features/contacts/hooks/use-contacts";
 import _ from "lodash";
@@ -19,10 +20,10 @@ export const CMSCard = ({
   readonly,
   ...props
 }: CMSCardProps) => {
-  const [dragRef] = useDrag(
+  const [__, dragRef] = useDrag(
     () => ({
       canDrag: !readonly,
-      type: "invoice-line",
+      type: "cms-item",
       item: cmsItem,
       collect: (monitor) => ({
         dragging: monitor.isDragging() ? true : false,
@@ -35,18 +36,13 @@ export const CMSCard = ({
     isDragging: monitor.isDragging(),
   }));
 
-  const { contacts } = useContacts({
-    query: [
-      {
-        key: "id",
-        values: (cmsItem?.contacts ?? []).map((id) => ({
-          op: "equals",
-          value: id,
-        })),
-      },
-    ],
-    key: "contacts_" + (cmsItem?.contacts ?? []).join("_"),
+  const { contacts: contacts_raw } = useContacts({
+    query: generateQueryFromMap({ id: cmsItem.contacts }),
+    key: "contacts_id",
   });
+
+  const contacts = contacts_raw?.data?.list || [];
+
   return (
     <div
       ref={dragRef as any}
@@ -57,17 +53,14 @@ export const CMSCard = ({
       {..._.omit(props, "className")}
     >
       <SectionSmall className="p-3">
-        {title ||
-          (cmsItem.contacts ?? [])
-            .map((id) => {
-              const contact = (contacts.data?.list ?? []).find(
-                (c) => c.id === id
-              );
-              if (!contact) return false;
-              return prettyContactName(contact);
-            })
-            .filter(Boolean)
-            .join(", ")}
+        {(cmsItem.contacts ?? [])
+          .map((id) => {
+            const contact = contacts.find((c) => c.id === id);
+            if (!contact) return false;
+            return prettyContactName(contact);
+          })
+          .filter(Boolean)
+          .join(", ")}
       </SectionSmall>
     </div>
   );

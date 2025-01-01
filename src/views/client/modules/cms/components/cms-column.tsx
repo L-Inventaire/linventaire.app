@@ -6,26 +6,28 @@ import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import { IconButton } from "@radix-ui/themes";
 import _ from "lodash";
 import { useDragLayer, useDrop } from "react-dnd";
+import { useSetRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
 import { CMSCard } from "./cms-card";
+import { CMSItemModalAtom } from "./cms-items-modal";
 
 type CMSColumnProps = {
   title: string;
   items: CMSItem[];
   onMove?: (value: CMSItem) => void;
+  type: "new" | "qualified" | "proposal" | "won";
 } & React.HTMLAttributes<HTMLDivElement>;
 
-export const CMSColumn = ({ title, items, ...props }: CMSColumnProps) => {
+export const CMSColumn = ({ title, items, type, ...props }: CMSColumnProps) => {
   const { create } = useCMSItems();
   const { client } = useClients();
 
-  const [dropRef] = useDrop(
+  const [__, dropRef] = useDrop(
     () => ({
       accept: "cms-item",
       drop: (value: CMSItem) => {
         if (props.onMove) props.onMove(value);
       },
-
       collect: (monitor) => ({
         isOver: !!monitor.isOver(),
         fromThisColumn: items.map((i) => i.id).includes(monitor.getItem()?.id),
@@ -38,10 +40,12 @@ export const CMSColumn = ({ title, items, ...props }: CMSColumnProps) => {
     isDragging: monitor.isDragging(),
   }));
 
+  const setCMSModal = useSetRecoilState(CMSItemModalAtom);
+
   return (
     <div
       className={twMerge("flex flex-col flex-1 p-3", props.className)}
-      ref={dropRef as any}
+      ref={dropRef}
       {..._.omit(props, "className")}
     >
       <div
@@ -55,12 +59,14 @@ export const CMSColumn = ({ title, items, ...props }: CMSColumnProps) => {
             className="cursor-pointer"
             variant="ghost"
             onClick={() => {
-              create.mutate({
-                contacts: ["d1hwu5n9fxc0", "d4wctsrz0n40"],
-                notes: "Mes ptites notes",
-                seller: client?.user_id || "",
-                prev: null,
-                next: null,
+              setCMSModal({
+                open: true,
+                type,
+                onClose: () =>
+                  setCMSModal((data) => ({ ...data, open: false })),
+                onSave: (value) => {
+                  create.mutate(value);
+                },
               });
             }}
           >
@@ -71,6 +77,7 @@ export const CMSColumn = ({ title, items, ...props }: CMSColumnProps) => {
         <div className="flex-1 grow">
           {items.map((item, index) => (
             <CMSCard
+              key={item.id}
               cmsItem={item}
               className={twMerge(index === 0 && "mt-3")}
             />
