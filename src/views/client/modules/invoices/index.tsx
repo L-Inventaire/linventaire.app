@@ -45,6 +45,11 @@ const activeFilter = [
 ];
 
 export const InvoicesPage = () => {
+  const key = useParams().type;
+  return <InvoicesPageContent key={key} />;
+};
+
+const InvoicesPageContent = () => {
   const type: Invoices["type"][] = (useParams().type?.split("+") || [
     "invoices",
   ]) as any;
