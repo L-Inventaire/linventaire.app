@@ -155,6 +155,22 @@ export function RenderedTable<T>({
   );
 
   useEffect(() => {
+    setGroupByOpen(
+      props.groupBy
+        ? data
+            .map((row) => getGroupByKey(row))
+            .reduce(
+              (acc, key) => ({
+                ...acc,
+                [key]: false,
+              }),
+              {}
+            )
+        : {}
+    );
+  }, []);
+
+  useEffect(() => {
     setGroupByOpen((prevData) =>
       props.groupBy
         ? data
