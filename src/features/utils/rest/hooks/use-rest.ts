@@ -8,7 +8,7 @@ import { useDebounceValue } from "usehooks-ts";
 import { RestApiClient } from "../api-client/rest-api-client";
 import { SchemaType } from "../types/types";
 
-const restApiClients: { [key: string]: RestApiClient<any> } = {};
+export const restApiClients: { [key: string]: RestApiClient<any> } = {};
 
 export type RestSearchQueryOp = "equals" | "regex" | "gte" | "lte" | "range";
 

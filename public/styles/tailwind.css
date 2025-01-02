@@ -1779,10 +1779,6 @@ body :is(.h-screen) {
   height: 100vh;
 }
 
-body :is(.h-16) {
-  height: 4rem;
-}
-
 body :is(.max-h-0) {
   max-height: 0px;
 }
