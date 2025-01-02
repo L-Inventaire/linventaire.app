@@ -31,10 +31,6 @@
 }
 
 .dark .multiselect-container {
-    --mselect-background-color: #000000;
-}
-
-.multiselect-container {
     cursor: pointer;
     --mselect-background-color: #FFFFFF;
 
@@ -46,6 +42,12 @@
             --tw-ring-color: rgb(133, 98, 73) !important;
         } 
     }
+}
+
+.multiselect-container {
+    cursor: pointer;
+    --mselect-background-color: #FFFFFF;
+
 
     .optionListContainer {
         background: var(--mselect-background-color);
