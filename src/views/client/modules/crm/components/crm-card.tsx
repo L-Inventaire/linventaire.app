@@ -3,7 +3,7 @@ import { generateQueryFromMap } from "@components/search-bar/utils/utils";
 import { useContacts } from "@features/contacts/hooks/use-contacts";
 import { CRMItem } from "@features/crm/types/types";
 import { EditorInput } from "@molecules/editor-input";
-import { Card, Heading, Text } from "@radix-ui/themes";
+import { Card, Heading, Text, Tooltip } from "@radix-ui/themes";
 import _ from "lodash";
 import { useDrag, useDragLayer } from "react-dnd";
 import { useSetRecoilState } from "recoil";
@@ -59,13 +59,16 @@ export const CRMCard = ({ crmItem, readonly, ...props }: CRMCardProps) => {
         });
       }}
     >
-      <Heading size="4">
+      <div className="">
         <div className="float-right">
           <div className="space-x-2">
             <TagsInput value={crmItem.tags} disabled />
             <UsersInput value={crmItem.assigned} disabled />
           </div>
         </div>
+        <UsersInput value={[crmItem.seller]} disabled={true} />
+      </div>
+      <Heading size="4">
         <EditorInput value={crmItem.notes} disabled={true} />
       </Heading>
       <Text size="2">
@@ -78,7 +81,6 @@ export const CRMCard = ({ crmItem, readonly, ...props }: CRMCardProps) => {
           .filter(Boolean)
           .join(", ")}
       </Text>
-      <UsersInput value={[crmItem.seller]} disabled={true} />
     </Card>
   );
 };
