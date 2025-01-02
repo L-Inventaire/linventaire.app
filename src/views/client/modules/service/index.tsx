@@ -55,7 +55,8 @@ export const ServicePage = () => {
         },
         {
           key: "for_no_quote",
-          values: [{ op: "equals", value: true, not: true }],
+          not: true,
+          values: [{ op: "equals", value: true }],
         },
       ],
     },
