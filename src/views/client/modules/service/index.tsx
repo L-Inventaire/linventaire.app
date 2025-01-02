@@ -66,7 +66,7 @@ export const ServicePage = () => {
     },
     all: { label: "Tous", filter: [] },
   };
-  const [activeTab, setActiveTab] = useState("active");
+  const [activeTab, setActiveTab] = useState("all");
 
   const [options, setOptions] = useState<RestOptions<ServiceItems>>({
     limit: 20,
