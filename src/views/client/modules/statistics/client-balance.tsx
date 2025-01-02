@@ -70,6 +70,18 @@ export const ClientBalancePage = () => {
           ...i,
           which30Days: 1,
         })) ?? []),
+        ...(invoice_query?.data?.delay90Payments.map((i) => ({
+          ...i,
+          which30Days: 2,
+        })) ?? []),
+        ...(invoice_query?.data?.delay120Payments.map((i) => ({
+          ...i,
+          which30Days: 3,
+        })) ?? []),
+        ...(invoice_query?.data?.delayMore120Payments.map((i) => ({
+          ...i,
+          which30Days: 120,
+        })) ?? []),
       ])
       .filter(Boolean),
   ];
@@ -128,12 +140,6 @@ export const ClientBalancePage = () => {
   ];
 
   const navigate = useNavigate();
-  console.log("fetchedClients", fetchedClients);
-  console.log(
-    "invoices_raw",
-    invoices_raw.map((invoice) => invoice.data)
-  );
-  console.log("invoices", invoices);
 
   return (
     <>

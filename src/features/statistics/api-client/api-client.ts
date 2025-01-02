@@ -26,7 +26,13 @@ export class StatisticsApiClient {
   static getClientBalance = async (
     clientID: string,
     contactID: string
-  ): Promise<{ delay30Payments: Invoices[]; delay60Payments: Invoices[] }> => {
+  ): Promise<{
+    delay30Payments: Invoices[];
+    delay60Payments: Invoices[];
+    delay90Payments: Invoices[];
+    delay120Payments: Invoices[];
+    delayMore120Payments: Invoices[];
+  }> => {
     let uri = `/api/statistics/v1/${clientID}/client-balance/` + contactID;
 
     const response = await fetchServer(uri.toString(), {
