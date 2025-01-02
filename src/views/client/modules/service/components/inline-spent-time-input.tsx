@@ -122,6 +122,7 @@ const SpentTimeLine = (props: {
             props.onChange({
               ...props.value,
               quantity,
+              unit: "h",
             });
           }}
           className={"!mx-3"}

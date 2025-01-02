@@ -103,7 +103,7 @@ export const ServiceItemsDetailsPage = ({
   const quoteContacts = [
     ...useContactsRecursively(quote?.contact, 3),
     ...useContactsRecursively(quote?.client, 3),
-  ];
+  ].filter(Boolean);
 
   if (isPending || (id && draft.id !== id)) return <PageLoader />;
 

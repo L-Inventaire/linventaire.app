@@ -55,7 +55,8 @@ export const ServicePage = () => {
         },
         {
           key: "for_no_quote",
-          values: [{ op: "equals", value: true, not: true }],
+          not: true,
+          values: [{ op: "equals", value: true }],
         },
       ],
     },
@@ -65,13 +66,13 @@ export const ServicePage = () => {
     },
     all: { label: "Tous", filter: [] },
   };
-  const [activeTab, setActiveTab] = useState("active");
+  const [activeTab, setActiveTab] = useState("all");
 
   const [options, setOptions] = useState<RestOptions<ServiceItems>>({
     limit: 20,
     offset: 0,
     query: [],
-    index: "state_order,created_at desc",
+    index: "state_order asc,started_at",
   });
   const { service_items } = useServiceItems({
     ...options,
@@ -169,7 +170,6 @@ export const ServicePage = () => {
               ...options,
               limit: page.perPage,
               offset: (page.page - 1) * page.perPage,
-              asc: page.order === "ASC",
             });
           }}
           columns={ServiceItemsColumns}

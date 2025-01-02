@@ -8,7 +8,7 @@ const fetchServerBatch = (() => {
     [key: string]: {
       url: string;
       body?: any;
-      resolve: (res: any) => void;
+      resolves: ((res: any) => void)[];
     }[];
   } = {};
   let timeoutId: { [key: string]: NodeJS.Timeout | null } = {};
@@ -30,14 +30,22 @@ const fetchServerBatch = (() => {
 
     const jsonResponses = (await res.json()) as { status: number; body: any }[];
     requestsToBatch[clientId].forEach((req, index) => {
-      req.resolve(jsonResponses[index]);
+      req.resolves.map((r) => r(jsonResponses[index]));
     });
   };
 
   return (clientId: string, url: string, body?: any): Promise<any> => {
     return new Promise((resolve) => {
-      pendingRequests[clientId] = pendingRequests[clientId] || [];
-      pendingRequests[clientId].push({ url, body, resolve });
+      const matchingRequest = pendingRequests[clientId]?.find(
+        (req) => req.url === url && _.isEqual(req.body, body)
+      );
+
+      if (matchingRequest) {
+        matchingRequest.resolves.push(resolve);
+      } else {
+        pendingRequests[clientId] = pendingRequests[clientId] || [];
+        pendingRequests[clientId].push({ url, body, resolves: [resolve] });
+      }
 
       if (!timeoutId[clientId]) {
         timeoutId[clientId] = setTimeout(() => {

@@ -1,21 +1,16 @@
-import Env from "@config/environment";
 import { useClients } from "@features/clients/state/use-clients";
-import { DefaultEventsMap } from "@socket.io/component-emitter";
 import { useEffect } from "react";
-import { io, Socket } from "socket.io-client";
-import { AuthJWT } from "../jwt";
 import { useAuth } from "./use-auth";
-import { queryClient } from "../../../index";
-import { useRefreshRestHistory } from "@features/utils/rest/hooks/use-history";
 
-let socket: Socket<DefaultEventsMap, DefaultEventsMap> | null = null;
+// let socket: Socket<DefaultEventsMap, DefaultEventsMap> | null = null;
 
 export const useWebsockets = () => {
   const { user } = useAuth();
   const { clients } = useClients();
-  const refreshHistory = useRefreshRestHistory();
+  //const refreshHistory = useRefreshRestHistory();
 
   useEffect(() => {
+    /*
     if (user?.id) {
       if (socket) socket.close();
       const endpoint = Env.server.replace(/\/$/, "").replace(/^http/, "ws");
@@ -63,6 +58,6 @@ export const useWebsockets = () => {
           }
         }
       });
-    }
+    }*/
   }, [user?.id, clients.length]);
 };

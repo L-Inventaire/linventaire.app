@@ -45,6 +45,11 @@ const activeFilter = [
 ];
 
 export const InvoicesPage = () => {
+  const key = useParams().type;
+  return <InvoicesPageContent key={key} />;
+};
+
+const InvoicesPageContent = () => {
   const type: Invoices["type"][] = (useParams().type?.split("+") || [
     "invoices",
   ]) as any;
@@ -94,6 +99,7 @@ export const InvoicesPage = () => {
       ...((tabs as any)[activeTab]?.filter || []),
     ],
     asc: true,
+    key: type.join("+") + "_" + activeTab,
   });
 
   const schema = useRestSchema("invoices");

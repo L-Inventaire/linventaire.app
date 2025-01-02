@@ -36,7 +36,7 @@ export const ServiceTimesDetailsPage = ({
 
   useEffect(() => {
     if (article?.unit) {
-      setDraft((d) => ({ ...d, unit: article.unit }));
+      setDraft((d) => ({ ...d, unit: article.unit || "h" }));
     }
   }, [article?.unit]);
 
