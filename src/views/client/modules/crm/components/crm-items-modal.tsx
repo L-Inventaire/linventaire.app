@@ -1,7 +1,6 @@
 import { Button } from "@atoms/button/button";
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import { Modal, ModalContent } from "@atoms/modal/modal";
-import { Base } from "@atoms/text";
 import { FormInput } from "@components/form/fields";
 import { RestDocumentsInput } from "@components/input-rest";
 import { TagsInput } from "@components/input-rest/tags";

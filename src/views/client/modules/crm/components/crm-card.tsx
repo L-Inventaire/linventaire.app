@@ -1,16 +1,16 @@
+import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
 import { generateQueryFromMap } from "@components/search-bar/utils/utils";
 import { useContacts } from "@features/contacts/hooks/use-contacts";
 import { CRMItem } from "@features/crm/types/types";
 import { EditorInput } from "@molecules/editor-input";
-import { Card, Heading, Text, Tooltip } from "@radix-ui/themes";
+import { Card, Heading, Text } from "@radix-ui/themes";
 import _ from "lodash";
 import { useDrag, useDragLayer } from "react-dnd";
 import { useSetRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
 import { prettyContactName } from "../../contacts/utils";
 import { CRMItemModalAtom } from "./crm-items-modal";
-import { TagsInput } from "@components/input-rest/tags";
 
 type CRMCardProps = {
   title?: string;
