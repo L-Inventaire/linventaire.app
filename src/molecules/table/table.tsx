@@ -155,11 +155,17 @@ export function RenderedTable<T>({
   );
 
   useEffect(() => {
-    setGroupByOpen(
+    setGroupByOpen((prevData) =>
       props.groupBy
         ? data
             .map((row) => getGroupByKey(row))
-            .reduce((acc, key) => ({ ...acc, [key]: false }), {})
+            .reduce(
+              (acc, key) => ({
+                ...acc,
+                [key]: prevData[key] ? prevData[key] : false,
+              }),
+              {}
+            )
         : {}
     );
   }, [props.groupBy, data]);
@@ -461,7 +467,11 @@ export function RenderedTable<T>({
                     )}
                     odd={!!(i % 2)}
                     first
-                    onClick={toggleGroup}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      toggleGroup();
+                    }}
                   >
                     {groupByOpen[getGroupByKey(data?.[i])] && (
                       <ChevronUpIcon className="w-4" />
