@@ -16,6 +16,7 @@ export const useWebsockets = () => {
   const refreshHistory = useRefreshRestHistory();
 
   useEffect(() => {
+    /*
     if (user?.id) {
       if (socket) socket.close();
       const endpoint = Env.server.replace(/\/$/, "").replace(/^http/, "ws");
@@ -63,6 +64,6 @@ export const useWebsockets = () => {
           }
         }
       });
-    }
+    }*/
   }, [user?.id, clients.length]);
 };
