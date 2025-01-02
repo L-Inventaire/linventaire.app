@@ -4,6 +4,8 @@ export type CRMItem = {
   notes: string;
   seller: string;
   state: "new" | "qualified" | "proposal" | "won" | "lost";
+  assigned: string[];
+  tags: string[];
 
   contact_summaries?: ContactSummary[];
 };

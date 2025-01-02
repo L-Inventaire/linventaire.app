@@ -1,3 +1,4 @@
+import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
 import { generateQueryFromMap } from "@components/search-bar/utils/utils";
 import { useContacts } from "@features/contacts/hooks/use-contacts";
@@ -58,10 +59,16 @@ export const CRMCard = ({ crmItem, readonly, ...props }: CRMCardProps) => {
         });
       }}
     >
-      <Heading size="4">
+      <div className="">
         <div className="float-right">
-          <UsersInput value={[crmItem.seller]} disabled={true} />
+          <div className="space-x-2">
+            <TagsInput value={crmItem.tags} disabled />
+            <UsersInput value={crmItem.assigned} disabled />
+          </div>
         </div>
+        <UsersInput value={[crmItem.seller]} disabled={true} />
+      </div>
+      <Heading size="4">
         <EditorInput value={crmItem.notes} disabled={true} />
       </Heading>
       <Text size="2">
