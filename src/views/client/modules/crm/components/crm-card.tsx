@@ -59,15 +59,6 @@ export const CRMCard = ({ crmItem, readonly, ...props }: CRMCardProps) => {
         });
       }}
     >
-      <div className="">
-        <div className="float-right">
-          <div className="space-x-2">
-            <TagsInput value={crmItem.tags} disabled />
-            <UsersInput value={crmItem.assigned} disabled />
-          </div>
-        </div>
-        <UsersInput value={[crmItem.seller]} disabled={true} />
-      </div>
       <Heading size="4">
         <EditorInput value={crmItem.notes} disabled={true} />
       </Heading>
@@ -81,6 +72,15 @@ export const CRMCard = ({ crmItem, readonly, ...props }: CRMCardProps) => {
           .filter(Boolean)
           .join(", ")}
       </Text>
+      <div className="mt-2">
+        <div className="float-right">
+          <div className="space-x-2">
+            <TagsInput value={crmItem.tags} disabled size="sm" />
+            <UsersInput value={crmItem.assigned} disabled size="sm" />
+          </div>
+        </div>
+        <UsersInput value={[crmItem.seller]} disabled={true} />
+      </div>
     </Card>
   );
 };
