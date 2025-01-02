@@ -170,7 +170,7 @@ export const ServiceTimesColumns: Column<ServiceTimes>[] = [
     render: (item) => {
       return (
         <>
-          {formatQuantity(item.quantity, item.unit)}{" "}
+          {formatQuantity(item.quantity, item.unit || "h")}{" "}
           <Unit unit={item.unit || "h"} />
         </>
       );
