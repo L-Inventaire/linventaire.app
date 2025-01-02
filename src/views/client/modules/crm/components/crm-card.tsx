@@ -10,6 +10,7 @@ import { useSetRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
 import { prettyContactName } from "../../contacts/utils";
 import { CRMItemModalAtom } from "./crm-items-modal";
+import { TagsInput } from "@components/input-rest/tags";
 
 type CRMCardProps = {
   title?: string;
@@ -60,7 +61,10 @@ export const CRMCard = ({ crmItem, readonly, ...props }: CRMCardProps) => {
     >
       <Heading size="4">
         <div className="float-right">
-          <UsersInput value={[crmItem.seller]} disabled={true} />
+          <div className="space-x-2">
+            <TagsInput value={crmItem.tags} disabled />
+            <UsersInput value={crmItem.assigned} disabled />
+          </div>
         </div>
         <EditorInput value={crmItem.notes} disabled={true} />
       </Heading>
@@ -74,6 +78,7 @@ export const CRMCard = ({ crmItem, readonly, ...props }: CRMCardProps) => {
           .filter(Boolean)
           .join(", ")}
       </Text>
+      <UsersInput value={[crmItem.seller]} disabled={true} />
     </Card>
   );
 };
