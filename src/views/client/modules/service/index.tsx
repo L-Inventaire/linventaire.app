@@ -72,7 +72,7 @@ export const ServicePage = () => {
     limit: 20,
     offset: 0,
     query: [],
-    index: "state_order,started_at desc",
+    index: "state_order asc,started_at",
   });
   const { service_items } = useServiceItems({
     ...options,
@@ -170,7 +170,6 @@ export const ServicePage = () => {
               ...options,
               limit: page.perPage,
               offset: (page.page - 1) * page.perPage,
-              asc: page.order === "ASC",
             });
           }}
           columns={ServiceItemsColumns}
