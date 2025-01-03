@@ -28,6 +28,7 @@ import { InvoiceInputFormat } from "../../invoices/components/input-format";
 import { ContactAccountingAccount } from "./contact-accounting-account";
 import { RelatedInvoicesInput } from "./related-invoices-input";
 import { RelationsInput } from "./relations-input";
+import { paymentOptions } from "@features/utils/constants";
 
 export const ContactsDetailsPage = ({
   readonly,
@@ -378,34 +379,7 @@ export const ContactsDetailsPage = ({
                       label: "Aucun",
                       value: "",
                     },
-                    {
-                      label: "Virement bancaire",
-                      value: "bank",
-                    },
-                    {
-                      label: "Espèces",
-                      value: "cash",
-                    },
-                    {
-                      label: "Chèque",
-                      value: "check",
-                    },
-                    {
-                      label: "SEPA",
-                      value: "sepa",
-                    },
-                    {
-                      label: "Paypal",
-                      value: "paypal",
-                    },
-                    {
-                      label: "Stripe",
-                      value: "stripe",
-                    },
-                    {
-                      label: "Autre",
-                      value: "other",
-                    },
+                    ...paymentOptions,
                   ]}
                 />
               </div>
