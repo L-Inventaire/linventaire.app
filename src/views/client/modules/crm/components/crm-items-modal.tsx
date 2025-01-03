@@ -1,9 +1,9 @@
 import { Button } from "@atoms/button/button";
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import { Modal, ModalContent } from "@atoms/modal/modal";
-import { Base } from "@atoms/text";
 import { FormInput } from "@components/form/fields";
 import { RestDocumentsInput } from "@components/input-rest";
+import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
 import { useClients } from "@features/clients/state/use-clients";
 import { getContactName } from "@features/contacts/types/types";
@@ -11,6 +11,7 @@ import { CRMItem } from "@features/crm/types/types";
 import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { UserIcon } from "@heroicons/react/24/solid";
 import { EditorInput } from "@molecules/editor-input";
+import { Heading } from "@radix-ui/themes";
 import { atom, useRecoilState } from "recoil";
 
 export const CRMItemModalAtom = atom<{
@@ -63,70 +64,88 @@ export const CRMItemsModalContent = () => {
 
   return (
     <ModalContent title="Proposition">
-      <FormInput
-        className="mb-4"
-        label="Status"
-        type="select"
-        ctrl={ctrl("state")}
-        readonly={modal.readonly}
-        options={[
-          {
-            label: "Nouveau",
-            value: "new",
-          },
-          {
-            label: "Qualifié",
-            value: "qualified",
-          },
-          {
-            label: "Proposition",
-            value: "proposal",
-          },
-          {
-            label: "Gagné",
-            value: "won",
-          },
-        ]}
-      />
+      <div className="space-y-4">
+        <FormInput
+          label="Status"
+          type="select"
+          ctrl={ctrl("state")}
+          readonly={modal.readonly}
+          options={[
+            {
+              label: "Nouveau",
+              value: "new",
+            },
+            {
+              label: "Qualifié",
+              value: "qualified",
+            },
+            {
+              label: "Proposition",
+              value: "proposal",
+            },
+            {
+              label: "Gagné",
+              value: "won",
+            },
+          ]}
+        />
 
-      <InputLabel
-        label="Description"
-        input={
-          <EditorInput
+        <InputLabel
+          label="Description"
+          input={
+            <EditorInput
+              disabled={modal.readonly}
+              value={ctrl("notes").value}
+              onChange={ctrl("notes").onChange}
+              className="w-full"
+            />
+          }
+        />
+
+        <div className="space-y-2">
+          <Heading size="2">Clients</Heading>
+          <RestDocumentsInput
+            className="w-full"
+            label="Clients"
+            placeholder="Aucun client"
+            entity="contacts"
+            max={3}
+            ctrl={ctrl("contacts")}
+            icon={(p) => <UserIcon {...p} />}
+            render={(contact, contacts) => {
+              if (contacts)
+                return contacts.map((c) => getContactName(c)).join(", ");
+
+              return getContactName(contact);
+            }}
+            size="lg"
             disabled={modal.readonly}
-            value={ctrl("notes").value}
-            onChange={ctrl("notes").onChange}
-            className="w-full mb-4"
           />
-        }
-      />
+        </div>
 
-      <Base className="block font-bold mb-1">Clients</Base>
-      <RestDocumentsInput
-        className="mb-4 w-full"
-        label="Clients"
-        placeholder="Aucun client"
-        entity="contacts"
-        max={3}
-        ctrl={ctrl("contacts")}
-        icon={(p) => <UserIcon {...p} />}
-        render={(contact, contacts) => {
-          if (contacts)
-            return contacts.map((c) => getContactName(c)).join(", ");
+        <div className="space-y-2">
+          <Heading size="2">Vendeur</Heading>
+          <UsersInput
+            value={[ctrl("seller").value]}
+            onChange={(v) => ctrl("seller").onChange(v[0])}
+            disabled={modal.readonly}
+            max={1}
+          />
+        </div>
 
-          return getContactName(contact);
-        }}
-        size="lg"
-        disabled={modal.readonly}
-      />
+        <div className="flex w-full">
+          <div className="w-1/2 space-y-2">
+            <Heading size="2">Assignés</Heading>
+            <UsersInput ctrl={ctrl("assigned")} />
+          </div>
 
-      <Base className="block font-bold mb-1">Vendeur</Base>
-      <UsersInput
-        value={[ctrl("seller").value]}
-        onChange={(v) => ctrl("seller").onChange(v[0])}
-        disabled={modal.readonly}
-        max={1}
-      />
+          <div className="w-1/2 space-y-2">
+            <Heading size="2">Tags</Heading>
+            <TagsInput ctrl={ctrl("tags")} />
+          </div>
+        </div>
+      </div>
+
       <div></div>
 
       {!modal.readonly && (

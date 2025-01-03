@@ -19,24 +19,26 @@ export const useFormattedNumerotationByInvoice = (
   return getFormattedNumerotation(
     counter?.format ?? "INV-@YYYY-@CCCC",
     countOverride ?? clientCounter?.counter ?? 0,
-    invoice.state === "draft"
+    invoice.state === "draft",
+    new Date(invoice.emit_date).getTime() || Date.now()
   );
 };
 
 export const getFormattedNumerotation = (
   format: string,
   counter: number,
-  draft?: boolean
+  draft?: boolean,
+  datets?: number
 ) => {
-  counter = counter || 1;
+  if (format.indexOf("@C") === -1) {
+    format = format + "-@C";
+  }
+  const date = new Date(datets || Date.now());
 
-  let n = format.replace(/@YYYY/g, new Date().getFullYear().toString());
-  n = n.replace(/@YY/g, new Date().getFullYear().toString().slice(-2));
-  n = n.replace(
-    /@MM/g,
-    (new Date().getMonth() + 1).toString().padStart(2, "0")
-  );
-  n = n.replace(/@DD/g, new Date().getDate().toString().padStart(2, "0"));
+  let n = format.replace(/@YYYY/g, date.getFullYear().toString());
+  n = n.replace(/@YY/g, date.getFullYear().toString().slice(-2));
+  n = n.replace(/@MM/g, (date.getMonth() + 1).toString().padStart(2, "0"));
+  n = n.replace(/@DD/g, date.getDate().toString().padStart(2, "0"));
   n = n.replace(/@CCCCCCCC/g, counter.toString().padStart(8, "0"));
   n = n.replace(/@CCCCCCC/g, counter.toString().padStart(7, "0"));
   n = n.replace(/@CCCCCC/g, counter.toString().padStart(6, "0"));
