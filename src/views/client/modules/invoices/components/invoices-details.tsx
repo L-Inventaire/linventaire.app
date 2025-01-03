@@ -33,7 +33,7 @@ import {
 import { EditorInput } from "@molecules/editor-input";
 import { Table } from "@molecules/table";
 import { Timeline } from "@molecules/timeline";
-import { Callout, Code, Text } from "@radix-ui/themes";
+import { Callout, Code, Heading, Text } from "@radix-ui/themes";
 import { PageColumns } from "@views/client/_layout/page";
 import { format as formatDate } from "date-fns";
 import _ from "lodash";
@@ -51,6 +51,7 @@ import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-ca
 import { InvoiceStatus } from "./invoice-status";
 import { RelatedInvoices } from "./related-invoices";
 import { TagPaymentCompletion } from "./tag-payment-completion";
+import { useInvoice } from "@features/invoices/hooks/use-invoices";
 
 export const InvoicesDetailsPage = ({
   readonly,
@@ -73,6 +74,8 @@ export const InvoicesDetailsPage = ({
     draft.client || draft.supplier
   );
   const edit = useEditFromCtrlK();
+
+  const { invoice: originQuote } = useInvoice(draft.from_rel_quote?.[0] || "");
 
   const isQuoteRelated =
     draft.type === "quotes" || draft.type === "supplier_quotes";
@@ -313,9 +316,16 @@ export const InvoicesDetailsPage = ({
 
             <FormContext readonly={contentReadonly} alwaysVisible>
               <Section className="flex items-center space-x-2">
-                <span>
-                  {getDocumentName(draft.type) + " " + ctrl("reference").value}
-                </span>
+                <InputButton
+                  theme="invisible"
+                  readonly={draft.state !== "draft" || readonly}
+                  ctrl={ctrl("reference")}
+                  label="Référence"
+                >
+                  <Heading size="4" className="m-0">
+                    {getDocumentName(draft.type)} {draft.reference}
+                  </Heading>
+                </InputButton>
 
                 {(!readonly || ctrl("emit_date").value) && (
                   <InputButton
@@ -518,7 +528,8 @@ export const InvoicesDetailsPage = ({
 
                       {!isSupplierRelated &&
                         draft.type !== "quotes" &&
-                        !!draft.content?.find((a) => a.subscription) && (
+                        (!!draft.content?.find((a) => a.subscription) ||
+                          originQuote?.subscription) && (
                           <div className="mt-8">
                             <Section className="mb-2">
                               Période de récurrence

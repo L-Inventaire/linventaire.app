@@ -68,6 +68,10 @@ export const paymentOptions = [
     label: "Espèces",
     value: "cash",
   },
+  {
+    label: "Prélèvement",
+    value: "direct_debit",
+  },
 ];
 
 export const paymentDelayOptions = [
