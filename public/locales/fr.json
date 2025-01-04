@@ -49,17 +49,21 @@
   },
   "invoices": {
     "states": {
-      "draft": "Brouillon",
+      "draft": {
+        "default": "Brouillon"
+      },
       "sent": {
         "default": "Envoyé",
-        "quotes": "Prix demandé",
+        "quotes": "Envoyé",
         "invoices": "Paiement en attente",
         "credit_notes": "Paiement en attente",
         "supplier_invoices": "Paiement en attente",
         "supplier_credit_notes": "Paiement en attente",
-        "supplier_quotes": "Commandé"
+        "supplier_quotes": "Prix demandé"
       },
-      "accounted": "Comptabilisé",
+      "accounted": {
+        "default": "Comptabilisé"
+      },
       "purchase_order": {
         "quotes": "Accepté",
         "supplier_quotes": "Commandé"
@@ -68,12 +72,16 @@
         "partial_paid": "Paiement partiel",
         "paid": "Payé"
       },
-      "closed": "Terminé",
+      "closed": {
+        "default": "Terminé"
+      },
       "completed": {
         "default": "À facturer",
         "supplier_quotes": "Réceptionné"
       },
-      "recurring": "En récurrence"
+      "recurring": {
+        "default": "En récurrence"
+      }
     },
     "send-special": {
       "titles": {

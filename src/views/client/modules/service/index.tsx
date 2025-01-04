@@ -25,6 +25,7 @@ import { useHasAccess } from "@features/access";
 
 export const ServicePage = () => {
   const tabs = {
+    all: { label: "Tous", filter: [] },
     active: {
       label: "Actifs",
       filter: [
@@ -64,7 +65,6 @@ export const ServicePage = () => {
       label: "Fermés",
       filter: buildQueryFromMap({ state: ["done", "cancelled"] }),
     },
-    all: { label: "Tous", filter: [] },
   };
   const [activeTab, setActiveTab] = useState("all");
 
