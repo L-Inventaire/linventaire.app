@@ -54,6 +54,7 @@ import { TagPaymentCompletion } from "./tag-payment-completion";
 import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { InvoicesFieldsNames } from "@features/invoices/configuration";
 
+
 export const InvoicesDetailsPage = ({
   readonly,
   id,
