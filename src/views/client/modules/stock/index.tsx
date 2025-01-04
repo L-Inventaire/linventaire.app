@@ -25,6 +25,7 @@ import { useHasAccess } from "@features/access";
 
 export const StockPage = () => {
   const tabs = {
+    all: { label: "Tous", filter: [] },
     available: {
       label: "Disponible",
       filter: [
@@ -62,9 +63,8 @@ export const StockPage = () => {
         },
       ],
     },
-    all: { label: "Tous", filter: [] },
   };
-  const [activeTab, setActiveTab] = useState("available");
+  const [activeTab, setActiveTab] = useState("all");
 
   const [options, setOptions] = useState<RestOptions<StockItems>>({
     limit: 20,

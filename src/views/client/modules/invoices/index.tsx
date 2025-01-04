@@ -3,7 +3,10 @@ import { Info } from "@atoms/text";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { RestTable } from "@components/table-rest";
 import { useHasAccess } from "@features/access";
-import { InvoicesColumns } from "@features/invoices/configuration";
+import {
+  InvoicesColumns,
+  InvoicesFieldsNames,
+} from "@features/invoices/configuration";
 import { useInvoices } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
 import { getDocumentNamePlurial } from "@features/invoices/utils";
@@ -147,21 +150,7 @@ const InvoicesPageContent = () => {
         <SearchBar
           schema={{
             table: "invoices",
-            fields: schemaToSearchFields(schema.data, {
-              tags: {
-                label: "Étiquettes",
-                keywords: "tags étiquettes label",
-              },
-              updated_at: "Date de mise à jour",
-              updated_by: {
-                label: "Mis à jour par",
-                keywords: "updated_by mis à jour par auteur utilisateur user",
-              },
-              type: {
-                label: "Type",
-                keywords: "type devis avoirs factures",
-              },
-            }),
+            fields: schemaToSearchFields(schema.data, InvoicesFieldsNames()),
           }}
           onChange={(q) => {
             q.valid && setOptions({ ...options, query: q.fields });
@@ -289,7 +278,7 @@ const InvoicesPageContent = () => {
               {Object.entries(tabs).map(([key, label]) => (
                 <Tabs.Trigger key={key} value={key}>
                   {label.label}
-                  {(counters as any)?.[key] && (
+                  {!!(counters as any)?.[key] && (
                     <Badge className="ml-2">
                       {formatNumber((counters as any)?.[key] || 0)}
                     </Badge>

@@ -25,6 +25,7 @@ import _ from "lodash";
 import { Tag } from "@atoms/badge/tag";
 import { ArrowPathIcon, RectangleStackIcon } from "@heroicons/react/16/solid";
 import { frequencyOptions } from "@views/client/modules/articles/components/article-details";
+import { RestFieldsNames } from "@features/utils/rest/configuration";
 
 export const useInvoiceDefaultModel: () => Partial<Invoices> = () => {
   const { client } = useCurrentClient();
@@ -249,4 +250,73 @@ registerCtrlKRestEntity<Invoices>("invoices", {
     }
     return [];
   },
+});
+
+export const InvoicesFieldsNames = () => ({
+  type: {
+    label: "Type",
+    keywords: "type devis avoirs",
+  },
+  state: {
+    label: "Statut",
+    keywords: "factures brouillon envoyé terminé état statut status",
+  },
+  emit_date: {
+    label: "Date d'émission",
+    keywords: "date émission creation",
+  },
+  "recipients[0].role": false,
+  "recipients[0].email": false,
+  "reminders.enabled": false,
+  reminder: false,
+  "reminders.repetition": false,
+  reference: {
+    label: "Référence",
+    keywords: "référence numéro",
+  },
+  alt_reference: {
+    label: "Référence alternative",
+    keywords: "référence alternative numéro",
+  },
+  from_rel_quote: {
+    label: "Devis d'origine",
+    keywords: "devis origine",
+  },
+  from_rel_invoice: {
+    label: "Facture d'origine",
+    keywords: "facture origine",
+  },
+  "from_subscription.to": {
+    label: "Date de fin de l'abonnement",
+    keywords: "abonnement date fin",
+  },
+  "from_subscription.from": {
+    label: "Date de début de l'abonnement",
+    keywords: "abonnement date début",
+  },
+  "total.total": {
+    label: "Total HT",
+    keywords: "total ht",
+  },
+  "total.total_with_taxes": {
+    label: "Total TTC",
+    keywords: "total ttc",
+  },
+  client: {
+    label: "Client",
+    keywords: "client",
+  },
+  supplier: {
+    label: "Fournisseur",
+    keywords: "fournisseur",
+  },
+  contact: {
+    label: "Contact",
+    keywords: "contact",
+  },
+  "total.taxes": false,
+  "total.discount": false,
+  "total.initial": false,
+  documents: false,
+  ...RestFieldsNames(),
 });

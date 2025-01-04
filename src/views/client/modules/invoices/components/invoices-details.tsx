@@ -52,6 +52,7 @@ import { InvoiceStatus } from "./invoice-status";
 import { RelatedInvoices } from "./related-invoices";
 import { TagPaymentCompletion } from "./tag-payment-completion";
 import { useInvoice } from "@features/invoices/hooks/use-invoices";
+import { InvoicesFieldsNames } from "@features/invoices/configuration";
 
 export const InvoicesDetailsPage = ({
   readonly,
@@ -700,6 +701,7 @@ export const InvoicesDetailsPage = ({
                 <br />
                 <Timeline
                   entity="invoices"
+                  translations={InvoicesFieldsNames() as any}
                   id={draft.id}
                   viewRoute={ROUTES.InvoicesView}
                 />
