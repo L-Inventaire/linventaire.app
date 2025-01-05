@@ -21,10 +21,12 @@ export const RestTable = <T,>(
     return () => registerActiveSelection(props.entity, []);
   }, []);
 
+  console.log(JSON.parse(JSON.stringify(props.data)));
+
   return (
     <Table
       {..._.omit(props, "entity")}
-      loading={props.data.isPending}
+      loading={props.data.isPending || props.data.isFetching}
       data={props.data?.data?.list || []}
       total={props.data?.data?.total || 0}
       rowIndex="id"

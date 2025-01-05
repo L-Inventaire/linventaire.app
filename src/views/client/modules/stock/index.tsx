@@ -90,7 +90,7 @@ export const StockPage = () => {
       bar={
         <SearchBar
           schema={{
-            table: "Stock",
+            table: "stock_items",
             fields: schemaToSearchFields(schema.data, {}),
           }}
           onChange={(q) =>
