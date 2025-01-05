@@ -29,6 +29,7 @@ import {
   schemaToSearchFields,
 } from "../../../../components/search-bar/utils/utils";
 import { InvoiceStatus } from "./components/invoice-status";
+import _ from "lodash";
 
 export const InvoicesPage = () => {
   const key = useParams().type;
@@ -135,7 +136,6 @@ const InvoicesPageContent = () => {
     limit: 1,
     query: [...invoiceFilters.query, ...(tabs.recurring?.filter || [])],
   });
-
   const counters = {
     draft: draftInvoices?.data?.total || 0,
     sent: sentInvoices?.data?.total || 0,
@@ -153,8 +153,10 @@ const InvoicesPageContent = () => {
             fields: schemaToSearchFields(schema.data, InvoicesFieldsNames()),
           }}
           onChange={(q) => {
-            q.valid && setOptions({ ...options, query: q.fields });
-            setPagination((pagination) => ({ ...pagination, page: 1 }));
+            if (q.valid) {
+              setOptions({ ...options, query: q.fields });
+              setPagination((pagination) => ({ ...pagination, page: 1 }));
+            }
           }}
           suffix={
             hasAccess("INVOICES_WRITE") ? (
