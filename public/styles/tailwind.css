@@ -1383,6 +1383,11 @@ body :is(.my-8) {
   margin-bottom: 2rem;
 }
 
+body :is(.-my-px) {
+  margin-top: -1px;
+  margin-bottom: -1px;
+}
+
 body :is(.\!-ml-0) {
   margin-left: -0px !important;
 }
@@ -1777,6 +1782,14 @@ body :is(.h-px) {
 
 body :is(.h-screen) {
   height: 100vh;
+}
+
+body :is(.h-64) {
+  height: 16rem;
+}
+
+body :is(.h-40) {
+  height: 10rem;
 }
 
 body :is(.max-h-0) {
