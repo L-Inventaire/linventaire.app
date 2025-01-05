@@ -104,7 +104,7 @@ export const ServicePage = () => {
       bar={
         <SearchBar
           schema={{
-            table: "Service",
+            table: "service_items",
             fields: schemaToSearchFields(schema.data, {}),
           }}
           onChange={(q) =>

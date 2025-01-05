@@ -33,7 +33,7 @@ export const CRMPage = () => {
       bar={
         <SearchBar
           schema={{
-            table: "CRM",
+            table: "crm_items",
             fields: schemaToSearchFields(schema.data, {}),
           }}
           onChange={(q) =>
