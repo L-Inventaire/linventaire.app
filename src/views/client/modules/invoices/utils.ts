@@ -19,39 +19,10 @@ export const getInvoiceStatusPrettyName = (
   type: InvoicesType
 ) => {
   const prefix = "invoices.states";
-
-  const statusTranslationCode = {
-    draft: "draft",
-    sent:
-      type === "quotes"
-        ? "sent.quotes"
-        : type === "invoices"
-        ? "sent.invoices"
-        : type === "credit_notes"
-        ? "sent.invoices"
-        : type === "supplier_quotes"
-        ? "sent.quotes"
-        : type === "supplier_invoices"
-        ? "sent.supplier_invoices"
-        : type === "supplier_credit_notes"
-        ? "sent.supplier_credit_notes"
-        : "sent.default",
-    accounted: "accounted",
-    purchase_order:
-      type === "quotes"
-        ? "purchase_order.quotes"
-        : "purchase_order.supplier_quotes",
-    partial_paid: "payment.partial_paid",
-    paid: "payment.paid",
-    closed: "closed",
-    completed:
-      type === "supplier_quotes"
-        ? "completed.supplier_quotes"
-        : "completed.default",
-    recurring: "recurring",
-  };
-
-  return i18next.t(prefix + "." + statusTranslationCode[status]);
+  return i18next.t([
+    prefix + "." + status + "." + type,
+    prefix + "." + status + ".default",
+  ]);
 };
 
 export const getInvoicesStatusColor = (

@@ -21,4 +21,5 @@ export const RestFieldsNames = () => ({
     label: "Mis à jour par",
     keywords: "updated_by mis à jour par auteur utilisateur user",
   },
+  client_id: false,
 });

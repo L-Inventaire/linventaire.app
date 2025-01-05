@@ -3,7 +3,10 @@ import { Info } from "@atoms/text";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { RestTable } from "@components/table-rest";
 import { useHasAccess } from "@features/access";
-import { InvoicesColumns } from "@features/invoices/configuration";
+import {
+  InvoicesColumns,
+  InvoicesFieldsNames,
+} from "@features/invoices/configuration";
 import { useInvoices } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
 import { getDocumentNamePlurial } from "@features/invoices/utils";
@@ -27,23 +30,6 @@ import {
 } from "../../../../components/search-bar/utils/utils";
 import { InvoiceStatus } from "./components/invoice-status";
 
-const activeFilter = [
-  {
-    key: "state",
-    not: true,
-    values: [
-      {
-        op: "equals",
-        value: "closed",
-      },
-      {
-        op: "equals",
-        value: "recurring",
-      },
-    ],
-  },
-];
-
 export const InvoicesPage = () => {
   const key = useParams().type;
   return <InvoicesPageContent key={key} />;
@@ -55,23 +41,45 @@ const InvoicesPageContent = () => {
   ]) as any;
 
   const tabs = {
-    active: { label: "Actifs", filter: activeFilter },
+    all: { label: "Tous", filter: [] },
+    draft: {
+      label: "Brouillons",
+      filter: buildQueryFromMap({ state: "draft" }),
+    },
+    sent: {
+      label: type.join("").includes("supplier_")
+        ? type.includes("supplier_quotes")
+          ? "Commandé"
+          : "À payer"
+        : "Envoyés",
+      filter: buildQueryFromMap({
+        state: type.includes("supplier_quotes")
+          ? ["sent", "purchase_order"]
+          : "sent",
+      }),
+    },
     ...(type.includes("quotes")
       ? {
+          purchase_order: {
+            label: "Acceptés",
+            filter: buildQueryFromMap({ state: "purchase_order" }),
+          },
           recurring: {
-            label: "En abonnement",
+            label: "Abonnements",
             filter: buildQueryFromMap({ state: "recurring" }),
+          },
+          completed: {
+            label: "À facturer",
+            filter: buildQueryFromMap({ state: "completed" }),
           },
         }
       : {}),
     closed: {
       label: "Terminés",
-      filter: buildQueryFromMap({ state: "closed" }),
+      filter: buildQueryFromMap({ state: ["closed"] }),
     },
-    all: { label: "Tous", filter: [] },
   };
-  const [activeTab, setActiveTab] = useState("active");
-  const [didSelectTab, setDidSelectTab] = useState(false);
+  const [activeTab, setActiveTab] = useState("all");
   const [pagination, setPagination] = useState<
     Omit<Pagination, "total"> & { total?: number }
   >({
@@ -110,12 +118,17 @@ const InvoicesPageContent = () => {
   const { invoices: draftInvoices } = useInvoices({
     key: "draftInvoices",
     limit: 1,
-    query: [...buildQueryFromMap({ state: "draft" }), ...invoiceFilters.query],
+    query: [...tabs.draft.filter, ...invoiceFilters.query],
   });
-  const { invoices: activeInvoices } = useInvoices({
-    key: "activeInvoices",
+  const { invoices: sentInvoices } = useInvoices({
+    key: "sentInvoices",
     limit: 1,
-    query: [...invoiceFilters.query, ...activeFilter],
+    query: [...tabs.sent.filter, ...invoiceFilters.query],
+  });
+  const { invoices: inProgressInvoices } = useInvoices({
+    key: "inProgressInvoices",
+    limit: 1,
+    query: [...(tabs.purchase_order?.filter || []), ...invoiceFilters.query],
   });
   const { invoices: recurringInvoices } = useInvoices({
     key: "recurringInvoices",
@@ -123,17 +136,12 @@ const InvoicesPageContent = () => {
     query: [...invoiceFilters.query, ...(tabs.recurring?.filter || [])],
   });
 
-  if (
-    !draftInvoices.isPending &&
-    !activeInvoices.isPending &&
-    !invoices.isPending &&
-    activeInvoices?.data?.total === 0 &&
-    (draftInvoices?.data?.total || 0) > 0 &&
-    activeTab === "active" &&
-    !didSelectTab
-  ) {
-    setActiveTab("active");
-  }
+  const counters = {
+    draft: draftInvoices?.data?.total || 0,
+    sent: sentInvoices?.data?.total || 0,
+    purchase_order: inProgressInvoices?.data?.total || 0,
+    recurring: recurringInvoices?.data?.total || 0,
+  };
 
   return (
     <Page
@@ -142,21 +150,7 @@ const InvoicesPageContent = () => {
         <SearchBar
           schema={{
             table: "invoices",
-            fields: schemaToSearchFields(schema.data, {
-              tags: {
-                label: "Étiquettes",
-                keywords: "tags étiquettes label",
-              },
-              updated_at: "Date de mise à jour",
-              updated_by: {
-                label: "Mis à jour par",
-                keywords: "updated_by mis à jour par auteur utilisateur user",
-              },
-              type: {
-                label: "Type",
-                keywords: "type devis avoirs factures",
-              },
-            }),
+            fields: schemaToSearchFields(schema.data, InvoicesFieldsNames()),
           }}
           onChange={(q) => {
             q.valid && setOptions({ ...options, query: q.fields });
@@ -277,7 +271,6 @@ const InvoicesPageContent = () => {
           <Tabs.Root
             onValueChange={(v) => {
               setActiveTab(v);
-              setDidSelectTab(true);
             }}
             value={activeTab}
           >
@@ -285,11 +278,9 @@ const InvoicesPageContent = () => {
               {Object.entries(tabs).map(([key, label]) => (
                 <Tabs.Trigger key={key} value={key}>
                   {label.label}
-                  {["active", "recurring"].includes(key) && (
+                  {!!(counters as any)?.[key] && (
                     <Badge className="ml-2">
-                      {key === "recurring"
-                        ? formatNumber(recurringInvoices?.data?.total || 0)
-                        : formatNumber(activeInvoices?.data?.total || 0)}
+                      {formatNumber((counters as any)?.[key] || 0)}
                     </Badge>
                   )}
                 </Tabs.Trigger>
