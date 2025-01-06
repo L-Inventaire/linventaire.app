@@ -260,7 +260,12 @@ export const ClientBalancePage = () => {
                         it.client === invoice.client && it.which30days >= 5
                     );
 
-                    const total = items.reduce((acc, it) => acc + it.total, 0);
+                    const total = items.reduce((acc, it) => {
+                      const value = _.isNumber(it.total)
+                        ? it.total
+                        : parseFloat(it.total);
+                      return acc + value;
+                    }, 0);
 
                     return (
                       <TableCell
