@@ -381,7 +381,7 @@ export function RenderedTable<T>({
         <table
           className={twMerge(
             "relative z-0 border-collapse table-fixed w-auto min-w-full",
-            loading && " opacity-75 animate-pulse",
+            loading && " opacity-50 animate-pulse",
             scrollable && " scrollable h-full"
           )}
         >
@@ -609,7 +609,16 @@ export function RenderedTable<T>({
                     <TablePagination
                       pagination={pagination}
                       dataLength={data.length}
-                      onChangePage={onChangePage}
+                      onChangePage={(...a) => {
+                        onChangePage?.(...a);
+                        // Make sure top of parentRef is scrolled into view
+                        if (parentRef.current) {
+                          parentRef.current.parentElement?.scrollIntoView?.({
+                            behavior: "instant",
+                            block: "start",
+                          });
+                        }
+                      }}
                       onChangePageSize={
                         scrollable ? undefined : onChangePageSize
                       }

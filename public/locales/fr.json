@@ -80,7 +80,7 @@
         "supplier_quotes": "Réceptionné"
       },
       "recurring": {
-        "default": "En récurrence"
+        "default": "Abonnement"
       }
     },
     "send-special": {

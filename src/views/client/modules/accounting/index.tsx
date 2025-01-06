@@ -41,7 +41,7 @@ export const AccountingPage = () => {
       bar={
         <SearchBar
           schema={{
-            table: "Accounting",
+            table: "accounting_transactions",
             fields: schemaToSearchFields(schema.data, {}),
           }}
           onChange={(q) =>

@@ -29,6 +29,7 @@ export type RestDocumentProps<T> = {
   filter?: Partial<T>;
   queryFn?: (ids: string[]) => Promise<{ total: number; list: T[] }>;
   render?: (value: T, valuesList?: T[]) => ReactNode | JSX.Element;
+  renderEmpty?: () => ReactNode | JSX.Element;
   size?: "xs" | "sm" | "md" | "lg" | "xl";
   disabled?: boolean;
   "data-tooltip"?: string;
@@ -137,19 +138,23 @@ export const RestDocumentsInput = <T extends RestEntity>(
 
   if (props.noWrapper) {
     if (!value || !value?.length || (!valuesList?.length && items.isFetched)) {
-      if (disabled) return <></>;
-
-      return (
-        <Button
-          theme="invisible"
-          icon={icon}
-          onClick={onClick}
-          className={"m-0 " + props.className}
-          size={size}
-          readonly={disabled}
-          data-tooltip={props["data-tooltip"]}
-        />
-      );
+      if (!disabled) {
+        return (
+          <Button
+            theme="invisible"
+            icon={icon}
+            onClick={onClick}
+            className={"m-0 " + props.className}
+            size={size}
+            readonly={disabled}
+            data-tooltip={props["data-tooltip"]}
+          />
+        );
+      } else {
+        if (!props.renderEmpty) {
+          return <></>;
+        }
+      }
     }
 
     return (
@@ -189,7 +194,8 @@ export const RestDocumentsInput = <T extends RestEntity>(
     );
   }
 
-  if (!items?.data?.list?.length && disabled) return <></>;
+  if (!items?.data?.list?.length && disabled && !props.renderEmpty)
+    return <></>;
 
   return (
     <div
@@ -311,6 +317,17 @@ export const RestDocumentsInput = <T extends RestEntity>(
                 {props.render
                   ? props.render(valuesList[0], valuesList)
                   : (valuesList[0] as any)._label}
+              </Base>
+            )}
+            {value && !valuesList?.[0] && !!props.renderEmpty && (
+              <Base
+                className={twMerge(
+                  "leading-5 block",
+                  ["xs", "sm", "md"].includes(size) &&
+                    "line-clamp-1 text-ellipsis"
+                )}
+              >
+                {props.renderEmpty?.()}
               </Base>
             )}
           </AnimatedHeight>

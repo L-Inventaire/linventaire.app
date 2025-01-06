@@ -20,6 +20,7 @@ import { buildFilter } from "./utils/filter";
 import { OutputQuery, SearchField } from "./utils/types";
 import { getFromUrl, setToUrl } from "./utils/url";
 import { extractFilters, generateQuery } from "./utils/utils";
+import _ from "lodash";
 
 export const SearchBar = ({
   schema,
@@ -118,10 +119,12 @@ export const SearchBar = ({
       }
       delayCall(
         () => {
-          onChange(
-            generateQuery(fields, extractFilters(value), displayToValueMap),
-            value
+          const filters = generateQuery(
+            fields,
+            extractFilters(value),
+            displayToValueMap
           );
+          onChange(filters, value);
         },
         {
           key: "search-bar",
@@ -129,7 +132,7 @@ export const SearchBar = ({
         }
       );
     }
-  }, [value, loadingCustomFields, JSON.stringify(fields)]);
+  }, [value, loadingCustomFields, fields.length]);
 
   // When value change, set inputHeight to rendererRef height
   useEffect(() => {
