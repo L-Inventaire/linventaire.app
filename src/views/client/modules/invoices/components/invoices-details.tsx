@@ -53,7 +53,7 @@ import { RelatedInvoices } from "./related-invoices";
 import { TagPaymentCompletion } from "./tag-payment-completion";
 import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { InvoicesFieldsNames } from "@features/invoices/configuration";
-
+import { DateTime } from "luxon";
 
 export const InvoicesDetailsPage = ({
   readonly,
@@ -350,6 +350,30 @@ export const InvoicesDetailsPage = ({
                         hideTime: true,
                       })}
                     </Text>
+                    {draft.type === "invoices" &&
+                      draft.state === "sent" &&
+                      draft.payment_information.computed_date &&
+                      DateTime.fromMillis(
+                        draft.payment_information.computed_date
+                      ) < DateTime.now() && (
+                        <Text
+                          size="2"
+                          className="opacity-75 ml-2 text-red-500"
+                          weight="medium"
+                        >
+                          Paiement en retard de{" "}
+                          {Math.abs(
+                            Math.floor(
+                              DateTime.fromMillis(
+                                draft.payment_information.computed_date
+                              )
+                                .diff(DateTime.now())
+                                .as("days")
+                            )
+                          )}{" "}
+                          jours
+                        </Text>
+                      )}
                   </InputButton>
                 )}
                 {!!draft.subscription_next_invoice_date &&
