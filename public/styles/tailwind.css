@@ -1323,6 +1323,11 @@ body :is(.-my-1) {
   margin-bottom: -0.25rem;
 }
 
+body :is(.-my-px) {
+  margin-top: -1px;
+  margin-bottom: -1px;
+}
+
 body :is(.mx-1) {
   margin-left: 0.25rem;
   margin-right: 0.25rem;
@@ -1381,11 +1386,6 @@ body :is(.my-6) {
 body :is(.my-8) {
   margin-top: 2rem;
   margin-bottom: 2rem;
-}
-
-body :is(.-my-px) {
-  margin-top: -1px;
-  margin-bottom: -1px;
 }
 
 body :is(.\!-ml-0) {
@@ -4636,6 +4636,7 @@ html, body, #root {
 
 .grecaptcha-badge {
   opacity: 0;
+  pointer-events: none;
 }
 
 input, select {
