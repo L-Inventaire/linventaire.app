@@ -11,7 +11,6 @@ import {
   InformationCircleIcon,
   PaperAirplaneIcon,
   PaperClipIcon,
-  TrashIcon,
 } from "@heroicons/react/16/solid";
 import { EditorInput } from "@molecules/editor-input";
 import {
@@ -25,7 +24,6 @@ import {
 import { format, formatDistance } from "date-fns";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { twMerge } from "tailwind-merge";
 import { EventLine } from ".";
 
 export const CommentCard = ({
