@@ -84,7 +84,13 @@ export const ClientBalancePage = () => {
         })) ?? []),
       ])
       .filter(Boolean),
-  ];
+  ].sort((a, b) => {
+    if (a.client === b.client) {
+      return a.id === "_" ? -1 : 1;
+    }
+
+    return a.client > b.client ? 1 : -1;
+  });
 
   const columns: Column<Invoices & { which30Days?: number }>[] = [
     {
@@ -249,9 +255,17 @@ export const ClientBalancePage = () => {
                   .filter((a) => !a.hidden)
                   .filter((a) => ["120"].includes(a.id ?? ""))
                   .map((__, j) => {
-                    const item = table.find(
-                      (it) => it.client === invoice.client
+                    const items = table.filter(
+                      (it) =>
+                        it.client === invoice.client && it.which30days >= 5
                     );
+
+                    const total = items.reduce((acc, it) => {
+                      const value = _.isNumber(it.total)
+                        ? it.total
+                        : parseFloat(it.total);
+                      return acc + value;
+                    }, 0);
 
                     return (
                       <TableCell
@@ -259,10 +273,7 @@ export const ClientBalancePage = () => {
                         last={j === columns.length - 1}
                         key={j}
                       >
-                        {formatAmount(
-                          invoices.find(() => (item?.which30days || 0) >= 5)
-                            ?.total?.total ?? 0
-                        )}
+                        {formatAmount(total ?? 0)}
                       </TableCell>
                     );
                   })}

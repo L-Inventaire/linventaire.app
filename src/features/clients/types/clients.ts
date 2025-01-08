@@ -177,6 +177,7 @@ type Preferences = {
   language?: string;
   currency?: string;
   timezone?: string;
+  email_footer?: string;
 };
 
 type Configuration = {

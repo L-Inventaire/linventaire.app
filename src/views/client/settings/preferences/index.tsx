@@ -20,6 +20,7 @@ import _ from "lodash";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Page } from "../../_layout/page";
+import { EditorInput } from "@molecules/editor-input";
 
 export const PreferencesPage = () => {
   const { t } = useTranslation();
@@ -107,6 +108,16 @@ export const PreferencesPage = () => {
                       </option>
                     ))}
                   </Select>
+                }
+              />
+              <EditorInput
+                className="mb-4"
+                value={preferences?.email_footer || ""}
+                onChange={(e) =>
+                  setPreferences({
+                    ...preferences,
+                    email_footer: e,
+                  })
                 }
               />
               <FormInput
