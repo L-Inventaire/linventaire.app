@@ -126,6 +126,7 @@ export const SideBar = () => {
               to={getRoute(ROUTES.Invoices, { type: "credit_notes" })}
               label={t("menu.credit_notes")}
               icon={(p) => <ReceiptRefundIcon {...p} />}
+              show={hasAccess("INVOICES_READ")}
             />
           </MenuSection>
 
