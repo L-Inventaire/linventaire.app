@@ -165,6 +165,7 @@ html, body, #root {
 
 .grecaptcha-badge {
     opacity: 0;
+    pointer-events: none;
 }
 
 input, select {
