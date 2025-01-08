@@ -87,6 +87,28 @@ export const PreferencesPage = () => {
                   </Select>
                 }
               />
+              <InputLabel
+                className="mb-4"
+                label={t("settings.preferences.timezone")}
+                input={
+                  <Select
+                    disabled={readonly}
+                    value={preferences?.timezone || "Europe/Paris"}
+                    onChange={(e) =>
+                      setPreferences({
+                        ...preferences,
+                        timezone: e.target.value,
+                      })
+                    }
+                  >
+                    {Intl.supportedValuesOf("timeZone").map((timezone) => (
+                      <option key={timezone} value={timezone}>
+                        {timezone}
+                      </option>
+                    ))}
+                  </Select>
+                }
+              />
               <FormInput
                 type="select"
                 className="mb-4"
