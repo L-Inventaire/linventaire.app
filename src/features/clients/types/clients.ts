@@ -176,6 +176,7 @@ type Preferences = {
   logo?: string;
   language?: string;
   currency?: string;
+  timezone?: string;
 };
 
 type Configuration = {

@@ -79,6 +79,12 @@ export const useClients = () => {
 
   const create = async (client: Partial<Clients>) => {
     setLoading(true);
+    client.preferences = {
+      ...(client.preferences || {}),
+      timezone:
+        client.preferences?.timezone ||
+        Intl.DateTimeFormat().resolvedOptions().timeZone,
+    };
     const c = await ClientsApiClient.create(client);
     await refresh();
     return c;
