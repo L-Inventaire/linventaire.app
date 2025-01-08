@@ -1,3 +1,4 @@
+import { formatTime } from "@features/utils/format/dates";
 import { RestEntity } from "@features/utils/rest/types/types";
 import {
   ArchiveBoxArrowDownIcon,
@@ -11,13 +12,12 @@ import { Fragment } from "react/jsx-runtime";
 import { twMerge } from "tailwind-merge";
 import { EventLine } from ".";
 import { CommentCard } from "./comments";
-import { formatTime } from "@features/utils/format/dates";
 
 type PreparedEventLine = {
   isIgnore: boolean;
   isRestoreOldVersion: boolean;
-  isComment: boolean;
   isDeleted: boolean;
+  isComment: boolean;
   isRestore: boolean;
   isEdit: boolean;
   isFirstInLine: boolean;
@@ -91,7 +91,7 @@ export const getEventLine = (
   }
 
   if (isComment) {
-    return <CommentCard key={key} id={a.comment_id} />;
+    return <CommentCard key={key} id={a.comment_id} item={a} />;
   }
 
   if (isDeleted) {

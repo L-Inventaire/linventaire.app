@@ -4,11 +4,14 @@ import { useComment } from "@features/comments/hooks/use-comments";
 import { Comments } from "@features/comments/types/types";
 import { PublicCustomer } from "@features/customers/types/customers";
 import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
+import { RestEntity } from "@features/utils/rest/types/types";
 import {
   ArrowUturnLeftIcon,
   FaceSmileIcon,
+  InformationCircleIcon,
   PaperAirplaneIcon,
   PaperClipIcon,
+  TrashIcon,
 } from "@heroicons/react/16/solid";
 import { EditorInput } from "@molecules/editor-input";
 import {
@@ -22,8 +25,18 @@ import {
 import { format, formatDistance } from "date-fns";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { twMerge } from "tailwind-merge";
+import { EventLine } from ".";
 
-export const CommentCard = ({ id }: { id: string }) => {
+export const CommentCard = ({
+  id,
+  item,
+  viewRoute,
+}: {
+  id: string;
+  item?: RestEntity & any;
+  viewRoute?: string;
+}) => {
   const { comment } = useComment(id);
   const { user } = useUser(comment?.created_by || "");
 
@@ -31,6 +44,23 @@ export const CommentCard = ({ id }: { id: string }) => {
 
   const fullName =
     getFullName(user?.user as PublicCustomer) || user?.user?.email || "Unknown";
+  if (comment.type === "event" && item) {
+    return (
+      <EventLine
+        comment={{
+          id: comment.id,
+          created_by: comment.updated_by || comment.created_by,
+          created_at: item.operation_timestamp || comment.created_at,
+        }}
+        name="-"
+        viewRoute={viewRoute}
+        revision={item.id + "~" + item.operation_timestamp}
+        icon={(p) => <InformationCircleIcon className={p.className} />}
+        message={comment.content}
+      />
+    );
+  }
+
   return (
     <Card className="mb-2 mt-4 space-y-2 group/comment">
       <div className="w-full flex items-center space-x-2">
