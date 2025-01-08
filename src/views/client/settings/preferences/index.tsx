@@ -141,6 +141,8 @@ export const PreferencesPage = () => {
                         ...client?.preferences,
                         language: preferences?.language,
                         currency: preferences?.currency,
+                        timezone: preferences?.timezone,
+                        email_footer: preferences?.email_footer,
                       },
                     })
                   }
