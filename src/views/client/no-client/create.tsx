@@ -57,6 +57,9 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
         },
         preferences: {
           logo: imageBase64 || undefined,
+          timezone:
+            Intl?.DateTimeFormat?.()?.resolvedOptions()?.timeZone ||
+            "Europe/Paris",
         },
         address: {
           address_line_1: address.address_line_1 || "",
