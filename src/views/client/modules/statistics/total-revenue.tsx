@@ -6,22 +6,25 @@ import { formatAmount } from "@features/utils/format/strings";
 import { Table } from "@molecules/table";
 import _ from "lodash";
 import { DateTime } from "luxon";
-import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 type Row = {
-  year: {
-    year: number;
-    open: boolean;
-  };
+  year: number;
   month: { value: string; label: string };
 };
 
-export const TotalRevenuePage = () => {
+export type TotalRevenueProps = {
+  startDate: Date;
+  endDate: Date;
+  setStartDate: (date: Date) => void;
+  setEndDate: (date: Date) => void;
+};
+
+export const TotalRevenuePage = ({ startDate, endDate }: TotalRevenueProps) => {
   const { client: clientId } = useParams();
   const locale = navigator.language;
 
-  const statistics = useStatistics(clientId, "year");
+  const statistics = useStatistics(clientId, "year", startDate, endDate);
   const data = statistics.totalRevenueTable;
   const flatTagIDs = _.uniqBy(
     data.flatMap((item) => item.tag),
@@ -32,25 +35,32 @@ export const TotalRevenuePage = () => {
     (item) => JSON.stringify(item)
   ).filter(Boolean);
 
-  const start = DateTime.now().startOf("year");
+  const numberMonths =
+    Math.floor(
+      Math.abs(
+        DateTime.fromJSDate(startDate).diff(DateTime.fromJSDate(endDate), [
+          "months",
+        ]).months
+      )
+    ) ?? 0;
 
-  const [years, setYears] = useState<{ year: number; open: boolean }[]>([]);
+  const monthsKeys = Array.from(Array(numberMonths).keys());
 
-  useEffect(() => {
-    setYears(
-      _.uniq(data.flatMap((item) => item.year)).map((year) => ({
-        year: DateTime.fromISO(year).year,
-        open: true,
-      }))
-    );
-  }, [data]);
-
-  const months = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((num) => ({
+  const months = monthsKeys.map((num) => ({
     label:
-      start.plus({ month: num }).setLocale(locale).monthShort +
+      DateTime.fromJSDate(startDate)
+        .startOf("month")
+        .plus({ month: num })
+        .setLocale(locale).monthShort +
       " " +
-      start.year,
-    value: start.plus({ month: num }).toISODate(),
+      DateTime.fromJSDate(startDate).startOf("month").plus({ month: num }).year,
+    value:
+      DateTime.fromJSDate(startDate)
+        .startOf("month")
+        .plus({ month: num })
+        .toISODate() ?? new Date().toISOString(),
+    year: DateTime.fromJSDate(startDate).startOf("month").plus({ month: num })
+      .year,
   }));
 
   const { tags } = useTags({
@@ -79,19 +89,21 @@ export const TotalRevenuePage = () => {
           foundTags.length === 0
             ? "non-classified"
             : foundTags.map((tag) => tag.id).join(","),
-        render: ({ year, month }: Row) => {
+        render: ({ month }: Row) => {
           const statFound = data.find((item) => {
+            const foundDate = DateTime.fromISO(month.value, {
+              zone: "utc",
+            }).equals(DateTime.fromISO(item.month, { zone: "utc" }));
+
             return (
-              DateTime.fromISO(month.value, {
-                zone: "utc",
-              }).equals(DateTime.fromISO(item.month, { zone: "utc" })) &&
-              year.year === DateTime.fromISO(item.year, { zone: "utc" }).year &&
+              foundDate &&
               _.isEqual(
-                item.tag,
+                item.tag.filter(Boolean),
                 foundTags.map((tag) => tag.id)
               )
             );
           });
+
           return (
             <>
               {statFound && formatAmount(statFound?.net_amount ?? 0)}
@@ -108,9 +120,7 @@ export const TotalRevenuePage = () => {
       <Table
         border
         columns={columns}
-        data={years.flatMap((year) => {
-          return months.flatMap((month) => ({ month, year }));
-        })}
+        data={months.flatMap((month) => ({ month, year: month.year }))}
       />
     </>
   );

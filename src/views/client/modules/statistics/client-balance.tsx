@@ -16,10 +16,16 @@ import { useNavigate, useParams } from "react-router-dom";
 import { prettyContactName } from "../contacts/utils";
 import { useState } from "react";
 
-export const ClientBalancePage = () => {
+export const ClientBalancePage = ({
+  startDate,
+  endDate,
+}: {
+  startDate: Date;
+  endDate: Date;
+}) => {
   const { client: clientId } = useParams();
 
-  const statistics = useStatistics(clientId, "year");
+  const statistics = useStatistics(clientId, "year", startDate, endDate);
   const table = statistics?.clientBalanceTable ?? [];
   const clientsIDs = _.uniq(table.map((item) => item.client));
   const clientsData = useContacts({

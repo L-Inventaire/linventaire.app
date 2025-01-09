@@ -45,7 +45,9 @@ const blankStatistics: Statistics = {
 
 export const useStatistics = (
   clientID: string | undefined | null,
-  period: string = "year"
+  period: string = "year",
+  startDate?: Date,
+  endDate?: Date
 ): Statistics & {
   formattedData: any;
   almostLateDeliveriesEntities: Invoices[];
@@ -57,9 +59,22 @@ export const useStatistics = (
   almostLatePayments120DelayEntities: Invoices[];
 } => {
   const statistics = useQuery({
-    queryKey: ["statistics", clientID, period ?? "year"],
+    queryKey: [
+      "statistics",
+      clientID,
+      period ?? "year",
+      "startDate",
+      startDate,
+      "endDate",
+      endDate,
+    ],
     queryFn: () =>
-      StatisticsApiClient.getStatistics(clientID!, period ?? "year"),
+      StatisticsApiClient.getStatistics(
+        clientID!,
+        period ?? "year",
+        startDate,
+        endDate
+      ),
     enabled: !!clientID,
   });
 
