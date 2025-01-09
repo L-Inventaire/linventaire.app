@@ -153,11 +153,12 @@ export const InvoicesColumns: Column<Invoices>[] = [
     cellClassName: "justify-end",
     headClassName: "justify-end",
     render: (invoice) => {
-      return invoice.content?.some((a) => a.subscription) ? (
+      return invoice.content?.some((a) => a.subscription) &&
+        invoice.type === "quotes" ? (
         <Base className="text-right whitespace-nowrap space-y-1 my-2">
           {Object.entries(
             _.groupBy(
-              invoice.content?.filter((a) => a.article),
+              invoice.content?.filter((a) => (a.unit_price || 0) >= 0),
               "subscription"
             )
           ).map(([key, value]) => {
