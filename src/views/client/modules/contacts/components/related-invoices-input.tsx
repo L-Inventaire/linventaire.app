@@ -29,6 +29,7 @@ export const RelatedInvoicesInput = ({
       state: ["draft", "sent", "purchase_order"],
     }),
     limit: 20,
+    asc: true,
     index: "state_order,type,emit_date desc",
   });
 
@@ -38,6 +39,7 @@ export const RelatedInvoicesInput = ({
       state: ["draft", "sent", "purchase_order"],
     }),
     limit: 20,
+    asc: true,
     index: "state_order,type,emit_date desc",
   });
 
