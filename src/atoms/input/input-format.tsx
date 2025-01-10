@@ -50,7 +50,7 @@ export const InputFormat = (props: InputFormatProps) => {
       } else if (props.format === "phone") {
         val = val.replace(/[^0-9+]/gm, "");
       } else if (props.format === "mail") {
-        val = val.replace(/[^a-zA-Z0-9@.-_]/gm, "");
+        val = val.replace(/[^a-zA-Z0-9@.\-_]/gm, "");
       }
       return val;
     },

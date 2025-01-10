@@ -20,6 +20,7 @@ import _ from "lodash";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Page } from "../../_layout/page";
+import { EditorInput } from "@molecules/editor-input";
 
 export const PreferencesPage = () => {
   const { t } = useTranslation();
@@ -87,6 +88,38 @@ export const PreferencesPage = () => {
                   </Select>
                 }
               />
+              <InputLabel
+                className="mb-4"
+                label={t("settings.preferences.timezone")}
+                input={
+                  <Select
+                    disabled={readonly}
+                    value={preferences?.timezone || "Europe/Paris"}
+                    onChange={(e) =>
+                      setPreferences({
+                        ...preferences,
+                        timezone: e.target.value,
+                      })
+                    }
+                  >
+                    {Intl.supportedValuesOf("timeZone").map((timezone) => (
+                      <option key={timezone} value={timezone}>
+                        {timezone}
+                      </option>
+                    ))}
+                  </Select>
+                }
+              />
+              <EditorInput
+                className="mb-4"
+                value={preferences?.email_footer || ""}
+                onChange={(e) =>
+                  setPreferences({
+                    ...preferences,
+                    email_footer: e,
+                  })
+                }
+              />
               <FormInput
                 type="select"
                 className="mb-4"
@@ -108,6 +141,8 @@ export const PreferencesPage = () => {
                         ...client?.preferences,
                         language: preferences?.language,
                         currency: preferences?.currency,
+                        timezone: preferences?.timezone,
+                        email_footer: preferences?.email_footer,
                       },
                     })
                   }

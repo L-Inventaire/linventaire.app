@@ -40,35 +40,17 @@ export function InputDate(props: InputProps) {
     inputClassName = inputClassName + " text-sm h-7 py-0 px-3";
   else inputClassName = inputClassName + " text-sm h-9 py-1";
 
-  /** This component works with UTC values, so what you see is what you'll get as an UTC date */
-  /** Be carefull with this or 2025-01-01T00:00 becomes 2024-12-31T23:00 */
-  const getUtcDateValue = () => {
+  const getDateValue = () => {
     if (!props.value) return null;
+
     try {
       const date = new Date(props.value);
       if (_.isNaN(date.getTime())) return null;
 
-      return new Date(
-        date.getUTCFullYear(),
-        date.getUTCMonth(),
-        date.getUTCDate()
-      );
+      return date;
     } catch (e: any) {
       return null;
     }
-  };
-
-  // Read the date as local timezone, and return the timestamp but as utc
-  /** This component works with UTC values, so what you see is what you'll get as an UTC date */
-  /** Be carefull with this or 2025-01-01T00:00 becomes 2024-12-31T23:00 */
-  const dateToUtcDate = (date: Date | null) => {
-    if (!date) return null;
-    const dateUTC = Date.UTC(
-      date.getFullYear(),
-      date.getMonth(),
-      date.getDate()
-    );
-    return new Date(dateUTC);
   };
 
   return (
@@ -77,9 +59,9 @@ export function InputDate(props: InputProps) {
       dateFormat={"yyyy-MM-dd"}
       placeholderText={props.placeholder || "YYYY-MM-DD"}
       className={twMerge(inputClassName, props.className)}
-      selected={getUtcDateValue()}
+      selected={getDateValue()}
       onChange={(date) => {
-        props.onChange?.(dateToUtcDate(date));
+        props.onChange?.(date);
       }}
       isClearable
       onFocus={() => setActive(true)}

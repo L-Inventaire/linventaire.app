@@ -95,7 +95,8 @@
     "preferences": {
       "currency": "Devise principale",
       "title": "Général",
-      "language": "Langue de l'entreprise"
+      "language": "Langue de l'entreprise",
+      "timezone": "Timezone"
     },
     "payments": {
       "title": "Paiements"

@@ -7,12 +7,20 @@ import { Invoices } from "@features/invoices/types/types";
 export class StatisticsApiClient {
   static getStatistics = async (
     clientID: string,
-    period: string = "year"
+    period: string = "year",
+    startDate?: Date,
+    endDate?: Date
   ): Promise<StandardOrErrorResponse<Statistics>> => {
     let uri = `/api/statistics/v1/${clientID}/all`;
 
     if (period) {
       uri += "?period=" + period;
+    }
+    if (startDate) {
+      uri += "&startDate=" + startDate.toISOString();
+    }
+    if (endDate) {
+      uri += "&endDate=" + endDate.toISOString();
     }
 
     const response = await fetchServer(uri.toString(), {

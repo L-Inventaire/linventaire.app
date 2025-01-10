@@ -150,7 +150,8 @@
     "preferences": {
       "currency": "Primary currency",
       "title": "General",
-      "language": "Company language"
+      "language": "Company language",
+      "timezone": "Time zone"
     },
     "payments": {
       "title": "Payments"

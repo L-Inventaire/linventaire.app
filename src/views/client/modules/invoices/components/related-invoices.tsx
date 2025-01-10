@@ -44,6 +44,8 @@ export const RelatedInvoices = ({
       }),
       { key: "id", not: true, values: [{ op: "equals", value: invoice.id }] },
     ],
+    asc: true,
+    index: "state_order,emit_date desc",
   });
   const { invoices: siblingsOrders } = useInvoices({
     query: [

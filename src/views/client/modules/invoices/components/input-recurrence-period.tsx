@@ -21,21 +21,41 @@ export const InvoiceRecurrencePeriodInput = ({
   readonly?: boolean;
   btnKey?: string;
 }) => {
-  const [useCustomDate, setUseCustomDate] = useState(false);
+  const frequencies = _.uniq(
+    invoice.content?.filter((a) => a.subscription).map((a) => a.subscription)
+  );
+  const minFrequency =
+    _.minBy(frequencies, (a) => {
+      const t = new Date();
+      applyOffset(t, a!, 1);
+      return t.getTime();
+    }) || "monthly";
+  const expectedToDate = invoice.from_subscription?.from
+    ? new Date(invoice.from_subscription?.from)
+    : null;
+  if (expectedToDate) {
+    applyOffset(
+      expectedToDate,
+      (invoice.from_subscription?.frequency === "multiple"
+        ? null
+        : invoice.from_subscription?.frequency) ||
+        minFrequency ||
+        "monthly",
+      1
+    );
+    expectedToDate.setDate(expectedToDate.getDate() - 1);
+  }
+  const isCustomDate =
+    invoice.from_subscription?.from &&
+    invoice.from_subscription?.to &&
+    expectedToDate &&
+    new Date(expectedToDate).toISOString().split("T")[0] !==
+      new Date(invoice.from_subscription?.to).toISOString().split("T")[0];
+
+  const [useCustomDate, setUseCustomDate] = useState(!!isCustomDate);
 
   useEffect(() => {
     if (!useCustomDate) {
-      const frequencies = _.uniq(
-        invoice.content
-          ?.filter((a) => a.subscription)
-          .map((a) => a.subscription)
-      );
-      const minFrequency =
-        _.minBy(frequencies, (a) => {
-          const t = new Date();
-          applyOffset(t, a!, 1);
-          return t.getTime();
-        }) || "monthly";
       if (!invoice.from_subscription?.from) {
         const to = new Date();
         applyOffset(to, minFrequency, 1);
@@ -44,21 +64,17 @@ export const InvoiceRecurrencePeriodInput = ({
           to: to.getTime(),
           frequency: frequencies.length === 1 ? minFrequency : "multiple",
         });
-      } else {
-        const date = new Date(invoice.from_subscription?.from);
-        applyOffset(
-          date,
-          (invoice.from_subscription?.frequency === "multiple"
-            ? null
-            : invoice.from_subscription?.frequency) ||
-            minFrequency ||
-            "monthly",
-          1
-        );
-        ctrl("from_subscription.to").onChange(date.getTime());
+      } else if (expectedToDate) {
+        ctrl("from_subscription.to").onChange(expectedToDate.getTime());
       }
     }
   }, [useCustomDate, invoice.from_subscription?.from]);
+
+  console.log(
+    "sub",
+    invoice.from_subscription?.from,
+    invoice.from_subscription?.to
+  );
 
   return (
     <InputButton

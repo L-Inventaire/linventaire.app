@@ -176,6 +176,8 @@ type Preferences = {
   logo?: string;
   language?: string;
   currency?: string;
+  timezone?: string;
+  email_footer?: string;
 };
 
 type Configuration = {

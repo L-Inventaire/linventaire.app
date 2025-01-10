@@ -70,7 +70,10 @@ export const ServiceItemsEditPage = (_props: { readonly?: boolean }) => {
           document={{ id }}
           mode={"write"}
           onSaveDisabled={!draft.title || !draft.client}
-          onSave={async () => await save()}
+          onSave={async () => {
+            await save();
+            navigate(getRoute(ROUTES.ServiceItems));
+          }}
           backRoute={ROUTES.ServiceItems}
           viewRoute={ROUTES.ServiceItemsView}
           editRoute={ROUTES.ServiceItemsEdit}
