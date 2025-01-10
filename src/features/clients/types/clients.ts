@@ -101,30 +101,20 @@ export type ServiceItems = {
 };
 
 export type InvoiceCounters = {
-  quotes: {
-    format: string;
-    counter: number;
+  [key: string]: {
+    quotes: Counter;
+    invoices: Counter;
+    credit_notes: Counter;
+    supplier_invoices: Counter;
+    supplier_credit_notes: Counter;
+    supplier_quotes: Counter;
+    drafts: Counter;
   };
-  invoices: {
-    format: string;
-    counter: number;
-  };
-  credit_notes: {
-    format: string;
-    counter: number;
-  };
-  supplier_invoices: {
-    format: string;
-    counter: number;
-  };
-  supplier_credit_notes: {
-    format: string;
-    counter: number;
-  };
-  supplier_quotes: {
-    format: string;
-    counter: number;
-  };
+};
+
+type Counter = {
+  format: string;
+  counter: number;
 };
 
 export type Invoices = {

@@ -184,7 +184,10 @@ export const InvoicesDetailsPage = ({
     }
   }, [ctrl("client").value, JSON.stringify(contacts?.data?.list)]);
 
-  const format = _.get(client.invoices_counters, draft.type)?.format;
+  const format = _.get(client.invoices_counters, [
+    new Date(draft.emit_date || Date.now()).getFullYear().toString(),
+    draft.type,
+  ])?.format;
   const errorFormat = !format;
 
   if (isPending || (id && draft.id !== id) || !client) return <PageLoader />;
@@ -228,15 +231,18 @@ export const InvoicesDetailsPage = ({
 
   const contentReadonly =
     readonly ||
-    // Drafts are always editable
-    // Demandes de prix are also a special case where the client can edit the content
-    !(
-      (
-        draft.state === "draft" ||
-        (draft.state === "sent" && isSupplierQuote) ||
-        draft.state === "recurring"
-      ) // TODO: pour le moment on autorise toutes modifications sur un recurring, mais il faudrait ne pouvoir modifier que des lignes en récurrence
-    );
+    // Sent invoices and accepted quotes cannot be modified
+    (draft.state !== "draft" &&
+      (draft.type === "invoices" || draft.type === "credit_notes")) ||
+    (draft.state !== "draft" &&
+      draft.state !== "sent" &&
+      draft.state !== "recurring" &&
+      draft.type === "quotes") ||
+    // Paid supplier invoices cannot be modified
+    ((draft.type === "supplier_invoices" || draft.type === "supplier_quotes") &&
+      draft.state === "closed") ||
+    // Closed documents cannot be modified
+    draft.state === "closed";
 
   return (
     <>
@@ -320,7 +326,7 @@ export const InvoicesDetailsPage = ({
               <Section className="flex items-center space-x-2">
                 <InputButton
                   theme="invisible"
-                  readonly={draft.state !== "draft" || readonly}
+                  readonly={contentReadonly}
                   ctrl={ctrl("reference")}
                   label="Référence"
                 >

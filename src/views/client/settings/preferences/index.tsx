@@ -13,7 +13,6 @@ import {
   InvoiceCounters,
   Invoices,
 } from "@features/clients/types/clients";
-import { InvoiceCountersOverrides } from "@features/contacts/types/types";
 import { currencyOptions } from "@features/utils/constants";
 import { Heading, Tabs } from "@radix-ui/themes";
 import _ from "lodash";
@@ -258,9 +257,7 @@ export const PreferencesPage = () => {
               invoicesCounters={invoicesCounters}
               setInvoicesCounters={
                 setInvoicesCounters as unknown as Dispatch<
-                  SetStateAction<
-                    Partial<InvoiceCounters | InvoiceCountersOverrides>
-                  >
+                  SetStateAction<Partial<InvoiceCounters>>
                 >
               }
               isCounters
@@ -271,24 +268,10 @@ export const PreferencesPage = () => {
                 className="mt-4"
                 theme="primary"
                 size="md"
-                disabled={
-                  _.uniq(
-                    [
-                      invoicesCounters.invoices?.format,
-                      invoicesCounters.quotes?.format,
-                      invoicesCounters.credit_notes?.format,
-                    ].map((a) =>
-                      a?.replace(/(@YYYY|@YY|@MM|@DD|@C{1,6}|[^a-zA-Z])/gm, "")
-                    )
-                  ).length !== 3
-                }
+                disabled={false}
                 onClick={() =>
                   update(client?.id || "", {
-                    invoices_counters: {
-                      ...((client?.invoices_counters ||
-                        {}) as Clients["invoices_counters"]),
-                      ...invoicesCounters,
-                    },
+                    invoices_counters: invoicesCounters as InvoiceCounters,
                   })
                 }
                 loading={loading}
