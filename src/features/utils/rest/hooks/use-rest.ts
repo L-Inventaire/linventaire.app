@@ -97,6 +97,18 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
   const { id } = useCurrentClient();
   const queryClient = useQueryClient();
 
+  // Auto replace complex queries by a id getter when possible
+  if (
+    options?.query &&
+    !options?.id &&
+    (options?.query as any)?.length === 1 &&
+    (options?.query as any)?.[0].values === 1 &&
+    (options?.query as any)?.[0].key === "id"
+  ) {
+    options.id = (options?.query as any)?.[0].values[0].value;
+    options.query = undefined;
+  }
+
   const queryKey = [
     table,
     id || "client",
