@@ -43,8 +43,11 @@ const fetchServerBatch = (() => {
       if (matchingRequest) {
         matchingRequest.resolves.push(resolve);
       } else {
+        url = url.replace(/\/api\/rest\/v1\/.*?\//, "");
         pendingRequests[clientId] = pendingRequests[clientId] || [];
-        pendingRequests[clientId].push({ url, body, resolves: [resolve] });
+        const obj = { url, body, resolves: [resolve] };
+        if (!obj.body) delete obj.body;
+        pendingRequests[clientId].push(obj);
       }
 
       if (!timeoutId[clientId]) {
