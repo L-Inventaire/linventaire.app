@@ -1,6 +1,6 @@
 import { Button } from "@atoms/button/button";
 import { PageLoader } from "@atoms/page-loader";
-import { Section } from "@atoms/text";
+import { Info, Section } from "@atoms/text";
 import { WrongNumerotationFormat } from "@atoms/wrong-format-numerotation";
 import { CustomFieldsInput } from "@components/custom-fields-input";
 import { FormInput } from "@components/form/fields";
@@ -382,32 +382,40 @@ export const InvoicesDetailsPage = ({
                       )}
                   </InputButton>
                 )}
-                {!!draft.subscription_next_invoice_date &&
+                {!!draft.subscription_started_at &&
                   draft.type === "quotes" &&
                   draft.state === "recurring" && (
                     <InputButton
                       theme="invisible"
                       className="ml-4"
                       data-tooltip={new Date(
-                        ctrl("subscription_next_invoice_date").value
+                        ctrl("subscription_started_at").value
                       ).toDateString()}
-                      ctrl={ctrl("subscription_next_invoice_date")}
-                      placeholder="Prochaine facture"
+                      ctrl={ctrl("subscription_started_at")}
+                      placeholder="Date de démarrage"
                       value={formatTime(
-                        ctrl("subscription_next_invoice_date").value || 0
+                        ctrl("subscription_started_at").value || 0
                       )}
                       content={() => (
-                        <FormInput
-                          ctrl={ctrl("subscription_next_invoice_date")}
-                          type="date"
-                        />
+                        <>
+                          <FormInput
+                            ctrl={ctrl("subscription_started_at")}
+                            type="date"
+                          />
+                          <Info>
+                            Modifier la date de démarrage modifiera la date de
+                            récurrence. Il est possible de mettre une date de
+                            démarrage dans le futur, dans ce cas aucune facture
+                            ne sera générée avant cette date.
+                          </Info>
+                        </>
                       )}
                       readonly={readonly}
                     >
                       <Text size="2" className="opacity-75" weight="medium">
-                        {"Prochaine facture le "}
+                        {"Démarré le "}
                         {formatDate(
-                          draft.subscription_next_invoice_date || 0,
+                          draft.subscription_started_at || 0,
                           "yyyy-MM-dd"
                         )}
                       </Text>

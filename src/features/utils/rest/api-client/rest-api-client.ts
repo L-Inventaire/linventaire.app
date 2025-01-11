@@ -19,8 +19,8 @@ const fetchServerBatch = (() => {
     timeoutId[clientId] = null;
 
     const batchBody = requestsToBatch[clientId].map((req) => ({
-      url: req.url,
-      body: req.body || null,
+      u: req.url,
+      ...(req.body ? { d: req.body } : {}),
     }));
 
     const res = await fetchServer("/api/rest/v1/" + clientId + "/batch", {
@@ -115,7 +115,7 @@ export class RestApiClient<T> {
   ): Promise<{ total: number; list: T[] }> => {
     const tmp = await fetchServerBatch(
       clientId,
-      `/api/rest/v1/${clientId}/${this.table}/search?${this.table}`,
+      `/api/rest/v1/${clientId}/${this.table}/search`,
       { query, options }
     );
     if (tmp.status === 200) return tmp.body;
