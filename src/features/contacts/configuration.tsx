@@ -1,8 +1,10 @@
 import { Button } from "@atoms/button/button";
 import { RestDocumentsInput } from "@components/input-rest";
 import { TagsInput } from "@components/input-rest/tags";
+import { UsersInput } from "@components/input-rest/users";
 import { registerCtrlKRestEntity } from "@features/ctrlk";
 import { ROUTES } from "@features/routes";
+import { RestFieldsNames } from "@features/utils/rest/configuration";
 import {
   BuildingOfficeIcon,
   ShareIcon,
@@ -12,11 +14,9 @@ import {
   BuildingStorefrontIcon,
   UserIcon as UserIconSolid,
 } from "@heroicons/react/24/solid";
+import { Column } from "@molecules/table/table";
 import { ContactsDetailsPage } from "@views/client/modules/contacts/components/contact-details";
 import { Contacts, getContactName } from "./types/types";
-import { Column } from "@molecules/table/table";
-import { UsersInput } from "@components/input-rest/users";
-import { RestFieldsNames } from "@features/utils/rest/configuration";
 
 export const useContactDefaultModel: () => Partial<Contacts> = () => ({
   type: "company",

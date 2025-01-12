@@ -3,31 +3,30 @@ import { Clients } from "@features/clients/types/clients";
 import { Invoices } from "@features/invoices/types/types";
 
 // Caution: A similar function is also present in the backend, if you change it here, change it there too
-export const useFormattedNumerotationByInvoice = (invoice: Invoices) => {
-  const type: keyof Clients["invoices_counters"][0] =
-    invoice?.state === "draft" &&
-    (invoice?.type === "invoices" || invoice?.type === "credit_notes")
-      ? "drafts"
-      : invoice?.type;
-
+export const useFormattedNumerotationByInvoice = () => {
   const clientUser = useClients();
   const client = clientUser?.client?.client;
-  const year = new Date(invoice.emit_date).getFullYear().toString();
-  const clientCounter = client?.invoices_counters?.[year]?.[type];
 
-  return getFormattedNumerotation(
-    clientCounter?.format ?? "INV-@YYYY-@CCCC",
-    clientCounter?.counter ?? 0,
-    invoice.state === "draft",
-    new Date(invoice.emit_date).getTime() || Date.now()
-  );
+  return (invoice: Invoices) => {
+    const type: keyof Clients["invoices_counters"][0] =
+      invoice?.state === "draft" &&
+      (invoice?.type === "invoices" || invoice?.type === "credit_notes")
+        ? "drafts"
+        : invoice?.type;
+    const year = new Date(invoice.emit_date).getFullYear().toString();
+    const clientCounter = client?.invoices_counters?.[year]?.[type];
+    return getFormattedNumerotation(
+      clientCounter?.format ?? "INV-@YYYY-@CCCC",
+      clientCounter?.counter ?? 0,
+      new Date(invoice.emit_date).getTime() || Date.now()
+    );
+  };
 };
 
 // Caution: a similar function is also present in the backend, if you change it here, change it there too
 export const getFormattedNumerotation = (
   format: string,
   counter: number,
-  draft?: boolean,
   datets?: number
 ) => {
   if (format.indexOf("@C") === -1) {

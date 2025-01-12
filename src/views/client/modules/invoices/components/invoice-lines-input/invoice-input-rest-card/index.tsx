@@ -14,6 +14,7 @@ export const InvoiceRestDocument = (
   const size = props.size || "lg";
   return (
     <RestDocumentsInput
+      key={props.value?.[0]}
       {...(props as RestDocumentProps<Invoices>)}
       entity="invoices"
       render={(invoice) => <RenderInvoiceCard invoice={invoice} size={size} />}

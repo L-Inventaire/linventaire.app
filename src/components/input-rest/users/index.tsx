@@ -34,6 +34,7 @@ export const UsersInput = ({
 
   return (
     <RestDocumentsInput
+      key={JSON.stringify(value)}
       disabled={disabled}
       className="rounded-full"
       entity={"users"}
