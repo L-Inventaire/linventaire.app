@@ -1,13 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
-import { StatisticsApiClient } from "./api-client/api-client";
+import { Invoices } from "@features/invoices/types/types";
 import {
   isErrorResponse,
   StandardResponse,
 } from "@features/utils/rest/types/types";
+import { useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
-import { useInvoices } from "@features/invoices/hooks/use-invoices";
-import { generateQueryFromMap } from "@components/search-bar/utils/utils";
-import { Invoices } from "@features/invoices/types/types";
+import { StatisticsApiClient } from "./api-client/api-client";
 import { Statistics } from "./types";
 
 const blankStatistics: Statistics = {
@@ -78,6 +76,17 @@ export const useStatistics = (
     enabled: !!clientID,
   });
 
+  // TODO je désactive tout pour le moment car c'est pas typé en back, ni en front, ça fait planter le front car ça fait des appels random
+  const almostLateDeliveries: Invoices[] = [];
+  const almostLatePayments: Invoices[] = [];
+  const almostLatePaymentsNoDelay: Invoices[] = [];
+  const almostLatePayments30Delay: Invoices[] = [];
+  const almostLatePayments60Delay: Invoices[] = [];
+  const almostLatePayments90Delay: Invoices[] = [];
+  const almostLatePayments120Delay: Invoices[] = [];
+
+  /*
+
   const noStatistics =
     isErrorResponse(statistics.data ?? {}) || !statistics?.data;
 
@@ -96,17 +105,13 @@ export const useStatistics = (
   const { invoices: almostLateDeliveries } = useInvoices(
     noAlmostLateDeliveries
       ? {
-          query: [
-            {
-              key: "id",
-              values: [{ op: "equals", value: "#" }],
-            },
-          ],
+          limit: 0,
         }
       : {
           query: generateQueryFromMap({
             id: (statistics?.data as Statistics)?.almostLateDeliveries || [],
           }),
+          limit: 10,
         }
   );
 
@@ -222,6 +227,7 @@ export const useStatistics = (
           }),
         }
   );
+  */
 
   if (!statistics?.data) {
     return {
@@ -342,17 +348,12 @@ export const useStatistics = (
   return {
     ...statisticsData,
     formattedData,
-    almostLateDeliveriesEntities: almostLateDeliveries?.data?.list ?? [],
-    almostLatePaymentsEntities: almostLatePayments?.data?.list ?? [],
-    almostLatePaymentsNoDelayEntities:
-      almostLatePaymentsNoDelay?.data?.list ?? [],
-    almostLatePayments30DelayEntities:
-      almostLatePayments30Delay?.data?.list ?? [],
-    almostLatePayments60DelayEntities:
-      almostLatePayments60Delay?.data?.list ?? [],
-    almostLatePayments90DelayEntities:
-      almostLatePayments90Delay?.data?.list ?? [],
-    almostLatePayments120DelayEntities:
-      almostLatePayments120Delay?.data?.list ?? [],
+    almostLateDeliveriesEntities: almostLateDeliveries ?? [],
+    almostLatePaymentsEntities: almostLatePayments ?? [],
+    almostLatePaymentsNoDelayEntities: almostLatePaymentsNoDelay ?? [],
+    almostLatePayments30DelayEntities: almostLatePayments30Delay ?? [],
+    almostLatePayments60DelayEntities: almostLatePayments60Delay ?? [],
+    almostLatePayments90DelayEntities: almostLatePayments90Delay ?? [],
+    almostLatePayments120DelayEntities: almostLatePayments120Delay ?? [],
   };
 };

@@ -102,7 +102,7 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
     options?.query &&
     !options?.id &&
     (options?.query as any)?.length === 1 &&
-    (options?.query as any)?.[0].values === 1 &&
+    (options?.query as any)?.[0].values?.length === 1 &&
     (options?.query as any)?.[0].key === "id"
   ) {
     options.id = (options?.query as any)?.[0].values[0].value;

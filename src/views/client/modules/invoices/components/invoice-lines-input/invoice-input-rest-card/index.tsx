@@ -17,18 +17,22 @@ export const InvoiceRestDocument = (
       {...(props as RestDocumentProps<Invoices>)}
       entity="invoices"
       render={(invoice) => <RenderInvoiceCard invoice={invoice} size={size} />}
-      renderEmpty={() => (
-        <div className="whitespace-normal min-w-32 animate-pulse opacity-75 space-y-1 py-2">
-          <div className="line-clamp-1 text-ellipsis items-center flex space-x-2">
-            <Skeleton className="w-3 h-3 rounded-full" />
-            <Skeleton className="w-20 h-3 rounded-md" />
-          </div>
-          {size === "lg" && <Skeleton className="w-32 h-3 rounded-md" />}
-          {(size === "md" || size === "lg") && (
-            <Skeleton className="w-20 h-3 rounded-md" />
-          )}
-        </div>
-      )}
+      renderEmpty={
+        props.value?.length
+          ? () => (
+              <div className="whitespace-normal min-w-32 animate-pulse opacity-75 space-y-1 py-2">
+                <div className="line-clamp-1 text-ellipsis items-center flex space-x-2">
+                  <Skeleton className="w-3 h-3 rounded-full" />
+                  <Skeleton className="w-20 h-3 rounded-md" />
+                </div>
+                {size === "lg" && <Skeleton className="w-32 h-3 rounded-md" />}
+                {(size === "md" || size === "lg") && (
+                  <Skeleton className="w-20 h-3 rounded-md" />
+                )}
+              </div>
+            )
+          : undefined
+      }
     />
   );
 };
