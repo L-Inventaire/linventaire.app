@@ -70,12 +70,6 @@ export const InvoiceRecurrencePeriodInput = ({
     }
   }, [useCustomDate, invoice.from_subscription?.from]);
 
-  console.log(
-    "sub",
-    invoice.from_subscription?.from,
-    invoice.from_subscription?.to
-  );
-
   return (
     <InputButton
       btnKey={btnKey}

@@ -32,8 +32,21 @@ import {
   EllipsisVerticalIcon,
   TrashIcon,
 } from "@heroicons/react/20/solid";
-import { Badge, Box, Card, Code, Flex, Text, Tooltip } from "@radix-ui/themes";
-import { frequencyOptions } from "@views/client/modules/articles/components/article-details";
+import {
+  Badge,
+  Box,
+  Card,
+  Code,
+  Flex,
+  HoverCard,
+  Link,
+  Text,
+  Tooltip,
+} from "@radix-ui/themes";
+import {
+  ArticlesDetailsPage,
+  frequencyOptions,
+} from "@views/client/modules/articles/components/article-details";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useDrag, useDragLayer, useDrop } from "react-dnd";
 import { useSetRecoilState } from "recoil";
@@ -47,6 +60,7 @@ import { InvoiceLinePriceInput } from "./components/line-price";
 import { InvoiceLineQuantityInput } from "./components/line-quantity";
 import _ from "lodash";
 import { useEffectChange } from "@features/utils/hooks/use-changed-effect";
+import { getRoute, ROUTES } from "@features/routes";
 
 export const InvoiceLineInput = (props: {
   invoice?: Invoices;
@@ -158,49 +172,14 @@ export const InvoiceLineInput = (props: {
           <Flex direction="column">
             <Flex align="stretch">
               <Box flexGrow="1">
-                <InputButton
-                  theme="invisible"
+                <HoverableArticle
                   readonly={readonly}
-                  className="rounded-none flex grow p-3 m-0 h-full w-full box-border text-left justify-start"
-                  autoFocus={!readonly && !value.name}
-                  placeholder={!isSeparation ? "Article" : "Texte libre"}
-                  icon={(p) =>
-                    isSeparation ? (
-                      <Bars3BottomLeftIcon {...p} />
-                    ) : (
-                      getArticleIcon(article?.type)(p)
-                    )
-                  }
-                  empty="Vide"
-                  content={({ close }) => (
-                    <InvoiceLineArticleInput
-                      {...props}
-                      invoice={props.invoice!}
-                      article={article}
-                      close={close}
-                    />
-                  )}
-                  value={value.description || value.name || article?.name}
-                >
-                  <Text
-                    as="div"
-                    size="2"
-                    weight="bold"
-                    className="overflow-hidden text-ellipsis line-clamp-1"
-                  >
-                    {value.name || article?.name}
-                  </Text>
-                  <Text
-                    as="div"
-                    color="gray"
-                    size="2"
-                    className="overflow-hidden text-ellipsis line-clamp-1"
-                  >
-                    {getTextFromHtml(
-                      value.description || article?.description || "-"
-                    )}
-                  </Text>
-                </InputButton>
+                  value={value}
+                  article={article}
+                  onChange={onChange}
+                  ctrl={props.ctrl}
+                  invoice={props.invoice}
+                />
               </Box>
               {!isSeparation && (
                 <Box
@@ -331,7 +310,11 @@ export const InvoiceLineInput = (props: {
                 </Box>
               )}
             </Flex>
-            {(value.type !== "separation" || !readonly) && (
+            {(!(
+              value.type === "separation" ||
+              !["quotes", "supplier_quotes"].includes(props.invoice?.type || "")
+            ) ||
+              !readonly) && (
               <Flex
                 align="center"
                 gap="3"
@@ -611,5 +594,93 @@ const PriceInput = ({
     >
       {children}
     </InputButton>
+  );
+};
+
+const HoverableArticle = ({
+  readonly,
+  value,
+  article,
+  ...props
+}: {
+  readonly?: boolean;
+  value: InvoiceLine;
+  article?: Articles | null;
+  onChange?: (v: InvoiceLine) => void;
+  ctrl?: FormControllerType<InvoiceLine>;
+  invoice?: Invoices;
+}) => {
+  const isSeparation =
+    value.type === "separation" || value.type === "correction";
+
+  const hasDetails = readonly && !!article;
+
+  return (
+    <HoverCard.Root>
+      <HoverCard.Trigger>
+        <Link
+          href={
+            hasDetails
+              ? getRoute(ROUTES.ProductsView, { id: article?.id })
+              : undefined
+          }
+        >
+          <InputButton
+            theme="invisible"
+            readonly={readonly}
+            className="rounded-none flex grow p-3 m-0 h-full w-full box-border text-left justify-start"
+            autoFocus={!readonly && !value.name}
+            placeholder={!isSeparation ? "Article" : "Texte libre"}
+            icon={(p) =>
+              isSeparation ? (
+                <Bars3BottomLeftIcon {...p} />
+              ) : (
+                getArticleIcon(article?.type)(p)
+              )
+            }
+            empty="Vide"
+            content={({ close }) => (
+              <InvoiceLineArticleInput
+                {...props}
+                invoice={props.invoice!}
+                article={article}
+                close={close}
+              />
+            )}
+            value={value.description || value.name || article?.name}
+          >
+            <Text
+              as="div"
+              size="2"
+              weight="bold"
+              className={twMerge(
+                "overflow-hidden text-ellipsis",
+                !readonly && "line-clamp-1"
+              )}
+            >
+              {value.name || article?.name}
+            </Text>
+            <Text
+              as="div"
+              color="gray"
+              size="2"
+              className={twMerge(
+                "overflow-hidden text-ellipsis",
+                !readonly && "line-clamp-1"
+              )}
+            >
+              {getTextFromHtml(
+                value.description || article?.description || "-"
+              )}
+            </Text>
+          </InputButton>
+        </Link>
+      </HoverCard.Trigger>
+      {hasDetails && (
+        <HoverCard.Content className="overflow-auto" maxHeight="30vh">
+          <ArticlesDetailsPage readonly id={article?.id} />
+        </HoverCard.Content>
+      )}
+    </HoverCard.Root>
   );
 };

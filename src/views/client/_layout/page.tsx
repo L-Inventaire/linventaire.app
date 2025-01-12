@@ -44,7 +44,7 @@ export const Page = (
     <ErrorBoundary>
       <div
         className={twMerge(
-          "flex flex-col grow w-full text-black dark:text-white min-h-full sm:bg-transparent",
+          "@container flex flex-col grow w-full text-black dark:text-white min-h-full sm:bg-transparent",
           props.className,
           props.loading ? "opacity-50 pointer-events-none" : ""
         )}

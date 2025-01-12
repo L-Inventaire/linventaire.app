@@ -43,6 +43,7 @@ export const ArticlesViewPage = (_props: { readonly?: boolean }) => {
         />
       }
     >
+      <div className="mt-6" />
       <ArticlesDetailsPage readonly={true} id={id || ""} />
     </Page>
   );

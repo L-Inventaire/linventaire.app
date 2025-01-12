@@ -138,6 +138,7 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
         />
       }
     >
+      <div className="mt-6" />
       <InvoicesDetailsPage readonly={true} id={id || ""} />
     </Page>
   );
