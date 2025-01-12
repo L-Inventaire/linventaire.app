@@ -40,8 +40,7 @@ const fetchServerBatch = (() => {
 
       const matchingRequest = pendingRequests[clientId]?.find(
         (req) =>
-          req.url === url &&
-          (!!req.body === !!body || _.isEqual(req.body, body))
+          req.url === url && ((!req.body && !body) || _.isEqual(req.body, body))
       );
 
       if (matchingRequest) {
