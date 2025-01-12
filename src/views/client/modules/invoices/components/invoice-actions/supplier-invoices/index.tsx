@@ -28,7 +28,10 @@ export const SupplierInvoicesActions = ({
 
   const { client: clientUser } = useClients();
   const client = clientUser!.client!;
-  const format = _.get(client.invoices_counters, draft.type)?.format;
+  const format = _.get(client.invoices_counters, [
+    new Date(draft.emit_date || Date.now()).getFullYear().toString(),
+    draft.type,
+  ])?.format;
   const errorFormat = !format;
 
   const navigate = useNavigateAlt();

@@ -41,7 +41,6 @@ export type Contacts = RestEntity & {
   overrides: {
     payment: Payment;
     invoices: Invoices;
-    invoices_counters: InvoiceCountersOverrides;
   };
 
   notes: string;
@@ -50,27 +49,6 @@ export type Contacts = RestEntity & {
   assigned: string[];
 
   fields: any;
-};
-
-export type InvoiceCountersOverrides = {
-  quotes: {
-    format: string;
-  };
-  invoices: {
-    format: string;
-  };
-  credit_notes: {
-    format: string;
-  };
-  supplier_invoices: {
-    format: string;
-  };
-  supplier_credit_notes: {
-    format: string;
-  };
-  supplier_quotes: {
-    format: string;
-  };
 };
 
 export type Billing = {

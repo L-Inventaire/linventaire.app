@@ -1,29 +1,24 @@
 import { Button } from "@atoms/button/button";
 import { Modal } from "@atoms/modal/modal";
 import { Clients } from "@features/clients/types/clients";
-import { Contacts } from "@features/contacts/types/types";
 import { useEffect, useState } from "react";
 import { atom, useRecoilState } from "recoil";
 import { countersDefaults, InvoiceNumerotationInput } from ".";
 
 export const InvoiceNumerotationModalAtom = atom<{
   open: boolean;
-  invoicesCounters: Partial<
-    Clients["invoices_counters"] | Contacts["overrides"]["invoices_counters"]
-  >;
+  invoicesCounters: Partial<Clients["invoices_counters"]>;
   isCounters?: boolean;
   readonly?: boolean;
   onClose: () => void;
-  onSave: (
-    value: Partial<
-      Clients["invoices_counters"] | Contacts["overrides"]["invoices_counters"]
-    >
-  ) => void;
+  onSave: (value: Partial<Clients["invoices_counters"]>) => void;
 }>({
   key: "InvoiceNumerotationModalAtom",
   default: {
     open: false,
-    invoicesCounters: countersDefaults,
+    invoicesCounters: {
+      [new Date().getFullYear().toString()]: countersDefaults,
+    },
     isCounters: false,
     readonly: false,
     onClose: () => {},
@@ -36,12 +31,10 @@ export const InvoiceNumerotationModal = () => {
   const [modal, setModal] = useRecoilState(InvoiceNumerotationModalAtom);
 
   const [inputValue, setInputValue] = useState<
-    Partial<
-      Clients["invoices_counters"] | Contacts["overrides"]["invoices_counters"]
-    >
+    Partial<Clients["invoices_counters"]>
   >({
     ...modal.invoicesCounters,
-  } as Clients["invoices_counters"] | Contacts["overrides"]["invoices_counters"]);
+  } as Clients["invoices_counters"]);
 
   useEffect(() => {
     setInputValue({ ...modal.invoicesCounters });

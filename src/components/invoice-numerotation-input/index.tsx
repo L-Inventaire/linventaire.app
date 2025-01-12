@@ -1,22 +1,16 @@
 import { InfoSmall } from "@atoms/text";
 import { FormInput } from "@components/form/fields";
 import { Clients } from "@features/clients/types/clients";
-import { Contacts } from "@features/contacts/types/types";
 import { getFormattedNumerotation } from "@features/utils/format/numerotation";
+import { Tabs } from "@radix-ui/themes";
 import { PageColumns } from "@views/client/_layout/page";
-import { Dispatch, SetStateAction } from "react";
+import _ from "lodash";
+import { Dispatch, SetStateAction, useState } from "react";
 
 type InvoiceFormatInputProps = {
-  invoicesCounters: Partial<
-    Clients["invoices_counters"] | Contacts["overrides"]["invoices_counters"]
-  >;
+  invoicesCounters: Partial<Clients["invoices_counters"]>;
   setInvoicesCounters: Dispatch<
-    SetStateAction<
-      Partial<
-        | Clients["invoices_counters"]
-        | Contacts["overrides"]["invoices_counters"]
-      >
-    >
+    SetStateAction<Partial<Clients["invoices_counters"]>>
   >;
   isCounters: boolean;
   disabled?: boolean;
@@ -27,31 +21,43 @@ export const countersDefaults = {
     format: "D-@YYYY-@C",
     name: "Devis",
     prefix: "D",
+    counter: 1,
   },
   invoices: {
     format: "F-@YYYY-@C",
     name: "Factures",
     prefix: "F",
+    counter: 1,
   },
   credit_notes: {
     format: "AV-@YYYY-@C",
     name: "Avoirs",
     prefix: "AV",
+    counter: 1,
   },
   supplier_invoices: {
     format: "FF-@YYYY-@C",
     name: "Factures Fournisseurs",
     prefix: "FF",
+    counter: 1,
   },
   supplier_credit_notes: {
     format: "AVF-@YYYY-@C",
     name: "Avoirs Fournisseurs",
     prefix: "AVF",
+    counter: 1,
   },
   supplier_quotes: {
     format: "C@C",
     name: "Commandes",
     prefix: "C",
+    counter: 1,
+  },
+  drafts: {
+    format: "Brouillon-@C",
+    name: "Brouillons",
+    prefix: "Brouillon",
+    counter: 1,
   },
 };
 
@@ -61,8 +67,19 @@ export const InvoiceNumerotationInput = ({
   isCounters,
   disabled = false,
 }: InvoiceFormatInputProps) => {
+  const years = Object.keys(invoicesCounters || {});
+  const [tab, setTab] = useState(_.sortBy(years, (a) => -parseInt(a))[0]);
   return (
     <>
+      <Tabs.Root value={tab} onValueChange={(e) => setTab(e)}>
+        <Tabs.List className="flex space-x-4">
+          {years.map((year) => (
+            <Tabs.Trigger value={year} key={year}>
+              {year}
+            </Tabs.Trigger>
+          ))}
+        </Tabs.List>
+      </Tabs.Root>
       <div className="my-4 space-y-4">
         {(
           [
@@ -72,6 +89,7 @@ export const InvoiceNumerotationInput = ({
             "supplier_invoices",
             "supplier_credit_notes",
             "supplier_quotes",
+            "drafts",
           ] as (keyof typeof countersDefaults)[]
         ).map((type) => (
           <PageColumns>
@@ -81,9 +99,10 @@ export const InvoiceNumerotationInput = ({
                 countersDefaults[type]?.name +
                 ": " +
                 getFormattedNumerotation(
-                  invoicesCounters?.[type]?.format || "",
-                  (invoicesCounters as Clients["invoices_counters"])?.[type]
-                    ?.counter || 1
+                  invoicesCounters?.[tab]?.[type]?.format || "",
+                  (invoicesCounters as Clients["invoices_counters"])?.[tab]?.[
+                    type
+                  ]?.counter || 1
                 )
               }
               disabled={disabled}
@@ -99,19 +118,22 @@ export const InvoiceNumerotationInput = ({
               }))}
               placeholder={countersDefaults[type]?.format}
               ctrl={{
-                value: invoicesCounters?.[type]?.format,
+                value: invoicesCounters?.[tab]?.[type]?.format,
                 onChange: (e) =>
                   setInvoicesCounters({
                     ...invoicesCounters,
-                    [type]: {
-                      format: e
-                        .normalize("NFD")
-                        .replace(/\p{Diacritic}/gu, "")
-                        .toLocaleUpperCase(),
-                      counter:
-                        (invoicesCounters as Clients["invoices_counters"])?.[
-                          type
-                        ]?.counter || 1,
+                    [tab]: {
+                      ...(invoicesCounters[tab] || ({} as any)),
+                      [type]: {
+                        format: e
+                          .normalize("NFD")
+                          .replace(/\p{Diacritic}/gu, "")
+                          .toLocaleUpperCase(),
+                        counter:
+                          (invoicesCounters as Clients["invoices_counters"])?.[
+                            tab
+                          ]?.[type]?.counter || 1,
+                      },
                     },
                   }),
               }}
@@ -123,14 +145,17 @@ export const InvoiceNumerotationInput = ({
                 type="number"
                 ctrl={{
                   value: (invoicesCounters as Clients["invoices_counters"])?.[
-                    type
-                  ]?.counter,
+                    tab
+                  ]?.[type]?.counter,
                   onChange: (e) =>
                     setInvoicesCounters({
                       ...invoicesCounters,
-                      [type]: {
-                        format: invoicesCounters?.[type]?.format || "",
-                        counter: e,
+                      [tab]: {
+                        ...(invoicesCounters[tab] || ({} as any)),
+                        [type]: {
+                          format: invoicesCounters?.[tab]?.[type]?.format || "",
+                          counter: e,
+                        },
                       },
                     }),
                 }}
@@ -143,56 +168,56 @@ export const InvoiceNumerotationInput = ({
         @YYYY: Année au format{" "}
         {getFormattedNumerotation(
           "@YYYY",
-          (invoicesCounters as Clients["invoices_counters"]).invoices
+          (invoicesCounters as Clients["invoices_counters"])?.[tab].invoices
             ?.counter || 1
         )}
         <br />
         @YY: Année au format{" "}
         {getFormattedNumerotation(
           "@YY",
-          (invoicesCounters as Clients["invoices_counters"]).invoices
+          (invoicesCounters as Clients["invoices_counters"])?.[tab].invoices
             ?.counter || 1
         )}
         <br />
         @MM: Mois au format{" "}
         {getFormattedNumerotation(
           "@MM",
-          (invoicesCounters as Clients["invoices_counters"]).invoices
+          (invoicesCounters as Clients["invoices_counters"])?.[tab].invoices
             ?.counter || 1
         )}
         <br />
         @DD: Jour au format{" "}
         {getFormattedNumerotation(
           "@DD",
-          (invoicesCounters as Clients["invoices_counters"]).invoices
+          (invoicesCounters as Clients["invoices_counters"])?.[tab].invoices
             ?.counter || 1
         )}
         <br />
         @CCCCCC: Compteur à 6 chiffres{" "}
         {getFormattedNumerotation(
           "@CCCCCC",
-          (invoicesCounters as Clients["invoices_counters"]).invoices
+          (invoicesCounters as Clients["invoices_counters"])?.[tab].invoices
             ?.counter || 1
         )}
         <br />
         @CCCC: Compteur à 4 chiffres{" "}
         {getFormattedNumerotation(
           "@CCCC",
-          (invoicesCounters as Clients["invoices_counters"]).invoices
+          (invoicesCounters as Clients["invoices_counters"])?.[tab].invoices
             ?.counter || 1
         )}
         <br />
         @CC: Compteur à 2 chiffres{" "}
         {getFormattedNumerotation(
           "@CC",
-          (invoicesCounters as Clients["invoices_counters"]).invoices
+          (invoicesCounters as Clients["invoices_counters"])?.[tab].invoices
             ?.counter || 1
         )}
         <br />
         @C: Compteur à 1 chiffre{" "}
         {getFormattedNumerotation(
           "@C",
-          (invoicesCounters as Clients["invoices_counters"]).invoices
+          (invoicesCounters as Clients["invoices_counters"])?.[tab].invoices
             ?.counter || 1
         )}
         <br />

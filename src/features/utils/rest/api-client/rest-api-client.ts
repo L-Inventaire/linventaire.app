@@ -19,8 +19,8 @@ const fetchServerBatch = (() => {
     timeoutId[clientId] = null;
 
     const batchBody = requestsToBatch[clientId].map((req) => ({
-      url: req.url,
-      body: req.body || null,
+      u: req.url,
+      ...(req.body ? { d: req.body } : {}),
     }));
 
     const res = await fetchServer("/api/rest/v1/" + clientId + "/batch", {
@@ -43,8 +43,11 @@ const fetchServerBatch = (() => {
       if (matchingRequest) {
         matchingRequest.resolves.push(resolve);
       } else {
+        url = url.replace(/\/api\/rest\/v1\/.*?\//, "");
         pendingRequests[clientId] = pendingRequests[clientId] || [];
-        pendingRequests[clientId].push({ url, body, resolves: [resolve] });
+        const obj = { url, body, resolves: [resolve] };
+        if (!obj.body) delete obj.body;
+        pendingRequests[clientId].push(obj);
       }
 
       if (!timeoutId[clientId]) {
@@ -112,7 +115,7 @@ export class RestApiClient<T> {
   ): Promise<{ total: number; list: T[] }> => {
     const tmp = await fetchServerBatch(
       clientId,
-      `/api/rest/v1/${clientId}/${this.table}/search?${this.table}`,
+      `/api/rest/v1/${clientId}/${this.table}/search`,
       { query, options }
     );
     if (tmp.status === 200) return tmp.body;
