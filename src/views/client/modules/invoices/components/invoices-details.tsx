@@ -1,6 +1,6 @@
 import { Button } from "@atoms/button/button";
 import { PageLoader } from "@atoms/page-loader";
-import { Info, Section } from "@atoms/text";
+import { BaseSmall, Info, Section } from "@atoms/text";
 import { WrongNumerotationFormat } from "@atoms/wrong-format-numerotation";
 import { CustomFieldsInput } from "@components/custom-fields-input";
 import { FormInput } from "@components/form/fields";
@@ -18,13 +18,16 @@ import { useClients } from "@features/clients/state/use-clients";
 import { useContact, useContacts } from "@features/contacts/hooks/use-contacts";
 import { Contacts } from "@features/contacts/types/types";
 import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
+import { InvoicesFieldsNames } from "@features/invoices/configuration";
+import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
-import { getDocumentName } from "@features/invoices/utils";
+import { getDocumentName, getInvoiceNextDate } from "@features/invoices/utils";
 import { ROUTES } from "@features/routes";
 import { formatTime } from "@features/utils/format/dates";
 import { useFormattedNumerotationByInvoice } from "@features/utils/format/numerotation";
 import { useEffectChange } from "@features/utils/hooks/use-changed-effect";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
+import { PlayCircleIcon } from "@heroicons/react/16/solid";
 import {
   BuildingStorefrontIcon,
   EnvelopeIcon,
@@ -37,6 +40,7 @@ import { Callout, Code, Heading, Text } from "@radix-ui/themes";
 import { PageColumns } from "@views/client/_layout/page";
 import { format as formatDate } from "date-fns";
 import _ from "lodash";
+import { DateTime } from "luxon";
 import { Fragment, useEffect } from "react";
 import { computePricesFromInvoice } from "../utils";
 import { getBestDeliveryAddress, InputDelivery } from "./input-delivery";
@@ -51,9 +55,6 @@ import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-ca
 import { InvoiceStatus } from "./invoice-status";
 import { RelatedInvoices } from "./related-invoices";
 import { TagPaymentCompletion } from "./tag-payment-completion";
-import { useInvoice } from "@features/invoices/hooks/use-invoices";
-import { InvoicesFieldsNames } from "@features/invoices/configuration";
-import { DateTime } from "luxon";
 
 export const InvoicesDetailsPage = ({
   readonly,
@@ -382,45 +383,6 @@ export const InvoicesDetailsPage = ({
                       )}
                   </InputButton>
                 )}
-                {!!draft.subscription_started_at &&
-                  draft.type === "quotes" &&
-                  draft.state === "recurring" && (
-                    <InputButton
-                      theme="invisible"
-                      className="ml-4"
-                      data-tooltip={new Date(
-                        ctrl("subscription_started_at").value
-                      ).toDateString()}
-                      ctrl={ctrl("subscription_started_at")}
-                      placeholder="Date de démarrage"
-                      value={formatTime(
-                        ctrl("subscription_started_at").value || 0
-                      )}
-                      content={() => (
-                        <>
-                          <FormInput
-                            ctrl={ctrl("subscription_started_at")}
-                            type="date"
-                          />
-                          <Info>
-                            Modifier la date de démarrage modifiera la date de
-                            récurrence. Il est possible de mettre une date de
-                            démarrage dans le futur, dans ce cas aucune facture
-                            ne sera générée avant cette date.
-                          </Info>
-                        </>
-                      )}
-                      readonly={readonly}
-                    >
-                      <Text size="2" className="opacity-75" weight="medium">
-                        {"Démarré le "}
-                        {formatDate(
-                          draft.subscription_started_at || 0,
-                          "yyyy-MM-dd"
-                        )}
-                      </Text>
-                    </InputButton>
-                  )}
                 {!!ctrl("wait_for_completion_since").value && (
                   <InputButton
                     theme="invisible"
@@ -477,6 +439,61 @@ export const InvoicesDetailsPage = ({
                   />
                 )}
               </FormContext>
+
+              {!!draft.subscription_started_at &&
+                draft.type === "quotes" &&
+                draft.state === "recurring" && (
+                  <InputButton
+                    theme="invisible"
+                    className="my-2 block"
+                    data-tooltip={new Date(
+                      ctrl("subscription_started_at").value
+                    ).toDateString()}
+                    ctrl={ctrl("subscription_started_at")}
+                    placeholder="Date de démarrage"
+                    value={formatTime(
+                      ctrl("subscription_started_at").value || 0
+                    )}
+                    content={() => (
+                      <>
+                        <FormInput
+                          ctrl={ctrl("subscription_started_at")}
+                          type="date"
+                        />
+                        <Info className="block my-2">
+                          Modifier la date de démarrage modifiera la date de
+                          récurrence. Il est possible de mettre une date de
+                          démarrage dans le futur, dans ce cas aucune facture ne
+                          sera générée avant cette date.
+                        </Info>
+                        <BaseSmall className="block my-2">
+                          La prochaine facture sera générée le{" "}
+                          {formatDate(
+                            getInvoiceNextDate(draft) || 0,
+                            "yyyy-MM-dd"
+                          )}
+                        </BaseSmall>
+                      </>
+                    )}
+                    readonly={readonly}
+                  >
+                    <Text size="2" className="opacity-75" weight="medium">
+                      <PlayCircleIcon className="h-3 w-3 inline-block mr-1 -mt-0.5" />
+                      {"Démarre le "}
+                      {formatDate(
+                        draft.subscription_started_at || 0,
+                        "yyyy-MM-dd"
+                      )}
+                      {", prochaine facture le "}
+                      {formatDate(
+                        getInvoiceNextDate(draft) ||
+                          draft.subscription_next_invoice_date ||
+                          0,
+                        "yyyy-MM-dd"
+                      )}
+                    </Text>
+                  </InputButton>
+                )}
 
               {contentReadonly && !readonly && (
                 <Callout.Root className="my-4">

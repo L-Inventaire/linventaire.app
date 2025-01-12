@@ -1,13 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
-import { StatisticsApiClient } from "./api-client/api-client";
+import { Invoices } from "@features/invoices/types/types";
 import {
   isErrorResponse,
   StandardResponse,
 } from "@features/utils/rest/types/types";
+import { useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
-import { useInvoices } from "@features/invoices/hooks/use-invoices";
-import { generateQueryFromMap } from "@components/search-bar/utils/utils";
-import { Invoices } from "@features/invoices/types/types";
+import { StatisticsApiClient } from "./api-client/api-client";
 import { Statistics } from "./types";
 
 const blankStatistics: Statistics = {

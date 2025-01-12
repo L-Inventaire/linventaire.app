@@ -260,7 +260,6 @@ export const PreferencesPage = () => {
                   SetStateAction<Partial<InvoiceCounters>>
                 >
               }
-              isCounters
             />
 
             {!readonly && (

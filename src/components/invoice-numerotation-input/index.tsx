@@ -12,7 +12,6 @@ type InvoiceFormatInputProps = {
   setInvoicesCounters: Dispatch<
     SetStateAction<Partial<Clients["invoices_counters"]>>
   >;
-  isCounters: boolean;
   disabled?: boolean;
 };
 
@@ -64,20 +63,31 @@ export const countersDefaults = {
 export const InvoiceNumerotationInput = ({
   invoicesCounters,
   setInvoicesCounters,
-  isCounters,
   disabled = false,
 }: InvoiceFormatInputProps) => {
   const years = Object.keys(invoicesCounters || {});
   const [tab, setTab] = useState(_.sortBy(years, (a) => -parseInt(a))[0]);
+  invoicesCounters[tab] = _.pick(
+    invoicesCounters[tab],
+    "credit_notes",
+    "invoices",
+    "quotes",
+    "supplier_invoices",
+    "supplier_credit_notes",
+    "supplier_quotes",
+    "drafts"
+  ) as any;
   return (
     <>
       <Tabs.Root value={tab} onValueChange={(e) => setTab(e)}>
         <Tabs.List className="flex space-x-4">
-          {years.map((year) => (
-            <Tabs.Trigger value={year} key={year}>
-              {year}
-            </Tabs.Trigger>
-          ))}
+          {_.sortBy(years, (a) => a)
+            .reverse()
+            .map((year) => (
+              <Tabs.Trigger value={year} key={year}>
+                {year}
+              </Tabs.Trigger>
+            ))}
         </Tabs.List>
       </Tabs.Root>
       <div className="my-4 space-y-4">
@@ -138,29 +148,27 @@ export const InvoiceNumerotationInput = ({
                   }),
               }}
             />
-            {isCounters && (
-              <FormInput
-                label={"Prochaine valeur"}
-                placeholder="87"
-                type="number"
-                ctrl={{
-                  value: (invoicesCounters as Clients["invoices_counters"])?.[
-                    tab
-                  ]?.[type]?.counter,
-                  onChange: (e) =>
-                    setInvoicesCounters({
-                      ...invoicesCounters,
-                      [tab]: {
-                        ...(invoicesCounters[tab] || ({} as any)),
-                        [type]: {
-                          format: invoicesCounters?.[tab]?.[type]?.format || "",
-                          counter: e,
-                        },
+            <FormInput
+              label={"Prochaine valeur"}
+              placeholder="87"
+              type="number"
+              ctrl={{
+                value: (invoicesCounters as Clients["invoices_counters"])?.[
+                  tab
+                ]?.[type]?.counter,
+                onChange: (e) =>
+                  setInvoicesCounters({
+                    ...invoicesCounters,
+                    [tab]: {
+                      ...(invoicesCounters[tab] || ({} as any)),
+                      [type]: {
+                        format: invoicesCounters?.[tab]?.[type]?.format || "",
+                        counter: e,
                       },
-                    }),
-                }}
-              />
-            )}
+                    },
+                  }),
+              }}
+            />
           </PageColumns>
         ))}
       </div>
