@@ -36,14 +36,17 @@ const fetchServerBatch = (() => {
 
   return (clientId: string, url: string, body?: any): Promise<any> => {
     return new Promise((resolve) => {
+      url = url.replace(/\/api\/rest\/v1\/.*?\//, "");
+
       const matchingRequest = pendingRequests[clientId]?.find(
-        (req) => req.url === url && _.isEqual(req.body, body)
+        (req) =>
+          req.url === url &&
+          (!!req.body === !!body || _.isEqual(req.body, body))
       );
 
       if (matchingRequest) {
         matchingRequest.resolves.push(resolve);
       } else {
-        url = url.replace(/\/api\/rest\/v1\/.*?\//, "");
         pendingRequests[clientId] = pendingRequests[clientId] || [];
         const obj = { url, body, resolves: [resolve] };
         if (!obj.body) delete obj.body;
