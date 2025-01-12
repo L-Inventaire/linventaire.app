@@ -46,7 +46,7 @@ export const ArticlesDetailsPage = ({
 
   return (
     <>
-      <div className="grow lg:w-3/5 max-w-3xl pt-6 mx-auto">
+      <div className="grow @lg:w-3/5 max-w-3xl mx-auto">
         <FormContext readonly={readonly} alwaysVisible>
           <div className="space-y-8">
             <div className="space-y-4">

@@ -69,6 +69,7 @@ export const ArticlesEditPage = (_props: { readonly?: boolean }) => {
         />
       }
     >
+      <div className="mt-6" />
       {isInitiating ? (
         <PageLoader />
       ) : (

@@ -66,6 +66,7 @@ export const DocumentBar = ({
   const cancel = async () => {
     if (onClose) return onClose();
     // Get previous route
+    // TODO this is bad UX, make it works like the <- button in the browser
     navigate(
       !document.id || mode === "read"
         ? getRoute(props.backRoute || "/")

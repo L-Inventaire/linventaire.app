@@ -248,7 +248,7 @@ export const ArticleSuppliersInput = ({
                       ),
                     },
                     {
-                      cellClassName: "flex justify-end",
+                      cellClassName: "text-right",
                       render: (contact) => (
                         <>
                           <Button

@@ -78,6 +78,7 @@ export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
         />
       }
     >
+      <div className="mt-6" />
       {isInitiating ? (
         <PageLoader />
       ) : (

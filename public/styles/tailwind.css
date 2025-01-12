@@ -4616,6 +4616,10 @@ body :is(.ease-out) {
   transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
 }
 
+body :is(.\@container) {
+  container-type: inline-size;
+}
+
 body :is(.\[type\:files\]) {
   type: files;
 }
@@ -4907,6 +4911,12 @@ body :is(.group\/user:hover .group-hover\/user\:opacity-100) {
   opacity: 1;
 }
 
+@container (min-width: 32rem) {
+  body :is(.\@lg\:w-3\/5) {
+    width: 60%;
+  }
+}
+
 @media (min-width: 640px) {
   body :is(.sm\:relative) {
     position: relative;
@@ -5186,10 +5196,6 @@ body :is(.group\/user:hover .group-hover\/user\:opacity-100) {
 
   body :is(.lg\:w-2\/3) {
     width: 66.666667%;
-  }
-
-  body :is(.lg\:w-3\/5) {
-    width: 60%;
   }
 
   body :is(.lg\:max-w-xl) {

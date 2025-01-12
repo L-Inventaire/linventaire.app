@@ -24,6 +24,7 @@ export const TagsInput = ({
 }) => {
   return (
     <RestDocumentsInput
+      key={JSON.stringify(value)}
       disabled={disabled}
       className="rounded-full"
       entity={"tags"}

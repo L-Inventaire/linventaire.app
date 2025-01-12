@@ -143,5 +143,8 @@ module.exports = {
     "min-w-full",
     ...shades,
   ],
-  plugins: [require("@tailwindcss/forms")],
+  plugins: [
+    require("@tailwindcss/forms"),
+    require("@tailwindcss/container-queries"),
+  ],
 };

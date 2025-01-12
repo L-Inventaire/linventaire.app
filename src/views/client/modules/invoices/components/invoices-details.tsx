@@ -6,7 +6,6 @@ import { CustomFieldsInput } from "@components/custom-fields-input";
 import { FormInput } from "@components/form/fields";
 import { FormContext } from "@components/form/formcontext";
 import { InputButton } from "@components/input-button";
-import { RestDocumentsInput } from "@components/input-rest";
 import { FilesInput } from "@components/input-rest/files";
 import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
@@ -42,6 +41,7 @@ import { format as formatDate } from "date-fns";
 import _ from "lodash";
 import { DateTime } from "luxon";
 import { Fragment, useEffect } from "react";
+import { ContactRestDocument } from "../../contacts/components/contact-input-rest-card";
 import { computePricesFromInvoice } from "../utils";
 import { getBestDeliveryAddress, InputDelivery } from "./input-delivery";
 import { InvoiceInputFormat } from "./input-format";
@@ -108,22 +108,22 @@ export const InvoicesDetailsPage = ({
       if (prevContact && prevContact !== (draft.client || draft.supplier)) {
         setDraft((draft) => ({
           ...draft,
-          reference: reference,
+          reference: getReference(draft),
         }));
       }
     },
     [draft.client, draft.contact]
   );
 
-  const reference = useFormattedNumerotationByInvoice(draft);
+  const getReference = useFormattedNumerotationByInvoice();
 
   useEffect(() => {
     if (!isPending && draft)
       setDraft((draft: Invoices) => {
         draft = _.cloneDeep(draft);
         if (!draft.emit_date) draft.emit_date = new Date().getTime();
-        if (draft.type && !draft.reference) {
-          draft.reference = reference;
+        if (draft.type && !draft.reference && draft.emit_date) {
+          draft.reference = getReference(draft);
         }
         draft.total = computePricesFromInvoice(draft);
         draft.content = (draft.content || []).map((a) => ({
@@ -249,7 +249,7 @@ export const InvoicesDetailsPage = ({
     <>
       <FormContext readonly={readonly} alwaysVisible>
         <PageColumns>
-          <div className="grow lg:w-3/5 max-w-3xl pt-6 mx-auto">
+          <div className="grow @lg:w-3/5 max-w-3xl mx-auto">
             {readonly && (
               <>
                 {draft.state === "draft" && (
@@ -507,8 +507,7 @@ export const InvoicesDetailsPage = ({
                 <PageColumns>
                   {!isSupplierInvoice && !isSupplierQuote && (
                     <>
-                      <RestDocumentsInput
-                        entity="contacts"
+                      <ContactRestDocument
                         label="Client"
                         ctrl={ctrl("client")}
                         icon={(p) => <UserIcon {...p} />}
@@ -521,8 +520,7 @@ export const InvoicesDetailsPage = ({
                       />
                       {((!readonly && ctrl("client").value) ||
                         ctrl("contact").value) && (
-                        <RestDocumentsInput
-                          entity="contacts"
+                        <ContactRestDocument
                           filter={
                             {
                               parents: ctrl("client").value,
@@ -537,8 +535,7 @@ export const InvoicesDetailsPage = ({
                     </>
                   )}
                   {(isSupplierInvoice || isSupplierQuote) && (
-                    <RestDocumentsInput
-                      entity="contacts"
+                    <ContactRestDocument
                       label="Fournisseur"
                       ctrl={ctrl("supplier")}
                       icon={(p) => <BuildingStorefrontIcon {...p} />}

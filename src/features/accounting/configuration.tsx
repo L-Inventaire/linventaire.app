@@ -41,6 +41,7 @@ export const AccountingTransactionsColumns: (
     render: (item) => (
       <div>
         <RestDocumentsInput
+          key={item.debit}
           entity="accounting_accounts"
           value={item.debit}
           disabled
@@ -48,6 +49,7 @@ export const AccountingTransactionsColumns: (
         />{" "}
         {" → "}
         <RestDocumentsInput
+          key={item.credit}
           entity="accounting_accounts"
           value={item.credit}
           disabled
