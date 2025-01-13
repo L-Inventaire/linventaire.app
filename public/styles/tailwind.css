@@ -3821,10 +3821,6 @@ body :is(.pt-5) {
   padding-top: 1.25rem;
 }
 
-body :is(.pt-6) {
-  padding-top: 1.5rem;
-}
-
 body :is(.pt-8) {
   padding-top: 2rem;
 }
