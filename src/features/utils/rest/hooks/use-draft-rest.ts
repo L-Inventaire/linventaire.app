@@ -45,9 +45,10 @@ export const useDraftRest = <T extends { id: string }>(
   defaultValue?: Partial<T>,
   readonly = false
 ) => {
+  const isNew = !id || id === "new";
   const { items, upsert, remove, restore, isPendingModification, refresh } =
-    useRest<T>(table, { id });
-  const existingItem = id && id !== "new" ? items?.data?.list?.[0] : null;
+    useRest<T>(table, { id, limit: isNew ? 0 : 1 });
+  const existingItem = isNew ? items?.data?.list?.[0] : null;
   const { key } = useContext(DraftContext);
 
   const [defaultWasSet, setDefaultWasSet] = useState(false);
