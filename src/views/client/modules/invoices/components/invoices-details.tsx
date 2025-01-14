@@ -23,7 +23,10 @@ import { Invoices } from "@features/invoices/types/types";
 import { getDocumentName, getInvoiceNextDate } from "@features/invoices/utils";
 import { ROUTES } from "@features/routes";
 import { formatTime } from "@features/utils/format/dates";
-import { useFormattedNumerotationByInvoice } from "@features/utils/format/numerotation";
+import {
+  getOptimalCounterFormat,
+  useFormattedNumerotationByInvoice,
+} from "@features/utils/format/numerotation";
 import { useEffectChange } from "@features/utils/hooks/use-changed-effect";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { PlayCircleIcon } from "@heroicons/react/16/solid";
@@ -185,10 +188,11 @@ export const InvoicesDetailsPage = ({
     }
   }, [ctrl("client").value, JSON.stringify(contacts?.data?.list)]);
 
-  const format = _.get(client.invoices_counters, [
-    new Date(draft.emit_date || Date.now()).getFullYear().toString(),
+  const format = getOptimalCounterFormat(
+    client.invoices_counters,
     draft.type,
-  ])?.format;
+    draft.emit_date
+  )?.format;
   const errorFormat = !format;
 
   if (isPending || (id && draft.id !== id) || !client) return <PageLoader />;

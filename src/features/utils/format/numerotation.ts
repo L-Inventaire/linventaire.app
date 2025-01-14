@@ -1,6 +1,24 @@
 import { useClients } from "@features/clients/state/use-clients";
 import { Clients } from "@features/clients/types/clients";
 import { Invoices } from "@features/invoices/types/types";
+import _ from "lodash";
+
+export const getOptimalCounterFormat = (
+  invoicesCounters: Clients["invoices_counters"],
+  type: keyof Clients["invoices_counters"][0],
+  date?: Date | string | number
+) => {
+  return (
+    _.get(invoicesCounters, [
+      new Date(date || Date.now()).getFullYear().toString(),
+      type,
+    ]) ||
+    _.get(invoicesCounters, [
+      new Date(Date.now()).getFullYear().toString(),
+      type,
+    ])
+  );
+};
 
 // Caution: A similar function is also present in the backend, if you change it here, change it there too
 export const useFormattedNumerotationByInvoice = () => {
