@@ -42,14 +42,14 @@ export const ArticlesColumns: Column<Articles>[] = [
   {
     title: "Nom",
     render: (article) => (
-      <>
+      <div className="flex flex-col">
+        <Base>{article.name}</Base>
         {!!article.internal_reference && (
-          <span className="font-mono mr-2 text-slate-800 dark:text-slate-500">
+          <Info className="block font-mono text-sm">
             {article.internal_reference}
-          </span>
+          </Info>
         )}
-        {article.name}
-      </>
+      </div>
     ),
   },
   {
