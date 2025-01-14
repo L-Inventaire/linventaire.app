@@ -59,6 +59,14 @@ const InvoicesPageContent = () => {
           : "sent",
       }),
     },
+    ...(type.includes("supplier_quotes")
+      ? {
+          completed: {
+            label: "À payer",
+            filter: buildQueryFromMap({ state: "completed" }),
+          },
+        }
+      : {}),
     ...(type.includes("quotes")
       ? {
           purchase_order: {
@@ -136,11 +144,17 @@ const InvoicesPageContent = () => {
     limit: 1,
     query: [...invoiceFilters.query, ...(tabs.recurring?.filter || [])],
   });
+  const { invoices: completedInvoices } = useInvoices({
+    key: "completedInvoices",
+    limit: 1,
+    query: [...invoiceFilters.query, ...(tabs.completed?.filter || [])],
+  });
   const counters = {
     draft: draftInvoices?.data?.total || 0,
     sent: sentInvoices?.data?.total || 0,
     purchase_order: inProgressInvoices?.data?.total || 0,
     recurring: recurringInvoices?.data?.total || 0,
+    completed: completedInvoices?.data?.total || 0,
   };
 
   return (
