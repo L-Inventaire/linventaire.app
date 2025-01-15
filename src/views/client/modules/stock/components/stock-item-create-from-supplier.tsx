@@ -12,10 +12,12 @@ export const StockItemsCreateFromSupplier = ({
   onBack,
   supplier: id,
   onChange,
+  loading,
 }: {
   onBack: () => void;
   supplier: string;
   onChange: (value: StockItems[]) => void;
+  loading: boolean;
 }) => {
   const { contact: supplier, isPending } = useContact(id);
 
@@ -117,10 +119,12 @@ export const StockItemsCreateFromSupplier = ({
         }}
       />
 
-      <div className="space-y-2">
-        <QuotesCheckers items={stockItems} />
-        <SerialNumberCheckers items={stockItems} />
-      </div>
+      {!loading && (
+        <div className="space-y-2">
+          <QuotesCheckers items={stockItems} />
+          <SerialNumberCheckers items={stockItems} />
+        </div>
+      )}
     </div>
   );
 };

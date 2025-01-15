@@ -35,6 +35,7 @@ export const StockItemsFromPage = (_props: { readonly?: boolean }) => {
         <div className={loading ? "opacity-50 pointer-events-none" : ""}>
           {from === "order" && (
             <StockItemsCreateFromOrder
+              loading={loading}
               order={id!}
               onBack={() => navigate(getRoute(ROUTES.StockEdit, { id: "new" }))}
               onChange={setStockItems}
@@ -42,6 +43,7 @@ export const StockItemsFromPage = (_props: { readonly?: boolean }) => {
           )}
           {from === "supplier" && (
             <StockItemsCreateFromSupplier
+              loading={loading}
               supplier={id!}
               onBack={() => navigate(getRoute(ROUTES.StockEdit, { id: "new" }))}
               onChange={setStockItems}

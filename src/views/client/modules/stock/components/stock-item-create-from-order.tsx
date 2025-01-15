@@ -10,10 +10,12 @@ export const StockItemsCreateFromOrder = ({
   onBack,
   order: id,
   onChange,
+  loading,
 }: {
   onBack: () => void;
   order: string;
   onChange: (value: StockItems[]) => void;
+  loading: boolean;
 }) => {
   const { invoice: order, isPending } = useInvoice(id);
 
@@ -162,10 +164,12 @@ export const StockItemsCreateFromOrder = ({
         }}
       />
 
-      <div className="space-y-2">
-        <QuotesCheckers items={stockItems} />
-        <SerialNumberCheckers items={stockItems} />
-      </div>
+      {!loading && (
+        <div className="space-y-2">
+          <QuotesCheckers items={stockItems} />
+          <SerialNumberCheckers items={stockItems} />
+        </div>
+      )}
     </div>
   );
 };
