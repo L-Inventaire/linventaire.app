@@ -382,29 +382,34 @@ const RecurrenceModalPreContent = ({
   );
 };
 
-const RecurrenceModalContent = ({
+export const RecurrenceModalContent = ({
   ctrl,
   invoice,
   onlyEnding,
+  commonParameters,
 }: {
   ctrl: FormControllerFuncType<Pick<Invoices, "subscription">>;
-  invoice: Invoices;
+  invoice?: Invoices;
   onlyEnding?: boolean;
+  commonParameters?: boolean;
 }) => {
   const subscriptions = _.uniq(
-    invoice.content?.map((a) => a.subscription)
+    invoice?.content?.map((a) => a.subscription)
   ).filter(Boolean) as string[];
   return (
     <>
-      <br />
-      {subscriptions.length > 1 && (
-        <Blockquote className="mb-4">
-          Vous avez plusieurs articles avec des fréquences différentes, la
-          facture sera dupliquée pour chaque groupes d'articles partageant la
-          même fréquence à partir de la prochaine facture.
-        </Blockquote>
+      {!commonParameters && (
+        <>
+          <br />
+          {subscriptions.length > 1 && (
+            <Blockquote className="mb-4">
+              Vous avez plusieurs articles avec des fréquences différentes, la
+              facture sera dupliquée pour chaque groupes d'articles partageant
+              la même fréquence à partir de la prochaine facture.
+            </Blockquote>
+          )}
+        </>
       )}
-
       <>
         <div className="space-y-4">
           {!onlyEnding && (
@@ -416,13 +421,14 @@ const RecurrenceModalContent = ({
                   options={optionsStartDates}
                   ctrl={ctrl("subscription.start_type")}
                 />
-                {ctrl("subscription.start_type")?.value === "date" && (
-                  <FormInput
-                    type="date"
-                    label="Date (incluse)"
-                    ctrl={ctrl("subscription.start")}
-                  />
-                )}
+                {!commonParameters &&
+                  ctrl("subscription.start_type")?.value === "date" && (
+                    <FormInput
+                      type="date"
+                      label="Date (incluse)"
+                      ctrl={ctrl("subscription.start")}
+                    />
+                  )}
               </PageColumns>
               <FormInput
                 type="select"
@@ -457,13 +463,14 @@ const RecurrenceModalContent = ({
               options={optionsDelays}
             />
           )}
-          {ctrl("subscription.end_type")?.value === "date" && (
-            <FormInput
-              type="date"
-              label="Date (incluse)"
-              ctrl={ctrl("subscription.end")}
-            />
-          )}
+          {!commonParameters &&
+            ctrl("subscription.end_type")?.value === "date" && (
+              <FormInput
+                type="date"
+                label="Date (incluse)"
+                ctrl={ctrl("subscription.end")}
+              />
+            )}
         </PageColumns>
 
         <div className="space-y-2">

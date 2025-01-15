@@ -151,7 +151,8 @@
       "currency": "Primary currency",
       "title": "General",
       "language": "Company language",
-      "timezone": "Time zone"
+      "timezone": "Time zone",
+      "email_footer": "Line at the bottom of the email"
     },
     "payments": {
       "title": "Payments"
@@ -212,7 +213,8 @@
       "stock_services": "Stocks and services",
       "activity_format": "Invoices and payments",
       "bank_accounts": "Bank accounts",
-      "stock_locations": "Stock locations"
+      "stock_locations": "Stock locations",
+      "more": "More"
     },
     "account": {
       "title": "Account",

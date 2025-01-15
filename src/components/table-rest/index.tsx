@@ -21,8 +21,6 @@ export const RestTable = <T,>(
     return () => registerActiveSelection(props.entity, []);
   }, []);
 
-  console.log(JSON.parse(JSON.stringify(props.data)));
-
   return (
     <Table
       {..._.omit(props, "entity")}
