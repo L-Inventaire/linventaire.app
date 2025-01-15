@@ -7,14 +7,14 @@ import {
 } from "@components/form/formcontext";
 import { useClients } from "@features/clients/state/use-clients";
 import { Contacts } from "@features/contacts/types/types";
-import { InvoiceFormat } from "@features/invoices/types/types";
+import { InvoiceFormat, Invoices } from "@features/invoices/types/types";
+import { getInvoiceWithOverrides } from "@features/invoices/utils";
 import { tvaMentionOptions } from "@features/utils/constants";
 import { EditorInput } from "@molecules/editor-input";
 import { PageBlockHr } from "@views/client/_layout/page";
 import _ from "lodash";
 import { useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { getDefaultConfig } from "./utils";
 
 export type InvoiceFormatInputProps = {
   ctrl: FormControllerType<InvoiceFormat>;
@@ -29,10 +29,11 @@ export const InvoiceFormatInput = (props: InvoiceFormatInputProps) => {
   const { t } = useTranslation();
   const { client } = useClients();
 
-  const defaultConfig = getDefaultConfig(
-    client?.client,
-    props.contact,
-    props?.default ?? "contact"
+  const defaultConfig = getInvoiceWithOverrides(
+    {} as Invoices,
+    ...([props.contact, client?.client].filter(
+      (a) => a !== undefined && !!a
+    ) as any[])
   );
 
   const getValue = (
@@ -72,9 +73,9 @@ export const InvoiceFormatInput = (props: InvoiceFormatInputProps) => {
         label={t("settings.invoices.heading")}
         input={
           <EditorInput
-            reset={ctrl("heading").value !== defaultConfig?.invoices?.heading}
+            reset={ctrl("heading").value !== defaultConfig?.format?.heading}
             onReset={() =>
-              ctrl("heading").onChange(defaultConfig?.invoices?.heading)
+              ctrl("heading").onChange(defaultConfig?.format?.heading)
             }
             disabled={readonly}
             onChange={ctrl("heading").onChange}
@@ -88,10 +89,10 @@ export const InvoiceFormatInput = (props: InvoiceFormatInputProps) => {
           <EditorInput
             reset={
               getValue("footer", "invoices.footer") !==
-              defaultConfig?.invoices?.footer
+              defaultConfig?.format?.footer
             }
             onReset={() =>
-              ctrl("footer").onChange(defaultConfig?.invoices?.footer)
+              ctrl("footer").onChange(defaultConfig?.format?.footer)
             }
             disabled={readonly}
             onChange={ctrl("footer").onChange}
@@ -105,11 +106,11 @@ export const InvoiceFormatInput = (props: InvoiceFormatInputProps) => {
           <EditorInput
             reset={
               getValue("payment_terms", "invoices.payment_terms") !==
-              defaultConfig?.invoices?.payment_terms
+              defaultConfig?.format?.payment_terms
             }
             onReset={() =>
               ctrl("payment_terms").onChange(
-                defaultConfig?.invoices?.payment_terms
+                defaultConfig?.format?.payment_terms
               )
             }
             disabled={readonly}
@@ -120,8 +121,8 @@ export const InvoiceFormatInput = (props: InvoiceFormatInputProps) => {
       />
       <FormInput
         label={t("settings.invoices.tva")}
-        reset={ctrl("tva").value !== defaultConfig?.invoices?.tva}
-        onReset={() => ctrl("tva").onChange(defaultConfig?.invoices?.tva)}
+        reset={ctrl("tva").value !== defaultConfig?.format?.tva}
+        onReset={() => ctrl("tva").onChange(defaultConfig?.format?.tva)}
         readonly={readonly}
         ctrl={ctrl("tva")}
         options={tvaMentionOptions.map((a) => ({ label: a, value: a }))}
@@ -131,10 +132,10 @@ export const InvoiceFormatInput = (props: InvoiceFormatInputProps) => {
           type="files"
           reset={
             getValue("attachments", "invoices.attachments") !==
-            defaultConfig?.invoices?.attachments
+            defaultConfig?.format?.attachments
           }
           onReset={() =>
-            ctrl("attachments").onChange(defaultConfig?.invoices?.attachments)
+            ctrl("attachments").onChange(defaultConfig?.format?.attachments)
           }
           value={getValue("attachments", "invoices.attachments")}
           label={t("settings.invoices.attachments")}
@@ -149,10 +150,10 @@ export const InvoiceFormatInput = (props: InvoiceFormatInputProps) => {
         type="boolean"
         reset={
           getValue("branding", "invoices.branding") !==
-          defaultConfig?.invoices?.branding
+          defaultConfig?.format?.branding
         }
         onReset={() =>
-          ctrl("branding").onChange(defaultConfig?.invoices?.branding)
+          ctrl("branding").onChange(defaultConfig?.format?.branding)
         }
         value={getValue("branding", "invoices.branding")}
         label={t("settings.invoices.branding")}
@@ -163,9 +164,9 @@ export const InvoiceFormatInput = (props: InvoiceFormatInputProps) => {
       <FormInput
         type="color"
         reset={
-          getValue("color", "invoices.color") !== defaultConfig?.invoices?.color
+          getValue("color", "invoices.color") !== defaultConfig?.format?.color
         }
-        onReset={() => ctrl("color").onChange(defaultConfig?.invoices?.color)}
+        onReset={() => ctrl("color").onChange(defaultConfig?.format?.color)}
         value={getValue("color", "invoices.color")}
         resetProps={{
           className: "right-8",
@@ -177,9 +178,9 @@ export const InvoiceFormatInput = (props: InvoiceFormatInputProps) => {
       <FormInput
         type="files"
         reset={
-          getValue("logo", "invoices.logo") !== defaultConfig?.invoices?.logo
+          getValue("logo", "invoices.logo") !== defaultConfig?.format?.logo
         }
-        onReset={() => ctrl("logo").onChange(defaultConfig?.invoices?.logo)}
+        onReset={() => ctrl("logo").onChange(defaultConfig?.format?.logo)}
         value={getValue("logo", "invoices.logo")}
         label={t("settings.invoices.logo")}
         readonly={readonly}
@@ -191,10 +192,10 @@ export const InvoiceFormatInput = (props: InvoiceFormatInputProps) => {
         type="files"
         reset={
           getValue("footer_logo", "invoices.footer_logo") !==
-          defaultConfig?.invoices?.footer_logo
+          defaultConfig?.format?.footer_logo
         }
         onReset={() =>
-          ctrl("footer_logo").onChange(defaultConfig?.invoices?.footer_logo)
+          ctrl("footer_logo").onChange(defaultConfig?.format?.footer_logo)
         }
         value={getValue("footer_logo", "invoices.footer_logo")}
         label={t("settings.invoices.footer_logo")}
@@ -207,10 +208,10 @@ export const InvoiceFormatInput = (props: InvoiceFormatInputProps) => {
         type="select"
         reset={
           getValue("template", "invoices.template") !==
-          defaultConfig?.invoices?.template
+          defaultConfig?.format?.template
         }
         onReset={() =>
-          ctrl("template").onChange(defaultConfig?.invoices?.template)
+          ctrl("template").onChange(defaultConfig?.format?.template)
         }
         value={getValue("template", "invoices.template")}
         label={t("settings.invoices.template")}
