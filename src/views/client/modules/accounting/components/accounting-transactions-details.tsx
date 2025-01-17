@@ -189,13 +189,13 @@ export const AccountingTransactionsDetailsPage = ({
           />
         </div>
 
-        <Section className="mb-2 mt-8">Facture / avoir lié</Section>
+        <Section className="mb-2 mt-8">Factures / avoirs liés</Section>
         <InvoiceRestDocument
           ctrl={ctrl("rel_invoices")}
-          label="Document lié"
+          label="Documents liés"
           placeholder="Aucun document lié"
           size="xl"
-          max={1}
+          max={10}
           filter={{
             type: [
               "invoices",
