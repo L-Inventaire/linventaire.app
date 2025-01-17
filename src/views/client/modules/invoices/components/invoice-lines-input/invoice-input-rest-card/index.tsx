@@ -1,12 +1,13 @@
 import { Info } from "@atoms/text";
 import { RestDocumentProps, RestDocumentsInput } from "@components/input-rest";
-import { useContact } from "@features/contacts/hooks/use-contacts";
+import { useContacts } from "@features/contacts/hooks/use-contacts";
 import { getContactName } from "@features/contacts/types/types";
 import { Invoices } from "@features/invoices/types/types";
-import { InvoiceStatus } from "../../invoice-status";
-import { CompletionTags } from "../components/completion-tags";
-import { TagPaymentCompletion } from "../../tag-payment-completion";
 import { Skeleton } from "@radix-ui/themes";
+import { InvoiceStatus } from "../../invoice-status";
+import { TagPaymentCompletion } from "../../tag-payment-completion";
+import { CompletionTags } from "../components/completion-tags";
+import { buildQueryFromMap } from "@components/search-bar/utils/utils";
 
 export const InvoiceRestDocument = (
   props: Omit<RestDocumentProps<Invoices>, "entity">
@@ -17,7 +18,9 @@ export const InvoiceRestDocument = (
       key={props.value?.[0]}
       {...(props as RestDocumentProps<Invoices>)}
       entity="invoices"
-      render={(invoice) => <RenderInvoiceCard invoice={invoice} size={size} />}
+      render={(_, invoices) => (
+        <RenderInvoiceCard invoices={invoices || []} size={size} />
+      )}
       renderEmpty={
         props.value?.length
           ? () => (
@@ -39,33 +42,47 @@ export const InvoiceRestDocument = (
 };
 
 const RenderInvoiceCard = ({
-  invoice,
+  invoices,
   size,
 }: {
-  invoice: Invoices;
+  invoices: Invoices[];
   size: RestDocumentProps<Invoices>["size"];
 }) => {
+  const invoice = invoices?.[0];
   size = size === "xl" ? "lg" : size;
-  const { contact } = useContact(invoice.client || invoice.supplier || "");
+  const { contacts } = useContacts({
+    query: buildQueryFromMap({
+      id: [
+        ...invoices?.map((a) => a.client),
+        ...invoices?.map((a) => a.supplier),
+      ].filter(Boolean),
+    }),
+  });
   const isQuote =
     invoice.type === "quotes" || invoice.type === "supplier_quotes";
   return (
     <div className="whitespace-normal">
-      <div className="line-clamp-1 text-ellipsis">
-        {[
-          invoice?.reference,
-          contact ? getContactName(contact) : "",
-          invoice?.name,
-        ]
-          .filter(Boolean)
-          .join(", ")}
-      </div>
-      {size === "lg" && (
+      {invoices?.map((invoice) => (
+        <div className="line-clamp-1 text-ellipsis">
+          {[
+            invoice?.reference,
+            getContactName(
+              (contacts?.data?.list || [])?.find(
+                (a) => a.id === invoice.client || a.id === invoice.supplier
+              ) || {}
+            ),
+            invoice?.name,
+          ]
+            .filter(Boolean)
+            .join(", ")}
+        </div>
+      ))}
+      {invoices.length === 1 && size === "lg" && (
         <Info className="line-clamp-1 text-ellipsis -my-px">
           {invoice.content?.map((a) => a.name).join(", ")}
         </Info>
       )}
-      {(size === "lg" || size === "md") && (
+      {invoices.length === 1 && (size === "lg" || size === "md") && (
         <div className="h-6 whitespace-nowrap flex">
           <InvoiceStatus
             type={invoice.type}
