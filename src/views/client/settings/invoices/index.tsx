@@ -44,7 +44,7 @@ export const InvoicesSettingsPage = () => {
 
   return (
     <Page title={[{ label: "Paramètres" }, { label: "L'inventaire" }]}>
-      <div className="w-full max-w-3xl mx-auto mt-6">
+      <div className="w-full max-w-4xl mx-auto mt-6">
         <Heading size="6">Configuration des factures</Heading>
 
         <Tabs.Root defaultValue="format" className="mt-4">

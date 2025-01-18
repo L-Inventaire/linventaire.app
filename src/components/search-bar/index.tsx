@@ -10,6 +10,8 @@ import {
   ArrowDownTrayIcon,
   ChevronUpDownIcon,
   FunnelIcon,
+  MagnifyingGlassCircleIcon,
+  MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
 import { FunnelIcon as FunnelIconSolid } from "@heroicons/react/24/solid";
 import { Fragment, useEffect, useRef, useState } from "react";
@@ -145,7 +147,8 @@ export const SearchBar = ({
     }
   }, [value]);
 
-  const [filtersEnabled, setFiltersEnabled] = useState(false);
+  const [_filtersEnabled, setFiltersEnabled] = useState(false);
+  const filtersEnabled = inlineSuggestions ? true : _filtersEnabled;
 
   const searchBarParent = useRef<HTMLDivElement>(null);
   const [focusIn, setFocusIn] = useState(false);
@@ -204,17 +207,22 @@ export const SearchBar = ({
                     <Button
                       shortcut={["cmd+shift+f"]}
                       data-tooltip={
-                        "Activer les filtres avancés " +
-                        showShortCut(["cmd+shift+f"])
+                        !inlineSuggestions
+                          ? "Activer les filtres avancés "
+                          : "Les filtres ne peuvent pas être désactivés"
                       }
                       className={twMerge(
                         "!absolute !left-1 !top-0 !bottom-0 !m-auto",
-                        filtersEnabled ? "text-blue-500" : "text-gray-500"
+                        filtersEnabled && !inlineSuggestions
+                          ? "text-blue-500"
+                          : "text-gray-500"
                       )}
                       size="sm"
                       theme="invisible"
                       icon={(p) =>
-                        !filtersEnabled ? (
+                        inlineSuggestions ? (
+                          <MagnifyingGlassIcon {...p} />
+                        ) : !filtersEnabled ? (
                           <FunnelIcon {...p} />
                         ) : (
                           <FunnelIconSolid {...p} />

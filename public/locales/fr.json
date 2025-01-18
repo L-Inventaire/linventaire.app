@@ -6,7 +6,7 @@
   },
   "header": {
     "search": {
-      "placeholder": "Rechercher dans l'inventaire",
+      "placeholder": "Aller à...",
       "title": "Résultats de la recherche globale"
     },
     "guides": "Guides",

@@ -4,7 +4,7 @@ import { Input } from "@atoms/input/input-text";
 import { Info } from "@atoms/text";
 import { CtrlKAtom } from "@features/ctrlk/store";
 import { showShortCut } from "@features/utils/shortcuts";
-import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { Squares2X2Icon } from "@heroicons/react/24/outline";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useSetRecoilState } from "recoil";
@@ -18,7 +18,7 @@ export const Search = () => {
     <div className="md:relative z-10 w-full">
       <InputDecorationIcon
         className="w-full relative z-20 whitespace-nowrap"
-        prefix={(p) => <MagnifyingGlassIcon {...p} />}
+        prefix={(p) => <Squares2X2Icon {...p} />}
         suffix={(p) => (
           <Info className={p.className + " mr-1"}>
             {showShortCut(["cmd+K"])}

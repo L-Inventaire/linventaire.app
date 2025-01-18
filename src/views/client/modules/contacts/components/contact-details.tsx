@@ -240,7 +240,7 @@ export const ContactsDetailsPage = ({
                 />
               </div>
             </PageBlock>
-            <PageBlock closable title="Notes et documents">
+            <PageBlock closable title="Notes et documents internes">
               <div className="space-y-2 mt-4">
                 <InputLabel
                   label="Notes"
@@ -317,12 +317,22 @@ export const ContactsDetailsPage = ({
           <div className="grow lg:max-w-xl">
             {id && (contact.is_client || contact.is_supplier) && (
               <PageBlock closable title="Comptabilité">
-                {contact.is_client && (
-                  <ContactAccountingAccount type="client" contactId={id} />
-                )}
-                {contact.is_supplier && (
-                  <ContactAccountingAccount type="supplier" contactId={id} />
-                )}
+                <div className="space-y-2">
+                  {contact.is_client && (
+                    <ContactAccountingAccount
+                      type="client"
+                      contactId={id}
+                      readonly={readonly}
+                    />
+                  )}
+                  {contact.is_supplier && (
+                    <ContactAccountingAccount
+                      type="supplier"
+                      contactId={id}
+                      readonly={readonly}
+                    />
+                  )}
+                </div>
               </PageBlock>
             )}
             <PageBlock closable title="Adresse principale">

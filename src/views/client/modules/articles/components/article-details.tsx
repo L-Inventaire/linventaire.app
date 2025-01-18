@@ -16,6 +16,8 @@ import { Heading } from "@radix-ui/themes";
 import { PageColumns } from "@views/client/_layout/page";
 import { ArticleSuppliersInput } from "./article-suppliers-input";
 import { ArticlesFieldsNames } from "@features/articles/configuration";
+import { useHasAccess } from "@features/access";
+import { AccountingAccountInput } from "@components/accounting-account-input";
 
 export const frequencyOptions = [
   { value: "", label: "Pas de renouvellement", per_label: "en une fois" },
@@ -42,11 +44,13 @@ export const ArticlesDetailsPage = ({
     readonly
   );
 
+  const hasAccess = useHasAccess();
+
   if (isPending || (id && draft.id !== id)) return <PageLoader />;
 
   return (
     <>
-      <div className="grow @lg:w-3/5 max-w-3xl mx-auto">
+      <div className="grow @lg:w-full max-w-4xl mx-auto">
         <FormContext readonly={readonly} alwaysVisible>
           <div className="space-y-8">
             <div className="space-y-4">
@@ -59,7 +63,7 @@ export const ArticlesDetailsPage = ({
               </div>
               <PageColumns>
                 <FormInput
-                  className="lg:w-1/4"
+                  className="lg:w-1/3"
                   ctrl={ctrl("type")}
                   label="Type"
                   size="md"
@@ -80,9 +84,16 @@ export const ArticlesDetailsPage = ({
                   ]}
                 />
                 <FormInput
-                  className="lg:w-1/4"
+                  className="lg:w-1/3"
                   ctrl={ctrl("internal_reference")}
-                  label="Référence"
+                  label="Référence interne"
+                  size="md"
+                  type="scan"
+                />
+                <FormInput
+                  className="lg:w-1/3"
+                  ctrl={ctrl("supplier_reference")}
+                  label="Référence fabricant"
                   size="md"
                   type="scan"
                 />
@@ -158,8 +169,47 @@ export const ArticlesDetailsPage = ({
                 }}
               />
             </div>
+
+            {hasAccess("ACCOUNTING_READ") && (
+              <div>
+                <Heading size="4" className="mb-2">
+                  Comptabilité
+                </Heading>
+                <PageColumns>
+                  <InputLabel
+                    className="w-1/4"
+                    label="Compte d'achat"
+                    input={
+                      <AccountingAccountInput
+                        value={ctrl("accounting.buy").value}
+                        onChange={(value) =>
+                          ctrl("accounting.buy").onChange(value)
+                        }
+                        placeholder="Compte d'achat"
+                        readonly={readonly || !hasAccess("ACCOUNTING_WRITE")}
+                      />
+                    }
+                  />
+                  <InputLabel
+                    className="w-1/4"
+                    label="Compte de vente"
+                    input={
+                      <AccountingAccountInput
+                        value={ctrl("accounting.sell").value}
+                        onChange={(value) =>
+                          ctrl("accounting.sell").onChange(value)
+                        }
+                        placeholder="Compte de vente"
+                        readonly={readonly || !hasAccess("ACCOUNTING_WRITE")}
+                      />
+                    }
+                  />
+                </PageColumns>
+              </div>
+            )}
+
             <div className="space-y-4">
-              <Heading size="4">Notes et documents</Heading>
+              <Heading size="4">Notes et documents internes</Heading>
               <InputLabel
                 label="Notes"
                 input={

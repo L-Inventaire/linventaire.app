@@ -2088,6 +2088,10 @@ body :is(.max-w-xs) {
   max-width: 20rem;
 }
 
+body :is(.max-w-4xl) {
+  max-width: 56rem;
+}
+
 body :is(.flex-1) {
   flex: 1 1 0%;
 }
@@ -4924,6 +4928,10 @@ body :is(.group\/user:hover .group-hover\/user\:opacity-100) {
   body :is(.\@lg\:w-3\/5) {
     width: 60%;
   }
+
+  body :is(.\@lg\:w-full) {
+    width: 100%;
+  }
 }
 
 @media (min-width: 640px) {
@@ -5205,6 +5213,10 @@ body :is(.group\/user:hover .group-hover\/user\:opacity-100) {
 
   body :is(.lg\:w-2\/3) {
     width: 66.666667%;
+  }
+
+  body :is(.lg\:w-1\/3) {
+    width: 33.333333%;
   }
 
   body :is(.lg\:max-w-xl) {

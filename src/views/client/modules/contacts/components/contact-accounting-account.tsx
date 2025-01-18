@@ -1,5 +1,5 @@
-import { Button } from "@atoms/button/button";
 import { SectionSmall } from "@atoms/text";
+import { AccountingAccountInput } from "@components/accounting-account-input";
 import { RestDocumentsInput } from "@components/input-rest";
 import { buildQueryFromMap } from "@components/search-bar/utils/utils";
 import { useAccountingAccounts } from "@features/accounting/hooks/use-accounting-accounts";
@@ -7,6 +7,7 @@ import { useAccountingAccounts } from "@features/accounting/hooks/use-accounting
 export const ContactAccountingAccount = (props: {
   type: "client" | "supplier";
   contactId: string;
+  readonly?: boolean;
 }) => {
   const { accounting_accounts: accounts } = useAccountingAccounts({
     query: buildQueryFromMap({
@@ -15,15 +16,19 @@ export const ContactAccountingAccount = (props: {
     }),
   });
 
+  const label =
+    props.type === "client" ? "Compte client" : "Compte fournisseur";
+
   return (
     <div>
-      <SectionSmall>
-        {props.type === "client" ? "Compte client" : "Compte fournisseur"}
-      </SectionSmall>
+      <SectionSmall>{label}</SectionSmall>
       {accounts.data?.list?.map((account) => (
-        <Button key={account.id} theme="outlined" className="my-1">
-          <b>{account.standard_identifier}</b> <span>{account.name}</span>
-        </Button>
+        <AccountingAccountInput
+          placeholder={label}
+          value={account}
+          onChange={() => {}}
+          readonly={props.readonly}
+        />
       ))}
       {accounts.data?.list?.length === 0 && (
         <RestDocumentsInput

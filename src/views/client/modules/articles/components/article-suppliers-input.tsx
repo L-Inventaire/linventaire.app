@@ -93,7 +93,7 @@ export const ArticleSuppliersInput = ({
                   <SectionSmall>{getContactName(contact)}</SectionSmall>
                   <PageColumns>
                     <FormInput
-                      label="Référence"
+                      label="Lien"
                       type="text"
                       value={value[1][contact.id]?.reference || ""}
                       onChange={(reference: string) => {
@@ -217,7 +217,7 @@ export const ArticleSuppliersInput = ({
                       render: (contact) => <>{getContactName(contact)}</>,
                     },
                     {
-                      title: "Référence",
+                      title: "Url",
                       render: (contact) => (
                         <>{value[1][contact.id]?.reference}</>
                       ),

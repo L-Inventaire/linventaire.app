@@ -28,7 +28,7 @@ export const GroupInvoices = (_props: { readonly?: boolean }) => {
         />
       }
     >
-      <div className="w-full max-w-3xl mx-auto space-y-6 mt-4">
+      <div className="w-full max-w-4xl mx-auto space-y-6 mt-4">
         <div className="space-y-2">
           <Heading size="4">Regrouper des devis</Heading>
           <Text>

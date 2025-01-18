@@ -115,7 +115,7 @@ export const AccountingTransactionsDetailsPage = ({
   if (isPending) return null;
 
   return (
-    <div className="w-full max-w-3xl mx-auto">
+    <div className="w-full max-w-4xl mx-auto">
       <FormContext readonly={readonly} alwaysVisible>
         {!readonly && (
           <Card title="Déclarer une opération">
@@ -216,7 +216,7 @@ export const AccountingTransactionsDetailsPage = ({
         />
 
         <div className="mt-8">
-          <Section className="mb-2">Notes et documents</Section>
+          <Section className="mb-2">Notes et documents internes</Section>
           <div className="space-y-2 mt-2">
             <EditorInput
               key={readonly ? ctrl("notes").value : undefined}

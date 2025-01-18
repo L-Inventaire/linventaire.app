@@ -255,7 +255,7 @@ export const InvoicesDetailsPage = ({
     <>
       <FormContext readonly={readonly} alwaysVisible>
         <PageColumns>
-          <div className="grow @lg:w-3/5 max-w-3xl mx-auto">
+          <div className="grow @lg:w-full max-w-4xl mx-auto">
             {readonly && (
               <>
                 {draft.state === "draft" && (

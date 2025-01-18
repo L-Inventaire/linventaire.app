@@ -68,7 +68,7 @@ export const FieldsPage = () => {
 
   return (
     <Page title={[{ label: "Paramètres" }, { label: "Champs personnalisés" }]}>
-      <div className="w-full max-w-3xl mx-auto mt-6">
+      <div className="w-full max-w-4xl mx-auto mt-6">
         {hasAccess("FIELDS_MANAGE") && (
           <Button
             size="md"

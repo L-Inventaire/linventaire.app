@@ -93,7 +93,7 @@ export const StockItemsDetailsPage = ({
   if (isPending || (id && draft.id !== id) || !client) return <PageLoader />;
 
   return (
-    <div className="w-full max-w-3xl mx-auto">
+    <div className="w-full max-w-4xl mx-auto">
       <FormContext readonly={readonly} alwaysVisible>
         <div className="flex flex-row mt-4 mb-2 items-center space-x-2">
           <SectionSmall className="grow m-0">Élément du stock</SectionSmall>

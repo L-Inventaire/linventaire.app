@@ -103,7 +103,7 @@ export const SigningSessionPage = () => {
         ]}
       >
         <div className="w-full h-full flex flex-col items-center grow">
-          <div className="w-full max-w-3xl flex flex-col justify-between items-center rounded-md grow">
+          <div className="w-full max-w-4xl flex flex-col justify-between items-center rounded-md grow">
             <div className="w-full">
               {/* Logo and title section */}
               <TitleBar

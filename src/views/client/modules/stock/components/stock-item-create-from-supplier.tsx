@@ -35,7 +35,7 @@ export const StockItemsCreateFromSupplier = ({
   }
 
   return (
-    <div className="w-full max-w-3xl mx-auto space-y-6 mt-4">
+    <div className="w-full max-w-4xl mx-auto space-y-6 mt-4">
       <div className="flex flex-row mb-2 items-center space-x-2">
         <Heading size="4">
           Réception à partir du fournisseur {getContactName(supplier!)}

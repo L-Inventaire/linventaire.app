@@ -35,7 +35,7 @@ export const PreferencesPage = () => {
 
   return (
     <Page title={[{ label: "Paramètres" }, { label: "L'inventaire" }]}>
-      <div className="w-full max-w-3xl mx-auto mt-6">
+      <div className="w-full max-w-4xl mx-auto mt-6">
         <Heading size="6">Autres configurations</Heading>
 
         <Tabs.Root defaultValue="other" className="mt-4">
