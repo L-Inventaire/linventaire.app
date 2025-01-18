@@ -1,4 +1,8 @@
 export const RestFieldsNames = () => ({
+  is_deleted: {
+    label: "Est archivé",
+    keywords: "archivé supprimé deleted",
+  },
   assignees: {
     label: "Responsables",
     keywords: "assignees responsables utilisateurs users",

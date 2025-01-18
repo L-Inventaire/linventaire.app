@@ -11,6 +11,7 @@ import {
   ChevronUpDownIcon,
   FunnelIcon,
 } from "@heroicons/react/24/outline";
+import { FunnelIcon as FunnelIconSolid } from "@heroicons/react/24/solid";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
@@ -144,6 +145,8 @@ export const SearchBar = ({
     }
   }, [value]);
 
+  const [filtersEnabled, setFiltersEnabled] = useState(false);
+
   const searchBarParent = useRef<HTMLDivElement>(null);
   const [focusIn, setFocusIn] = useState(false);
   useEffect(() => {
@@ -164,7 +167,7 @@ export const SearchBar = ({
       ref={searchBarParent}
       className={twMerge(
         "grow relative w-full group rounded z-10 transition-all flex-col text-black dark:text-white",
-        !inlineSuggestions && "focus-within:shadow-lg",
+        !inlineSuggestions && filtersEnabled && "focus-within:shadow-lg",
         className
       )}
       style={{ maxHeight: "inherit" }}
@@ -199,11 +202,31 @@ export const SearchBar = ({
                 ? undefined
                 : () => (
                     <Button
-                      data-tooltip="Filtrer"
-                      className={"!absolute !left-1 !top-0 !bottom-0 !m-auto"}
+                      shortcut={["cmd+shift+f"]}
+                      data-tooltip={
+                        "Activer les filtres avancés " +
+                        showShortCut(["cmd+shift+f"])
+                      }
+                      className={twMerge(
+                        "!absolute !left-1 !top-0 !bottom-0 !m-auto",
+                        filtersEnabled ? "text-blue-500" : "text-gray-500"
+                      )}
                       size="sm"
                       theme="invisible"
-                      icon={(p) => <FunnelIcon {...p} />}
+                      icon={(p) =>
+                        !filtersEnabled ? (
+                          <FunnelIcon {...p} />
+                        ) : (
+                          <FunnelIconSolid {...p} />
+                        )
+                      }
+                      onClick={(e) => {
+                        inputRef.current?.focus();
+                        // Keyboard set it to true everytime
+                        setFiltersEnabled(
+                          e?.type === "click" ? !filtersEnabled : true
+                        );
+                      }}
                     />
                   )
             }
@@ -219,7 +242,10 @@ export const SearchBar = ({
                 onBlur={() => cleanValue()}
                 style={{ resize: "none", lineHeight: !value ? "1.9" : "1.8" }}
                 placeholder={
-                  placeholder || "Filtrer " + showShortCut(["cmd+f"])
+                  placeholder ||
+                  (filtersEnabled
+                    ? "Chercher des filtres ou des éléments "
+                    : "Filtrer les éléments ") + showShortCut(["cmd+f"])
                 }
                 inputRef={inputRef}
                 spellCheck={false}
@@ -245,18 +271,18 @@ export const SearchBar = ({
             )}
           />
         </div>
-        {fields.length > 0 &&
-          document.location.host.indexOf("localhost") > -1 && (
-            <Button
-              className="shrink-0 hidden md:flex"
-              size="sm"
-              theme="invisible"
-              icon={(p) => <ChevronUpDownIcon {...p} />}
-            >
-              Affichage
-            </Button>
-          )}
+        {fields.length > 0 && (
+          <Button
+            className="shrink-0 hidden md:flex"
+            size="sm"
+            theme="invisible"
+            icon={(p) => <ChevronUpDownIcon {...p} />}
+          >
+            Affichage
+          </Button>
+        )}
         {showExport !== false &&
+          false &&
           document.location.host.indexOf("localhost") > -1 && (
             <Button
               className="shrink-0 hidden md:flex"
@@ -269,34 +295,36 @@ export const SearchBar = ({
           )}
         {suffix}
       </div>
-      {suggestions.length > 0 && (focusIn || inlineSuggestions) && (
-        <div
-          className={twMerge(
-            "hidden hover:block text-base z-10 top-full h-max flex items-center bg-white dark:bg-slate-990 dark:border-slate-700 border-t rounded rounded-t-none px-2 py-1",
-            inlineSuggestions
-              ? "grow relative block overflow-visible shrink-0 w-full right-0"
-              : "group-focus-within:block absolute shadow-lg left-8 right-8"
-          )}
-        >
-          <DefaultScrollbars
-            className="block shrink-0 h-max"
-            autoHeight
-            autoHeightMax={"50vh"}
+      {suggestions.length > 0 &&
+        (focusIn || inlineSuggestions) &&
+        filtersEnabled && (
+          <div
+            className={twMerge(
+              "hidden hover:block text-base z-10 top-full h-max flex items-center bg-white dark:bg-slate-990 dark:border-slate-700 border-t rounded rounded-t-none px-2 py-1",
+              inlineSuggestions
+                ? "grow relative block overflow-visible shrink-0 w-full right-0"
+                : "group-focus-within:block absolute shadow-lg left-8 right-8"
+            )}
           >
-            <SearchBarSuggestions
-              suggestions={suggestions}
-              selected={selectionIndex}
-              afterOnClick={afterApplySelection}
-              caret={caret}
-              searching={searching}
-              schema={schema}
-              loadingSuggestionsValues={loadingSuggestionsValues}
-              setValue={setValue}
-            />
-            {afterSuggestions}
-          </DefaultScrollbars>
-        </div>
-      )}
+            <DefaultScrollbars
+              className="block shrink-0 h-max"
+              autoHeight
+              autoHeightMax={"50vh"}
+            >
+              <SearchBarSuggestions
+                suggestions={suggestions}
+                selected={selectionIndex}
+                afterOnClick={afterApplySelection}
+                caret={caret}
+                searching={searching}
+                schema={schema}
+                loadingSuggestionsValues={loadingSuggestionsValues}
+                setValue={setValue}
+              />
+              {afterSuggestions}
+            </DefaultScrollbars>
+          </div>
+        )}
     </div>
   );
 };

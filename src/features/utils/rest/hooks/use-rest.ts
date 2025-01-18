@@ -29,6 +29,7 @@ export type RestOptions<T> = {
   asc?: boolean;
   index?: string;
   key?: string;
+  deleted?: boolean;
   ignoreEmptyFilters?: boolean;
   queryFn?: () => Promise<{ total: number; list: T[] }>;
 };
@@ -109,6 +110,15 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
     options.query = undefined;
   }
 
+  if (
+    options?.query &&
+    _.isArray(options?.query) &&
+    options?.query?.find((a) => a.key === "is_deleted")?.values[0].value ===
+      true
+  ) {
+    options.deleted = true;
+  }
+
   const queryKey = [
     table,
     id || "client",
@@ -131,6 +141,7 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
           (options?.ignoreEmptyFilters !== false &&
             isArray(options?.query) &&
             (options?.query as any[])?.find((a) => a.values.length === 0));
+
         const temp = invalidRequest
           ? { total: 0, list: [] }
           : options?.id !== undefined
@@ -144,6 +155,7 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
               _.omit(options, "query")
             );
         setIsPendingModification(false);
+
         return temp;
       }),
     placeholderData: (prev) => prev,

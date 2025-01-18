@@ -223,7 +223,7 @@ export const InvoicesDetailsPage = ({
             readonly={readonly}
           />
         ),
-        visible: !isSupplierRelated,
+        visible: false && !isSupplierRelated,
         with_content: draft.reminders?.enabled,
       },
     ].filter((a) => a.visible && (a.with_content || !readonly)),
