@@ -3,52 +3,42 @@ import { FormInput } from "@components/form/fields";
 import { FormControllerType } from "@components/form/formcontext";
 import { InputButton } from "@components/input-button";
 import { InvoiceFormatInput } from "@components/invoice-format-input";
-import { Clients } from "@features/clients/types/clients";
+import { Contacts } from "@features/contacts/types/types";
 import { InvoiceFormat } from "@features/invoices/types/types";
 import { languageOptions } from "@features/utils/constants";
 import { LanguageIcon } from "@heroicons/react/20/solid";
 import { ModalHr } from "@views/client/_layout/page";
-import _ from "lodash";
 import { twMerge } from "tailwind-merge";
 
 export const InvoiceInputFormat = ({
   ctrl,
   ctrlLang,
-  ctrlAttachments,
   language,
   readonly,
-  client,
   btnKey,
-  default_,
+  client,
+  contact,
 }: {
   ctrl: FormControllerType<InvoiceFormat>;
   ctrlLang?: FormControllerType<string>;
-  ctrlAttachments?: FormControllerType<string[]>;
   language?: string;
   readonly?: boolean;
-  client?: Clients;
+  client?: Contacts;
+  contact?: Contacts;
   btnKey?: string;
-  default_?: "client" | "contact";
 }) => {
-  const hasContent = _.isEqual(
-    _.omitBy(ctrl?.value, (a) => !a),
-    _.omitBy(client?.invoices, (a) => !a)
-  )
-    ? undefined
-    : true;
-
   return (
     <InputButton
       readonly={readonly}
       btnKey={btnKey}
-      className={twMerge(hasContent && "w-full justify-start", "flex")}
+      className={twMerge("w-full justify-start", "flex")}
       data-tooltip="Format et langue par défaut"
       label={
         (languageOptions.find((a) => a.value === language)?.label ||
           "English") + " et format par défaut"
       }
       icon={(p) => <LanguageIcon {...p} />}
-      value={hasContent}
+      value={true}
       content={() => (
         <>
           {ctrlLang && (
@@ -64,9 +54,8 @@ export const InvoiceInputFormat = ({
           <InvoiceFormatInput
             readonly={readonly}
             ctrl={ctrl}
-            ctrlAttachments={ctrlAttachments}
-            hideLinkedDocuments
-            default={default_}
+            client={client}
+            contact={contact}
           />
         </>
       )}

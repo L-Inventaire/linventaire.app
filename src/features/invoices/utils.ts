@@ -173,9 +173,7 @@ export const getInvoiceWithOverrides = (
     ...overrides.map((override) => override.payment)
   );
   const format = mergeObjects(
-    invoice.format
-      ? { ...invoice.format, attachments: undefined as any }
-      : ({} as InvoiceFormat & { attachments?: string[] }),
+    invoice.format || ({} as InvoiceFormat),
     ...overrides.map((override) => override.invoices)
   );
 
@@ -187,7 +185,7 @@ export const getInvoiceWithOverrides = (
 };
 
 // Complete object 1 null and undefined values with object 2 values
-const mergeObjects = <T extends {}>(...overrides: T[]): T => {
+export const mergeObjects = <T extends {}>(...overrides: T[]): T => {
   if (overrides.length === 1) return overrides[0] as T;
 
   // Merge the last two ones right into left one

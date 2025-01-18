@@ -14,7 +14,7 @@ import { Heading, Tabs } from "@radix-ui/themes";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Page } from "../../_layout/page";
-import { RecurrenceModalContent } from "@views/client/modules/invoices/components/input-recurrence";
+import { RecurrenceInput } from "@components/recurring-input";
 
 export const InvoicesSettingsPage = () => {
   const { t } = useTranslation();
@@ -62,6 +62,7 @@ export const InvoicesSettingsPage = () => {
             <Info>Informations par défaut pour les paiements</Info>
             <div className="mt-4 space-y-4">
               <PaymentInput
+                baseConfiguration
                 readonly={readonly}
                 ctrl={{
                   value: payment,
@@ -91,9 +92,9 @@ export const InvoicesSettingsPage = () => {
             <Section>Récurrences</Section>
             <Info>Paramètres par défaut pour les récurrences</Info>
             <div className="mt-4 space-y-4">
-              <RecurrenceModalContent
-                commonParameters
-                ctrl={() => ({ onChange: setRecurring, value: recurring })}
+              <RecurrenceInput
+                baseConfiguration
+                ctrl={{ onChange: setRecurring, value: recurring }}
               />
               {!readonly && (
                 <Button
@@ -120,15 +121,11 @@ export const InvoicesSettingsPage = () => {
             <Info>Informations par défaut à afficher sur les factures</Info>
             <div className="mt-4 space-y-4">
               <InvoiceFormatInput
+                baseConfiguration
                 readonly={readonly}
                 ctrl={{
                   value: invoices as Invoices,
                   onChange: setInvoices,
-                }}
-                ctrlAttachments={{
-                  value: invoices?.attachments || [],
-                  onChange: (attachments) =>
-                    setInvoices({ ...invoices, attachments }),
                 }}
               />
 

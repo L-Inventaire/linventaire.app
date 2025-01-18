@@ -1,128 +1,38 @@
 import { Modal, ModalContent } from "@atoms/modal/modal";
 import { Base, Info } from "@atoms/text";
-import { FormInput } from "@components/form/fields";
 import {
   FormControllerFuncType,
   useFormController,
 } from "@components/form/formcontext";
 import { InputButton } from "@components/input-button";
+import { optionsDelays, RecurrenceInput } from "@components/recurring-input";
+import { Contacts } from "@features/contacts/types/types";
 import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
+import { applyOffset } from "@features/invoices/utils";
 import { ArrowPathIcon } from "@heroicons/react/20/solid";
-import { Blockquote, Button, Heading } from "@radix-ui/themes";
-import { ModalHr, PageColumns } from "@views/client/_layout/page";
+import { Button } from "@radix-ui/themes";
 import { format } from "date-fns";
 import _ from "lodash";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { atom, useRecoilState } from "recoil";
 import { frequencyOptions } from "../../articles/components/article-details";
-import { applyOffset } from "@features/invoices/utils";
-
-const optionsDelays = [
-  {
-    value: "1y",
-    label: "1 an",
-  },
-  {
-    value: "2y",
-    label: "2 ans",
-  },
-  {
-    value: "3y",
-    label: "3 ans",
-  },
-];
-
-const optionsStartDates = [
-  {
-    value: "after_first_invoice",
-    label: "Après la première facture",
-  },
-  {
-    value: "acceptance_start",
-    label: "Lorsque le devis est accepté",
-  },
-  {
-    value: "date",
-    label: "Date spécifique",
-  },
-];
-
-const optionsEndDates = [
-  {
-    value: "none",
-    label: "Ne pas définir de fin",
-  },
-  {
-    value: "delay",
-    label: "Délai",
-  },
-  {
-    value: "date",
-    label: "Date spécifique",
-  },
-];
-
-const optionsInvoiceState = [
-  {
-    value: "draft",
-    label: "Brouillon",
-  },
-  {
-    value: "sent",
-    label: "Envoyé",
-  },
-];
-
-const optionsInvoiceDate = [
-  {
-    value: "first_day",
-    label: "Premier jour de la période",
-  },
-  {
-    value: "first_workday",
-    label: "Premier jour ouvré de la période",
-  },
-  {
-    value: "monday",
-    label: "Premier lundi de la période",
-  },
-  {
-    value: "last_day",
-    label: "Dernier jour de la période",
-  },
-  {
-    value: "last_workday",
-    label: "Dernier jour ouvré de la période",
-  },
-];
-
-const optionsRenewAs = [
-  {
-    value: "draft",
-    label: "Dupliquer le devis en brouillon",
-  },
-  {
-    value: "sent",
-    label: "Dupliquer le devis et l'envoyer au client",
-  },
-  {
-    value: "closed",
-    label: "Clôturer",
-  },
-];
 
 export const InvoiceRecurrenceInput = ({
   ctrl,
   invoice,
   readonly,
   btnKey,
+  client,
+  contact,
 }: {
-  ctrl: FormControllerFuncType<Invoices>;
+  ctrl: FormControllerFuncType<Pick<Invoices, "subscription">>;
   invoice: Invoices;
   readonly?: boolean;
   btnKey?: string;
+  client?: Contacts;
+  contact?: Contacts;
 }) => {
   const hasSubscription = !!invoice.content?.find((a) => a.subscription);
   const subscriptions = _.uniq(
@@ -234,7 +144,14 @@ export const InvoiceRecurrenceInput = ({
       placeholder="Récurrence"
       icon={(p) => <ArrowPathIcon {...p} />}
       readonly={readonly}
-      content={() => <RecurrenceModalContent ctrl={ctrl} invoice={invoice} />}
+      content={() => (
+        <RecurrenceInput
+          ctrl={ctrl("subscription")}
+          invoice={invoice}
+          client={client || undefined}
+          contact={contact || undefined}
+        />
+      )}
       value={"true"}
     >
       <div className="space-y-0 w-max flex flex-col text-left">
@@ -328,9 +245,13 @@ export const RecurrenceModal = () => {
 const RecurrenceModalPreContent = ({
   quoteId,
   onClose,
+  client,
+  contact,
 }: {
   quoteId: string;
   onClose: () => void;
+  client?: Contacts;
+  contact?: Contacts;
 }) => {
   const [loading, setLoading] = useState(false);
   const [val, setVal] = useState<{ subscription: Invoices["subscription"] }>({
@@ -350,7 +271,13 @@ const RecurrenceModalPreContent = ({
   return (
     <>
       <div className={loading ? "opacity-50 pointer-events-none" : ""}>
-        <RecurrenceModalContent invoice={draft} ctrl={ctrl} onlyEnding />
+        <RecurrenceInput
+          invoice={draft}
+          ctrl={ctrl("subscription")}
+          onlyEnding
+          client={client || undefined}
+          contact={contact || undefined}
+        />
       </div>
       <div className="flex space-between mt-4">
         <Button loading={loading} variant="outline" onClick={() => onClose()}>
@@ -377,136 +304,6 @@ const RecurrenceModalPreContent = ({
         >
           Modifier
         </Button>
-      </div>
-    </>
-  );
-};
-
-export const RecurrenceModalContent = ({
-  ctrl,
-  invoice,
-  onlyEnding,
-  commonParameters,
-}: {
-  ctrl: FormControllerFuncType<Pick<Invoices, "subscription">>;
-  invoice?: Invoices;
-  onlyEnding?: boolean;
-  commonParameters?: boolean;
-}) => {
-  const subscriptions = _.uniq(
-    invoice?.content?.map((a) => a.subscription)
-  ).filter(Boolean) as string[];
-  return (
-    <>
-      {!commonParameters && (
-        <>
-          <br />
-          {subscriptions.length > 1 && (
-            <Blockquote className="mb-4">
-              Vous avez plusieurs articles avec des fréquences différentes, la
-              facture sera dupliquée pour chaque groupes d'articles partageant
-              la même fréquence à partir de la prochaine facture.
-            </Blockquote>
-          )}
-        </>
-      )}
-      <>
-        <div className="space-y-4">
-          {!onlyEnding && (
-            <>
-              <PageColumns>
-                <FormInput
-                  type="select"
-                  label="Début de la récurrence"
-                  options={optionsStartDates}
-                  ctrl={ctrl("subscription.start_type")}
-                />
-                {!commonParameters &&
-                  ctrl("subscription.start_type")?.value === "date" && (
-                    <FormInput
-                      type="date"
-                      label="Date (incluse)"
-                      ctrl={ctrl("subscription.start")}
-                    />
-                  )}
-              </PageColumns>
-              <FormInput
-                type="select"
-                label="Facturer le"
-                ctrl={ctrl("subscription.invoice_date")}
-                options={optionsInvoiceDate}
-              />
-            </>
-          )}
-          <FormInput
-            type="select"
-            label="État des facture créées"
-            ctrl={ctrl("subscription.invoice_state")}
-            options={optionsInvoiceState}
-          />
-        </div>
-        <ModalHr />
-      </>
-      <div className="space-y-4">
-        <PageColumns>
-          <FormInput
-            type="select"
-            label="Fin de la facturation"
-            options={optionsEndDates}
-            ctrl={ctrl("subscription.end_type")}
-          />
-          {ctrl("subscription.end_type")?.value === "delay" && (
-            <FormInput
-              type="select"
-              label="Délai"
-              ctrl={ctrl("subscription.end_delay")}
-              options={optionsDelays}
-            />
-          )}
-          {!commonParameters &&
-            ctrl("subscription.end_type")?.value === "date" && (
-              <FormInput
-                type="date"
-                label="Date (incluse)"
-                ctrl={ctrl("subscription.end")}
-              />
-            )}
-        </PageColumns>
-
-        <div className="space-y-2">
-          <Heading size="2" className="pb-0">
-            Action en fin de récurrence
-          </Heading>
-          <FormInput
-            type="select"
-            ctrl={ctrl("subscription.renew_as")}
-            options={optionsRenewAs}
-          />
-          {ctrl("subscription.renew_as").value === "draft" && (
-            <>
-              <Heading size="2" className="pb-0">
-                Créer le brouillon en avance
-              </Heading>
-              <FormInput
-                type="select"
-                value={`${ctrl("subscription.renew_in_advance").value}`}
-                onChange={(v) =>
-                  ctrl("subscription.renew_in_advance").onChange(parseInt(v))
-                }
-                options={[
-                  { value: "0", label: "Le jour même" },
-                  { value: "30", label: "1 mois avant" },
-                  { value: "60", label: "2 mois avant" },
-                ]}
-              />
-            </>
-          )}
-          <Info className="block">
-            Une fois la période de facturation terminée, le devis peut être
-            automatiquement dupliqué en brouillon, ou en devis envoyé au client,
-            ou bien définitivement clôturé.
-          </Info>
-        </div>
       </div>
     </>
   );

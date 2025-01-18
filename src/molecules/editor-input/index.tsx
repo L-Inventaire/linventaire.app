@@ -14,8 +14,6 @@ import { getFullName } from "@features/auth/utils";
 import { useClientUsers } from "@features/clients/state/use-client-users";
 import { useClients } from "@features/clients/state/use-clients";
 import { PublicCustomer } from "@features/customers/types/customers";
-import { XMarkIcon } from "@heroicons/react/16/solid";
-import _ from "lodash";
 import "quill-mention/autoregister";
 
 ReactQuill.Quill.register({
@@ -28,8 +26,6 @@ type EditorInputProps = {
   placeholder?: string;
   value?: string;
   onChange?: (e: string) => void;
-  reset?: boolean;
-  onReset?: () => void;
   resetProps?: ResetProps;
   className?: string;
 };
@@ -144,23 +140,6 @@ export const EditorInput = (props: EditorInputProps) => {
         onChange={onEditorChange}
         modules={modules}
       />
-      {props.reset && (
-        <XMarkIcon
-          onClick={props.onReset}
-          className={twMerge(
-            "w-4 h-6 bg-white dark:bg-slate-800 text-xs text-slate-400 cursor-pointer absolute right-2 top-1/2 -translate-y-1/2",
-            props.resetProps?.className
-          )}
-          {..._.omit(
-            props.resetProps,
-            "onClick",
-            "className",
-            "onReset",
-            "onClick",
-            "onCopy"
-          )}
-        />
-      )}
     </div>
   );
 };

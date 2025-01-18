@@ -1026,6 +1026,14 @@ body :is(.\!top-0) {
   top: 0px !important;
 }
 
+body :is(.-bottom-0) {
+  bottom: -0px;
+}
+
+body :is(.-bottom-0\.5) {
+  bottom: -0.125rem;
+}
+
 body :is(.-bottom-1) {
   bottom: -0.25rem;
 }

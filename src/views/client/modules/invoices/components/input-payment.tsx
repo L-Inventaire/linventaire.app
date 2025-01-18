@@ -10,18 +10,28 @@ import { formatIBAN } from "@features/utils/format/strings";
 import { BanknotesIcon } from "@heroicons/react/20/solid";
 import { PageBlockHr } from "@views/client/_layout/page";
 import { computePaymentDelayDate, isPaymentLate } from "../utils";
+import { Contacts } from "@features/contacts/types/types";
 
 export const InvoicePaymentInput = ({
   ctrl,
   invoice,
   readonly,
   btnKey,
+  client,
+  contact,
 }: {
-  ctrl: FormControllerFuncType<Invoices>;
-  invoice: Invoices;
+  ctrl: FormControllerFuncType<
+    Pick<Invoices, "payment_information" | "currency">
+  >;
+  invoice?: Invoices;
   readonly?: boolean;
   btnKey?: string;
+  client?: Contacts;
+  contact?: Contacts;
 }) => {
+  const paymentInfo = (ctrl("payment_information") || {}) as Partial<
+    Invoices["payment_information"]
+  >;
   return (
     <InputButton
       btnKey={btnKey}
@@ -42,34 +52,35 @@ export const InvoicePaymentInput = ({
             <PaymentInput
               readonly={readonly}
               ctrl={ctrl("payment_information")}
+              client={client || undefined}
+              contact={contact || undefined}
             />
           </div>
         </>
       )}
-      value={invoice.payment_information.mode?.length || undefined}
+      value={paymentInfo.mode?.length || undefined}
     >
       <div className="text-left flex flex-col space-y-0 w-max">
         <Base>
           Paiement par{" "}
-          {(invoice.payment_information.mode || [])
+          {(paymentInfo.mode || [])
             .map((a) => paymentOptions.find((b) => b.value === a)?.label || a)
-            .join(", ")}{" "}
-          en {invoice.currency}
+            .join(", ")}
         </Base>
         <Info>
-          {formatIBAN(invoice.payment_information?.bank_iban)} (
-          {invoice.payment_information?.bank_bic}{" "}
-          {invoice.payment_information?.bank_name})
+          {formatIBAN(paymentInfo?.bank_iban || "")} ({paymentInfo?.bank_bic}{" "}
+          {paymentInfo?.bank_name})
         </Info>
         <Info>
-          Paiement sous {invoice.payment_information?.delay} jours{" "}
+          Paiement sous {paymentInfo?.delay} jours{" "}
           {["month_end_delay_first", "month_end_delay_last"].includes(
-            invoice.payment_information?.delay_type
+            paymentInfo?.delay_type || ""
           ) && "fin de mois"}
-          , pénalité {invoice.payment_information?.late_penalty}.
+          , pénalité {paymentInfo?.late_penalty}.
         </Info>
 
-        {invoice.type === "invoices" &&
+        {invoice &&
+          invoice.type === "invoices" &&
           invoice.wait_for_completion_since &&
           invoice.state === "purchase_order" && (
             <>

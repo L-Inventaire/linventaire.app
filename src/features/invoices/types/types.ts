@@ -174,6 +174,8 @@ export type InvoiceFormat = {
   logo: string;
   footer_logo: string;
   template: string;
+
+  attachments: string[];
 };
 
 export type PartialInvoiceOutType = {

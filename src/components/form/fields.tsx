@@ -54,8 +54,6 @@ export const FormInput = memo(
         | Date
         | string[]
         | { label: string; value: string };
-      reset?: boolean;
-      resetProps?: ResetProps;
       onReset?: () => void;
       onChange?: (value: any, object?: any) => void;
       onSearch?: () => void;
@@ -190,9 +188,7 @@ export const FormInput = memo(
     return (
       <InputLabel
         className={twMerge("w-full", props.className || "")}
-        reset={props.reset}
         onReset={props.onReset}
-        resetProps={props.resetProps}
         label={props.label}
         input={
           <>

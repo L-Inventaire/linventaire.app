@@ -4,33 +4,76 @@ import {
   FormControllerType,
   useFormController,
 } from "@components/form/formcontext";
+import { useClients } from "@features/clients/state/use-clients";
 import { Payment } from "@features/clients/types/clients";
+import { Contacts } from "@features/contacts/types/types";
+import { Invoices } from "@features/invoices/types/types";
+import {
+  getInvoiceWithOverrides,
+  mergeObjects,
+} from "@features/invoices/utils";
 import { paymentDelayOptions, paymentOptions } from "@features/utils/constants";
 import { PageBlockHr, PageColumns } from "@views/client/_layout/page";
+import _ from "lodash";
 import { useContext, useEffect, useState } from "react";
 
 export const PaymentInput = (props: {
-  ctrl: FormControllerType<any>;
+  ctrl: FormControllerType<Partial<Invoices["payment_information"]>>;
+  client?: Contacts;
+  contact?: Contacts;
   readonly?: boolean;
+  baseConfiguration?: boolean;
 }) => {
+  const { client: me } = useClients();
+
+  const defaultConfig = getInvoiceWithOverrides(
+    {} as Invoices,
+    ...([props.client, props.contact, me?.client].filter(
+      (a) => a !== undefined && !!a
+    ) as any[])
+  );
+
+  const getReset = (
+    key: keyof Invoices["payment_information"] | `${string}.${string}`
+  ) => {
+    const defaultVal = _.get(defaultConfig, "payment_information." + key);
+    if (_.isEqual(ctrl(key)?.value, defaultVal) || props.baseConfiguration)
+      return undefined;
+    return () => ctrl(key).onChange(defaultVal);
+  };
+
   const { readonly: contextReadonly } = useContext(FormContextContext);
   const readonly =
     props.readonly === undefined ? contextReadonly : props.readonly;
 
-  const [form, setForm] = useState<Partial<Payment>>(props.ctrl.value || {});
+  const values = mergeObjects(
+    props.ctrl.value || {},
+    defaultConfig.payment_information
+  );
+
+  const [form, setForm] = useState<Partial<Payment>>(values || {});
   const { ctrl } = useFormController<Partial<Payment>>(form, setForm);
 
   useEffect(() => {
-    props.ctrl.onChange(form);
+    const formWithNull = _.omitBy(form, (v, k) =>
+      _.isEqual(
+        v,
+        defaultConfig.payment_information[
+          k as keyof Invoices["payment_information"]
+        ]
+      )
+    );
+    props.ctrl.onChange(formWithNull as Invoices["payment_information"]);
   }, [JSON.stringify(form)]);
 
   useEffect(() => {
-    setForm(props.ctrl.value || {});
-  }, [JSON.stringify(props.ctrl.value)]);
+    setForm(values || {});
+  }, [JSON.stringify(values)]);
 
   return (
     <div className="space-y-2">
       <FormInput
+        onReset={getReset("mode")}
         readonly={readonly}
         label="Moyens de paiement"
         ctrl={ctrl("mode")}
@@ -43,12 +86,14 @@ export const PaymentInput = (props: {
           <div className="space-y-2">
             <PageColumns>
               <FormInput
+                onReset={getReset("bank_name")}
                 readonly={readonly}
                 label="Banque"
                 ctrl={ctrl("bank_name")}
                 placeholder="Nom de la banque"
               />
               <FormInput
+                onReset={getReset("bank_bic")}
                 label="BIC"
                 readonly={readonly}
                 ctrl={ctrl("bank_bic")}
@@ -58,6 +103,7 @@ export const PaymentInput = (props: {
               />
             </PageColumns>
             <FormInput
+              onReset={getReset("bank_iban")}
               label="IBAN"
               readonly={readonly}
               ctrl={ctrl("bank_iban")}
@@ -72,6 +118,7 @@ export const PaymentInput = (props: {
       <PageBlockHr />
 
       <FormInput
+        onReset={getReset("delay")}
         className="w-max"
         readonly={readonly}
         label="Délai de paiement (jours)"
@@ -80,6 +127,7 @@ export const PaymentInput = (props: {
       />
 
       <FormInput
+        onReset={getReset("delay_type")}
         className="w-max"
         readonly={readonly}
         label="Type de délai"
@@ -89,6 +137,7 @@ export const PaymentInput = (props: {
       />
 
       <FormInput
+        onReset={getReset("late_penalty")}
         label="Pénalité de retard"
         readonly={readonly}
         ctrl={ctrl("late_penalty")}
