@@ -73,6 +73,7 @@ export const InvoiceLineArticleInput = (props: {
                       ...value,
                       article: id as string,
                       type: article.type,
+                      reference: article.internal_reference,
                       unit_price: article.price,
                       unit: article.unit,
                       tva: article.tva,
