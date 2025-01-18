@@ -1,6 +1,4 @@
 import { Info, SectionSmall } from "@atoms/text";
-import { AccountingAccountInput } from "@components/accounting-account-input";
-import { RestDocumentsInput } from "@components/input-rest";
 import { pgcLabel } from "@components/pcg-input";
 import { buildQueryFromMap } from "@components/search-bar/utils/utils";
 import { useHasAccess } from "@features/access";

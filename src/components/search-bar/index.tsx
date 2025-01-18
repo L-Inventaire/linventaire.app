@@ -10,7 +10,6 @@ import {
   ArrowDownTrayIcon,
   ChevronUpDownIcon,
   FunnelIcon,
-  MagnifyingGlassCircleIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
 import { FunnelIcon as FunnelIconSolid } from "@heroicons/react/24/solid";
@@ -23,7 +22,6 @@ import { buildFilter } from "./utils/filter";
 import { OutputQuery, SearchField } from "./utils/types";
 import { getFromUrl, setToUrl } from "./utils/url";
 import { extractFilters, generateQuery } from "./utils/utils";
-import _ from "lodash";
 
 export const SearchBar = ({
   schema,
