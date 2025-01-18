@@ -6,11 +6,12 @@ import { formatTime } from "@features/utils/format/dates";
 import { formatAmount } from "@features/utils/format/strings";
 import { EditorInput } from "@molecules/editor-input";
 import { Column } from "@molecules/table/table";
+import { AccountingAccountDetailsPage } from "@views/client/modules/accounting/components/accounting-account-details";
 import { AccountingTransactionsDetailsPage } from "@views/client/modules/accounting/components/accounting-transactions-details";
 import { InvoiceRestDocument } from "@views/client/modules/invoices/components/invoice-lines-input/invoice-input-rest-card";
 import { twMerge } from "tailwind-merge";
-import { AccountingAccounts, AccountingTransactions } from "./types/types";
 import { useAccountingAccounts } from "./hooks/use-accounting-accounts";
+import { AccountingAccounts, AccountingTransactions } from "./types/types";
 
 export const useAccountingTransactionDefaultModel: () => Partial<AccountingTransactions> =
   () => ({});
@@ -113,7 +114,7 @@ registerCtrlKRestEntity<AccountingTransactions>("accounting_transactions", {
   ),
   renderResult: AccountingTransactionsColumns(),
   useDefaultData: useAccountingTransactionDefaultModel,
-  viewRoute: ROUTES.StockView,
+  viewRoute: ROUTES.AccountingView,
 });
 
 export const useAccountingAccountDefaultModel: () => Partial<AccountingAccounts> =
@@ -142,6 +143,9 @@ export const AccountingAccountsColumns: Column<AccountingAccounts>[] = [
 ];
 
 registerCtrlKRestEntity<AccountingAccounts>("accounting_accounts", {
+  renderEditor: (props) => (
+    <AccountingAccountDetailsPage readonly={false} id={props.id} />
+  ),
   renderResult: AccountingAccountsColumns,
   useDefaultData: useAccountingAccountDefaultModel,
 });

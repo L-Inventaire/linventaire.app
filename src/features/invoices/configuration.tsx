@@ -35,8 +35,8 @@ export const useInvoiceDefaultModel: () => Partial<Invoices> = () => {
     state: "draft",
     language: client!.preferences?.language || "fr",
     currency: client!.preferences?.currency || "EUR",
-    format: client!.invoices,
-    payment_information: client!.payment,
+    format: {} as any,
+    payment_information: {} as any,
   };
 };
 
