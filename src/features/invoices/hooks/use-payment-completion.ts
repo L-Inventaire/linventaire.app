@@ -17,7 +17,7 @@ const renderPaymentCompletion = (
 export const usePaymentCompletion = (invoice: Invoices) => {
   const paymentCompletion = renderPaymentCompletion(
     invoice,
-    invoice.transactions.total
+    invoice?.transactions?.total || 0
   );
   return { value: paymentCompletion[0], color: paymentCompletion[1] };
 };
