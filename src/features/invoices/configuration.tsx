@@ -37,6 +37,7 @@ export const useInvoiceDefaultModel: () => Partial<Invoices> = () => {
     currency: client!.preferences?.currency || "EUR",
     format: {} as any,
     payment_information: client!.payment,
+    subscription: client!.recurring,
   };
 };
 
