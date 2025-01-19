@@ -19,6 +19,7 @@ export const InvoicePaymentInput = ({
   btnKey,
   client,
   contact,
+  noResetToDefault,
 }: {
   ctrl: FormControllerFuncType<
     Pick<Invoices, "payment_information" | "currency">
@@ -28,6 +29,7 @@ export const InvoicePaymentInput = ({
   btnKey?: string;
   client?: Contacts;
   contact?: Contacts;
+  noResetToDefault?: boolean;
 }) => {
   const paymentInfo = (ctrl("payment_information") || {}) as Partial<
     Invoices["payment_information"]
@@ -52,8 +54,9 @@ export const InvoicePaymentInput = ({
             <PaymentInput
               readonly={readonly}
               ctrl={ctrl("payment_information")}
-              client={client || undefined}
-              contact={contact || undefined}
+              client={client}
+              contact={contact}
+              baseConfiguration={noResetToDefault}
             />
           </div>
         </>
