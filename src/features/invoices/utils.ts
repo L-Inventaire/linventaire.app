@@ -178,6 +178,7 @@ export const getInvoiceWithOverrides = (
   );
 
   return {
+    ...invoice,
     subscription,
     payment_information,
     format,
