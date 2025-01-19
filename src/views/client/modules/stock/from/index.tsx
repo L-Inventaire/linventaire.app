@@ -31,10 +31,11 @@ export const StockItemsFromPage = (_props: { readonly?: boolean }) => {
         />
       }
     >
-      <div className="w-full max-w-3xl mx-auto space-y-6 mt-4">
+      <div className="w-full max-w-4xl mx-auto space-y-6 mt-4">
         <div className={loading ? "opacity-50 pointer-events-none" : ""}>
           {from === "order" && (
             <StockItemsCreateFromOrder
+              loading={loading}
               order={id!}
               onBack={() => navigate(getRoute(ROUTES.StockEdit, { id: "new" }))}
               onChange={setStockItems}
@@ -42,6 +43,7 @@ export const StockItemsFromPage = (_props: { readonly?: boolean }) => {
           )}
           {from === "supplier" && (
             <StockItemsCreateFromSupplier
+              loading={loading}
               supplier={id!}
               onBack={() => navigate(getRoute(ROUTES.StockEdit, { id: "new" }))}
               onChange={setStockItems}

@@ -1,5 +1,7 @@
 import _ from "lodash";
-import { Invoices } from "./types/types";
+import { InvoiceFormat, Invoices, InvoiceSubscription } from "./types/types";
+import { Clients } from "@features/clients/types/clients";
+import { Contacts } from "@features/contacts/types/types";
 
 export const getDocumentName = (type: Invoices["type"]) => {
   return (
@@ -156,4 +158,49 @@ export const applyOffset = (
     default:
       throw new Error(`Unknown frequency ${frequencyAndCount}`);
   }
+};
+
+export const getInvoiceWithOverrides = (
+  invoice: Invoices,
+  ...overrides: (Clients | Contacts)[]
+) => {
+  const subscription = mergeObjects(
+    invoice.subscription || ({} as InvoiceSubscription),
+    ...overrides.map((override) => override.recurring)
+  );
+  const payment_information = mergeObjects(
+    invoice.payment_information,
+    ...overrides.map((override) => override.payment)
+  );
+  const format = mergeObjects(
+    invoice.format || ({} as InvoiceFormat),
+    ...overrides.map((override) => override.invoices)
+  );
+
+  return {
+    subscription,
+    payment_information,
+    format,
+  };
+};
+
+// Complete object 1 null and undefined values with object 2 values
+export const mergeObjects = <T extends {}>(...overrides: T[]): T => {
+  if (overrides.length === 1) return overrides[0] as T;
+
+  // Merge the last two ones right into left one
+  const object1 = overrides[overrides.length - 2] || ({} as T);
+  const object2 = overrides[overrides.length - 1] || ({} as T);
+  const result = { ...object1 } as any;
+
+  Object.keys(object2).forEach((key) => {
+    if (result[key] === null || result[key] === undefined) {
+      result[key] = (object2 as any)[key] || "";
+    }
+  });
+
+  // If there is 3 or more, we'll have to merge this result with the others on the left
+  if (overrides.length > 2)
+    return mergeObjects(...overrides.slice(0, -2), result);
+  return result as T;
 };

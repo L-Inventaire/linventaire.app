@@ -1,14 +1,10 @@
-import { ResetProps } from "@components/form/fields";
-import { XMarkIcon } from "@heroicons/react/16/solid";
-import { Heading } from "@radix-ui/themes";
-import _ from "lodash";
+import { ArrowUturnLeftIcon } from "@heroicons/react/16/solid";
+import { Button, Heading } from "@radix-ui/themes";
 import { twMerge } from "tailwind-merge";
 import { Info } from "../text";
 export interface InputLabelProps {
   label?: string | React.ReactNode;
-  reset?: boolean;
   onReset?: () => void;
-  resetProps?: ResetProps;
   feedback?: string;
   hasError?: boolean;
   input?: React.ReactNode;
@@ -29,27 +25,23 @@ export const InputLabel = (props: InputLabelProps) => {
             )}
           >
             {props.label}
+            {props.onReset && (
+              <span className="relative">
+                <Button
+                  size="1"
+                  variant="ghost"
+                  className="ml-1"
+                  onClick={props.onReset}
+                >
+                  <ArrowUturnLeftIcon className="w-3 h-3 inline-block mr-1" />
+                  Par défaut
+                </Button>
+              </span>
+            )}
           </Heading>
         )}
         <div className={twMerge(props.label && "mt-1", "relative")}>
           {props.input}
-          {props.reset && (
-            <XMarkIcon
-              onClick={props.onReset}
-              className={twMerge(
-                "w-4 h-6 bg-white dark:bg-slate-800 text-xs text-slate-400 cursor-pointer absolute right-2 top-1/2 -translate-y-1/2",
-                props.resetProps?.className
-              )}
-              {..._.omit(
-                props.resetProps,
-                "onClick",
-                "className",
-                "onReset",
-                "onClick",
-                "onCopy"
-              )}
-            />
-          )}
         </div>
         {props.feedback && (
           <Info

@@ -37,7 +37,9 @@ export const InvoiceLineArticleInput = (props: {
         <RadioCard
           title={"Article ou service"}
           value={value.type !== "separation"}
-          onClick={() => onChange?.({ ...value, type: "product" })}
+          onClick={() =>
+            onChange?.({ ...value, type: article?.type || "product" })
+          }
         />
         <RadioCard
           title={"Texte libre"}
@@ -70,6 +72,8 @@ export const InvoiceLineArticleInput = (props: {
                   ? {
                       ...value,
                       article: id as string,
+                      type: article.type,
+                      reference: article.internal_reference,
                       unit_price: article.price,
                       unit: article.unit,
                       tva: article.tva,

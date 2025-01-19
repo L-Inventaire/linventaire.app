@@ -2,7 +2,10 @@ import pcg from "@assets/pcg.json";
 import { Button, ButtonProps, DropdownMenu } from "@radix-ui/themes";
 import { Fragment } from "react/jsx-runtime";
 
-export const pgcLabel = (value: number | string) => {
+export const pgcLabel = (
+  value: number | string,
+  withNumber: boolean = true
+) => {
   const findInPcg = (pcg: any[]): any => {
     for (const item of pcg) {
       if (`${item.number}` === `${value}`) return item.label;
@@ -10,7 +13,9 @@ export const pgcLabel = (value: number | string) => {
       if (found) return found;
     }
   };
-  return `${value} - ${findInPcg(pcg)}`;
+  const res = findInPcg(pcg);
+  if (!res) return "";
+  return withNumber ? `${value} - ${res}` : res;
 };
 
 export const PCGInput = ({
@@ -20,7 +25,7 @@ export const PCGInput = ({
 }: {
   value: string;
   onChange: (value: string) => void;
-} & ButtonProps) => {
+} & Omit<ButtonProps, "onChange" | "value">) => {
   const valueLabel = value ? pgcLabel(value) : "";
 
   return (

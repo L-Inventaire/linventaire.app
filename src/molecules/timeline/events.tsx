@@ -80,7 +80,9 @@ export const getEventLine = (
     previousItem,
   }: PreparedEventLine,
   translations?: {
-    [key: string]: { label: string; values?: { [key: string]: string } };
+    [key: string]:
+      | string
+      | { label: string; values?: { [key: string]: string } };
   }
 ) => {
   const a = item;
@@ -229,7 +231,11 @@ export const getEventLine = (
               <>
                 modifié{" "}
                 {changes.map((a) => (
-                  <Badge color="orange">{translations?.[a]?.label || a}</Badge>
+                  <Badge color="orange">
+                    {(translations?.[a] as any)?.label ||
+                      translations?.[a] ||
+                      a}
+                  </Badge>
                 ))}
               </>
             )}{" "}
@@ -237,7 +243,11 @@ export const getEventLine = (
               <>
                 ajouté{" "}
                 {changes.map((a) => (
-                  <Badge color="green">{translations?.[a]?.label || a}</Badge>
+                  <Badge color="green">
+                    {(translations?.[a] as any)?.label ||
+                      translations?.[a] ||
+                      a}
+                  </Badge>
                 ))}
               </>
             )}{" "}
@@ -245,7 +255,11 @@ export const getEventLine = (
               <>
                 supprimé{" "}
                 {changes.map((a) => (
-                  <Badge color="green">{translations?.[a]?.label || a}</Badge>
+                  <Badge color="green">
+                    {(translations?.[a] as any)?.label ||
+                      translations?.[a] ||
+                      a}
+                  </Badge>
                 ))}
               </>
             )}

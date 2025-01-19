@@ -75,10 +75,10 @@ export const InvoicesDetailsPage = ({
     readonly
   );
 
-  const { contact } = useContact(draft.contact);
-  const { contact: invoiceCounterparty } = useContact(
+  const { contact: invoiceCounterParty } = useContact(
     draft.client || draft.supplier
   );
+  const { contact: invoiceContact } = useContact(draft.contact);
   const edit = useEditFromCtrlK();
 
   const { invoice: originQuote } = useInvoice(draft.from_rel_quote?.[0] || "");
@@ -154,8 +154,8 @@ export const InvoicesDetailsPage = ({
       ) {
         draft.delivery_delay = 30; // TODO ability to set the default somewhere in the app
         draft.delivery_address = getBestDeliveryAddress(
-          invoiceCounterparty!,
-          contact || undefined
+          invoiceCounterParty!,
+          invoiceContact || undefined
         );
       }
       return draft;
@@ -207,6 +207,8 @@ export const InvoicesDetailsPage = ({
             invoice={draft}
             ctrl={ctrl}
             readonly={readonly}
+            client={invoiceCounterParty || undefined}
+            contact={invoiceContact || undefined}
           />
         ),
         visible: !isSupplierRelated,
@@ -221,7 +223,7 @@ export const InvoicesDetailsPage = ({
             readonly={readonly}
           />
         ),
-        visible: !isSupplierRelated,
+        visible: false && !isSupplierRelated,
         with_content: draft.reminders?.enabled,
       },
     ].filter((a) => a.visible && (a.with_content || !readonly)),
@@ -253,7 +255,7 @@ export const InvoicesDetailsPage = ({
     <>
       <FormContext readonly={readonly} alwaysVisible>
         <PageColumns>
-          <div className="grow @lg:w-3/5 max-w-3xl mx-auto">
+          <div className="grow @lg:w-full max-w-4xl mx-auto">
             {readonly && (
               <>
                 {draft.state === "draft" && (
@@ -580,6 +582,8 @@ export const InvoicesDetailsPage = ({
                               invoice={draft}
                               ctrl={ctrl}
                               readonly={readonly}
+                              client={invoiceCounterParty || undefined}
+                              contact={invoiceContact || undefined}
                             />
                           </div>
                         )}
@@ -609,8 +613,8 @@ export const InvoicesDetailsPage = ({
                             invoice={draft}
                             ctrl={ctrl}
                             readonly={readonly}
-                            client={invoiceCounterparty!}
-                            contact={contact}
+                            client={invoiceCounterParty!}
+                            contact={invoiceContact}
                           />
                         </div>
                       )}
@@ -623,7 +627,8 @@ export const InvoicesDetailsPage = ({
                             ctrl={ctrl("format")}
                             ctrlLang={ctrl("language")}
                             readonly={readonly}
-                            client={client}
+                            client={invoiceCounterParty || undefined}
+                            contact={invoiceContact || undefined}
                             language={draft.language}
                           />
                           {otherInputs.map((a, i) => (

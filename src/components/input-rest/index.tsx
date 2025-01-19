@@ -89,6 +89,17 @@ export const RestDocumentsInput = <T extends RestEntity>(
           : props.icon!(p, items.data?.list || [])
     : undefined;
 
+  const archivedTag = () => {
+    if (!valuesList?.some((a) => a?.is_deleted)) return null;
+    return (
+      <div className="absolute top-0 right-0 bg-red-700 text-white text-xs font-bold rounded-tr-md rounded-bl-md px-0.5">
+        {valuesList?.length === 1
+          ? "Archivé"
+          : valuesList?.length + " archivé(s)"}
+      </div>
+    );
+  };
+
   const onClick = useCallback(
     (e: MouseEvent | any) => {
       if (disabled && !value) return;
@@ -161,13 +172,14 @@ export const RestDocumentsInput = <T extends RestEntity>(
       <div
         onClick={onClick}
         className={twMerge(
-          "inline-block",
+          "inline-block relative",
           !disabled &&
             "hover:bg-slate-500 hover:bg-opacity-15 bg-opacity-0 transition-all cursor-pointer",
           props.className
         )}
         data-tooltip={props["data-tooltip"]}
       >
+        {archivedTag()}
         <div
           className={twMerge(
             "-space-x-2 inline-block",
@@ -201,7 +213,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
     <div
       onClick={onClick}
       className={twMerge(
-        "inline-flex min-h-7 w-max relative group/card",
+        "inline-flex relative min-h-7 w-max relative group/card",
         size === "xl" ? "w-full" : value && "w-72",
         ["xs", "sm", "md"].includes(size) && "w-max max-w-72",
         ["xs", "sm"].includes(size) && "h-6 min-h-6",
@@ -215,6 +227,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
       )}
       data-tooltip={props["data-tooltip"]}
     >
+      {archivedTag()}
       <div
         className={twMerge(
           "grow inline-flex flex-row items-center",

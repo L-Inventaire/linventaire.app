@@ -10,10 +10,12 @@ export const StockItemsCreateFromOrder = ({
   onBack,
   order: id,
   onChange,
+  loading,
 }: {
   onBack: () => void;
   order: string;
   onChange: (value: StockItems[]) => void;
+  loading: boolean;
 }) => {
   const { invoice: order, isPending } = useInvoice(id);
 
@@ -81,7 +83,7 @@ export const StockItemsCreateFromOrder = ({
   }
 
   return (
-    <div className="w-full max-w-3xl mx-auto space-y-6 mt-4">
+    <div className="w-full max-w-4xl mx-auto space-y-6 mt-4">
       <div className="flex flex-row mb-2 items-center space-x-2">
         <Heading size="4">
           Réception à partir de la commande {order.reference}
@@ -162,10 +164,12 @@ export const StockItemsCreateFromOrder = ({
         }}
       />
 
-      <div className="space-y-2">
-        <QuotesCheckers items={stockItems} />
-        <SerialNumberCheckers items={stockItems} />
-      </div>
+      {!loading && (
+        <div className="space-y-2">
+          <QuotesCheckers items={stockItems} />
+          <SerialNumberCheckers items={stockItems} />
+        </div>
+      )}
     </div>
   );
 };

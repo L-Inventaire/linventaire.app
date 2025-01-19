@@ -30,7 +30,7 @@ export const useSettingsMenu: MenuIndex = () => {
       },
       {
         label: t("menu.settings.activity_format"),
-        to: getRoute(ROUTES.SettingsPreferences),
+        to: getRoute(ROUTES.SettingsInvoices),
       },
       {
         label: t("menu.settings.stock_services"),
@@ -58,6 +58,10 @@ export const useSettingsMenu: MenuIndex = () => {
       {
         label: t("menu.settings.custom_fields"),
         to: getRoute(ROUTES.SettingsCustomFields),
+      },
+      {
+        label: t("menu.settings.more"),
+        to: getRoute(ROUTES.SettingsPreferences),
       },
       /*{
         label: t("menu.settings.import"),

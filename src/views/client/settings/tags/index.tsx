@@ -23,7 +23,7 @@ export const TagsPage = () => {
 
   return (
     <Page title={[{ label: "Paramètres" }, { label: "Étiquettes" }]}>
-      <div className="w-full max-w-3xl mx-auto mt-6">
+      <div className="w-full max-w-4xl mx-auto mt-6">
         {hasAccess("TAGS_MANAGE") && (
           <Button
             size="md"

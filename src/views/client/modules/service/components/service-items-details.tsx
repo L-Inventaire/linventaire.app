@@ -108,7 +108,7 @@ export const ServiceItemsDetailsPage = ({
   if (isPending || (id && draft.id !== id)) return <PageLoader />;
 
   return (
-    <div className="w-full max-w-3xl mx-auto">
+    <div className="w-full max-w-4xl mx-auto">
       <FormContext readonly={readonly} alwaysVisible>
         <Heading>
           <div className="float-right space-x-2 items-center flex-row flex">
@@ -326,7 +326,7 @@ export const ServiceItemsDetailsPage = ({
             )}
 
             <div className="mt-12">
-              <Heading size="4">Notes et documents</Heading>
+              <Heading size="4">Notes et documents internes</Heading>
               <div className="mt-4">
                 <div className="space-y-2 mt-2">
                   <EditorInput

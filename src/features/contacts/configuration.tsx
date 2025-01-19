@@ -139,6 +139,7 @@ export const ContactsFieldsNames = () => ({
     keywords: "Contact ayant une relation",
   },
   email: "Email",
+  address: "Adresse",
   phone: "Téléphone",
   is_supplier: "Fournisseur",
   is_client: "Client",

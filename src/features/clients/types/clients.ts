@@ -1,4 +1,5 @@
 import { PublicCustomer } from "@features/customers/types/customers";
+import { InvoiceSubscription } from "@features/invoices/types/types";
 
 export type ClientsUsers = {
   client_id: string;
@@ -83,15 +84,15 @@ export type Clients = {
   id: string;
   created_at: number;
   address: Address;
-  other_addresses: {
-    delivery: Address | null;
-    invoicing: Address | null;
-  };
   company: Company;
   preferences: Preferences;
   configuration: Configuration;
+
+  // Can be overrided by the contact
   payment: Payment;
   invoices: Invoices;
+  recurring: InvoiceSubscription;
+
   invoices_counters: InvoiceCounters;
   service_items: ServiceItems;
 };

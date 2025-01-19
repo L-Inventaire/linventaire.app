@@ -58,6 +58,7 @@ import { CompanyUsersPage } from "./settings/users";
 import { SetupFeaturebase } from "@views/featurebase";
 import { CRMPage } from "./modules/crm";
 import { GroupInvoices } from "./modules/invoices/group-items";
+import { InvoicesSettingsPage } from "./settings/invoices";
 
 export const BackOfficeRoutes = () => {
   return (
@@ -120,6 +121,10 @@ export const BackOfficeRoutes = () => {
         <Route
           path={ROUTES.Settings}
           element={<NavigateGetRoute to={ROUTES.SettingsPreferences} />}
+        />
+        <Route
+          path={ROUTES.SettingsInvoices}
+          element={<InvoicesSettingsPage />}
         />
         <Route
           path={ROUTES.SettingsPreferences}

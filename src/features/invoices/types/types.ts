@@ -63,12 +63,15 @@ export type Invoices = RestEntity & {
   };
 
   // For partially paid invoices or credit notes, list of payments
-  payments_total: number; // This one is automatically generated from the payments_executed
-  payments_ids: string[]; // List of payments executed
-
-  // For partially invoiced quotes, list of invoices (or credit notes)
-  invoices_total: number; // Total already invoiced for this quote automatically generated from the invoices
-  invoices_ids: string[]; // List of invoices automatically generated from trigger
+  transactions: {
+    percentage: number; // Between 0 and 100
+    total: number; // This one is automatically generated from the transactions
+    ids: string[]; // List of payments executed automatically generated from trigger
+  };
+  invoiced: {
+    percentage: number; // Between 0 and 100
+    ids: string[]; // List of invoices automatically generated from trigger
+  };
 
   payment_information: Payment;
   format?: InvoiceFormat;
@@ -174,6 +177,8 @@ export type InvoiceFormat = {
   logo: string;
   footer_logo: string;
   template: string;
+
+  attachments: string[];
 };
 
 export type PartialInvoiceOutType = {

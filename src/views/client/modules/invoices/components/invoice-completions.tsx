@@ -13,33 +13,38 @@ export const computeStockCompletion = (
         : a.type === "consumable" || a.type === "product") &&
       !(a.optional && !a.optional_checked)
   );
+  const noPriceWeight =
+    lines.reduce(
+      (acc, line) => acc + parseFloat((line.unit_price || 0) as any),
+      0
+    ) / lines.length || 1;
+
   const total = lines.reduce(
     (acc, line) =>
       acc +
       parseFloat((line.quantity as any) || 0) *
-        parseFloat((line.unit_price as any) || 0),
+        parseFloat((line.unit_price as any) || 0 || noPriceWeight),
     0
   );
   if (total === 0) return 1;
 
   const column = type === "ready" ? "quantity_ready" : "quantity_delivered";
-
-  return (
-    lines.reduce(
-      (acc, line) =>
-        acc +
-        (overflow
-          ? parseFloat((line[column] as any) || 0) *
-            parseFloat((line.unit_price as any) || 0)
-          : Math.min(
-              parseFloat((line.quantity as any) || 0) *
-                parseFloat((line.unit_price as any) || 0),
-              parseFloat((line[column] as any) || 0) *
-                parseFloat((line.unit_price as any) || 0)
-            )),
-      0
-    ) / total
+  const val = lines.reduce(
+    (acc, line) =>
+      acc +
+      (overflow
+        ? parseFloat((line[column] as any) || 0) *
+          parseFloat((line.unit_price as any) || 0 || noPriceWeight)
+        : Math.min(
+            parseFloat((line.quantity as any) || 0) *
+              parseFloat((line.unit_price as any) || 0 || noPriceWeight),
+            parseFloat((line[column] as any) || 0) *
+              parseFloat((line.unit_price as any) || 0 || noPriceWeight)
+          )),
+    0
   );
+
+  return val / total;
 };
 
 export const renderStockCompletion = (

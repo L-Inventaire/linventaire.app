@@ -35,7 +35,7 @@ export const StockAndServicesPreferences = () => {
 
   return (
     <Page title={[{ label: "Stock et service" }, { label: "L'inventaire" }]}>
-      <div className="w-full max-w-3xl mx-auto mt-6">
+      <div className="w-full max-w-4xl mx-auto mt-6">
         <Heading size="6">Configuration du stock et des services</Heading>
 
         <Tabs.Root defaultValue="service" className="mt-4">

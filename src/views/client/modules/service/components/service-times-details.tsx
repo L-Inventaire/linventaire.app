@@ -41,7 +41,7 @@ export const ServiceTimesDetailsPage = ({
   }, [article?.unit]);
 
   return (
-    <div className="w-full max-w-3xl mx-auto">
+    <div className="w-full max-w-4xl mx-auto">
       <FormContext readonly={readonly} alwaysVisible>
         <UsersInput ctrl={ctrl("assigned")} />
 

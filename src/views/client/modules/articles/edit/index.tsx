@@ -55,10 +55,6 @@ export const ArticlesEditPage = (_props: { readonly?: boolean }) => {
               toast.error("Vous devez saisir le nom de l'article.");
               return;
             }
-            if ((article?.suppliers ?? [])?.length === 0) {
-              toast.error("Vous devez associer au moins un fournisseur.");
-              return;
-            }
             await save();
           }}
           backRoute={ROUTES.Products}

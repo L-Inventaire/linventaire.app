@@ -6,7 +6,7 @@
   },
   "header": {
     "search": {
-      "placeholder": "Rechercher dans l'inventaire",
+      "placeholder": "Aller à...",
       "title": "Résultats de la recherche globale"
     },
     "guides": "Guides",
@@ -96,7 +96,8 @@
       "currency": "Devise principale",
       "title": "Général",
       "language": "Langue de l'entreprise",
-      "timezone": "Timezone"
+      "timezone": "Timezone",
+      "email_footer": "Ligne en bas de mail"
     },
     "payments": {
       "title": "Paiements"
@@ -158,7 +159,8 @@
       "activity_format": "Factures et paiements",
       "stock_services": "Stock et services",
       "bank_accounts": "Comptes bancaires",
-      "stock_locations": "Lieux de stockage"
+      "stock_locations": "Lieux de stockage",
+      "more": "Plus"
     },
     "account": {
       "title": "Compte",

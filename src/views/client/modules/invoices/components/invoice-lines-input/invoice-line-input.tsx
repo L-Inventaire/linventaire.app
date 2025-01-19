@@ -590,7 +590,7 @@ const PriceInput = ({
           />
         </>
       )}
-      value={value.unit_price}
+      value={_.isNumber(value.unit_price)}
     >
       {children}
     </InputButton>

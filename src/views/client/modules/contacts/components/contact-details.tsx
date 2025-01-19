@@ -13,6 +13,7 @@ import { ContactsApiClient } from "@features/contacts/api-client/contacts-api-cl
 import { ContactsFieldsNames } from "@features/contacts/configuration";
 import { Contacts } from "@features/contacts/types/types";
 import { ROUTES } from "@features/routes";
+import { paymentOptions } from "@features/utils/constants";
 import { debounce } from "@features/utils/debounce";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { EditorInput } from "@molecules/editor-input";
@@ -25,10 +26,10 @@ import {
 import _ from "lodash";
 import { useEffect } from "react";
 import { InvoiceInputFormat } from "../../invoices/components/input-format";
+import { InvoicePaymentInput } from "../../invoices/components/input-payment";
 import { ContactAccountingAccount } from "./contact-accounting-account";
 import { RelatedInvoicesInput } from "./related-invoices-input";
 import { RelationsInput } from "./relations-input";
-import { paymentOptions } from "@features/utils/constants";
 
 export const ContactsDetailsPage = ({
   readonly,
@@ -239,7 +240,7 @@ export const ContactsDetailsPage = ({
                 />
               </div>
             </PageBlock>
-            <PageBlock closable title="Notes et documents">
+            <PageBlock closable title="Notes et documents internes">
               <div className="space-y-2 mt-4">
                 <InputLabel
                   label="Notes"
@@ -270,13 +271,34 @@ export const ContactsDetailsPage = ({
               </div>
             </PageBlock>
 
-            <InvoiceInputFormat
-              btnKey="invoice-format"
-              ctrl={ctrl("format.invoice_format")}
-              readonly={readonly}
-              client={client?.client}
-              default_="client"
-            />
+            <div className="flex space-x-4 flex-row">
+              <div className="w-auto">
+                <InvoiceInputFormat
+                  btnKey="invoice-format"
+                  ctrl={ctrl("invoices")}
+                  readonly={readonly}
+                />
+              </div>
+              <div className="w-auto">
+                <InvoicePaymentInput
+                  btnKey="invoice-payment"
+                  ctrl={() => ({
+                    onChange: (invoice) => {
+                      ctrl("payment").onChange(invoice.payment_information);
+                      ctrl("preferences").onChange({
+                        ...ctrl("preferences").value,
+                        currency: invoice.currency,
+                      });
+                    },
+                    value: {
+                      payment_information: ctrl("payment").value,
+                      currency: ctrl("preferences").value?.currency,
+                    },
+                  })}
+                  readonly={readonly}
+                />
+              </div>
+            </div>
 
             <RelationsInput
               id={contact.id}
@@ -291,25 +313,26 @@ export const ContactsDetailsPage = ({
                 ctrl("has_parents").onChange(!!parents.length);
               }}
             />
-            {contact.id && (
-              <RelatedInvoicesInput id={contact.id} readonly={readonly} />
-            )}
-            <Timeline
-              translations={ContactsFieldsNames() as any}
-              entity={"contacts"}
-              id={contact.id}
-              viewRoute={ROUTES.ContactsView}
-            />
           </div>
           <div className="grow lg:max-w-xl">
-            {false && id && (contact.is_client || contact.is_supplier) && (
+            {id && (contact.is_client || contact.is_supplier) && (
               <PageBlock closable title="Comptabilité">
-                {contact.is_client && (
-                  <ContactAccountingAccount type="client" contactId={id} />
-                )}
-                {contact.is_supplier && (
-                  <ContactAccountingAccount type="supplier" contactId={id} />
-                )}
+                <div className="space-y-2">
+                  {contact.is_client && (
+                    <ContactAccountingAccount
+                      type="client"
+                      contactId={id}
+                      readonly={readonly}
+                    />
+                  )}
+                  {contact.is_supplier && (
+                    <ContactAccountingAccount
+                      type="supplier"
+                      contactId={id}
+                      readonly={readonly}
+                    />
+                  )}
+                </div>
               </PageBlock>
             )}
             <PageBlock closable title="Adresse principale">
@@ -430,6 +453,20 @@ export const ContactsDetailsPage = ({
             />
           </div>
         </PageColumns>
+
+        <div className="mt-6 space-y-4">
+          {contact.id && (
+            <div className="overflow-auto">
+              <RelatedInvoicesInput id={contact.id} readonly={readonly} />
+            </div>
+          )}
+          <Timeline
+            translations={ContactsFieldsNames() as any}
+            entity={"contacts"}
+            id={contact.id}
+            viewRoute={ROUTES.ContactsView}
+          />
+        </div>
       </FormContext>
     </>
   );

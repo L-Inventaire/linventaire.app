@@ -151,6 +151,26 @@ export const ArticlesFieldsNames = () => ({
     label: "Référence interne",
     keywords: "référence interne identifiant unique",
   },
+  supplier_reference: {
+    label: "Référence fabricant",
+    keywords: "numéro identifiant fournisseur fabricant",
+  },
+  "accounting.buy.name": {
+    label: "Nom compte comptable d'achat",
+    keywords: "numéro compte comptable achat",
+  },
+  "accounting.sell.name": {
+    label: "Nom compte comptable de vente",
+    keywords: "numéro compte comptable vente",
+  },
+  "accounting.buy.standard_identifier": {
+    label: "Numéro compte comptable d'achat",
+    keywords: "numéro compte comptable achat",
+  },
+  "accounting.sell.standard_identifier": {
+    label: "Numéro compte comptable de vente",
+    keywords: "numéro compte comptable vente",
+  },
   suppliers: {
     label: "Fournisseurs",
     keywords: "partenaires fournisseurs",
@@ -159,7 +179,7 @@ export const ArticlesFieldsNames = () => ({
     label: "Détails fournisseurs",
   },
   "suppliers_details.any.reference": {
-    label: "Référence fournisseur",
+    label: "Lien fournisseur",
     keywords: "numéro identifiant fournisseur",
   },
   "suppliers_details.any.price": {
