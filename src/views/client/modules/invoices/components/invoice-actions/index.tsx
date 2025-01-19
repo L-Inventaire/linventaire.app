@@ -15,6 +15,7 @@ import { QuotesActions } from "./quotes";
 import { SupplierInvoicesActions } from "./supplier-invoices";
 import { SupplierQuotesActions } from "./supplier-quotes";
 import { InvoiceSendSpecialModal } from "./modal-send-special";
+import { getInvoiceWithOverrides } from "@features/invoices/utils";
 
 export const InvoiceActions = ({
   id,
@@ -57,6 +58,11 @@ export const InvoiceActions = ({
     disabled = true;
   }
 
+  const draftWithOverrides = getInvoiceWithOverrides(
+    draft,
+    ...[client, counterparty].filter((a) => a !== undefined && !!a)
+  );
+
   /* Warnings:
     - Missing payment information
     - Date in the future or in the past more than 1 month
@@ -69,9 +75,9 @@ export const InvoiceActions = ({
   if (counterparty) {
     if (["quotes", "invoices"].includes(draft.type)) {
       if (
-        !draft?.payment_information?.mode?.length ||
-        (!draft?.payment_information?.bank_iban &&
-          draft?.payment_information?.mode?.includes("bank"))
+        !draftWithOverrides?.payment_information?.mode?.length ||
+        (!draftWithOverrides?.payment_information?.bank_iban &&
+          draftWithOverrides?.payment_information?.mode?.includes("bank"))
       ) {
         error =
           "Votre document nécessite un moyen de paiement valide, vous pouvez en définir un dans les paramètres.";
