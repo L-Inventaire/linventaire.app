@@ -57,8 +57,11 @@ export const InvoiceFormatInput = (props: InvoiceFormatInputProps) => {
   const { ctrl } = useFormController<InvoiceFormat>(form, setForm);
 
   useEffect(() => {
-    const formWithNull = _.omitBy(form, (v, k) =>
-      _.isEqual(v, defaultConfig.format[k as keyof InvoiceFormat])
+    const formWithNull = _.omitBy(
+      form,
+      (v, k) =>
+        _.isEqual(v, defaultConfig.format[k as keyof InvoiceFormat]) &&
+        !props.baseConfiguration
     );
     props.ctrl.onChange(formWithNull as InvoiceFormat);
   }, [JSON.stringify(form)]);

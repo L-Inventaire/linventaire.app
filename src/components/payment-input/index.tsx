@@ -55,13 +55,15 @@ export const PaymentInput = (props: {
   const { ctrl } = useFormController<Partial<Payment>>(form, setForm);
 
   useEffect(() => {
-    const formWithNull = _.omitBy(form, (v, k) =>
-      _.isEqual(
-        v,
-        defaultConfig.payment_information[
-          k as keyof Invoices["payment_information"]
-        ]
-      )
+    const formWithNull = _.omitBy(
+      form,
+      (v, k) =>
+        _.isEqual(
+          v,
+          defaultConfig.payment_information[
+            k as keyof Invoices["payment_information"]
+          ]
+        ) && !props.baseConfiguration
     );
     props.ctrl.onChange(formWithNull as Invoices["payment_information"]);
   }, [JSON.stringify(form)]);

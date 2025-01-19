@@ -207,8 +207,7 @@ export const InvoicesDetailsPage = ({
             invoice={draft}
             ctrl={ctrl}
             readonly={readonly}
-            client={invoiceCounterParty || undefined}
-            contact={invoiceContact || undefined}
+            noResetToDefault={true}
           />
         ),
         visible: !isSupplierRelated,
@@ -584,6 +583,7 @@ export const InvoicesDetailsPage = ({
                               readonly={readonly}
                               client={invoiceCounterParty || undefined}
                               contact={invoiceContact || undefined}
+                              noResetToDefault={true}
                             />
                           </div>
                         )}

@@ -158,8 +158,13 @@ export const RecurrenceInput = ({
   );
 
   useEffect(() => {
-    const formWithNull = _.omitBy(form, (v, k) =>
-      _.isEqual(v, defaultConfig.subscription[k as keyof InvoiceSubscription])
+    const formWithNull = _.omitBy(
+      form,
+      (v, k) =>
+        _.isEqual(
+          v,
+          defaultConfig.subscription[k as keyof InvoiceSubscription]
+        ) && !baseConfiguration
     );
     props.ctrl.onChange(formWithNull as InvoiceSubscription);
   }, [JSON.stringify(form)]);

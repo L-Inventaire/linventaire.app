@@ -26,6 +26,7 @@ export const InvoiceRecurrenceInput = ({
   btnKey,
   client,
   contact,
+  noResetToDefault,
 }: {
   ctrl: FormControllerFuncType<Pick<Invoices, "subscription">>;
   invoice: Invoices;
@@ -33,6 +34,7 @@ export const InvoiceRecurrenceInput = ({
   btnKey?: string;
   client?: Contacts;
   contact?: Contacts;
+  noResetToDefault?: boolean;
 }) => {
   const hasSubscription = !!invoice.content?.find((a) => a.subscription);
   const subscriptions = _.uniq(
@@ -150,6 +152,7 @@ export const InvoiceRecurrenceInput = ({
           invoice={invoice}
           client={client || undefined}
           contact={contact || undefined}
+          baseConfiguration={noResetToDefault}
         />
       )}
       value={"true"}
