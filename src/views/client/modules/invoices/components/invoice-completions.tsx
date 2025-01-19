@@ -44,10 +44,6 @@ export const computeStockCompletion = (
     0
   );
 
-  if (lines.length === 3) {
-    console.log("lines", lines, val, total);
-  }
-
   return val / total;
 };
 
