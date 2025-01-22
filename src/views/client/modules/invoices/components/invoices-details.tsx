@@ -58,6 +58,7 @@ import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-ca
 import { InvoiceStatus } from "./invoice-status";
 import { RelatedInvoices } from "./related-invoices";
 import { TagPaymentCompletion } from "./tag-payment-completion";
+import { format as formatfns } from "date-fns";
 
 export const InvoicesDetailsPage = ({
   readonly,
@@ -358,9 +359,7 @@ export const InvoicesDetailsPage = ({
                   >
                     <Text size="2" className="opacity-75" weight="medium">
                       {"Émis le "}
-                      {formatTime(ctrl("emit_date").value || 0, {
-                        hideTime: true,
-                      })}
+                      {formatfns(ctrl("emit_date").value || 0, "PPP")}
                     </Text>
                     {draft.type === "invoices" &&
                       draft.state === "sent" &&
