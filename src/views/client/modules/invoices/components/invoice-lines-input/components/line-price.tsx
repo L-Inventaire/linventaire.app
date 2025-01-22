@@ -36,7 +36,7 @@ export const InvoiceLinePriceInput = (props: {
           onClick={() => {
             onChange!({
               ...value,
-              unit_price: props?.article?.price,
+              unit_price: parseFloat(props?.article?.price as any),
               tva: props?.article?.tva,
             });
           }}
