@@ -1,13 +1,16 @@
+import { Tag } from "@atoms/badge/tag";
 import { Base, BaseSmall, Info } from "@atoms/text";
 import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
 import { useCurrentClient } from "@features/clients/state/use-clients";
 import { registerCtrlKRestEntity } from "@features/ctrlk";
 import { getRoute, ROUTES } from "@features/routes";
-import { formatTime } from "@features/utils/format/dates";
 import { formatAmount } from "@features/utils/format/strings";
+import { RestFieldsNames } from "@features/utils/rest/configuration";
+import { ArrowPathIcon, RectangleStackIcon } from "@heroicons/react/16/solid";
 import { Column } from "@molecules/table/table";
 import { Badge } from "@radix-ui/themes";
+import { frequencyOptions } from "@views/client/modules/articles/components/article-details";
 import { ContactRestDocument } from "@views/client/modules/contacts/components/contact-input-rest-card";
 import { CompletionTags } from "@views/client/modules/invoices/components/invoice-lines-input/components/completion-tags";
 import { InvoiceRestDocument } from "@views/client/modules/invoices/components/invoice-lines-input/invoice-input-rest-card";
@@ -19,13 +22,9 @@ import {
   isDeliveryLate,
   isPaymentLate,
 } from "@views/client/modules/invoices/utils";
-import { Invoices } from "./types/types";
 import { format } from "date-fns";
 import _ from "lodash";
-import { Tag } from "@atoms/badge/tag";
-import { ArrowPathIcon, RectangleStackIcon } from "@heroicons/react/16/solid";
-import { frequencyOptions } from "@views/client/modules/articles/components/article-details";
-import { RestFieldsNames } from "@features/utils/rest/configuration";
+import { Invoices } from "./types/types";
 
 export const useInvoiceDefaultModel: () => Partial<Invoices> = () => {
   const { client } = useCurrentClient();
@@ -50,7 +49,8 @@ export const InvoicesColumns: Column<Invoices>[] = [
       return (
         <Base className="whitespace-nowrap">
           {invoice.emit_date
-            ? formatTime(invoice.emit_date, { hideTime: true })
+            ? // Short format for today
+              format(invoice.emit_date, "PP")
             : "-"}
         </Base>
       );
