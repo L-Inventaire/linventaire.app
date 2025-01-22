@@ -175,7 +175,7 @@ export const InvoiceRecurrenceInput = ({
           {invoice.subscription?.end_type === "date" ? (
             <>
               {" "}
-              {" → "} fin le {format(dates[dates.length - 1], "eee PP")}
+              {" → "} fin le {format(invoice.subscription?.end, "eee PP")}
             </>
           ) : invoice.subscription?.end_type === "delay" ? (
             <>
