@@ -133,7 +133,7 @@ export const InvoiceLineInput = (props: {
             : article?.price || 0;
           onChange?.({
             ...value,
-            unit_price: correctPrice,
+            unit_price: parseFloat(correctPrice as any),
           });
         }
       }
@@ -590,7 +590,10 @@ const PriceInput = ({
           />
         </>
       )}
-      value={_.isNumber(value.unit_price)}
+      value={
+        _.isNumber(value.unit_price) ||
+        !_.isNaN(parseFloat(value.unit_price as any))
+      }
     >
       {children}
     </InputButton>
