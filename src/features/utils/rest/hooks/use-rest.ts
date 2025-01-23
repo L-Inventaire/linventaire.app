@@ -122,6 +122,7 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
   const queryKey = [
     table,
     id || "client",
+    options?.id || "list",
     options?.key || "default",
     options?.id || options?.query || "",
   ];
