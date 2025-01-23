@@ -22,6 +22,7 @@ import { ServiceItemStatus } from "./components/service-item-status";
 import { Badge, Tabs } from "@radix-ui/themes";
 import { formatNumber } from "@features/utils/format/strings";
 import { useHasAccess } from "@features/access";
+import { useRouterState } from "@features/utils/hooks/use-router-state";
 
 export const ServicePage = () => {
   const tabs = {
@@ -66,7 +67,7 @@ export const ServicePage = () => {
       filter: buildQueryFromMap({ state: ["done", "cancelled"] }),
     },
   };
-  const [activeTab, setActiveTab] = useState("all");
+  const [activeTab, setActiveTab] = useRouterState("all");
 
   const [options, setOptions] = useState<RestOptions<ServiceItems>>({
     limit: 20,

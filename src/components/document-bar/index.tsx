@@ -5,6 +5,7 @@ import { useRegisterActiveSelection } from "@features/ctrlk/use-register-current
 import { getRoute } from "@features/routes";
 import { copyToClipboard } from "@features/utils/clipboard";
 import { formatTime } from "@features/utils/format/dates";
+import { useLastLocations } from "@features/utils/hooks/use-navigation-history";
 import { useNavigateAlt } from "@features/utils/navigate";
 import { RestEntity } from "@features/utils/rest/types/types";
 import {
@@ -63,14 +64,32 @@ export const DocumentBar = ({
 
   const navigate = useNavigateAlt();
 
+  const { getLastLocations } = useLastLocations();
+
   const cancel = async () => {
     if (onClose) return onClose();
-    // Get previous route
-    // TODO this is bad UX, make it works like the <- button in the browser
+    // Get previous route that is not the form nor the viewer
+    console.log(props.viewRoute, props.editRoute);
+    const previousPage = _.last(
+      getLastLocations().filter(
+        (a) =>
+          !(
+            props.viewRoute &&
+            (a.includes(getRoute(props.viewRoute, { id: document.id })) ||
+              a.includes(getRoute(props.viewRoute, { id: "new" })))
+          ) &&
+          !(
+            props.editRoute &&
+            (a.includes(getRoute(props.editRoute, { id: document.id })) ||
+              a.includes(getRoute(props.editRoute, { id: "new" })))
+          )
+      )
+    );
+    const backToView = document.id && mode !== "read";
     navigate(
-      !document.id || mode === "read"
-        ? getRoute(props.backRoute || "/")
-        : getRoute(props.viewRoute || "/", { id: document.id })
+      backToView
+        ? getRoute(props.viewRoute || "/", { id: document.id })
+        : previousPage || getRoute(props.backRoute || "/")
     );
   };
 

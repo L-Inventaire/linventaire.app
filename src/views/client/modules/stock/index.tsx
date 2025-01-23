@@ -22,6 +22,7 @@ import {
 } from "../../../../components/search-bar/utils/utils";
 import { StockItemStatus } from "./components/stock-item-status";
 import { useHasAccess } from "@features/access";
+import { useRouterState } from "@features/utils/hooks/use-router-state";
 
 export const StockPage = () => {
   const tabs = {
@@ -64,7 +65,7 @@ export const StockPage = () => {
       ],
     },
   };
-  const [activeTab, setActiveTab] = useState("all");
+  const [activeTab, setActiveTab] = useRouterState("all");
 
   const [options, setOptions] = useState<RestOptions<StockItems>>({
     limit: 20,

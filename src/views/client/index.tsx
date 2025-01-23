@@ -59,6 +59,7 @@ import { SetupFeaturebase } from "@views/featurebase";
 import { CRMPage } from "./modules/crm";
 import { GroupInvoices } from "./modules/invoices/group-items";
 import { InvoicesSettingsPage } from "./settings/invoices";
+import { useNavigationHistory } from "@features/utils/hooks/use-navigation-history";
 
 export const BackOfficeRoutes = () => {
   return (
@@ -163,6 +164,7 @@ export const Layout = () => {
   useTagConfiguration();
 
   const [menuOpen, setMenuOpen] = useRecoilState(ResponsiveMenuAtom);
+  useNavigationHistory();
   useWebsockets();
   const { user, logout } = useAuth();
   const { client, clients, loading } = useClients();
