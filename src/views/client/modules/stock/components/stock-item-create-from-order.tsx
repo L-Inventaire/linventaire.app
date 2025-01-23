@@ -68,7 +68,7 @@ export const StockItemsCreateFromOrder = ({
                 quantity: Math.max(0, quoteQuantity),
                 from_rel_supplier_quote: order.id,
                 for_rel_quote: q.id,
-                state: "delivered",
+                state: "stock",
                 _key: Math.random().toString() + counter,
               };
             });
