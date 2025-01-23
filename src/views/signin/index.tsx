@@ -7,6 +7,7 @@ import { Login } from "./login";
 import { SignUp } from "./signup";
 import { AnimatedBackground } from "@atoms/animated-background";
 import { useClients } from "@features/clients/state/use-clients";
+import { useHasAccess } from "@features/access";
 
 export const LoginRoutes = () => {
   return (
@@ -35,15 +36,28 @@ const useRedirectToApp = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { clients, loading } = useClients();
+  const hasAccess = useHasAccess();
 
   const redirectToApp = useCallback(() => {
-    navigate(
-      decodeURIComponent(
-        new URL((window as any).document.location).searchParams.get("r") || ""
-      ) || clients?.[0]?.client?.id
-        ? getRoute(ROUTES.Home, { client: clients?.[0]?.client?.id })
-        : ROUTES.JoinCompany
-    );
+    if (clients?.[0]?.client?.id) {
+      // Check if we have a "redirect" query parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirect = urlParams.get("redirect");
+      console.log("redirect", redirect);
+      if (redirect) navigate(redirect);
+      else if (hasAccess("ACCOUNTING_READ"))
+        navigate(getRoute(ROUTES.Home, { client: clients[0]?.client.id }));
+      else if (hasAccess("INVOICES_READ"))
+        navigate(getRoute(ROUTES.Invoices, { client: clients[0]?.client.id }));
+      else if (hasAccess("ONSITE_SERVICES_READ"))
+        navigate(
+          getRoute(ROUTES.ServiceItems, { client: clients[0]?.client.id })
+        );
+      else
+        navigate(getRoute(ROUTES.Contacts, { client: clients[0]?.client.id }));
+    } else {
+      navigate(ROUTES.JoinCompany);
+    }
   }, [navigate, clients, loading]);
 
   useEffect(() => {

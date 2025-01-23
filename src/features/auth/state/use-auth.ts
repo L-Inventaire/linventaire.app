@@ -81,10 +81,15 @@ export const useAuth = () => {
   const login = extendsToken;
   const getUser = renewAuthorization;
 
-  const logout = useRecoilCallback(() => () => {
+  const logout = useRecoilCallback(() => (withRedirect = true) => {
     AuthJWT.token = "";
     localStorage.clear();
-    document.location.replace("/");
+    const redirect = encodeURIComponent(
+      window.location.pathname + window.location.search
+    );
+    document.location.replace(
+      withRedirect ? "/login?redirect=" + redirect : "/"
+    );
   });
 
   const clearUserCached = useRecoilCallback(({ snapshot }) => () => {

@@ -1,15 +1,12 @@
-import { useRecoilState, useRecoilValue } from "recoil";
-import { ClientInvitationsState, ClientsState } from "./store";
-import { useGlobalEffect } from "@features/utils/hooks/use-global-effect";
-import { ClientsApiClient } from "../api-client/api-client";
-import toast from "react-hot-toast";
-import { Clients, Role } from "../types/clients";
-import { LoadingState } from "@features/utils/store/loading-state-atom";
-import { useNavigate, useParams } from "react-router-dom";
-import { useEffect } from "react";
-import { ROUTES, getRoute } from "@features/routes";
 import { useAuth } from "@features/auth/state/use-auth";
-import { useHasAccess } from "@features/access";
+import { useGlobalEffect } from "@features/utils/hooks/use-global-effect";
+import { LoadingState } from "@features/utils/store/loading-state-atom";
+import toast from "react-hot-toast";
+import { useParams } from "react-router-dom";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { ClientsApiClient } from "../api-client/api-client";
+import { Clients, Role } from "../types/clients";
+import { ClientInvitationsState, ClientsState } from "./store";
 
 export const useCurrentClient = () => {
   const { client: clientId } = useParams();
@@ -19,29 +16,6 @@ export const useCurrentClient = () => {
     client: clients.find((c) => c.client.id === clientId)?.client,
     clientUser: clients.find((c) => c.client.id === clientId),
   };
-};
-
-export const useRedirectToHome = () => {
-  const { client: clientId } = useParams();
-  const { user } = useAuth();
-  const { client, loading, clients } = useClients();
-  const hasAccess = useHasAccess();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (clientId && !client && !loading && !!user) {
-      if (hasAccess("ACCOUNTING_READ"))
-        navigate(getRoute(ROUTES.Home, { client: clients[0]?.client.id }));
-      else if (hasAccess("INVOICES_READ"))
-        navigate(getRoute(ROUTES.Invoices, { client: clients[0]?.client.id }));
-      else if (hasAccess("ONSITE_SERVICES_READ"))
-        navigate(
-          getRoute(ROUTES.ServiceItems, { client: clients[0]?.client.id })
-        );
-      else
-        navigate(getRoute(ROUTES.Contacts, { client: clients[0]?.client.id }));
-    }
-  }, [client?.client_id, loading]);
 };
 
 export const useClients = () => {
