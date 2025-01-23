@@ -3,10 +3,12 @@ import { RestDocumentsInput } from "@components/input-rest";
 import { useContact } from "@features/contacts/hooks/use-contacts";
 import { getContactName } from "@features/contacts/types/types";
 import { StockItems } from "@features/stock/types/types";
-import { Heading, Table } from "@radix-ui/themes";
+import { Callout, Heading, Table } from "@radix-ui/themes";
 import { useEffect, useState } from "react";
 import { QuotesCheckers, SerialNumberCheckers } from "./create-from/checkers";
 import { StockItemLine } from "./create-from/line";
+import { Info } from "@atoms/text";
+import { QuantityCallout } from "./stock-item-create-from-order";
 
 export const StockItemsCreateFromSupplier = ({
   onBack,
@@ -70,14 +72,14 @@ export const StockItemsCreateFromSupplier = ({
                   stockItems.filter((item) => item._key !== stockItem._key)
                 )
               }
-              onDuplicate={() =>
+              onDuplicate={(quantity = 1) =>
                 setStockItems((stockItems) => {
                   return [
                     ...stockItems.slice(0, index + 1),
                     {
                       ...stockItem,
                       serial_number: "",
-                      quantity: 1,
+                      quantity,
                       _key: Math.random().toString(),
                     },
                     ...stockItems.slice(index + 1),
@@ -88,6 +90,8 @@ export const StockItemsCreateFromSupplier = ({
           ))}
         </Table.Body>
       </Table.Root>
+
+      <QuantityCallout />
 
       <RestDocumentsInput
         size="xl"

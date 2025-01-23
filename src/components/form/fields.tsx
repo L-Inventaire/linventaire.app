@@ -56,6 +56,7 @@ export const FormInput = memo(
         | { label: string; value: string };
       onReset?: () => void;
       onChange?: (value: any, object?: any) => void;
+      onEnter?: () => void;
       onSearch?: () => void;
       disabled?: boolean;
       values?: any;
@@ -161,6 +162,9 @@ export const FormInput = memo(
             placeholder={placeholder}
             value={(_value as string) || ""}
             onChange={(e) => onChange(e.target.value, e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") props.onSearch?.();
+            }}
             disabled={disabled}
           />
           <Button onClick={props.onSearch} size="md" shortcut={["enter"]}>
@@ -210,6 +214,10 @@ export const FormInput = memo(
                 highlight={highlight}
                 value={(_value as string) || ""}
                 onChange={(e) => onChange(e.target.value, e.target.value)}
+                onKeyDown={(e) => {
+                  if (props.onEnter && e.key === "Enter") props.onEnter();
+                  else if (e.key === "Enter") props.onSearch?.();
+                }}
                 size={size}
                 placeholder={placeholder}
                 disabled={disabled}
@@ -221,6 +229,9 @@ export const FormInput = memo(
                 onChange={(_, number) => {
                   const quantity = timeBase60ToDecimal(number);
                   onChange(quantity);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") props.onSearch?.();
                 }}
                 value={timeDecimalToBase60(_value)}
               />
@@ -281,6 +292,9 @@ export const FormInput = memo(
                 highlight={highlight}
                 value={(_value as string) || ""}
                 onChange={(e) => onChange(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") props.onSearch?.();
+                }}
                 size={size}
                 placeholder={placeholder}
                 disabled={disabled}
@@ -312,6 +326,9 @@ export const FormInput = memo(
                 highlight={highlight}
                 value={_value as number}
                 onChange={(e) => onChange(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") props.onSearch?.();
+                }}
                 size={size}
                 type="number"
                 placeholder={placeholder}
@@ -340,6 +357,9 @@ export const FormInput = memo(
                 highlight={highlight}
                 value={_value ? new Date(_value as string | number) : null}
                 onChange={(e) => onChange(e)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") props.onSearch?.();
+                }}
                 placeholder={placeholder}
                 size={size}
                 disabled={disabled}

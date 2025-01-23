@@ -4,7 +4,7 @@ import { useArticle } from "@features/articles/hooks/use-articles";
 import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { StockItems } from "@features/stock/types/types";
 import { DocumentDuplicateIcon, TrashIcon } from "@heroicons/react/16/solid";
-import { Heading, IconButton, Table, Text } from "@radix-ui/themes";
+import { Heading, IconButton, Table } from "@radix-ui/themes";
 import { useEffect } from "react";
 import { InvoiceRestDocument } from "../../../invoices/components/invoice-lines-input/invoice-input-rest-card";
 import { StockItemStatus } from "../stock-item-status";
@@ -19,7 +19,7 @@ export const StockItemLine = ({
   value: StockItems & { _key: string };
   onChange: (value: StockItems & { _key: string }) => void;
   onRemove: () => void;
-  onDuplicate: () => void;
+  onDuplicate: (quantity?: number) => void;
   enforcedOrder?: string; // When a quote is predefined, then we allow to chose the supplier
 }) => {
   const { article } = useArticle(value.article);
@@ -66,11 +66,29 @@ export const StockItemLine = ({
         <div className="flex space-x-2">
           <FormInput
             autoFocus
-            label="Numéro de série"
+            label="Numéro de série ou de lot"
             type="text"
             placeholder="Numéro de série"
             value={value.serial_number}
             onChange={(e) => onChange({ ...value, serial_number: e })}
+            onEnter={() => {
+              console.log("Enter pressed");
+              const lotSize =
+                article?.suppliers_details?.[supplierQuote?.supplier || ""]
+                  ?.delivery_quantity || 1;
+              // If enter is pressed, set the current line quantity to {lot size} and duplicate the line with the rest quantity
+              // If there exactly {lot size} remaining, do nothing
+              if (value.quantity > lotSize) {
+                onChange({
+                  ...value,
+                  quantity: lotSize,
+                });
+                onDuplicate(value.quantity - lotSize);
+              }
+
+              // Then focus the next line
+              // TODO
+            }}
           />
           <FormInput
             className="max-w-24"
@@ -105,12 +123,7 @@ export const StockItemLine = ({
             }
           />
         )}
-        {!!enforcedOrder &&
-          !!supplierQuote &&
-          supplierQuote?.from_rel_quote && (
-            <Text size="2">Devis {quote?.reference}</Text>
-          )}
-        {!!supplierQuote && !supplierQuote?.from_rel_quote && (
+        {!!supplierQuote && (
           <InvoiceRestDocument
             size="xl"
             label="Devis"
@@ -124,10 +137,14 @@ export const StockItemLine = ({
               })
             }
             filter={
-              {
-                "articles.all": value.article,
-                type: "quotes",
-              } as any
+              supplierQuote?.from_rel_quote
+                ? {
+                    id: supplierQuote?.from_rel_quote,
+                  }
+                : ({
+                    "articles.all": value.article,
+                    type: "quotes",
+                  } as any)
             }
           />
         )}

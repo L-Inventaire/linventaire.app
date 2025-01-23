@@ -65,7 +65,7 @@ export const StockPage = () => {
       ],
     },
   };
-  const [activeTab, setActiveTab] = useRouterState("all");
+  const [activeTab, setActiveTab] = useRouterState("tab", "all");
 
   const [options, setOptions] = useState<RestOptions<StockItems>>({
     limit: 20,

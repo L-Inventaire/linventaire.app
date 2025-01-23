@@ -1,10 +1,13 @@
 import { RestDocumentsInput } from "@components/input-rest";
-import { useInvoice } from "@features/invoices/hooks/use-invoices";
+import { useInvoice, useInvoices } from "@features/invoices/hooks/use-invoices";
 import { StockItems } from "@features/stock/types/types";
 import { Heading, Table } from "@radix-ui/themes";
 import { useEffect, useState } from "react";
 import { QuotesCheckers, SerialNumberCheckers } from "./create-from/checkers";
 import { StockItemLine } from "./create-from/line";
+import _ from "lodash";
+import { buildQueryFromMap } from "@components/search-bar/utils/utils";
+import { Info } from "@atoms/text";
 
 export const StockItemsCreateFromOrder = ({
   onBack,
@@ -18,6 +21,13 @@ export const StockItemsCreateFromOrder = ({
   loading: boolean;
 }) => {
   const { invoice: order, isPending } = useInvoice(id);
+  const { invoices: quotes } = useInvoices({
+    query: buildQueryFromMap({
+      id: order?.from_rel_quote || [],
+    }),
+    limit: order?.from_rel_quote?.length || 0,
+  });
+  const quoteIsPending = quotes.isPending;
 
   const [didPrefill, setDidPrefill] = useState(false);
   const [stockItems, setStockItems] = useState<
@@ -30,55 +40,67 @@ export const StockItemsCreateFromOrder = ({
 
   // Prefill the stockItems with the quote content
   useEffect(() => {
-    if (order && !didPrefill) {
+    if (
+      order &&
+      !didPrefill &&
+      (quotes?.data?.total || !order.from_rel_quote?.length)
+    ) {
+      let counter = 0;
       setDidPrefill(true);
+      const quotesCopy = _.cloneDeep(quotes?.data?.list || []);
       const t =
         (order.content || [])
           .filter((e) => (e.quantity_ready || 0) < (e.quantity || 0))
           .map((e) => {
-            const quantity = Math.max(
-              0,
-              (e.quantity || 0) - (e.quantity_ready || 0)
-            );
-            if (e.type === "product" && (e.quantity || 0) < 50) {
-              // Products will be added 1 by 1 to allow for serial numbers (except if quantity > 50)
-              return Array.from({ length: quantity }).map(() => ({
+            let quantityInQuotes = 0;
+
+            const quotesValues = quotesCopy.map((q) => {
+              counter++;
+              let quoteQuantity = (q.content || [])
+                .filter((a) => a.article === e.article)
+                .reduce((acc, e) => acc + (e.quantity || 0), 0);
+              const toDefineQuantity =
+                (e.quantity || 0) - (e.quantity_ready || 0) - quantityInQuotes;
+              quoteQuantity = Math.min(toDefineQuantity, quoteQuantity);
+              quantityInQuotes += quoteQuantity;
+              return {
                 article: e.article,
-                quantity: 1,
+                quantity: Math.max(0, quoteQuantity),
                 from_rel_supplier_quote: order.id,
-                for_rel_quote:
-                  order.from_rel_quote?.length === 1
-                    ? order.from_rel_quote?.[0]
-                    : "",
+                for_rel_quote: q.id,
+                state: "delivered",
+                _key: Math.random().toString() + counter,
+              };
+            });
+            counter++;
+
+            const stockQuantity =
+              (e.quantity || 0) - (e.quantity_ready || 0) - quantityInQuotes;
+
+            // Remove them from the quote
+            return [
+              ...quotesValues,
+              {
+                article: e.article,
+                quantity: Math.max(0, stockQuantity),
+                from_rel_supplier_quote: order.id,
+                for_rel_quote: "",
                 state: "stock",
-                _key: Math.random().toString(),
-              }));
-            } else {
-              return [
-                {
-                  article: e.article,
-                  quantity: Math.max(
-                    0,
-                    (e.quantity || 0) - (e.quantity_ready || 0)
-                  ),
-                  from_rel_supplier_quote: order.id,
-                  for_rel_quote:
-                    order.from_rel_quote?.length === 1
-                      ? order.from_rel_quote?.[0]
-                      : "",
-                  state: "stock",
-                  _key: Math.random().toString(),
-                },
-              ];
-            }
+                _key: Math.random().toString() + counter,
+              },
+            ].filter((e) => e.quantity > 0);
           })
           .reduce((acc, val) => acc.concat(val), []) || [];
       setStockItems(t as (StockItems & { _key: string })[]);
     }
-  }, [order?.id]);
+  }, [order?.id, quotes?.data?.total]);
 
   if (!order) {
-    if (!isPending) onBack();
+    if (!isPending && !quoteIsPending) onBack();
+    return <></>;
+  }
+
+  if (order?.from_rel_quote?.length && !quotes?.data?.total && quoteIsPending) {
     return <></>;
   }
 
@@ -116,15 +138,15 @@ export const StockItemsCreateFromOrder = ({
                   stockItems.filter((item) => item._key !== stockItem._key)
                 )
               }
-              onDuplicate={() =>
+              onDuplicate={(quantity = 1) =>
                 setStockItems((stockItems) => {
                   return [
                     ...stockItems.slice(0, index + 1),
                     {
                       ...stockItem,
                       serial_number: "",
-                      quantity: 1,
-                      _key: Math.random().toString(),
+                      quantity,
+                      _key: Math.random().toString() + Date.now(),
                     },
                     ...stockItems.slice(index + 1),
                   ];
@@ -134,6 +156,8 @@ export const StockItemsCreateFromOrder = ({
           ))}
         </Table.Body>
       </Table.Root>
+
+      <QuantityCallout />
 
       <RestDocumentsInput
         size="xl"
@@ -173,3 +197,10 @@ export const StockItemsCreateFromOrder = ({
     </div>
   );
 };
+
+export const QuantityCallout = () => (
+  <Info className="block">
+    Presser "Entrée" dans le champ "Numéro de série ou de lot" permet de
+    dupliquer la ligne en réduisant la quantité.
+  </Info>
+);

@@ -67,7 +67,7 @@ export const ServicePage = () => {
       filter: buildQueryFromMap({ state: ["done", "cancelled"] }),
     },
   };
-  const [activeTab, setActiveTab] = useRouterState("all");
+  const [activeTab, setActiveTab] = useRouterState("tab", "all");
 
   const [options, setOptions] = useState<RestOptions<ServiceItems>>({
     limit: 20,
