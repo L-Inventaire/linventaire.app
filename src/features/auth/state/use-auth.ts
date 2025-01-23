@@ -11,6 +11,8 @@ import { AuthApiClient } from "../api-client/api-client";
 import { AuthJWT } from "../jwt";
 import { getFullName } from "../utils";
 
+let onExpireTimeout: NodeJS.Timeout;
+
 export const useAuth = () => {
   const [auth, setAuth] = useRecoilState(AuthState);
   const [loading, setLoading] = useRecoilState(LoadingState("useAuth"));
@@ -19,6 +21,14 @@ export const useAuth = () => {
   useGlobalEffect(
     "useAuth",
     () => {
+      setInterval(() => {
+        if (!auth.isLoggedIn) return;
+        extendsToken();
+      }, 5 * 60 * 1000);
+      window.addEventListener("focus", () => {
+        if (!auth.isLoggedIn) return;
+        extendsToken();
+      });
       setLoading(true);
     },
     []
@@ -60,6 +70,14 @@ export const useAuth = () => {
     }
     AuthJWT.token = token;
 
+    const extracted = getExtractedToken();
+    if (extracted?.exp && extracted?.exp > Date.now() / 1000) {
+      if (onExpireTimeout) clearTimeout(onExpireTimeout);
+      onExpireTimeout = setTimeout(() => {
+        extendsToken();
+      }, (extracted?.exp * 1000 - Date.now()) / 2);
+    }
+
     const customer = await CustomersApiClient.getAccount();
     setAuth({
       ...auth,
@@ -81,10 +99,15 @@ export const useAuth = () => {
   const login = extendsToken;
   const getUser = renewAuthorization;
 
-  const logout = useRecoilCallback(() => () => {
+  const logout = useRecoilCallback(() => (withRedirect = true) => {
     AuthJWT.token = "";
     localStorage.clear();
-    document.location.replace("/");
+    const redirect = encodeURIComponent(
+      window.location.pathname + window.location.search
+    );
+    document.location.replace(
+      withRedirect ? "/login?redirect=" + redirect : "/"
+    );
   });
 
   const clearUserCached = useRecoilCallback(({ snapshot }) => () => {

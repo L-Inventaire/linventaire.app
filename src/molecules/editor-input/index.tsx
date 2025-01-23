@@ -16,6 +16,10 @@ import { useClients } from "@features/clients/state/use-clients";
 import { PublicCustomer } from "@features/customers/types/customers";
 import "quill-mention/autoregister";
 
+const ColorAttributor = ReactQuill.Quill.import("attributors/style/color");
+ColorAttributor.whitelist = [];
+ReactQuill.Quill.register(ColorAttributor);
+
 ReactQuill.Quill.register({
   "blots/mention": MentionBlot,
   "modules/mention": Mention,

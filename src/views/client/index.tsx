@@ -59,6 +59,8 @@ import { SetupFeaturebase } from "@views/featurebase";
 import { CRMPage } from "./modules/crm";
 import { GroupInvoices } from "./modules/invoices/group-items";
 import { InvoicesSettingsPage } from "./settings/invoices";
+import { useNavigationHistory } from "@features/utils/hooks/use-navigation-history";
+import { useEffect } from "react";
 
 export const BackOfficeRoutes = () => {
   return (
@@ -163,12 +165,18 @@ export const Layout = () => {
   useTagConfiguration();
 
   const [menuOpen, setMenuOpen] = useRecoilState(ResponsiveMenuAtom);
+  useNavigationHistory();
   useWebsockets();
   const { user, logout } = useAuth();
   const { client, clients, loading } = useClients();
   const afterSignupOrNewCompany = useRecoilValue(DidCreateCompanyOrSignupAtom);
   const navigate = useNavigate();
   useRoutes();
+
+  // Used for useRedirectToApp
+  useEffect(() => {
+    if (client?.client_id) localStorage.setItem("client_id", client?.client_id);
+  }, [client?.client_id]);
 
   if (!user?.id) {
     logout();

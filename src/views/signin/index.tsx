@@ -1,12 +1,13 @@
+import { AnimatedBackground } from "@atoms/animated-background";
 import SingleCenterCard from "@atoms/single-center-card/single-center-card";
+import { useHasAccess } from "@features/access";
 import { useAuth } from "@features/auth/state/use-auth";
+import { useClients } from "@features/clients/state/use-clients";
 import { ROUTES, getRoute } from "@features/routes";
 import { ReactNode, useCallback, useEffect } from "react";
 import { Route, useNavigate } from "react-router-dom";
 import { Login } from "./login";
 import { SignUp } from "./signup";
-import { AnimatedBackground } from "@atoms/animated-background";
-import { useClients } from "@features/clients/state/use-clients";
 
 export const LoginRoutes = () => {
   return (
@@ -35,15 +36,30 @@ const useRedirectToApp = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { clients, loading } = useClients();
+  const hasAccess = useHasAccess();
 
   const redirectToApp = useCallback(() => {
-    navigate(
-      decodeURIComponent(
-        new URL((window as any).document.location).searchParams.get("r") || ""
-      ) || clients?.[0]?.client?.id
-        ? getRoute(ROUTES.Home, { client: clients?.[0]?.client?.id })
-        : ROUTES.JoinCompany
-    );
+    if (clients?.[0]?.client?.id) {
+      let bestClient = localStorage.getItem("client_id") as string;
+      if (!bestClient || !clients.find((c) => c.client.id === bestClient)) {
+        bestClient = clients[0].client.id;
+        localStorage.setItem("client_id", bestClient);
+      }
+      // Check if we have a "redirect" query parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirect = urlParams.get("redirect");
+      console.log("redirect", redirect);
+      if (redirect) navigate(redirect);
+      else if (hasAccess("ACCOUNTING_READ"))
+        navigate(getRoute(ROUTES.Home, { client: bestClient }));
+      else if (hasAccess("INVOICES_READ"))
+        navigate(getRoute(ROUTES.Invoices, { client: bestClient }));
+      else if (hasAccess("ONSITE_SERVICES_READ"))
+        navigate(getRoute(ROUTES.ServiceItems, { client: bestClient }));
+      else navigate(getRoute(ROUTES.Contacts, { client: bestClient }));
+    } else {
+      navigate(ROUTES.JoinCompany);
+    }
   }, [navigate, clients, loading]);
 
   useEffect(() => {

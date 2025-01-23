@@ -57,7 +57,9 @@ export const InputWithSuggestions = (props: InputSuggestionProps) => {
         );
         break;
       case "Enter":
-        if (
+        if (props?.onKeyDown) {
+          props?.onKeyDown?.(e);
+        } else if (
           selectedIndex < filteredOptions.length &&
           filteredOptions.length &&
           ref.current?.matches(":focus")

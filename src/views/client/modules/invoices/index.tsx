@@ -30,6 +30,7 @@ import {
 } from "../../../../components/search-bar/utils/utils";
 import { InvoiceStatus } from "./components/invoice-status";
 import _ from "lodash";
+import { useRouterState } from "@features/utils/hooks/use-router-state";
 
 export const InvoicesPage = () => {
   const key = useParams().type;
@@ -88,7 +89,7 @@ const InvoicesPageContent = () => {
       filter: buildQueryFromMap({ state: ["closed"] }),
     },
   };
-  const [activeTab, setActiveTab] = useState("all");
+  const [activeTab, setActiveTab] = useRouterState("tab", "all");
   const [pagination, setPagination] = useState<
     Omit<Pagination, "total"> & { total?: number }
   >({

@@ -31,8 +31,6 @@ export const StockAndServicesPreferences = () => {
     refresh();
   }, []);
 
-  console.log("serviceItems", serviceItems?.default_article);
-
   return (
     <Page title={[{ label: "Stock et service" }, { label: "L'inventaire" }]}>
       <div className="w-full max-w-4xl mx-auto mt-6">
@@ -78,12 +76,6 @@ export const StockAndServicesPreferences = () => {
               <Button
                 className="mt-4 mb-6"
                 onClick={async () => {
-                  console.log("TEST", {
-                    ...((client?.service_items ||
-                      {}) as Clients["service_items"]),
-                    ...serviceItems,
-                  });
-
                   await update(client?.id || "", {
                     service_items: {
                       ...((client?.service_items ||

@@ -1,16 +1,20 @@
 import { useClients } from "@features/clients/state/use-clients";
 import { useEffect } from "react";
 import { useAuth } from "./use-auth";
+import { io, Socket } from "socket.io-client";
+import Env from "@config/environment";
+import { AuthJWT } from "../jwt";
+import { queryClient } from "../../../index";
+import { useRefreshRestHistory } from "@features/utils/rest/hooks/use-history";
 
-// let socket: Socket<DefaultEventsMap, DefaultEventsMap> | null = null;
+let socket: Socket<any, any> | null = null;
 
 export const useWebsockets = () => {
   const { user } = useAuth();
   const { clients } = useClients();
-  //const refreshHistory = useRefreshRestHistory();
+  const refreshHistory = useRefreshRestHistory();
 
   useEffect(() => {
-    /*
     if (user?.id) {
       if (socket) socket.close();
       const endpoint = Env.server.replace(/\/$/, "").replace(/^http/, "ws");
@@ -28,10 +32,14 @@ export const useWebsockets = () => {
         }
       });
 
-      socket.on("message", (event) => {
+      socket.on("message", (event: any) => {
         if (event.event === "invalidated") {
           for (const doc of event.data) {
-            const invalidated = [doc.doc_table];
+            // Only update a single document for now
+            const invalidated =
+              doc.doc_pk?.client_id && doc.doc_pk?.id
+                ? [doc.doc_table, doc.doc_pk?.client_id, doc.doc_pk?.id]
+                : [doc.doc_table];
             queryClient.invalidateQueries({
               queryKey: invalidated,
             });
@@ -58,6 +66,6 @@ export const useWebsockets = () => {
           }
         }
       });
-    }*/
+    }
   }, [user?.id, clients.length]);
 };

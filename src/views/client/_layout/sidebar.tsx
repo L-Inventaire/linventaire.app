@@ -28,7 +28,6 @@ import { useLocation, useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { Account } from "./account";
 import { ResponsiveMenuAtom } from "./header";
-import { useRedirectToHome } from "@features/clients/state/use-clients";
 
 export const SideBar = () => {
   const { t } = useTranslation();
@@ -36,7 +35,6 @@ export const SideBar = () => {
   const hasAccess = useHasAccess();
   const menuOpen = useRecoilValue(ResponsiveMenuAtom);
   const location = useLocation();
-  useRedirectToHome();
 
   const statistics = useStatistics(clientId, "year");
 
