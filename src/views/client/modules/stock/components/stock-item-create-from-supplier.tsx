@@ -3,11 +3,10 @@ import { RestDocumentsInput } from "@components/input-rest";
 import { useContact } from "@features/contacts/hooks/use-contacts";
 import { getContactName } from "@features/contacts/types/types";
 import { StockItems } from "@features/stock/types/types";
-import { Callout, Heading, Table } from "@radix-ui/themes";
+import { Heading, Table } from "@radix-ui/themes";
 import { useEffect, useState } from "react";
 import { QuotesCheckers, SerialNumberCheckers } from "./create-from/checkers";
 import { StockItemLine } from "./create-from/line";
-import { Info } from "@atoms/text";
 import { QuantityCallout } from "./stock-item-create-from-order";
 
 export const StockItemsCreateFromSupplier = ({
