@@ -253,8 +253,12 @@ export const SearchBar = ({
                 placeholder={
                   placeholder ||
                   (filtersEnabled
-                    ? "Chercher des filtres ou des éléments "
-                    : "Filtrer les éléments ") + showShortCut(["cmd+f"])
+                    ? `Chercher des filtres ou des éléments ${showShortCut([
+                        "cmd+f",
+                      ])}`
+                    : `Filtrer les éléments ${showShortCut([
+                        "cmd+f",
+                      ])} (recherche avancée ${showShortCut(["cmd+shift+f"])})`)
                 }
                 inputRef={inputRef}
                 spellCheck={false}
