@@ -45,7 +45,12 @@ export const prepareHistory = (
 
     const isDeleted = a.is_deleted;
     const isRestore = prev.is_deleted && !isDeleted;
-    const isEdit = !isDeleted && !isRestore && a.revisions > prev?.revisions;
+    const isEdit =
+      !isDeleted &&
+      !isRestore &&
+      (a.revisions > prev?.revisions ||
+        a.operation_timestamp - prev?.operation_timestamp >
+          1000 * 60 * 60 * 24);
     const isRestoreOldVersion =
       a.restored_from && a.restored_from !== prev.restored_from;
 
@@ -193,6 +198,7 @@ export const getEventLine = (
       const prevValue = (prev as any)[key];
       const newValue = (a as any)[key];
       if (!_.isEqual(prevValue, newValue)) {
+        if (!(translations?.[key] as any)?.label) return;
         if (prevValue === undefined) {
           added.push(key);
         } else if (newValue === undefined) {
