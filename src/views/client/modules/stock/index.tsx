@@ -14,7 +14,7 @@ import {
 import { PlusIcon } from "@heroicons/react/16/solid";
 import { Tabs } from "@radix-ui/themes";
 import { Page } from "@views/client/_layout/page";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import {
   buildQueryFromMap,
@@ -85,6 +85,8 @@ export const StockPage = () => {
   const navigate = useNavigateAlt();
   const hasAccess = useHasAccess();
 
+  const resetToFirstPage = useRef(() => {});
+
   return (
     <Page
       title={[{ label: "Stock" }]}
@@ -94,9 +96,12 @@ export const StockPage = () => {
             table: "stock_items",
             fields: schemaToSearchFields(schema.data, {}),
           }}
-          onChange={(q) =>
-            q.valid && setOptions({ ...options, query: q.fields })
-          }
+          onChange={(q) => {
+            if (q.valid) {
+              setOptions({ ...options, query: q.fields });
+              resetToFirstPage.current();
+            }
+          }}
           suffix={
             <>
               {hasAccess("STOCK_WRITE") && (
@@ -138,6 +143,7 @@ export const StockPage = () => {
           </Tabs.Root>
         </div>
         <RestTable
+          resetToFirstPage={(f) => (resetToFirstPage.current = f)}
           entity="stock_items"
           onClick={({ id }, event) =>
             navigate(getRoute(ROUTES.StockView, { id }), { event })

@@ -125,6 +125,8 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
     options?.id || "list",
     options?.key || "default",
     options?.id || options?.query || "",
+    options?.offset || 0,
+    options?.limit || 20,
   ];
 
   const [isPendingModification, setIsPendingModification] = useRecoilState(

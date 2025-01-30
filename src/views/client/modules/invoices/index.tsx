@@ -12,16 +12,16 @@ import { Invoices } from "@features/invoices/types/types";
 import { getDocumentNamePlurial } from "@features/invoices/utils";
 import { ROUTES, getRoute } from "@features/routes";
 import { formatNumber } from "@features/utils/format/strings";
+import { useRouterState } from "@features/utils/hooks/use-router-state";
 import { useNavigateAlt } from "@features/utils/navigate";
 import {
   RestOptions,
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
 import { ArrowUturnLeftIcon, PlusIcon } from "@heroicons/react/24/outline";
-import { Pagination } from "@molecules/table/table";
 import { Badge, Tabs } from "@radix-ui/themes";
 import { Page } from "@views/client/_layout/page";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { SearchBar } from "../../../../components/search-bar";
 import {
@@ -29,8 +29,6 @@ import {
   schemaToSearchFields,
 } from "../../../../components/search-bar/utils/utils";
 import { InvoiceStatus } from "./components/invoice-status";
-import _ from "lodash";
-import { useRouterState } from "@features/utils/hooks/use-router-state";
 
 export const InvoicesPage = () => {
   const key = useParams().type;
@@ -90,13 +88,6 @@ const InvoicesPageContent = () => {
     },
   };
   const [activeTab, setActiveTab] = useRouterState("tab", "all");
-  const [pagination, setPagination] = useState<
-    Omit<Pagination, "total"> & { total?: number }
-  >({
-    page: 1,
-    perPage: 20,
-    order: "ASC",
-  });
 
   const [options, setOptions] = useState<RestOptions<Invoices>>({
     limit: 20,
@@ -158,6 +149,8 @@ const InvoicesPageContent = () => {
     completed: completedInvoices?.data?.total || 0,
   };
 
+  const resetToFirstPage = useRef(() => {});
+
   return (
     <Page
       title={[{ label: getDocumentNamePlurial(type[0]) }]}
@@ -170,7 +163,7 @@ const InvoicesPageContent = () => {
           onChange={(q) => {
             if (q.valid) {
               setOptions({ ...options, query: q.fields });
-              setPagination((pagination) => ({ ...pagination, page: 1 }));
+              resetToFirstPage.current();
             }
           }}
           suffix={
@@ -311,6 +304,7 @@ const InvoicesPageContent = () => {
         </div>
 
         <RestTable
+          resetToFirstPage={(f) => (resetToFirstPage.current = f)}
           groupBy="state"
           groupByRender={(row) => (
             <div className="mt-px">
@@ -350,8 +344,6 @@ const InvoicesPageContent = () => {
                 ).includes(a.id || "")
               )
           )}
-          controlledPagination={pagination}
-          setControlledPagination={setPagination}
         />
       </div>
     </Page>

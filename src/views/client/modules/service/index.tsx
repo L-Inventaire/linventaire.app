@@ -1,28 +1,28 @@
 import { Button } from "@atoms/button/button";
 import { Info } from "@atoms/text";
 import { RestTable } from "@components/table-rest";
+import { useHasAccess } from "@features/access";
 import { ROUTES, getRoute } from "@features/routes";
 import { ServiceItemsColumns } from "@features/service/configuration";
 import { useServiceItems } from "@features/service/hooks/use-service-items";
 import { ServiceItems } from "@features/service/types/types";
+import { formatNumber } from "@features/utils/format/strings";
+import { useRouterState } from "@features/utils/hooks/use-router-state";
 import { useNavigateAlt } from "@features/utils/navigate";
 import {
   RestOptions,
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
 import { PlusIcon } from "@heroicons/react/16/solid";
+import { Badge, Tabs } from "@radix-ui/themes";
 import { Page } from "@views/client/_layout/page";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import {
   buildQueryFromMap,
   schemaToSearchFields,
 } from "../../../../components/search-bar/utils/utils";
 import { ServiceItemStatus } from "./components/service-item-status";
-import { Badge, Tabs } from "@radix-ui/themes";
-import { formatNumber } from "@features/utils/format/strings";
-import { useHasAccess } from "@features/access";
-import { useRouterState } from "@features/utils/hooks/use-router-state";
 
 export const ServicePage = () => {
   const tabs = {
@@ -99,6 +99,8 @@ export const ServicePage = () => {
     query: [...((options?.query as any) || []), ...tabs.no_quote.filter],
   });
 
+  const resetToFirstPage = useRef<() => void>(() => {});
+
   return (
     <Page
       title={[{ label: "Service" }]}
@@ -108,9 +110,12 @@ export const ServicePage = () => {
             table: "service_items",
             fields: schemaToSearchFields(schema.data, {}),
           }}
-          onChange={(q) =>
-            q.valid && setOptions({ ...options, query: q.fields })
-          }
+          onChange={(q) => {
+            if (q.valid) {
+              setOptions({ ...options, query: q.fields });
+              resetToFirstPage.current();
+            }
+          }}
           suffix={
             <>
               {hasAccess("ONSITE_SERVICES_WRITE") && (
@@ -160,6 +165,7 @@ export const ServicePage = () => {
           </Tabs.Root>
         </div>
         <RestTable
+          resetToFirstPage={(f) => (resetToFirstPage.current = f)}
           entity="service_items"
           onClick={({ id }, event) =>
             navigate(getRoute(ROUTES.ServiceItemsView, { id }), { event })
