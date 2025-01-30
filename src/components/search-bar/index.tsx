@@ -232,6 +232,9 @@ export const SearchBar = ({
                         setFiltersEnabled(
                           e?.type === "click" ? !filtersEnabled : true
                         );
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setFocusIn(true);
                       }}
                     />
                   )
