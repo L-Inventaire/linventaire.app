@@ -1,15 +1,9 @@
+import { useControlledEffect } from "@features/utils/hooks/use-controlled-effect";
 import _ from "lodash";
-import React, {
-  Dispatch,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import { ReactNode, useCallback, useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import "./index.scss";
 import { Column, Pagination, RenderOptions, RenderedTable } from "./table";
-import { useControlledEffect } from "@features/utils/hooks/use-controlled-effect";
 
 export type TablePropsType<T> = {
   name?: string;
