@@ -87,6 +87,10 @@ export const paymentDelayOptions = [
     label: "Fin de mois, puis délai de X jours",
     value: "month_end_delay_last",
   },
+  {
+    label: "Date spécifique",
+    value: "date",
+  },
 ];
 
 export const tvaMentionOptions = [
