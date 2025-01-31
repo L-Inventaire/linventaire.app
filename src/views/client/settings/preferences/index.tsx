@@ -175,6 +175,11 @@ export const PreferencesPage = () => {
                       placeholder="587"
                     />
                     <FormInput
+                      ctrl={smtpCtrl("tls")}
+                      label="TLS"
+                      type="boolean"
+                    />
+                    <FormInput
                       ctrl={smtpCtrl("user")}
                       label="Nom d'utilisateur"
                       placeholder="user"
@@ -211,6 +216,23 @@ export const PreferencesPage = () => {
                     />
                   </div>
                 </>
+              )}
+              {!readonly && (
+                <Button
+                  theme="primary"
+                  size="md"
+                  onClick={() =>
+                    update(client?.id || "", {
+                      smtp: {
+                        ...(client!.smtp || {}),
+                        ...smtp,
+                      },
+                    })
+                  }
+                  loading={loading}
+                >
+                  {t("general.save")}
+                </Button>
               )}
             </div>
           </Tabs.Content>
