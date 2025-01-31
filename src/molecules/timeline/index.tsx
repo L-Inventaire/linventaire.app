@@ -80,18 +80,22 @@ export const Timeline = ({
         <Heading size="4" className="grow">
           Activité
         </Heading>
-        <Tooltip content="Subscribe to changes on this document.">
-          <Button size="2" variant="ghost">
-            Être notifié
-          </Button>
-        </Tooltip>
-        <UsersInput
-          data-tooltip="Change subscribers"
-          size="md"
-          onChange={() => {}}
-          value={[]}
-          disabled={false}
-        />
+        {false && (
+          <>
+            <Tooltip content="Subscribe to changes on this document.">
+              <Button size="2" variant="ghost">
+                Être notifié
+              </Button>
+            </Tooltip>
+            <UsersInput
+              data-tooltip="Change subscribers"
+              size="md"
+              onChange={() => {}}
+              value={[]}
+              disabled={false}
+            />
+          </>
+        )}
       </div>
 
       <div className="mt-3">

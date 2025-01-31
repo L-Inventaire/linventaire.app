@@ -76,7 +76,10 @@ export const CompletionTags = (props: {
     <div className="flex space-x-1">
       {props?.lines?.some((a) => a.type === "service") && (
         <Tag
-          onClick={() => onClick("service_items", 'state:"done"')}
+          onClick={(e) => {
+            e.stopPropagation();
+            onClick("service_items", 'state:"done"');
+          }}
           className={twMerge(shortLeft && "w-5")}
           noColor
           size={props.size || "xs"}
@@ -102,7 +105,10 @@ export const CompletionTags = (props: {
         <div className="flex -space-x-px">
           {props.invoice?.type !== "supplier_quotes" && (
             <Tag
-              onClick={() => onClick("stock_items", "")}
+              onClick={(e) => {
+                e.stopPropagation();
+                onClick("stock_items", "");
+              }}
               className={twMerge("rounded-r-none", shortLeft && "w-5")}
               noColor
               size={props.size || "xs"}
@@ -123,9 +129,15 @@ export const CompletionTags = (props: {
             </Tag>
           )}
           <Tag
-            onClick={() =>
-              onClick("stock_items", 'state:"delivered","depleted"')
-            }
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick(
+                "stock_items",
+                props.invoice?.type === "supplier_quotes"
+                  ? ""
+                  : 'state:"delivered","depleted"'
+              );
+            }}
             className={twMerge(
               props.invoice?.type !== "supplier_quotes" && "rounded-l-none",
               shortRight && "w-5"

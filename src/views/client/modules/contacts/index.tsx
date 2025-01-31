@@ -16,7 +16,7 @@ import {
 } from "@features/utils/rest/hooks/use-rest";
 import { PlusIcon } from "@heroicons/react/20/solid";
 import { Page } from "@views/client/_layout/page";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
 import { formatNumber } from "@features/utils/format/strings";
@@ -36,6 +36,8 @@ export const ContactsPage = () => {
   const navigate = useNavigateAlt();
   const hasAccess = useHasAccess();
 
+  const resetToFirstPage = useRef<() => void>(() => {});
+
   return (
     <Page
       title={[{ label: "Contacts" }]}
@@ -45,9 +47,12 @@ export const ContactsPage = () => {
             table: "contacts",
             fields: schemaToSearchFields(schema.data, ContactsFieldsNames()),
           }}
-          onChange={(q) =>
-            q.valid && setOptions({ ...options, query: q.fields })
-          }
+          onChange={(q) => {
+            if (q.valid) {
+              setOptions({ ...options, query: q.fields });
+              resetToFirstPage.current();
+            }
+          }}
           suffix={
             <>
               {hasAccess("CONTACTS_WRITE") && (
@@ -78,6 +83,7 @@ export const ContactsPage = () => {
         </div>
 
         <RestTable
+          resetToFirstPage={(func) => (resetToFirstPage.current = func)}
           entity="contacts"
           onClick={({ id }, event) =>
             navigate(getRoute(ROUTES.ContactsView, { id }), { event })

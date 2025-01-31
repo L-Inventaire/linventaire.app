@@ -72,7 +72,6 @@ export const StockItemLine = ({
             value={value.serial_number}
             onChange={(e) => onChange({ ...value, serial_number: e })}
             onEnter={() => {
-              console.log("Enter pressed");
               const lotSize =
                 article?.suppliers_details?.[supplierQuote?.supplier || ""]
                   ?.delivery_quantity || 1;

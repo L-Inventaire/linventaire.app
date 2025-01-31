@@ -16,7 +16,7 @@ import {
 } from "@features/utils/rest/hooks/use-rest";
 import { PlusIcon } from "@heroicons/react/20/solid";
 import { Page } from "@views/client/_layout/page";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
 import { formatNumber } from "@features/utils/format/strings";
@@ -33,6 +33,8 @@ export const ArticlesPage = () => {
   const navigate = useNavigateAlt();
   const hasAccess = useHasAccess();
 
+  const resetToFirstPage = useRef<() => void>(() => {});
+
   return (
     <Page
       title={[{ label: "Articles" }]}
@@ -42,9 +44,12 @@ export const ArticlesPage = () => {
             table: "articles",
             fields: schemaToSearchFields(schema.data, ArticlesFieldsNames()),
           }}
-          onChange={(q) =>
-            q.valid && setOptions({ ...options, query: q.fields })
-          }
+          onChange={(q) => {
+            if (q.valid) {
+              setOptions({ ...options, query: q.fields });
+              resetToFirstPage.current();
+            }
+          }}
           suffix={
             <>
               {hasAccess("ARTICLES_WRITE") && (
@@ -73,6 +78,7 @@ export const ArticlesPage = () => {
           </Info>
         </div>
         <RestTable
+          resetToFirstPage={(reset) => (resetToFirstPage.current = reset)}
           entity="articles"
           showPagination="full"
           onClick={({ id }, event) =>

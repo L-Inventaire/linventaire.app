@@ -1,14 +1,9 @@
+import { useControlledEffect } from "@features/utils/hooks/use-controlled-effect";
 import _ from "lodash";
-import React, {
-  Dispatch,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import { ReactNode, useCallback, useEffect, useState } from "react";
+import { twMerge } from "tailwind-merge";
 import "./index.scss";
 import { Column, Pagination, RenderOptions, RenderedTable } from "./table";
-import { twMerge } from "tailwind-merge";
 
 export type TablePropsType<T> = {
   name?: string;
@@ -18,6 +13,7 @@ export type TablePropsType<T> = {
   rowIndex?: string;
   total?: number;
 
+  resetToFirstPage?: (func: () => void) => void;
   checkboxAlwaysVisible?: boolean;
   grid?: boolean;
   cellClassName?: (row: T) => string;
@@ -51,10 +47,6 @@ export type TablePropsType<T> = {
     Pagination,
     "order" | "orderBy" | "page" | "perPage"
   >;
-  controlledPagination?: Omit<Pagination, "total"> & { total?: number };
-  setControlledPagination?: Dispatch<
-    React.SetStateAction<Omit<Pagination, "total"> & { total?: number }>
-  >;
 };
 
 export function Grid<T>(
@@ -79,8 +71,6 @@ export function Grid<T>(
           render: () => "",
         })),
       ]}
-      controlledPagination={props?.controlledPagination}
-      setControlledPagination={props?.setControlledPagination}
     />
   );
 }
@@ -106,8 +96,6 @@ export function Table<T>({
   grid,
   cellClassName,
   className,
-  controlledPagination,
-  setControlledPagination,
   ...props
 }: TablePropsType<T>) {
   const [paginationState, setPaginationState] = useState<Pagination>({
@@ -132,16 +120,18 @@ export function Table<T>({
       ]
     : userColumns;
 
-  const pagination = controlledPagination
-    ? {
-        ...controlledPagination,
-        total:
-          (controlledPagination?.total ? controlledPagination.total : total) ||
-          0,
-      }
-    : paginationState;
+  const pagination = paginationState;
+  const setPagination = setPaginationState!;
 
-  const setPagination = (setControlledPagination || setPaginationState)!;
+  const resetToFirstPage = () => {
+    setPagination({
+      ...pagination,
+      page: 1,
+    });
+  };
+  useControlledEffect(() => {
+    props.resetToFirstPage?.(resetToFirstPage);
+  }, []);
 
   const resolve = useCallback(async () => {
     setLoading(true);

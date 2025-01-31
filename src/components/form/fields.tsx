@@ -162,7 +162,7 @@ export const FormInput = memo(
             placeholder={placeholder}
             value={(_value as string) || ""}
             onChange={(e) => onChange(e.target.value, e.target.value)}
-            onKeyDown={(e) => {
+            onKeyUp={(e) => {
               if (e.key === "Enter") props.onSearch?.();
             }}
             disabled={disabled}
@@ -214,7 +214,7 @@ export const FormInput = memo(
                 highlight={highlight}
                 value={(_value as string) || ""}
                 onChange={(e) => onChange(e.target.value, e.target.value)}
-                onKeyDown={(e) => {
+                onKeyUp={(e) => {
                   if (props.onEnter && e.key === "Enter") props.onEnter();
                   else if (e.key === "Enter") props.onSearch?.();
                 }}
@@ -230,7 +230,7 @@ export const FormInput = memo(
                   const quantity = timeBase60ToDecimal(number);
                   onChange(quantity);
                 }}
-                onKeyDown={(e) => {
+                onKeyUp={(e) => {
                   if (e.key === "Enter") props.onSearch?.();
                 }}
                 value={timeDecimalToBase60(_value)}
@@ -292,7 +292,7 @@ export const FormInput = memo(
                 highlight={highlight}
                 value={(_value as string) || ""}
                 onChange={(e) => onChange(e.target.value)}
-                onKeyDown={(e) => {
+                onKeyUp={(e) => {
                   if (e.key === "Enter") props.onSearch?.();
                 }}
                 size={size}
@@ -326,7 +326,7 @@ export const FormInput = memo(
                 highlight={highlight}
                 value={_value as number}
                 onChange={(e) => onChange(e.target.value)}
-                onKeyDown={(e) => {
+                onKeyUp={(e) => {
                   if (e.key === "Enter") props.onSearch?.();
                 }}
                 size={size}
@@ -357,7 +357,7 @@ export const FormInput = memo(
                 highlight={highlight}
                 value={_value ? new Date(_value as string | number) : null}
                 onChange={(e) => onChange(e)}
-                onKeyDown={(e) => {
+                onKeyUp={(e) => {
                   if (e.key === "Enter") props.onSearch?.();
                 }}
                 placeholder={placeholder}
