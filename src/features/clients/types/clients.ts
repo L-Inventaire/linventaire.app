@@ -95,6 +95,8 @@ export type Clients = {
 
   invoices_counters: InvoiceCounters;
   service_items: ServiceItems;
+
+  smtp: SmtpOptions;
 };
 
 export type ServiceItems = {
@@ -173,4 +175,19 @@ type Preferences = {
 
 type Configuration = {
   plan: string;
+};
+
+export type SmtpOptions = {
+  enabled: boolean;
+  from: string;
+  host: string;
+  port: number;
+  user: string;
+  pass: string;
+  tls: boolean;
+  dkim?: {
+    domainName: string;
+    keySelector: string;
+    privateKey: string;
+  };
 };

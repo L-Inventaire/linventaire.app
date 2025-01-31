@@ -29,6 +29,7 @@ export type SearchFormFieldType = {
   key: string;
   label?: string;
   type?:
+    | "password"
     | "tags"
     | "users"
     | "files"

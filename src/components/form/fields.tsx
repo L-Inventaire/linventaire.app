@@ -68,6 +68,7 @@ export const FormInput = memo(
       metadata?: {
         [key: string]: any;
       };
+      autoComplete?: string;
     }
   ) => {
     const formContext = useContext(FormContextContext);
@@ -140,7 +141,10 @@ export const FormInput = memo(
 
     if (
       props.main &&
-      (!props.type || props.type === "text" || props.type === "scan")
+      (!props.type ||
+        props.type === "text" ||
+        props.type === "scan" ||
+        props.type === "password")
     ) {
       return (
         <div
@@ -166,6 +170,8 @@ export const FormInput = memo(
               if (e.key === "Enter") props.onSearch?.();
             }}
             disabled={disabled}
+            type={props.type === "password" ? "password" : "text"}
+            autoComplete={props.autoComplete}
           />
           <Button onClick={props.onSearch} size="md" shortcut={["enter"]}>
             <MagnifyingGlassIcon className="h-6 w-6 -mx-2" />
@@ -198,7 +204,8 @@ export const FormInput = memo(
           <>
             {(!props.type ||
               props.type === "text" ||
-              props.type === "scan") && (
+              props.type === "scan" ||
+              props.type === "password") && (
               <InputWithSuggestions
                 className="w-full"
                 autoFocus={props.autoFocus}
@@ -221,6 +228,8 @@ export const FormInput = memo(
                 size={size}
                 placeholder={placeholder}
                 disabled={disabled}
+                type={props.type === "password" ? "password" : "text"}
+                autoComplete={props.autoComplete}
               />
             )}
             {props.type === "quantity" && props.metadata?.unit === "h" && (

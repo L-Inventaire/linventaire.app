@@ -22,6 +22,7 @@ import { buildFilter } from "./utils/filter";
 import { OutputQuery, SearchField } from "./utils/types";
 import { getFromUrl, setToUrl } from "./utils/url";
 import { extractFilters, generateQuery } from "./utils/utils";
+import { Popover } from "@radix-ui/themes";
 
 export const SearchBar = ({
   schema,
@@ -285,14 +286,21 @@ export const SearchBar = ({
           />
         </div>
         {fields.length > 0 && (
-          <Button
-            className="shrink-0 hidden md:flex"
-            size="sm"
-            theme="invisible"
-            icon={(p) => <ChevronUpDownIcon {...p} />}
-          >
-            Affichage
-          </Button>
+          <Popover.Root>
+            <Popover.Trigger>
+              <Button
+                className="shrink-0 hidden md:flex"
+                size="sm"
+                theme="invisible"
+                icon={(p) => <ChevronUpDownIcon {...p} />}
+              >
+                Affichage
+              </Button>
+            </Popover.Trigger>
+            <Popover.Content width="360px">
+              <div>Couidou</div>
+            </Popover.Content>
+          </Popover.Root>
         )}
         {showExport !== false &&
           false &&
