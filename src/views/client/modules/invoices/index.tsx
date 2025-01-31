@@ -71,7 +71,7 @@ const InvoicesPageContent = () => {
                 key: "payment_information.computed_date",
                 values: [
                   {
-                    value: Date.now(),
+                    value: new Date(new Date().setHours(0, 0, 0, 0)).getTime(),
                     op: "lte",
                   },
                 ],
