@@ -119,7 +119,9 @@ export const computePaymentDelayDate = (invoice: Invoices): DateTime => {
   const payment = invoice.payment_information;
   const delayType = payment?.delay_type ?? "direct";
   let date = DateTime.fromMillis(
-    invoice.wait_for_completion_since ?? Date.now()
+    (invoice.type === "quotes"
+      ? invoice.wait_for_completion_since
+      : invoice.emit_date) || Date.now()
   );
 
   if (delayType === "direct") {

@@ -16,6 +16,7 @@ import { useRouterState } from "@features/utils/hooks/use-router-state";
 import { useNavigateAlt } from "@features/utils/navigate";
 import {
   RestOptions,
+  RestSearchQuery,
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
 import { ArrowUturnLeftIcon, PlusIcon } from "@heroicons/react/24/outline";
@@ -58,6 +59,27 @@ const InvoicesPageContent = () => {
           : "sent",
       }),
     },
+    ...(type.includes("invoices")
+      ? {
+          late: {
+            label: "En retard",
+            filter: [
+              ...buildQueryFromMap({
+                state: "sent",
+              }),
+              {
+                key: "payment_information.computed_date",
+                values: [
+                  {
+                    value: Date.now(),
+                    op: "lte",
+                  },
+                ],
+              } as RestSearchQuery,
+            ],
+          },
+        }
+      : {}),
     ...(type.includes("supplier_quotes")
       ? {
           completed: {
@@ -141,12 +163,18 @@ const InvoicesPageContent = () => {
     limit: 1,
     query: [...invoiceFilters.query, ...(tabs.completed?.filter || [])],
   });
+  const { invoices: lateInvoices } = useInvoices({
+    key: "lateInvoices",
+    limit: 1,
+    query: [...invoiceFilters.query, ...(tabs.late?.filter || [])],
+  });
   const counters = {
     draft: draftInvoices?.data?.total || 0,
     sent: sentInvoices?.data?.total || 0,
     purchase_order: inProgressInvoices?.data?.total || 0,
     recurring: recurringInvoices?.data?.total || 0,
     completed: completedInvoices?.data?.total || 0,
+    late: lateInvoices?.data?.total || 0,
   };
 
   const resetToFirstPage = useRef(() => {});
