@@ -139,7 +139,7 @@ export const ServiceItemsDetailsPage = ({
           {(!article?.unit || article?.unit === "h") && (
             <InputTime
               size="lg"
-              label={"Temps estimé"}
+              label={"Temps"}
               labelProps={{ className: "whitespace-nowrap" }}
               onChange={(_, number) => {
                 const quantity = timeBase60ToDecimal(number);

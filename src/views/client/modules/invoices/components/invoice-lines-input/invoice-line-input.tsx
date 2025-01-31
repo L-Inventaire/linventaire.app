@@ -200,7 +200,7 @@ export const InvoiceLineInput = (props: {
                     value={formatQuantity(value.quantity, value.unit)}
                   >
                     <Text as="div" size="2" weight="bold">
-                      {formatQuantity(value.quantity || 1, value.unit)}{" "}
+                      {formatQuantity(value.quantity || 0, value.unit)}{" "}
                       <Unit unit={value?.unit} />
                     </Text>
                     <Text as="div" color="gray" size="2">

@@ -15,6 +15,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { InvoiceLinesInput } from "../components/invoice-lines-input";
 import { computePricesFromInvoice } from "../utils";
 import { useClients } from "@features/clients/state/use-clients";
+import { format } from "date-fns";
 
 export const QuoteFromItems = (_props: { readonly?: boolean }) => {
   const { ids } = useParams();
@@ -51,13 +52,18 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
 
   useEffect(() => {
     if (articles?.data?.list?.length) {
-      const grouped = _.groupBy(usedItems, "article");
+      const grouped = Object.values(
+        _.groupBy(
+          usedItems,
+          (a) => a.article + "-" + format(a.created_at as any, "PP")
+        )
+      );
       const invoice = {
         ...lines,
         client: lines.client || usedItems?.[0]?.client || "",
         content:
           lines.content ||
-          Object.values(grouped).map((item) => {
+          grouped.map((item) => {
             const article = (articles.data?.list || []).find(
               (article) => article.id === item[0].article
             );
@@ -70,13 +76,13 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
             return {
               _id: article?.id,
               article: usedArticle?.id || "",
-              name: usedArticle?.name || "(pas d'article)",
-              description:
-                usedArticle?.description ||
-                `(${item
-                  .map((a) => a.title)
-                  .filter(Boolean)
-                  .join(", ")})`,
+              name: item
+                .map((a) => format(a.created_at as any, "PP"))
+                .join(", "),
+              description: item
+                .map((a) => a.title)
+                .filter(Boolean)
+                .join(", "),
               type: usedArticle?.type ?? "service",
               quantity:
                 item.reduce(

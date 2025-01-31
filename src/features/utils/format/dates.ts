@@ -84,23 +84,10 @@ export function timeDecimalToBase60(
   if (hourDecimal === undefined) {
     return [0, 0];
   }
-
-  // Extract the whole hours
-  const hours = Math.floor(hourDecimal);
-
-  // Calculate the remaining minutes in decimal
-  const decimalMinutes = (hourDecimal - hours) * 60;
-
-  // Round minutes to the nearest whole number
-  const minutes = Math.round(decimalMinutes);
-
-  // If rounding minutes results in 60, adjust hours and reset minutes to 0
-  if (minutes === 60) {
-    return [hours + 1, 0];
-  }
-
-  // Format the output as "hours:minutes" with leading zero for minutes if necessary
-  return [hours, minutes];
+  return [
+    Math.floor(hourDecimal),
+    Math.floor((hourDecimal - Math.floor(hourDecimal)) * 60),
+  ];
 }
 
 export function prettyPrintTime(timeArray: number[]): string {
