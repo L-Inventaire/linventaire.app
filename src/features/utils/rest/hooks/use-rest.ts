@@ -1,7 +1,7 @@
 import { useCurrentClient } from "@features/clients/state/use-clients";
 import { LoadingState } from "@features/utils/store/loading-state-atom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import _, { isArray, set } from "lodash";
+import _, { isArray } from "lodash";
 import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
 import { useDebounceValue } from "usehooks-ts";

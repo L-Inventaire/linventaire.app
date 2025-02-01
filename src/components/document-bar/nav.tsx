@@ -1,5 +1,4 @@
 import { Button } from "@atoms/button/button";
-import Link from "@atoms/link";
 import { Info } from "@atoms/text";
 import { useNavigateAlt } from "@features/utils/navigate";
 import {
