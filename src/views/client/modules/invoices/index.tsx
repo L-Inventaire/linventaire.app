@@ -133,6 +133,7 @@ const InvoicesPageContent = () => {
   const [activeTab, setActiveTab] = useRouterState("tab", "all");
 
   const [options, setOptions] = useState<RestOptions<Invoices>>({
+    index: "state_order,emit_date desc",
     limit: 20,
     offset: 0,
     query: [],
@@ -140,7 +141,6 @@ const InvoicesPageContent = () => {
 
   const invoiceFilters = {
     ...options,
-    index: "state_order,emit_date desc",
     query: [...((options?.query as any) || []), ...buildQueryFromMap({ type })],
   };
 
