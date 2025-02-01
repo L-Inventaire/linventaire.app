@@ -12,6 +12,7 @@ import { InvoiceRestDocument } from "@views/client/modules/invoices/components/i
 import { twMerge } from "tailwind-merge";
 import { useAccountingAccounts } from "./hooks/use-accounting-accounts";
 import { AccountingAccounts, AccountingTransactions } from "./types/types";
+import { format } from "date-fns";
 
 export const useAccountingTransactionDefaultModel: () => Partial<AccountingTransactions> =
   () => ({});
@@ -21,14 +22,7 @@ export const AccountingTransactionsColumns: (
 ) => Column<AccountingTransactions>[] = (referenceAccounts) => [
   {
     title: "Date",
-    render: (item) => (
-      <>
-        {formatTime(item.transaction_date, {
-          hideTime: true,
-          keepDate: true,
-        })}
-      </>
-    ),
+    render: (item) => <>{format(new Date(item.transaction_date), "PP")}</>,
   },
   { title: "Référence", render: (item) => <>{item.reference}</> },
   {

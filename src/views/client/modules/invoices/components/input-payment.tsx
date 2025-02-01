@@ -11,6 +11,7 @@ import { BanknotesIcon } from "@heroicons/react/20/solid";
 import { PageBlockHr } from "@views/client/_layout/page";
 import { computePaymentDelayDate, isPaymentLate } from "../utils";
 import { Contacts } from "@features/contacts/types/types";
+import { format } from "date-fns";
 
 export const InvoicePaymentInput = ({
   ctrl,
@@ -89,10 +90,7 @@ export const InvoicePaymentInput = ({
             <>
               <Info className={"text-blue-500"}>
                 Signé, paiement avant le :{" "}
-                {formatTime(computePaymentDelayDate(invoice).toJSDate(), {
-                  keepDate: true,
-                  hideTime: true,
-                })}
+                {format(computePaymentDelayDate(invoice).toJSDate(), "PP")}
               </Info>
               {isPaymentLate(invoice) && (
                 <Info className={"text-red-500"}>

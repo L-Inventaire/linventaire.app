@@ -23,6 +23,7 @@ import { Invoices } from "@features/invoices/types/types";
 import { getDocumentName, getInvoiceNextDate } from "@features/invoices/utils";
 import { ROUTES } from "@features/routes";
 import { formatTime } from "@features/utils/format/dates";
+import { format as formatdfns } from "date-fns";
 import {
   getOptimalCounterFormat,
   useFormattedNumerotationByInvoice,
@@ -408,12 +409,12 @@ export const InvoicesDetailsPage = ({
                     readonly={readonly}
                   >
                     <Text size="2" className="opacity-75" weight="medium">
-                      {"Accepté le "}
-                      {formatTime(
-                        ctrl("wait_for_completion_since").value || Date.now(),
-                        {
-                          hideTime: true,
-                        }
+                      {"• Accepté le "}
+                      {formatdfns(
+                        new Date(
+                          ctrl("wait_for_completion_since").value || Date.now()
+                        ),
+                        "PP"
                       )}
                     </Text>
                   </InputButton>

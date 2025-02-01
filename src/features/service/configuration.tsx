@@ -20,6 +20,7 @@ import { ServiceTimesDetailsPage } from "@views/client/modules/service/component
 import _ from "lodash";
 import { twMerge } from "tailwind-merge";
 import { ServiceItems, ServiceTimes } from "./types/types";
+import { format } from "date-fns";
 
 export const useServiceItemDefaultModel: () => Partial<ServiceItems> = () => {
   return {
@@ -33,7 +34,7 @@ export const ServiceItemsColumns: Column<ServiceItems>[] = [
     title: "Date",
     render: (item) => (
       <Base className="whitespace-nowrap">
-        {formatTime(item.started_at || item.created_at, { hideTime: true })}
+        {format(new Date(item.started_at || item.created_at), "PP")}
       </Base>
     ),
   },

@@ -9,6 +9,7 @@ import { AddressLength, formatAddress } from "@features/utils/format/address";
 import { formatTime } from "@features/utils/format/dates";
 import { TruckIcon } from "@heroicons/react/20/solid";
 import { computeDeliveryDelayDate, isDeliveryLate } from "../utils";
+import { format } from "date-fns";
 
 export const getBestDeliveryAddress = (
   client: Contacts,
@@ -129,11 +130,7 @@ export const InputDelivery = ({
         <div className="space-y-0 flex-col flex text-left max-w-56">
           {!!invoice.delivery_date && (
             <Base>
-              Livraison le{" "}
-              {formatTime(invoice.delivery_date, {
-                keepDate: true,
-                hideTime: true,
-              })}
+              Livraison le {format(new Date(invoice.delivery_date), "PP")}
               {!invoice.delivery_date && <Base>Pas de date de livraison</Base>}
             </Base>
           )}
@@ -162,10 +159,7 @@ export const InputDelivery = ({
               <>
                 <Info className={"text-blue-500"}>
                   Signé, livraison avant le :{" "}
-                  {formatTime(computeDeliveryDelayDate(invoice).toJSDate(), {
-                    keepDate: true,
-                    hideTime: true,
-                  })}
+                  {format(computeDeliveryDelayDate(invoice).toJSDate(), "PP")}
                 </Info>
                 {isDeliveryLate(invoice) && (
                   <Info className={"text-red-500"}>
