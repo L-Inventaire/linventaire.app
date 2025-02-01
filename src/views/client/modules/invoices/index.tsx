@@ -47,22 +47,43 @@ const InvoicesPageContent = () => {
       label: "Brouillons",
       filter: buildQueryFromMap({ state: "draft" }),
     },
-    sent: {
-      label: type.join("").includes("supplier_")
-        ? type.includes("supplier_quotes")
-          ? "Commandé"
-          : "À payer"
-        : "Envoyés",
-      filter: buildQueryFromMap({
-        state: type.includes("supplier_quotes")
-          ? ["sent", "purchase_order"]
-          : "sent",
-      }),
-    },
+    ...(!type.includes("invoices")
+      ? {
+          sent: {
+            label: type.join("").includes("supplier_")
+              ? type.includes("supplier_quotes")
+                ? "Commandé"
+                : "À payer"
+              : "Envoyés",
+            filter: buildQueryFromMap({
+              state: type.includes("supplier_quotes")
+                ? ["sent", "purchase_order"]
+                : "sent",
+            }),
+          },
+        }
+      : {}),
     ...(type.includes("invoices")
       ? {
+          sent: {
+            label: "Envoyés",
+            filter: [
+              ...buildQueryFromMap({
+                state: "sent",
+              }),
+              {
+                key: "payment_information.computed_date",
+                values: [
+                  {
+                    value: new Date(new Date().setHours(0, 0, 0, 1)).getTime(),
+                    op: "gte",
+                  },
+                ],
+              } as RestSearchQuery,
+            ],
+          },
           late: {
-            label: "En retard",
+            label: "Impayés",
             filter: [
               ...buildQueryFromMap({
                 state: "sent",
@@ -146,7 +167,7 @@ const InvoicesPageContent = () => {
   const { invoices: sentInvoices } = useInvoices({
     key: "sentInvoices",
     limit: 1,
-    query: [...tabs.sent.filter, ...invoiceFilters.query],
+    query: [...tabs.sent!.filter, ...invoiceFilters.query],
   });
   const { invoices: inProgressInvoices } = useInvoices({
     key: "inProgressInvoices",

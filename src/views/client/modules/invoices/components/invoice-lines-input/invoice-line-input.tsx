@@ -184,6 +184,21 @@ export const InvoiceLineInput = (props: {
               {!isSeparation && (
                 <Box
                   className={twMerge(
+                    "text-right w-1/6 shrink-0 border-l dark:border-slate-700 p-3",
+                    !value.optional_checked && value.optional && "border-dashed"
+                  )}
+                >
+                  <Text as="div" size="2" weight="bold" className="select-all">
+                    {article?.supplier_reference}
+                  </Text>
+                  <Text as="div" color="gray" size="2">
+                    {getCostEstimate(article || undefined, false)} HT
+                  </Text>
+                </Box>
+              )}
+              {!isSeparation && (
+                <Box
+                  className={twMerge(
                     "text-right w-1/6 shrink-0 border-l dark:border-slate-700",
                     !value.optional_checked && value.optional && "border-dashed"
                   )}

@@ -93,7 +93,7 @@ export const ArticlesDetailsPage = ({
                 <FormInput
                   className="lg:w-1/3"
                   ctrl={ctrl("supplier_reference")}
-                  label="Référence fabricant"
+                  label="Référence fournisseur"
                   size="md"
                   type="scan"
                 />

@@ -3,7 +3,7 @@ import { useClients } from "@features/clients/state/use-clients";
 import { useContacts } from "@features/contacts/hooks/use-contacts";
 import { Invoices } from "@features/invoices/types/types";
 import { useStockItems } from "@features/stock/hooks/use-stock-items";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import _ from "lodash";
 import { SetStateAction, useEffect } from "react";
 import { atom, useRecoilState } from "recoil";
@@ -29,6 +29,7 @@ export const useFurnishQuotes = (quotes: Invoices[]) => {
   const { client: clientUser } = useClients();
   const client = clientUser!.client!;
   const [state, setState] = useRecoilState(FurnishQuotesAtom);
+  const queryClient = useQueryClient();
 
   const furnishesOverride = state.furnishesOverride;
   const furnishesTextValues = state.furnishesTextValues;
@@ -61,6 +62,7 @@ export const useFurnishQuotes = (quotes: Invoices[]) => {
       furnishesOverride
     );
     setFurnishesOverride([]);
+    queryClient.invalidateQueries({ queryKey: ["invoices"] });
   }
 
   const furnishes = furnishQuotes?.furnishes;
