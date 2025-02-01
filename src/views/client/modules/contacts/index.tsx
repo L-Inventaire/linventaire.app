@@ -31,6 +31,7 @@ export const ContactsPage = () => {
   const { contacts } = useContacts({
     ...options,
     query: (options?.query as any) || [],
+    key: "main",
   });
   const schema = useRestSchema("contacts");
   const navigate = useNavigateAlt();

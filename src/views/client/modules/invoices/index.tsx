@@ -151,7 +151,7 @@ const InvoicesPageContent = () => {
       ...((tabs as any)[activeTab]?.filter || []),
     ],
     asc: true,
-    key: type.join("+") + "_" + activeTab,
+    key: "main-" + type.join("+") + "_" + activeTab,
   });
 
   const schema = useRestSchema("invoices");

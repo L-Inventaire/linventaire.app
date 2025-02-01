@@ -81,6 +81,7 @@ export const ServicePage = () => {
       ...((options?.query as any) || []),
       ...((tabs as any)[activeTab]?.filter || []),
     ],
+    key: "main",
   });
 
   const schema = useRestSchema("service_items");

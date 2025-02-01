@@ -6,10 +6,9 @@ import { AddressInput } from "@components/input-button/address/form";
 import { Contacts } from "@features/contacts/types/types";
 import { Invoices } from "@features/invoices/types/types";
 import { AddressLength, formatAddress } from "@features/utils/format/address";
-import { formatTime } from "@features/utils/format/dates";
 import { TruckIcon } from "@heroicons/react/20/solid";
-import { computeDeliveryDelayDate, isDeliveryLate } from "../utils";
 import { format } from "date-fns";
+import { computeDeliveryDelayDate, isDeliveryLate } from "../utils";
 
 export const getBestDeliveryAddress = (
   client: Contacts,

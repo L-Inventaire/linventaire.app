@@ -79,6 +79,7 @@ export const StockPage = () => {
       ...((options?.query as any) || []),
       ...(tabs as any)[activeTab].filter,
     ],
+    key: "main",
   });
 
   const schema = useRestSchema("stock_items");

@@ -1,7 +1,7 @@
 import { useCurrentClient } from "@features/clients/state/use-clients";
 import { LoadingState } from "@features/utils/store/loading-state-atom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import _, { isArray } from "lodash";
+import _, { isArray, set } from "lodash";
 import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
 import { useDebounceValue } from "usehooks-ts";
@@ -92,11 +92,28 @@ export const useRestSuggestions = <T>(
   };
 };
 
+export const useRestMainOptions = <T>(table: string) => {
+  const query = useQuery({
+    queryKey: ["navbar", table],
+  });
+  const queryClient = useQueryClient();
+  return {
+    options: query.data as RestOptions<T>,
+    setOptions: (options: RestOptions<T>) =>
+      queryClient.setQueryData(["navbar", table], options),
+  };
+};
+
 export const useRest = <T>(table: string, options?: RestOptions<T>) => {
   restApiClients[table] = restApiClients[table] || new RestApiClient(table);
   const restApiClient = restApiClients[table] as RestApiClient<T>;
   const { id } = useCurrentClient();
   const queryClient = useQueryClient();
+
+  // If main list, we'll save the query to a global storage for the document bar nav (prev / next buttons)
+  if (options?.key?.indexOf("main") === 0) {
+    queryClient.setQueryData(["navbar", table], options);
+  }
 
   // Auto replace complex queries by a id getter when possible
   if (
