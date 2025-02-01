@@ -2,13 +2,13 @@ import { RestDocumentsInput } from "@components/input-rest";
 import { pgcLabel } from "@components/pcg-input";
 import { registerCtrlKRestEntity } from "@features/ctrlk";
 import { ROUTES } from "@features/routes";
-import { formatTime } from "@features/utils/format/dates";
 import { formatAmount } from "@features/utils/format/strings";
 import { EditorInput } from "@molecules/editor-input";
 import { Column } from "@molecules/table/table";
 import { AccountingAccountDetailsPage } from "@views/client/modules/accounting/components/accounting-account-details";
 import { AccountingTransactionsDetailsPage } from "@views/client/modules/accounting/components/accounting-transactions-details";
 import { InvoiceRestDocument } from "@views/client/modules/invoices/components/invoice-lines-input/invoice-input-rest-card";
+import { format } from "date-fns";
 import { twMerge } from "tailwind-merge";
 import { useAccountingAccounts } from "./hooks/use-accounting-accounts";
 import { AccountingAccounts, AccountingTransactions } from "./types/types";
@@ -21,14 +21,7 @@ export const AccountingTransactionsColumns: (
 ) => Column<AccountingTransactions>[] = (referenceAccounts) => [
   {
     title: "Date",
-    render: (item) => (
-      <>
-        {formatTime(item.transaction_date, {
-          hideTime: true,
-          keepDate: true,
-        })}
-      </>
-    ),
+    render: (item) => <>{format(new Date(item.transaction_date), "PP")}</>,
   },
   { title: "Référence", render: (item) => <>{item.reference}</> },
   {

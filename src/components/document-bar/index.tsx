@@ -8,11 +8,7 @@ import { formatTime } from "@features/utils/format/dates";
 import { useLastLocations } from "@features/utils/hooks/use-navigation-history";
 import { useNavigateAlt } from "@features/utils/navigate";
 import { RestEntity } from "@features/utils/rest/types/types";
-import {
-  ArrowLeftIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
-} from "@heroicons/react/20/solid";
+import { ArrowLeftIcon } from "@heroicons/react/20/solid";
 import {
   ArchiveBoxArrowDownIcon,
   ArrowUturnLeftIcon,
@@ -28,6 +24,7 @@ import _ from "lodash";
 import { useEffect } from "react";
 import toast from "react-hot-toast";
 import { useSetRecoilState } from "recoil";
+import { DocumentBarNav } from "./nav";
 
 export const DocumentBar = ({
   mode,
@@ -69,7 +66,6 @@ export const DocumentBar = ({
   const cancel = async () => {
     if (onClose) return onClose();
     // Get previous route that is not the form nor the viewer
-    console.log(props.viewRoute, props.editRoute);
     const previousPage = _.last(
       getLastLocations().filter(
         (a) =>
@@ -130,22 +126,13 @@ export const DocumentBar = ({
         />
         {mode === "read" &&
           window.document.location.host.indexOf("localhost") > -1 && (
-            <>
-              <Button
-                data-tooltip="Précédent"
-                size="xs"
-                theme="outlined"
-                shortcut={["k"]}
-                icon={(p) => <ChevronUpIcon {...p} />}
-              />
-              <Button
-                data-tooltip="Suivant"
-                size="xs"
-                theme="outlined"
-                shortcut={["j"]}
-                icon={(p) => <ChevronDownIcon {...p} />}
-              />
-            </>
+            <DocumentBarNav
+              entity={entity}
+              id={document?.id}
+              getRoute={(id) => {
+                return getRoute(props.viewRoute || "/", { id });
+              }}
+            />
           )}
       </div>
       {!loading && (

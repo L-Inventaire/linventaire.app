@@ -1,6 +1,7 @@
 import { Button } from "@atoms/button/button";
 import { InputDecorationIcon } from "@atoms/input/input-decoration-icon";
 import { Input } from "@atoms/input/input-text";
+import { FormInput } from "@components/form/fields";
 import { useTableFields } from "@features/fields/hooks/use-fields";
 import { debounce as delayCall } from "@features/utils/debounce";
 import { normalizeString } from "@features/utils/format/strings";
@@ -13,6 +14,8 @@ import {
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
 import { FunnelIcon as FunnelIconSolid } from "@heroicons/react/24/solid";
+import { Heading, Popover } from "@radix-ui/themes";
+import _ from "lodash";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
@@ -22,7 +25,6 @@ import { buildFilter } from "./utils/filter";
 import { OutputQuery, SearchField } from "./utils/types";
 import { getFromUrl, setToUrl } from "./utils/url";
 import { extractFilters, generateQuery } from "./utils/utils";
-import { Popover } from "@radix-ui/themes";
 
 export const SearchBar = ({
   schema,
@@ -40,6 +42,8 @@ export const SearchBar = ({
   shortcuts,
   urlSync,
   afterSuggestions,
+  onChangeOrder,
+  order,
 }: {
   schema: { table: string; fields: SearchField[] };
   value?: string;
@@ -56,6 +60,11 @@ export const SearchBar = ({
   shortcuts?: Shortcut[];
   urlSync?: boolean;
   afterSuggestions?: JSX.Element;
+  onChangeOrder?: (order: string, groupBy: string) => void;
+  order?: {
+    groupBy: string;
+    orderBy: string;
+  };
 }) => {
   const { fields: customFields, loading: loadingCustomFields } = useTableFields(
     schema.table
@@ -285,20 +294,67 @@ export const SearchBar = ({
             )}
           />
         </div>
-        {fields.length > 0 && (
+        {fields.length > 0 && !!onChangeOrder && (
           <Popover.Root>
             <Popover.Trigger>
-              <Button
-                className="shrink-0 hidden md:flex"
-                size="sm"
-                theme="invisible"
-                icon={(p) => <ChevronUpDownIcon {...p} />}
-              >
-                Affichage
-              </Button>
+              <div className="shrink-0 hidden md:flex px-2">
+                <Button
+                  size="sm"
+                  theme="invisible"
+                  icon={(p) => <ChevronUpDownIcon {...p} />}
+                >
+                  Affichage
+                </Button>
+              </div>
             </Popover.Trigger>
-            <Popover.Content width="360px">
-              <div>Couidou</div>
+            <Popover.Content size={"1"}>
+              <div className="space-y-4">
+                {" "}
+                <div className="space-y-2">
+                  <Heading size="2">Ordonner par</Heading>{" "}
+                  <FormInput
+                    value={order?.orderBy}
+                    onChange={(e) => {
+                      onChangeOrder(e.target.value, order?.groupBy || "");
+                    }}
+                    type="select"
+                    options={_.sortBy(
+                      schema?.fields
+                        ?.filter((field) => field.type)
+                        ?.map((field) => ({
+                          value: field.key,
+                          label: field.label,
+                        })),
+                      "label"
+                    )}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Heading size="2">Grouper par</Heading>
+                  <FormInput
+                    value={order?.groupBy}
+                    onChange={(e) => {
+                      onChangeOrder(order?.orderBy || "", e.target.value);
+                    }}
+                    type="select"
+                    options={[
+                      {
+                        value: "",
+                        label: "(Aucun)",
+                      },
+                      ..._.sortBy(
+                        schema?.fields
+                          ?.filter((field) => field.type)
+                          ?.map((field) => ({
+                            value: field.key,
+                            label: field.label,
+                          })),
+                        "label"
+                      ),
+                    ]}
+                  />
+                </div>
+              </div>
             </Popover.Content>
           </Popover.Root>
         )}

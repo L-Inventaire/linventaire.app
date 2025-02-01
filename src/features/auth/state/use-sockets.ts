@@ -1,11 +1,11 @@
-import { useClients } from "@features/clients/state/use-clients";
-import { useEffect } from "react";
-import { useAuth } from "./use-auth";
-import { io, Socket } from "socket.io-client";
 import Env from "@config/environment";
-import { AuthJWT } from "../jwt";
-import { queryClient } from "../../../index";
+import { useClients } from "@features/clients/state/use-clients";
 import { useRefreshRestHistory } from "@features/utils/rest/hooks/use-history";
+import { useEffect } from "react";
+import { io, Socket } from "socket.io-client";
+import { queryClient } from "../../../index";
+import { AuthJWT } from "../jwt";
+import { useAuth } from "./use-auth";
 
 let socket: Socket<any, any> | null = null;
 
@@ -43,6 +43,8 @@ export const useWebsockets = () => {
             queryClient.invalidateQueries({
               queryKey: invalidated,
             });
+
+            // Update history if needed
             if (
               doc.doc_pk?.client_id &&
               doc.doc_table &&

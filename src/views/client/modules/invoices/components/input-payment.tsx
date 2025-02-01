@@ -3,14 +3,14 @@ import { FormInput } from "@components/form/fields";
 import { FormControllerFuncType } from "@components/form/formcontext";
 import { InputButton } from "@components/input-button";
 import { PaymentInput } from "@components/payment-input";
+import { Contacts } from "@features/contacts/types/types";
 import { Invoices } from "@features/invoices/types/types";
 import { currencyOptions, paymentOptions } from "@features/utils/constants";
-import { formatTime } from "@features/utils/format/dates";
 import { formatIBAN } from "@features/utils/format/strings";
 import { BanknotesIcon } from "@heroicons/react/20/solid";
 import { PageBlockHr } from "@views/client/_layout/page";
+import { format } from "date-fns";
 import { computePaymentDelayDate, isPaymentLate } from "../utils";
-import { Contacts } from "@features/contacts/types/types";
 
 export const InvoicePaymentInput = ({
   ctrl,
@@ -89,10 +89,7 @@ export const InvoicePaymentInput = ({
             <>
               <Info className={"text-blue-500"}>
                 Signé, paiement avant le :{" "}
-                {formatTime(computePaymentDelayDate(invoice).toJSDate(), {
-                  keepDate: true,
-                  hideTime: true,
-                })}
+                {format(computePaymentDelayDate(invoice).toJSDate(), "PP")}
               </Info>
               {isPaymentLate(invoice) && (
                 <Info className={"text-red-500"}>

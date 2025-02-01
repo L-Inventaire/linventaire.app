@@ -29,6 +29,7 @@ export const AccountingPage = () => {
   const { accounting_transactions } = useAccountingTransactions({
     ...options,
     query: [...((options?.query as any) || [])],
+    key: "main",
   });
 
   const schema = useRestSchema("accounting_transactions");

@@ -28,7 +28,7 @@ export const ArticlesPage = () => {
     offset: 0,
     query: [],
   });
-  const { articles } = useArticles(options);
+  const { articles } = useArticles({ ...options, key: "main" });
   const schema = useRestSchema("articles");
   const navigate = useNavigateAlt();
   const hasAccess = useHasAccess();
