@@ -184,6 +184,21 @@ export const InvoiceLineInput = (props: {
               {!isSeparation && (
                 <Box
                   className={twMerge(
+                    "text-right w-1/6 shrink-0 border-l dark:border-slate-700 p-3",
+                    !value.optional_checked && value.optional && "border-dashed"
+                  )}
+                >
+                  <Text as="div" size="2" weight="bold" className="select-all">
+                    {article?.supplier_reference}
+                  </Text>
+                  <Text as="div" color="gray" size="2">
+                    {getCostEstimate(article || undefined, false)} HT
+                  </Text>
+                </Box>
+              )}
+              {!isSeparation && (
+                <Box
+                  className={twMerge(
                     "text-right w-1/6 shrink-0 border-l dark:border-slate-700",
                     !value.optional_checked && value.optional && "border-dashed"
                   )}
@@ -200,7 +215,7 @@ export const InvoiceLineInput = (props: {
                     value={formatQuantity(value.quantity, value.unit)}
                   >
                     <Text as="div" size="2" weight="bold">
-                      {formatQuantity(value.quantity || 1, value.unit)}{" "}
+                      {formatQuantity(value.quantity || 0, value.unit)}{" "}
                       <Unit unit={value?.unit} />
                     </Text>
                     <Text as="div" color="gray" size="2">

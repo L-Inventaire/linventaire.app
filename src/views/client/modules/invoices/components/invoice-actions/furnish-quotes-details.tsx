@@ -302,7 +302,7 @@ export const FurnishQuotesDetails = ({ id }: { id?: string }) => {
               }
               data={existingSupplierQuotes}
               entity="invoices"
-              columns={InvoicesColumns}
+              columns={InvoicesColumns.filter((a) => !a.id?.includes("client"))}
             />
           )}
         </div>

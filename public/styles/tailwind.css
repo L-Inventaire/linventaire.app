@@ -2246,6 +2246,11 @@ body :is(.select-text) {
           user-select: text;
 }
 
+body :is(.select-all) {
+  -webkit-user-select: all;
+          user-select: all;
+}
+
 body :is(.resize) {
   resize: both;
 }

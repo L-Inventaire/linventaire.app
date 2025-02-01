@@ -1,7 +1,7 @@
 import { Button } from "@atoms/button/button";
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import Select from "@atoms/input/input-select";
-import { Section } from "@atoms/text";
+import { Info, Section } from "@atoms/text";
 import { FormInput } from "@components/form/fields";
 import { useHasAccess } from "@features/access";
 import { useClients } from "@features/clients/state/use-clients";
@@ -12,6 +12,7 @@ import { Heading, Tabs } from "@radix-ui/themes";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Page } from "../../_layout/page";
+import { useFormController } from "@components/form/formcontext";
 
 export const PreferencesPage = () => {
   const { t } = useTranslation();
@@ -28,9 +29,12 @@ export const PreferencesPage = () => {
   const [preferences, setPreferences] = useState<
     Partial<Clients["preferences"]>
   >({});
+  const [smtp, setSmtp] = useState<Partial<Clients["smtp"]>>({});
+  const { ctrl: smtpCtrl } = useFormController(smtp, setSmtp);
 
   useEffect(() => {
     setPreferences({ ...client?.preferences });
+    setSmtp({ ...client?.smtp });
   }, [client]);
 
   return (
@@ -40,7 +44,10 @@ export const PreferencesPage = () => {
 
         <Tabs.Root defaultValue="other" className="mt-4">
           <Tabs.List>
-            <Tabs.Trigger value="other">Autre</Tabs.Trigger>
+            <Tabs.Trigger value="other">Général</Tabs.Trigger>
+            {hasAccess("CLIENT_MANAGE") && (
+              <Tabs.Trigger value="smtp">Mail</Tabs.Trigger>
+            )}
           </Tabs.List>
           <div className="h-4" />
           <Tabs.Content value="other">
@@ -126,6 +133,99 @@ export const PreferencesPage = () => {
                         currency: preferences?.currency,
                         timezone: preferences?.timezone,
                         email_footer: preferences?.email_footer,
+                      },
+                    })
+                  }
+                  loading={loading}
+                >
+                  {t("general.save")}
+                </Button>
+              )}
+            </div>
+          </Tabs.Content>
+          <Tabs.Content value="smtp">
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <Heading size="4">Général</Heading>
+                <FormInput
+                  ctrl={smtpCtrl("enabled")}
+                  label="Utiliser un serveur SMTP"
+                  type="boolean"
+                />
+                {!!smtpCtrl("enabled").value && (
+                  <FormInput
+                    ctrl={smtpCtrl("from")}
+                    label="Adresse d'envoi"
+                    placeholder="bonjour@server.net"
+                  />
+                )}
+              </div>
+              {!!smtpCtrl("enabled").value && (
+                <>
+                  <div className="space-y-2">
+                    <Heading size="4">Server SMTP</Heading>
+                    <FormInput
+                      ctrl={smtpCtrl("host")}
+                      label="Serveur"
+                      placeholder="server.net"
+                    />
+                    <FormInput
+                      ctrl={smtpCtrl("port")}
+                      label="Port"
+                      placeholder="587"
+                    />
+                    <FormInput
+                      ctrl={smtpCtrl("tls")}
+                      label="TLS"
+                      type="boolean"
+                    />
+                    <FormInput
+                      ctrl={smtpCtrl("user")}
+                      label="Nom d'utilisateur"
+                      placeholder="user"
+                      autoComplete="off"
+                    />
+                    <FormInput
+                      ctrl={smtpCtrl("pass")}
+                      label="Mot de passe"
+                      placeholder="password"
+                      type="password"
+                      autoComplete="one-time-code"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Heading size="4">Vérification DKIM</Heading>
+                    <Info>
+                      La vérification DKIM est nécessaire pour que vos emails
+                      soient reçu par vos destinataires.
+                    </Info>
+                    <FormInput
+                      ctrl={smtpCtrl("dkim.domainName")}
+                      label="Domaine"
+                      placeholder="server.net"
+                    />
+                    <FormInput
+                      ctrl={smtpCtrl("dkim.keySelector")}
+                      label="Sélecteur"
+                      placeholder="default"
+                    />
+                    <FormInput
+                      ctrl={smtpCtrl("dkim.privateKey")}
+                      label="Clé privée"
+                      placeholder="-----BEGIN-----xxx-----PRIVATE KEY-----"
+                    />
+                  </div>
+                </>
+              )}
+              {!readonly && (
+                <Button
+                  theme="primary"
+                  size="md"
+                  onClick={() =>
+                    update(client?.id || "", {
+                      smtp: {
+                        ...(client!.smtp || {}),
+                        ...smtp,
                       },
                     })
                   }

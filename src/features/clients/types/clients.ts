@@ -95,6 +95,8 @@ export type Clients = {
 
   invoices_counters: InvoiceCounters;
   service_items: ServiceItems;
+
+  smtp: SmtpOptions;
 };
 
 export type ServiceItems = {
@@ -137,7 +139,12 @@ export type Payment = {
   computed_date: number;
   mode: string[]; // "bank_transfer", "credit_card", "paypal", "cash", "check"
   delay: number; // In days
-  delay_type: "direct" | "month_end_delay_first" | "month_end_delay_last";
+  delay_date: number; // ms timestamp
+  delay_type:
+    | "direct"
+    | "month_end_delay_first"
+    | "month_end_delay_last"
+    | "date";
   bank_name: string;
   bank_iban: string;
   bank_bic: string;
@@ -173,4 +180,19 @@ type Preferences = {
 
 type Configuration = {
   plan: string;
+};
+
+export type SmtpOptions = {
+  enabled: boolean;
+  from: string;
+  host: string;
+  port: number;
+  user: string;
+  pass: string;
+  tls: boolean;
+  dkim?: {
+    domainName: string;
+    keySelector: string;
+    privateKey: string;
+  };
 };

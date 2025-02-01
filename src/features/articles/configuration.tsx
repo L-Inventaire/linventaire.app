@@ -152,8 +152,8 @@ export const ArticlesFieldsNames = () => ({
     keywords: "référence interne identifiant unique",
   },
   supplier_reference: {
-    label: "Référence fabricant",
-    keywords: "numéro identifiant fournisseur fabricant",
+    label: "Référence fournisseur",
+    keywords: "numéro identifiant fournisseur fournisseur",
   },
   "accounting.buy.name": {
     label: "Nom compte comptable d'achat",

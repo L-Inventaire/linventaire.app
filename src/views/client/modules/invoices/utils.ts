@@ -114,11 +114,14 @@ export const isDeliveryLate = (invoice: Invoices): boolean => {
   return DateTime.now() > computeDeliveryDelayDate(invoice);
 };
 
+/** WARNING This same code exists in backend, please update both */
 export const computePaymentDelayDate = (invoice: Invoices): DateTime => {
   const payment = invoice.payment_information;
   const delayType = payment?.delay_type ?? "direct";
   let date = DateTime.fromMillis(
-    invoice.wait_for_completion_since ?? Date.now()
+    (invoice.type === "quotes"
+      ? invoice.wait_for_completion_since
+      : invoice.emit_date) || Date.now()
   );
 
   if (delayType === "direct") {
@@ -131,6 +134,9 @@ export const computePaymentDelayDate = (invoice: Invoices): DateTime => {
   if (delayType === "month_end_delay_last") {
     date = date.endOf("month");
     date = date.plus({ days: payment.delay });
+  }
+  if (delayType === "date") {
+    date = DateTime.fromMillis(payment.delay_date || Date.now());
   }
 
   return date;

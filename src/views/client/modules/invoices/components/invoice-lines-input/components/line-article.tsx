@@ -53,7 +53,7 @@ export const InvoiceLineArticleInput = (props: {
       <div className="space-y-2">
         {value.type !== "separation" && (
           <RestDocumentsInput
-            size={useArticleName ? "xl" : "md"}
+            size={"xl"}
             className="w-full"
             entity="articles"
             label="Choisir un article"

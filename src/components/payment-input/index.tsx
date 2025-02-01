@@ -120,23 +120,36 @@ export const PaymentInput = (props: {
       <PageBlockHr />
 
       <FormInput
-        onReset={getReset("delay")}
-        className="w-max"
-        readonly={readonly}
-        label="Délai de paiement (jours)"
-        ctrl={ctrl("delay")}
-        type="number"
-      />
-
-      <FormInput
         onReset={getReset("delay_type")}
-        className="w-max"
+        className="w-full"
         readonly={readonly}
         label="Type de délai"
         ctrl={ctrl("delay_type")}
         type="select"
         options={paymentDelayOptions}
       />
+
+      {ctrl("delay_type")?.value !== "date" && (
+        <FormInput
+          onReset={getReset("delay")}
+          className="w-full"
+          readonly={readonly}
+          label="Délai de paiement (jours)"
+          ctrl={ctrl("delay")}
+          type="number"
+        />
+      )}
+
+      {ctrl("delay_type")?.value === "date" && (
+        <FormInput
+          onReset={getReset("delay")}
+          className="w-full"
+          readonly={readonly}
+          label="Date limite de paiement"
+          ctrl={ctrl("delay")}
+          type="date"
+        />
+      )}
 
       <FormInput
         onReset={getReset("late_penalty")}

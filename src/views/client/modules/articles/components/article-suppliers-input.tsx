@@ -105,7 +105,7 @@ export const ArticleSuppliersInput = ({
                           },
                         });
                       }}
-                      placeholder="Référence fournisseur"
+                      placeholder="Lien"
                     />
                     <FormInput
                       label="Prix"
@@ -235,7 +235,7 @@ export const ArticleSuppliersInput = ({
                       render: (contact) => (
                         <>
                           {formatNumber(
-                            value[1][contact.id]?.delivery_quantity
+                            value[1][contact.id]?.delivery_quantity || 1
                           )}
                         </>
                       ),
