@@ -142,6 +142,7 @@ export const applyOffset = (
   if (frequencyAndCount.split("_").length > 2 || periodCount < 1) {
     throw new Error(`Invalid frequency ${frequencyAndCount}`);
   }
+
   switch (frequency) {
     case "daily":
       date.setDate(date.getDate() + 1 * factor * periodCount);
@@ -158,6 +159,7 @@ export const applyOffset = (
     default:
       throw new Error(`Unknown frequency ${frequencyAndCount}`);
   }
+  console.log("frequency -> ", frequency, date);
 };
 
 export const getInvoiceWithOverrides = (

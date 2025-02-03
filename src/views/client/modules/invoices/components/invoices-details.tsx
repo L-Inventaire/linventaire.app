@@ -459,60 +459,56 @@ export const InvoicesDetailsPage = ({
                 )}
               </FormContext>
 
-              {!!draft.subscription_started_at &&
-                draft.type === "quotes" &&
-                draft.state === "recurring" && (
-                  <InputButton
-                    theme="invisible"
-                    className="my-2 block"
-                    data-tooltip={new Date(
-                      ctrl("subscription_started_at").value
-                    ).toDateString()}
-                    ctrl={ctrl("subscription_started_at")}
-                    placeholder="Date de démarrage"
-                    value={formatTime(
-                      ctrl("subscription_started_at").value || 0
+              {draft.type === "quotes" && draft.state === "recurring" && (
+                <InputButton
+                  theme="invisible"
+                  className="my-2 block"
+                  data-tooltip={new Date(
+                    ctrl("subscription_started_at").value
+                  ).toDateString()}
+                  ctrl={ctrl("subscription_started_at")}
+                  placeholder="Date de démarrage"
+                  value={formatTime(ctrl("subscription_started_at").value || 0)}
+                  content={() => (
+                    <>
+                      <FormInput
+                        ctrl={ctrl("subscription_started_at")}
+                        type="date"
+                      />
+                      <Info className="block my-2">
+                        Modifier la date de démarrage modifiera la date de
+                        récurrence. Il est possible de mettre une date de
+                        démarrage dans le futur, dans ce cas aucune facture ne
+                        sera générée avant cette date.
+                      </Info>
+                      <BaseSmall className="block my-2">
+                        La prochaine facture sera générée le{" "}
+                        {formatDate(
+                          getInvoiceNextDate(draft) || 0,
+                          "yyyy-MM-dd"
+                        )}
+                      </BaseSmall>
+                    </>
+                  )}
+                  readonly={readonly}
+                >
+                  <Text size="2" className="opacity-75" weight="medium">
+                    <PlayCircleIcon className="h-3 w-3 inline-block mr-1 -mt-0.5" />
+                    {"Démarre le "}
+                    {formatDate(
+                      draft.subscription_started_at || 0,
+                      "yyyy-MM-dd"
                     )}
-                    content={() => (
-                      <>
-                        <FormInput
-                          ctrl={ctrl("subscription_started_at")}
-                          type="date"
-                        />
-                        <Info className="block my-2">
-                          Modifier la date de démarrage modifiera la date de
-                          récurrence. Il est possible de mettre une date de
-                          démarrage dans le futur, dans ce cas aucune facture ne
-                          sera générée avant cette date.
-                        </Info>
-                        <BaseSmall className="block my-2">
-                          La prochaine facture sera générée le{" "}
-                          {formatDate(
-                            getInvoiceNextDate(draft) || 0,
-                            "yyyy-MM-dd"
-                          )}
-                        </BaseSmall>
-                      </>
+                    {", prochaine facture le "}
+                    {formatDate(
+                      getInvoiceNextDate(draft) ||
+                        draft.subscription_next_invoice_date ||
+                        0,
+                      "yyyy-MM-dd"
                     )}
-                    readonly={readonly}
-                  >
-                    <Text size="2" className="opacity-75" weight="medium">
-                      <PlayCircleIcon className="h-3 w-3 inline-block mr-1 -mt-0.5" />
-                      {"Démarre le "}
-                      {formatDate(
-                        draft.subscription_started_at || 0,
-                        "yyyy-MM-dd"
-                      )}
-                      {", prochaine facture le "}
-                      {formatDate(
-                        getInvoiceNextDate(draft) ||
-                          draft.subscription_next_invoice_date ||
-                          0,
-                        "yyyy-MM-dd"
-                      )}
-                    </Text>
-                  </InputButton>
-                )}
+                  </Text>
+                </InputButton>
+              )}
 
               {contentReadonly && !readonly && (
                 <Callout.Root className="my-4">
