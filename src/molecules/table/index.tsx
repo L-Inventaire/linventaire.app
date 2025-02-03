@@ -140,7 +140,7 @@ export function Table<T>({
   }, [onRequestData, setLoading, pagination]);
 
   /* react-hooks/exhaustive-deps issues */
-  (useEffect as any)(() => {
+  useControlledEffect(() => {
     if (total !== pagination.total)
       setPagination({
         ...pagination,
