@@ -144,6 +144,18 @@ export const applyOffset = (
     throw new Error(`Invalid frequency ${frequencyAndCount}`);
   }
 
+  const monthly = (date: Date) => {
+    const dayOfMonth = date.getDate();
+    date.setDate(1);
+    date.setMonth(date.getMonth() + 1 * factor * periodCount);
+    const daysInMonth = new Date(
+      date.getFullYear(),
+      date.getMonth() + 1,
+      0
+    ).getDate();
+    date.setDate(Math.min(dayOfMonth, daysInMonth));
+  };
+
   switch (frequency) {
     case "daily":
       date.setDate(date.getDate() + 1 * factor * periodCount);
@@ -152,15 +164,7 @@ export const applyOffset = (
       date.setDate(date.getDate() + 7 * factor * periodCount);
       break;
     case "monthly":
-      const dayOfMonth = date.getDate();
-      date.setDate(1);
-      date.setMonth(date.getMonth() + 1 * factor * periodCount);
-      const daysInMonth = new Date(
-        date.getFullYear(),
-        date.getMonth() + 1,
-        0
-      ).getDate();
-      date.setDate(Math.min(dayOfMonth, daysInMonth));
+      monthly(date);
       break;
     case "yearly":
       date.setFullYear(date.getFullYear() + 1 * factor * periodCount);
