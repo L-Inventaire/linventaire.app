@@ -142,11 +142,11 @@ export const PaymentInput = (props: {
 
       {ctrl("delay_type")?.value === "date" && (
         <FormInput
-          onReset={getReset("delay")}
+          onReset={getReset("delay_date")}
           className="w-full"
           readonly={readonly}
           label="Date limite de paiement"
-          ctrl={ctrl("delay")}
+          ctrl={ctrl("delay_date")}
           type="date"
         />
       )}

@@ -46,7 +46,7 @@ import _ from "lodash";
 import { DateTime } from "luxon";
 import { Fragment, useEffect } from "react";
 import { ContactRestDocument } from "../../contacts/components/contact-input-rest-card";
-import { computePricesFromInvoice } from "../utils";
+import { computePaymentDelayDate, computePricesFromInvoice } from "../utils";
 import { getBestDeliveryAddress, InputDelivery } from "./input-delivery";
 import { InvoiceInputFormat } from "./input-format";
 import { InvoicePaymentInput } from "./input-payment";
@@ -343,82 +343,96 @@ export const InvoicesDetailsPage = ({
                   </Heading>
                 </InputButton>
 
-                {(!readonly || ctrl("emit_date").value) && (
-                  <InputButton
-                    theme="invisible"
-                    className="m-0"
-                    data-tooltip={new Date(
-                      ctrl("emit_date").value
-                    ).toDateString()}
-                    ctrl={ctrl("emit_date")}
-                    placeholder="Date d'emission"
-                    value={formatTime(ctrl("emit_date").value || 0)}
-                    content={() => (
-                      <FormInput ctrl={ctrl("emit_date")} type="date" />
-                    )}
-                    readonly={readonly}
-                  >
-                    <Text size="2" className="opacity-75" weight="medium">
-                      {"Émis le "}
-                      {formatfns(ctrl("emit_date").value || 0, "PPP")}
-                    </Text>
-                    {draft.type === "invoices" &&
-                      draft.state === "sent" &&
-                      draft.payment_information.computed_date &&
-                      DateTime.fromMillis(
-                        draft.payment_information.computed_date
-                      ) < DateTime.now() && (
+                <div className={readonly ? "flex space-x-1" : "-space-x-4"}>
+                  {(!readonly || ctrl("emit_date").value) && (
+                    <InputButton
+                      theme="invisible"
+                      className="m-0"
+                      data-tooltip={new Date(
+                        ctrl("emit_date").value
+                      ).toDateString()}
+                      ctrl={ctrl("emit_date")}
+                      placeholder="Date d'emission"
+                      value={formatTime(ctrl("emit_date").value || 0)}
+                      content={() => (
+                        <FormInput ctrl={ctrl("emit_date")} type="date" />
+                      )}
+                      readonly={readonly}
+                    >
+                      <Text size="2" className="opacity-75" weight="medium">
+                        {"Émis le "}
+                        {formatfns(ctrl("emit_date").value || 0, "PPP")}
+                      </Text>
+                    </InputButton>
+                  )}
+                  {draft.type === "invoices" && (
+                    <InputButton
+                      theme="invisible"
+                      className="m-0 whitespace-nowrap"
+                      value
+                      disabled
+                      readonly={readonly}
+                    >
+                      <Text size="2" className="opacity-75" weight="medium">
+                        {" • "}Paiement avant le{" "}
+                        {formatdfns(
+                          computePaymentDelayDate(draft).toJSDate(),
+                          "PP"
+                        )}
+                      </Text>
+                      {computePaymentDelayDate(draft).toMillis() <
+                        Date.now() && (
                         <Text
                           size="2"
                           className="opacity-75 ml-2 text-red-500"
                           weight="medium"
                         >
-                          Paiement en retard de{" "}
+                          (en retard de{" "}
                           {Math.abs(
                             Math.floor(
-                              DateTime.fromMillis(
-                                draft.payment_information.computed_date
-                              )
+                              computePaymentDelayDate(draft)
                                 .diff(DateTime.now())
                                 .as("days")
                             )
                           )}{" "}
-                          jours
+                          jours)
                         </Text>
                       )}
-                  </InputButton>
-                )}
-                {!!ctrl("wait_for_completion_since").value && (
-                  <InputButton
-                    theme="invisible"
-                    className="m-0"
-                    data-tooltip={new Date(
-                      ctrl("wait_for_completion_since").value || Date.now()
-                    ).toDateString()}
-                    ctrl={ctrl("wait_for_completion_since") || Date.now()}
-                    placeholder="Date de signature"
-                    value={formatTime(
-                      ctrl("wait_for_completion_since").value || Date.now()
-                    )}
-                    content={() => (
-                      <FormInput
-                        ctrl={ctrl("wait_for_completion_since") || Date.now()}
-                        type="date"
-                      />
-                    )}
-                    readonly={readonly}
-                  >
-                    <Text size="2" className="opacity-75" weight="medium">
-                      {"• Accepté le "}
-                      {formatdfns(
-                        new Date(
-                          ctrl("wait_for_completion_since").value || Date.now()
-                        ),
-                        "PP"
+                    </InputButton>
+                  )}
+                  {!!ctrl("wait_for_completion_since").value && (
+                    <InputButton
+                      theme="invisible"
+                      className="m-0"
+                      data-tooltip={new Date(
+                        ctrl("wait_for_completion_since").value || Date.now()
+                      ).toDateString()}
+                      ctrl={ctrl("wait_for_completion_since") || Date.now()}
+                      placeholder="Date de signature"
+                      value={formatTime(
+                        ctrl("wait_for_completion_since").value || Date.now()
                       )}
-                    </Text>
-                  </InputButton>
-                )}
+                      content={() => (
+                        <FormInput
+                          ctrl={ctrl("wait_for_completion_since") || Date.now()}
+                          type="date"
+                        />
+                      )}
+                      readonly={readonly}
+                    >
+                      <Text size="2" className="opacity-75" weight="medium">
+                        {"• Accepté le "}
+                        {formatdfns(
+                          new Date(
+                            ctrl("wait_for_completion_since").value ||
+                              Date.now()
+                          ),
+                          "PP"
+                        )}
+                      </Text>
+                    </InputButton>
+                  )}
+                </div>
               </Section>
               <FormContext readonly={readonly} alwaysVisible>
                 {(!readonly || ctrl("name").value) && (
