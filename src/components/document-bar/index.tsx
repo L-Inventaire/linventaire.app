@@ -109,6 +109,8 @@ export const DocumentBar = ({
     return () => registerActiveSelection(entity, []);
   }, []);
 
+  if (!document) return null;
+
   return (
     <div className="items-center flex grow space-x-2 px-3 text-base h-12">
       <div className="flex items-center space-x-1">
