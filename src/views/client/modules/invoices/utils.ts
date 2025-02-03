@@ -97,14 +97,23 @@ export const computeDeliveryDelayDate = (invoice: Invoices): DateTime => {
     : "no_delivery";
 
   let date = DateTime.fromMillis(
-    invoice.wait_for_completion_since ?? Date.now()
+    new Date(invoice.wait_for_completion_since ?? Date.now()).getTime()
   );
 
   if (delayType === "delivery_date") {
-    date = DateTime.fromMillis(invoice.delivery_date ?? Date.now());
+    date = DateTime.fromMillis(
+      new Date(invoice.delivery_date ?? Date.now()).getTime()
+    );
   }
   if (delayType === "delivery_delay") {
-    date = date.plus({ days: invoice.delivery_delay });
+    let delay = 30;
+    try {
+      delay = parseInt(invoice.delivery_delay as any);
+      if (isNaN(delay)) delay = 30;
+    } catch (e) {
+      delay = 30;
+    }
+    date = date.plus({ days: delay });
   }
 
   return date;
@@ -119,24 +128,36 @@ export const computePaymentDelayDate = (invoice: Invoices): DateTime => {
   const payment = invoice.payment_information;
   const delayType = payment?.delay_type ?? "direct";
   let date = DateTime.fromMillis(
-    (invoice.type === "quotes"
-      ? invoice.wait_for_completion_since
-      : invoice.emit_date) || Date.now()
+    new Date(
+      (invoice.type === "quotes"
+        ? invoice.wait_for_completion_since
+        : invoice.emit_date) || Date.now()
+    ).getTime()
   );
 
+  let delay = 30;
+  try {
+    delay = parseInt(payment.delay as any);
+    if (isNaN(delay)) delay = 30;
+  } catch (e) {
+    delay = 30;
+  }
+
   if (delayType === "direct") {
-    date = date.plus({ days: payment.delay });
+    date = date.plus({ days: delay });
   }
   if (delayType === "month_end_delay_first") {
-    date = date.plus({ days: payment.delay });
+    date = date.plus({ days: delay });
     date = date.endOf("month");
   }
   if (delayType === "month_end_delay_last") {
     date = date.endOf("month");
-    date = date.plus({ days: payment.delay });
+    date = date.plus({ days: delay });
   }
   if (delayType === "date") {
-    date = DateTime.fromMillis(payment.delay_date || Date.now());
+    date = DateTime.fromMillis(
+      new Date(payment.delay_date || Date.now()).getTime()
+    );
   }
 
   return date;
