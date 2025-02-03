@@ -75,18 +75,21 @@ export function TablePagination({
   onChangePage,
   onChangePageSize,
 }: PropsType) {
+  const offset = pagination.perPage * (pagination.page - 1);
   return (
     <>
       <div className="flex w-full items-center">
         <div className="grow">
           <Info>
-            Showing {dataLength} of {pagination.total} results
+            Résultats {formatNumber(offset + 1)} à{" "}
+            {formatNumber(offset + dataLength)} sur{" "}
+            {formatNumber(pagination.total)}
           </Info>
         </div>
         <div className="items-center flex flex-row space-x-2">
           {!!onChangePageSize && (
             <>
-              <Info className="whitespace-nowrap mr-2">Per page</Info>
+              <Info className="whitespace-nowrap mr-2">Par page</Info>
               <Select
                 className="shrink-0 w-max"
                 disabled={loading}
