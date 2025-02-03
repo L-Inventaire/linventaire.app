@@ -44,15 +44,16 @@ export const getInvoiceNextDate = (
     | "id"
     | "subscription"
     | "discount"
-  >
+  >,
+  useCurrentDate = true // Only frontend has this to true
 ) => {
   if (quote.state !== "recurring" || !quote?.subscription_started_at)
     return null;
 
   const recurringStartedAt = quote.subscription_started_at;
-  const currentDate = new Date(
-    quote.subscription_next_invoice_date || Date.now()
-  );
+  const currentDate = useCurrentDate
+    ? new Date()
+    : new Date(quote.subscription_next_invoice_date || Date.now());
 
   // Get lines per recurring period
   const lines = _.groupBy(quote.content, (a) => a.subscription);
@@ -142,6 +143,7 @@ export const applyOffset = (
   if (frequencyAndCount.split("_").length > 2 || periodCount < 1) {
     throw new Error(`Invalid frequency ${frequencyAndCount}`);
   }
+
   switch (frequency) {
     case "daily":
       date.setDate(date.getDate() + 1 * factor * periodCount);

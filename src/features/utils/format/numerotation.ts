@@ -31,7 +31,9 @@ export const useFormattedNumerotationByInvoice = () => {
       (invoice?.type === "invoices" || invoice?.type === "credit_notes")
         ? "drafts"
         : invoice?.type;
-    const year = new Date(invoice.emit_date).getFullYear().toString();
+    const year = new Date(invoice.emit_date || Date.now())
+      .getFullYear()
+      .toString();
     const clientCounter = client?.invoices_counters?.[year]?.[type];
     return getFormattedNumerotation(
       clientCounter?.format ?? "INV-@YYYY-@CCCC",

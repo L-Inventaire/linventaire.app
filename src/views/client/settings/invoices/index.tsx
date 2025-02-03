@@ -103,9 +103,9 @@ export const InvoicesSettingsPage = () => {
                   size="md"
                   onClick={() =>
                     update(client?.id || "", {
-                      invoices: {
-                        ...((client?.invoices || {}) as Clients["invoices"]),
-                        ...invoices,
+                      recurring: {
+                        ...client?.recurring!,
+                        ...recurring,
                       },
                     })
                   }

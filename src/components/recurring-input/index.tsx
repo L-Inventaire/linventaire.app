@@ -193,35 +193,34 @@ export const RecurrenceInput = ({
             <>
               <PageColumns>
                 <FormInput
-                  onReset={getReset("subscription.start_type")}
+                  onReset={getReset("start_type")}
                   type="select"
                   label="Début de la récurrence"
                   options={optionsStartDates}
-                  ctrl={ctrl("subscription.start_type")}
+                  ctrl={ctrl("start_type")}
                 />
-                {!baseConfiguration &&
-                  ctrl("subscription.start_type")?.value === "date" && (
-                    <FormInput
-                      type="date"
-                      label="Date (incluse)"
-                      ctrl={ctrl("subscription.start")}
-                    />
-                  )}
+                {!baseConfiguration && ctrl("start_type")?.value === "date" && (
+                  <FormInput
+                    type="date"
+                    label="Date (incluse)"
+                    ctrl={ctrl("start")}
+                  />
+                )}
               </PageColumns>
               <FormInput
-                onReset={getReset("subscription.invoice_date")}
+                onReset={getReset("invoice_date")}
                 type="select"
                 label="Facturer le"
-                ctrl={ctrl("subscription.invoice_date")}
+                ctrl={ctrl("invoice_date")}
                 options={optionsInvoiceDate}
               />
             </>
           )}
           <FormInput
-            onReset={getReset("subscription.invoice_state")}
+            onReset={getReset("invoice_state")}
             type="select"
             label="État des facture créées"
-            ctrl={ctrl("subscription.invoice_state")}
+            ctrl={ctrl("invoice_state")}
             options={optionsInvoiceState}
           />
         </div>
@@ -230,29 +229,24 @@ export const RecurrenceInput = ({
       <div className="space-y-4">
         <PageColumns>
           <FormInput
-            onReset={getReset("subscription.end_type")}
+            onReset={getReset("end_type")}
             type="select"
             label="Fin de la facturation"
             options={optionsEndDates}
-            ctrl={ctrl("subscription.end_type")}
+            ctrl={ctrl("end_type")}
           />
-          {ctrl("subscription.end_type")?.value === "delay" && (
+          {ctrl("end_type")?.value === "delay" && (
             <FormInput
-              onReset={getReset("subscription.end_delay")}
+              onReset={getReset("end_delay")}
               type="select"
               label="Délai"
-              ctrl={ctrl("subscription.end_delay")}
+              ctrl={ctrl("end_delay")}
               options={optionsDelays}
             />
           )}
-          {!baseConfiguration &&
-            ctrl("subscription.end_type")?.value === "date" && (
-              <FormInput
-                type="date"
-                label="Date (incluse)"
-                ctrl={ctrl("subscription.end")}
-              />
-            )}
+          {!baseConfiguration && ctrl("end_type")?.value === "date" && (
+            <FormInput type="date" label="Date (incluse)" ctrl={ctrl("end")} />
+          )}
         </PageColumns>
 
         <div className="space-y-2">
@@ -260,23 +254,21 @@ export const RecurrenceInput = ({
             Action en fin de récurrence
           </Heading>
           <FormInput
-            onReset={getReset("subscription.renew_as")}
+            onReset={getReset("renew_as")}
             type="select"
-            ctrl={ctrl("subscription.renew_as")}
+            ctrl={ctrl("renew_as")}
             options={optionsRenewAs}
           />
-          {ctrl("subscription.renew_as").value === "draft" && (
+          {ctrl("renew_as").value === "draft" && (
             <>
               <Heading size="2" className="pb-0">
                 Créer le brouillon en avance
               </Heading>
               <FormInput
-                onReset={getReset("subscription.renew_in_advance")}
+                onReset={getReset("renew_in_advance")}
                 type="select"
-                value={`${ctrl("subscription.renew_in_advance").value}`}
-                onChange={(v) =>
-                  ctrl("subscription.renew_in_advance").onChange(parseInt(v))
-                }
+                value={`${ctrl("renew_in_advance").value}`}
+                onChange={(v) => ctrl("renew_in_advance").onChange(parseInt(v))}
                 options={[
                   { value: "0", label: "Le jour même" },
                   { value: "30", label: "1 mois avant" },
