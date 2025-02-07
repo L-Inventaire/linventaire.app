@@ -1,4 +1,3 @@
-import { Loader } from "@atoms/loader";
 import { Info } from "@atoms/text";
 import { useNotifications } from "@features/notifications/hooks/use-notifications";
 import { Spinner } from "@radix-ui/themes";

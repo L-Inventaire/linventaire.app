@@ -160,32 +160,44 @@ export const InvoicesActions = ({
       )}
 
       {draft.state === "closed" && (
-        <div>
+        <>
           <DropdownButton
             theme="invisible"
             size="lg"
             className="m-0"
             icon={(p) => <EllipsisHorizontalIcon {...p} />}
-            menu={commonOptions}
+            menu={[
+              ...commonOptions,
+              {
+                label: "Re-ouvrir la facture",
+                onClick: () => _save({ state: "sent" }),
+              },
+            ]}
           />
           <Button disabled={true} size="lg">
             Document fermé
           </Button>
-        </div>
+        </>
       )}
       {draft.state === "completed" && (
-        <div>
+        <>
           <DropdownButton
             theme="invisible"
             size="lg"
             className="m-0"
             icon={(p) => <EllipsisHorizontalIcon {...p} />}
-            menu={commonOptions}
+            menu={[
+              ...commonOptions,
+              {
+                label: "Re-ouvrir la facture",
+                onClick: () => _save({ state: "sent" }),
+              },
+            ]}
           />
           <Button disabled={true} size="lg">
             Facture payée et cloturée
           </Button>
-        </div>
+        </>
       )}
     </>
   );

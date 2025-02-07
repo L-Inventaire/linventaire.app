@@ -269,18 +269,24 @@ export const QuotesActions = ({
       )}
 
       {draft.state === "closed" && (
-        <div>
+        <>
           <DropdownButton
             theme="invisible"
             size="lg"
             className="m-0"
             icon={(p) => <EllipsisHorizontalIcon {...p} />}
-            menu={commonOptions}
+            menu={[
+              ...commonOptions,
+              {
+                label: "Retourner en 'accepté'",
+                onClick: () => _save({ state: "purchase_order" }),
+              },
+            ]}
           />
           <Button disabled={true} size="lg">
             Document fermé
           </Button>
-        </div>
+        </>
       )}
     </>
   );

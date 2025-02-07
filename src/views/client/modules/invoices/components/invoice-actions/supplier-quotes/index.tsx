@@ -144,6 +144,18 @@ export const SupplierQuotesActions = ({
       )}
       {draft.state === "completed" && (
         <>
+          <DropdownButton
+            theme="invisible"
+            size="lg"
+            className="m-0"
+            icon={(p) => <EllipsisHorizontalIcon {...p} />}
+            menu={[
+              {
+                label: "Re-ouvrir la réception",
+                onClick: () => _save({ state: "purchase_order" }),
+              },
+            ]}
+          />
           <Button
             disabled={disabled}
             theme="outlined"
@@ -167,11 +179,23 @@ export const SupplierQuotesActions = ({
         </>
       )}
       {draft.state === "closed" && (
-        <div>
+        <>
+          <DropdownButton
+            theme="invisible"
+            size="lg"
+            className="m-0"
+            icon={(p) => <EllipsisHorizontalIcon {...p} />}
+            menu={[
+              {
+                label: "Re-ouvrir le document",
+                onClick: () => _save({ state: "purchase_order" }),
+              },
+            ]}
+          />
           <Button disabled={true} size="lg">
             Document fermé
           </Button>
-        </div>
+        </>
       )}
     </>
   );
