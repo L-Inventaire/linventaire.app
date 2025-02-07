@@ -250,6 +250,22 @@
       "title": "Documents partagés"
     }
   },
+  "timelines": {
+    "events": {
+      "invoice_sent": {
+        "content": "Facture envoyée à <0/>."
+      },
+      "quote_sent": {
+        "content": "Devis envoyé aux signataires <0/><1/>",
+        "content_viewers": ", et en copie à "
+      },
+      "quote_signed": {
+        "content": "Devis <0>signé</0> par <1>{{email}}</1>. <2>Voir le document signé.</2>",
+        "content_viewers": ", et aux signataires "
+      },
+      "quote_refused": "Devis refusé par {{email}} pour la raison '{{reason}}'."
+    }
+  },
   "atoms": {
     "input": {
       "unit": {

@@ -16,9 +16,20 @@ import { useClients } from "@features/clients/state/use-clients";
 import { PublicCustomer } from "@features/customers/types/customers";
 import "quill-mention/autoregister";
 
+// Disable colors
 const ColorAttributor = ReactQuill.Quill.import("attributors/style/color");
 ColorAttributor.whitelist = [];
 ReactQuill.Quill.register(ColorAttributor);
+
+// Disable sizes
+const SizeAttributor = ReactQuill.Quill.import("attributors/style/size");
+SizeAttributor.whitelist = [];
+ReactQuill.Quill.register(SizeAttributor);
+
+// Disable fonts
+const FontAttributor = ReactQuill.Quill.import("attributors/style/font");
+FontAttributor.whitelist = [];
+ReactQuill.Quill.register(FontAttributor);
 
 ReactQuill.Quill.register({
   "blots/mention": MentionBlot,

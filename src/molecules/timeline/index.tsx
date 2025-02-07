@@ -22,7 +22,7 @@ import { format, formatDistance } from "date-fns";
 import _ from "lodash";
 import { ReactNode } from "react";
 import { CommentCreate } from "./comments";
-import { getEventLine, prepareHistory } from "./events";
+import { getEventLine, prepareHistory } from "./timeline";
 import { formatTime } from "@features/utils/format/dates";
 
 export const Timeline = ({
@@ -42,7 +42,7 @@ export const Timeline = ({
   const revision = (id || "").split("~")[1];
   const navigate = useNavigateAlt();
 
-  const { data, fetchNextPage, hasNextPage } = useRestHistory<
+  const { data, fetchNextPage, hasNextPage, refresh } = useRestHistory<
     RestEntity & {
       operation_timestamp: string;
       operation: string;
@@ -126,7 +126,7 @@ export const Timeline = ({
       </div>
       {!current.is_deleted && (
         <div className="mt-6">
-          <CommentCreate entity={entity} item={id} />
+          <CommentCreate entity={entity} item={id} refresh={refresh} />
         </div>
       )}
     </>

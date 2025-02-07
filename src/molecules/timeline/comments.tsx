@@ -8,7 +8,6 @@ import { RestEntity } from "@features/utils/rest/types/types";
 import {
   ArrowUturnLeftIcon,
   FaceSmileIcon,
-  InformationCircleIcon,
   PaperAirplaneIcon,
   PaperClipIcon,
 } from "@heroicons/react/16/solid";
@@ -24,12 +23,11 @@ import {
 import { format, formatDistance } from "date-fns";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { EventLine } from ".";
+import { Event } from "./events";
 
 export const CommentCard = ({
   id,
   item,
-  viewRoute,
 }: {
   id: string;
   item?: RestEntity & any;
@@ -43,20 +41,7 @@ export const CommentCard = ({
   const fullName =
     getFullName(user?.user as PublicCustomer) || user?.user?.email || "Unknown";
   if (comment.type === "event" && item) {
-    return (
-      <EventLine
-        comment={{
-          id: comment.id,
-          created_by: comment.updated_by || comment.created_by,
-          created_at: item.operation_timestamp || comment.created_at,
-        }}
-        name="-"
-        viewRoute={viewRoute}
-        revision={item.id + "~" + item.operation_timestamp}
-        icon={(p) => <InformationCircleIcon className={p.className} />}
-        message={comment.content}
-      />
-    );
+    return <Event id={comment.id} />;
   }
 
   return (
@@ -119,9 +104,11 @@ export const CommentCard = ({
 export const CommentCreate = ({
   entity,
   item,
+  refresh,
 }: {
   entity: string;
   item: string;
+  refresh: () => void;
 }) => {
   const { save } = useDraftRest<Comments>("comments", "new", async () => {});
 
@@ -168,6 +155,7 @@ export const CommentCreate = ({
                   reactions: [],
                 });
                 if (!val) throw new Error("No value returned");
+                refresh();
                 setComment("");
                 setAttachments([]);
               } catch (e) {
