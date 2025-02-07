@@ -44,6 +44,10 @@ export const RelatedInvoices = ({
       }),
       { key: "id", not: true, values: [{ op: "equals", value: invoice.id }] },
     ],
+    limit:
+      !(isQuoteRelated ? invoice.id : invoice.from_rel_quote) || !invoice.id
+        ? 0 // In this case, we don't want to fetch the siblings invoices
+        : 25,
     asc: true,
     index: "state_order,emit_date desc",
   });

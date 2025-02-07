@@ -11,17 +11,17 @@ export const getCostEstimate = (
   return (
     Object.values(article?.suppliers_details || {})
       .filter((a) => a.price)
-      .map((a) =>
-        formatAmount(
+      .map(
+        (a) =>
           quantity *
-            a.price *
-            (withTva ? 1 + getTvaValue(article?.tva || "0") : 1)
-        )
+          a.price *
+          (withTva ? 1 + getTvaValue(article?.tva || "0") : 1)
       )
       // Keep only min and max
       .sort()
       .filter((_, i, arr) => i === 0 || i === arr.length - 1)
       .reverse()
+      .map((a) => formatAmount(a))
       .map((a, i) => (i === 0 ? a : a.replace(/[^0-9.,-]/gm, "")))
       .reverse()
       .join("-") || fallback

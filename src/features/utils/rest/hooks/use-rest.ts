@@ -218,7 +218,7 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
 
   const update = useMutation({
     mutationFn: (item: Partial<T>, itemId?: string) =>
-      restApiClient.update(id || "", item, itemId),
+      restApiClient.update(id || "", item, (item as any)?.id || itemId),
     onMutate: () => setIsPendingModification(true),
     onSettled: () => {
       queryClient.invalidateQueries({
@@ -230,7 +230,7 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
   const upsert = useMutation({
     mutationFn: (item: Partial<T>, itemId?: string) =>
       (item as any)?.id || itemId
-        ? restApiClient.update(id || "", item, itemId)
+        ? restApiClient.update(id || "", item, (item as any)?.id || itemId)
         : restApiClient.create(id || "", item),
     onMutate: () => setIsPendingModification(true),
     onSettled: () => {

@@ -77,7 +77,7 @@ export const CommentCard = ({
             </span>
           </Tooltip>
         </Text>
-        {!!comment.content && (
+        {!!comment.content && false && (
           <div className="flex items-center space-x-2 group-hover/comment:opacity-100 opacity-0 transition-all">
             <Tooltip content="Ajouter une réaction">
               <IconButton variant="ghost" radius="full" size="1">
@@ -127,16 +127,18 @@ export const CommentCreate = ({
       />
       <div className="flex items-center space-x-2">
         <div className="grow" />
-        <Tooltip content="Pièces jointes">
-          <IconButton
-            variant="ghost"
-            radius="full"
-            loading={loading}
-            disabled={loading}
-          >
-            <PaperClipIcon className="w-4 h-4 -rotate-90" />
-          </IconButton>
-        </Tooltip>
+        {false && (
+          <Tooltip content="Pièces jointes">
+            <IconButton
+              variant="ghost"
+              radius="full"
+              loading={loading}
+              disabled={loading}
+            >
+              <PaperClipIcon className="w-4 h-4 -rotate-90" />
+            </IconButton>
+          </Tooltip>
+        )}
         <Tooltip content="Envoyer">
           <IconButton
             loading={loading}

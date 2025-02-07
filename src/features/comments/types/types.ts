@@ -42,3 +42,9 @@ class Reactions {
   reaction = "string";
   users = ["string"];
 }
+
+export type Threads = RestEntity & {
+  item_entity: string;
+  item_id: string;
+  subscribers: string[];
+};

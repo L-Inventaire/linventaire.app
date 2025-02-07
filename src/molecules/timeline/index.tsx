@@ -1,9 +1,12 @@
 import { UsersInput } from "@components/input-rest/users";
+import { useAuth } from "@features/auth/state/use-auth";
 import { getAvatarFullUrl, getFullName } from "@features/auth/utils";
 import { useUser } from "@features/clients/state/use-client-users";
+import { useThread } from "@features/comments/hooks/use-thread";
 import { Comments } from "@features/comments/types/types";
 import { PublicCustomer } from "@features/customers/types/customers";
 import { getRoute } from "@features/routes";
+import { formatTime } from "@features/utils/format/dates";
 import { useNavigateAlt } from "@features/utils/navigate";
 import { useRestHistory } from "@features/utils/rest/hooks/use-history";
 import { RestEntity } from "@features/utils/rest/types/types";
@@ -23,7 +26,6 @@ import _ from "lodash";
 import { ReactNode } from "react";
 import { CommentCreate } from "./comments";
 import { getEventLine, prepareHistory } from "./timeline";
-import { formatTime } from "@features/utils/format/dates";
 
 export const Timeline = ({
   entity,
@@ -41,6 +43,9 @@ export const Timeline = ({
   const isRevision = (id || "").includes("~");
   const revision = (id || "").split("~")[1];
   const navigate = useNavigateAlt();
+
+  const { user } = useAuth();
+  const { thread, update } = useThread(entity, id);
 
   const { data, fetchNextPage, hasNextPage, refresh } = useRestHistory<
     RestEntity & {
@@ -80,18 +85,35 @@ export const Timeline = ({
         <Heading size="4" className="grow">
           Activité
         </Heading>
-        {false && (
+        {!!thread && (
           <>
-            <Tooltip content="Subscribe to changes on this document.">
-              <Button size="2" variant="ghost">
-                Être notifié
-              </Button>
-            </Tooltip>
+            {" "}
+            {!thread?.subscribers?.includes?.(user!.id) && (
+              <Tooltip content="Subscribe to changes on this document.">
+                <Button
+                  size="2"
+                  variant="ghost"
+                  onClick={() =>
+                    update.mutateAsync({
+                      id: thread.id,
+                      subscribers: _.uniq([...thread.subscribers, user!.id]),
+                    })
+                  }
+                >
+                  Être notifié
+                </Button>
+              </Tooltip>
+            )}
             <UsersInput
-              data-tooltip="Change subscribers"
+              data-tooltip="Utilisateurs abonnés"
               size="md"
-              onChange={() => {}}
-              value={[]}
+              onChange={(e) =>
+                update.mutateAsync({
+                  id: thread.id,
+                  subscribers: e,
+                })
+              }
+              value={thread?.subscribers || []}
               disabled={false}
             />
           </>
