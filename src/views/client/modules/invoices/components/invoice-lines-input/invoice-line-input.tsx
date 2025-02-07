@@ -140,6 +140,10 @@ export const InvoiceLineInput = (props: {
     }
   }, [article?.id, props.invoice?.supplier]);
 
+  const hasRefSupplier =
+    !!article?.supplier_reference ||
+    getCostEstimate(article || undefined, false, 1, "");
+
   return (
     <>
       <div
@@ -181,19 +185,21 @@ export const InvoiceLineInput = (props: {
                   invoice={props.invoice}
                 />
               </Box>
-              {!isSeparation && (
+              {!isSeparation && hasRefSupplier && (
                 <Box
                   className={twMerge(
-                    "text-right w-1/6 shrink-0 border-l dark:border-slate-700 p-3",
+                    "text-right w-1/6 shrink-0 p-3",
                     !value.optional_checked && value.optional && "border-dashed"
                   )}
                 >
                   <Text as="div" size="2" weight="bold" className="select-all">
                     {article?.supplier_reference}
                   </Text>
-                  <Text as="div" color="gray" size="2">
-                    {getCostEstimate(article || undefined, false)} HT
-                  </Text>
+                  {getCostEstimate(article || undefined, false, 1, "") && (
+                    <Text as="div" color="gray" size="2">
+                      {getCostEstimate(article || undefined, false)} HT
+                    </Text>
+                  )}
                 </Box>
               )}
               {!isSeparation && (

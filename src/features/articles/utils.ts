@@ -5,7 +5,8 @@ import { Articles } from "./types/types";
 export const getCostEstimate = (
   article?: Articles,
   withTva = true,
-  quantity = 1
+  quantity = 1,
+  fallback = "-"
 ) => {
   return (
     Object.values(article?.suppliers_details || {})
@@ -23,7 +24,7 @@ export const getCostEstimate = (
       .reverse()
       .map((a, i) => (i === 0 ? a : a.replace(/[^0-9.,-]/gm, "")))
       .reverse()
-      .join("-") || "-"
+      .join("-") || fallback
   );
 };
 
