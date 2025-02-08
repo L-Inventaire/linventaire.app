@@ -222,7 +222,8 @@
       "security": "Security",
       "enterprise": "Company",
       "manage_companies": "Manage my companies",
-      "ctrlk_prefix": "Account"
+      "ctrlk_prefix": "Account",
+      "notifications": "Notifications"
     },
     "dashboard": "Dashboard",
     "notifications": "Notifications",

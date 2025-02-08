@@ -1989,6 +1989,10 @@ body :is(.w-px) {
   width: 1px;
 }
 
+body :is(.w-11) {
+  width: 2.75rem;
+}
+
 body :is(.\!min-w-0) {
   min-width: 0px !important;
 }

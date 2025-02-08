@@ -40,6 +40,7 @@ export const ROUTES = {
   AccountProfile: "/:client/account/profile",
   AccountSecurity: "/:client/account/security",
   AccountClients: "/:client/account/clients",
+  AccountNotifications: "/:client/account/notifications",
 
   Home: "/:client/home",
   Notifications: "/:client/notifications",

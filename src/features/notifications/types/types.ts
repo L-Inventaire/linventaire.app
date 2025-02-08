@@ -6,3 +6,8 @@ export type Notifications = RestEntity & {
   url: string;
   read: boolean;
 };
+
+export type NotificationsPreferences = RestEntity & {
+  user_id: string;
+  always_notified: string[];
+};

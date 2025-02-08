@@ -168,7 +168,8 @@
       "security": "Sécurité",
       "enterprise": "Entreprise",
       "manage_companies": "Gérer mes entreprise",
-      "ctrlk_prefix": "Compte"
+      "ctrlk_prefix": "Compte",
+      "notifications": "Notifications"
     },
     "dashboard": "Tableau de bord",
     "notifications": "Notifications",

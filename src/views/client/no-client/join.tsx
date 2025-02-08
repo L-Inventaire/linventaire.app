@@ -43,9 +43,10 @@ export const JoinCompany = () => {
             columns={[
               {
                 render: (i) => (
-                  <div className="flex flex-row items-center">
+                  <div className="flex flex-row items-center shrink-0">
                     <Avatar
-                      className="mr-2 shrink-0"
+                      shape="square"
+                      className="mr-2 shrink-0 w-11"
                       size={11}
                       fallback={i.client.company.name}
                       avatar={getServerUri(i.client.preferences.logo) || ""}
