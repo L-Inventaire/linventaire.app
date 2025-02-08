@@ -251,6 +251,40 @@
       "title": "Documents partagés"
     }
   },
+  "notifications": {
+    "entities_names": {
+      "invoices": "<0>{{name}}</0>",
+      "articles": "Article <0>{{name}}</0>",
+      "contacts": "Contact <0>{{name}}</0>",
+      "crm_items": "CRM <0>{{name}}</0>",
+      "stock_items": "Élément de stock <0>{{name}}</0>",
+      "service_items": "Tâche <0>{{name}}</0>"
+    },
+    "mentioned": {
+      "title": "<1/> vous a mentionné."
+    },
+    "assigned": {
+      "title": "Vous êtes assigné."
+    },
+    "modified": {
+      "title": "Modifié par <1/>."
+    },
+    "commented": {
+      "title": "<1/> a ajouté un commentaire."
+    },
+    "invoice_sent": {
+      "title": "Facture envoyée."
+    },
+    "quote_sent": {
+      "title": "Devis envoyé."
+    },
+    "quote_signed": {
+      "title": "Devis signé par {{email}}."
+    },
+    "quote_refused": {
+      "title": "Devis refusé par {{email}} pour la raison {{reason}}."
+    }
+  },
   "timelines": {
     "events": {
       "invoice_sent": {

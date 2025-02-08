@@ -32,9 +32,11 @@ export type Notifications = RestEntity & {
   user_id: string;
   entity: string;
   entity_id: string;
+  entity_display_name: string;
   type: NotificationTypes;
   metadata: NotificationMetadatas;
   also: AlsoType[];
+  last_notified_at: number;
   read: boolean;
 };
 

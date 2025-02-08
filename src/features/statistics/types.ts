@@ -1,4 +1,5 @@
 export type Statistics = {
+  unreadNotifications: number;
   totalRevenue: number;
   revenue: number;
   revenueStats: {

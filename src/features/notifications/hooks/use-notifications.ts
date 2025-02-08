@@ -7,7 +7,11 @@ export const useNotifications = (options?: RestOptions<Notifications>) => {
   const { user } = useAuth();
   const rest = useRest<Notifications>("notifications", {
     ...options,
+    index: "last_notified_at desc",
+    asc: true,
+    limit: 100,
     query: {
+      ...options?.query,
       user_id: user?.id,
     },
   });

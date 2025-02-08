@@ -7,8 +7,10 @@ import { useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
 import { StatisticsApiClient } from "./api-client/api-client";
 import { Statistics } from "./types";
+import { useNotifications } from "@features/notifications/hooks/use-notifications";
 
 const blankStatistics: Statistics = {
+  unreadNotifications: 0,
   totalRevenue: 0,
   totalRevenueTable: [],
   revenue: 0,
@@ -56,6 +58,12 @@ export const useStatistics = (
   almostLatePayments90DelayEntities: Invoices[];
   almostLatePayments120DelayEntities: Invoices[];
 } => {
+  const { notifications } = useNotifications({
+    query: { read: false },
+    limit: 1,
+    key: "unreadNotifications",
+  });
+
   const statistics = useQuery({
     queryKey: [
       "statistics",
@@ -347,6 +355,7 @@ export const useStatistics = (
 
   return {
     ...statisticsData,
+    unreadNotifications: notifications?.data?.total || 0,
     formattedData,
     almostLateDeliveriesEntities: almostLateDeliveries ?? [],
     almostLatePaymentsEntities: almostLatePayments ?? [],

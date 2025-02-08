@@ -66,6 +66,11 @@ export const SideBar = () => {
             to={getRoute(ROUTES.Notifications)}
             label={t("menu.notifications")}
             icon={(p) => <InboxIcon {...p} />}
+            badge={
+              statistics?.unreadNotifications
+                ? (statistics?.unreadNotifications || 0)?.toString()
+                : undefined
+            }
           />
 
           <MenuSection
