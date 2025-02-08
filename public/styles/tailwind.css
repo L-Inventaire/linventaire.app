@@ -3086,6 +3086,11 @@ body :is(.border-r-slate-100) {
   border-right-color: rgb(224 224 224 / var(--tw-border-opacity));
 }
 
+body :is(.border-b-slate-100) {
+  --tw-border-opacity: 1;
+  border-bottom-color: rgb(224 224 224 / var(--tw-border-opacity));
+}
+
 body :is(.border-opacity-15) {
   --tw-border-opacity: 0.15;
 }
@@ -5696,6 +5701,11 @@ body :is(.dark\:border-yellow-900:where(.dark, .dark *)) {
 body :is(.dark\:border-r-slate-700:where(.dark, .dark *)) {
   --tw-border-opacity: 1;
   border-right-color: rgb(57 57 53 / var(--tw-border-opacity));
+}
+
+body :is(.dark\:border-b-slate-700:where(.dark, .dark *)) {
+  --tw-border-opacity: 1;
+  border-bottom-color: rgb(57 57 53 / var(--tw-border-opacity));
 }
 
 body :is(.dark\:\!bg-slate-900:where(.dark, .dark *)) {

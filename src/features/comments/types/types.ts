@@ -1,6 +1,6 @@
 import { RestEntity } from "@features/utils/rest/types/types";
 
-type EventMetadatas =
+export type EventMetadatas =
   | {
       event_type: "invoice_sent";
       recipients: { email: string; role: "signer" | "viewer" }[];
