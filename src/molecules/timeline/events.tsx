@@ -37,7 +37,7 @@ export const Event = ({ id }: { id: string }) => {
     message = (
       <Trans
         t={t}
-        i18nKey="timelines.events.invoice_sent.content"
+        i18nKey="timelines.events.quote_sent.content"
         components={[
           <>
             {signers.map(({ email }) => (
@@ -45,7 +45,7 @@ export const Event = ({ id }: { id: string }) => {
             ))}
           </>,
           <span className={viewers?.length ? "" : "hidden"}>
-            {t("timelines.events.invoice_sent.content_viewers")}{" "}
+            {t("timelines.events.quote_sent.content_viewers")}{" "}
             {viewers.map(({ email }) => (
               <Link href={"mailto:" + email}>{email}</Link>
             ))}
@@ -83,7 +83,7 @@ export const Event = ({ id }: { id: string }) => {
         created_by: comment.updated_by || comment.created_by,
         created_at: comment.created_at,
       }}
-      name="-"
+      name={false}
       icon={(p) => <InformationCircleIcon className={p.className} />}
       message={
         message ||

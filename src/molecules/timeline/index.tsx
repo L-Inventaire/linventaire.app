@@ -168,7 +168,7 @@ export const EventLine = ({
   first?: boolean;
   message?: string | ReactNode;
   icon?: (props: { className: string }) => ReactNode;
-  name?: string;
+  name?: string | false;
   revision?: string;
   viewRoute?: string;
 }) => {
@@ -200,7 +200,7 @@ export const EventLine = ({
       </div>
       <Text size="2" className="text-gray-500">
         <Strong truncate className="text-black dark:text-white">
-          {name || fullName}
+          {name !== false && (name || fullName)}
         </Strong>{" "}
         {message || comment?.content} •{" "}
         <Tooltip

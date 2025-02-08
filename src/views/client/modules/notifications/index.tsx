@@ -124,11 +124,13 @@ export const NotificationsPage = () => {
                       </Text>
                       <div className="flex w-full items-center mt-1 -mb-2">
                         <div className="grow">
-                          <RestUserTag
-                            id={n.updated_by}
-                            size={"md"}
-                            className="border-none -ml-2 bg-transparent"
-                          />
+                          {n.updated_by && (
+                            <RestUserTag
+                              id={n.updated_by}
+                              size={"md"}
+                              className="border-none -ml-2 bg-transparent"
+                            />
+                          )}
                         </div>
                         <Text size="1" className="opacity-50 block">
                           {formatDistance(
