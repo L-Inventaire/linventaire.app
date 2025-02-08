@@ -1,8 +1,21 @@
 import { Info } from "@atoms/text";
 import { RestUserTag } from "@components/deprecated-rest-tags/components/user";
-import { useNotifications } from "@features/notifications/hooks/use-notifications";
+import { CtrlKRestEntities, useParamsOrContextId } from "@features/ctrlk";
+import {
+  useNotification,
+  useNotifications,
+} from "@features/notifications/hooks/use-notifications";
 import { Notifications } from "@features/notifications/types/types";
-import { Heading, ScrollArea, Spinner, Text } from "@radix-ui/themes";
+import { getRoute, ROUTES } from "@features/routes";
+import { useNavigateAlt } from "@features/utils/navigate";
+import {
+  Button,
+  Heading,
+  Link,
+  ScrollArea,
+  Spinner,
+  Text,
+} from "@radix-ui/themes";
 import { Page } from "@views/client/_layout/page";
 import { formatDistance } from "date-fns";
 import _ from "lodash";
@@ -12,6 +25,8 @@ import { twMerge } from "tailwind-merge";
 export const NotificationsPage = () => {
   const { notifications, update } = useNotifications();
   const { t } = useTranslation();
+  const navigate = useNavigateAlt();
+  const { id } = useParamsOrContextId();
   return (
     <Page
       title={[
@@ -44,9 +59,15 @@ export const NotificationsPage = () => {
                     key={n.id}
                     className={twMerge(
                       "w-full border-b border-b-slate-100 dark:border-b-slate-700 flex",
-                      "cursor-pointer hover:bg-slate-25 dark:hover:bg-slate-800"
+                      id !== n.id &&
+                        "cursor-pointer hover:bg-slate-25 dark:hover:bg-slate-800",
+                      id === n.id && "bg-blue-50 dark:bg-blue-800"
                     )}
-                    onClick={() => {
+                    onClick={(event: any) => {
+                      navigate(
+                        getRoute(ROUTES.NotificationsPreview, { id: n.id }),
+                        { event }
+                      );
                       if (n.read) return;
                       update.mutateAsync({
                         id: n.id,
@@ -67,7 +88,7 @@ export const NotificationsPage = () => {
                     <div
                       className={twMerge(
                         "p-3 pl-0 grow",
-                        !!n.read && "opacity-25"
+                        !!n.read && id !== n.id && "opacity-25"
                       )}
                     >
                       <Heading size="2" className="line-clamp-1">
@@ -125,10 +146,42 @@ export const NotificationsPage = () => {
               })}
             </ScrollArea>
           </div>
-          <div className="p-3 grow border-r border-r-950 dark:border-r-950"></div>
+          <div className="grow border-r border-r-950 dark:border-r-950">
+            {id && <NotificationPreview id={id} />}
+          </div>
         </div>
       )}
     </Page>
+  );
+};
+
+const NotificationPreview = ({ id }: { id: string }) => {
+  const { notification } = useNotification(id);
+  const configuration = CtrlKRestEntities[notification?.entity || ""];
+  if (!notification) return null;
+  if (!configuration?.renderPage) {
+    let viewRoute = configuration?.viewRoute;
+    if (notification?.entity === "crm_items") viewRoute = ROUTES.CRMView;
+    if (!viewRoute) return null;
+    return (
+      <div className="flex flex-col items-center justify-center h-full">
+        <Link
+          href={getRoute(viewRoute || "", {
+            id: notification!.entity_id,
+          })}
+        >
+          <Button variant="surface">Voir le document</Button>
+        </Link>
+      </div>
+    );
+  }
+  return (
+    <>
+      {configuration.renderPage({
+        id: notification!.entity_id,
+        readonly: true,
+      })}
+    </>
   );
 };
 

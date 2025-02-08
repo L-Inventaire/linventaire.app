@@ -2,17 +2,18 @@ import { PageLoader } from "@atoms/page-loader";
 import { DocumentBar } from "@components/document-bar";
 import { useArticleDefaultModel } from "@features/articles/configuration";
 import { Articles } from "@features/articles/types/types";
+import { useParamsOrContextId } from "@features/ctrlk";
 import { ROUTES, getRoute } from "@features/routes";
 import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { Page } from "@views/client/_layout/page";
 import _ from "lodash";
-import { useNavigate, useParams } from "react-router-dom";
-import { ArticlesDetailsPage } from "../components/article-details";
-import toast from "react-hot-toast";
 import { useRef } from "react";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+import { ArticlesDetailsPage } from "../components/article-details";
 
 export const ArticlesEditPage = (_props: { readonly?: boolean }) => {
-  let { id } = useParams();
+  let { id } = useParamsOrContextId();
   id = id === "new" ? "" : id || "";
   const navigate = useNavigate();
 

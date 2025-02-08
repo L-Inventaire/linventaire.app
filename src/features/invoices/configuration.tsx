@@ -3,7 +3,7 @@ import { Base, BaseSmall, Info } from "@atoms/text";
 import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
 import { useCurrentClient } from "@features/clients/state/use-clients";
-import { registerCtrlKRestEntity } from "@features/ctrlk";
+import { ContextId, registerCtrlKRestEntity } from "@features/ctrlk";
 import { getRoute, ROUTES } from "@features/routes";
 import { formatAmount } from "@features/utils/format/strings";
 import { RestFieldsNames } from "@features/utils/rest/configuration";
@@ -25,6 +25,8 @@ import {
 import { format } from "date-fns";
 import _ from "lodash";
 import { Invoices } from "./types/types";
+import { InvoicesEditPage } from "@views/client/modules/invoices/edit";
+import { InvoicesViewPage } from "@views/client/modules/invoices/view";
 
 export const useInvoiceDefaultModel: () => Partial<Invoices> = () => {
   const { client } = useCurrentClient();
@@ -219,7 +221,12 @@ export const InvoicesColumns: Column<Invoices>[] = [
 
 registerCtrlKRestEntity<Invoices>("invoices", {
   renderEditor: (props) => (
-    <InvoicesDetailsPage readonly={false} id={props.id} />
+    <InvoicesDetailsPage readonly={props.readonly || false} id={props.id} />
+  ),
+  renderPage: (props) => (
+    <ContextId.Provider value={props.id}>
+      {props.readonly ? <InvoicesViewPage /> : <InvoicesEditPage />}
+    </ContextId.Provider>
   ),
   renderResult: InvoicesColumns,
   useDefaultData: useInvoiceDefaultModel,

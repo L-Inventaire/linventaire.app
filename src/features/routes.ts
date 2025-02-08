@@ -44,6 +44,7 @@ export const ROUTES = {
 
   Home: "/:client/home",
   Notifications: "/:client/notifications",
+  NotificationsPreview: "/:client/notifications/:id",
   Events: "/:client/events",
 
   Statistics: "/:client/statistics",

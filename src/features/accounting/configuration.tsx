@@ -103,7 +103,10 @@ const AccountingTransactionAmount = ({
 
 registerCtrlKRestEntity<AccountingTransactions>("accounting_transactions", {
   renderEditor: (props) => (
-    <AccountingTransactionsDetailsPage readonly={false} id={props.id} />
+    <AccountingTransactionsDetailsPage
+      readonly={props.readonly || false}
+      id={props.id}
+    />
   ),
   renderResult: AccountingTransactionsColumns(),
   useDefaultData: useAccountingTransactionDefaultModel,
@@ -137,7 +140,10 @@ export const AccountingAccountsColumns: Column<AccountingAccounts>[] = [
 
 registerCtrlKRestEntity<AccountingAccounts>("accounting_accounts", {
   renderEditor: (props) => (
-    <AccountingAccountDetailsPage readonly={false} id={props.id} />
+    <AccountingAccountDetailsPage
+      readonly={props.readonly || false}
+      id={props.id}
+    />
   ),
   renderResult: AccountingAccountsColumns,
   useDefaultData: useAccountingAccountDefaultModel,

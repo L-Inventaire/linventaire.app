@@ -24,7 +24,12 @@ export const useNotifications = (options?: RestOptions<Notifications>) => {
 };
 
 export const useNotification = (id: string) => {
-  const rest = useNotifications({ id, limit: id ? 1 : 0 });
+  const { user } = useAuth();
+
+  const rest = useNotifications({
+    query: { id, user_id: user!.id },
+    limit: id ? 1 : 0,
+  });
   return {
     notification: id ? (rest.notifications.data?.list || [])[0] : null,
     isPending: id ? rest.notifications.isPending : false,

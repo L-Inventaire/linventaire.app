@@ -136,7 +136,7 @@ export const ServiceItemsColumns: Column<ServiceItems>[] = [
 
 registerCtrlKRestEntity<ServiceItems>("service_items", {
   renderEditor: (props) => (
-    <ServiceItemsDetailsPage readonly={false} id={props.id} />
+    <ServiceItemsDetailsPage readonly={props.readonly || false} id={props.id} />
   ),
   renderResult: ServiceItemsColumns,
   useDefaultData: useServiceItemDefaultModel,
@@ -187,7 +187,7 @@ export const useServiceTimeDefaultModel: () => Partial<ServiceTimes> =
 
 registerCtrlKRestEntity<ServiceTimes>("service_times", {
   renderEditor: (props) => (
-    <ServiceTimesDetailsPage readonly={false} id={props.id} />
+    <ServiceTimesDetailsPage readonly={props.readonly || false} id={props.id} />
   ),
   renderResult: ServiceTimesColumns,
   useDefaultData: useServiceTimeDefaultModel,

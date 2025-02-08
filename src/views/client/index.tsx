@@ -83,6 +83,10 @@ export const BackOfficeRoutes = () => {
 
         <Route path={ROUTES.Home} element={<DashboardHomePage />} />
         <Route path={ROUTES.Notifications} element={<NotificationsPage />} />
+        <Route
+          path={ROUTES.NotificationsPreview}
+          element={<NotificationsPage />}
+        />
         <Route path={ROUTES.Statistics} element={<StatisticsPage />} />
 
         <Route path={ROUTES.Contacts} element={<ContactsPage />} />

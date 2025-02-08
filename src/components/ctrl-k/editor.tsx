@@ -96,6 +96,7 @@ export const ModalEditor = (props: { index: number }) => {
               currentState.options?.entity || ""
             ]?.renderEditor?.({
               id: currentState.options?.id || "",
+              readonly: false,
             })}
         </div>
       </Scrollbars>

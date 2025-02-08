@@ -1,17 +1,18 @@
-import { DocumentBar } from "@components/document-bar";
 import { PageLoader } from "@atoms/page-loader";
+import { DocumentBar } from "@components/document-bar";
 import { useContactDefaultModel } from "@features/contacts/configuration";
 import { Contacts } from "@features/contacts/types/types";
+import { useParamsOrContextId } from "@features/ctrlk";
 import { ROUTES, getRoute } from "@features/routes";
 import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { Page } from "@views/client/_layout/page";
 import _ from "lodash";
-import { useNavigate, useParams } from "react-router-dom";
-import { ContactsDetailsPage } from "../components/contact-details";
 import { useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { ContactsDetailsPage } from "../components/contact-details";
 
 export const ContactsEditPage = (_props: { readonly?: boolean }) => {
-  let { id } = useParams();
+  let { id } = useParamsOrContextId();
   id = id === "new" ? "" : id || "";
   const navigate = useNavigate();
 

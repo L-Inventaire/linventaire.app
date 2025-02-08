@@ -1,14 +1,14 @@
 import { PageLoader } from "@atoms/page-loader";
 import { DocumentBar } from "@components/document-bar";
+import { useHasAccess } from "@features/access";
+import { useParamsOrContextId } from "@features/ctrlk";
 import { ROUTES, getRoute } from "@features/routes";
 import { useServiceItem } from "@features/service/hooks/use-service-items";
 import { Page } from "@views/client/_layout/page";
-import { useParams } from "react-router-dom";
 import { ServiceItemsDetailsPage } from "../components/service-items-details";
-import { useHasAccess } from "@features/access";
 
 export const ServiceItemsViewPage = (_props: { readonly?: boolean }) => {
-  const { id } = useParams();
+  const { id } = useParamsOrContextId();
   const {
     service_item: item,
     isPending,

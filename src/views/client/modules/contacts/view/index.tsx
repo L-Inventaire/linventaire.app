@@ -1,17 +1,17 @@
 import { Button } from "@atoms/button/button";
 import { DocumentBar } from "@components/document-bar";
 import { withModel } from "@components/search-bar/utils/as-model";
+import { useHasAccess } from "@features/access";
 import { useContact } from "@features/contacts/hooks/use-contacts";
 import { getContactName } from "@features/contacts/types/types";
+import { useParamsOrContextId } from "@features/ctrlk";
 import { Invoices } from "@features/invoices/types/types";
 import { ROUTES, getRoute } from "@features/routes";
 import { Page } from "@views/client/_layout/page";
-import { useParams } from "react-router-dom";
 import { ContactsDetailsPage } from "../components/contact-details";
-import { useHasAccess } from "@features/access";
 
 export const ContactsViewPage = (_props: { readonly?: boolean }) => {
-  const { id } = useParams();
+  const { id } = useParamsOrContextId();
   const { contact, isPending, remove, restore, isPendingModification } =
     useContact(id || "");
   const hasAccess = useHasAccess();

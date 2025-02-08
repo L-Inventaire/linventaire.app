@@ -2,6 +2,7 @@ import { Button } from "@atoms/button/button";
 import { NotFound } from "@atoms/not-found/not-found";
 import { PageLoader } from "@atoms/page-loader";
 import { DocumentBar } from "@components/document-bar";
+import { useParamsOrContextId } from "@features/ctrlk";
 import { useFurnishQuotes } from "@features/invoices/hooks/use-furnish-quotes";
 import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { getDocumentNamePlurial } from "@features/invoices/utils";
@@ -9,13 +10,12 @@ import { ROUTES, getRoute } from "@features/routes";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { Page } from "@views/client/_layout/page";
 import _ from "lodash";
-import { useParams } from "react-router-dom";
+import { useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { FurnishQuotesDetails } from "../components/invoice-actions/furnish-quotes-details";
-import { useState } from "react";
 
 export const FurnishQuotesPage = (_props: { readonly?: boolean }) => {
-  const { id } = useParams();
+  const { id } = useParamsOrContextId();
   const { invoice: quote, isPending } = useInvoice(id || "");
   const [isLoading, setIsLoading] = useState(false);
   const {
