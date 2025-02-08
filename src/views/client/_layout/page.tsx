@@ -22,6 +22,7 @@ export const Page = (
       to?: string;
       href?: string;
     }[];
+    inset?: boolean;
     scrollAreaProps?: ScrollAreaProps;
     scrollAreaChildProps?: React.ComponentProps<"div">;
   } & Omit<React.ComponentProps<"div">, "title" | "children">
@@ -65,7 +66,8 @@ export const Page = (
           >
             <div
               className={twMerge(
-                "p-3 h-full",
+                !props.inset && "p-3 h-full",
+                !!props.inset && "h-full",
                 props?.scrollAreaChildProps?.className
               )}
               {...props?.scrollAreaChildProps}

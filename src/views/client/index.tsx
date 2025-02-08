@@ -61,6 +61,7 @@ import { GroupInvoices } from "./modules/invoices/group-items";
 import { InvoicesSettingsPage } from "./settings/invoices";
 import { useNavigationHistory } from "@features/utils/hooks/use-navigation-history";
 import { useEffect } from "react";
+import { AccountNotificationsPage } from "./account/notifications";
 
 export const BackOfficeRoutes = () => {
   return (
@@ -74,10 +75,18 @@ export const BackOfficeRoutes = () => {
         />
         <Route path={ROUTES.AccountProfile} element={<AccountPage />} />
         <Route path={ROUTES.AccountClients} element={<AccountClientsPage />} />
+        <Route
+          path={ROUTES.AccountNotifications}
+          element={<AccountNotificationsPage />}
+        />
         <Route path={ROUTES.AccountSecurity} element={<SecurityPage />} />
 
         <Route path={ROUTES.Home} element={<DashboardHomePage />} />
         <Route path={ROUTES.Notifications} element={<NotificationsPage />} />
+        <Route
+          path={ROUTES.NotificationsPreview}
+          element={<NotificationsPage />}
+        />
         <Route path={ROUTES.Statistics} element={<StatisticsPage />} />
 
         <Route path={ROUTES.Contacts} element={<ContactsPage />} />

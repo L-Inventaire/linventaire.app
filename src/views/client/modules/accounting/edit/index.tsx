@@ -1,14 +1,15 @@
 import { PageLoader } from "@atoms/page-loader";
 import { DocumentBar } from "@components/document-bar";
-import { useClients } from "@features/clients/state/use-clients";
-import { ROUTES, getRoute } from "@features/routes";
 import { useAccountingTransactionDefaultModel } from "@features/accounting/configuration";
 import { AccountingTransactions } from "@features/accounting/types/types";
+import { useClients } from "@features/clients/state/use-clients";
+import { useParamsOrContextId } from "@features/ctrlk";
+import { ROUTES, getRoute } from "@features/routes";
 import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { Page } from "@views/client/_layout/page";
 import _ from "lodash";
 import { useEffect, useRef } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { AccountingTransactionsDetailsPage } from "../components/accounting-transactions-details";
 
 export const AccountingTransactionsEditPage = (_props: {
@@ -20,7 +21,7 @@ export const AccountingTransactionsEditPage = (_props: {
     refresh();
   }, []);
 
-  let { id } = useParams();
+  let { id } = useParamsOrContextId();
   id = id === "new" ? "" : id || "";
   const navigate = useNavigate();
 

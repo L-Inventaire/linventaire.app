@@ -1,9 +1,10 @@
-import { ReactNode } from "react";
+import { createContext, ReactNode, useContext } from "react";
 import { CtrlKOptionsType } from "./types";
 import { TablePropsType } from "@molecules/table";
 import { Contacts } from "@features/contacts/types/types";
 import { Invoices } from "@features/invoices/types/types";
 import { Articles } from "@features/articles/types/types";
+import { useParams } from "react-router-dom";
 
 export let RootNavigationItems: CtrlKOptionsType[] = [];
 export const registerRootNavigation = (
@@ -24,7 +25,8 @@ type RestEntityForCtrlK<T> = {
   resultList?: (query: string) => Promise<{ total: number; list: T[] }>;
 
   // Allow to create a new entity
-  renderEditor?: (props: { id: string }) => ReactNode;
+  renderEditor?: (props: { id: string; readonly?: boolean }) => ReactNode;
+  renderPage?: (props: { id: string; readonly?: boolean }) => ReactNode;
   useDefaultData?: () => Partial<T>;
   onCreate?: (query: string) => {
     callback: (query: string) => Promise<string | void | false>; // Returns the query we want after the creation
@@ -59,4 +61,12 @@ export const registerCtrlKRestEntity = <T>(
     ...CtrlKRestEntities,
     [entity]: options,
   };
+};
+
+export const ContextId = createContext<string | undefined>(undefined);
+
+export const useParamsOrContextId = () => {
+  const { id } = useParams<{ id: string }>();
+  const contextId = useContext(ContextId);
+  return { id: contextId || id };
 };

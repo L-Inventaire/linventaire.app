@@ -126,7 +126,7 @@ export const ContactsColumns: Column<Contacts>[] = [
 
 registerCtrlKRestEntity<Contacts>("contacts", {
   renderEditor: (props) => (
-    <ContactsDetailsPage readonly={false} id={props.id} />
+    <ContactsDetailsPage readonly={props.readonly || false} id={props.id} />
   ),
   renderResult: ContactsColumns,
   useDefaultData: useContactDefaultModel,

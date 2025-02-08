@@ -224,7 +224,7 @@ export const DocumentBar = ({
               onClick={(e: any) =>
                 navigate(
                   withModel(getRoute(props.editRoute || "", { id: "new" }), {
-                    ..._.omit(document, "id", "state"),
+                    ..._.omit(document, "id", "state", "emit_date"),
                   }),
                   {
                     event: e,

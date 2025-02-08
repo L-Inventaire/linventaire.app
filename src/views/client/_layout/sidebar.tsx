@@ -61,13 +61,17 @@ export const SideBar = () => {
               icon={(p) => <HomeIcon {...p} />}
             />
           )}
-          {false && (
-            <SideMenuItem
-              to={getRoute(ROUTES.Notifications)}
-              label={t("menu.notifications")}
-              icon={(p) => <InboxIcon {...p} />}
-            />
-          )}
+
+          <SideMenuItem
+            to={getRoute(ROUTES.Notifications)}
+            label={t("menu.notifications")}
+            icon={(p) => <InboxIcon {...p} />}
+            badge={
+              statistics?.unreadNotifications
+                ? (statistics?.unreadNotifications || 0)?.toString()
+                : undefined
+            }
+          />
 
           <MenuSection
             className="!mt-6"

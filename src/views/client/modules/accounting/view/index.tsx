@@ -1,16 +1,16 @@
 import { PageLoader } from "@atoms/page-loader";
 import { DocumentBar } from "@components/document-bar";
-import { ROUTES, getRoute } from "@features/routes";
-import { useAccountingTransaction } from "@features/accounting/hooks/use-accounting-transactions";
-import { Page } from "@views/client/_layout/page";
-import { useParams } from "react-router-dom";
-import { AccountingTransactionsDetailsPage } from "../components/accounting-transactions-details";
 import { useHasAccess } from "@features/access";
+import { useAccountingTransaction } from "@features/accounting/hooks/use-accounting-transactions";
+import { useParamsOrContextId } from "@features/ctrlk";
+import { ROUTES, getRoute } from "@features/routes";
+import { Page } from "@views/client/_layout/page";
+import { AccountingTransactionsDetailsPage } from "../components/accounting-transactions-details";
 
 export const AccountingTransactionsViewPage = (_props: {
   readonly?: boolean;
 }) => {
-  const { id } = useParams();
+  const { id } = useParamsOrContextId();
   const {
     accounting_transaction: item,
     restore,

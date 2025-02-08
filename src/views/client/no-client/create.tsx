@@ -198,7 +198,7 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
 
             <div className="flex flex-row">
               <Input
-                size="md"
+                size="lg"
                 className="rounded-r-none"
                 placeholder="john@books.com ou copiez/collez une liste d'emails"
                 type="email"
@@ -226,7 +226,7 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
                 }}
               />
               <Button
-                size="md"
+                size="xl"
                 className="rounded-l-none"
                 shortcut={["enter"]}
                 disabled={!validateEmail(newInvitationEmail)}

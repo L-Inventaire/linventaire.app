@@ -115,7 +115,7 @@ const Quantity = (props: { item: StockItems }) => {
 
 registerCtrlKRestEntity<StockItems>("stock_items", {
   renderEditor: (props) => (
-    <StockItemsDetailsPage readonly={false} id={props.id} />
+    <StockItemsDetailsPage readonly={props.readonly || false} id={props.id} />
   ),
   renderResult: StockItemsColumns,
   useDefaultData: useStockItemDefaultModel,

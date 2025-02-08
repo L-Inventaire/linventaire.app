@@ -112,7 +112,7 @@ export const ArticlesColumns: Column<Articles>[] = [
 
 registerCtrlKRestEntity<Articles>("articles", {
   renderEditor: (props) => (
-    <ArticlesDetailsPage readonly={false} id={props.id} />
+    <ArticlesDetailsPage readonly={props.readonly || false} id={props.id} />
   ),
   groupBy: "type",
   orderBy: "type,name",

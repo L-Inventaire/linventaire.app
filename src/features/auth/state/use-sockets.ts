@@ -44,6 +44,13 @@ export const useWebsockets = () => {
               queryKey: invalidated,
             });
 
+            if (["threads", "notifications"].includes(doc.doc_table)) {
+              // Refresh lists
+              queryClient.invalidateQueries({
+                queryKey: [doc.doc_table],
+              });
+            }
+
             // Update history if needed
             if (
               doc.doc_pk?.client_id &&

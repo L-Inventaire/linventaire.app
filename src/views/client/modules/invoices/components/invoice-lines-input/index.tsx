@@ -70,11 +70,7 @@ export const InvoiceLinesInput = ({
                   Article
                 </Heading>
               </Box>
-              <Box
-                className={twMerge(
-                  "text-right w-1/6 shrink-0 border-l dark:border-slate-700"
-                )}
-              >
+              <Box className={twMerge("text-right w-1/6 shrink-0")}>
                 <Heading size={"2"} className="py-1 px-2.5">
                   Réf. Fournisseur
                 </Heading>

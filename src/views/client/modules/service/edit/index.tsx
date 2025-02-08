@@ -1,17 +1,18 @@
 import { PageLoader } from "@atoms/page-loader";
 import { DocumentBar } from "@components/document-bar";
 import { useClients } from "@features/clients/state/use-clients";
+import { useParamsOrContextId } from "@features/ctrlk";
 import { ROUTES, getRoute } from "@features/routes";
 import { useServiceItemDefaultModel } from "@features/service/configuration";
 import { ServiceItems, ServiceTimes } from "@features/service/types/types";
 import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
+import { useRest } from "@features/utils/rest/hooks/use-rest";
 import { Page } from "@views/client/_layout/page";
 import _ from "lodash";
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { ServiceItemsDetailsPage } from "../components/service-items-details";
+import { useNavigate } from "react-router-dom";
 import { SpentTime } from "../components/inline-spent-time-input";
-import { useRest } from "@features/utils/rest/hooks/use-rest";
+import { ServiceItemsDetailsPage } from "../components/service-items-details";
 
 export const ServiceItemsEditPage = (_props: { readonly?: boolean }) => {
   const { refresh, loading } = useClients();
@@ -20,7 +21,7 @@ export const ServiceItemsEditPage = (_props: { readonly?: boolean }) => {
     refresh();
   }, []);
 
-  let { id } = useParams();
+  let { id } = useParamsOrContextId();
   id = id === "new" ? "" : id || "";
   const navigate = useNavigate();
 

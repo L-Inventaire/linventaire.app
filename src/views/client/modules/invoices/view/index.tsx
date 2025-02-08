@@ -1,20 +1,21 @@
 import { Button } from "@atoms/button/button";
+import { NotFound } from "@atoms/not-found/not-found";
 import { PageLoader } from "@atoms/page-loader";
 import { DocumentBar } from "@components/document-bar";
 import { withModel } from "@components/search-bar/utils/as-model";
+import { useHasAccess } from "@features/access";
+import { useParamsOrContextId } from "@features/ctrlk";
 import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { getDocumentNamePlurial } from "@features/invoices/utils";
 import { ROUTES, getRoute } from "@features/routes";
 import { Page } from "@views/client/_layout/page";
 import { useNavigate, useParams } from "react-router-dom";
+import { InvoiceActions } from "../components/invoice-actions";
 import { InvoicesDetailsPage } from "../components/invoices-details";
 import { getPdfPreview } from "../components/invoices-preview/invoices-preview";
-import { InvoiceActions } from "../components/invoice-actions";
-import { NotFound } from "@atoms/not-found/not-found";
-import { useHasAccess } from "@features/access";
 
 export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
-  const { id } = useParams();
+  const { id } = useParamsOrContextId();
   const { invoice, isPending, remove, restore, isPendingModification } =
     useInvoice(id || "");
   const isRevision = id?.includes("~");

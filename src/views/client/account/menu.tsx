@@ -29,6 +29,10 @@ export const useAccountMenu: MenuIndex = () => {
         label: t("menu.account.enterprise"),
       },
       {
+        label: t("menu.account.notifications"),
+        to: getRoute(ROUTES.AccountNotifications),
+      },
+      {
         label: t("menu.account.manage_companies"),
         to: getRoute(ROUTES.AccountClients),
       },

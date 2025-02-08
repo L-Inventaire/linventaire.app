@@ -1,6 +1,7 @@
 import { PageLoader } from "@atoms/page-loader";
 import { DocumentBar } from "@components/document-bar";
 import { useClients } from "@features/clients/state/use-clients";
+import { useParamsOrContextId } from "@features/ctrlk";
 import { ROUTES, getRoute } from "@features/routes";
 import { useStockItemDefaultModel } from "@features/stock/configuration";
 import { StockItems } from "@features/stock/types/types";
@@ -8,7 +9,7 @@ import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { Page } from "@views/client/_layout/page";
 import _ from "lodash";
 import { useEffect, useRef } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { StockItemsDetailsPage } from "../components/stock-item-details";
 
 export const StockItemsEditPage = (_props: { readonly?: boolean }) => {
@@ -18,7 +19,7 @@ export const StockItemsEditPage = (_props: { readonly?: boolean }) => {
     refresh();
   }, []);
 
-  let { id } = useParams();
+  let { id } = useParamsOrContextId();
   id = id === "new" ? "" : id || "";
   const navigate = useNavigate();
 

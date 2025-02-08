@@ -168,7 +168,8 @@
       "security": "Sécurité",
       "enterprise": "Entreprise",
       "manage_companies": "Gérer mes entreprise",
-      "ctrlk_prefix": "Compte"
+      "ctrlk_prefix": "Compte",
+      "notifications": "Notifications"
     },
     "dashboard": "Tableau de bord",
     "notifications": "Notifications",
@@ -248,6 +249,56 @@
   "documents": {
     "index": {
       "title": "Documents partagés"
+    }
+  },
+  "notifications": {
+    "entities_names": {
+      "invoices": "<0>{{name}}</0>",
+      "articles": "Article <0>{{name}}</0>",
+      "contacts": "Contact <0>{{name}}</0>",
+      "crm_items": "CRM <0>{{name}}</0>",
+      "stock_items": "Élément de stock <0>{{name}}</0>",
+      "service_items": "Tâche <0>{{name}}</0>"
+    },
+    "mentioned": {
+      "title": "<1/> vous a mentionné."
+    },
+    "assigned": {
+      "title": "Vous êtes assigné."
+    },
+    "modified": {
+      "title": "Modifié par <1/>."
+    },
+    "commented": {
+      "title": "<1/> a ajouté un commentaire."
+    },
+    "invoice_sent": {
+      "title": "Facture envoyée."
+    },
+    "quote_sent": {
+      "title": "Devis envoyé."
+    },
+    "quote_signed": {
+      "title": "Devis signé par {{email}}."
+    },
+    "quote_refused": {
+      "title": "Devis refusé par {{email}} pour la raison {{reason}}."
+    }
+  },
+  "timelines": {
+    "events": {
+      "invoice_sent": {
+        "content": "Facture envoyée à <0/>."
+      },
+      "quote_sent": {
+        "content": "Devis envoyé aux signataires <0/><1/>",
+        "content_viewers": ", et en copie à "
+      },
+      "quote_signed": {
+        "content": "Devis <0>signé</0> par <1>{{email}}</1>. <2>Voir le document signé.</2>",
+        "content_viewers": ", et aux signataires "
+      },
+      "quote_refused": "Devis refusé par {{email}} pour la raison '{{reason}}'."
     }
   },
   "atoms": {
