@@ -42,6 +42,8 @@ const UserTagRender = ({
   onClick?: () => void;
   heads?: boolean;
 }) => {
+  if (!user) return null;
+
   const name = user?.full_name ? getFullName(user) : user.email || "-";
   const avatar = user?.avatar;
   return (
