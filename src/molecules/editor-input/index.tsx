@@ -26,9 +26,6 @@ const SizeAttributor = ReactQuill.Quill.import("attributors/style/size");
 SizeAttributor.whitelist = [];
 ReactQuill.Quill.register(SizeAttributor);
 
-// Disable h1-h6
-ReactQuill.Quill.register("formats/header", null);
-
 // Disable fonts
 const FontAttributor = ReactQuill.Quill.import("attributors/style/font");
 FontAttributor.whitelist = [];
