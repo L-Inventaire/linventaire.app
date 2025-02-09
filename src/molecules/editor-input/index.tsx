@@ -27,9 +27,7 @@ SizeAttributor.whitelist = [];
 ReactQuill.Quill.register(SizeAttributor);
 
 // Disable h1-h6
-const HeaderAttributor = ReactQuill.Quill.import("attributors/class/header");
-HeaderAttributor.whitelist = [];
-ReactQuill.Quill.register(HeaderAttributor);
+ReactQuill.Quill.register("formats/header", null);
 
 // Disable fonts
 const FontAttributor = ReactQuill.Quill.import("attributors/style/font");
@@ -56,6 +54,9 @@ let mentionableUsers: {
 }[] = [];
 
 const modules = {
+  clipboard: {
+    matchVisual: false,
+  },
   toolbar: [
     ["bold", "italic", "underline", "strike", "blockquote", "code-block"],
     [
