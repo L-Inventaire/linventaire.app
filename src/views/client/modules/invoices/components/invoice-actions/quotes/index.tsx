@@ -222,6 +222,12 @@ export const QuotesActions = ({
                 onClick: () => getPdfPreview(draft),
               },
               {
+                label: "Retourner en brouillon",
+                onClick: () => {
+                  _save({ state: "draft" });
+                },
+              },
+              {
                 label: "Clôturer le devis sans facturer",
                 onClick: () => {
                   if (window.confirm("Clore définitivement le document?"))
