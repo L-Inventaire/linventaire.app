@@ -12,7 +12,10 @@ export type TablePropsType<T> = {
   scrollable?: boolean;
   rowIndex?: string;
   total?: number;
-
+  order?: {
+    orderBy: string;
+    order: "ASC" | "DESC";
+  };
   resetToFirstPage?: (func: () => void) => void;
   checkboxAlwaysVisible?: boolean;
   grid?: boolean;
@@ -61,12 +64,10 @@ export function Grid<T>(
       {..._.omit(props, "render")}
       columns={[
         {
-          orderable: !!props.orderables?.length,
           title: props.orderables?.[0],
           render: props.render,
         },
         ...(props.orderables || []).slice(1).map((key) => ({
-          orderable: true,
           title: key,
           render: () => "",
         })),
@@ -106,6 +107,14 @@ export function Table<T>({
     order: initialPagination?.order,
   });
   const [internalLoading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setPaginationState({
+      ...paginationState,
+      order: props.order?.order,
+      orderBy: props.order?.orderBy,
+    });
+  }, [props.order]);
 
   const columns = props?.groupByClosable
     ? [
@@ -181,10 +190,10 @@ export function Table<T>({
       )}
       onFetchExportData={onFetchExportData}
       checkboxAlwaysVisible={checkboxAlwaysVisible}
-      onChangeOrder={(columnIndex, direction) => {
+      onChangeOrder={(orderBy, direction) => {
         setPagination({
           ...pagination,
-          orderBy: columnIndex,
+          orderBy: orderBy,
           order: direction,
           page: 1,
         });

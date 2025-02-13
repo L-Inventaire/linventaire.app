@@ -126,16 +126,15 @@ export const DocumentBar = ({
           }
           onClick={cancel}
         />
-        {mode === "read" &&
-          window.document.location.host.indexOf("localhost") > -1 && (
-            <DocumentBarNav
-              entity={entity}
-              id={document?.id}
-              getRoute={(id) => {
-                return getRoute(props.viewRoute || "/", { id });
-              }}
-            />
-          )}
+        {mode === "read" && (
+          <DocumentBarNav
+            entity={entity}
+            id={document?.id}
+            getRoute={(id) => {
+              return getRoute(props.viewRoute || "/", { id });
+            }}
+          />
+        )}
       </div>
       {!loading && (
         <>

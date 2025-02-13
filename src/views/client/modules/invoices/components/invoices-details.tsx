@@ -168,6 +168,7 @@ export const InvoicesDetailsPage = ({
     query: buildQueryFromMap({
       rel_invoices: draft.id,
     }),
+    limit: draft.id ? 100 : 0,
   });
 
   const { contacts } = useContacts({
