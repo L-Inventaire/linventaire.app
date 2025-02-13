@@ -16,7 +16,7 @@ type PropsType = {
     total: number;
     page: number;
     perPage: number;
-    orderBy?: number;
+    orderBy?: string;
     order?: "ASC" | "DESC";
   };
   loading?: boolean;

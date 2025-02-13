@@ -23,7 +23,7 @@ export const RelatedInvoicesInput = ({
     }),
     limit: 20,
     asc: true,
-    index: "state_order,type,emit_date desc",
+    index: "state_order,type,reference desc",
   });
 
   const { invoices: invoicesClient } = useInvoices({
@@ -33,7 +33,7 @@ export const RelatedInvoicesInput = ({
     }),
     limit: 20,
     asc: true,
-    index: "state_order,type,emit_date desc",
+    index: "state_order,type,reference desc",
   });
 
   return (

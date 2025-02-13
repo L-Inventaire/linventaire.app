@@ -1,6 +1,5 @@
 import { Button } from "@atoms/button/button";
 import { Checkbox } from "@atoms/input/input-checkbox";
-import Select from "@atoms/input/input-select";
 import { DelayedLoader } from "@atoms/loader";
 import { Modal } from "@atoms/modal/modal";
 import { BaseSmall, Info } from "@atoms/text";
@@ -30,7 +29,7 @@ export type Column<T> = {
   thClassName?: string;
   headClassName?: string;
   cellClassName?: string;
-  orderable?: boolean;
+  orderBy?: string;
   hidden?: boolean;
   render: (item: T, options: RenderOptions) => string | ReactNode;
 };
@@ -39,7 +38,7 @@ export type Pagination = {
   total: number;
   page: number;
   perPage: number;
-  orderBy?: number;
+  orderBy?: string;
   order?: "ASC" | "DESC";
 };
 
@@ -76,7 +75,7 @@ type PropsType<T> = {
     | ((items: T[]) => void);
   selection?: T[];
   onClick?: (item: T, e: MouseEvent) => void;
-  onChangeOrder?: (columnIndex: number, direction: "ASC" | "DESC") => void;
+  onChangeOrder?: (orderBy: string, direction: "ASC" | "DESC") => void;
   onChangePage?: (page: number) => void;
   onChangePageSize?: (size: number) => void;
   onFetchExportData?: (pagination: Pagination) => Promise<T[]>;
@@ -304,49 +303,6 @@ export function RenderedTable<T>({
           </div>
         )}
 
-        {grid && columns.filter((a) => !a.hidden).find((c) => c.orderable) && (
-          <div className={"float-left flex flex-row "}>
-            <Select
-              size="md"
-              className="grow w-full my-2 mr-2"
-              onChange={(e) => {
-                if (onChangeOrder) {
-                  onChangeOrder(parseInt(e.target.value), "ASC");
-
-                  // go back to first selection in select
-                  e.target.selectedIndex = 0;
-                }
-              }}
-            >
-              <option value="">
-                {"Trier par "}
-                {columns[pagination?.orderBy as number]?.title ?? "..."}
-              </option>
-              {columns
-                .filter((a) => !a.hidden)
-                .map((c, i) => (
-                  <option key={i} value={i}>
-                    {c.title}
-                  </option>
-                ))}
-            </Select>
-            <Select
-              size="md"
-              className="shrink-0 !w-auto -ml-px my-2"
-              onChange={(e) => {
-                if (onChangeOrder)
-                  onChangeOrder(
-                    pagination?.orderBy || 0,
-                    e.target.value as "ASC" | "DESC"
-                  );
-              }}
-            >
-              <option value={"ASC"}>Croissant</option>
-              <option value={"DESC"}>Décroissant</option>
-            </Select>
-          </div>
-        )}
-
         {onFetchExportData && (
           <div className="float-right ml-2">
             <Button
@@ -429,7 +385,6 @@ export function RenderedTable<T>({
                         scrollable={scrollable}
                         onChangeOrder={onChangeOrder}
                         pagination={pagination}
-                        header
                       />
                     ))}
                 </tr>

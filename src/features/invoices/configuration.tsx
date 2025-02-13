@@ -44,9 +44,10 @@ export const useInvoiceDefaultModel: () => Partial<Invoices> = () => {
 
 export const InvoicesColumns: Column<Invoices>[] = [
   {
-    title: "Date",
+    title: "Émis le",
     id: "emit_date",
     thClassName: "w-16",
+    orderBy: "emit_date",
     render: (invoice) => {
       return (
         <Base className="whitespace-nowrap">
@@ -61,6 +62,7 @@ export const InvoicesColumns: Column<Invoices>[] = [
   {
     title: "Référence",
     id: "reference",
+    orderBy: "reference",
     render: (invoice) => (
       <Base className="whitespace-nowrap max-w-xs overflow-hidden text-ellipsis">
         <BaseSmall>
@@ -92,7 +94,10 @@ export const InvoicesColumns: Column<Invoices>[] = [
         <InvoiceRestDocument
           className="overflow-hidden"
           disabled
-          value={invoice.from_rel_quote || invoice.from_rel_invoice}
+          value={
+            (invoice.from_rel_quote?.length ? invoice.from_rel_quote : null) ||
+            invoice.from_rel_invoice
+          }
         />
       </Base>
     ),
@@ -155,6 +160,7 @@ export const InvoicesColumns: Column<Invoices>[] = [
     thClassName: "w-1",
     cellClassName: "justify-end",
     headClassName: "justify-end",
+    orderBy: "(total->>'total')::numeric",
     render: (invoice) => {
       return invoice.content?.some((a) => a.subscription) &&
         invoice.type === "quotes" ? (
@@ -205,9 +211,11 @@ export const InvoicesColumns: Column<Invoices>[] = [
   },
   {
     title: "Statut",
+    id: "state",
     thClassName: "w-1",
     cellClassName: "justify-end",
     headClassName: "justify-end",
+    orderBy: "state_order",
     render: (invoice) => (
       <InvoiceStatus
         size="sm"

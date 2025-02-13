@@ -67,7 +67,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
 
   const { items } = useRest<T>(props.entity, {
     query: buildQueryFromMap({ id: value }),
-    limit: _.isArray(value) ? value?.length : value ? 1 : 0,
+    limit: _.isArray(value) ? value?.length || 0 : value ? 1 : 0,
     queryFn: props.queryFn
       ? () => props.queryFn!(value ? (_.isArray(value) ? value : [value]) : [])
       : undefined,

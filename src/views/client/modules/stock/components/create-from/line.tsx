@@ -70,8 +70,10 @@ export const StockItemLine = ({
             type="text"
             placeholder="Numéro de série"
             value={value.serial_number}
-            onChange={(e) => onChange({ ...value, serial_number: e })}
-            onEnter={() => {
+            onChange={(e) => {
+              onChange({ ...value, serial_number: e });
+            }}
+            onEnter={(e) => {
               const lotSize =
                 article?.suppliers_details?.[supplierQuote?.supplier || ""]
                   ?.delivery_quantity || 1;
@@ -80,13 +82,11 @@ export const StockItemLine = ({
               if (value.quantity > lotSize) {
                 onChange({
                   ...value,
+                  serial_number: e,
                   quantity: lotSize,
                 });
                 onDuplicate(value.quantity - lotSize);
               }
-
-              // Then focus the next line
-              // TODO
             }}
           />
           <FormInput

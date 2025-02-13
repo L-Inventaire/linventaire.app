@@ -49,7 +49,7 @@ export const RelatedInvoices = ({
         ? 0 // In this case, we don't want to fetch the siblings invoices
         : 25,
     asc: true,
-    index: "state_order,emit_date desc",
+    index: "state_order,reference desc",
   });
   const { invoices: siblingsOrders } = useInvoices({
     query: [

@@ -29,7 +29,7 @@ import {
   buildQueryFromMap,
   schemaToSearchFields,
 } from "../../../../components/search-bar/utils/utils";
-import { InvoiceStatus } from "./components/invoice-status";
+import _ from "lodash";
 
 export const InvoicesPage = () => {
   const key = useParams().type;
@@ -133,11 +133,12 @@ const InvoicesPageContent = () => {
   const [activeTab, setActiveTab] = useRouterState("tab", "all");
 
   const [options, setOptions] = useState<RestOptions<Invoices>>({
-    index: "state_order,emit_date desc",
+    index: "state_order,reference desc",
     limit: 20,
     offset: 0,
     query: [],
   });
+  const [groupBy, setGroupBy] = useState<string>("state_order");
 
   const invoiceFilters = {
     ...options,
@@ -200,6 +201,13 @@ const InvoicesPageContent = () => {
 
   const resetToFirstPage = useRef(() => {});
 
+  const tableOrder =
+    options.index?.split(",")?.filter((a) => a !== groupBy)?.[0] || "";
+  const labelColToOrderColMap = {
+    state: "state_order",
+    "total.total": "(total->>'total')::numeric",
+  };
+
   return (
     <Page
       title={[{ label: getDocumentNamePlurial(type[0]) }]}
@@ -209,9 +217,36 @@ const InvoicesPageContent = () => {
             table: "invoices",
             fields: schemaToSearchFields(schema.data, InvoicesFieldsNames()),
           }}
-          onChange={(q) => {
+          display={{
+            orderBy: (options.index || "")
+              .split(",")
+              .filter((a) => a !== groupBy),
+            groupBy: [groupBy],
+            availableOrderBy: [
+              "state",
+              "reference",
+              "emit_date",
+              "total.total",
+            ],
+            availableGroupBy: ["state"],
+            labelColToOrderColMap,
+          }}
+          onChangeDisplay={(d) => {
+            setGroupBy(d.groupBy[0]);
+            setOptions({
+              ...options,
+              index: _.uniq([d.groupBy, ...d.orderBy].filter(Boolean)).join(
+                ","
+              ),
+            });
+            resetToFirstPage.current();
+          }}
+          onChange={(q, _) => {
             if (q.valid) {
-              setOptions({ ...options, query: q.fields });
+              setOptions({
+                ...options,
+                query: q.fields,
+              });
               resetToFirstPage.current();
             }
           }}
@@ -354,17 +389,21 @@ const InvoicesPageContent = () => {
 
         <RestTable
           resetToFirstPage={(f) => (resetToFirstPage.current = f)}
-          groupBy="state"
-          groupByRender={(row) => (
-            <div className="mt-px">
-              <InvoiceStatus
-                size="xs"
-                readonly
-                value={row.state}
-                type={row.type}
-              />
-            </div>
-          )}
+          order={{
+            orderBy: tableOrder?.split(" ")?.[0],
+            order:
+              tableOrder?.split(" ")?.[1]?.toLocaleLowerCase() === "asc"
+                ? "ASC"
+                : "DESC",
+          }}
+          groupBy={groupBy}
+          groupByRender={(row) =>
+            InvoicesColumns.find(
+              (a) =>
+                a.id === groupBy ||
+                a.id === _.findKey(labelColToOrderColMap, (a) => a === groupBy)
+            )?.render?.(row, {})
+          }
           entity="invoices"
           onClick={({ id }, event) =>
             navigate(getRoute(ROUTES.InvoicesView, { id }), { event })
@@ -372,11 +411,25 @@ const InvoicesPageContent = () => {
           data={invoices}
           showPagination="full"
           onRequestData={async (page) => {
+            console.log(page);
             setOptions({
               ...options,
               limit: page.perPage,
               offset: (page.page - 1) * page.perPage,
-              asc: page.order === "ASC",
+              ...(page.orderBy
+                ? {
+                    index: [
+                      groupBy,
+                      page.orderBy
+                        ? page.orderBy +
+                          (page.order === "ASC" ? " asc" : " desc")
+                        : "",
+                    ]
+                      .filter(Boolean)
+                      .join(","),
+                  }
+                : {}),
+              asc: true,
             });
           }}
           columns={InvoicesColumns.filter(

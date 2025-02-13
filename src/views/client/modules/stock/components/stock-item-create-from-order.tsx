@@ -1,13 +1,13 @@
+import { Info } from "@atoms/text";
 import { RestDocumentsInput } from "@components/input-rest";
+import { buildQueryFromMap } from "@components/search-bar/utils/utils";
 import { useInvoice, useInvoices } from "@features/invoices/hooks/use-invoices";
 import { StockItems } from "@features/stock/types/types";
 import { Heading, Table } from "@radix-ui/themes";
+import _ from "lodash";
 import { useEffect, useState } from "react";
 import { QuotesCheckers, SerialNumberCheckers } from "./create-from/checkers";
 import { StockItemLine } from "./create-from/line";
-import _ from "lodash";
-import { buildQueryFromMap } from "@components/search-bar/utils/utils";
-import { Info } from "@atoms/text";
 
 export const StockItemsCreateFromOrder = ({
   onBack,
@@ -129,9 +129,11 @@ export const StockItemsCreateFromOrder = ({
               enforcedOrder={id}
               value={stockItem}
               onChange={(e) => {
-                const newStockItems = [...stockItems];
-                newStockItems[index] = e;
-                setStockItems(newStockItems);
+                setStockItems((stockItems) => {
+                  const newStockItems = [...stockItems];
+                  newStockItems[index] = e;
+                  return newStockItems;
+                });
               }}
               onRemove={() =>
                 setStockItems((stockItems) =>

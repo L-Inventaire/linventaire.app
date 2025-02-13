@@ -26,6 +26,17 @@ import { OutputQuery, SearchField } from "./utils/types";
 import { getFromUrl, setToUrl } from "./utils/url";
 import { extractFilters, generateQuery } from "./utils/utils";
 
+type DisplayType = {
+  groupBy: string[];
+  orderBy: string[];
+  // Fields we can use for order by
+  availableOrderBy?: string[];
+  // Fields we can use for group by
+  availableGroupBy?: string[];
+  // Field to use for order when groupBy is set
+  labelColToOrderColMap?: Record<string, string>;
+};
+
 export const SearchBar = ({
   schema,
   value: controlledValue,
@@ -42,12 +53,14 @@ export const SearchBar = ({
   shortcuts,
   urlSync,
   afterSuggestions,
-  onChangeOrder,
-  order,
+  onChangeDisplay,
+  display,
 }: {
   schema: { table: string; fields: SearchField[] };
   value?: string;
   onChange: (str: OutputQuery, raw: string) => void;
+  display?: DisplayType;
+  onChangeDisplay?: (display: DisplayType) => void;
   debounce?: number;
   suggestions?: Suggestions;
   className?: string;
@@ -60,11 +73,6 @@ export const SearchBar = ({
   shortcuts?: Shortcut[];
   urlSync?: boolean;
   afterSuggestions?: JSX.Element;
-  onChangeOrder?: (order: string, groupBy: string) => void;
-  order?: {
-    groupBy: string;
-    orderBy: string;
-  };
 }) => {
   const { fields: customFields, loading: loadingCustomFields } = useTableFields(
     schema.table
@@ -294,7 +302,7 @@ export const SearchBar = ({
             )}
           />
         </div>
-        {fields.length > 0 && !!onChangeOrder && (
+        {false && fields.length > 0 && !!onChangeDisplay && display && (
           <Popover.Root>
             <Popover.Trigger>
               <div className="shrink-0 hidden md:flex px-2">
@@ -313,14 +321,20 @@ export const SearchBar = ({
                 <div className="space-y-2">
                   <Heading size="2">Ordonner par</Heading>{" "}
                   <FormInput
-                    value={order?.orderBy}
+                    value={display?.orderBy}
                     onChange={(e) => {
-                      onChangeOrder(e.target.value, order?.groupBy || "");
+                      onChangeDisplay!({
+                        ...display,
+                        orderBy: e.target.value ? [e.target.value] : [],
+                      } as any);
                     }}
                     type="select"
                     options={_.sortBy(
                       schema?.fields
                         ?.filter((field) => field.type)
+                        ?.filter((field) =>
+                          (display?.availableOrderBy || []).includes(field.key)
+                        )
                         ?.map((field) => ({
                           value: field.key,
                           label: field.label,
@@ -332,9 +346,12 @@ export const SearchBar = ({
                 <div className="space-y-2">
                   <Heading size="2">Grouper par</Heading>
                   <FormInput
-                    value={order?.groupBy}
+                    value={display?.groupBy}
                     onChange={(e) => {
-                      onChangeOrder(order?.orderBy || "", e.target.value);
+                      onChangeDisplay!({
+                        ...display,
+                        groupBy: e.target.value ? [e.target.value] : [],
+                      } as any);
                     }}
                     type="select"
                     options={[
@@ -345,6 +362,11 @@ export const SearchBar = ({
                       ..._.sortBy(
                         schema?.fields
                           ?.filter((field) => field.type)
+                          ?.filter((field) =>
+                            (display?.availableGroupBy || []).includes(
+                              field.key
+                            )
+                          )
                           ?.map((field) => ({
                             value: field.key,
                             label: field.label,

@@ -56,7 +56,7 @@ export const FormInput = memo(
         | { label: string; value: string };
       onReset?: () => void;
       onChange?: (value: any, object?: any) => void;
-      onEnter?: () => void;
+      onEnter?: (value: any) => void;
       onSearch?: () => void;
       disabled?: boolean;
       values?: any;
@@ -221,8 +221,9 @@ export const FormInput = memo(
                 highlight={highlight}
                 value={(_value as string) || ""}
                 onChange={(e) => onChange(e.target.value, e.target.value)}
-                onKeyUp={(e) => {
-                  if (props.onEnter && e.key === "Enter") props.onEnter();
+                onKeyUp={(e: any) => {
+                  if (props.onEnter && e.key === "Enter")
+                    props.onEnter?.(e.target.value);
                   else if (e.key === "Enter") props.onSearch?.();
                 }}
                 size={size}
