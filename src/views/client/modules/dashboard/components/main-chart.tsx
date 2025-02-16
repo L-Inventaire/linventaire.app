@@ -5,6 +5,7 @@ import { Text } from "@radix-ui/themes";
 import { format } from "date-fns";
 import _ from "lodash";
 import DashboardCard from "./card";
+import { formatAmount } from "@features/utils/format/strings";
 
 type Processed = {
   gains: number;
@@ -72,14 +73,14 @@ const MainChart = ({ year }: { year: number }) => {
 
   const gainsChargesData = [
     {
-      id: "Gains",
+      id: "gains",
       data: currentYearData.map((entry) => ({
         x: format(new Date(entry.month + "-01"), "MMM"),
         y: entry.gains,
       })),
     },
     {
-      id: "Charges",
+      id: "charges",
       data: currentYearData.map((entry) => ({
         x: format(new Date(entry.month + "-01"), "MMM"),
         y: entry.charges,
@@ -89,14 +90,14 @@ const MainChart = ({ year }: { year: number }) => {
 
   const revenueComparisonData = [
     {
-      id: "Revenue",
+      id: year,
       data: currentYearData.map((entry) => ({
         x: format(new Date(entry.month + "-01"), "MMM"),
         y: entry.revenue,
       })),
     },
     {
-      id: "Revenue (Last Year)",
+      id: year - 1,
       data: previousYearData.map((entry) => ({
         x: format(new Date(entry.month + "-01"), "MMM"),
         y: entry.revenue,
@@ -107,35 +108,159 @@ const MainChart = ({ year }: { year: number }) => {
   return (
     <>
       <DashboardCard>
-        <Text size="4">Gains & Charges</Text>{" "}
+        <Text size="4">Chiffre d'affaires et charges</Text>{" "}
         <div className="w-full h-48 -mx-2">
           <ResponsiveLine
             data={gainsChargesData}
-            margin={{ bottom: 40, top: 20, left: 10 }}
+            margin={{ top: 20, right: 10, bottom: 20, left: 10 }}
             xScale={{ type: "point" }}
             yScale={{ type: "linear", stacked: true }}
             enableArea={true}
-            areaOpacity={0.3}
-            axisBottom={{ tickSize: 5, tickPadding: 5, tickRotation: 0 }}
+            areaOpacity={0.1}
+            areaBaselineValue={0}
+            areaBlendMode="normal"
+            curve="monotoneX"
+            axisBottom={{
+              tickSize: 5,
+              tickPadding: 5,
+              tickRotation: 0,
+              format: (value) => value[0],
+            }}
             axisLeft={null}
+            gridYValues={[]}
+            pointSize={8}
+            pointLabel="y"
+            pointLabelYOffset={-12}
             colors={({ id }) => (id === "gains" ? "#16a34a" : "#dc2626")}
+            enableSlices="x"
+            sliceTooltip={({ slice }) => (
+              <div className="bg-white dark:bg-slate-950 p-2 rounded shadow-md">
+                <div>
+                  <strong>{slice.points[0].data.xFormatted}</strong>
+                </div>
+                <div>
+                  Chiffre d'affaires:{" "}
+                  <b>
+                    {formatAmount(
+                      slice.points.find((a) => a.serieId === "gains")?.data
+                        .yFormatted as any
+                    )}
+                  </b>
+                </div>
+                <div>
+                  Charges:{" "}
+                  <b>
+                    {formatAmount(
+                      slice.points.find((a) => a.serieId === "charges")?.data
+                        .yFormatted as any
+                    )}
+                  </b>
+                </div>
+              </div>
+            )}
+            /** Gradient definitions */
+            defs={[
+              {
+                id: "gradientGains",
+                type: "linearGradient",
+                colors: [
+                  { offset: 0, color: "#16a34a", opacity: 1 }, // Green at 50% opacity
+                  { offset: 100, color: "#16a34a", opacity: 0 }, // Transparent at bottom
+                ],
+              },
+              {
+                id: "gradientCharges",
+                type: "linearGradient",
+                colors: [
+                  { offset: 0, color: "#dc2626", opacity: 1 }, // Red at 50% opacity
+                  { offset: 100, color: "#dc2626", opacity: 0 }, // Transparent at bottom
+                ],
+              },
+            ]}
+            /** Apply the gradients to each line */
+            fill={[
+              { match: { id: "gains" }, id: "gradientGains" },
+              { match: { id: "charges" }, id: "gradientCharges" },
+            ]}
           />
         </div>
       </DashboardCard>
 
       <DashboardCard>
-        <Text size="4">Revenue Comparison</Text>
+        <Text size="4">
+          Résultat {year} / {year - 1}
+        </Text>
         <div className="w-full h-48 -mx-2">
           <ResponsiveLine
             data={revenueComparisonData}
-            margin={{ bottom: 40, top: 20, left: 10 }}
+            margin={{ top: 20, right: 10, bottom: 20, left: 10 }}
             xScale={{ type: "point" }}
             yScale={{ type: "linear", stacked: true }}
             enableArea={true}
-            areaOpacity={0.3}
-            axisBottom={{ tickSize: 5, tickPadding: 5, tickRotation: 0 }}
+            areaOpacity={0.1}
+            areaBaselineValue={0}
+            areaBlendMode="normal"
+            curve="monotoneX"
+            axisBottom={{
+              tickSize: 5,
+              tickPadding: 5,
+              tickRotation: 0,
+              format: (value) => value[0],
+            }}
             axisLeft={null}
-            colors={({ id }) => (id === "Gains" ? "#16a34a" : "#dc2626")}
+            gridYValues={[]}
+            pointSize={8}
+            pointLabel="y"
+            pointLabelYOffset={-12}
+            colors={({ id }) => (id + "" === year + "" ? "#2563eb" : "#cccccc")}
+            enableSlices="x"
+            sliceTooltip={({ slice }) => (
+              <div className="bg-white dark:bg-slate-950 p-2 rounded shadow-md">
+                <div>
+                  <strong>{slice.points[0].data.xFormatted}</strong>
+                </div>
+                <div>
+                  {year}:{" "}
+                  <b>
+                    {formatAmount(
+                      slice.points.find((a) => a.serieId === year)?.data
+                        .yFormatted as any
+                    )}
+                  </b>
+                </div>
+                <div>
+                  {year - 1}:{" "}
+                  {formatAmount(
+                    slice.points.find((a) => a.serieId === year - 1)?.data
+                      .yFormatted as any
+                  )}
+                </div>
+              </div>
+            )}
+            /** Gradient definitions */
+            defs={[
+              {
+                id: "gradientCurrent",
+                type: "linearGradient",
+                colors: [
+                  { offset: 0, color: "#2563eb", opacity: 1 }, // Green at 50% opacity
+                  { offset: 100, color: "#2563eb", opacity: 0 }, // Transparent at bottom
+                ],
+              },
+              {
+                id: "gradientLast",
+                type: "linearGradient",
+                colors: [
+                  { offset: 0, color: "#cccccc", opacity: 1 }, // Red at 50% opacity
+                  { offset: 100, color: "#cccccc", opacity: 0 }, // Transparent at bottom
+                ],
+              },
+            ]}
+            /** Apply the gradients to each line */
+            fill={[
+              { match: { id: year }, id: "gradientCurrent" },
+              { match: { id: year - 1 }, id: "gradientLast" },
+            ]}
           />
         </div>
       </DashboardCard>
