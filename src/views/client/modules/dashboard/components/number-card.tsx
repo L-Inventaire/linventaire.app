@@ -1,11 +1,12 @@
-import { Info, Title } from "@atoms/text";
+import { Info } from "@atoms/text";
+import { Heading } from "@radix-ui/themes";
 import React from "react";
 import { twMerge } from "tailwind-merge";
 import DashboardCard from "./card";
 type NumberCardProps = {
   title: string;
   number: number;
-  totalNumber: number;
+  totalNumber?: number;
   icon?: (p: any) => React.ReactNode;
 } & React.ComponentProps<"div">;
 
@@ -24,8 +25,10 @@ const NumberCard = ({
       {...props}
     >
       <div className="flex flex-col">
-        <Title className="text-blue-600">{number}</Title>
-        <Info>sur {totalNumber}</Info>
+        <Heading size="7" className="text-blue-600">
+          {number}
+        </Heading>
+        {totalNumber && <Info>sur {totalNumber}</Info>}
       </div>
     </DashboardCard>
   );

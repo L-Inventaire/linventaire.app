@@ -1,47 +1,67 @@
+import { Contacts } from "@features/contacts/types/types";
+import { Invoices } from "@features/invoices/types/types";
+
+type MonthlyResults = {
+  type: Invoices["type"];
+  state: Invoices["state"];
+  month: string; // YYYY-MM
+  amount_ht: string;
+  amount: string;
+  count: string;
+};
+
+export type Dashboard = {
+  all: MonthlyResults[];
+  counters: {
+    quotes: {
+      sent: number;
+      purchase_order: number;
+      completed: number;
+    };
+    invoices: {
+      sent: number;
+      late: number;
+      paid: number;
+    };
+    supplier_quotes: {
+      transit: number;
+      completed: number;
+    };
+    supplier_invoices: {
+      sent: number;
+      paid: number;
+    };
+  };
+};
+
 export type Statistics = {
   unreadNotifications: number;
-  totalRevenue: number;
-  revenue: number;
-  revenueStats: {
-    date: string;
-    net_amount: number;
-  }[];
-  totalRevenueTable: {
-    net_amount: number;
-    revenue: number;
-    credit_note_amount: number;
-    year: string;
-    month: string;
-    tag: string[];
-  }[];
-  clientBalanceTable: {
-    which30days: any;
-    client: string;
-    total: number;
-  }[];
-  expenses: number;
-  totalExpenses: number | null;
-  benefits: number | null;
-  totalBenefits: number | null;
-  stockEntries: number | null;
-  totalStockEntries: number | null;
-  stockExits: number | null;
-  totalStockExits: number | null;
-  signedQuotes: number | null;
-  totalSignedQuotes: number | null;
-  sentQuotes: number | null;
-  totalSentQuotes: number | null;
-  paidInvoices: number | null;
-  totalPaidInvoices: number | null;
-  sentInvoices: number | null;
-  totalSentInvoices: number | null;
-  sentPurchaseOrders: number | null;
-  totalSentPurchaseOrders: number | null;
-  almostLateDeliveries: string[] | null;
-  almostLatePayments: string[] | null;
-  almostLatePaymentsNoDelay: string[] | null;
-  almostLatePayments30Delay: string[] | null;
-  almostLatePayments60Delay: string[] | null;
-  almostLatePayments90Delay: string[] | null;
-  almostLatePayments120Delay: string[] | null;
+} & Dashboard;
+
+export type DashboardTags = {
+  [tag: string]: number;
 };
+
+type LateCellType = {
+  total_invoices: number;
+  total_credit_notes: number;
+  total: number;
+
+  count_invoices: number;
+  count_credit_notes: number;
+  count: number;
+};
+
+type LateType = {
+  id: string;
+  contact?: Contacts;
+  total: LateCellType;
+  late: LateCellType;
+  d30: LateCellType;
+  d60: LateCellType;
+  d90: LateCellType;
+  d120: LateCellType;
+  d120plus: LateCellType;
+};
+
+export type DashboardBalances = LateType[];
