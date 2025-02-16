@@ -2082,6 +2082,24 @@
     d3-shape "^3.2.0"
     lodash "^4.17.21"
 
+"@nivo/bump@^0.88.0":
+  version "0.88.0"
+  resolved "https://registry.yarnpkg.com/@nivo/bump/-/bump-0.88.0.tgz#a42ac82bd3e2d93b84b8dbe30fff4e74ab231b46"
+  integrity sha512-I/4LHIDjDpG7whSvc6nIgoFxENOGmzTSlnmCplMyGSmNKIZEyIgTl9jZLYWzl36/uoPSg+BYXfLeAmkvEdpwWQ==
+  dependencies:
+    "@nivo/axes" "0.88.0"
+    "@nivo/colors" "0.88.0"
+    "@nivo/core" "0.88.0"
+    "@nivo/legends" "0.88.0"
+    "@nivo/scales" "0.88.0"
+    "@nivo/tooltip" "0.88.0"
+    "@nivo/voronoi" "0.88.0"
+    "@react-spring/web" "9.4.5 || ^9.7.2"
+    "@types/d3-scale" "^4.0.8"
+    "@types/d3-shape" "^3.1.6"
+    d3-scale "^4.0.2"
+    d3-shape "^3.2.0"
+
 "@nivo/colors@0.87.0":
   version "0.87.0"
   resolved "https://registry.yarnpkg.com/@nivo/colors/-/colors-0.87.0.tgz#a9e64ea0fac86b168f091b82d8375ff379a4100b"
@@ -2248,6 +2266,18 @@
   dependencies:
     "@nivo/core" "0.87.0"
     "@nivo/tooltip" "0.87.0"
+    "@types/d3-delaunay" "^6.0.4"
+    "@types/d3-scale" "^4.0.8"
+    d3-delaunay "^6.0.4"
+    d3-scale "^4.0.2"
+
+"@nivo/voronoi@0.88.0":
+  version "0.88.0"
+  resolved "https://registry.yarnpkg.com/@nivo/voronoi/-/voronoi-0.88.0.tgz#029f984ccb6e72b415f398e1bd74c572960197ae"
+  integrity sha512-MyiNLvODthFoMjQ7Wjp693nogbTmVEx8Yn/7QkJhyPQbFyyA37TF/D1a/ox4h2OslXtP6K9QFN+42gB/zu7ixw==
+  dependencies:
+    "@nivo/core" "0.88.0"
+    "@nivo/tooltip" "0.88.0"
     "@types/d3-delaunay" "^6.0.4"
     "@types/d3-scale" "^4.0.8"
     d3-delaunay "^6.0.4"

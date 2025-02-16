@@ -1,52 +1,35 @@
 import { fetchServer } from "@features/utils/fetch-server";
 
 import { StandardOrErrorResponse } from "@features/utils/rest/types/types";
-import { Statistics } from "../types";
-import { Invoices } from "@features/invoices/types/types";
+import { Dashboard, DashboardBalances, DashboardTags } from "../types";
 
 export class StatisticsApiClient {
-  static getStatistics = async (
-    clientID: string,
-    period: string = "year",
-    startDate?: Date,
-    endDate?: Date
-  ): Promise<StandardOrErrorResponse<Statistics>> => {
-    let uri = `/api/statistics/v1/${clientID}/all`;
-
-    if (period) {
-      uri += "?period=" + period;
-    }
-    if (startDate) {
-      uri += "&startDate=" + startDate.toISOString();
-    }
-    if (endDate) {
-      uri += "&endDate=" + endDate.toISOString();
-    }
-
-    const response = await fetchServer(uri.toString(), {
-      method: "GET",
-    });
-
+  static getDashboard = async (
+    clientId: string,
+    year?: number
+  ): Promise<StandardOrErrorResponse<Dashboard>> => {
+    let uri = `/api/statistics/v1/${clientId}/dashboard?year=${year}`;
+    const response = await fetchServer(uri);
     const data = await response.json();
     return data;
   };
 
-  static getClientBalance = async (
-    clientID: string,
-    contactID: string
-  ): Promise<{
-    delay30Payments: Invoices[];
-    delay60Payments: Invoices[];
-    delay90Payments: Invoices[];
-    delay120Payments: Invoices[];
-    delayMore120Payments: Invoices[];
-  }> => {
-    let uri = `/api/statistics/v1/${clientID}/client-balance/` + contactID;
+  static getTags = async (
+    clientId: string,
+    year?: number
+  ): Promise<StandardOrErrorResponse<DashboardTags>> => {
+    let uri = `/api/statistics/v1/${clientId}/dashboard/tags?date=${year}`;
+    const response = await fetchServer(uri);
+    const data = await response.json();
+    return data;
+  };
 
-    const response = await fetchServer(uri.toString(), {
-      method: "GET",
-    });
-
+  static getBalances = async (
+    clientId: string,
+    type: "client" | "supplier"
+  ): Promise<StandardOrErrorResponse<DashboardBalances>> => {
+    let uri = `/api/statistics/v1/${clientId}/dashboard/balances?type=${type}`;
+    const response = await fetchServer(uri);
     const data = await response.json();
     return data;
   };

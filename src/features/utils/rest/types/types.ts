@@ -21,17 +21,16 @@ export type SchemaType = {
 export type StandardResponse<T extends object> = T;
 
 export type ErrorResponse = {
-  error: string;
-  message: string;
-  status: number;
+  error?: string;
+  message?: string;
+  status?: number;
 };
 
-export type StandardOrErrorResponse<T extends object> =
-  | StandardResponse<T>
-  | ErrorResponse;
+export type StandardOrErrorResponse<T extends object> = StandardResponse<T> &
+  ErrorResponse;
 
 export function isErrorResponse<T extends object>(
   input: StandardOrErrorResponse<T>
-): input is ErrorResponse {
+) {
   return "error" in input;
 }

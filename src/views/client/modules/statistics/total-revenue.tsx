@@ -1,6 +1,6 @@
 import { Info } from "@atoms/text";
 import { generateQueryFromMap } from "@components/search-bar/utils/utils";
-import { useStatistics } from "@features/statistics/hooks";
+import { useDashboard } from "@features/statistics/hooks";
 import { useTags } from "@features/tags/hooks/use-tags";
 import { formatAmount } from "@features/utils/format/strings";
 import { Table } from "@molecules/table";
@@ -21,10 +21,11 @@ export type TotalRevenueProps = {
 };
 
 export const TotalRevenuePage = ({ startDate, endDate }: TotalRevenueProps) => {
+  /*
   const { client: clientId } = useParams();
   const locale = navigator.language;
 
-  const statistics = useStatistics(clientId, "year", startDate, endDate);
+  const statistics = useDashboard(clientId, "year", startDate, endDate);
   const data = statistics.totalRevenueTable;
   const flatTagIDs = _.uniqBy(
     data.flatMap((item) => item.tag),
@@ -123,5 +124,6 @@ export const TotalRevenuePage = ({ startDate, endDate }: TotalRevenueProps) => {
         data={months.flatMap((month) => ({ month, year: month.year }))}
       />
     </>
-  );
+  );*/
+  return null;
 };

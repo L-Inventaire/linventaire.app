@@ -4,7 +4,7 @@ import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { useHasAccess } from "@features/access";
 import { registerRootNavigation } from "@features/ctrlk";
 import { ROUTES, getRoute } from "@features/routes";
-import { useStatistics } from "@features/statistics/hooks";
+import { useDashboard } from "@features/statistics/hooks";
 import { AtSymbolIcon, ListBulletIcon } from "@heroicons/react/16/solid";
 import { DocumentIcon, PlusIcon } from "@heroicons/react/24/outline";
 import {
@@ -24,19 +24,18 @@ import {
 } from "@heroicons/react/24/solid";
 import { ScrollArea } from "@radix-ui/themes";
 import { useTranslation } from "react-i18next";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { Account } from "./account";
 import { ResponsiveMenuAtom } from "./header";
 
 export const SideBar = () => {
   const { t } = useTranslation();
-  const { client: clientId } = useParams();
   const hasAccess = useHasAccess();
   const menuOpen = useRecoilValue(ResponsiveMenuAtom);
   const location = useLocation();
 
-  const statistics = useStatistics(clientId, "year");
+  const { counters, unreadNotifications } = useDashboard();
 
   return (
     <div
@@ -66,11 +65,7 @@ export const SideBar = () => {
             to={getRoute(ROUTES.Notifications)}
             label={t("menu.notifications")}
             icon={(p) => <InboxIcon {...p} />}
-            badge={
-              statistics?.unreadNotifications
-                ? (statistics?.unreadNotifications || 0)?.toString()
-                : undefined
-            }
+            badge={unreadNotifications || undefined}
           />
 
           <MenuSection
@@ -96,11 +91,7 @@ export const SideBar = () => {
               to={getRoute(ROUTES.Invoices, { type: "quotes" })}
               label={t("menu.quotes")}
               icon={(p) => <DocumentIcon {...p} />}
-              badge={
-                (statistics?.almostLateDeliveries?.length ?? 0) > 0
-                  ? statistics?.almostLateDeliveries?.length.toString()
-                  : undefined
-              }
+              badge={counters?.quotes?.purchase_order || undefined}
               active={
                 location.pathname.indexOf(
                   getRoute(ROUTES.Invoices, { type: "quotes" })
@@ -117,11 +108,7 @@ export const SideBar = () => {
                   getRoute(ROUTES.Invoices, { type: "invoices" })
                 ) === 0
               }
-              badge={
-                (statistics?.almostLatePayments?.length ?? 0) > 0
-                  ? statistics?.almostLateDeliveries?.length.toString()
-                  : undefined
-              }
+              badge={counters?.invoices?.late || undefined}
               show={hasAccess("INVOICES_READ")}
             />
             <SideMenuItem
@@ -154,6 +141,7 @@ export const SideBar = () => {
             <SideMenuItem
               to={getRoute(ROUTES.Invoices, { type: "supplier_quotes" })}
               label={t("menu.supplier_quotes")}
+              badge={counters?.supplier_quotes?.transit || undefined}
               icon={(p) => <ShoppingCartIcon {...p} />}
               show={hasAccess("SUPPLIER_QUOTES_READ")}
             />
@@ -162,6 +150,7 @@ export const SideBar = () => {
                 type: "supplier_invoices+supplier_credit_notes",
               })}
               label={t("menu.supplier_invoices")}
+              badge={counters?.supplier_invoices?.sent || undefined}
               icon={(p) => <DocumentArrowDownIcon {...p} />}
               show={hasAccess("SUPPLIER_INVOICES_READ")}
             />
@@ -271,7 +260,7 @@ const SideMenuItem = ({
   icon: (p: any) => React.ReactNode;
   active?: boolean;
   show?: boolean;
-  badge?: string;
+  badge?: string | number;
 }) => {
   if (show !== false) {
     registerRootNavigation({
@@ -287,7 +276,7 @@ const SideMenuItem = ({
       icon={icon}
       active={active}
       show={show}
-      badge={badge}
+      badge={badge?.toString()}
     />
   );
 };

@@ -4,7 +4,7 @@ import { InvoicesColumns } from "@features/invoices/configuration";
 import { Invoices } from "@features/invoices/types/types";
 import { getRoute, ROUTES } from "@features/routes";
 import { StatisticsApiClient } from "@features/statistics/api-client/api-client";
-import { useStatistics } from "@features/statistics/hooks";
+import { useDashboard } from "@features/statistics/hooks";
 import { formatAmount } from "@features/utils/format/strings";
 import { Table } from "@molecules/table";
 import { Column } from "@molecules/table/table";
@@ -23,9 +23,10 @@ export const ClientBalancePage = ({
   startDate: Date;
   endDate: Date;
 }) => {
+  /*
   const { client: clientId } = useParams();
 
-  const statistics = useStatistics(clientId, "year", startDate, endDate);
+  const statistics = useDashboard(clientId, "year", startDate, endDate);
   const table = statistics?.clientBalanceTable ?? [];
   const clientsIDs = _.uniq(table.map((item) => item.client));
   const clientsData = useContacts({
@@ -289,5 +290,6 @@ export const ClientBalancePage = ({
         }}
       />
     </>
-  );
+  );*/
+  return null;
 };
