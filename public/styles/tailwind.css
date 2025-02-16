@@ -1966,6 +1966,19 @@ body :is(.w-px) {
   width: 1px;
 }
 
+body :is(.w-56) {
+  width: 14rem;
+}
+
+body :is(.w-40) {
+  width: 10rem;
+}
+
+body :is(.w-min) {
+  width: -webkit-min-content;
+  width: min-content;
+}
+
 body :is(.\!min-w-0) {
   min-width: 0px !important;
 }

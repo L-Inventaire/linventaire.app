@@ -17,7 +17,7 @@ export class StatisticsApiClient {
   static getTags = async (
     clientId: string,
     year?: number
-  ): Promise<StandardOrErrorResponse<DashboardTags>> => {
+  ): Promise<StandardOrErrorResponse<DashboardTags[]>> => {
     let uri = `/api/statistics/v1/${clientId}/dashboard/tags?date=${year}`;
     const response = await fetchServer(uri);
     const data = await response.json();

@@ -3,7 +3,7 @@ import { useNotifications } from "@features/notifications/hooks/use-notification
 import { useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
 import { StatisticsApiClient } from "./api-client/api-client";
-import { Statistics } from "./types";
+import { DashboardBalances, DashboardTags, Statistics } from "./types";
 
 export const useDashboard = (year?: number): Statistics => {
   year = year || DateTime.local().year;
@@ -29,7 +29,7 @@ export const useDashboard = (year?: number): Statistics => {
 export const useDashboardBalances = (type: "client" | "supplier") => {
   const { client } = useCurrentClient();
 
-  const balances = useQuery({
+  const balances = useQuery<DashboardBalances>({
     queryKey: ["dashboard-balances", client?.id, type],
     queryFn: () => StatisticsApiClient.getBalances(client!.id, type),
     enabled: !!client?.id,
@@ -42,7 +42,7 @@ export const useDashboardTags = (year?: number) => {
   year = year || DateTime.local().year;
   const { client } = useCurrentClient();
 
-  const tags = useQuery({
+  const tags = useQuery<DashboardTags[]>({
     queryKey: ["dashboard-tags", client?.id, year],
     queryFn: () => StatisticsApiClient.getTags(client!.id, year),
     enabled: !!client?.id,

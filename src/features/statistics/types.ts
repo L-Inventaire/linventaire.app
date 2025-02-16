@@ -54,7 +54,7 @@ type LateCellType = {
 
 type LateType = {
   id: string;
-  client?: Contacts;
+  contact?: Contacts;
   total: LateCellType;
   late: LateCellType;
   d30: LateCellType;

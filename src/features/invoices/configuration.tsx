@@ -331,6 +331,14 @@ export const InvoicesFieldsNames = () => ({
     label: "Contact",
     keywords: "contact",
   },
+  "articles.computed_tags": {
+    label: "Étiquettes des articles",
+    keywords: "étiquettes articles",
+  },
+  "payment_information.computed_date": {
+    label: "Date de paiement",
+    keywords: "date paiement",
+  },
   "total.taxes": false,
   "total.discount": false,
   "total.initial": false,
