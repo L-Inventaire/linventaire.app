@@ -20,7 +20,7 @@ const processData = (data: Dashboard["all"]) => {
   } = {};
 
   data.forEach(({ type, state, month, amount_ht }) => {
-    if (state !== "closed" && state !== "completed") return;
+    if (state === "draft") return;
 
     month = month.split("-")[1];
 
@@ -38,7 +38,7 @@ const processData = (data: Dashboard["all"]) => {
 
   // Calculate revenue
   Object.values(monthlyData).forEach((entry) => {
-    entry.revenue = entry.gains - entry.charges;
+    entry.revenue = entry.gains + entry.charges;
   });
 
   for (let i = 1; i <= 12; i++) {
@@ -60,7 +60,6 @@ const MainChart = ({ year }: { year: number }) => {
   const currentYearData = processData(all);
   const previousYearData = processData(allLastYear);
 
-  /*
   const formatWithK = (value: number) => {
     if (Math.abs(value) > 1000000) {
       return `${Math.floor(value / 1000000)}M`;
@@ -69,7 +68,7 @@ const MainChart = ({ year }: { year: number }) => {
     } else {
       return Math.floor(value) + "€";
     }
-  };*/
+  };
 
   const gainsChargesData = [
     {
@@ -83,7 +82,7 @@ const MainChart = ({ year }: { year: number }) => {
       id: "charges",
       data: currentYearData.map((entry) => ({
         x: format(new Date(entry.month + "-01"), "MMM"),
-        y: entry.charges,
+        y: -entry.charges,
       })),
     },
   ];
@@ -109,12 +108,12 @@ const MainChart = ({ year }: { year: number }) => {
     <>
       <DashboardCard>
         <Text size="4">Chiffre d'affaires et charges</Text>{" "}
-        <div className="w-full h-48 -mx-2">
+        <div className="w-full h-48 -mx-4">
           <ResponsiveLine
             data={gainsChargesData}
-            margin={{ top: 20, right: 10, bottom: 20, left: 10 }}
+            margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
             xScale={{ type: "point" }}
-            yScale={{ type: "linear", stacked: true }}
+            yScale={{ type: "linear", min: "auto", max: "auto" }}
             enableArea={true}
             areaOpacity={0.1}
             areaBaselineValue={0}
@@ -129,7 +128,8 @@ const MainChart = ({ year }: { year: number }) => {
             axisLeft={null}
             gridYValues={[]}
             pointSize={8}
-            pointLabel="y"
+            enablePointLabel={true}
+            pointLabel={(point) => formatWithK(point.data.y as number)}
             pointLabelYOffset={-12}
             colors={({ id }) => (id === "gains" ? "#16a34a" : "#dc2626")}
             enableSlices="x"
@@ -190,12 +190,12 @@ const MainChart = ({ year }: { year: number }) => {
         <Text size="4">
           Résultat {year} / {year - 1}
         </Text>
-        <div className="w-full h-48 -mx-2">
+        <div className="w-full h-48 -mx-4">
           <ResponsiveLine
             data={revenueComparisonData}
-            margin={{ top: 20, right: 10, bottom: 20, left: 10 }}
+            margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
             xScale={{ type: "point" }}
-            yScale={{ type: "linear", stacked: true }}
+            yScale={{ type: "linear", min: "auto", max: "auto" }}
             enableArea={true}
             areaOpacity={0.1}
             areaBaselineValue={0}
@@ -210,8 +210,9 @@ const MainChart = ({ year }: { year: number }) => {
             axisLeft={null}
             gridYValues={[]}
             pointSize={8}
-            pointLabel="y"
+            enablePointLabel={true}
             pointLabelYOffset={-12}
+            pointLabel={(point) => formatWithK(point.data.y as number)}
             colors={({ id }) => (id + "" === year + "" ? "#2563eb" : "#cccccc")}
             enableSlices="x"
             sliceTooltip={({ slice }) => (

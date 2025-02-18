@@ -66,13 +66,24 @@ export const TagsPage = ({ year }: { year: number }) => {
     );
   }
 
+  tagsSorted.push({
+    id: "untagged",
+    name: "Sans catégorie",
+    color: "",
+  } as Tags);
+  tagsSorted.push({
+    id: "multiple",
+    name: "Multiple catégories",
+    color: "",
+  } as Tags);
+
   return (
     <Table
       columns={[
         {
           title: "Date",
           thClassName: "w-40",
-          cellClassName: "border-r whitespace-nowrap",
+          cellClassName: "whitespace-nowrap",
           render: (row) => (
             <Link
               noColor
@@ -90,9 +101,13 @@ export const TagsPage = ({ year }: { year: number }) => {
               className={twMerge("hover:underline cursor-pointer")}
               href={getLink(a)}
             >
-              <Tag color={a.color} size="xs">
-                {a.name}
-              </Tag>
+              {a.color ? (
+                <Tag color={a.color} size="xs">
+                  {a.name}
+                </Tag>
+              ) : (
+                a.name
+              )}
             </Link>
           ),
           thClassName: "opacity-100",
@@ -115,6 +130,34 @@ export const TagsPage = ({ year }: { year: number }) => {
             </Link>
           ),
         })),
+        {
+          title: <strong>Total</strong>,
+          thClassName: "w-40",
+          headClassName: "justify-end",
+          cellClassName: "justify-end",
+          render: (row: DashboardTags) => {
+            const total = Object.values(_.omit(row, "month")).reduce(
+              (acc, a) => acc + (a || 0),
+              0
+            );
+            return (
+              <Link
+                noColor
+                className={twMerge(
+                  "hover:underline cursor-pointer",
+                  (total || 0) > 0
+                    ? ""
+                    : (total || 0) < 0
+                    ? "text-red-500"
+                    : "opacity-50"
+                )}
+                href={getLink(undefined, row.month)}
+              >
+                <strong>{formatAmount(total || 0)}</strong>
+              </Link>
+            );
+          },
+        },
       ]}
       showPagination={false}
       data={res.data.map((a, i) => ({ ...a, month: i }))}

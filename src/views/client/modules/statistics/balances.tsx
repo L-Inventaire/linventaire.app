@@ -62,6 +62,8 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
               Non échus
             </Link>
           ),
+          cellClassName: "justify-end",
+          headClassName: "justify-end",
           render: (row: DashboardBalances[0]) => (
             <Link
               noColor
@@ -82,6 +84,8 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
               1-30
             </Link>
           ),
+          cellClassName: "justify-end",
+          headClassName: "justify-end",
           render: (row: DashboardBalances[0]) => (
             <Link
               noColor
@@ -102,6 +106,8 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
               31-60
             </Link>
           ),
+          cellClassName: "justify-end",
+          headClassName: "justify-end",
           render: (row: DashboardBalances[0]) => (
             <Link
               noColor
@@ -122,6 +128,8 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
               61-90
             </Link>
           ),
+          cellClassName: "justify-end",
+          headClassName: "justify-end",
           render: (row: DashboardBalances[0]) => (
             <Link
               noColor
@@ -142,6 +150,8 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
               91-120
             </Link>
           ),
+          cellClassName: "justify-end",
+          headClassName: "justify-end",
           render: (row: DashboardBalances[0]) => (
             <Link
               noColor
@@ -162,6 +172,8 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
               120+
             </Link>
           ),
+          cellClassName: "justify-end",
+          headClassName: "justify-end",
           render: (row: DashboardBalances[0]) => (
             <Link
               noColor
@@ -179,9 +191,11 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
               className={twMerge("hover:underline cursor-pointer")}
               href={getLink(undefined)}
             >
-              Total dû
+              Total
             </Link>
           ),
+          cellClassName: "justify-end",
+          headClassName: "justify-end",
           render: (row: DashboardBalances[0]) => (
             <Link
               noColor
