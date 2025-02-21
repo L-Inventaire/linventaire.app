@@ -77,6 +77,17 @@ export const TagsPage = ({ year }: { year: number }) => {
     color: "",
   } as Tags);
 
+  const total = tagsSorted.reduce(
+    (acc, tag) => ({
+      ...acc,
+      [tag.id]: Object.values(res.data).reduce(
+        (acc, monthly) => acc + (monthly[tag.id] || 0),
+        0
+      ),
+    }),
+    { month: -1 } as DashboardTags
+  );
+
   return (
     <Table
       columns={[
@@ -84,15 +95,18 @@ export const TagsPage = ({ year }: { year: number }) => {
           title: "Date",
           thClassName: "w-40",
           cellClassName: "whitespace-nowrap",
-          render: (row) => (
-            <Link
-              noColor
-              className={twMerge("hover:underline cursor-pointer")}
-              href={getLink(undefined, row.month)}
-            >
-              {format(new Date(year, row.month, 1), "MMMM yyyy")}
-            </Link>
-          ),
+          render: (row) =>
+            row.month >= 0 ? (
+              <Link
+                noColor
+                className={twMerge("hover:underline cursor-pointer")}
+                href={getLink(undefined, row.month)}
+              >
+                {format(new Date(year, row.month, 1), "MMMM yyyy")}
+              </Link>
+            ) : (
+              "Total"
+            ),
         },
         ...tagsSorted.map((a) => ({
           title: (
@@ -160,7 +174,7 @@ export const TagsPage = ({ year }: { year: number }) => {
         },
       ]}
       showPagination={false}
-      data={res.data.map((a, i) => ({ ...a, month: i }))}
+      data={[...res.data.map((a, i) => ({ ...a, month: i })), total]}
     />
   );
 };
