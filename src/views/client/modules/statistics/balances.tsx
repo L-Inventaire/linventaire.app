@@ -6,6 +6,7 @@ import { DashboardBalances } from "@features/statistics/types";
 import { formatAmount } from "@features/utils/format/strings";
 import { Table } from "@molecules/table";
 import { Spinner } from "@radix-ui/themes";
+import _ from "lodash";
 import { twMerge } from "tailwind-merge";
 
 export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
@@ -235,7 +236,12 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
           ),
         },
       ]}
-      data={[...(res.data || []), total as any]}
+      data={[
+        ..._.sortBy(res.data || [], (a) =>
+          a.contact ? getContactName(a.contact) : "zzz"
+        ),
+        total as any,
+      ]}
       showPagination={false}
     />
   );
