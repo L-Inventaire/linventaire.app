@@ -63,25 +63,29 @@ export const getInvoiceNextDate = (
   for (const frequency in lines) {
     if (!frequency) continue; // Not recurring line
 
-    // Select the right next period start from today by simply iterating from recurrence start (not the best way but it's simple)
-    let currentPeriodStart = new Date(0);
-    const currentPeriodEnd = new Date(recurringStartedAt);
-    while (currentPeriodStart.getTime() <= new Date(currentDate).getTime()) {
-      currentPeriodStart = new Date(currentPeriodEnd);
-      applyOffset(currentPeriodEnd, frequency);
+    try {
+      // Select the right next period start from today by simply iterating from recurrence start (not the best way but it's simple)
+      let currentPeriodStart = new Date(0);
+      const currentPeriodEnd = new Date(recurringStartedAt);
+      while (currentPeriodStart.getTime() <= new Date(currentDate).getTime()) {
+        currentPeriodStart = new Date(currentPeriodEnd);
+        applyOffset(currentPeriodEnd, frequency);
 
-      const nextInvoiceDate = getInvoiceDateInPeriod(
-        currentPeriodStart,
-        currentPeriodEnd,
-        quote.subscription?.invoice_date || ("first_day" as any)
-      );
+        const nextInvoiceDate = getInvoiceDateInPeriod(
+          currentPeriodStart,
+          currentPeriodEnd,
+          quote.subscription?.invoice_date || ("first_day" as any)
+        );
 
-      if (
-        minNextInvoiceDate === null ||
-        minNextInvoiceDate < nextInvoiceDate.getTime()
-      ) {
-        minNextInvoiceDate = nextInvoiceDate.getTime();
+        if (
+          minNextInvoiceDate === null ||
+          minNextInvoiceDate < nextInvoiceDate.getTime()
+        ) {
+          minNextInvoiceDate = nextInvoiceDate.getTime();
+        }
       }
+    } catch (e) {
+      // Not a valid frequency, ignoring
     }
   }
 
