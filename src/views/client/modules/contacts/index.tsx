@@ -26,6 +26,8 @@ export const ContactsPage = () => {
   const [options, setOptions] = useState<RestOptions<Contacts>>({
     limit: 20,
     offset: 0,
+    index: "updated_at",
+    asc: false,
     query: [],
   });
   const { contacts } = useContacts({
