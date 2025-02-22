@@ -31,8 +31,17 @@ export const StockPage = () => {
       label: "Disponible",
       filter: [
         ...buildQueryFromMap({
-          state: ["stock", "in_transit", "delivered"],
+          state: ["stock"],
         }),
+        {
+          key: "quantity",
+          values: [
+            {
+              op: "gte",
+              value: 1,
+            },
+          ],
+        },
         {
           key: "for_rel_quote",
           not: true,
@@ -59,6 +68,23 @@ export const StockPage = () => {
             {
               op: "regex",
               value: ".+",
+            },
+          ],
+        },
+      ],
+    },
+    delivered: {
+      label: "Livré",
+      filter: [
+        ...buildQueryFromMap({
+          state: ["in_transit", "delivered"],
+        }),
+        {
+          key: "quantity",
+          values: [
+            {
+              op: "gte",
+              value: 1,
             },
           ],
         },
