@@ -150,6 +150,7 @@ export const generateQuery = (
 
               if (field?.type === "date") {
                 min = min ? new Date(min) : null;
+                if (min) min?.setHours(0);
                 // For max we apply a special treatment to *include* it
                 max = max ? new Date(getPeriodEnd(max as string)) : null;
               } else {

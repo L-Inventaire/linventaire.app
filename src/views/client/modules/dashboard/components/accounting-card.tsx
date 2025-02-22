@@ -26,23 +26,27 @@ const AccountingCard = ({ year, ...props }: AccountingCardProps) => {
       : 1;
 
   const gains =
-    reducer(all, "invoices", ["completed", "closed"]) -
-    reducer(all, "credit_notes", ["completed", "closed"]);
+    reducer(all, "invoices", ["sent", "completed", "closed"]) -
+    reducer(all, "credit_notes", ["sent", "completed", "closed"]);
   const gainsExpected = gains / (prorataOfYear || 1);
   const gainsLastYear =
-    reducer(allLastYear, "invoices", ["completed", "closed"]) -
-    reducer(allLastYear, "credit_notes", ["completed", "closed"]);
+    reducer(allLastYear, "invoices", ["sent", "completed", "closed"]) -
+    reducer(allLastYear, "credit_notes", ["sent", "completed", "closed"]);
   const gainsEvolution = Math.floor(
     (100 * (gainsExpected - gainsLastYear)) / gainsExpected
   );
 
   const charges =
-    reducer(all, "supplier_invoices", ["completed", "closed"]) -
-    reducer(all, "supplier_credit_notes", ["completed", "closed"]);
+    reducer(all, "supplier_invoices", ["sent", "completed", "closed"]) -
+    reducer(all, "supplier_credit_notes", ["sent", "completed", "closed"]);
   const chargesExpected = charges / (prorataOfYear || 1);
   const chargesLastYear =
-    reducer(allLastYear, "supplier_invoices", ["completed", "closed"]) -
-    reducer(allLastYear, "supplier_credit_notes", ["completed", "closed"]);
+    reducer(allLastYear, "supplier_invoices", ["sent", "completed", "closed"]) -
+    reducer(allLastYear, "supplier_credit_notes", [
+      "sent",
+      "completed",
+      "closed",
+    ]);
   const chargesEvolution = Math.floor(
     (100 * (chargesExpected - chargesLastYear)) / chargesExpected
   );

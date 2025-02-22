@@ -6,6 +6,7 @@ import { DashboardBalances } from "@features/statistics/types";
 import { formatAmount } from "@features/utils/format/strings";
 import { Table } from "@molecules/table";
 import { Spinner } from "@radix-ui/themes";
+import _ from "lodash";
 import { twMerge } from "tailwind-merge";
 
 export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
@@ -36,6 +37,34 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
     );
   };
 
+  const total = {
+    id: "total",
+    contact: {
+      business_name: "(Total)",
+    },
+    total: {
+      total: res.data.reduce((acc, item) => acc + item.total.total, 0),
+    },
+    late: {
+      total: res.data.reduce((acc, item) => acc + item.late.total, 0),
+    },
+    d30: {
+      total: res.data.reduce((acc, item) => acc + item.d30.total, 0),
+    },
+    d60: {
+      total: res.data.reduce((acc, item) => acc + item.d60.total, 0),
+    },
+    d90: {
+      total: res.data.reduce((acc, item) => acc + item.d90.total, 0),
+    },
+    d120: {
+      total: res.data.reduce((acc, item) => acc + item.d120.total, 0),
+    },
+    d120plus: {
+      total: res.data.reduce((acc, item) => acc + item.d120plus.total, 0),
+    },
+  };
+
   return (
     <Table
       columns={[
@@ -62,6 +91,8 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
               Non échus
             </Link>
           ),
+          cellClassName: "justify-end",
+          headClassName: "justify-end",
           render: (row: DashboardBalances[0]) => (
             <Link
               noColor
@@ -82,6 +113,8 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
               1-30
             </Link>
           ),
+          cellClassName: "justify-end",
+          headClassName: "justify-end",
           render: (row: DashboardBalances[0]) => (
             <Link
               noColor
@@ -102,6 +135,8 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
               31-60
             </Link>
           ),
+          cellClassName: "justify-end",
+          headClassName: "justify-end",
           render: (row: DashboardBalances[0]) => (
             <Link
               noColor
@@ -122,6 +157,8 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
               61-90
             </Link>
           ),
+          cellClassName: "justify-end",
+          headClassName: "justify-end",
           render: (row: DashboardBalances[0]) => (
             <Link
               noColor
@@ -142,6 +179,8 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
               91-120
             </Link>
           ),
+          cellClassName: "justify-end",
+          headClassName: "justify-end",
           render: (row: DashboardBalances[0]) => (
             <Link
               noColor
@@ -162,6 +201,8 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
               120+
             </Link>
           ),
+          cellClassName: "justify-end",
+          headClassName: "justify-end",
           render: (row: DashboardBalances[0]) => (
             <Link
               noColor
@@ -179,9 +220,11 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
               className={twMerge("hover:underline cursor-pointer")}
               href={getLink(undefined)}
             >
-              Total dû
+              Total
             </Link>
           ),
+          cellClassName: "justify-end",
+          headClassName: "justify-end",
           render: (row: DashboardBalances[0]) => (
             <Link
               noColor
@@ -193,7 +236,12 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
           ),
         },
       ]}
-      data={res.data || []}
+      data={[
+        ..._.sortBy(res.data || [], (a) =>
+          a.contact ? getContactName(a.contact) : "zzz"
+        ),
+        total as any,
+      ]}
       showPagination={false}
     />
   );

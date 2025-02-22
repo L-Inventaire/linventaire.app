@@ -265,7 +265,7 @@ export const SearchBar = ({
                 shortcut={shortcuts || ["cmd+f"]}
                 onMouseUp={getSuggestions}
                 onKeyUp={getSuggestions}
-                onKeyDown={onKeyDown}
+                onKeyDown={filtersEnabled ? onKeyDown : undefined}
                 onBlur={() => cleanValue()}
                 style={{ resize: "none", lineHeight: !value ? "1.9" : "1.8" }}
                 placeholder={

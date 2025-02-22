@@ -42,7 +42,19 @@ const InvoicesPageContent = () => {
   ]) as any;
 
   const tabs = {
-    all: { label: "Tous", filter: [] },
+    all: {
+      label:
+        type.includes("invoices") || type.includes("credit_notes")
+          ? "Comptabilisé"
+          : "Tous",
+      filter:
+        type.includes("invoices") || type.includes("credit_notes")
+          ? buildQueryFromMap({ state: "draft" }).map((a) => ({
+              ...a,
+              not: true,
+            }))
+          : [],
+    },
     draft: {
       label: "Brouillons",
       filter: buildQueryFromMap({ state: "draft" }),
@@ -396,7 +408,7 @@ const InvoicesPageContent = () => {
                 ? "ASC"
                 : "DESC",
           }}
-          groupBy={groupBy}
+          groupBy={activeTab === "all" ? undefined : groupBy}
           groupByRender={(row) =>
             InvoicesColumns.find(
               (a) =>

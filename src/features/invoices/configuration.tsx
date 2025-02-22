@@ -67,8 +67,12 @@ export const InvoicesColumns: Column<Invoices>[] = [
       <Base className="whitespace-nowrap max-w-xs overflow-hidden text-ellipsis">
         <BaseSmall>
           {invoice.reference}{" "}
+          {(invoice.type === "credit_notes" ||
+            invoice.type === "supplier_credit_notes") && (
+            <span className="opacity-50"> • Avoir</span>
+          )}
           {!!invoice.from_subscription?.from && (
-            <span>
+            <span className="opacity-50">
               {" "}
               • Du {format(
                 invoice.from_subscription.from,
@@ -162,6 +166,9 @@ export const InvoicesColumns: Column<Invoices>[] = [
     headClassName: "justify-end",
     orderBy: "(total->>'total')::numeric",
     render: (invoice) => {
+      const isCreditNote =
+        invoice.type === "credit_notes" ||
+        invoice.type === "supplier_credit_notes";
       return invoice.content?.some((a) => a.subscription) &&
         invoice.type === "quotes" ? (
         <Base className="text-right whitespace-nowrap space-y-1 my-2">
@@ -202,6 +209,7 @@ export const InvoicesColumns: Column<Invoices>[] = [
         </Base>
       ) : (
         <Base className="text-right whitespace-nowrap">
+          {isCreditNote && <span className="opacity-50">Avoir de </span>}
           {formatAmount(invoice.total?.total_with_taxes || 0)}
           <br />
           <Info>{formatAmount(invoice.total?.total || 0)} HT</Info>
