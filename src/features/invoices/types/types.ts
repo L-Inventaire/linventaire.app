@@ -36,6 +36,7 @@ export type Invoices = RestEntity & {
   name: string;
   reference: string;
   alt_reference: string;
+  reference_preferred_value: number;
 
   supplier: string; // For supplier invoices/quotes/credit_notes
   client: string; // For client invoices/quotes/credit_notes

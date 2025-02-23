@@ -40,7 +40,9 @@ export const TagsPage = ({ year }: { year: number }) => {
 
   const getLink = (tag?: Tags, month?: number) => {
     const q = [
-      month ? `emit_date:${format(new Date(year, month, 1), "yyyy-MM")}` : "",
+      month !== undefined
+        ? `emit_date:${format(new Date(year, month, 1), "yyyy-MM")}`
+        : "",
       tag ? `articles.computed_tags:"${tag.name}"` : "",
     ]
       .filter(Boolean)

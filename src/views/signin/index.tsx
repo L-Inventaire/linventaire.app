@@ -48,7 +48,6 @@ const useRedirectToApp = () => {
       // Check if we have a "redirect" query parameter
       const urlParams = new URLSearchParams(window.location.search);
       const redirect = urlParams.get("redirect");
-      console.log("redirect", redirect);
       if (redirect) navigate(redirect);
       else if (hasAccess("ACCOUNTING_READ"))
         navigate(getRoute(ROUTES.Home, { client: bestClient }));

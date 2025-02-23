@@ -60,8 +60,6 @@ const MainChart = ({ year }: { year: number }) => {
   const currentYearData = processData(all);
   const previousYearData = processData(allLastYear);
 
-  console.log(currentYearData[1]);
-
   const formatWithK = (value: number) => {
     if (Math.abs(value) > 1000000) {
       return `${Math.floor(value / 1000000)}M`;

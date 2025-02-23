@@ -423,7 +423,6 @@ const InvoicesPageContent = () => {
           data={invoices}
           showPagination="full"
           onRequestData={async (page) => {
-            console.log(page);
             setOptions({
               ...options,
               limit: page.perPage,

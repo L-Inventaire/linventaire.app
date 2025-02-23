@@ -10,7 +10,8 @@ const renderPaymentCompletion = (
   total: number
 ): [number, string] => {
   const value = computePaymentCompletion(invoice, total);
-  const color = value < 0.5 ? "red" : value < 1 ? "orange" : "green";
+  const color =
+    value < 0.5 ? "red" : Math.round(value * 100) < 100 ? "orange" : "green";
   return [Math.round(value * 100), color];
 };
 
