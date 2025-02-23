@@ -191,6 +191,7 @@ export const useSuggestions = (
   const cleanMap = () => {
     if (!inputRef.current) return;
     let value = inputRef.current?.value || "";
+    if (!value.trim()) return;
     // Clean the displayValueMap
     displayToValueMap.current = Object.fromEntries(
       Object.entries(displayToValueMap.current).filter(

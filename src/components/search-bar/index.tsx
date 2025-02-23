@@ -14,7 +14,7 @@ import {
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
 import { FunnelIcon as FunnelIconSolid } from "@heroicons/react/24/solid";
-import { Heading, Popover } from "@radix-ui/themes";
+import { Heading, Popover, Spinner } from "@radix-ui/themes";
 import _ from "lodash";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
@@ -90,23 +90,10 @@ export const SearchBar = ({
   });
   const fields = schema.fields.filter((a) => a.label);
 
-  const [value, setValue] = useState(
-    urlSync !== false ? getFromUrl(schema.fields) : ""
-  );
+  const [valueLocked, setValueLocked] = useState(false);
+  const [value, setValue] = useState("");
   const rendererRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (controlledValue !== undefined) setValue(controlledValue);
-  }, [controlledValue]);
-
-  const { search } = useLocation();
-  useEffect(() => {
-    if (urlSync !== false) {
-      const val = getFromUrl(schema.fields);
-      if (val !== value) setValue(val);
-    }
-  }, [search]);
 
   const {
     suggestions,
@@ -127,10 +114,34 @@ export const SearchBar = ({
     additionalSuggestions
   );
 
+  useEffect(() => {
+    if (controlledValue !== undefined) setValue(controlledValue);
+  }, [controlledValue]);
+
+  const { search } = useLocation();
+  useEffect(() => {
+    // Set the values from the url when we can
+    const val = getFromUrl(schema.fields);
+    if (urlSync !== false && val) {
+      const ready = !loadingCustomFields;
+      if (!ready) {
+        setValueLocked(true);
+      } else {
+        setValueLocked(false);
+        const map = JSON.parse(
+          new URLSearchParams(window.location.search).get("map") || "{}"
+        );
+        console.log("map", map, displayToValueMap);
+        // TODO set map too
+        if (val !== value) setValue(val);
+      }
+    }
+  }, [search, loadingCustomFields]);
+
   // When value change, set it to url querystring ?q=
   useEffect(() => {
     if (!loadingCustomFields) {
-      if (urlSync !== false) {
+      if (urlSync !== false && !valueLocked) {
         const url = new URL(window.location.href);
         setToUrl(url, value, schema.fields);
         url.searchParams.set("map", JSON.stringify(displayToValueMap));
@@ -151,7 +162,7 @@ export const SearchBar = ({
         }
       );
     }
-  }, [value, loadingCustomFields, fields.length]);
+  }, [value, loadingCustomFields, valueLocked, fields.length]);
 
   // When value change, set inputHeight to rendererRef height
   useEffect(() => {
@@ -163,7 +174,10 @@ export const SearchBar = ({
     }
   }, [value]);
 
-  const [_filtersEnabled, setFiltersEnabled] = useState(false);
+  const hasFiltersInUrl = new URLSearchParams(window.location.search)
+    .get("q")
+    ?.match(/[^ ]:[^ ]/);
+  const [_filtersEnabled, setFiltersEnabled] = useState(!!hasFiltersInUrl);
   const filtersEnabled = inlineSuggestions ? true : _filtersEnabled;
 
   const searchBarParent = useRef<HTMLDivElement>(null);
@@ -236,7 +250,9 @@ export const SearchBar = ({
                       size="sm"
                       theme="invisible"
                       icon={(p) =>
-                        inlineSuggestions ? (
+                        valueLocked ? (
+                          <Spinner className="text-slate-500" />
+                        ) : inlineSuggestions ? (
                           <MagnifyingGlassIcon {...p} />
                         ) : !filtersEnabled ? (
                           <FunnelIcon {...p} />
@@ -261,7 +277,7 @@ export const SearchBar = ({
               <Input
                 data-release-escape
                 autoFocus={autoFocus}
-                disabled={loadingCustomFields}
+                disabled={loadingCustomFields || valueLocked}
                 shortcut={shortcuts || ["cmd+f"]}
                 onMouseUp={getSuggestions}
                 onKeyUp={getSuggestions}
@@ -269,14 +285,18 @@ export const SearchBar = ({
                 onBlur={() => cleanValue()}
                 style={{ resize: "none", lineHeight: !value ? "1.9" : "1.8" }}
                 placeholder={
-                  placeholder ||
-                  (filtersEnabled
-                    ? `Chercher des filtres ou des éléments ${showShortCut([
-                        "cmd+f",
-                      ])}`
-                    : `Filtrer les éléments ${showShortCut([
-                        "cmd+f",
-                      ])} (recherche avancée ${showShortCut(["cmd+shift+f"])})`)
+                  valueLocked
+                    ? "Chargement..."
+                    : placeholder ||
+                      (filtersEnabled
+                        ? `Chercher des filtres ou des éléments ${showShortCut([
+                            "cmd+f",
+                          ])}`
+                        : `Filtrer les éléments ${showShortCut([
+                            "cmd+f",
+                          ])} (recherche avancée ${showShortCut([
+                            "cmd+shift+f",
+                          ])})`)
                 }
                 inputRef={inputRef}
                 spellCheck={false}
