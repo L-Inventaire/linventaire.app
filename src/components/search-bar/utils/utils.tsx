@@ -153,6 +153,9 @@ export const generateQuery = (
                 if (min) min?.setHours(0);
                 // For max we apply a special treatment to *include* it
                 max = max ? new Date(getPeriodEnd(max as string)) : null;
+
+                min = min ? min?.getTime() : null;
+                max = max ? max?.getTime() : null;
               } else {
                 min = min
                   ? parseFloat((min as string).replace(/![0-9]/, ""))

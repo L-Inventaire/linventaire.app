@@ -128,11 +128,6 @@ export const SearchBar = ({
         setValueLocked(true);
       } else {
         setValueLocked(false);
-        const map = JSON.parse(
-          new URLSearchParams(window.location.search).get("map") || "{}"
-        );
-        console.log("map", map, displayToValueMap);
-        // TODO set map too
         if (val !== value) setValue(val);
       }
     }
