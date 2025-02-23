@@ -7,7 +7,7 @@ import { FormContext } from "@components/form/formcontext";
 import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
 import { Articles } from "@features/articles/types/types";
-import { ROUTES } from "@features/routes";
+import { getRoute, ROUTES } from "@features/routes";
 import { tvaOptions } from "@features/utils/constants";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { EditorInput } from "@molecules/editor-input";
@@ -18,6 +18,7 @@ import { ArticleSuppliersInput } from "./article-suppliers-input";
 import { ArticlesFieldsNames } from "@features/articles/configuration";
 import { useHasAccess } from "@features/access";
 import { AccountingAccountInput } from "@components/accounting-account-input";
+import Link from "@atoms/link";
 
 export const frequencyOptions = [
   { value: "", label: "Pas de renouvellement", per_label: "en une fois" },
@@ -43,6 +44,22 @@ export const ArticlesDetailsPage = ({
     id || "new",
     readonly
   );
+
+  const getInvoicesLink = (
+    type:
+      | "invoices"
+      | "quotes"
+      | "supplier_quotes"
+      | "supplier_invoices" = "invoices"
+  ) => {
+    const query = [
+      `q=${encodeURIComponent(`articles.all:"${draft.name}"`)}`,
+      `map=${encodeURIComponent(
+        JSON.stringify({ [`articles.all:${draft.name}`]: draft.id })
+      )}`,
+    ].join("&");
+    return getRoute(ROUTES.Invoices, { type }) + "?" + query;
+  };
 
   const hasAccess = useHasAccess();
 
@@ -114,6 +131,7 @@ export const ArticlesDetailsPage = ({
             </div>
             <div className="space-y-4">
               <Heading size="4">Prix de vente</Heading>
+
               <PageColumns>
                 <FormInput
                   ctrl={ctrl("price")}
@@ -150,6 +168,23 @@ export const ArticlesDetailsPage = ({
                   options={frequencyOptions}
                 />
               </PageColumns>
+
+              {readonly && (
+                <>
+                  <Heading size="4">Accès rapide</Heading>
+                  <Link href={getInvoicesLink("invoices")}>Factures</Link>
+                  {", "}
+                  <Link href={getInvoicesLink("quotes")}>Devis</Link>
+                  {", "}
+                  <Link href={getInvoicesLink("supplier_quotes")}>
+                    Commandes
+                  </Link>
+                  {", "}
+                  <Link href={getInvoicesLink("supplier_invoices")}>
+                    Factures fournisseur
+                  </Link>
+                </>
+              )}
             </div>
             <div className="space-y-4">
               <Heading size="4">Fournisseurs et prix d'achat</Heading>
