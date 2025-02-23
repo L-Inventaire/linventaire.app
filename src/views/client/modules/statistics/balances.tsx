@@ -19,12 +19,33 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
     );
   }
 
-  const getLink = (
-    _contact?: string,
-    _laterFrom?: number,
-    _laterTo?: number
-  ) => {
-    const query = ""; // TODO
+  const getLink = (contact?: string, laterFrom?: number, laterTo?: number) => {
+    const laterFromDate =
+      laterFrom !== undefined
+        ? new Date(Date.now() + laterFrom * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .split("T")[0]
+        : "";
+    const laterToDate =
+      laterTo !== undefined
+        ? new Date(Date.now() + laterTo * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .split("T")[0]
+        : "";
+    const q = [
+      `!state:"closed"`,
+      contact !== undefined
+        ? `${type === "client" ? "client" : "supplier"}:${contact}`
+        : "",
+      laterFrom || laterTo
+        ? `payment_information.computed_date:${`${
+            laterFromDate || "1900-01-01"
+          }->${laterToDate || new Date().toISOString().split("T")[0]}`}`
+        : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
+    const query = [`q=${encodeURIComponent(q)}`].filter(Boolean).join("&");
     return (
       getRoute(ROUTES.Invoices, {
         type:
@@ -86,7 +107,7 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
             <Link
               noColor
               className={twMerge("hover:underline cursor-pointer")}
-              href={getLink(undefined, -1)}
+              href={getLink(undefined, undefined, 0)}
             >
               Non échus
             </Link>
