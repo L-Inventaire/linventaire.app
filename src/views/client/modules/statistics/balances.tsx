@@ -19,7 +19,13 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
     );
   }
 
-  const getLink = (contact?: string, laterFrom?: number, laterTo?: number) => {
+  const getLink = (
+    contactObj: any,
+    contact?: string,
+    laterFrom?: number,
+    laterTo?: number
+  ) => {
+    const contactName = contactObj ? getContactName(contactObj) : null;
     const laterFromDate =
       laterFrom !== undefined
         ? new Date(Date.now() + laterFrom * 24 * 60 * 60 * 1000)
@@ -32,20 +38,36 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
             .toISOString()
             .split("T")[0]
         : "";
+    const contactKey = `${
+      type === "client" ? "client" : "supplier"
+    }:"${contactName}"`;
     const q = [
       `!state:"closed"`,
-      contact !== undefined
-        ? `${type === "client" ? "client" : "supplier"}:${contact}`
-        : "",
-      laterFrom || laterTo
-        ? `payment_information.computed_date:${`${
-            laterFromDate || "1900-01-01"
-          }->${laterToDate || new Date().toISOString().split("T")[0]}`}`
+      contact !== undefined ? contactKey : "",
+      laterFrom !== undefined || laterTo !== undefined
+        ? `payment_information.computed_date:${
+            laterFromDate
+              ? `${laterFromDate}->${
+                  laterToDate || new Date().toISOString().split("T")[0]
+                }`
+              : `<=${laterToDate || new Date().toISOString().split("T")[0]}`
+          }`
         : "",
     ]
       .filter(Boolean)
       .join(" ");
-    const query = [`q=${encodeURIComponent(q)}`].filter(Boolean).join("&");
+    const query = [
+      `q=${encodeURIComponent(q)}`,
+      contact !== undefined
+        ? `map=${encodeURIComponent(
+            JSON.stringify({
+              [contactKey]: contact,
+            })
+          )}`
+        : false,
+    ]
+      .filter(Boolean)
+      .join("&");
     return (
       getRoute(ROUTES.Invoices, {
         type:
@@ -96,7 +118,7 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
             <Link
               noColor
               className={twMerge("hover:underline cursor-pointer")}
-              href={getLink(row.id)}
+              href={getLink(row.contact, row.id)}
             >
               {row.contact ? getContactName(row.contact) : "Inconnu"}
             </Link>
@@ -107,7 +129,7 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
             <Link
               noColor
               className={twMerge("hover:underline cursor-pointer")}
-              href={getLink(undefined, undefined, 0)}
+              href={getLink(undefined, undefined, undefined, 0)}
             >
               Non échus
             </Link>
@@ -118,7 +140,7 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
             <Link
               noColor
               className={twMerge("hover:underline cursor-pointer")}
-              href={getLink(row.id, undefined, 0)}
+              href={getLink(row.contact, row.id, undefined, 0)}
             >
               {formatAmount(row.total.total - row.late.total)}
             </Link>
@@ -129,7 +151,7 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
             <Link
               noColor
               className={twMerge("hover:underline cursor-pointer")}
-              href={getLink(undefined, 0, 30)}
+              href={getLink(undefined, undefined, 0, 30)}
             >
               1-30
             </Link>
@@ -140,7 +162,7 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
             <Link
               noColor
               className={twMerge("hover:underline cursor-pointer")}
-              href={getLink(row.id, 0, 30)}
+              href={getLink(row.contact, row.id, 0, 30)}
             >
               {formatAmount(row.d30.total)}
             </Link>
@@ -151,7 +173,7 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
             <Link
               noColor
               className={twMerge("hover:underline cursor-pointer")}
-              href={getLink(undefined, 31, 60)}
+              href={getLink(undefined, undefined, 31, 60)}
             >
               31-60
             </Link>
@@ -162,7 +184,7 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
             <Link
               noColor
               className={twMerge("hover:underline cursor-pointer")}
-              href={getLink(undefined, 31, 60)}
+              href={getLink(row.contact, undefined, 31, 60)}
             >
               {formatAmount(row.d60.total)}
             </Link>
@@ -173,7 +195,7 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
             <Link
               noColor
               className={twMerge("hover:underline cursor-pointer")}
-              href={getLink(undefined, 61, 90)}
+              href={getLink(undefined, undefined, 61, 90)}
             >
               61-90
             </Link>
@@ -184,7 +206,7 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
             <Link
               noColor
               className={twMerge("hover:underline cursor-pointer")}
-              href={getLink(row.id, 61, 90)}
+              href={getLink(row.contact, row.id, 61, 90)}
             >
               {formatAmount(row.d90.total)}
             </Link>
@@ -195,7 +217,7 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
             <Link
               noColor
               className={twMerge("hover:underline cursor-pointer")}
-              href={getLink(undefined, 91, 120)}
+              href={getLink(undefined, undefined, 91, 120)}
             >
               91-120
             </Link>
@@ -206,7 +228,7 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
             <Link
               noColor
               className={twMerge("hover:underline cursor-pointer")}
-              href={getLink(row.id, 91, 120)}
+              href={getLink(row.contact, row.id, 91, 120)}
             >
               {formatAmount(row.d120.total)}
             </Link>
@@ -217,7 +239,7 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
             <Link
               noColor
               className={twMerge("hover:underline cursor-pointer")}
-              href={getLink(undefined, 120)}
+              href={getLink(undefined, undefined, 120)}
             >
               120+
             </Link>
@@ -228,7 +250,7 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
             <Link
               noColor
               className={twMerge("hover:underline cursor-pointer")}
-              href={getLink(row.id, 120)}
+              href={getLink(row.contact, row.id, 120)}
             >
               {formatAmount(row.d120plus.total)}
             </Link>
@@ -239,7 +261,7 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
             <Link
               noColor
               className={twMerge("hover:underline cursor-pointer")}
-              href={getLink(undefined)}
+              href={getLink(undefined, undefined)}
             >
               Total
             </Link>
@@ -250,7 +272,7 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
             <Link
               noColor
               className={twMerge("hover:underline cursor-pointer")}
-              href={getLink(row.id)}
+              href={getLink(row.contact, row.id)}
             >
               <b>{formatAmount(row.total.total)}</b>
             </Link>
