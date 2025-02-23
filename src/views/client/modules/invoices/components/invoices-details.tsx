@@ -18,19 +18,23 @@ import { useContact, useContacts } from "@features/contacts/hooks/use-contacts";
 import { Contacts } from "@features/contacts/types/types";
 import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { InvoicesFieldsNames } from "@features/invoices/configuration";
-import { useInvoice } from "@features/invoices/hooks/use-invoices";
+import { useInvoice, useInvoices } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
 import { getDocumentName, getInvoiceNextDate } from "@features/invoices/utils";
 import { ROUTES } from "@features/routes";
 import { formatTime } from "@features/utils/format/dates";
 import { format as formatdfns } from "date-fns";
 import {
+  getFormattedNumerotation,
   getOptimalCounterFormat,
   useFormattedNumerotationByInvoice,
 } from "@features/utils/format/numerotation";
 import { useEffectChange } from "@features/utils/hooks/use-changed-effect";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
-import { PlayCircleIcon } from "@heroicons/react/16/solid";
+import {
+  ExclamationCircleIcon,
+  PlayCircleIcon,
+} from "@heroicons/react/16/solid";
 import {
   BuildingStorefrontIcon,
   EnvelopeIcon,
@@ -39,7 +43,7 @@ import {
 import { EditorInput } from "@molecules/editor-input";
 import { Table } from "@molecules/table";
 import { Timeline } from "@molecules/timeline";
-import { Callout, Code, Heading, Text } from "@radix-ui/themes";
+import { Callout, Code, Heading, Text, Tooltip } from "@radix-ui/themes";
 import { PageColumns } from "@views/client/_layout/page";
 import { format as formatDate } from "date-fns";
 import _ from "lodash";
@@ -60,6 +64,7 @@ import { InvoiceStatus } from "./invoice-status";
 import { RelatedInvoices } from "./related-invoices";
 import { TagPaymentCompletion } from "./tag-payment-completion";
 import { format as formatfns } from "date-fns";
+import { Clients } from "@features/clients/types/clients";
 
 export const InvoicesDetailsPage = ({
   readonly,
@@ -338,13 +343,32 @@ export const InvoicesDetailsPage = ({
                   readonly={contentReadonly}
                   ctrl={ctrl("reference")}
                   label="Référence"
+                  content={() => (
+                    <ReferencePreferenceEditor
+                      client={client}
+                      draft={draft}
+                      ctrl={ctrl}
+                    />
+                  )}
+                  className="justify-start text-left"
                 >
                   <Heading size="4" className="m-0">
                     {getDocumentName(draft.type)} {draft.reference}
                   </Heading>
+                  {(draft.type === "invoices" ||
+                    draft.type === "credit_notes") &&
+                    draft.state === "draft" &&
+                    ctrl("reference_preferred_value") && (
+                      <ReferencePreferenceEditor
+                        client={client}
+                        draft={draft}
+                        ctrl={ctrl}
+                        readonly
+                      />
+                    )}
                 </InputButton>
 
-                <div className={readonly ? "flex space-x-1" : "-space-x-4"}>
+                <div className={readonly ? "flex space-x-1" : "flex space-x-1"}>
                   {(!readonly || ctrl("emit_date").value) && (
                     <InputButton
                       theme="invisible"
@@ -375,30 +399,30 @@ export const InvoicesDetailsPage = ({
                       readonly={readonly}
                     >
                       <Text size="2" className="opacity-75" weight="medium">
-                        {" • "}Paiement avant le{" "}
+                        {readonly ? " • " : ""}Paiement avant le{" "}
                         {formatdfns(
                           computePaymentDelayDate(draft).toJSDate(),
                           "PP"
                         )}
                       </Text>
-                      {computePaymentDelayDate(draft).toMillis() <
-                        Date.now() && (
-                        <Text
-                          size="2"
-                          className="opacity-75 ml-2 text-red-500"
-                          weight="medium"
-                        >
-                          (en retard de{" "}
-                          {Math.abs(
-                            Math.floor(
-                              computePaymentDelayDate(draft)
-                                .diff(DateTime.now())
-                                .as("days")
-                            )
-                          )}{" "}
-                          jours)
-                        </Text>
-                      )}
+                      {computePaymentDelayDate(draft).toMillis() < Date.now() &&
+                        draft.state !== "closed" && (
+                          <Text
+                            size="2"
+                            className="opacity-75 ml-2 text-red-500"
+                            weight="medium"
+                          >
+                            (en retard de{" "}
+                            {Math.abs(
+                              Math.floor(
+                                computePaymentDelayDate(draft)
+                                  .diff(DateTime.now())
+                                  .as("days")
+                              )
+                            )}{" "}
+                            jours)
+                          </Text>
+                        )}
                     </InputButton>
                   )}
                   {!!ctrl("wait_for_completion_since").value && (
@@ -785,6 +809,83 @@ export const InvoicesDetailsPage = ({
           </div>
         </PageColumns>
       </FormContext>
+    </>
+  );
+};
+
+export const ReferencePreferenceEditor = ({
+  client,
+  draft,
+  ctrl,
+  readonly,
+}: {
+  client: Clients;
+  draft: Invoices;
+  ctrl: any;
+  readonly?: boolean;
+}) => {
+  const expectedNumber = getFormattedNumerotation(
+    client.invoices_counters[
+      new Date(draft.emit_date).getFullYear().toString()
+    ][draft.type].format,
+    ctrl("reference_preferred_value").value ||
+      client.invoices_counters[
+        new Date(draft.emit_date).getFullYear().toString()
+      ][draft.type].counter,
+    draft.emit_date
+  );
+  const { invoices: alreadyUsed } = useInvoices({
+    query: buildQueryFromMap({
+      reference: expectedNumber,
+    }),
+  });
+  const isAlreadyUsed = alreadyUsed?.data?.list?.some((a) => a.id !== draft.id);
+
+  if (readonly) {
+    return (
+      <Text size="2">
+        Réf. à l'envoi <strong>{expectedNumber}</strong>
+        {isAlreadyUsed && (
+          <Tooltip content="Impossible d'utiliser cette référence">
+            <ExclamationCircleIcon className="w-4 h-4 text-red-500 inline-block ml-1" />
+          </Tooltip>
+        )}
+      </Text>
+    );
+  }
+
+  return (
+    <>
+      <FormInput
+        autoFocus
+        autoSelect
+        ctrl={ctrl("reference")}
+        type="text"
+        placeholder="Référence"
+      />
+      {(draft.type === "invoices" || draft.type === "credit_notes") && (
+        <div className="mt-4 space-y-2">
+          <Heading size="2">Numéro de facture de préférence</Heading>
+          <FormInput
+            autoFocus
+            autoSelect
+            ctrl={ctrl("reference_preferred_value")}
+            type="number"
+            placeholder={"Utiliser le prochain numéro disponible"}
+          />
+          <Text size="2" className="block">
+            <strong>{expectedNumber}</strong> sera utilisé une fois le document
+            envoyé (si déjà utilisé, le prochain numéro disponible sera
+            utilisé).
+          </Text>
+          {isAlreadyUsed && (
+            <Callout.Root size="1" color="red">
+              Cette référence est déjà utilisé, la prochaine valeur disponible
+              sera utilisé à la place.
+            </Callout.Root>
+          )}
+        </div>
+      )}
     </>
   );
 };
