@@ -841,7 +841,7 @@ export const ReferencePreferenceEditor = ({
   });
   const isAlreadyUsed = alreadyUsed?.data?.list?.some((a) => a.id !== draft.id);
 
-  if (readonly) {
+  if (readonly && draft.reference_preferred_value) {
     return (
       <Text size="2">
         Réf. à l'envoi <strong>{expectedNumber}</strong>
