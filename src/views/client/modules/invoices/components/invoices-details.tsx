@@ -358,7 +358,7 @@ export const InvoicesDetailsPage = ({
                   {(draft.type === "invoices" ||
                     draft.type === "credit_notes") &&
                     draft.state === "draft" &&
-                    ctrl("reference_preferred_value") && (
+                    ctrl("reference_preferred_value")?.value && (
                       <ReferencePreferenceEditor
                         client={client}
                         draft={draft}
@@ -841,7 +841,8 @@ export const ReferencePreferenceEditor = ({
   });
   const isAlreadyUsed = alreadyUsed?.data?.list?.some((a) => a.id !== draft.id);
 
-  if (readonly && draft.reference_preferred_value) {
+  if (readonly) {
+    if (!draft.reference_preferred_value) return null;
     return (
       <Text size="2">
         Réf. à l'envoi <strong>{expectedNumber}</strong>
