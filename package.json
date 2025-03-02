@@ -12,7 +12,7 @@
     "linter": "export CI=true && eslint src/ --max-warnings 0",
     "test": "craco test",
     "eject": "craco eject",
-    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org linventaireapp --project javascript-react ./build && sentry-cli sourcemaps upload --org linventaireapp --project javascript-react ./build"
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org linventaireapp --project linventaire-front ./build && sentry-cli sourcemaps upload --org linventaireapp --project javascript-react ./build"
   },
   "dependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
