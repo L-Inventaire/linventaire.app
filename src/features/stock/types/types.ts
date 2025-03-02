@@ -18,6 +18,7 @@ export type StockItems = RestEntity & {
 
   client: string; // The client who has this stock item or plan to have it
   for_rel_quote: string; // The quote or invoice this stock item is linked to
+  for_rel_quote_content_index: number; // The index of the line in the quote content
   from_rel_supplier_quote: string; // The supplier quote this stock item is from
   location: string; // The location of the stock item
 

@@ -42,111 +42,121 @@ export const NotificationsPage = () => {
       {!!notifications?.data && (
         <div className="flex flex-row w-full h-full">
           <div className="border-r border-r-slate-100 dark:border-r-slate-700 w-1/2 max-w-[288px]">
-            <ScrollArea scrollbars="vertical">
-              {!notifications?.data?.total && (
-                <Info className="p-3 text-center w-full block mt-8">
-                  Aucune notification, revenez plus tard.
-                </Info>
-              )}
-              {notifications?.data?.list?.map((n) => {
-                const events = _.uniqBy(
-                  [{ type: n.type, metadata: n.metadata }, ...(n.also || [])],
-                  "type"
-                );
+            <div className="flex flex-col grow w-full text-black dark:text-white min-h-full sm:bg-transparent">
+              <div className="grow relative">
+                <ScrollArea
+                  scrollbars="vertical"
+                  className="!absolute left-0 top-0 w-full h-full"
+                >
+                  {!notifications?.data?.total && (
+                    <Info className="p-3 text-center w-full block mt-8">
+                      Aucune notification, revenez plus tard.
+                    </Info>
+                  )}
+                  {notifications?.data?.list?.map((n) => {
+                    const events = _.uniqBy(
+                      [
+                        { type: n.type, metadata: n.metadata },
+                        ...(n.also || []),
+                      ],
+                      "type"
+                    );
 
-                return (
-                  <div
-                    key={n.id}
-                    className={twMerge(
-                      "w-full border-b border-b-slate-100 dark:border-b-slate-700 flex",
-                      id !== n.id &&
-                        "cursor-pointer hover:bg-slate-25 dark:hover:bg-slate-800",
-                      id === n.id && "bg-blue-50 dark:bg-blue-800"
-                    )}
-                    onClick={(event: any) => {
-                      navigate(
-                        getRoute(ROUTES.NotificationsPreview, { id: n.id }),
-                        { event }
-                      );
-                      if (n.read) return;
-                      update.mutateAsync({
-                        id: n.id,
-                        user_id: n.user_id,
-                        read: true,
-                      });
-                    }}
-                  >
-                    <div className="pl-2 pr-1.5 pt-4 shrink-0">
+                    return (
                       <div
+                        key={n.id}
                         className={twMerge(
-                          "rounded-full w-2 h-2",
-                          !!n.read && "bg-slate-500 opacity-10",
-                          !n.read && "bg-blue-500"
+                          "w-full border-b border-b-slate-100 dark:border-b-slate-700 flex",
+                          id !== n.id &&
+                            "cursor-pointer hover:bg-slate-25 dark:hover:bg-slate-800",
+                          id === n.id && "bg-blue-50 dark:bg-blue-800"
                         )}
-                      ></div>
-                    </div>
-                    <div
-                      className={twMerge(
-                        "p-3 pl-0 grow",
-                        !!n.read && id !== n.id && "opacity-25"
-                      )}
-                    >
-                      <Heading size="2" className="line-clamp-1">
-                        <Trans
-                          t={t}
-                          i18nKey={[
-                            `notifications.entities_names.${n.entity}`,
-                            n.entity,
-                          ]}
-                          values={{
-                            name: n.entity_display_name?.replace(
-                              /<[^>]*>?/gm,
-                              " "
-                            ),
-                          }}
-                          components={[<span />]}
-                        />
-                      </Heading>
-                      <Text
-                        size={"2"}
-                        className="leading-2 mt-1 line-clamp-2 min-h-8"
+                        onClick={(event: any) => {
+                          navigate(
+                            getRoute(ROUTES.NotificationsPreview, { id: n.id }),
+                            { event }
+                          );
+                          if (n.read) return;
+                          update.mutateAsync({
+                            id: n.id,
+                            user_id: n.user_id,
+                            read: true,
+                          });
+                        }}
                       >
-                        {(events || []).map((also) => (
-                          <>
-                            <NotificationText
-                              key={also.type}
-                              n={n}
-                              type={also.type}
-                              metadata={also.metadata}
-                            />{" "}
-                          </>
-                        ))}
-                      </Text>
-                      <div className="flex w-full items-center mt-1 -mb-2">
-                        <div className="grow">
-                          {n.updated_by && (
-                            <RestUserTag
-                              id={n.updated_by}
-                              size={"md"}
-                              className="border-none -ml-2 bg-transparent"
-                            />
-                          )}
+                        <div className="pl-2 pr-1.5 pt-4 shrink-0">
+                          <div
+                            className={twMerge(
+                              "rounded-full w-2 h-2",
+                              !!n.read && "bg-slate-500 opacity-10",
+                              !n.read && "bg-blue-500"
+                            )}
+                          ></div>
                         </div>
-                        <Text size="1" className="opacity-50 block">
-                          {formatDistance(
-                            new Date(n.last_notified_at),
-                            new Date(),
-                            {
-                              addSuffix: true,
-                            }
+                        <div
+                          className={twMerge(
+                            "p-3 pl-0 grow",
+                            !!n.read && id !== n.id && "opacity-25"
                           )}
-                        </Text>
+                        >
+                          <Heading size="2" className="line-clamp-1">
+                            <Trans
+                              t={t}
+                              i18nKey={[
+                                `notifications.entities_names.${n.entity}`,
+                                n.entity,
+                              ]}
+                              values={{
+                                name: n.entity_display_name?.replace(
+                                  /<[^>]*>?/gm,
+                                  " "
+                                ),
+                              }}
+                              components={[<span />]}
+                            />
+                          </Heading>
+                          <Text
+                            size={"2"}
+                            className="leading-2 mt-1 line-clamp-2 min-h-8"
+                          >
+                            {(events || []).map((also) => (
+                              <>
+                                <NotificationText
+                                  key={also.type}
+                                  n={n}
+                                  type={also.type}
+                                  metadata={also.metadata}
+                                />{" "}
+                              </>
+                            ))}
+                          </Text>
+                          <div className="flex w-full items-center mt-1 -mb-2">
+                            <div className="grow">
+                              {n.updated_by && (
+                                <RestUserTag
+                                  id={n.updated_by}
+                                  size={"md"}
+                                  className="border-none -ml-2 bg-transparent"
+                                />
+                              )}
+                            </div>
+                            <Text size="1" className="opacity-50 block">
+                              {formatDistance(
+                                new Date(n.last_notified_at),
+                                new Date(),
+                                {
+                                  addSuffix: true,
+                                }
+                              )}
+                            </Text>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </ScrollArea>
+                    );
+                  })}
+                </ScrollArea>
+              </div>
+            </div>
           </div>
           <div className="grow border-r border-r-950 dark:border-r-950">
             {id && <NotificationPreview id={id} />}

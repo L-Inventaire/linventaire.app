@@ -61,11 +61,13 @@ export type SearchFormFieldType = {
   | {
         label: string;
         value: string;
+        disabled?: boolean;
       }[]
     | ((query: string) => Promise<
         {
           label: string;
           value: string;
+          disabled?: boolean;
         }[]
       >);
 } & {
