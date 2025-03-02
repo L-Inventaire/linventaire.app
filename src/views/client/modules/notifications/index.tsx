@@ -132,9 +132,9 @@ export const NotificationsPage = () => {
                           </Text>
                           <div className="flex w-full items-center mt-1 -mb-2">
                             <div className="grow">
-                              {n.updated_by && (
+                              {n.created_by && (
                                 <RestUserTag
-                                  id={n.updated_by}
+                                  id={n.created_by}
                                   size={"md"}
                                   className="border-none -ml-2 bg-transparent"
                                 />

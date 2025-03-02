@@ -16,6 +16,7 @@ import { useTranslation } from "react-i18next";
 import { atom, useRecoilState } from "recoil";
 import { getPdfPreview } from "../invoices-preview/invoices-preview";
 import { Tabs } from "@radix-ui/themes";
+import { MailInput } from "@components/email-input";
 
 /**
  * Send special variation of invoice (proforma, delivery note, receipt)
@@ -190,12 +191,7 @@ export const InvoiceSendSpecialModalContent = ({
         ))}
       </div>
       <div className="mt-4 flex space-x-2">
-        <Input
-          size="md"
-          placeholder="email@gmail.com, email@linventaire.app"
-          value={newEmail}
-          onChange={(e) => setNewEmail(e.target.value)}
-        />
+        <MailInput value={newEmail} onChange={setNewEmail} />
         <Button
           theme="outlined"
           size="sm"

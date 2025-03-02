@@ -1,9 +1,9 @@
 import { Button } from "@atoms/button/button";
 import { Checkbox } from "@atoms/input/input-checkbox";
 import Radio from "@atoms/input/input-select-radio";
-import { Input } from "@atoms/input/input-text";
 import { Modal, ModalContent } from "@atoms/modal/modal";
 import { Base, Info } from "@atoms/text";
+import { MailInput } from "@components/email-input";
 import { useContact } from "@features/contacts/hooks/use-contacts";
 import { SigningSessionsApiClient } from "@features/documents/api-client/api-client";
 import { Invoices } from "@features/invoices/types/types";
@@ -150,12 +150,7 @@ export const InvoiceSendModalContent = ({
         ))}
       </div>
       <div className="mt-4 flex space-x-2">
-        <Input
-          size="md"
-          placeholder="email@gmail.com, email@linventaire.app"
-          value={newEmail}
-          onChange={(e) => setNewEmail(e.target.value)}
-        />
+        <MailInput value={newEmail} onChange={setNewEmail} />
         <Button
           theme="outlined"
           size="sm"
