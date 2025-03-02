@@ -10,12 +10,14 @@ import { useArticle } from "@features/articles/hooks/use-articles";
 import { Articles } from "@features/articles/types/types";
 import { getCostEstimate } from "@features/articles/utils";
 import { InvoiceLine, Invoices } from "@features/invoices/types/types";
+import { getRoute, ROUTES } from "@features/routes";
 import { tvaOptions } from "@features/utils/constants";
 import {
   formatAmount,
   formatQuantity,
   getTextFromHtml,
 } from "@features/utils/format/strings";
+import { useEffectChange } from "@features/utils/hooks/use-changed-effect";
 import {
   CheckIcon,
   LockClosedIcon,
@@ -38,8 +40,11 @@ import {
   Card,
   Code,
   Flex,
+  Heading,
   HoverCard,
+  Inset,
   Link,
+  Separator,
   Text,
   Tooltip,
 } from "@radix-ui/themes";
@@ -47,6 +52,7 @@ import {
   ArticlesDetailsPage,
   frequencyOptions,
 } from "@views/client/modules/articles/components/article-details";
+import _ from "lodash";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useDrag, useDragLayer, useDrop } from "react-dnd";
 import { useSetRecoilState } from "recoil";
@@ -58,9 +64,6 @@ import { InvoiceDiscountInput } from "./components/discount-input";
 import { InvoiceLineArticleInput } from "./components/line-article";
 import { InvoiceLinePriceInput } from "./components/line-price";
 import { InvoiceLineQuantityInput } from "./components/line-quantity";
-import _ from "lodash";
-import { useEffectChange } from "@features/utils/hooks/use-changed-effect";
-import { getRoute, ROUTES } from "@features/routes";
 
 export const InvoiceLineInput = (props: {
   invoice?: Invoices;
@@ -702,7 +705,20 @@ const HoverableArticle = ({
       </HoverCard.Trigger>
       {hasDetails && (
         <HoverCard.Content className="overflow-auto" maxHeight="30vh">
-          <ArticlesDetailsPage readonly id={article?.id} />
+          <Inset>
+            <div className="p-4">
+              <Heading size="2">{value.name}</Heading>
+              <Text as="div" color="gray" size="2">
+                {getTextFromHtml(
+                  value.description || article?.description || "-"
+                )}
+              </Text>
+            </div>
+            <Separator size="4" />
+            <div className="p-4">
+              <ArticlesDetailsPage readonly id={article?.id} />
+            </div>
+          </Inset>
         </HoverCard.Content>
       )}
     </HoverCard.Root>

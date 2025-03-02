@@ -62,7 +62,11 @@ export const StockItemsFromPage = (_props: { readonly?: boolean }) => {
             }
             toast.success("Les éléments ont été ajoutés dans le stock");
             setLoading(false);
-            navigate(getRoute(ROUTES.Stock));
+            if (from === "order") {
+              navigate(getRoute(ROUTES.Invoices, { type: "supplier_quotes" }));
+            } else {
+              navigate(getRoute(ROUTES.Stock));
+            }
           }}
         >
           Ajouter {stockItems.length} éléments dans le stock
