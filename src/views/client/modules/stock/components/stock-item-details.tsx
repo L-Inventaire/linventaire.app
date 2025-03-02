@@ -5,7 +5,7 @@ import { PageLoader } from "@atoms/page-loader";
 import { SectionSmall } from "@atoms/text";
 import { CustomFieldsInput } from "@components/custom-fields-input";
 import { FormInput } from "@components/form/fields";
-import { FormContext } from "@components/form/formcontext";
+import { FormContext, FormContextContext } from "@components/form/formcontext";
 import { InputButton } from "@components/input-button";
 import { RestDocumentsInput } from "@components/input-rest";
 import { FilesInput } from "@components/input-rest/files";
@@ -35,7 +35,7 @@ import { EditorInput } from "@molecules/editor-input";
 import { Timeline } from "@molecules/timeline";
 import { Callout } from "@radix-ui/themes";
 import { PageBlockHr } from "@views/client/_layout/page";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import { InvoiceRestDocument } from "../../invoices/components/invoice-lines-input/invoice-input-rest-card";
@@ -43,6 +43,7 @@ import { StockItemStatus } from "./stock-item-status";
 import { SubdivideStockModalAtom } from "./subdivide-modal";
 import { Tracability } from "./tracability";
 import { QuotesCheckers, SerialNumberCheckers } from "./create-from/checkers";
+import _ from "lodash";
 
 export const StockItemsDetailsPage = ({
   readonly,
@@ -514,12 +515,22 @@ export const QuoteLineSelector = ({
   article,
   value,
   onChange,
+  ...props
 }: {
   quote: Invoices | null;
   article: Articles | null;
   value: number;
   onChange: (e: number) => void;
+  disabled?: boolean;
 }) => {
+  const formContext = useContext(FormContextContext);
+  const disabled =
+    props.disabled === undefined
+      ? formContext.disabled || formContext.readonly
+      : props.disabled || false;
+
+  if (!value && disabled) return <></>;
+
   return (
     <>
       {!!article &&
@@ -535,7 +546,7 @@ export const QuoteLineSelector = ({
               return (
                 quote?.content?.map((c, i) => {
                   return {
-                    value: i.toString(),
+                    value: (i + 1).toString(),
                     label:
                       (c.type !== "separation" ? `${counter++} - ` : "") +
                         c.name || "",
