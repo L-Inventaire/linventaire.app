@@ -14,10 +14,21 @@ export const SerialNumberCheckers = ({ items }: { items: StockItems[] }) => {
 
   const filledSerialNumbers = serialNumbers.filter(Boolean);
   const { stock_items: _existingSerialNumbers } = useStockItems({
-    query: buildQueryFromMap({
-      serial_number: [...filledSerialNumbers],
-      article: articles,
-    }),
+    query: [
+      ...buildQueryFromMap({
+        serial_number: [...filledSerialNumbers],
+        article: articles,
+      }),
+      {
+        key: "quantity",
+        values: [
+          {
+            op: "gte",
+            value: 1,
+          },
+        ],
+      },
+    ],
     limit: filledSerialNumbers.length ? undefined : 0,
   });
 
