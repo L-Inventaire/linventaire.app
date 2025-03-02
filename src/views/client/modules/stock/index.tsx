@@ -140,7 +140,7 @@ export const StockPage = () => {
                   icon={(p) => <PlusIcon {...p} />}
                   hideTextOnMobile
                 >
-                  Ajouter
+                  Réception
                 </Button>
               )}
             </>

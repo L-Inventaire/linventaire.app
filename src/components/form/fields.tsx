@@ -84,9 +84,9 @@ export const FormInput = memo(
 
     const fieldId = useRef(nanoid());
     const [optionsLoading, setOptionsLoading] = useState(false);
-    const [options, setOptions] = useState<{ label: string; value: string }[]>(
-      typeof props.options === "function" ? [] : props.options || []
-    );
+    const [options, setOptions] = useState<
+      { label: string; value: string; disabled?: boolean }[]
+    >(typeof props.options === "function" ? [] : props.options || []);
 
     const suggest = (query: string) => {
       if (typeof props.options === "function") {
@@ -427,7 +427,11 @@ export const FormInput = memo(
                 </option>
                 {(options || []).map((el) => {
                   return (
-                    <option key={el.value} value={el.value}>
+                    <option
+                      key={el.value}
+                      value={el.value}
+                      disabled={el.disabled}
+                    >
                       {el.label}
                     </option>
                   );

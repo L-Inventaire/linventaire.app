@@ -8,6 +8,8 @@ import { Heading, IconButton, Table } from "@radix-ui/themes";
 import { useEffect } from "react";
 import { InvoiceRestDocument } from "../../../invoices/components/invoice-lines-input/invoice-input-rest-card";
 import { StockItemStatus } from "../stock-item-status";
+import { QuoteLineSelector } from "../stock-item-details";
+import { Invoices } from "@features/invoices/types/types";
 
 export const StockItemLine = ({
   value,
@@ -118,34 +120,54 @@ export const StockItemLine = ({
               {
                 "articles.all": value.article,
                 type: "supplier_quotes",
-              } as any
+                state: ["draft", "sent", "purchase_order", "completed"] as any,
+              } as Partial<Invoices>
             }
           />
         )}
         {!!supplierQuote && (
-          <InvoiceRestDocument
-            size="xl"
-            label="Devis"
-            placeholder="Aucune affectation"
-            value={value.for_rel_quote}
-            onChange={(e: string) =>
-              onChange({
-                ...value,
-                for_rel_quote: e,
-                state: e ? value.state : "stock",
-              })
-            }
-            filter={
-              supplierQuote?.from_rel_quote
-                ? {
-                    id: supplierQuote?.from_rel_quote,
-                  }
-                : ({
-                    "articles.all": value.article,
-                    type: "quotes",
-                  } as any)
-            }
-          />
+          <>
+            <InvoiceRestDocument
+              size="xl"
+              label="Devis"
+              placeholder="Aucune affectation"
+              value={value.for_rel_quote}
+              onChange={(e: string) =>
+                onChange({
+                  ...value,
+                  for_rel_quote: e,
+                  state: e ? value.state : "stock",
+                })
+              }
+              filter={
+                supplierQuote?.from_rel_quote
+                  ? {
+                      id: supplierQuote?.from_rel_quote,
+                    }
+                  : ({
+                      "articles.all": value.article,
+                      type: "quotes",
+                      state: [
+                        "draft",
+                        "sent",
+                        "purchase_order",
+                        "completed",
+                      ] as any,
+                    } as any)
+              }
+            />
+            <QuoteLineSelector
+              quote={quote}
+              article={article || null}
+              onChange={(e) =>
+                onChange({
+                  ...value,
+                  for_rel_quote_content_index: e,
+                })
+              }
+              value={value.for_rel_quote_content_index}
+            />
+          </>
         )}
       </Table.Cell>
       <Table.Cell>

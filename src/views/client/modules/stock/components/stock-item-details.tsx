@@ -96,7 +96,7 @@ export const StockItemsDetailsPage = ({
     <div className="w-full max-w-4xl mx-auto">
       <FormContext readonly={readonly} alwaysVisible>
         <div className="flex flex-row mt-4 mb-2 items-center space-x-2">
-          <SectionSmall className="grow m-0">Élément du stock</SectionSmall>
+          <SectionSmall className="grow m-0">Réception</SectionSmall>
           <TagsInput
             size="md"
             value={ctrl("tags").value}
@@ -121,11 +121,11 @@ export const StockItemsDetailsPage = ({
 
         <Card
           show={!ctrl("article").value}
-          title="Choisissez comment démarrer l'ajout au stock"
+          title="Choisissez comment démarrer la réception"
           wrapperClassName="mb-4"
           icon={(p) => <InformationCircleIcon {...p} />}
         >
-          Vous pouvez ajouter au stock à partir d'un article, d'un fournisseur,
+          Vous pouvez réceptionner un article unique, à partir d'un fournisseur,
           ou d'une commande.
         </Card>
 
@@ -294,20 +294,28 @@ export const StockItemsDetailsPage = ({
 
               <ArrowRightIcon className="h-5 w-5 shrink-0" />
 
-              <InvoiceRestDocument
-                label="Pour le devis"
-                placeholder="Sélectionner un devis"
-                filter={
-                  {
-                    type: "quotes",
-                    "articles.all": draft.article,
-                  } as Partial<Invoices>
-                }
-                icon={(p) => <DocumentIcon {...p} />}
-                size="xl"
-                value={ctrl("for_rel_quote").value}
-                onChange={ctrl("for_rel_quote").onChange}
-              />
+              <div className="flex flex-col items-center space-y-2 grow w-full">
+                <InvoiceRestDocument
+                  label="Pour le devis"
+                  placeholder="Sélectionner un devis"
+                  filter={
+                    {
+                      type: "quotes",
+                      "articles.all": draft.article,
+                    } as Partial<Invoices>
+                  }
+                  icon={(p) => <DocumentIcon {...p} />}
+                  size="xl"
+                  value={ctrl("for_rel_quote").value}
+                  onChange={ctrl("for_rel_quote").onChange}
+                />
+                <QuoteLineSelector
+                  quote={quote}
+                  article={article}
+                  onChange={ctrl("for_rel_quote_content_index").onChange}
+                  value={ctrl("for_rel_quote_content_index").value}
+                />
+              </div>
               <RestDocumentsInput
                 label="Chez le contact"
                 placeholder="Sélectionner un contact"
@@ -498,5 +506,46 @@ export const StockItemsDetailsPage = ({
         </div>
       </FormContext>
     </div>
+  );
+};
+
+export const QuoteLineSelector = ({
+  quote,
+  article,
+  value,
+  onChange,
+}: {
+  quote: Invoices | null;
+  article: Articles | null;
+  value: number;
+  onChange: (e: number) => void;
+}) => {
+  return (
+    <>
+      {!!article &&
+        !!quote &&
+        (quote?.content?.filter((a) => a.article === article?.id)?.length ||
+          0) > 1 && (
+          <FormInput
+            type="select"
+            value={(value || 0).toString()}
+            onChange={(e) => onChange(parseInt(e))}
+            options={(() => {
+              let counter = 1;
+              return (
+                quote?.content?.map((c, i) => {
+                  return {
+                    value: i.toString(),
+                    label:
+                      (c.type !== "separation" ? `${counter++} - ` : "") +
+                        c.name || "",
+                    disabled: c.article !== article.id,
+                  };
+                }) || []
+              );
+            })()}
+          />
+        )}
+    </>
   );
 };
