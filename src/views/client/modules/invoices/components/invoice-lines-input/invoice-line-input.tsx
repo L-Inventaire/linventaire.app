@@ -64,6 +64,7 @@ import { InvoiceDiscountInput } from "./components/discount-input";
 import { InvoiceLineArticleInput } from "./components/line-article";
 import { InvoiceLinePriceInput } from "./components/line-price";
 import { InvoiceLineQuantityInput } from "./components/line-quantity";
+import { EditorInput } from "@molecules/editor-input";
 
 export const InvoiceLineInput = (props: {
   invoice?: Invoices;
@@ -696,9 +697,10 @@ const HoverableArticle = ({
                 !readonly && "line-clamp-1"
               )}
             >
-              {getTextFromHtml(
-                value.description || article?.description || "-"
-              )}
+              <EditorInput
+                disabled
+                value={value.description || article?.description || "-"}
+              />
             </Text>
           </InputButton>
         </Link>
@@ -709,9 +711,9 @@ const HoverableArticle = ({
             <div className="p-4">
               <Heading size="2">{value.name}</Heading>
               <Text as="div" color="gray" size="2">
-                {getTextFromHtml(
-                  value.description || article?.description || "-"
-                )}
+                <EditorInput
+                  value={value.description || article?.description || "-"}
+                />
               </Text>
             </div>
             <Separator size="4" />
