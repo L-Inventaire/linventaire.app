@@ -12,7 +12,11 @@ import { getCostEstimate } from "@features/articles/utils";
 import { InvoiceLine, Invoices } from "@features/invoices/types/types";
 import { getRoute, ROUTES } from "@features/routes";
 import { tvaOptions } from "@features/utils/constants";
-import { formatAmount, formatQuantity } from "@features/utils/format/strings";
+import {
+  formatAmount,
+  formatQuantity,
+  getTextFromHtml,
+} from "@features/utils/format/strings";
 import { useEffectChange } from "@features/utils/hooks/use-changed-effect";
 import {
   CheckIcon,
@@ -693,10 +697,15 @@ const HoverableArticle = ({
                 !readonly && "line-clamp-1"
               )}
             >
-              <EditorInput
-                disabled
-                value={value.description || article?.description || "-"}
-              />
+              {getTextFromHtml(
+                value.description || article?.description || "-"
+              ).trim() && (
+                <EditorInput
+                  disabled
+                  placeholder=""
+                  value={value.description || article?.description || "-"}
+                />
+              )}
             </Text>
           </InputButton>
         </Link>
@@ -707,9 +716,14 @@ const HoverableArticle = ({
             <div className="p-4">
               <Heading size="2">{value.name}</Heading>
               <Text as="div" color="gray" size="2">
-                <EditorInput
-                  value={value.description || article?.description || "-"}
-                />
+                {getTextFromHtml(
+                  value.description || article?.description || "-"
+                ).trim() && (
+                  <EditorInput
+                    placeholder=""
+                    value={value.description || article?.description || "-"}
+                  />
+                )}
               </Text>
             </div>
             <Separator size="4" />
