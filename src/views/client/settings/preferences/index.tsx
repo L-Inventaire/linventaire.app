@@ -33,6 +33,7 @@ export const PreferencesPage = () => {
   const { ctrl: smtpCtrl } = useFormController(smtp, setSmtp);
 
   useEffect(() => {
+    console.log(client);
     setPreferences({ ...client?.preferences });
     setSmtp({ ...client?.smtp });
   }, [client]);
