@@ -12,11 +12,7 @@ import { getCostEstimate } from "@features/articles/utils";
 import { InvoiceLine, Invoices } from "@features/invoices/types/types";
 import { getRoute, ROUTES } from "@features/routes";
 import { tvaOptions } from "@features/utils/constants";
-import {
-  formatAmount,
-  formatQuantity,
-  getTextFromHtml,
-} from "@features/utils/format/strings";
+import { formatAmount, formatQuantity } from "@features/utils/format/strings";
 import { useEffectChange } from "@features/utils/hooks/use-changed-effect";
 import {
   CheckIcon,
@@ -34,6 +30,7 @@ import {
   EllipsisVerticalIcon,
   TrashIcon,
 } from "@heroicons/react/20/solid";
+import { EditorInput } from "@molecules/editor-input";
 import {
   Badge,
   Box,
@@ -64,7 +61,6 @@ import { InvoiceDiscountInput } from "./components/discount-input";
 import { InvoiceLineArticleInput } from "./components/line-article";
 import { InvoiceLinePriceInput } from "./components/line-price";
 import { InvoiceLineQuantityInput } from "./components/line-quantity";
-import { EditorInput } from "@molecules/editor-input";
 
 export const InvoiceLineInput = (props: {
   invoice?: Invoices;
