@@ -10,6 +10,7 @@ import _ from "lodash";
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ContactsDetailsPage } from "../components/contact-details";
+import { getUrlModel } from "@components/search-bar/utils/as-model";
 
 export const ContactsEditPage = (_props: { readonly?: boolean }) => {
   let { id } = useParamsOrContextId();
@@ -17,9 +18,7 @@ export const ContactsEditPage = (_props: { readonly?: boolean }) => {
   const navigate = useNavigate();
 
   const defaultModel = useRef(useContactDefaultModel()).current;
-  const initialModel = JSON.parse(
-    new URLSearchParams(window.location.search).get("model") || "{}"
-  ) as Contacts;
+  const initialModel = getUrlModel<Contacts>();
 
   const { isInitiating, save, draft, remove, restore, isPendingModification } =
     useDraftRest<Contacts>(

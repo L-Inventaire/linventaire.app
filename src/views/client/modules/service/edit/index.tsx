@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SpentTime } from "../components/inline-spent-time-input";
 import { ServiceItemsDetailsPage } from "../components/service-items-details";
+import { getUrlModel } from "@components/search-bar/utils/as-model";
 
 export const ServiceItemsEditPage = (_props: { readonly?: boolean }) => {
   const { refresh, loading } = useClients();
@@ -28,9 +29,7 @@ export const ServiceItemsEditPage = (_props: { readonly?: boolean }) => {
   const [spentTime, setSpentTime] = useState<SpentTime[]>([]);
 
   const defaultModel = useRef(useServiceItemDefaultModel()).current;
-  const initialModel = JSON.parse(
-    new URLSearchParams(window.location.search).get("model") || "{}"
-  ) as ServiceItems;
+  const initialModel = getUrlModel<ServiceItems>();
 
   const { create: saveSpentTime } = useRest<ServiceTimes>("service_times");
 

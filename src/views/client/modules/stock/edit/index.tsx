@@ -1,5 +1,6 @@
 import { PageLoader } from "@atoms/page-loader";
 import { DocumentBar } from "@components/document-bar";
+import { getUrlModel } from "@components/search-bar/utils/as-model";
 import { useClients } from "@features/clients/state/use-clients";
 import { useParamsOrContextId } from "@features/ctrlk";
 import { ROUTES, getRoute } from "@features/routes";
@@ -24,9 +25,7 @@ export const StockItemsEditPage = (_props: { readonly?: boolean }) => {
   const navigate = useNavigate();
 
   const defaultModel = useRef(useStockItemDefaultModel()).current;
-  const initialModel = JSON.parse(
-    new URLSearchParams(window.location.search).get("model") || "{}"
-  ) as StockItems;
+  const initialModel = getUrlModel<StockItems>();
 
   const { isInitiating, save, remove, restore, draft, isPendingModification } =
     useDraftRest<StockItems>(

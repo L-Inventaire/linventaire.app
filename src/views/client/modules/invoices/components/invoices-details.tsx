@@ -717,8 +717,19 @@ export const InvoicesDetailsPage = ({
                         isSupplierQuote) && (
                         <div className="mt-8">
                           <Section className="mb-2">Origine</Section>
+                          {ctrl("from_rel_quote")?.value?.length > 1 && (
+                            <Callout.Root className="mb-4">
+                              <Callout.Text>
+                                Ce document est lié à plusieurs devis ou
+                                commandes, l'origine ne peut pas être modifiée.
+                              </Callout.Text>
+                            </Callout.Root>
+                          )}
                           <InvoiceRestDocument
-                            disabled={readonly}
+                            disabled={
+                              readonly ||
+                              ctrl("from_rel_quote")?.value?.length > 1
+                            }
                             label="Devis d'origine"
                             placeholder="Aucun devis"
                             ctrl={ctrl("from_rel_quote")}

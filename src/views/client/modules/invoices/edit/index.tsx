@@ -13,6 +13,7 @@ import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { InvoiceActions } from "../components/invoice-actions";
 import { InvoicesDetailsPage } from "../components/invoices-details";
+import { getUrlModel } from "@components/search-bar/utils/as-model";
 
 export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
   const { refresh, loading } = useClients();
@@ -27,9 +28,7 @@ export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
   const isRevision = id?.includes("~");
 
   const defaultModel = useRef(useInvoiceDefaultModel()).current;
-  const initialModel = JSON.parse(
-    new URLSearchParams(window.location.search).get("model") || "{}"
-  ) as Invoices;
+  const initialModel = getUrlModel<Invoices>();
 
   const { isInitiating, save, draft, remove, restore, isPendingModification } =
     useDraftRest<Invoices>(

@@ -288,6 +288,7 @@ registerCtrlKRestEntity<Invoices>("invoices", {
               ? "invoices"
               : "supplier_invoices",
             state: "draft",
+            name: rows.map((a) => a.reference).join(", "),
             client_id: rows[0].client_id,
             content: [],
             from_rel_quote: rows.map((a) => a.id),
@@ -306,9 +307,9 @@ registerCtrlKRestEntity<Invoices>("invoices", {
             invoice.discount!.value +=
               partial.partial_invoice.discount?.value || 0;
           }
-          withModel<Invoices>(
-            getRoute(ROUTES.InvoicesGroup, {
-              ids: rows.map((a) => a.id).join(","),
+          document.location = withModel<Invoices>(
+            getRoute(ROUTES.InvoicesEdit, {
+              id: "new",
             }),
             invoice
           );

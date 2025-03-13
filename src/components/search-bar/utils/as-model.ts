@@ -71,15 +71,39 @@ export const withSearchAsModel = <T>(
     model = withSearchAsModelObj(schema, model, filters.fields);
   }
 
+  if (model) {
+    // _cache_model_id serve in case url is too long
+    (model as any)._cache_model_id = Date.now();
+    localStorage.setItem("url_model", JSON.stringify(model));
+  }
+
   return (
     parts[0] +
     "?" +
     (parts[1] ? parts[1] + "&" : "") +
-    "model=" +
+    "mid=" +
+    (model as any)?._cache_model_id +
+    "&model=" +
     encodeURIComponent(JSON.stringify(model))
   );
 };
 
 export const withModel = <T>(route: string, model?: Partial<T>) => {
   return withSearchAsModel(route, undefined, model);
+};
+
+export const getUrlModel = <T>() => {
+  const val = new URLSearchParams(window.location.search).get("model");
+  const mid = new URLSearchParams(window.location.search).get("mid");
+  if (!val) return {} as T;
+  try {
+    return JSON.parse(val || "{}") as T;
+  } catch (e) {
+    try {
+      // If we have a cache model, we can use it
+      const tmp = JSON.parse(localStorage.getItem("url_model") || "{}") as T;
+      if ((tmp as any)?._cache_model_id === mid) return tmp;
+    } catch (e) {}
+  }
+  return {} as T;
 };
