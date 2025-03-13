@@ -148,7 +148,7 @@ registerCtrlKRestEntity<ServiceItems>("service_items", {
         {
           label: "Facturer la sélection",
           icon: (p) => <DocumentCheckIcon {...p} />,
-          action: () => {
+          action: async () => {
             document.location = getRoute(ROUTES.InvoicesFromItems, {
               ids: rows.map((a) => a.id).join(","),
             });

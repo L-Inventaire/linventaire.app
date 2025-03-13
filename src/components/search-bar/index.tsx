@@ -65,6 +65,7 @@ export const SearchBar = ({
   debounce?: number;
   suggestions?: Suggestions;
   operationsItems?: number;
+  loading?: boolean;
   className?: string;
   inputClassName?: string;
   suffix?: JSX.Element;
@@ -198,6 +199,7 @@ export const SearchBar = ({
       className={twMerge(
         "grow relative w-full group rounded z-10 transition-all flex-col text-black dark:text-white",
         !inlineSuggestions && filtersEnabled && "focus-within:shadow-lg",
+        props.loading && "opacity-50 pointer-events-none",
         className
       )}
       style={{ maxHeight: "inherit" }}

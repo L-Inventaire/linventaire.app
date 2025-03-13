@@ -6,7 +6,11 @@ import {
   buildQueryFromMap,
   schemaToSearchFields,
 } from "@components/search-bar/utils/utils";
-import { CtrlKRestEntities, RootNavigationItems } from "@features/ctrlk";
+import {
+  CtrlkAction,
+  CtrlKRestEntities,
+  RootNavigationItems,
+} from "@features/ctrlk";
 import { CtrlKAtom } from "@features/ctrlk/store";
 import { getRoute } from "@features/routes";
 import { useNavigateAlt } from "@features/utils/navigate";
@@ -27,6 +31,7 @@ import {
   PlusIcon,
 } from "@heroicons/react/24/outline";
 import { Table } from "@molecules/table";
+import { useQueryClient } from "@tanstack/react-query";
 import _ from "lodash";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -36,6 +41,9 @@ import { filterSuggestions, useSearchableEntities } from "./search-utils";
 
 export const SearchCtrlK = ({ index }: { index: number }) => {
   const [states, setStates] = useRecoilState(CtrlKAtom);
+  const [actionLoading, setActionLoading] = useState(false);
+
+  const queryClient = useQueryClient();
 
   const state = states[index];
   const setState = (newState: any) => {
@@ -175,6 +183,7 @@ export const SearchCtrlK = ({ index }: { index: number }) => {
         shortcuts={["cmd+k"]}
         debounce={1}
         operationsItems={state.selection?.items?.length}
+        loading={actionLoading}
         suggestions={
           currentState.mode === "action"
             ? [
@@ -182,7 +191,7 @@ export const SearchCtrlK = ({ index }: { index: number }) => {
                   ? filterSuggestions(
                       query,
                       CtrlKRestEntities[state.selection.entity || ""]
-                        ?.actions?.(state.selection?.items)
+                        ?.actions?.(state.selection?.items, queryClient)
                         ?.map((a) => ({
                           ...a,
                           icon: a.icon
@@ -211,7 +220,17 @@ export const SearchCtrlK = ({ index }: { index: number }) => {
                               {a.label}
                             </div>
                           ),
-                          onClick: a.action,
+                          onClick: a.action
+                            ? async () => {
+                                setActionLoading(true);
+                                try {
+                                  await (a.action as CtrlkAction["action"])?.();
+                                } finally {
+                                  setActionLoading(false);
+                                  close();
+                                }
+                              }
+                            : undefined,
                         } as Suggestions[0])
                     )
                   : []),

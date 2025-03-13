@@ -10,6 +10,10 @@ import { SchemaType } from "../types/types";
 
 export const restApiClients: { [key: string]: RestApiClient<any> } = {};
 
+export const getRestApiClient = (table: string) => {
+  return restApiClients[table] || new RestApiClient(table);
+};
+
 export type RestSearchQueryOp = "equals" | "regex" | "gte" | "lte" | "range";
 
 export type RestSearchQuery = {

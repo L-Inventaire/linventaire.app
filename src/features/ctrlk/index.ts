@@ -5,6 +5,7 @@ import { Contacts } from "@features/contacts/types/types";
 import { Invoices } from "@features/invoices/types/types";
 import { Articles } from "@features/articles/types/types";
 import { useParams } from "react-router-dom";
+import { QueryClient } from "@tanstack/react-query";
 
 export let RootNavigationItems: CtrlKOptionsType[] = [];
 export const registerRootNavigation = (
@@ -38,7 +39,7 @@ type RestEntityForCtrlK<T> = {
   groupBy?: string;
   groupByRender?: (group: T) => ReactNode;
 
-  actions?: (rows: T[]) => CtrlkAction[];
+  actions?: (rows: T[], client: QueryClient) => CtrlkAction[];
 };
 
 export type CtrlkAction = {
@@ -46,6 +47,7 @@ export type CtrlkAction = {
   keywords?: string[];
   icon?: (p: any) => ReactNode;
   className?: string;
+  action: () => Promise<void>;
 };
 
 export let CtrlKRestEntities: {

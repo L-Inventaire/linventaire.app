@@ -11,6 +11,7 @@ import {
 import { getRoute, ROUTES } from "@features/routes";
 import { formatAmount } from "@features/utils/format/strings";
 import { RestFieldsNames } from "@features/utils/rest/configuration";
+import { getRestApiClient } from "@features/utils/rest/hooks/use-rest";
 import {
   ArchiveBoxArrowDownIcon,
   ArrowPathIcon,
@@ -36,6 +37,7 @@ import {
 import { InvoicesViewPage } from "@views/client/modules/invoices/view";
 import { format } from "date-fns";
 import _ from "lodash";
+import toast from "react-hot-toast";
 import { Invoices } from "./types/types";
 
 export const useInvoiceDefaultModel: () => Partial<Invoices> = () => {
@@ -265,7 +267,7 @@ registerCtrlKRestEntity<Invoices>("invoices", {
       <InvoiceStatus size="xs" readonly value={row.state} type={row.type} />
     </div>
   ),
-  actions: (rows) => {
+  actions: (rows, queryClient) => {
     const actions: CtrlkAction[] = [];
     if (
       rows.length > 1 && // At least 2 rows
@@ -288,8 +290,20 @@ registerCtrlKRestEntity<Invoices>("invoices", {
       actions.push({
         label: "Marquer comme accepté",
         icon: (p) => <CheckIcon {...p} />,
-        action: () => {
-          // TODO
+        action: async () => {
+          const table = "invoices";
+          const rest = getRestApiClient(table);
+          for (const row of rows) {
+            try {
+              await rest.update(row.client_id, {
+                id: row.id,
+                state: "purchase_order",
+              });
+            } catch (e) {
+              toast.error("Erreur lors de la mise à jour de la facture");
+            }
+          }
+          queryClient.invalidateQueries({ queryKey: [table] });
         },
       } as CtrlkAction);
     }
@@ -298,8 +312,17 @@ registerCtrlKRestEntity<Invoices>("invoices", {
       actions.push({
         label: "Supprimer",
         icon: (p) => <TrashIcon {...p} />,
-        action: () => {
-          // TODO
+        action: async () => {
+          const table = "invoices";
+          const rest = getRestApiClient(table);
+          for (const row of rows) {
+            try {
+              await rest.delete(row.client_id, row.id);
+            } catch (e) {
+              toast.error("Erreur lors de la mise à jour de la facture");
+            }
+          }
+          queryClient.invalidateQueries({ queryKey: [table] });
         },
       } as CtrlkAction);
     }
@@ -308,8 +331,17 @@ registerCtrlKRestEntity<Invoices>("invoices", {
       actions.push({
         label: "Restaurer",
         icon: (p) => <ArchiveBoxArrowDownIcon {...p} />,
-        action: () => {
-          // TODO
+        action: async () => {
+          const table = "invoices";
+          const rest = getRestApiClient(table);
+          for (const row of rows) {
+            try {
+              await rest.restore(row.client_id, row.id);
+            } catch (e) {
+              toast.error("Erreur lors de la mise à jour de la facture");
+            }
+          }
+          queryClient.invalidateQueries({ queryKey: [table] });
         },
       } as CtrlkAction);
     }

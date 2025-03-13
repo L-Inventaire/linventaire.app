@@ -9,7 +9,7 @@ import {
   ChevronUpIcon,
   CogIcon,
 } from "@heroicons/react/24/outline";
-import { ChevronDownIcon, Tooltip } from "@radix-ui/themes";
+import { ChevronDownIcon } from "@radix-ui/themes";
 import _ from "lodash";
 import { Fragment, ReactNode, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
