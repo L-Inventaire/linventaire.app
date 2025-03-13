@@ -55,6 +55,7 @@ export const SearchBar = ({
   afterSuggestions,
   onChangeDisplay,
   display,
+  ...props
 }: {
   schema: { table: string; fields: SearchField[] };
   value?: string;
@@ -63,6 +64,7 @@ export const SearchBar = ({
   onChangeDisplay?: (display: DisplayType) => void;
   debounce?: number;
   suggestions?: Suggestions;
+  operationsItems?: number;
   className?: string;
   inputClassName?: string;
   suffix?: JSX.Element;
@@ -426,6 +428,7 @@ export const SearchBar = ({
               autoHeightMax={"50vh"}
             >
               <SearchBarSuggestions
+                operationsItems={props.operationsItems}
                 suggestions={suggestions}
                 selected={selectionIndex}
                 afterOnClick={afterApplySelection}

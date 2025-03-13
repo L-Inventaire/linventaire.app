@@ -3,11 +3,21 @@ import { Base, BaseSmall, Info } from "@atoms/text";
 import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
 import { useCurrentClient } from "@features/clients/state/use-clients";
-import { ContextId, registerCtrlKRestEntity } from "@features/ctrlk";
+import {
+  ContextId,
+  CtrlkAction,
+  registerCtrlKRestEntity,
+} from "@features/ctrlk";
 import { getRoute, ROUTES } from "@features/routes";
 import { formatAmount } from "@features/utils/format/strings";
 import { RestFieldsNames } from "@features/utils/rest/configuration";
-import { ArrowPathIcon, RectangleStackIcon } from "@heroicons/react/16/solid";
+import {
+  ArchiveBoxArrowDownIcon,
+  ArrowPathIcon,
+  CheckIcon,
+  RectangleStackIcon,
+  TrashIcon,
+} from "@heroicons/react/16/solid";
 import { Column } from "@molecules/table/table";
 import { Badge } from "@radix-ui/themes";
 import { frequencyOptions } from "@views/client/modules/articles/components/article-details";
@@ -17,16 +27,16 @@ import { InvoiceRestDocument } from "@views/client/modules/invoices/components/i
 import { InvoiceStatus } from "@views/client/modules/invoices/components/invoice-status";
 import { InvoicesDetailsPage } from "@views/client/modules/invoices/components/invoices-details";
 import { TagPaymentCompletion } from "@views/client/modules/invoices/components/tag-payment-completion";
+import { InvoicesEditPage } from "@views/client/modules/invoices/edit";
 import {
   computePricesFromInvoice,
   isDeliveryLate,
   isPaymentLate,
 } from "@views/client/modules/invoices/utils";
+import { InvoicesViewPage } from "@views/client/modules/invoices/view";
 import { format } from "date-fns";
 import _ from "lodash";
 import { Invoices } from "./types/types";
-import { InvoicesEditPage } from "@views/client/modules/invoices/edit";
-import { InvoicesViewPage } from "@views/client/modules/invoices/view";
 
 export const useInvoiceDefaultModel: () => Partial<Invoices> = () => {
   const { client } = useCurrentClient();
@@ -256,24 +266,54 @@ registerCtrlKRestEntity<Invoices>("invoices", {
     </div>
   ),
   actions: (rows) => {
+    const actions: CtrlkAction[] = [];
     if (
       rows.length > 1 && // At least 2 rows
-      rows.every((a) => a.type === "quotes") && // All quotes
+      (rows.every((a) => a.type === "quotes") ||
+        rows.every((a) => a.type === "supplier_quotes")) && // All quotes
       _.uniqBy(rows, "client").length === 1 // All quotes have the same client
     ) {
-      return [
-        {
-          label: "Regrouper les devis",
-          icon: (p) => <RectangleStackIcon {...p} />,
-          action: () => {
-            document.location = getRoute(ROUTES.InvoicesGroup, {
-              ids: rows.map((a) => a.id).join(","),
-            });
-          },
+      actions.push({
+        label: "Créer une facture groupée",
+        icon: (p) => <RectangleStackIcon {...p} />,
+        action: () => {
+          document.location = getRoute(ROUTES.InvoicesGroup, {
+            ids: rows.map((a) => a.id).join(","),
+          });
         },
-      ];
+      } as CtrlkAction);
     }
-    return [];
+
+    if (rows.every((a) => a.state === "sent" && a.type === "quotes")) {
+      actions.push({
+        label: "Marquer comme accepté",
+        icon: (p) => <CheckIcon {...p} />,
+        action: () => {
+          // TODO
+        },
+      } as CtrlkAction);
+    }
+
+    if (rows.every((a) => !a.is_deleted)) {
+      actions.push({
+        label: "Supprimer",
+        icon: (p) => <TrashIcon {...p} />,
+        action: () => {
+          // TODO
+        },
+      } as CtrlkAction);
+    }
+
+    if (rows.every((a) => a.is_deleted)) {
+      actions.push({
+        label: "Restaurer",
+        icon: (p) => <ArchiveBoxArrowDownIcon {...p} />,
+        action: () => {
+          // TODO
+        },
+      } as CtrlkAction);
+    }
+    return [...actions];
   },
 });
 

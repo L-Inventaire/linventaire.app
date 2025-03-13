@@ -72,7 +72,7 @@ export const SearchCtrlK = ({ index }: { index: number }) => {
   const close = () => {
     setState({
       path: [],
-      selection: { entity: "", items: [] },
+      selection: state.selection,
     });
   };
 
@@ -174,6 +174,7 @@ export const SearchCtrlK = ({ index }: { index: number }) => {
         }
         shortcuts={["cmd+k"]}
         debounce={1}
+        operationsItems={state.selection?.items?.length}
         suggestions={
           currentState.mode === "action"
             ? [

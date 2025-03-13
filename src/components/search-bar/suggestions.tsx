@@ -22,6 +22,7 @@ import { DateTime } from "luxon";
 
 export const SearchBarSuggestions = ({
   suggestions,
+  operationsItems,
   selected,
   afterOnClick,
   caret,
@@ -31,6 +32,7 @@ export const SearchBarSuggestions = ({
   setValue,
 }: {
   suggestions: Suggestions;
+  operationsItems?: number;
   selected: number;
   afterOnClick: () => void;
   caret: CaretPositionType;
@@ -386,7 +388,12 @@ export const SearchBarSuggestions = ({
           ? ([
               {
                 type: "label",
-                label: <Info>Opérations</Info>,
+                label: (
+                  <Info>
+                    Opérations
+                    {!!operationsItems && ` sur ${operationsItems} élément(s)`}
+                  </Info>
+                ),
                 onClick: () => {},
               },
               ...operators.map((a, i) => ({

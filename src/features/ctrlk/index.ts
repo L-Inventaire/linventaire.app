@@ -38,12 +38,14 @@ type RestEntityForCtrlK<T> = {
   groupBy?: string;
   groupByRender?: (group: T) => ReactNode;
 
-  actions?: (rows: T[]) => {
-    label: string;
-    keywords?: string[];
-    icon?: (p: any) => ReactNode;
-    className?: string;
-  }[];
+  actions?: (rows: T[]) => CtrlkAction[];
+};
+
+export type CtrlkAction = {
+  label: string;
+  keywords?: string[];
+  icon?: (p: any) => ReactNode;
+  className?: string;
 };
 
 export let CtrlKRestEntities: {
