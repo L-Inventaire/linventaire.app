@@ -2,6 +2,7 @@ import { Tag } from "@atoms/badge/tag";
 import { Base, BaseSmall, Info } from "@atoms/text";
 import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
+import { withModel } from "@components/search-bar/utils/as-model";
 import { useCurrentClient } from "@features/clients/state/use-clients";
 import {
   ContextId,
@@ -38,6 +39,7 @@ import { InvoicesViewPage } from "@views/client/modules/invoices/view";
 import { format } from "date-fns";
 import _ from "lodash";
 import toast from "react-hot-toast";
+import { InvoicesApiClient } from "./api-client/invoices-api-client";
 import { Invoices } from "./types/types";
 
 export const useInvoiceDefaultModel: () => Partial<Invoices> = () => {
@@ -270,18 +272,46 @@ registerCtrlKRestEntity<Invoices>("invoices", {
   actions: (rows, queryClient) => {
     const actions: CtrlkAction[] = [];
     if (
-      rows.length > 1 && // At least 2 rows
-      (rows.every((a) => a.type === "quotes") ||
-        rows.every((a) => a.type === "supplier_quotes")) && // All quotes
-      _.uniqBy(rows, "client").length === 1 // All quotes have the same client
+      (rows.every((a) => a.type === "quotes") &&
+        _.uniqBy(rows, "client").length === 1) ||
+      (rows.every((a) => a.type === "supplier_quotes") &&
+        _.uniqBy(rows, "supplier").length === 1)
     ) {
       actions.push({
-        label: "Créer une facture groupée",
+        label: rows.length === 1 ? "Facturer" : "Créer une facture groupée",
         icon: (p) => <RectangleStackIcon {...p} />,
-        action: () => {
-          document.location = getRoute(ROUTES.InvoicesGroup, {
-            ids: rows.map((a) => a.id).join(","),
-          });
+        action: async () => {
+          const invoice: Partial<Invoices> = {
+            ...rows[0],
+            id: "",
+            type: rows.every((a) => a.type === "quotes")
+              ? "invoices"
+              : "supplier_invoices",
+            state: "draft",
+            client_id: rows[0].client_id,
+            content: [],
+            from_rel_quote: rows.map((a) => a.id),
+            emit_date: Date.now(),
+            discount: {
+              mode: "amount",
+              value: 0,
+            },
+            client: rows[0].client,
+            contact: rows[0].contact,
+            supplier: rows[0].supplier,
+          };
+          for (const row of rows) {
+            const partial = await InvoicesApiClient.getPartialInvoice(row);
+            invoice.content?.push(...(partial.partial_invoice.content || []));
+            invoice.discount!.value +=
+              partial.partial_invoice.discount?.value || 0;
+          }
+          withModel<Invoices>(
+            getRoute(ROUTES.InvoicesGroup, {
+              ids: rows.map((a) => a.id).join(","),
+            }),
+            invoice
+          );
         },
       } as CtrlkAction);
     }
@@ -345,6 +375,7 @@ registerCtrlKRestEntity<Invoices>("invoices", {
         },
       } as CtrlkAction);
     }
+
     return [...actions];
   },
 });
