@@ -627,17 +627,6 @@ export const InvoicesDetailsPage = ({
                     </Text>
                   )}
                   <InvoiceLinesInput value={draft} onChange={setDraft} />
-                  {getTextFromHtml(
-                    activeConfiguration?.format?.footer || ""
-                  ) && (
-                    <Text size="2" className="opacity-50 block mb-4">
-                      <EditorInput
-                        disabled
-                        value={activeConfiguration?.format?.footer}
-                        placeholder=""
-                      />
-                    </Text>
-                  )}
                   {billableContent.length > 0 && (
                     <>
                       {draft.type === "quotes" &&
