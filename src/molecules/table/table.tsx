@@ -364,6 +364,8 @@ export function RenderedTable<T>({
                             onClick={() => {
                               onSelectedActionsClick();
                             }}
+                            data-tooltip={"Actions groupées"}
+                            shortcut={["cmd+k"]}
                           >
                             <div className="flex items-center">
                               <span>Actions</span>{" "}

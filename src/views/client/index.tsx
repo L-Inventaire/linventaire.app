@@ -10,7 +10,10 @@ import {
 import { useCustomersConfiguration } from "@features/customers/configuration";
 import { ROUTES, getRoute, useRoutes } from "@features/routes";
 import { useTagConfiguration } from "@features/tags/configuration";
+import { useNavigationHistory } from "@features/utils/hooks/use-navigation-history";
+import { SetupFeaturebase } from "@views/featurebase";
 import { Modals } from "@views/modals";
+import { useEffect } from "react";
 import { Navigate, Outlet, Route, useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { twMerge } from "tailwind-merge";
@@ -19,6 +22,7 @@ import { Header, ResponsiveMenuAtom } from "./_layout/header";
 import { SecondSideBar } from "./_layout/second-sidebar";
 import { SideBar } from "./_layout/sidebar";
 import { AccountClientsPage } from "./account/clients";
+import { AccountNotificationsPage } from "./account/notifications";
 import { AccountPage } from "./account/profil";
 import { SecurityPage } from "./account/security";
 import { AccountingPage } from "./modules/accounting";
@@ -30,6 +34,7 @@ import { ArticlesViewPage } from "./modules/articles/view";
 import { ContactsPage } from "./modules/contacts";
 import { ContactsEditPage } from "./modules/contacts/edit";
 import { ContactsViewPage } from "./modules/contacts/view";
+import { CRMPage } from "./modules/crm";
 import { DashboardHomePage } from "./modules/dashboard";
 import { InvoicesPage } from "./modules/invoices";
 import { QuoteFromItems } from "./modules/invoices/create-from-items";
@@ -49,19 +54,13 @@ import { NoClientView } from "./no-client";
 import { BankAccountsPage } from "./settings/bank-accounts";
 import { CompanyPage } from "./settings/company";
 import { FieldsPage } from "./settings/fields";
+import { InvoicesSettingsPage } from "./settings/invoices";
 import { CompanyPlanPage } from "./settings/plan";
 import { PreferencesPage } from "./settings/preferences";
 import { StockLocationsPage } from "./settings/stock-locations";
 import { StockAndServicesPreferences } from "./settings/stock-services";
 import { TagsPage } from "./settings/tags";
 import { CompanyUsersPage } from "./settings/users";
-import { SetupFeaturebase } from "@views/featurebase";
-import { CRMPage } from "./modules/crm";
-import { GroupInvoices } from "./modules/invoices/group-items";
-import { InvoicesSettingsPage } from "./settings/invoices";
-import { useNavigationHistory } from "@features/utils/hooks/use-navigation-history";
-import { useEffect } from "react";
-import { AccountNotificationsPage } from "./account/notifications";
 
 export const BackOfficeRoutes = () => {
   return (
@@ -127,7 +126,6 @@ export const BackOfficeRoutes = () => {
         <Route path={ROUTES.InvoicesEdit} element={<InvoicesEditPage />} />
         <Route path={ROUTES.FurnishQuotes} element={<FurnishQuotesPage />} />
         <Route path={ROUTES.InvoicesFromItems} element={<QuoteFromItems />} />
-        <Route path={ROUTES.InvoicesGroup} element={<GroupInvoices />} />
 
         <Route
           path={ROUTES.Settings}

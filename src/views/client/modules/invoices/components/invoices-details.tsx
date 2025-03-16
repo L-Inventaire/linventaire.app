@@ -20,7 +20,11 @@ import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { InvoicesFieldsNames } from "@features/invoices/configuration";
 import { useInvoice, useInvoices } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
-import { getDocumentName, getInvoiceNextDate } from "@features/invoices/utils";
+import {
+  getDocumentName,
+  getInvoiceNextDate,
+  getInvoiceWithOverrides,
+} from "@features/invoices/utils";
 import { ROUTES } from "@features/routes";
 import { formatTime } from "@features/utils/format/dates";
 import { format as formatdfns } from "date-fns";
@@ -65,6 +69,7 @@ import { RelatedInvoices } from "./related-invoices";
 import { TagPaymentCompletion } from "./tag-payment-completion";
 import { format as formatfns } from "date-fns";
 import { Clients } from "@features/clients/types/clients";
+import { getTextFromHtml } from "@features/utils/format/strings";
 
 export const InvoicesDetailsPage = ({
   readonly,
@@ -195,6 +200,13 @@ export const InvoicesDetailsPage = ({
       }
     }
   }, [ctrl("client").value, JSON.stringify(contacts?.data?.list)]);
+
+  const activeConfiguration = getInvoiceWithOverrides(
+    draft,
+    ...([draft.client, draft.contact, clientUser?.client].filter(
+      (a) => a !== undefined && !!a
+    ) as any[])
+  );
 
   const format = getOptimalCounterFormat(
     client.invoices_counters,
@@ -603,6 +615,17 @@ export const InvoicesDetailsPage = ({
                       </div>
                     )}
                   </Section>
+                  {getTextFromHtml(
+                    activeConfiguration?.format?.heading || ""
+                  ) && (
+                    <Text size="2" className="opacity-50 block mb-4">
+                      <EditorInput
+                        disabled
+                        value={activeConfiguration?.format?.heading}
+                        placeholder=""
+                      />
+                    </Text>
+                  )}
                   <InvoiceLinesInput value={draft} onChange={setDraft} />
                   {billableContent.length > 0 && (
                     <>
@@ -655,8 +678,10 @@ export const InvoicesDetailsPage = ({
                       )}
 
                       <div className="mt-8">
-                        <Section className="mb-2">Autre</Section>
-                        <div className="m-grid-1">
+                        <Section className="mb-2">
+                          Format, paiement, et autre
+                        </Section>
+                        <div className="m-grid-1" id="format">
                           <InvoiceInputFormat
                             btnKey="invoice-format"
                             ctrl={ctrl("format")}
@@ -717,8 +742,19 @@ export const InvoicesDetailsPage = ({
                         isSupplierQuote) && (
                         <div className="mt-8">
                           <Section className="mb-2">Origine</Section>
+                          {ctrl("from_rel_quote")?.value?.length > 1 && (
+                            <Callout.Root className="mb-4">
+                              <Callout.Text>
+                                Ce document est lié à plusieurs devis ou
+                                commandes, l'origine ne peut pas être modifiée.
+                              </Callout.Text>
+                            </Callout.Root>
+                          )}
                           <InvoiceRestDocument
-                            disabled={readonly}
+                            disabled={
+                              readonly ||
+                              ctrl("from_rel_quote")?.value?.length > 1
+                            }
                             label="Devis d'origine"
                             placeholder="Aucun devis"
                             ctrl={ctrl("from_rel_quote")}

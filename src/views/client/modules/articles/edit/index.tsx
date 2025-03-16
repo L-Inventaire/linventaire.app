@@ -11,6 +11,7 @@ import { useRef } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { ArticlesDetailsPage } from "../components/article-details";
+import { getUrlModel } from "@components/search-bar/utils/as-model";
 
 export const ArticlesEditPage = (_props: { readonly?: boolean }) => {
   let { id } = useParamsOrContextId();
@@ -18,9 +19,7 @@ export const ArticlesEditPage = (_props: { readonly?: boolean }) => {
   const navigate = useNavigate();
 
   const defaultModel = useRef(useArticleDefaultModel()).current;
-  const initialModel = JSON.parse(
-    new URLSearchParams(window.location.search).get("model") || "{}"
-  ) as Articles;
+  const initialModel = getUrlModel<Articles>();
 
   const {
     draft: article,

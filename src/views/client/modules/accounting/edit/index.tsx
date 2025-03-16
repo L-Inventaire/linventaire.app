@@ -11,6 +11,7 @@ import _ from "lodash";
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { AccountingTransactionsDetailsPage } from "../components/accounting-transactions-details";
+import { getUrlModel } from "@components/search-bar/utils/as-model";
 
 export const AccountingTransactionsEditPage = (_props: {
   readonly?: boolean;
@@ -26,9 +27,7 @@ export const AccountingTransactionsEditPage = (_props: {
   const navigate = useNavigate();
 
   const defaultModel = useRef(useAccountingTransactionDefaultModel()).current;
-  const initialModel = JSON.parse(
-    new URLSearchParams(window.location.search).get("model") || "{}"
-  ) as AccountingTransactions;
+  const initialModel = getUrlModel<AccountingTransactions>();
 
   const { isInitiating, save, draft, restore, remove, isPendingModification } =
     useDraftRest<AccountingTransactions>(

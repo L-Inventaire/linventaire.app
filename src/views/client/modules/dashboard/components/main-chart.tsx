@@ -19,7 +19,7 @@ const processData = (data: Dashboard["all"]) => {
     [month: string]: Processed;
   } = {};
 
-  data.forEach(({ type, state, month, amount_ht }) => {
+  data.forEach(({ type, state, month, amount: _amount }) => {
     if (state === "draft") return;
 
     month = month.split("-")[1];
@@ -28,7 +28,7 @@ const processData = (data: Dashboard["all"]) => {
       monthlyData[month] = { gains: 0, charges: 0, revenue: 0, month };
     }
 
-    const amount = parseFloat(amount_ht);
+    const amount = parseFloat(_amount);
 
     if (type === "invoices") monthlyData[month].gains += amount;
     if (type === "credit_notes") monthlyData[month].gains -= amount;
