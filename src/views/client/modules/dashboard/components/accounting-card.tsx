@@ -18,7 +18,7 @@ const AccountingCard = ({ year, ...props }: AccountingCardProps) => {
   const reducer = (list: Dashboard["all"], type: string, states: string[]) =>
     (list || [])
       .filter((a) => a.type === type && states.includes(a.state))
-      .reduce((acc, item) => acc + (parseFloat(item.amount) ?? 0), 0);
+      .reduce((acc, item) => acc + (parseFloat(item.amount_ht) ?? 0), 0);
 
   const prorataOfYear =
     year === new Date().getFullYear()
