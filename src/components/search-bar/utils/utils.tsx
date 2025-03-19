@@ -61,6 +61,7 @@ export const extractFilters = (str: string): MatchedStringFilter[] => {
       return {
         key: "",
         not: false,
+        empty: false,
         regex: false,
         raw: filter,
         values: [],
@@ -73,12 +74,15 @@ export const extractFilters = (str: string): MatchedStringFilter[] => {
     return {
       key: key.replace(/^!/, "").replace(".", "_").replace(/[[\]]/g, "_"),
       not: key.startsWith("!"),
+      empty:
+        values.length === 1 &&
+        values[0].replace(/^~?"(.*?)("|$)$/g, "$1") === "",
       regex: (parts[3] || "").startsWith("~"),
       raw: filter,
       values_raw: parts[3] || "",
       values: values
         .map((value) => value.replace(/^~?"(.*?)("|$)$/g, "$1"))
-        .filter(Boolean),
+        .filter((a) => Boolean(a) || values.length === 1),
       values_raw_array: [
         ...values,
         ...((parts[3] || "").match(/,$/) ? [""] : []),
@@ -114,6 +118,7 @@ export const generateQuery = (
         return {
           key: field?.key || a.key,
           not: a.not,
+          empty: a.empty,
           regex: a.regex,
           values: a.values.map((value) => {
             value =

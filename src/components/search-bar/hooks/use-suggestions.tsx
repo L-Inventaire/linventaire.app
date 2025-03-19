@@ -432,6 +432,27 @@ export const useSuggestions = (
               },
             ] as Suggestions)
           : []),
+        ...(field?.type === "text" || field?.type?.includes("type:")
+          ? ([
+              {
+                type: "operator",
+                value: "empty",
+                onClick: () => {
+                  const status = getCaretPosition();
+                  replaceAtCursor(
+                    status.text.current.replace(/:.*$/, ':""') + " ",
+                    0
+                  );
+                },
+                render: (
+                  <span>
+                    <Info className="inline-block w-4 text-center mr-2">∅</Info>
+                    Valeur vide
+                  </span>
+                ),
+              },
+            ] as Suggestions)
+          : []),
         ...(field?.type === "text"
           ? ([
               {
