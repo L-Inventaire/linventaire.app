@@ -370,7 +370,7 @@ export const InvoicesDetailsPage = ({
                   {(draft.type === "invoices" ||
                     draft.type === "credit_notes") &&
                     draft.state === "draft" &&
-                    ctrl("reference_preferred_value")?.value && (
+                    !!ctrl("reference_preferred_value")?.value && (
                       <ReferencePreferenceEditor
                         client={client}
                         draft={draft}
