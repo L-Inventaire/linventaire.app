@@ -111,12 +111,14 @@ export const StockPage = () => {
               values: [
                 ...a.values.map((a) => ({
                   ...a,
-                  value: a.value + ".*",
+                  value: a.value ? a.value + ".*" : a.value,
                 })),
-                ...a.values.map((a) => ({
-                  ...a,
-                  value: a.value.split("").reverse().join("") + ".*",
-                })),
+                ...a.values
+                  .filter((a) => a.value)
+                  .map((a) => ({
+                    ...a,
+                    value: a.value.split("").reverse().join("") + ".*",
+                  })),
               ],
             }
           : a
