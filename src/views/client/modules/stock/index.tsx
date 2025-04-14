@@ -109,10 +109,10 @@ export const StockPage = () => {
           ? {
               ...a,
               values: [
-                ...a.values,
+                ...a.values.map((a) => a + ".*"),
                 ...a.values.map((a) => ({
                   ...a,
-                  value: a.value.split("").reverse().join(""),
+                  value: a.value.split("").reverse().join("") + ".*",
                 })),
               ],
             }
