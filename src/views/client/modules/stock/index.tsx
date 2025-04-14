@@ -1,14 +1,17 @@
 import { Button } from "@atoms/button/button";
 import { Info } from "@atoms/text";
 import { RestTable } from "@components/table-rest";
+import { useHasAccess } from "@features/access";
 import { ROUTES, getRoute } from "@features/routes";
 import { StockItemsColumns } from "@features/stock/configuration";
 import { useStockItems } from "@features/stock/hooks/use-stock-items";
 import { StockItems } from "@features/stock/types/types";
 import { formatNumber } from "@features/utils/format/strings";
+import { useRouterState } from "@features/utils/hooks/use-router-state";
 import { useNavigateAlt } from "@features/utils/navigate";
 import {
   RestOptions,
+  RestSearchQuery,
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
 import { PlusIcon } from "@heroicons/react/16/solid";
@@ -21,8 +24,6 @@ import {
   schemaToSearchFields,
 } from "../../../../components/search-bar/utils/utils";
 import { StockItemStatus } from "./components/stock-item-status";
-import { useHasAccess } from "@features/access";
-import { useRouterState } from "@features/utils/hooks/use-router-state";
 
 export const StockPage = () => {
   const tabs = {
@@ -102,7 +103,21 @@ export const StockPage = () => {
   const { stock_items } = useStockItems({
     ...options,
     query: [
-      ...((options?.query as any) || []),
+      ...((options?.query as any) || []).map((a: RestSearchQuery) =>
+        // This enable suffix search mode (search by end of string) as backend will index reverted references values as well
+        a.key === "query"
+          ? {
+              ...a,
+              values: [
+                ...a.values,
+                ...a.values.map((a) => ({
+                  ...a,
+                  value: a.value.split("").reverse().join(""),
+                })),
+              ],
+            }
+          : a
+      ),
       ...(tabs as any)[activeTab].filter,
     ],
     key: "main",
