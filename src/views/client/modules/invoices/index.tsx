@@ -220,6 +220,8 @@ const InvoicesPageContent = () => {
     "total.total": "(total->>'total')::numeric",
   };
 
+  console.log(schema.isPending, schema.data);
+
   return (
     <Page
       title={[{ label: getDocumentNamePlurial(type[0]) }]}
@@ -229,6 +231,7 @@ const InvoicesPageContent = () => {
             table: "invoices",
             fields: schemaToSearchFields(schema.data, InvoicesFieldsNames()),
           }}
+          loading={schema.isPending}
           display={{
             orderBy: (options.index || "")
               .split(",")

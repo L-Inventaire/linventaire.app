@@ -44,6 +44,7 @@ export const ArticlesPage = () => {
             table: "articles",
             fields: schemaToSearchFields(schema.data, ArticlesFieldsNames()),
           }}
+          loading={schema.isPending}
           onChange={(q) => {
             if (q.valid) {
               setOptions({ ...options, query: q.fields });

@@ -142,6 +142,7 @@ export const SearchCtrlK = ({ index }: { index: number }) => {
               }
             : { table: "ctrl+k", fields: [] }
         }
+        loading={schema.isPending || actionLoading}
         value={query}
         onChange={(obj, q) => {
           if (currentState.mode === "action") setQuery(q); // Make sure the default query is set
@@ -183,7 +184,6 @@ export const SearchCtrlK = ({ index }: { index: number }) => {
         shortcuts={["cmd+k"]}
         debounce={1}
         operationsItems={state.selection?.items?.length}
-        loading={actionLoading}
         suggestions={
           currentState.mode === "action"
             ? [

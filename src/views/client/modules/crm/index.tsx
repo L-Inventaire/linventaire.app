@@ -37,6 +37,7 @@ export const CRMPage = () => {
             table: "crm_items",
             fields: schemaToSearchFields(schema.data, {}),
           }}
+          loading={schema.isPending}
           onChange={(q) =>
             q.valid && setOptions({ ...options, query: q.fields })
           }

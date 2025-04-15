@@ -93,7 +93,7 @@ export const SearchBar = ({
   });
   const fields = schema.fields.filter((a) => a.label);
 
-  const [valueLocked, setValueLocked] = useState(false);
+  const [valueLocked, setValueLocked] = useState(props.loading);
   const [value, setValue] = useState("");
   const rendererRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -125,8 +125,17 @@ export const SearchBar = ({
   useEffect(() => {
     // Set the values from the url when we can
     const val = getFromUrl(schema.fields);
-    if (urlSync !== false && val) {
-      const ready = !loadingCustomFields;
+    console.log(
+      "useEffect in",
+      loadingCustomFields,
+      props.loading,
+      urlSync,
+      val,
+      schema.fields
+    );
+    if (urlSync !== false && (val || (!val && valueLocked))) {
+      console.log("useEffect in", loadingCustomFields, props.loading);
+      const ready = !loadingCustomFields && props.loading !== true;
       if (!ready) {
         setValueLocked(true);
       } else {
@@ -134,11 +143,11 @@ export const SearchBar = ({
         if (val !== value) setValue(val);
       }
     }
-  }, [search, loadingCustomFields]);
+  }, [search, loadingCustomFields, props.loading]);
 
   // When value change, set it to url querystring ?q=
   useEffect(() => {
-    if (!loadingCustomFields) {
+    if (!loadingCustomFields && !props.loading) {
       if (urlSync !== false && !valueLocked) {
         const url = new URL(window.location.href);
         setToUrl(url, value, schema.fields);

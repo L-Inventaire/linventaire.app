@@ -45,6 +45,7 @@ export const AccountingPage = () => {
             table: "accounting_transactions",
             fields: schemaToSearchFields(schema.data, {}),
           }}
+          loading={schema.isPending}
           onChange={(q) =>
             q.valid && setOptions({ ...options, query: q.fields })
           }

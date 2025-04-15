@@ -50,6 +50,7 @@ export const ContactsPage = () => {
             table: "contacts",
             fields: schemaToSearchFields(schema.data, ContactsFieldsNames()),
           }}
+          loading={schema.isPending}
           onChange={(q) => {
             if (q.valid) {
               setOptions({ ...options, query: q.fields });

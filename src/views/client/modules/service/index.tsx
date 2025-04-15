@@ -111,6 +111,7 @@ export const ServicePage = () => {
             table: "service_items",
             fields: schemaToSearchFields(schema.data, {}),
           }}
+          loading={schema.isPending}
           onChange={(q) => {
             if (q.valid) {
               setOptions({ ...options, query: q.fields });

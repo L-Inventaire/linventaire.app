@@ -143,6 +143,7 @@ export const StockPage = () => {
             table: "stock_items",
             fields: schemaToSearchFields(schema.data, {}),
           }}
+          loading={schema.isPending}
           onChange={(q) => {
             if (q.valid) {
               setOptions({ ...options, query: q.fields });
