@@ -3,7 +3,6 @@ import { UsersInput } from "@components/input-rest/users";
 import { generateQueryFromMap } from "@components/search-bar/utils/utils";
 import { useContacts } from "@features/contacts/hooks/use-contacts";
 import { CRMItem } from "@features/crm/types/types";
-import { EditorInput } from "@molecules/editor-input";
 import { Card, Heading, Text } from "@radix-ui/themes";
 import _ from "lodash";
 import { useDrag, useDragLayer } from "react-dnd";
@@ -11,6 +10,13 @@ import { useSetRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
 import { prettyContactName } from "../../contacts/utils";
 import { CRMItemModalAtom } from "./crm-items-modal";
+import DOMPurify from "dompurify";
+
+const cleanHTML = (notes: string) =>
+  DOMPurify.sanitize(notes || "", {
+    ALLOWED_TAGS: ["b", "i", "u", "em", "strong", "p", "br", "ul", "ol", "li"], // à ajuster selon besoin
+    ALLOWED_ATTR: [], // aucune attribut autorisé
+  });
 
 type CRMCardProps = {
   title?: string;
@@ -60,7 +66,12 @@ export const CRMCard = ({ crmItem, readonly, ...props }: CRMCardProps) => {
       }}
     >
       <Heading size="4">
-        <EditorInput value={crmItem.notes} disabled={true} />
+        <div className="relative editor-input">
+          <div
+            className={twMerge("ql-editor is-disabled")}
+            dangerouslySetInnerHTML={{ __html: cleanHTML(crmItem.notes) || "" }}
+          ></div>
+        </div>
       </Heading>
       <Text size="2">
         {(crmItem.contacts ?? [])

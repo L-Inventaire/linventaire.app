@@ -84,7 +84,7 @@ export const CRMItemsModalContent = () => {
               value: "proposal",
             },
             {
-              label: "Gagné",
+              label: "Terminé",
               value: "won",
             },
           ]}

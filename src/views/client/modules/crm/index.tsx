@@ -3,6 +3,7 @@ import { useCRMItems } from "@features/crm/state/use-crm";
 import { CRMItem } from "@features/crm/types/types";
 import {
   RestOptions,
+  RestSearchQuery,
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
 import { Page } from "@views/client/_layout/page";
@@ -21,7 +22,7 @@ export const CRMPage = () => {
   });
   const { crm_items: crm_items_raw, update } = useCRMItems({
     ...options,
-    query: options.query,
+    query: [...(options.query as RestSearchQuery[])],
   });
 
   const schema = useRestSchema("crm");
@@ -79,7 +80,7 @@ export const CRMPage = () => {
           <CRMColumn
             type="won"
             items={crm_items.filter((item) => item.state === "won")}
-            title="Gagné"
+            title="Terminé"
             onMove={(item) => {
               update.mutate({ id: item.id, state: "won" });
             }}
