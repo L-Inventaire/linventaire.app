@@ -122,7 +122,7 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
                       getRoute(ROUTES.InvoicesEdit, { id: "new" }),
                       {
                         ...invoice,
-                        from_rel_quote: [invoice.from_rel_quote],
+                        from_rel_quote: invoice.from_rel_quote,
                         from_rel_invoice: [invoice.id],
                         type: "credit_notes",
                         state: "draft",

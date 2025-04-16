@@ -40,7 +40,7 @@ export const RelatedInvoices = ({
         type: isSupplierRelated
           ? ["supplier_invoices", "supplier_credit_notes"]
           : ["invoices", "credit_notes"],
-        from_rel_quote: [isQuoteRelated ? invoice.id : invoice.from_rel_quote],
+        from_rel_quote: isQuoteRelated ? [invoice.id] : invoice.from_rel_quote,
       }),
       { key: "id", not: true, values: [{ op: "equals", value: invoice.id }] },
     ],
@@ -55,7 +55,7 @@ export const RelatedInvoices = ({
     query: [
       ...generateQueryFromMap({
         type: "supplier_quotes",
-        from_rel_quote: [isQuoteRelated ? invoice.id : invoice.from_rel_quote],
+        from_rel_quote: isQuoteRelated ? [invoice.id] : invoice.from_rel_quote,
       }),
       { key: "id", not: true, values: [{ op: "equals", value: invoice.id }] },
     ],
