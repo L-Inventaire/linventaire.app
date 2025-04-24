@@ -3,6 +3,7 @@ import { Text } from "@radix-ui/themes";
 import _ from "lodash";
 import React from "react";
 import { twMerge } from "tailwind-merge";
+import { motion } from "framer-motion";
 
 type DashboardCardProps = {
   title?: string;
@@ -16,12 +17,14 @@ const DashboardCard = ({
   ...props
 }: DashboardCardProps) => {
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0 }}
       className={twMerge(
         "min-w-28 min-h-32 bg-slate-25 dark:bg-slate-800 rounded-md p-3 px-4",
         props.className
       )}
-      {..._.omit(props, "className")}
     >
       {(title || icon) && (
         <Text size="4" className="flex w-full justify-between items-center">
@@ -34,7 +37,7 @@ const DashboardCard = ({
       )}
 
       {children}
-    </div>
+    </motion.div>
   );
 };
 

@@ -22,6 +22,7 @@ type PropsType = {
   loading?: boolean;
   onChangePage?: (page: number) => void;
   onChangePageSize?: (size: number) => void;
+  onExport?: () => void;
 };
 
 export function TablePaginationSimple({
@@ -48,7 +49,7 @@ export function TablePaginationSimple({
                 onClick={() =>
                   onChangePage && onChangePage(pagination.page + 1)
                 }
-                className="!px-1.5 rounded-l-none shrink-0"
+                className="rounded-l-none shrink-0"
               >
                 {t("general.tables.more")}
               </Button>
@@ -74,6 +75,7 @@ export function TablePagination({
   pagination,
   onChangePage,
   onChangePageSize,
+  onExport,
 }: PropsType) {
   const offset = pagination.perPage * (pagination.page - 1);
   return (
@@ -86,6 +88,7 @@ export function TablePagination({
             {formatNumber(pagination.total)}
           </Info>
         </div>
+
         <div className="items-center flex flex-row space-x-2">
           {!!onChangePageSize && (
             <>
@@ -113,7 +116,7 @@ export function TablePagination({
                 size="sm"
                 disabled={loading || pagination.page === 1}
                 onClick={() => onChangePage && onChangePage(1)}
-                className="!px-1.5 -mr-px ml-4 rounded-r-none shrink-0"
+                className="-mr-px rounded-r-none shrink-0"
                 icon={(p) => <ChevronDoubleLeftIcon {...p} />}
               />
               <Button
@@ -123,7 +126,7 @@ export function TablePagination({
                 onClick={() =>
                   onChangePage && onChangePage(pagination.page - 1)
                 }
-                className="!px-1.5 -mr-px rounded-none shrink-0"
+                className="-mr-px rounded-none shrink-0"
                 icon={(p) => <ChevronLeftIcon {...p} />}
               />
               <Button
@@ -145,7 +148,7 @@ export function TablePagination({
                 onClick={() =>
                   onChangePage && onChangePage(pagination.page + 1)
                 }
-                className="!px-1.5 -mr-px rounded-none shrink-0"
+                className="-mr-px rounded-none shrink-0"
                 icon={(p) => <ChevronRightIcon {...p} />}
               />
               <Button
@@ -160,10 +163,20 @@ export function TablePagination({
                   onChangePage &&
                   onChangePage(Math.ceil(pagination.total / pagination.perPage))
                 }
-                className="!px-1.5 rounded-l-none shrink-0"
+                className="rounded-l-none shrink-0"
                 icon={(p) => <ChevronDoubleRightIcon {...p} />}
               />
             </div>
+          )}
+          {!!onExport && (
+            <Button
+              theme="default"
+              size="sm"
+              onClick={() => onExport()}
+              className="shrink-0"
+            >
+              Exporter
+            </Button>
           )}
         </div>
       </div>

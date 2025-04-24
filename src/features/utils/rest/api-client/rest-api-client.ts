@@ -110,6 +110,8 @@ export class RestApiClient<T> {
     clientId: string,
     query?: Partial<T> | any,
     options?: {
+      deleted?: boolean;
+      index?: string;
       limit?: number;
       offset?: number;
       asc?: boolean;

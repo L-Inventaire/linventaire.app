@@ -10,6 +10,7 @@ import React, { ReactNode, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
+import { motion } from "framer-motion";
 
 export const Page = (
   props: {
@@ -160,8 +161,13 @@ export const PageBlock = (props: {
 
 export const PageColumns = (props: { children: ReactNode }) => {
   return (
-    <div className="flex flex-col sm:space-y-3 lg:flex-row lg:space-x-2 lg:space-y-0 w-full">
+    <motion.div
+      className="flex flex-col sm:space-y-3 lg:flex-row lg:space-x-2 lg:space-y-0 w-full"
+      exit={{ opacity: 0 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+    >
       {props.children}
-    </div>
+    </motion.div>
   );
 };

@@ -2,16 +2,20 @@ import { Button } from "@atoms/button/button";
 import { Info } from "@atoms/text";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { RestTable } from "@components/table-rest";
+import { useHasAccess } from "@features/access";
 import {
   ArticlesColumns,
   ArticlesFieldsNames,
 } from "@features/articles/configuration";
 import { useArticles } from "@features/articles/hooks/use-articles";
 import { Articles } from "@features/articles/types/types";
-import { ROUTES, getRoute } from "@features/routes";
+import { getRoute, ROUTES } from "@features/routes";
+import { formatNumber } from "@features/utils/format/strings";
 import { useNavigateAlt } from "@features/utils/navigate";
 import {
+  getRestApiClient,
   RestOptions,
+  useRestExporter,
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
 import { PlusIcon } from "@heroicons/react/20/solid";
@@ -19,8 +23,7 @@ import { Page } from "@views/client/_layout/page";
 import { useRef, useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
-import { formatNumber } from "@features/utils/format/strings";
-import { useHasAccess } from "@features/access";
+import { useCurrentClient } from "@features/clients/state/use-clients";
 
 export const ArticlesPage = () => {
   const [options, setOptions] = useState<RestOptions<Articles>>({
@@ -32,6 +35,7 @@ export const ArticlesPage = () => {
   const schema = useRestSchema("articles");
   const navigate = useNavigateAlt();
   const hasAccess = useHasAccess();
+  const exporter = useRestExporter("articles");
 
   const resetToFirstPage = useRef<() => void>(() => {});
 
@@ -100,6 +104,7 @@ export const ArticlesPage = () => {
             });
           }}
           columns={ArticlesColumns}
+          onFetchExportData={exporter(options)}
         />
       </div>
     </Page>

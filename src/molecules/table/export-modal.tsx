@@ -4,20 +4,26 @@ import Select from "@atoms/input/input-select";
 import { ModalContent } from "@atoms/modal/modal";
 import _ from "lodash";
 import { useState } from "react";
+import * as XLSX from "xlsx";
 import { Pagination } from "./table";
+import { Badge } from "@radix-ui/themes";
 
 export const TableExportModal = (props: {
   tableName?: string;
   pagination?: Pagination;
-  fetchData: (pagination: Pagination) => Promise<any[]>;
+  fetchData: (
+    pagination: Pick<Pagination, "page" | "perPage">
+  ) => Promise<any[]>;
   onClose: () => void;
 }) => {
   const [exportType, setExportType] = useState("csv");
   const [maxSize, setMaxSize] = useState("100");
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const exportData = async () => {
     setLoading(true);
+    setProgress(0);
 
     const fileName =
       "export-" +
@@ -30,24 +36,27 @@ export const TableExportModal = (props: {
     let previousSize = -1;
     while (previousSize !== data.length && data.length < maxItems) {
       const res = await props.fetchData({
-        ...(props.pagination || {
-          page: 1,
-          perPage: 25,
-          orderBy: "id" as any,
-          orderDir: "ASC",
-          total: data.length,
-        }),
+        perPage: 500,
         page: page || 1,
       });
       previousSize = data.length;
       data = [...data, ...res];
       data = _.uniqBy(data, "id");
       page += 1;
+      setProgress(Math.round((data.length / maxItems) * 100));
     }
+    setProgress(100);
 
     data = data.slice(0, maxItems);
 
-    if (exportType === "csv" && data.length > 0) {
+    if (exportType === "xlsx") {
+      const worksheet = XLSX.utils.json_to_sheet(data);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, fileName);
+      XLSX.writeFile(workbook, `${fileName}.xlsx`, {
+        compression: true,
+      });
+    } else if (exportType === "csv") {
       const header = Object.keys(data[0]).join(",");
       const csv = data.map((row) => {
         return Object.values(row)
@@ -73,6 +82,10 @@ export const TableExportModal = (props: {
 
   return (
     <ModalContent title="Export">
+      <Badge color="yellow" className="mb-4">
+        This feature is still in beta.
+      </Badge>
+
       <InputLabel
         className="mb-4"
         label="Maximum size"
@@ -98,16 +111,19 @@ export const TableExportModal = (props: {
             disabled={loading}
           >
             <option value="csv">CSV</option>
+            <option value="xlsx">Excel</option>
           </Select>
         }
       />
       <Button
         theme="primary"
         className="w-full mt-2"
-        loading={loading}
-        onClick={() => exportData()}
+        disabled={loading}
+        onClick={() => {
+          exportData();
+        }}
       >
-        Export
+        {loading ? progress + "%" : "Export"}
       </Button>
     </ModalContent>
   );

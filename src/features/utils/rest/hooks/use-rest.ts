@@ -1,5 +1,6 @@
 import { useCurrentClient } from "@features/clients/state/use-clients";
 import { LoadingState } from "@features/utils/store/loading-state-atom";
+import { Pagination } from "@molecules/table/table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import _, { isArray } from "lodash";
 import { useEffect, useState } from "react";
@@ -264,4 +265,20 @@ export const useRestSchema = (table: string) => {
     queryFn: () => restApiClients[table].schema(id || "") || {},
     placeholderData: (prev) => prev,
   });
+};
+
+export const useRestExporter = <T>(table: string) => {
+  const { client } = useCurrentClient();
+  return (options: RestOptions<T>) =>
+    async (pagination: Pick<Pagination, "page" | "perPage">) => {
+      return (
+        await getRestApiClient(table).list(client?.id || "", options.query, {
+          deleted: options.deleted,
+          index: options.index,
+          asc: options.asc,
+          limit: pagination.perPage,
+          offset: (pagination.page - 1) * pagination.perPage,
+        })
+      ).list;
+    };
 };

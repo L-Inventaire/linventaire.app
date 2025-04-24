@@ -4,11 +4,7 @@ import { DelayedLoader } from "@atoms/loader";
 import { Modal } from "@atoms/modal/modal";
 import { BaseSmall, Info } from "@atoms/text";
 import { useShortcuts } from "@features/utils/shortcuts";
-import {
-  ArrowDownTrayIcon,
-  ChevronUpIcon,
-  CogIcon,
-} from "@heroicons/react/24/outline";
+import { ChevronUpIcon, CogIcon } from "@heroicons/react/24/outline";
 import { ChevronDownIcon } from "@radix-ui/themes";
 import _ from "lodash";
 import { Fragment, ReactNode, useEffect, useRef, useState } from "react";
@@ -78,7 +74,9 @@ type PropsType<T> = {
   onChangeOrder?: (orderBy: string, direction: "ASC" | "DESC") => void;
   onChangePage?: (page: number) => void;
   onChangePageSize?: (size: number) => void;
-  onFetchExportData?: (pagination: Pagination) => Promise<T[]>;
+  onFetchExportData?: (
+    pagination: Pick<Pagination, "page" | "perPage">
+  ) => Promise<T[]>;
 };
 
 export const defaultCellClassName = ({
@@ -277,9 +275,7 @@ export function RenderedTable<T>({
       <Modal open={exportModal} onClose={() => setExportModal(false)}>
         <TableExportModal
           tableName={name}
-          fetchData={async (pagination: Pagination) =>
-            await onFetchExportData!(pagination)
-          }
+          fetchData={async (pagination) => await onFetchExportData!(pagination)}
           pagination={pagination}
           onClose={() => setExportModal(false)}
         />
@@ -300,20 +296,6 @@ export function RenderedTable<T>({
         {loading && (
           <div className="absolute m-auto left-0 top-0 right-0 bottom-0 w-6 h-6 text-center z-10">
             <DelayedLoader color="text-slate-500" />
-          </div>
-        )}
-
-        {onFetchExportData && (
-          <div className="float-right ml-2">
-            <Button
-              className="my-2"
-              theme="default"
-              size="md"
-              icon={(p) => <ArrowDownTrayIcon {...p} />}
-              onClick={() => setExportModal(true)}
-            >
-              Export
-            </Button>
           </div>
         )}
 
@@ -580,6 +562,11 @@ export function RenderedTable<T>({
                         scrollable ? undefined : onChangePageSize
                       }
                       loading={loading}
+                      onExport={
+                        onFetchExportData
+                          ? () => setExportModal(true)
+                          : undefined
+                      }
                     />
                   ) : (
                     <TablePaginationSimple

@@ -19,6 +19,7 @@ import { PencilSquareIcon, PlusIcon } from "@heroicons/react/20/solid";
 import _ from "lodash";
 import { Fragment, ReactNode, useCallback, useContext, useEffect } from "react";
 import { twMerge } from "tailwind-merge";
+import { motion } from "framer-motion";
 
 export type RestDocumentProps<T> = {
   className?: string;
@@ -169,7 +170,8 @@ export const RestDocumentsInput = <T extends RestEntity>(
     }
 
     return (
-      <div
+      <motion.div
+        transition={{ duration: 0.2 }}
         onClick={onClick}
         className={twMerge(
           "inline-block relative",
@@ -202,7 +204,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
             data-tooltip={props["data-tooltip"]}
           />
         )}
-      </div>
+      </motion.div>
     );
   }
 
@@ -210,7 +212,11 @@ export const RestDocumentsInput = <T extends RestEntity>(
     return <></>;
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
       onClick={onClick}
       className={twMerge(
         "inline-flex relative min-h-7 w-max relative group/card",
@@ -346,6 +352,6 @@ export const RestDocumentsInput = <T extends RestEntity>(
           </AnimatedHeight>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };

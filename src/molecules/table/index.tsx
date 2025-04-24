@@ -24,7 +24,9 @@ export type TablePropsType<T> = {
   border?: boolean;
   loading?: boolean;
   onRequestData?: (pagination: Pagination) => Promise<void>;
-  onFetchExportData?: (pagination: Pagination) => Promise<any[]>;
+  onFetchExportData?: (
+    pagination: Pick<Pagination, "page" | "perPage">
+  ) => Promise<any[]>;
   onClick?: (item: T, e: MouseEvent) => void;
   onSelectedActionsClick?: () => void;
   onSelect?:

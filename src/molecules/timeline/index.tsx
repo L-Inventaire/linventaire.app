@@ -17,6 +17,7 @@ import {
   Callout,
   Heading,
   IconButton,
+  Skeleton,
   Strong,
   Text,
   Tooltip,
@@ -26,6 +27,7 @@ import _ from "lodash";
 import { ReactNode } from "react";
 import { CommentCreate } from "./comments";
 import { getEventLine, prepareHistory } from "./timeline";
+import { AnimatePresence, motion } from "motion/react";
 
 export const Timeline = ({
   entity,
@@ -57,11 +59,9 @@ export const Timeline = ({
   const history = _.reverse(_.flatten(data?.pages.map((a) => a.list)) || []);
   const current = history[history.length - 1];
 
-  if (!current) return <></>;
-
   return (
     <>
-      {isRevision && (
+      {isRevision && current && (
         <Callout.Root className="text-center mb-4" color="bronze">
           <div>
             Vous consultez une version antérieure datant du{" "}
@@ -80,12 +80,11 @@ export const Timeline = ({
           </div>
         </Callout.Root>
       )}
-
       <div className="flex items-center space-x-2">
         <Heading size="4" className="grow">
           Activité
         </Heading>
-        {!!thread && (
+        {!!current && !!thread && (
           <>
             {" "}
             {!thread?.subscribers?.includes?.(user!.id) && (
@@ -119,38 +118,62 @@ export const Timeline = ({
           </>
         )}
       </div>
-
-      <div className="mt-3">
-        {!!current && (
-          <EventLine
-            comment={{
-              id: "created",
-              content: "a créé ce document",
-              created_by: data?.pages[0]?.list[0].created_by,
-              created_at: data?.pages[0]?.list[0].created_at,
-            }}
-            first
-          />
-        )}
-        {hasNextPage && (
-          <Button
-            onClick={() => fetchNextPage()}
-            variant="ghost"
-            color="blue"
-            className="ml-1 block text-center mt-2"
+      <AnimatePresence>
+        {!current && (
+          <motion.div
+            className="space-y-4 mt-4"
+            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
           >
-            Voir plus...
-          </Button>
+            <Skeleton className="w-3/4" />
+            <Skeleton className="w-1/2" />
+            <Skeleton className="w-full" height="48px" />
+          </motion.div>
         )}
-        {prepareHistory(history, hasNextPage, { viewRoute }).map((a) =>
-          getEventLine(a, translations)
+      </AnimatePresence>
+      <AnimatePresence>
+        {!!current && (
+          <motion.div
+            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            <div className="mt-3">
+              {!!current && (
+                <EventLine
+                  comment={{
+                    id: "created",
+                    content: "a créé ce document",
+                    created_by: data?.pages[0]?.list[0].created_by,
+                    created_at: data?.pages[0]?.list[0].created_at,
+                  }}
+                  first
+                />
+              )}
+              {hasNextPage && (
+                <Button
+                  onClick={() => fetchNextPage()}
+                  variant="ghost"
+                  color="blue"
+                  className="ml-1 block text-center mt-2"
+                >
+                  Voir plus...
+                </Button>
+              )}
+              {prepareHistory(history, hasNextPage, { viewRoute }).map((a) =>
+                getEventLine(a, translations)
+              )}
+            </div>
+            {!current.is_deleted && (
+              <div className="mt-6">
+                <CommentCreate entity={entity} item={id} refresh={refresh} />
+              </div>
+            )}
+          </motion.div>
         )}
-      </div>
-      {!current.is_deleted && (
-        <div className="mt-6">
-          <CommentCreate entity={entity} item={id} refresh={refresh} />
-        </div>
-      )}
+      </AnimatePresence>
     </>
   );
 };

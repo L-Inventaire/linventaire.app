@@ -17,11 +17,13 @@ import { useNavigateAlt } from "@features/utils/navigate";
 import {
   RestOptions,
   RestSearchQuery,
+  useRestExporter,
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
 import { ArrowUturnLeftIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { Badge, Tabs } from "@radix-ui/themes";
 import { Page } from "@views/client/_layout/page";
+import _ from "lodash";
 import { useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { SearchBar } from "../../../../components/search-bar";
@@ -29,7 +31,6 @@ import {
   buildQueryFromMap,
   schemaToSearchFields,
 } from "../../../../components/search-bar/utils/utils";
-import _ from "lodash";
 
 export const InvoicesPage = () => {
   const key = useParams().type;
@@ -157,7 +158,7 @@ const InvoicesPageContent = () => {
     query: [...((options?.query as any) || []), ...buildQueryFromMap({ type })],
   };
 
-  const { invoices } = useInvoices({
+  const invoicesQueryOptions = {
     ...invoiceFilters,
     query: [
       ...invoiceFilters.query,
@@ -165,7 +166,9 @@ const InvoicesPageContent = () => {
     ],
     asc: true,
     key: "main-" + type.join("+") + "_" + activeTab,
-  });
+  };
+  const { invoices } = useInvoices(invoicesQueryOptions);
+  const exporter = useRestExporter("invoices");
 
   const schema = useRestSchema("invoices");
   const navigate = useNavigateAlt();
@@ -460,6 +463,7 @@ const InvoicesPageContent = () => {
                 ).includes(a.id || "")
               )
           )}
+          onFetchExportData={exporter(invoicesQueryOptions)}
         />
       </div>
     </Page>
