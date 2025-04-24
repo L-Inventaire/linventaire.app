@@ -99,6 +99,7 @@ export const TableExportModal = (props: {
             <option value="1000">1 000 items</option>
             <option value="1000">5 000 items</option>
             <option value="10000">10 000 items</option>
+            <option value="10000000">All</option>
           </Select>
         }
       />

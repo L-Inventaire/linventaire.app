@@ -13,7 +13,6 @@ import { getRoute, ROUTES } from "@features/routes";
 import { formatNumber } from "@features/utils/format/strings";
 import { useNavigateAlt } from "@features/utils/navigate";
 import {
-  getRestApiClient,
   RestOptions,
   useRestExporter,
   useRestSchema,
@@ -23,7 +22,6 @@ import { Page } from "@views/client/_layout/page";
 import { useRef, useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
-import { useCurrentClient } from "@features/clients/state/use-clients";
 
 export const ArticlesPage = () => {
   const [options, setOptions] = useState<RestOptions<Articles>>({
