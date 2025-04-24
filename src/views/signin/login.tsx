@@ -151,6 +151,8 @@ export const Login = () => {
     }
   }, [code]);
 
+  console.log({ authLoading });
+
   return (
     <div>
       {authLoading && <PageLoader />}

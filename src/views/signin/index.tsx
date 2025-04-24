@@ -28,6 +28,14 @@ export const LoginRoutes = () => {
           </PublicPage>
         }
       />
+      <Route
+        path={"*"}
+        element={
+          <PublicPage>
+            <Login />
+          </PublicPage>
+        }
+      />
     </Route>
   );
 };

@@ -125,20 +125,14 @@ export const SearchBar = ({
   useEffect(() => {
     // Set the values from the url when we can
     const val = getFromUrl(schema.fields);
-    console.log(
-      "useEffect in",
-      loadingCustomFields,
-      props.loading,
-      urlSync,
-      val,
-      schema.fields
-    );
-    if (urlSync !== false && (val || (!val && valueLocked))) {
-      console.log("useEffect in", loadingCustomFields, props.loading);
+
+    if ((urlSync !== false && val) || (!val && valueLocked)) {
       const ready = !loadingCustomFields && props.loading !== true;
       if (!ready) {
+        console.log("setValueLocked to true");
         setValueLocked(true);
       } else {
+        console.log("setValueLocked to false");
         setValueLocked(false);
         if (val !== value) setValue(val);
       }
