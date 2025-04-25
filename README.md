@@ -1,13 +1,1 @@
-# React backoffice
-
-### Install
-
-```
-yarn install;
-```
-
-### Dev
-
-```
-yarn start;
-```
+No readme yet

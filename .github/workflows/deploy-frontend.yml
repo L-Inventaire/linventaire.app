@@ -23,9 +23,11 @@ jobs:
           node-version: "20" # Adjust Node.js version as needed
 
       - name: Install dependencies with Yarn
+        working-directory: ./frontend
         run: yarn install
 
       - name: Build project
+        working-directory: ./frontend
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
@@ -40,6 +42,7 @@ jobs:
           aws-region: eu-west-3 # Update to your AWS region
 
       - name: Sync built files to S3
+        working-directory: ./frontend
         run: |
           aws s3 sync ./build s3://linventaire-app --delete
         env:

@@ -1,0 +1,59 @@
+{
+    "aws": {
+        "id": "AWS_ID",
+        "secret": "AWS_SECRET",
+        "region": "AWS_REGION"
+    },
+    "email": {
+        "type": "EMAIL_TYPE",
+        "from": "EMAIL_FROM",
+        "ses": {
+            "region": "EMAIL_SES_REGION"
+        }
+    },
+    "insee": {
+        "key": "INSEE_KEY",
+        "secret": "INSEE_SECRET"
+    },
+    "captcha": {
+        "type": "CAPTCHA_TYPE",
+        "recaptcha": {
+            "project_id": "CAPTCHA_RECAPTCHA_PROJECT_ID",
+            "api_key": "CAPTCHA_RECAPTCHA_API_KEY",
+            "site_key": "CAPTCHA_RECAPTCHA_SITE_KEY"
+        }
+    },
+    "db": {
+        "database": "DB_DATABASE",
+        "postgres": {
+            "host": "DB_POSTGRES_HOST",
+            "port": "DB_POSTGRES_PORT",
+            "user": "DB_POSTGRES_USER",
+            "password": "DB_POSTGRES_PASSWORD"
+        }
+    },
+    "signature": {
+        "documenso": {
+            "key": "SIGNATURE_DOCUMENSO_KEY"
+        },
+        "webhook": {
+            "to-sign": "SIGNATURE_WEBHOOK_TO_SIGN",
+            "signed": "SIGNATURE_WEBHOOK_SIGNED"
+        }
+    },
+    "redis": {
+        "use": "REDIS_USE",
+        "url": "REDIS_URL"
+    },
+    "s3": {
+        "use": "S3_USE",
+        "bucket": "S3_BUCKET"
+    },
+    "jwt": {
+        "secret": "JWT_SECRET"
+    },
+    "server": {
+        "port": "SERVER_PORT",
+        "domain": "SERVER_DOMAIN"
+    }
+}

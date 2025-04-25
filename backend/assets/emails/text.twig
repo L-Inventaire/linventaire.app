@@ -1,0 +1,13 @@
+{{title}}
+
+{{body}}
+
+{% if receipt %}
+{{line[0]}}: {{line[1]}}
+{% endif %}
+
+{% if post_receipt %}{{ post_receipt }}{% endif %}
+
+--
+
+{{ footer }}

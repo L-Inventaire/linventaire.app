@@ -1,0 +1,12 @@
+version: "3"
+
+services:
+  node:
+    build:
+      context: .
+      dockerfile: docker/node.Dockerfile
+    volumes:
+      - ./config/tests.json:/usr/app/config/tests.json
+    environment:
+      - NODE_ENV=tests
+    command: npm run build && npm run test

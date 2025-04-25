@@ -9,30 +9,11 @@ on:
       - development
 
 jobs:
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/development' || github.ref == 'refs/heads/development' || github.event_name == 'push' && github.ref == 'refs/heads/development'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: "20"
-
-      - name: Install dependencies
-        run: yarn install
-
-      - name: Run linter
-        run: yarn linter
-
   build:
     name: Build
     runs-on: ubuntu-latest
     needs: lint
-    if: github.ref == 'refs/heads/development'
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -44,7 +25,8 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ghcr.io/l-inventaire/client/nginx:latest --build-arg SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} .
+          docker build -t ghcr.io/l-inventaire/client/nginx:latest --build-arg SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} frontend
+          docker build -t ghcr.io/l-inventaire/client/node:latest --build-arg SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} backend
 
       - name: Login to DockerHub
         uses: docker/login-action@v2
@@ -56,3 +38,4 @@ jobs:
       - name: Push Docker image
         run: |
           docker push ghcr.io/l-inventaire/client/nginx:latest
+          docker push ghcr.io/l-inventaire/client/node:latest

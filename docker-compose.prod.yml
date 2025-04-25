@@ -1,0 +1,54 @@
+version: "3"
+
+services:
+  server:
+    restart: always
+    image: ghcr.io/l-inventaire/client/node
+    volumes:
+      - ./production.json:/app/config/production.json
+    depends_on:
+      - postgres
+    ports:
+      - 3000:3000
+    environment:
+      - NODE_ENV=production
+    networks:
+      - app-network
+
+  nginx:
+    restart: always
+    image: ghcr.io/l-inventaire/client/nginx
+    depends_on:
+      - server
+    ports:
+      - 8000:80
+    networks:
+      - app-network
+
+  watchtower:
+    restart: always
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /root/.docker/config.json:/config.json
+    command: --interval 30
+    networks:
+      - app-network
+
+  postgres:
+    restart: always
+    image: postgres:17
+    ports:
+      - 5432:5432
+    volumes:
+      - ./db/data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=...
+      - POSTGRES_USER=linventaire
+      - POSTGRES_DB=database
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

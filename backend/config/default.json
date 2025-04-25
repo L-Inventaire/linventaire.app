@@ -1,0 +1,90 @@
+{
+  "insee": {
+    "key": "",
+    "secret": ""
+  },
+  "aws": {
+    "id": "",
+    "secret": "",
+    "region": ""
+  },
+  "rabbit": {
+    "use": false,
+    "url": ""
+  },
+  "email": {
+    "type": "file",
+    "from": "notifications@linventaire.app",
+    "from_name": "via l'inventaire",
+    "ses": {
+      "region": ""
+    },
+    "file": {
+      "path": "./storage/emails/"
+    }
+  },
+  "sms": {
+    "type": "file",
+    "sns": {
+      "region": ""
+    },
+    "file": {
+      "path": "./storage/sms/"
+    }
+  },
+  "db": {
+    "type": "postgres",
+    "database": "linventaire",
+    "postgres": {
+      "host": "localhost",
+      "port": 5432,
+      "user": "postgres",
+      "password": "postgres"
+    }
+  },
+  "captcha": {
+    "type": "recaptcha",
+    "recaptcha": {
+      "project_id": "",
+      "api_key": "",
+      "site_key": ""
+    }
+  },
+  "s3": {
+    "use": false,
+    "local_path": "./storage/",
+    "bucket": ""
+  },
+  "redis": {
+    "use": false,
+    "url": "redis://localhost:6379"
+  },
+  "jwt": {
+    "secret": "hppuf6WkagQX98%5qjOQ~7e:Ncv-]QXNNB2UCVJk}Ftn>+cuG9O>~:3{2'bmxr%"
+  },
+  "server": {
+    "allow_cors": true,
+    "port": 3000,
+    "helmet": false,
+    "domain": "https://app.linventaire.app"
+  },
+  "analytics": {
+    "amplitude": {
+      "use": false,
+      "key": ""
+    }
+  },
+  "signature": {
+    "documenso": {
+      "key": "api_9bwf5iwx0nh2mhwv"
+    },
+    "webhook": {
+      "to-sign": "https://app.linventaire.app/signing-session/:signing-session/view",
+      "signed": "https://app.linventaire.app/signing-session/:signing-session/signed"
+    }
+  },
+  "data-analysis": {
+    "use": false,
+    "typeform-url": "https://z58a6teesdf.typeform.com/to/BMruryMk"
+  }
+}

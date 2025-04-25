@@ -1,0 +1,232 @@
+{
+  "sms": {
+    "otp": {
+      "message": "Voici votre code d'authentification: {{val}}"
+    }
+  },
+  "notifications": {
+    "entities_names": {
+      "invoices": "{{name}}",
+      "articles": "Article {{name}}",
+      "contacts": "Contact {{name}}",
+      "crm_items": "CRM {{name}}",
+      "stock_items": "Élément de stock {{name}}",
+      "service_items": "Tâche {{name}}"
+    },
+    "mentioned": {
+      "title": "<1/> vous a mentionné."
+    },
+    "assigned": {
+      "title": "Vous êtes assigné."
+    },
+    "modified": {
+      "title": "Modifié par <1/>."
+    },
+    "commented": {
+      "title": "<1/> a ajouté un commentaire."
+    },
+    "invoice_sent": {
+      "title": "Facture envoyée."
+    },
+    "quote_sent": {
+      "title": "Devis envoyé."
+    },
+    "quote_signed": {
+      "title": "Devis signé par {{email}}."
+    },
+    "quote_refused": {
+      "title": "Devis refusé par {{email}} pour la raison {{reason}}."
+    }
+  },
+  "emails": {
+    "otp": {
+      "subject": "Code de confirmation pour L'inventaire",
+      "message": "Entrez le code suivant pour accéder à votre compte: <b>{{val}}</b><br/><br/>Cet email contient des informations privées sur votre compte. Merci de ne pas le transférer.<br/><br/>À bientôt,<br/>L'équipe L'inventaire"
+    },
+    "all": {
+      "subject_suffix": " - notre nouveau ERP-CRM L'inventaire",
+      "footer": "Ceci est un email de notification, vous ne pouvez pas y répondre"
+    },
+    "notifications": {
+      "subject": "{{count}} notifications de {{company}}",
+      "message": "<p>Bonjour,<br/><br/>Vous avez {{count}} notifications de {{company}}.<br/><br/>{{content}}<br/><br/>Pour les consulter, cliquez sur le lien suivant: <a href='{{link}}'>{{link}}</a><br/><br/>À bientôt,<br/>L'équipe L'inventaire</p>"
+    },
+    "invoices": {
+      "common": "Cher(e) client(e),<br/><br/>{{body}}<br/><br/>N'hésitez pas à nous contacter en cas de question.<br/>L'équipe {{company}}<br/><br/><p style='font-size: 0.8em;'>{{footer}}</p>",
+      "as": {
+        "proforma": {
+          "sent": {
+            "subject": "Facture proforma {{val}}",
+            "message": "<p>Veuillez trouver la facture proforma {{val}} ci-jointe.</p>"
+          }
+        },
+        "delivery_slip": {
+          "sent": {
+            "subject": "Bon de livraison {{val}}",
+            "message": "<p>Veuillez trouver le bon de livraison {{val}} ci-joint.</p>"
+          }
+        },
+        "receipt_acknowledgement": {
+          "sent": {
+            "subject": "Accusé de réception {{val}}",
+            "message": "<p>Veuillez trouver l'accusé de réception {{val}} ci-joint</p>"
+          }
+        }
+      },
+      "quotes": {
+        "sent": {
+          "subject": "Signature requise pour la validation du devis {{val}}",
+          "message": "<p>Votre signature est requise pour valider le devis {{val}}. <br/><br/> <p><a class='btn-cta' href='{{href}}'>Signer le devis</a></p> </p>",
+          "subject_no_signature": "Devis {{val}}",
+          "message_no_signature": "<p>Veuillez retrouver ci-joint le devis {{val}} en attente de validation. <br/><br/> <p><a class='btn-cta' href='{{href}}'>Accéder au devis</a></p> </p>"
+        },
+        "signed": {
+          "subject": "Le devis {{val}} est validé",
+          "message": "<p>Le devis {{val}} est validé. <br/><br/> <p><a class='btn-cta' href='{{href}}'>Ouvrir le document</a></p> </p>",
+          "subject_no_signature": "Le devis {{val}} est validé",
+          "message_no_signature": "<p>Le devis {{val}} est validé. <br/><br/> <p><a class='btn-cta' href='{{href}}'>Ouvrir le document</a></p> </p>"
+        },
+        "purchase_order": {
+          "subject": "Le devis {{val}} a été accepté",
+          "message": "<p>Le devis {{val}} a été marqué comme accepté, veuillez le retrouver ci-joint <br/></p>",
+          "subject_no_signature": "Le devis {{val}} a été accepté",
+          "message_no_signature": "<p>Le devis {{val}} a été marqué comme accepté, veuillez le retrouver ci-joint <br/></p>"
+        },
+        "cancelled": {
+          "subject": "Le devis {{val}} a été refusé",
+          "message": "<p>Le devis {{val}} a été marqué comme refusé.<br/></p>",
+          "subject_no_signature": "Le devis {{val}} a été refusé",
+          "message_no_signature": "<p>Le devis {{val}} a été marqué comme refusé.<br/></p>"
+        }
+      },
+      "invoices": {
+        "sent": {
+          "subject": "Facture {{val}}",
+          "message": "<p>La facture {{val}} vous est adressée. <br/><br/> <p><a class='btn-cta' href='{{href}}'>Ouvrir le document</a></p> </p>"
+        }
+      },
+      "credit_notes": {
+        "sent": {
+          "subject": "Avoir {{val}}",
+          "message": "<p>L'avoir {{val}} vous est adressé. <br/><br/> <p><a class='btn-cta' href='{{href}}'>Signer</a></p> </p>",
+          "subject_no_signature": "Avoir {{val}}",
+          "message_no_signature": "<p>L'avoir {{val}} vous est adressé. <br/><br/> <p><a class='btn-cta' href='{{href}}'>Signer</a></p> </p>"
+        }
+      }
+    },
+    "invite": {
+      "subject": "Invitation pour {{company}}",
+      "message": "<p>Bonjour,<br/><br/>Vous avez été invité à rejoindre {{company}} sur L'inventaire. <br/><br/>Pour accepter l'invitation, cliquez sur le lien suivant: <a href='{{link}}'>{{link}}</a><br/><br/>À bientôt,<br/>L'équipe L'inventaire</p>"
+    }
+  },
+  "invoices": {
+    "types": {
+      "quotes": "Devis",
+      "invoices": "Facture",
+      "credit_notes": "Avoir",
+      "supplier_quotes": "Commande",
+      "supplier_invoices": "Facture fournisseur",
+      "supplier_credit_notes": "Avoir fournisseur",
+      "delivery_slip": "Bon de livraison",
+      "receipt_acknowledgement": "Accusé de réception",
+      "proforma": "Facture proforma"
+    },
+    "reference_related": {
+      "quotes": "Devis ",
+      "invoices": "Facture ",
+      "credit_notes": "Avoir ",
+      "supplier_quotes": "Commande ",
+      "supplier_invoices": "Facture fournisseur ",
+      "supplier_credit_notes": "Avoir fournisseur "
+    },
+    "no_prefix": "N° ",
+    "optional_info": "Certain articles sont optionnels, cochez la case à gauche avec un 'X' pour les séléctionner ou déselectionner.",
+    "attachments": "Vous trouverez les documents suivants en pièce jointe ou en ligne: ",
+    "identities": {
+      "registration_number": "N° SIRET: ",
+      "vat_number": "N° TVA: "
+    },
+    "other": {
+      "title": "Désignation",
+      "alt_reference": "Votre référence",
+      "delivery_date": "Date de livraison",
+      "delivery_delay": "Délai de livraison",
+      "days": "jours",
+      "delivery_address": "Adresse de livraison",
+      "emit_date": "Date d'émission",
+      "payment_date": "Paiement avant le",
+      "delay": "Délai de paiement",
+      "payment_method": "Moyens de paiement",
+      "no_payment_method": "Aucun moyen de paiement",
+      "payment_terms": "Conditions de paiement",
+      "late_penalty": "Pénalité de retard",
+      "recovery_fee": "Frais de recouvrement",
+      "bank_details": "Relevé d'identité bancaire",
+      "recurrence": "Contrat en abonnement",
+      "subscription_period": "Période du {{from}} au {{to}}.",
+      "frequency": {
+        "none": "Paiement en une fois",
+        "daily": "Quotidien",
+        "monthly": "Mensuel",
+        "3_monthly": "Trimestriel",
+        "6_monthly": "Tous les 6 mois",
+        "weekly": "Hebdomadaire",
+        "yearly": "Annuel",
+        "2_yearly": "Tous les 2 ans",
+        "3_yearly": "Tous les 3 ans"
+      },
+      "recurrence_start": {
+        "date": "Début le {{start}}",
+        "acceptance_start": "Démarre à l'acceptation du devis",
+        "after_first_invoice": "Démarre à l'envoi de la première facture"
+      },
+      "recurrence_end": {
+        "none": "Tacite reconduction",
+        "date": "Fin le {{end}}",
+        "delay": "Fin après {{delay}}",
+        "delays": {
+          "1y": "1 an",
+          "2y": "2 ans",
+          "3y": "3 ans",
+          "1m": "1 mois"
+        }
+      },
+      "recurrence_types": "Abonnements: {{types}}.",
+      "recurrence_invoices_date": {
+        "first_day": "Facturé en début de période.",
+        "first_workday": "Facturé en début de période.",
+        "monday": "Facturé en début de période.",
+        "last_workday": "Facturé en fin de période.",
+        "last_day": "Facturé en fin de période."
+      },
+      "contact_company": "Entreprise de contact",
+      "contact_person": "Personne de contact"
+    },
+    "content": {
+      "description": "Désignation et description",
+      "quantity": "Quantité",
+      "unit_price": "Prix u. HT",
+      "total": "Total HT",
+      "ttc": "TTC",
+      "payment_method": {
+        "bank_transfer": "Virement bancaire",
+        "direct_debit": "Prélèvement",
+        "credit_card": "Carte de crédit",
+        "paypal": "Paypal",
+        "cash": "Espèces",
+        "check": "Chèque"
+      }
+    },
+    "total": {
+      "global_discount": "Remise globale",
+      "initial": "Total HT",
+      "discount": "Remises",
+      "total": "Total après remise",
+      "taxes": "TVA",
+      "total_with_taxes": "Total TTC"
+    }
+  },
+  "articles": {
+    "default_service_items": "Service par défaut"
+  }
+}

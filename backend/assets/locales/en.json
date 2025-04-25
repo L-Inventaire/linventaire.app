@@ -1,0 +1,102 @@
+{
+  "sms": {
+    "otp": {
+      "message": "This is your authentication code: {{val}}"
+    }
+  },
+  "emails": {
+    "otp": {
+      "message": "Enter the following code to enter your account: <b>{{val}}</b><br/><br/>This email contains private information about your account. Please do not forward it.<br/><br/>See you soon,<br/>The L'inventaire team",
+      "subject": "Confirmation code for L'inventaire"
+    },
+    "all": {
+      "footer": "This is a notification email, you cannot reply to it",
+      "subject_suffix": " - our new ERP-CRM L'inventaire"
+    },
+    "notifications": {
+      "subject": "{{count}} notifications from {{company}}",
+      "message": "<p>Hi,<br/><br/>You have {{count}} unread notifications from {{company}}.<br/><br/>{{content}}<br/><br/>Click here to see them all: <a href='{{link}}'>{{link}}</a><br/><br/>See you soon,<br/>The L'inventaire team</p>"
+    },
+    "invoices": {
+      "common": "Dear client,<br/><br/>{{body}}<br/><br/>Contact us if you have any question.<br/>{{company}}<br/><br/><p style='font-size: 0.8em;'>{{footer}}</p>",
+      "as": {
+        "proforma": {
+          "subject": "Proforma Invoice {{val}}",
+          "message": "<p>Proforma invoice {{val}} has been sent to you. <br/><br/> <p><a style='background: #231F23; color: white; padding: 12px; border-radius: 8px; text-decoration: none;cursor:pointer' href='{{href}}'>Open the document</a></p> <br/>The L'inventaire team</p>"
+        },
+        "delivery_slip": {
+          "subject": "Delivery Slip {{val}}",
+          "message": "<p>Delivery slip {{val}} has been sent to you. <br/><br/> <p><a style='background: #231F23; color: white; padding: 12px; border-radius: 8px; text-decoration: none;cursor:pointer' href='{{href}}'>Open the document</a></p> <br/>The L'inventaire team</p>"
+        },
+        "receipt_acknowledgement": {
+          "subject": "Acknowledgment of Receipt {{val}}",
+          "message": "<p>Acknowledgment of receipt {{val}} has been sent to you. <br/><br/> <p><a style='background: #231F23; color: white; padding: 12px; border-radius: 8px; text-decoration: none;cursor:pointer' href='{{href}}'>Open the document</a></p> <br/>The L'inventaire team</p>"
+        }
+      },
+      "quotes": {
+        "sent": {
+          "subject": "Your Signature is Required for Quote {{val}}",
+          "message": "<p>Please find attached the summary of your quote {{val}}. <br/><br/> <p><a style='background: #231F23; color: white; padding: 12px; border-radius: 8px; text-decoration: none;cursor:pointer' href='{{href}}'>Sign the quote</a></p> <br/>The L'inventaire team</p>",
+          "subject_no_signature": "Quote {{val}}",
+          "message_no_signature": "<p>Please find attached the summary of your quote {{val}}. <br/><br/> <p><a style='background: #231F23; color: white; padding: 12px; border-radius: 8px; text-decoration: none;cursor:pointer' href='{{href}}'>Access the quote</a></p> <br/>The L'inventaire team</p>"
+        },
+        "signed": {
+          "subject": "Your Quote {{val}} Has Been Signed",
+          "message": "<p>Quote {{val}} has been signed. <br/><br/> <p><a style='background: #231F23; color: white; padding: 12px; border-radius: 8px; text-decoration: none;cursor:pointer' href='{{href}}'>Open the document</a></p> <br/>The L'inventaire team</p>",
+          "subject_no_signature": "Your Quote {{val}} Has Been Signed",
+          "message_no_signature": "<p>Quote {{val}} has been signed. <br/><br/> <p><a style='background: #231F23; color: white; padding: 12px; border-radius: 8px; text-decoration: none;cursor:pointer' href='{{href}}'>Open the document</a></p> <br/>The L'inventaire team</p>"
+        },
+        "purchase_order": {
+          "subject": "A Quote Has Been Accepted",
+          "message": "<p>A quote has been marked as accepted, please find it attached. <br/><br/>The L'inventaire team</p>",
+          "subject_no_signature": "A Quote Has Been Accepted",
+          "message_no_signature": "<p>A quote has been marked as accepted, please find it attached. <br/><br/>The L'inventaire team</p>"
+        },
+        "cancelled": {
+          "subject": "The Signature of Quote {{val}} Was Refused",
+          "message": "<p>A quote has been marked as refused, please find it attached. <br/><br/>The L'inventaire team</p>",
+          "subject_no_signature": "The Signature of Quote {{val}} Was Refused",
+          "message_no_signature": "<p>A quote has been marked as refused, please find it attached. <br/><br/>The L'inventaire team</p>"
+        }
+      },
+      "invoices": {
+        "sent": {
+          "subject": "Invoice {{val}}",
+          "message": "<p>Invoice {{val}} has been sent to you. <br/><br/> <p><a style='background: #231F23; color: white; padding: 12px; border-radius: 8px; text-decoration: none;cursor:pointer' href='{{href}}'>Open the document</a></p> <br/>The L'inventaire team</p>"
+        }
+      },
+      "credit_notes": {
+        "sent": {
+          "subject": "Credit Note {{val}}",
+          "message": "<p>Credit note {{val}} has been sent to you. <br/><br/> <p><a style='background: #231F23; color: white; padding: 12px; border-radius: 8px; text-decoration: none;cursor:pointer' href='{{href}}'>Sign</a></p> <br/>The L'inventaire team</p>",
+          "subject_no_signature": "Credit Note {{val}}",
+          "message_no_signature": "<p>Credit note {{val}} has been sent to you. <br/><br/> <p><a style='background: #231F23; color: white; padding: 12px; border-radius: 8px; text-decoration: none;cursor:pointer' href='{{href}}'>Sign</a></p> <br/>The L'inventaire team</p>"
+        },
+        "signed": {
+          "subject": "Your Credit Note {{val}} Has Been Signed",
+          "message": "<p>Credit note {{val}} has been signed. <br/><br/> <p><a style='background: #231F23; color: white; padding: 12px; border-radius: 8px; text-decoration: none;cursor:pointer' href='{{href}}'>Open the document</a></p> <br/>The L'inventaire team</p>",
+          "subject_no_signature": "Your Credit Note {{val}} Has Been Signed",
+          "message_no_signature": "<p>Credit note {{val}} has been signed. <br/><br/> <p><a style='background: #231F23; color: white; padding: 12px; border-radius: 8px; text-decoration: none;cursor:pointer' href='{{href}}'>Open the document</a></p> <br/>The L'inventaire team</p>"
+        },
+        "cancelled": {
+          "subject": "The Signature of Credit Note {{val}} Was Refused",
+          "message": "<p>A credit note has been marked as refused, please find it attached. <br/><br/>The L'inventaire team</p>",
+          "subject_no_signature": "The Signature of Credit Note {{val}} Was Refused",
+          "message_no_signature": "<p>A credit note has been marked as refused, please find it attached. <br/><br/>The L'inventaire team</p>"
+        }
+      }
+    },
+    "invite": {
+      "subject": "Invitation to {{company}}",
+      "message": "<p>Hello,<br/><br/>You have been invited to join {{company}} on L'inventaire. <br/><br/>To accept the invitation, click on the following link: <a href='{{link}}'>{{link}}</a><br/><br/>See you soon,<br/>The L'inventaire team</p>"
+    }
+  },
+  "invoices": {
+    "types": {
+      "quotes": "Quote"
+    }
+  },
+  "articles": {
+    "default_service_items": "Default service"
+  }
+}
