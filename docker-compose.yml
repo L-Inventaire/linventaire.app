@@ -3,7 +3,7 @@ version: "3"
 services:
   node:
     build:
-      context: .
+      context: backend
       dockerfile: docker/node.Dockerfile
     volumes:
       - ./config:/usr/app/config
@@ -11,7 +11,7 @@ services:
       - NODE_ENV=development
   nginx:
     build:
-      context: .
+      context: frontend
       dockerfile: docker/nginx.Dockerfile
     depends_on:
       - node

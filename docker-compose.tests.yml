@@ -3,7 +3,7 @@ version: "3"
 services:
   node:
     build:
-      context: .
+      context: backend
       dockerfile: docker/node.Dockerfile
     volumes:
       - ./config/tests.json:/usr/app/config/tests.json
