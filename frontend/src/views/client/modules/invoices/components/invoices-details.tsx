@@ -132,6 +132,12 @@ export const InvoicesDetailsPage = ({
 
   const getReference = useFormattedNumerotationByInvoice();
 
+  const hasFromSubscription = (draft: Invoices) =>
+    !isSupplierRelated &&
+    draft.type !== "quotes" &&
+    (!!draft.content?.find((a) => a.subscription) ||
+      originQuote?.subscription?.start_type);
+
   useEffect(() => {
     if (!isPending && draft)
       setDraft((draft: Invoices) => {
@@ -147,6 +153,10 @@ export const InvoicesDetailsPage = ({
         }));
         if (!draft.attachments?.length && !isSupplierRelated) {
           draft.attachments = [...(client.invoices.attachments || [])];
+        }
+
+        if (!hasFromSubscription(draft)) {
+          draft.from_subscription = {} as any;
         }
 
         return draft;
@@ -646,22 +656,19 @@ export const InvoicesDetailsPage = ({
                           </div>
                         )}
 
-                      {!isSupplierRelated &&
-                        draft.type !== "quotes" &&
-                        (!!draft.content?.find((a) => a.subscription) ||
-                          originQuote?.subscription) && (
-                          <div className="mt-8">
-                            <Section className="mb-2">
-                              Période de récurrence
-                            </Section>
-                            <InvoiceRecurrencePeriodInput
-                              btnKey="invoice-recurrence-period"
-                              invoice={draft}
-                              ctrl={ctrl}
-                              readonly={readonly}
-                            />
-                          </div>
-                        )}
+                      {hasFromSubscription(draft) && (
+                        <div className="mt-8">
+                          <Section className="mb-2">
+                            Période de récurrence
+                          </Section>
+                          <InvoiceRecurrencePeriodInput
+                            btnKey="invoice-recurrence-period"
+                            invoice={draft}
+                            ctrl={ctrl}
+                            readonly={readonly}
+                          />
+                        </div>
+                      )}
 
                       {!isSupplierRelated && (
                         <div className="mt-8">
