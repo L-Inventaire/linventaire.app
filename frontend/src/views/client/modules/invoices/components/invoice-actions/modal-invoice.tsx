@@ -20,6 +20,7 @@ import {
   Tabs,
 } from "@radix-ui/themes";
 import { useQuery } from "@tanstack/react-query";
+import _ from "lodash";
 import { useEffect, useState } from "react";
 import { atom, useRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
@@ -242,18 +243,22 @@ export const InvoiceInvoiceModalContent = ({
                 onClick={() => {
                   navigate(
                     withModel(getRoute(ROUTES.InvoicesEdit, { id: "new" }), {
-                      ...quote,
+                      ..._.omit(
+                        quote,
+                        "id",
+                        "emit_date",
+                        "reference_preferred_value"
+                      ),
                       from_rel_quote: [quote?.id],
                       type: "invoices",
                       state: "draft",
-                      id: "",
                       content:
                         partialInvoice.data?.partial_invoice?.content?.filter(
                           (a) =>
                             a.type === "correction" || (a.quantity || 0) > 0
                         ),
                       discount: partialInvoice.data?.partial_invoice?.discount,
-                    })
+                    } as Partial<Invoices>)
                   );
                   onClose();
                 }}

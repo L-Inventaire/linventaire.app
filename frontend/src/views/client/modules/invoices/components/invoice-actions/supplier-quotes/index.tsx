@@ -14,6 +14,7 @@ import {
   PrinterIcon,
 } from "@heroicons/react/16/solid";
 import { getPdfPreview } from "../../invoices-preview/invoices-preview";
+import _ from "lodash";
 
 export const SupplierQuotesActions = ({
   id,
@@ -114,7 +115,12 @@ export const SupplierQuotesActions = ({
             onClick={(event: any) =>
               navigate(
                 withModel(getRoute(ROUTES.InvoicesEdit, { id: "new" }), {
-                  ...draft,
+                  ..._.omit(
+                    draft,
+                    "id",
+                    "emit_date",
+                    "reference_preferred_value"
+                  ),
                   type: "supplier_invoices",
                   state: "draft",
                   from_rel_quote: [draft.id],
@@ -164,7 +170,12 @@ export const SupplierQuotesActions = ({
             onClick={(event: any) =>
               navigate(
                 withModel(getRoute(ROUTES.InvoicesEdit, { id: "new" }), {
-                  ...draft,
+                  ..._.omit(
+                    draft,
+                    "id",
+                    "emit_date",
+                    "reference_preferred_value"
+                  ),
                   type: "supplier_invoices",
                   state: "draft",
                   from_rel_quote: [draft.id],

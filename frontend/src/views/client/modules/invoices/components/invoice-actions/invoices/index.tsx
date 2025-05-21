@@ -17,6 +17,7 @@ import { InvoiceSendModalAtom } from "../modal-send";
 import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { AccountingTransactions } from "@features/accounting/types/types";
 import { InvoiceSendSpecialModalAtom } from "../modal-send-special";
+import _ from "lodash";
 
 export const InvoicesActions = ({
   id,
@@ -130,7 +131,12 @@ export const InvoicesActions = ({
                 onClick: (event) =>
                   navigate(
                     withModel(getRoute(ROUTES.InvoicesEdit, { id: "new" }), {
-                      ...draft,
+                      ..._.omit(
+                        draft,
+                        "id",
+                        "emit_date",
+                        "reference_preferred_value"
+                      ),
                       from_rel_quote: [draft.id],
                       type: "supplier_quotes",
                       state: "draft",

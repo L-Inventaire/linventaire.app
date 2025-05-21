@@ -13,6 +13,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { InvoiceActions } from "../components/invoice-actions";
 import { InvoicesDetailsPage } from "../components/invoices-details";
 import { getPdfPreview } from "../components/invoices-preview/invoices-preview";
+import _ from "lodash";
 
 export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
   const { id } = useParamsOrContextId();
@@ -121,7 +122,12 @@ export const InvoicesViewPage = (_props: { readonly?: boolean }) => {
                     to={withModel(
                       getRoute(ROUTES.InvoicesEdit, { id: "new" }),
                       {
-                        ...invoice,
+                        ..._.omit(
+                          invoice,
+                          "id",
+                          "emit_date",
+                          "reference_preferred_value"
+                        ),
                         from_rel_quote: invoice.from_rel_quote,
                         from_rel_invoice: [invoice.id],
                         type: "credit_notes",

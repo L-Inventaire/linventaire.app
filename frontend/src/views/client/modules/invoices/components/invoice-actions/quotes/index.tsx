@@ -22,6 +22,7 @@ import { InvoiceInvoiceModalAtom } from "../modal-invoice";
 import { RecurrenceModalAtom } from "../../input-recurrence";
 import { useInvoices } from "@features/invoices/hooks/use-invoices";
 import { InvoiceSendSpecialModalAtom } from "../modal-send-special";
+import _ from "lodash";
 
 export const QuotesActions = ({
   id,
@@ -162,7 +163,12 @@ export const QuotesActions = ({
                 onClick: (event) =>
                   navigate(
                     withModel(getRoute(ROUTES.InvoicesEdit, { id: "new" }), {
-                      ...draft,
+                      ..._.omit(
+                        draft,
+                        "id",
+                        "emit_date",
+                        "reference_preferred_value"
+                      ),
                       from_rel_quote: [draft.id],
                       type: "supplier_quotes",
                       state: "draft",
@@ -239,11 +245,15 @@ export const QuotesActions = ({
                 onClick: (event) =>
                   navigate(
                     withModel(getRoute(ROUTES.InvoicesEdit, { id: "new" }), {
-                      ...draft,
+                      ..._.omit(
+                        draft,
+                        "id",
+                        "emit_date",
+                        "reference_preferred_value"
+                      ),
                       from_rel_quote: [draft.id],
                       type: "supplier_quotes",
                       state: "draft",
-                      id: "",
                     }),
                     { event }
                   ),
