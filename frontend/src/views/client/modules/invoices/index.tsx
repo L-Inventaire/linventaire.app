@@ -146,12 +146,15 @@ const InvoicesPageContent = () => {
   const [activeTab, setActiveTab] = useRouterState("tab", "all");
 
   const [options, setOptions] = useState<RestOptions<Invoices>>({
-    index: "state_order,reference desc",
+    index:
+      activeTab === "all" ? "reference desc" : "state_order,reference desc",
     limit: 20,
     offset: 0,
     query: [],
   });
-  const [groupBy, setGroupBy] = useState<string>("state_order");
+  const [groupBy, setGroupBy] = useState<string>(
+    activeTab === "all" ? "" : "state_order"
+  );
 
   const invoiceFilters = {
     ...options,
@@ -223,8 +226,6 @@ const InvoicesPageContent = () => {
     "total.total": "(total->>'total')::numeric",
   };
 
-  console.log(schema.isPending, schema.data);
-
   return (
     <Page
       title={[{ label: getDocumentNamePlurial(type[0]) }]}
@@ -250,7 +251,7 @@ const InvoicesPageContent = () => {
             labelColToOrderColMap,
           }}
           onChangeDisplay={(d) => {
-            setGroupBy(d.groupBy[0]);
+            setGroupBy(activeTab === "all" ? "" : d.groupBy[0]);
             setOptions({
               ...options,
               index: _.uniq([d.groupBy, ...d.orderBy].filter(Boolean)).join(
