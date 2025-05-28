@@ -32,14 +32,21 @@ import { captureException } from "@sentry/node";
 
 Font.register({
   family: "Arial",
-  fontStyle: "normal",
-  fontWeight: "normal",
   fonts: [
     {
       src: "assets/fonts/Arial.ttf",
     },
     {
       src: "assets/fonts/ArialBold.ttf",
+      fontWeight: "bold",
+    },
+    {
+      src: "assets/fonts/ArialItalic.ttf",
+      fontStyle: "italic",
+    },
+    {
+      src: "assets/fonts/ArialBoldItalic.ttf",
+      fontStyle: "italic",
       fontWeight: "bold",
     },
   ],
