@@ -74,3 +74,36 @@ export const createNotification = async (
     )) as unknown as NotificationsType;
   }
 };
+
+/**
+ * Marks all notifications for a specific user and client as read
+ * @param ctx - The context object
+ * @param clientId - The client ID
+ * @param userId - The user ID
+ * @returns A promise that resolves when all notifications have been marked as read
+ */
+export const markAllNotificationsAsRead = async (
+  ctx: any,
+  clientId: string,
+  userId: string
+): Promise<void> => {
+  if (!clientId || !userId) {
+    throw new Error(
+      "Missing required fields: clientId and userId are required"
+    );
+  }
+
+  const db = await platform.Db.getService();
+
+  // Update all unread notifications for this user in this client
+  await db.update(
+    ctx,
+    NotificationsDefinition.name,
+    {
+      client_id: clientId,
+      user_id: userId,
+      read: false,
+    },
+    { read: true } as Partial<NotificationsType>
+  );
+};

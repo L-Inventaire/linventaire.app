@@ -279,6 +279,6 @@ export const useRestExporter = <T>(table: string) => {
           limit: pagination.perPage,
           offset: (pagination.page - 1) * pagination.perPage,
         })
-      ).list;
+      ).list as T[];
     };
 };

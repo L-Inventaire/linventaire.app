@@ -1,5 +1,7 @@
+import { Input } from "@atoms/input/input-text";
 import { Info } from "@atoms/text";
 import { RestUserTag } from "@components/deprecated-rest-tags/components/user";
+import { buildQueryFromMap } from "@components/search-bar/utils/utils";
 import { CtrlKRestEntities, useParamsOrContextId } from "@features/ctrlk";
 import {
   useNotification,
@@ -8,25 +10,40 @@ import {
 import { Notifications } from "@features/notifications/types/types";
 import { getRoute, ROUTES } from "@features/routes";
 import { useNavigateAlt } from "@features/utils/navigate";
+import { CheckIcon, EllipsisHorizontalIcon } from "@heroicons/react/24/outline";
 import {
   Button,
+  DropdownMenu,
   Heading,
   Link,
   ScrollArea,
   Spinner,
+  Switch,
   Text,
 } from "@radix-ui/themes";
 import { Page } from "@views/client/_layout/page";
 import { formatDistance } from "date-fns";
 import _ from "lodash";
+import { useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { twMerge } from "tailwind-merge";
 
 export const NotificationsPage = () => {
-  const { notifications, update } = useNotifications();
+  const [unreadOnly, setUnreadOnly] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const { notifications, update, markAllAsRead } = useNotifications({
+    query: buildQueryFromMap({
+      read: unreadOnly ? false : undefined,
+      query: searchQuery,
+    }),
+  });
   const { t } = useTranslation();
   const navigate = useNavigateAlt();
   const { id } = useParamsOrContextId();
+
+  const filteredNotifications = notifications?.data?.list || [];
+
   return (
     <Page
       title={[
@@ -43,17 +60,65 @@ export const NotificationsPage = () => {
         <div className="flex flex-row w-full h-full">
           <div className="border-r border-r-slate-100 dark:border-r-slate-700 w-1/2 max-w-[288px]">
             <div className="flex flex-col grow w-full text-black dark:text-white min-h-full sm:bg-transparent">
+              {/* Search and filters header */}
+              <div className="p-3 border-b border-b-slate-100 dark:border-b-slate-700">
+                <div className="flex items-center mb-2 space-x-2">
+                  <Input
+                    size="sm"
+                    className="grow py-2"
+                    placeholder="Rechercher..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  <DropdownMenu.Root>
+                    <DropdownMenu.Trigger>
+                      <Button variant="ghost" className="h-5 w-5 rounded-full">
+                        <EllipsisHorizontalIcon className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenu.Trigger>
+                    <DropdownMenu.Content>
+                      <DropdownMenu.Item
+                        onSelect={() => setUnreadOnly(!unreadOnly)}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            size="1"
+                            checked={unreadOnly}
+                            onCheckedChange={setUnreadOnly}
+                          />
+                          <Text size="1">Non lus uniquement</Text>
+                        </div>
+                      </DropdownMenu.Item>
+                      <DropdownMenu.Separator />
+                      <DropdownMenu.Item
+                        onSelect={() => markAllAsRead()}
+                        disabled={
+                          !notifications?.data?.list?.some((n) => !n.read)
+                        }
+                      >
+                        <div className="flex items-center">
+                          <CheckIcon className="h-3 w-3 mr-2" />
+                          <Text size="1">Tout marquer comme lu</Text>
+                        </div>
+                      </DropdownMenu.Item>
+                    </DropdownMenu.Content>
+                  </DropdownMenu.Root>
+                </div>
+              </div>
+
               <div className="grow relative">
                 <ScrollArea
                   scrollbars="vertical"
                   className="!absolute left-0 top-0 w-full h-full"
                 >
-                  {!notifications?.data?.total && (
+                  {!filteredNotifications.length && (
                     <Info className="p-3 text-center w-full block mt-8">
-                      Aucune notification, revenez plus tard.
+                      {searchQuery || unreadOnly
+                        ? "Aucune notification ne correspond aux critères."
+                        : "Aucune notification, revenez plus tard."}
                     </Info>
                   )}
-                  {notifications?.data?.list?.map((n) => {
+                  {filteredNotifications.map((n) => {
                     const events = _.uniqBy(
                       [
                         { type: n.type, metadata: n.metadata },

@@ -22,4 +22,19 @@ export class NotificationsApiClient {
     );
     return (await tmp.json()) as NotificationsPreferences;
   }
+
+  /**
+   * Marks all notifications as read for the current user in the specified client
+   * @param clientId The client ID
+   * @returns A promise that resolves when all notifications have been marked as read
+   */
+  static async markAllNotificationsAsRead(clientId: string) {
+    const response = await fetchServer(
+      `/api/notifications/v1/${clientId}/read_all`,
+      {
+        method: "POST",
+      }
+    );
+    return await response.json();
+  }
 }

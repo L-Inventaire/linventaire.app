@@ -9,7 +9,10 @@ import {
 } from "@features/invoices/configuration";
 import { useInvoices } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
-import { getDocumentNamePlurial } from "@features/invoices/utils";
+import {
+  getDocumentName,
+  getDocumentNamePlurial,
+} from "@features/invoices/utils";
 import { ROUTES, getRoute } from "@features/routes";
 import { formatNumber } from "@features/utils/format/strings";
 import { useRouterState } from "@features/utils/hooks/use-router-state";
@@ -21,6 +24,7 @@ import {
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
 import { ArrowUturnLeftIcon, PlusIcon } from "@heroicons/react/24/outline";
+import { Pagination } from "@molecules/table/table";
 import { Badge, Tabs } from "@radix-ui/themes";
 import { Page } from "@views/client/_layout/page";
 import _ from "lodash";
@@ -31,6 +35,7 @@ import {
   buildQueryFromMap,
   schemaToSearchFields,
 } from "../../../../components/search-bar/utils/utils";
+import { computePaymentDelayDate, getInvoiceStatusPrettyName } from "./utils";
 
 export const InvoicesPage = () => {
   const key = useParams().type;
@@ -171,7 +176,101 @@ const InvoicesPageContent = () => {
     key: "main-" + type.join("+") + "_" + activeTab,
   };
   const { invoices } = useInvoices(invoicesQueryOptions);
-  const exporter = useRestExporter("invoices");
+  const restExporter = useRestExporter<Invoices>("invoices");
+
+  // Isolated exporter function that conditionally includes fields based on document type
+  const exporter =
+    (options: RestOptions<Invoices>) =>
+    async (pagination: Pick<Pagination, "page" | "perPage">) => {
+      const invoices = await restExporter(options)(pagination);
+      return invoices.map((invoice) => {
+        // Base fields included for all document types
+        const baseFields = {
+          id: invoice.id,
+          reference: invoice.reference,
+          type: getDocumentName(invoice.type),
+          status: getInvoiceStatusPrettyName(invoice.state, invoice.type),
+          emit_date: new Date(invoice.emit_date).toISOString().slice(0, 10),
+          name: invoice.name,
+          content: (invoice.content || []).map((line) => line.name).join(", "),
+          partner: invoice.cache?.partner_names || "",
+          partner_id: invoice.client || invoice.supplier,
+          partner_recipients: (invoice.recipients || [])
+            .map((r) => r.email)
+            .join(", "),
+          price_currency: invoice.currency,
+          price_before_discounts: invoice.total?.initial || 0,
+          price_discount: invoice.total?.discount || 0,
+          price_taxes: invoice.total?.taxes || 0,
+          price_total_ht: invoice.total?.total || 0,
+          price_total_ttc: invoice.total?.total_with_taxes || 0,
+        };
+
+        // Fields specific to different document types
+        const typeSpecificFields: Record<string, any> = {};
+
+        // Due date calculation varies by document type
+        typeSpecificFields.due_date =
+          invoice.type === "quotes"
+            ? computePaymentDelayDate(invoice)
+                .toJSDate()
+                .toISOString()
+                .slice(0, 10)
+            : new Date(invoice.payment_information.computed_date)
+                .toISOString()
+                .slice(0, 10);
+
+        // Payment methods for all types that have payment_information
+        if (invoice.payment_information?.mode) {
+          typeSpecificFields.payment_methods = (
+            invoice.payment_information.mode || []
+          ).join(", ");
+        }
+
+        // Fields specific to quotes in recurring state
+        if (invoice.type === "quotes" && invoice.state === "recurring") {
+          typeSpecificFields.recurrence_next_invoice =
+            invoice.subscription_next_invoice_date;
+        }
+
+        // Fields specific to invoices with subscription information
+        if (invoice.from_subscription) {
+          typeSpecificFields.recurrence_frequency =
+            invoice.from_subscription.frequency || "";
+
+          if (invoice.from_subscription.from) {
+            typeSpecificFields.recurrence_period_from = new Date(
+              invoice.from_subscription.from
+            )
+              .toISOString()
+              .slice(0, 10);
+          }
+
+          if (invoice.from_subscription.to) {
+            typeSpecificFields.recurrence_period_to = new Date(
+              invoice.from_subscription.to
+            )
+              .toISOString()
+              .slice(0, 10);
+          }
+        }
+
+        // Fields specific to invoices and credit notes
+        if (invoice.type === "invoices" || invoice.type === "credit_notes") {
+          typeSpecificFields.paid = invoice?.transactions?.percentage >= 100;
+
+          if (invoice.from_rel_quote && invoice.from_rel_quote.length > 0) {
+            typeSpecificFields.from_quotes_id =
+              invoice.from_rel_quote.join(", ");
+            typeSpecificFields.from_quotes_reference =
+              invoice.cache?.from_rel_quote_ref || "";
+          }
+        }
+
+        // Return combined object with only the fields relevant to this document type
+        return { ...baseFields, ...typeSpecificFields };
+      });
+    };
 
   const schema = useRestSchema("invoices");
   const navigate = useNavigateAlt();

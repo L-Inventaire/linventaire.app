@@ -98,6 +98,11 @@ export type Invoices = RestEntity & {
     to: number; // Invoiced period end
   };
 
+  cache?: {
+    partner_names: string; // Cached names of the partner (client or supplier) for quick access
+    from_rel_quote_ref: string; // Cached reference of the quote from which this invoice was generated
+  };
+
   attachments: string[];
 
   notes: string;

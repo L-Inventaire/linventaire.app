@@ -70,4 +70,16 @@ export default (router: Router) => {
 
     res.send(updated);
   });
+
+  router.post("/:clientId/read_all", checkRole("USER"), async (req, res) => {
+    const ctx = Ctx.get(req)?.context;
+
+    // Import the markAllNotificationsAsRead function from the notify service
+    const { markAllNotificationsAsRead } = await import("./services/notify");
+
+    // Mark all notifications as read for this user and client
+    await markAllNotificationsAsRead(ctx, req.params.clientId, ctx.id);
+
+    res.send({ success: true });
+  });
 };

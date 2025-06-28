@@ -45,7 +45,18 @@ export default class Notifications implements InternalApplicationService {
     Framework.TriggersManager.registerEntities<NotificationsType>(
       [NotificationsDefinition],
       async (ctx, entity) => {
-        return entity?.user_id === ctx.id;
+        if (_.isArray(entity)) {
+          return entity.some(
+            (e) =>
+              e.key === "user_id" &&
+              !e.not &&
+              e.values.length === 1 &&
+              e.values[0].op === "equals" &&
+              e.values[0].value === ctx.id
+          );
+        } else {
+          return entity?.user_id === ctx.id;
+        }
       }
     );
 

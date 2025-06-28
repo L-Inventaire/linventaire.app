@@ -6,7 +6,6 @@ import _ from "lodash";
 import { useState } from "react";
 import * as XLSX from "xlsx";
 import { Pagination } from "./table";
-import { Badge } from "@radix-ui/themes";
 
 export const TableExportModal = (props: {
   tableName?: string;
@@ -16,7 +15,7 @@ export const TableExportModal = (props: {
   ) => Promise<any[]>;
   onClose: () => void;
 }) => {
-  const [exportType, setExportType] = useState("csv");
+  const [exportType, setExportType] = useState("xlsx");
   const [maxSize, setMaxSize] = useState("100");
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -82,10 +81,6 @@ export const TableExportModal = (props: {
 
   return (
     <ModalContent title="Export">
-      <Badge color="yellow" className="mb-4">
-        This feature is still in beta.
-      </Badge>
-
       <InputLabel
         className="mb-4"
         label="Maximum size"
@@ -111,8 +106,8 @@ export const TableExportModal = (props: {
             onChange={(e) => setExportType(e.target.value)}
             disabled={loading}
           >
-            <option value="csv">CSV</option>
             <option value="xlsx">Excel</option>
+            <option value="csv">CSV</option>
           </Select>
         }
       />

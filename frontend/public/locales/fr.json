@@ -48,6 +48,17 @@
     "save": "Enregistrer"
   },
   "invoices": {
+    "types": {
+      "quotes": "Devis",
+      "invoices": "Facture",
+      "credit_notes": "Avoir",
+      "supplier_quotes": "Commande",
+      "supplier_invoices": "Facture fournisseur",
+      "supplier_credit_notes": "Avoir fournisseur",
+      "delivery_slip": "Bon de livraison",
+      "receipt_acknowledgement": "Accusé de réception",
+      "proforma": "Facture proforma"
+    },
     "states": {
       "draft": {
         "default": "Brouillon"

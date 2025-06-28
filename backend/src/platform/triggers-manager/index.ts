@@ -9,6 +9,7 @@ import { TableDefinition } from "../db/api";
 import { Logger } from "../logger-db";
 import Socket from "../socket";
 import { PlatformService } from "../types";
+import { RestSearchQuery } from "#src/services/rest/type";
 
 type TriggerType<T> = {
   priority: number;
@@ -91,7 +92,7 @@ export default class TriggersManager implements PlatformService {
         }
       | ((
           ctx: Context,
-          entity?: Partial<T>,
+          entity?: Partial<T> | RestSearchQuery[],
           action?: "MANAGE" | "READ" | "WRITE"
         ) => Promise<boolean>) = {
       READ: "CLIENT_MANAGE",

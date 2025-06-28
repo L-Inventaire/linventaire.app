@@ -1,26 +1,52 @@
 import { useAuth } from "@features/auth/state/use-auth";
-import { RestOptions, useRest } from "@features/utils/rest/hooks/use-rest";
-import { useEffect } from "react";
+import { useCurrentClient } from "@features/clients/state/use-clients";
+import {
+  RestOptions,
+  RestSearchQuery,
+  useRest,
+} from "@features/utils/rest/hooks/use-rest";
+import { useCallback, useEffect } from "react";
+import { NotificationsApiClient } from "../api-client/notifications-api-client";
 import { Notifications } from "../types/types";
 
 export const useNotifications = (options?: RestOptions<Notifications>) => {
   const { user } = useAuth();
+  const { id: clientId } = useCurrentClient();
+  console.log(options?.query);
   const rest = useRest<Notifications>("notifications", {
     ...options,
     index: "last_notified_at desc",
     asc: true,
     limit: 100,
-    query: {
-      ...options?.query,
-      user_id: user?.id,
-    },
+    query: [
+      ...Array.from((options?.query as RestSearchQuery[]) || []),
+      { key: "user_id", values: [{ op: "equals", value: user?.id }] },
+    ],
   });
 
   useEffect(() => {
     rest.refresh();
   }, [JSON.stringify(options)]);
+  /**
+   * Marks all notifications as read and refreshes the notifications list
+   */
+  const markAllAsRead = useCallback(async () => {
+    if (!clientId) return;
 
-  return { notifications: rest.items, ...rest };
+    try {
+      await NotificationsApiClient.markAllNotificationsAsRead(clientId);
+      // Refresh the notifications list after marking all as read
+      rest.refresh();
+    } catch (error) {
+      console.error("Failed to mark all notifications as read:", error);
+    }
+  }, [clientId, rest]);
+
+  return {
+    notifications: rest.items,
+    markAllAsRead,
+    ...rest,
+  };
 };
 
 export const useNotification = (id: string) => {
