@@ -59,7 +59,7 @@ export default class Clients implements InternalApplicationService {
       "004-drop-searchable-column": dropSearchableTsVectorColumn,
       "005-set-invoices-caches-4": setCacheInvoices,
       "006-move-articles-references": moveArticleReferences,
-      "007-better-search-stock-services-redo": betterSearchStockServices,
+      "007-better-search-stock-services-redo-2": betterSearchStockServices,
       "008-fix-payment-date-invoices-redo-2": fixPaymentDatesInvoices,
       "009-fix-invoices-searchable-1": fixInvoicesSearchables,
       "010-contact-rebuild-searchable": rebuildContactSearchables,

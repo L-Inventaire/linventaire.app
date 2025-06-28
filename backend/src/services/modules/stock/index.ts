@@ -4,6 +4,7 @@ import { Logger } from "../../../platform/logger-db";
 import { InternalApplicationService } from "../../types";
 import { StockItemsDefinition } from "./entities/stock-items";
 import { StockLocationsDefinition } from "./entities/stock-locations";
+import { setUpsertHook } from "./triggers/upsert-hook";
 
 export default class Stocks implements InternalApplicationService {
   version = 1;
@@ -31,6 +32,8 @@ export default class Stocks implements InternalApplicationService {
       WRITE: "CLIENT_MANAGE",
       MANAGE: "CLIENT_MANAGE",
     });
+
+    setUpsertHook();
 
     console.log(`${this.name}:v${this.version} initialized`);
 

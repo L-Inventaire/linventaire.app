@@ -6,14 +6,16 @@ import {
   useFormController,
 } from "@components/form/formcontext";
 import { Articles } from "@features/articles/types/types";
-import { InvoiceLine } from "@features/invoices/types/types";
+import { InvoiceLine, Invoices } from "@features/invoices/types/types";
 import { tvaOptions } from "@features/utils/constants";
+import { getCorrectPrice } from "../invoice-line-input";
 
 export const InvoiceLinePriceInput = (props: {
   article?: Articles | null;
   value?: InvoiceLine;
   onChange?: (v: InvoiceLine) => void;
   ctrl?: FormControllerType<InvoiceLine>;
+  invoice: Invoices;
 }) => {
   const value = props.ctrl?.value || props.value || ({} as InvoiceLine);
   const onChange = props.ctrl?.onChange || props.onChange;
@@ -36,7 +38,7 @@ export const InvoiceLinePriceInput = (props: {
           onClick={() => {
             onChange!({
               ...value,
-              unit_price: parseFloat(props?.article?.price as any),
+              unit_price: getCorrectPrice(props!.article!, props!.invoice),
               tva: props?.article?.tva,
             });
           }}

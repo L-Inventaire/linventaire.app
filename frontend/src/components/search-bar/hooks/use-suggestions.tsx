@@ -114,7 +114,7 @@ export const useSuggestions = (
             const status = getCaretPosition();
             const field = fields.find((f) => f.key === columnSearch[0]);
             const currentSearchValueIndex = status.value?.index || 0;
-            const inputValue = a.label || a.value;
+            const inputValue = (a.label || a.value).replace(/("|'|,)/g, " ");
             // Update list of values
             const alreadyHasValue = currentFilterValues
               .filter((_, i) => i !== currentSearchValueIndex || !inSearchMode)

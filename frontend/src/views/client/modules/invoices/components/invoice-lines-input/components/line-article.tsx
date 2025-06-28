@@ -11,6 +11,7 @@ import { InvoiceLine, Invoices } from "@features/invoices/types/types";
 import { EditorInput } from "@molecules/editor-input";
 import { useState } from "react";
 import { getArticleIcon } from "../../../../articles/components/article-icon";
+import { getCorrectPrice } from "../invoice-line-input";
 
 export const InvoiceLineArticleInput = (props: {
   invoice: Invoices;
@@ -74,7 +75,7 @@ export const InvoiceLineArticleInput = (props: {
                       article: id as string,
                       type: article.type,
                       reference: article.internal_reference,
-                      unit_price: article.price,
+                      unit_price: getCorrectPrice(article, props.invoice),
                       unit: article.unit,
                       tva: article.tva,
                       name: article.name,

@@ -58,7 +58,7 @@ export default class DocumensoAdapter implements DocumentSignerInterface {
       })),
       meta: {
         subject: "Un document à signer vous attend.",
-        message: "Retrouver le document ci-dessous.",
+        message: "Retrouvez ce document ci-dessous.",
         timezone: "Etc/UTC",
         redirectUrl: config
           .get<string>("signature.webhook.signed")

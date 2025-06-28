@@ -66,6 +66,21 @@ import { InvoiceLineArticleInput } from "./components/line-article";
 import { InvoiceLinePriceInput } from "./components/line-price";
 import { InvoiceLineQuantityInput } from "./components/line-quantity";
 
+export const getCorrectPrice = (
+  article: Articles | null,
+  invoice: Invoices
+) => {
+  const isSupplierRelated = [
+    "supplier_credit_notes",
+    "supplier_quotes",
+    "supplier_invoices",
+  ].includes(invoice?.type || "");
+  const correctPrice = isSupplierRelated
+    ? article?.suppliers_details?.[invoice?.supplier]?.price ||
+      article?.suppliers_details?.["custom"]?.price
+    : article?.price || 0;
+  return parseFloat(correctPrice as any);
+};
 export const InvoiceLineInput = (props: {
   invoice?: Invoices;
   value?: InvoiceLine;
@@ -126,18 +141,9 @@ export const InvoiceLineInput = (props: {
         previousArticleSupplierValues.current = key;
         if (previousValue) {
           // If there was a value, but this value changed, then we can reset the prices to put the right ones
-          const isSupplierRelated = [
-            "supplier_credit_notes",
-            "supplier_quotes",
-            "supplier_invoices",
-          ].includes(props.invoice?.type || "");
-          const correctPrice = isSupplierRelated
-            ? article?.suppliers_details?.[props.invoice?.supplier]?.price ||
-              article?.suppliers_details?.["custom"]?.price
-            : article?.price || 0;
           onChange?.({
             ...value,
-            unit_price: parseFloat(correctPrice as any),
+            unit_price: getCorrectPrice(article!, props.invoice!),
           });
         }
       }
@@ -260,6 +266,7 @@ export const InvoiceLineInput = (props: {
                     value={value}
                     onChange={(v) => onChange?.(v)}
                     ctrl={props.ctrl}
+                    invoice={props.invoice!}
                   >
                     <Text as="div" size="2" weight="bold">
                       {formatAmount(
@@ -293,6 +300,7 @@ export const InvoiceLineInput = (props: {
                     value={value}
                     onChange={(v) => onChange?.(v)}
                     ctrl={props.ctrl}
+                    invoice={props.invoice!}
                   >
                     <Text as="div" size="2" weight="bold">
                       {formatAmount(
@@ -584,6 +592,7 @@ const PriceInput = ({
   value,
   onChange,
   ctrl,
+  invoice,
   children,
 }: {
   readonly?: boolean;
@@ -591,6 +600,7 @@ const PriceInput = ({
   value: InvoiceLine;
   onChange?: (v: InvoiceLine) => void;
   ctrl?: FormControllerType<InvoiceLine>;
+  invoice: Invoices;
   children?: React.ReactNode;
 }) => {
   return (
@@ -607,6 +617,7 @@ const PriceInput = ({
             value={value}
             onChange={onChange}
             ctrl={ctrl}
+            invoice={invoice}
           />
           <br />
           <InvoiceDiscountInput
