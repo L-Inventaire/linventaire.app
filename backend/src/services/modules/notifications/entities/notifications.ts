@@ -62,6 +62,16 @@ export const NotificationsDefinition: RestTableDefinition = {
   ],
   rest: {
     label: () => "",
+    searchable: (entity: Notifications) =>
+      [
+        entity.entity_display_name,
+        entity.display_name,
+        Object.values(entity.metadata)
+          .filter((a) => typeof a === "string")
+          .join(" "),
+      ]
+        .filter(Boolean)
+        .join(" "),
     schema: classToSchema(new Notifications()),
   },
 };

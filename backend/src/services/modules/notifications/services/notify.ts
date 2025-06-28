@@ -96,14 +96,9 @@ export const markAllNotificationsAsRead = async (
   const db = await platform.Db.getService();
 
   // Update all unread notifications for this user in this client
-  await db.update(
-    ctx,
-    NotificationsDefinition.name,
-    {
-      client_id: clientId,
-      user_id: userId,
-      read: false,
-    },
-    { read: true } as Partial<NotificationsType>
+  await db.custom(
+    { ...ctx, role: "SYSTEM" },
+    "UPDATE notifications SET read = true WHERE client_id = $1 AND user_id = $2 AND read = false",
+    [clientId, userId]
   );
 };
