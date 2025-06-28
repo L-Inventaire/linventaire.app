@@ -1,3 +1,4 @@
+import { generateQueryFromMap } from "@components/search-bar/utils/utils";
 import { useAuth } from "@features/auth/state/use-auth";
 import { useCurrentClient } from "@features/clients/state/use-clients";
 import {
@@ -50,11 +51,10 @@ export const useNotifications = (options?: RestOptions<Notifications>) => {
 };
 
 export const useNotification = (id: string) => {
-  const { user } = useAuth();
-
   const rest = useNotifications({
-    query: { id, user_id: user!.id },
+    query: generateQueryFromMap({ id }),
     limit: id ? 1 : 0,
+    key: "notification_" + id,
   });
   return {
     notification: id ? (rest.notifications.data?.list || [])[0] : null,

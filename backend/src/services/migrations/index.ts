@@ -65,7 +65,7 @@ export default class Clients implements InternalApplicationService {
       "009-fix-invoices-searchable-1": fixInvoicesSearchables,
       "010-contact-rebuild-searchable": rebuildContactSearchables,
       "011-stock-reindex-searchable": rebuildStockSearchables,
-      "012-notifications-fix-searchable": fixNotificationsSearchables,
+      "012-notifications-fix-searchable-redo": fixNotificationsSearchables,
     } as {
       [key: string]: (ctx: Context) => Promise<void>;
     };

@@ -4461,6 +4461,11 @@ body :is(.shadow-xl) {
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
+body :is(.\!outline-none) {
+  outline: 2px solid transparent !important;
+  outline-offset: 2px !important;
+}
+
 body :is(.outline) {
   outline-style: solid;
 }
@@ -4705,6 +4710,10 @@ body :is(.hover\:block:hover) {
   display: block;
 }
 
+body :is(.hover\:border-none:hover) {
+  border-style: none;
+}
+
 body :is(.hover\:border-blue-500:hover) {
   --tw-border-opacity: 1;
   border-color: rgb(59 130 246 / var(--tw-border-opacity));
@@ -4795,6 +4804,10 @@ body :is(.focus\:z-10:focus) {
 body :is(.focus\:rounded-b-none:focus) {
   border-bottom-right-radius: 0px;
   border-bottom-left-radius: 0px;
+}
+
+body :is(.focus\:border-none:focus) {
+  border-style: none;
 }
 
 body :is(.focus\:border-slate-500:focus) {

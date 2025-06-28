@@ -10,6 +10,7 @@ import {
 import { Notifications } from "@features/notifications/types/types";
 import { getRoute, ROUTES } from "@features/routes";
 import { useNavigateAlt } from "@features/utils/navigate";
+import { CogIcon, FunnelIcon } from "@heroicons/react/24/outline";
 import { CheckIcon, EllipsisHorizontalIcon } from "@heroicons/react/24/outline";
 import {
   Button,
@@ -61,18 +62,21 @@ export const NotificationsPage = () => {
           <div className="border-r border-r-slate-100 dark:border-r-slate-700 w-1/2 max-w-[288px]">
             <div className="flex flex-col grow w-full text-black dark:text-white min-h-full sm:bg-transparent">
               {/* Search and filters header */}
-              <div className="p-3 border-b border-b-slate-100 dark:border-b-slate-700">
-                <div className="flex items-center mb-2 space-x-2">
+              <div className="border-b border-b-slate-100 dark:border-b-slate-700">
+                <div className="flex items-center">
                   <Input
                     size="sm"
-                    className="grow py-2"
-                    placeholder="Rechercher..."
+                    className="grow py-2 !border-none !outline-none !ring-0 !shadow-none !bg-transparent"
+                    placeholder="Filtrer..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                   <DropdownMenu.Root>
                     <DropdownMenu.Trigger>
-                      <Button variant="ghost" className="h-5 w-5 rounded-full">
+                      <Button
+                        variant="ghost"
+                        className="h-6 w-6 p-0 rounded-full mx-1"
+                      >
                         <EllipsisHorizontalIcon className="h-4 w-4" />
                       </Button>
                     </DropdownMenu.Trigger>
@@ -80,16 +84,15 @@ export const NotificationsPage = () => {
                       <DropdownMenu.Item
                         onSelect={() => setUnreadOnly(!unreadOnly)}
                       >
-                        <div className="flex items-center gap-2">
-                          <Switch
-                            size="1"
-                            checked={unreadOnly}
-                            onCheckedChange={setUnreadOnly}
-                          />
-                          <Text size="1">Non lus uniquement</Text>
+                        <div className="flex items-center">
+                          <FunnelIcon className="h-3 w-3 mr-2" />
+                          {!unreadOnly ? (
+                            <Text>Non lus uniquement</Text>
+                          ) : (
+                            <Text>Afficher les notification lues</Text>
+                          )}
                         </div>
                       </DropdownMenu.Item>
-                      <DropdownMenu.Separator />
                       <DropdownMenu.Item
                         onSelect={() => markAllAsRead()}
                         disabled={
@@ -98,7 +101,19 @@ export const NotificationsPage = () => {
                       >
                         <div className="flex items-center">
                           <CheckIcon className="h-3 w-3 mr-2" />
-                          <Text size="1">Tout marquer comme lu</Text>
+                          <Text>Tout marquer comme lu</Text>
+                        </div>
+                      </DropdownMenu.Item>
+                      <DropdownMenu.Item
+                        onSelect={(e) =>
+                          navigate(getRoute(ROUTES.AccountNotifications), {
+                            event: e as any,
+                          })
+                        }
+                      >
+                        <div className="flex items-center">
+                          <CogIcon className="h-3 w-3 mr-2" />
+                          <Text>Paramètres des notifications</Text>
                         </div>
                       </DropdownMenu.Item>
                     </DropdownMenu.Content>
@@ -224,7 +239,7 @@ export const NotificationsPage = () => {
             </div>
           </div>
           <div className="grow border-r border-r-950 dark:border-r-950">
-            {id && <NotificationPreview id={id} />}
+            {id && <NotificationPreview id={id} key={id} />}
           </div>
         </div>
       )}

@@ -1,3 +1,5 @@
+import Framework from "#src/platform";
+import { createContext } from "#src/types";
 import { RestTableDefinition } from "../../../../platform/db/api";
 import {
   classToSchema,
@@ -69,6 +71,19 @@ export const NotificationsDefinition: RestTableDefinition = {
         Object.values(entity.metadata)
           .filter((a) => typeof a === "string")
           .join(" "),
+        Framework.I18n.t(
+          createContext("orm", "SYSTEM"),
+          [
+            `notifications.${entity.type}.title`,
+            `notifications.${entity.type}.title`,
+            entity.type,
+          ],
+          {
+            replacements: {
+              ...((entity.metadata || {}) as any),
+            },
+          }
+        ),
       ]
         .filter(Boolean)
         .join(" "),

@@ -4,12 +4,13 @@ import { useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
 import { StatisticsApiClient } from "./api-client/api-client";
 import { DashboardBalances, DashboardTags, Statistics } from "./types";
+import { generateQueryFromMap } from "@components/search-bar/utils/utils";
 
 export const useDashboard = (year?: number): Statistics => {
   year = year || DateTime.local().year;
   const { client } = useCurrentClient();
   const { notifications } = useNotifications({
-    query: { read: false },
+    query: generateQueryFromMap({ read: false }),
     limit: 1,
     key: "unreadNotifications",
   });
