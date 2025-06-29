@@ -10,8 +10,12 @@ import {
 import { Notifications } from "@features/notifications/types/types";
 import { getRoute, ROUTES } from "@features/routes";
 import { useNavigateAlt } from "@features/utils/navigate";
-import { CogIcon, FunnelIcon } from "@heroicons/react/24/outline";
-import { CheckIcon, EllipsisHorizontalIcon } from "@heroicons/react/24/outline";
+import {
+  CheckIcon,
+  CogIcon,
+  EllipsisHorizontalIcon,
+  FunnelIcon,
+} from "@heroicons/react/24/outline";
 import {
   Button,
   DropdownMenu,
@@ -19,7 +23,6 @@ import {
   Link,
   ScrollArea,
   Spinner,
-  Switch,
   Text,
 } from "@radix-ui/themes";
 import { Page } from "@views/client/_layout/page";
