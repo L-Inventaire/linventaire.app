@@ -70,6 +70,72 @@ button {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+  touch-action: manipulation;
+}
+
+/* Mobile tap improvements */
+
+a, button, .interactive {
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+  touch-action: manipulation;
+}
+
+@media (max-width: 767px) {
+  .btn, button, a {
+    cursor: pointer;
+    min-height: 44px;
+  }
+}
+
+/* Better iframe rendering */
+
+iframe {
+  background-color: white !important;
+  /* Force white background */
+  border: 0;
+  overflow: auto;
+  width: 100%;
+  height: 100%;
+  display: block;
+  /* Prevents extra spacing */
+}
+
+/* Full-height iframe containers */
+
+.iframe-container, .relative {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Fix for mobile PDF display issues */
+
+@supports (-webkit-overflow-scrolling: touch) {
+  iframe {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Safari-specific fixes */
+
+@media screen and (min-color-index:0) and (-webkit-min-device-pixel-ratio:0) {
+  iframe {
+    height: 100% !important;
+    min-height: 50vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+}
+
+/* Chrome and Edge specific fixes */
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  iframe {
+    background: white !important;
+  }
 }
 
 :root, .light, .light-theme {
@@ -204,9 +270,7 @@ button {
   }
 }
 
-/*
-! tailwindcss v3.4.4 | MIT License | https://tailwindcss.com
-*/
+/* ! tailwindcss v3.4.4 | MIT License | https://tailwindcss.com */
 
 /*
 1. Prevent padding and border from affecting element width. (https://github.com/mozdevs/cssremedy/issues/4)
@@ -1586,6 +1650,10 @@ body :is(.mt-8) {
   margin-top: 2rem;
 }
 
+body :is(.mt-auto) {
+  margin-top: auto;
+}
+
 body :is(.mt-px) {
   margin-top: 1px;
 }
@@ -1686,10 +1754,6 @@ body :is(.h-2) {
 
 body :is(.h-2\.5) {
   height: 0.625rem;
-}
-
-body :is(.h-2\/3) {
-  height: 66.666667%;
 }
 
 body :is(.h-20) {
@@ -1941,6 +2005,10 @@ body :is(.w-8) {
   width: 2rem;
 }
 
+body :is(.w-80) {
+  width: 20rem;
+}
+
 body :is(.w-96) {
   width: 24rem;
 }
@@ -1964,10 +2032,6 @@ body :is(.w-max) {
 
 body :is(.w-px) {
   width: 1px;
-}
-
-body :is(.w-48) {
-  width: 12rem;
 }
 
 body :is(.\!min-w-0) {
@@ -2012,10 +2076,6 @@ body :is(.max-w-24) {
   max-width: 6rem;
 }
 
-body :is(.max-w-2xl) {
-  max-width: 42rem;
-}
-
 body :is(.max-w-4xl) {
   max-width: 56rem;
 }
@@ -2036,10 +2096,6 @@ body :is(.max-w-\[288px\]) {
   max-width: 288px;
 }
 
-body :is(.max-w-\[40\%\]) {
-  max-width: 40%;
-}
-
 body :is(.max-w-full) {
   max-width: 100%;
 }
@@ -2055,6 +2111,10 @@ body :is(.max-w-max) {
 
 body :is(.max-w-md) {
   max-width: 28rem;
+}
+
+body :is(.max-w-screen-2xl) {
+  max-width: 1536px;
 }
 
 body :is(.max-w-xl) {
@@ -2266,6 +2326,10 @@ body :is(.flex-row) {
 
 body :is(.flex-col) {
   flex-direction: column;
+}
+
+body :is(.flex-wrap) {
+  flex-wrap: wrap;
 }
 
 body :is(.items-start) {
@@ -2547,6 +2611,10 @@ body :is(.\!border) {
 
 body :is(.border) {
   border-width: 1px;
+}
+
+body :is(.border-0) {
+  border-width: 0px;
 }
 
 body :is(.border-2) {
@@ -3134,6 +3202,11 @@ body :is(.bg-blue-900) {
 body :is(.bg-emerald-500) {
   --tw-bg-opacity: 1;
   background-color: rgb(16 185 129 / var(--tw-bg-opacity));
+}
+
+body :is(.bg-gray-100) {
+  --tw-bg-opacity: 1;
+  background-color: rgb(243 244 246 / var(--tw-bg-opacity));
 }
 
 body :is(.bg-gray-200) {
@@ -4435,6 +4508,12 @@ body :is(.shadow) {
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
+body :is(.shadow-inner) {
+  --tw-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+  --tw-shadow-colored: inset 0 2px 4px 0 var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
 body :is(.shadow-lg) {
   --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
@@ -4714,10 +4793,6 @@ body :is(.hover\:block:hover) {
   display: block;
 }
 
-body :is(.hover\:border-none:hover) {
-  border-style: none;
-}
-
 body :is(.hover\:border-blue-500:hover) {
   --tw-border-opacity: 1;
   border-color: rgb(59 130 246 / var(--tw-border-opacity));
@@ -4808,10 +4883,6 @@ body :is(.focus\:z-10:focus) {
 body :is(.focus\:rounded-b-none:focus) {
   border-bottom-right-radius: 0px;
   border-bottom-left-radius: 0px;
-}
-
-body :is(.focus\:border-none:focus) {
-  border-style: none;
 }
 
 body :is(.focus\:border-slate-500:focus) {
@@ -5018,6 +5089,10 @@ body :is(.group\/user:hover .group-hover\/user\:opacity-100) {
     width: 2.5rem;
   }
 
+  body :is(.sm\:w-3\/4) {
+    width: 75%;
+  }
+
   body :is(.sm\:w-64) {
     width: 16rem;
   }
@@ -5106,6 +5181,11 @@ body :is(.group\/user:hover .group-hover\/user\:opacity-100) {
     padding: 1.5rem;
   }
 
+  body :is(.sm\:px-0) {
+    padding-left: 0px;
+    padding-right: 0px;
+  }
+
   body :is(.sm\:px-10) {
     padding-left: 2.5rem;
     padding-right: 2.5rem;
@@ -5138,6 +5218,10 @@ body :is(.group\/user:hover .group-hover\/user\:opacity-100) {
   body :is(.sm\:align-middle) {
     vertical-align: middle;
   }
+
+  body :is(.sm\:text-lg) {
+    font-size: 15px;
+  }
 }
 
 @media (min-width: 768px) {
@@ -5145,8 +5229,16 @@ body :is(.group\/user:hover .group-hover\/user\:opacity-100) {
     position: relative;
   }
 
+  body :is(.md\:-mt-2) {
+    margin-top: -0.5rem;
+  }
+
   body :is(.md\:flex) {
     display: flex;
+  }
+
+  body :is(.md\:hidden) {
+    display: none;
   }
 
   body :is(.md\:w-1\/2) {
@@ -5165,6 +5257,10 @@ body :is(.group\/user:hover .group-hover\/user\:opacity-100) {
     align-items: flex-end;
   }
 
+  body :is(.md\:gap-4) {
+    gap: 1rem;
+  }
+
   body :is(.md\:space-x-4 > :not([hidden]) ~ :not([hidden])) {
     --tw-space-x-reverse: 0;
     margin-right: calc(1rem * var(--tw-space-x-reverse));
@@ -5175,6 +5271,10 @@ body :is(.group\/user:hover .group-hover\/user\:opacity-100) {
     --tw-space-y-reverse: 0;
     margin-top: calc(0px * calc(1 - var(--tw-space-y-reverse)));
     margin-bottom: calc(0px * var(--tw-space-y-reverse));
+  }
+
+  body :is(.md\:text-xl) {
+    font-size: 24px;
   }
 }
 
@@ -5309,6 +5409,11 @@ body :is(.dark\:border-blue-800:where(.dark, .dark *)) {
 body :is(.dark\:border-blue-900:where(.dark, .dark *)) {
   --tw-border-opacity: 1;
   border-color: rgb(30 58 138 / var(--tw-border-opacity));
+}
+
+body :is(.dark\:border-gray-800:where(.dark, .dark *)) {
+  --tw-border-opacity: 1;
+  border-color: rgb(31 41 55 / var(--tw-border-opacity));
 }
 
 body :is(.dark\:border-green-100:where(.dark, .dark *)) {
@@ -5724,6 +5829,11 @@ body :is(.dark\:bg-blue-800:where(.dark, .dark *)) {
 body :is(.dark\:bg-blue-900:where(.dark, .dark *)) {
   --tw-bg-opacity: 1;
   background-color: rgb(30 58 138 / var(--tw-bg-opacity));
+}
+
+body :is(.dark\:bg-gray-900:where(.dark, .dark *)) {
+  --tw-bg-opacity: 1;
+  background-color: rgb(17 24 39 / var(--tw-bg-opacity));
 }
 
 body :is(.dark\:bg-green-100:where(.dark, .dark *)) {

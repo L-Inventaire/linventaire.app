@@ -78,7 +78,7 @@ export const Login = () => {
     const grecaptcha = (window as any).grecaptcha?.enterprise;
     if (grecaptcha) {
       grecaptcha.ready(async () => {
-        const captchaValidation = await getCaptchaToken("email-login");
+        const captchaValidation = await getCaptchaToken("emaillogin");
         request(captchaValidation);
       });
     } else {

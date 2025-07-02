@@ -6,6 +6,64 @@ button {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    touch-action: manipulation;
+}
+
+/* Mobile tap improvements */
+a, button, .interactive {
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    touch-action: manipulation;
+}
+
+@media (max-width: 767px) {
+    .btn, button, a {
+        cursor: pointer;
+        min-height: 44px;
+    }
+}
+
+/* Better iframe rendering */
+iframe {
+    background-color: white !important; /* Force white background */
+    border: 0;
+    overflow: auto;
+    width: 100%;
+    height: 100%;
+    display: block; /* Prevents extra spacing */
+}
+
+/* Full-height iframe containers */
+.iframe-container, .relative {
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Fix for mobile PDF display issues */
+@supports (-webkit-overflow-scrolling: touch) {
+    iframe {
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Safari-specific fixes */
+@media screen and (min-color-index:0) and (-webkit-min-device-pixel-ratio:0) {
+    iframe {
+        height: 100% !important;
+        min-height: 50vh;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+}
+
+/* Chrome and Edge specific fixes */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    iframe {
+        background: white !important;
+    }
 }
 
 :root, .light, .light-theme {

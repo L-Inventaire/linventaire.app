@@ -1,17 +1,12 @@
 import { Button } from "@atoms/button/button";
-import { PageLoader } from "@atoms/page-loader";
-import { Base, Section } from "@atoms/text";
 import { SigningSessionsApiClient } from "@features/documents/api-client/api-client";
 import { useSigningSession } from "@features/documents/hooks";
 import { Invoices } from "@features/invoices/types/types";
 import { isErrorResponse } from "@features/utils/rest/types/types";
-import { AspectRatio } from "@radix-ui/themes";
-import { Page } from "@views/client/_layout/page";
-import { useEffect } from "react";
-import { useTranslation } from "react-i18next";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { twMerge } from "tailwind-merge";
-import { TitleBar } from "./components/title-bar";
+import { DocumentLayout } from "./components/document-layout";
+import { useMobile } from "./hooks/use-mobile";
 
 export const SignedSessionPage = () => {
   const { session: sessionID } = useParams();
@@ -21,47 +16,40 @@ export const SignedSessionPage = () => {
     signedDocument,
     refetchSignedDocument,
   } = useSigningSession(sessionID ?? "");
-  const { t } = useTranslation();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     async function action() {
-      await SigningSessionsApiClient.confirmSignSigningSession(sessionID ?? "");
-      await refetchSigningSession();
+      if (!sessionID) return;
+      try {
+        setIsLoading(true);
+        await SigningSessionsApiClient.confirmSignSigningSession(sessionID);
+        await refetchSigningSession();
+      } catch (error) {
+        console.error("Error confirming signing session:", error);
+      } finally {
+        setIsLoading(false);
+      }
     }
 
     action();
+  }, [sessionID]);
+
+  // Add a useEffect to handle the document fetch when session is signed
+  useEffect(() => {
+    if (
+      signingSession &&
+      !isErrorResponse(signingSession) &&
+      signingSession.state === "signed"
+    ) {
+      refetchSignedDocument();
+    }
   }, [signingSession]);
 
-  if (!signingSession)
-    return (
-      <div className="flex justify-center items-center h-full w-full dark:bg-wood-990 bg-white">
-        <PageLoader />
-      </div>
-    );
-
-  if (isErrorResponse(signingSession)) {
-    return (
-      <div
-        className={twMerge(
-          "sm:overflow-auto overflow-hidden relative flex w-full grow flex-row bg-slate-50 dark:bg-slate-950 h-screen intro-animated-root z-10"
-        )}
-      >
-        <Page
-          title={[
-            {
-              label: t("documents.index.title"),
-            },
-          ]}
-        >
-          <div className="w-full h-full flex flex-col items-center">
-            <div className="w-3/4 bg-white flex flex-col justify-between items-center rounded-md p-6">
-              <Base>An error occurred</Base>
-            </div>
-          </div>
-        </Page>
-      </div>
-    );
-  }
+  const invoiceData =
+    signingSession && !isErrorResponse(signingSession)
+      ? (signingSession.invoice_snapshot as unknown as Invoices)
+      : null;
 
   const url = signedDocument
     ? window.URL.createObjectURL(
@@ -69,73 +57,49 @@ export const SignedSessionPage = () => {
       )
     : "";
 
-  return (
-    <div
-      className={twMerge(
-        "sm:overflow-auto overflow-hidden relative flex w-full bg-white grow flex-row bg-slate-50 dark:bg-slate-950 h-screen intro-animated-root z-10"
-      )}
-    >
-      <Page
-        title={[
-          {
-            label: t("documents.index.title"),
-          },
-        ]}
+  const handleRefresh = async () => {
+    setIsLoading(true);
+    try {
+      await refetchSignedDocument();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Refresh button component
+  const ActionButtons = ({ isMobile = false }) => {
+    const buttonClasses = isMobile ? "w-full" : "";
+
+    return (
+      <Button
+        onClick={handleRefresh}
+        disabled={isLoading}
+        className={buttonClasses}
       >
-        <div className="w-full h-full flex flex-col items-center justify-center grow">
-          <div className="max-w-2xl w-full h-full flex flex-col items-center rounded-md grow">
-            <div className="w-full">
-              <TitleBar
-                className={"mb-8"}
-                signingSession={signingSession}
-                invoice={signingSession.invoice_snapshot as unknown as Invoices}
-                alerts={false}
-              />
-            </div>
+        {isLoading
+          ? "Chargement..."
+          : isMobile
+          ? "Rafraîchir le document"
+          : "Rafraîchir"}
+      </Button>
+    );
+  };
 
-            {url && (
-              <iframe
-                className="w-full grow"
-                src={url}
-                title="Invoice PDF Preview"
-              />
-            )}
+  const isMobile = useMobile();
 
-            {!signedDocument && (
-              <div className="flex flex-col w-full h-2/3 p-10 justify-center items-center bg-white rounded-lg">
-                <div className="w-full md:w-1/2 mb-6">
-                  <AspectRatio ratio={1 / 1} className="flex justify-center">
-                    <img
-                      className="Image"
-                      src="/medias/undraw_signing_document.svg"
-                      alt="Landscape photograph by Tobias Tullius"
-                    />
-                  </AspectRatio>
-                </div>
-                <div className="flex flex-col items-center justify-center mb-6">
-                  <Section className="m-0 mr-2 font-normal text-center">
-                    Merci, la signature du document prendra quelque temps.
-                    <br /> Le document signé vous sera envoyé par email
-                  </Section>
-
-                  {false && (
-                    // It is too slow right now, so we are not showing it until we rethink the user exp
-                    <div className="flex mt-4 justify-center items-center">
-                      <Button
-                        onClick={async () => {
-                          await refetchSignedDocument();
-                        }}
-                      >
-                        Rafraîchir
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </Page>
-    </div>
+  return (
+    <DocumentLayout
+      signingSession={
+        signingSession && !isErrorResponse(signingSession)
+          ? signingSession
+          : null
+      }
+      invoiceData={invoiceData}
+      isLoading={isLoading && !signingSession}
+      documentUrl={url}
+      showAlerts={false}
+      actions={<ActionButtons isMobile={isMobile} />}
+      imageWhenNoDocument={true}
+    />
   );
 };
