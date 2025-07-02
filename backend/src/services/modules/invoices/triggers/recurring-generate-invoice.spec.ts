@@ -321,7 +321,7 @@ describe("recurring-generate-invoice", () => {
       new Date("2024-02-29T23:00:00.000Z")
     );
     expect(invoices[0].from_subscription.to).toEqual(
-      new Date("2024-03-31T22:59:59.999Z")
+      new Date("2024-03-31T21:59:59.999Z")
     );
   });
 });
