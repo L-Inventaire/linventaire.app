@@ -18,9 +18,11 @@ import {
   Spinner,
   Strong,
   Tabs,
+  Text,
 } from "@radix-ui/themes";
 import { useQuery } from "@tanstack/react-query";
 import _ from "lodash";
+import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { atom, useRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
@@ -69,18 +71,34 @@ export const InvoiceInvoiceModalContent = ({
     invoicedArticlesMap[line.article || ""] =
       (invoicedArticlesMap[line.article || ""] || 0) + (line.quantity || 0);
   }
+
+  // Compute which articles are already invoiced and set a default content for each line of remaining articles
   const defaultContent = quote?.content
     ?.map((a) => {
       const invoicedQuantity = invoicedArticlesMap[a.article || ""] || 0;
-      invoicedArticlesMap[a.article || ""] -= a.quantity || 0;
+      const quantity = Math.min(
+        a.quantity_delivered || a.quantity || 0,
+        Math.max(0, (a.quantity || 0) - invoicedQuantity)
+      );
+      invoicedArticlesMap[a.article || ""] -= quantity || 0;
       return {
         ...a,
-        quantity: Math.max(0, (a.quantity || 0) - invoicedQuantity),
+        quantity_on_quote: a.quantity || 0,
+        quantity_remaining_max: Math.max(
+          0,
+          (a.quantity || 0) - invoicedQuantity
+        ),
+        quantity,
       };
     })
     ?.filter((a) => (a.quantity || 0) > 0);
 
-  const [selection, setSelection] = useState<InvoiceLine[]>([]);
+  const [selection, setSelection] = useState<
+    (InvoiceLine & {
+      quantity_on_quote: number;
+      quantity_remaining_max: number;
+    })[]
+  >([]);
 
   useEffect(() => {
     if (
@@ -101,21 +119,35 @@ export const InvoiceInvoiceModalContent = ({
 
   if (!quote || !defaultContent || !invoices.isFetched) return null;
 
+  const hasntFilledQuoteLines =
+    quote.type === "quotes" &&
+    (selection || []).some(
+      (a) => a.quantity && a.quantity > (a.quantity_delivered || 0)
+    );
+
   return (
     <ModalContent title="Créer une facture">
       <Tabs.Root
         defaultValue={
-          (quote?.content || []).some((a) => a.subscription) &&
-          defaultContent?.length
+          ((quote?.content || []).some((a) => a.subscription) &&
+            defaultContent?.length) ||
+          hasntFilledQuoteLines
             ? "partial"
             : "complete"
         }
-        onValueChange={() => {
-          setSelection(defaultContent || []);
+        onValueChange={(mode) => {
+          setSelection(
+            mode === "complete"
+              ? (defaultContent || []).map((a) => ({
+                  ...a,
+                  quantity: a.quantity_remaining_max,
+                }))
+              : defaultContent || []
+          );
         }}
       >
         <Tabs.List>
-          <Tabs.Trigger value="complete">Facturer tout le reste</Tabs.Trigger>
+          <Tabs.Trigger value="complete">Tout facturer</Tabs.Trigger>
           {!!defaultContent?.length && (
             <Tabs.Trigger value="partial">Facture partielle</Tabs.Trigger>
           )}
@@ -130,9 +162,12 @@ export const InvoiceInvoiceModalContent = ({
                 key={index}
                 className="flex flex-row items-center space-x-2 my-1"
               >
-                <div className="grow overflow-hidden">
+                <div className="grow overflow-hidden min-w-0">
                   <Checkbox
-                    label={item.name}
+                    label={
+                      item.name +
+                      ` (${item.quantity_delivered} livré / ${item.quantity_on_quote})`
+                    }
                     value={!!item.quantity}
                     onChange={(e) =>
                       setSelection(
@@ -158,7 +193,7 @@ export const InvoiceInvoiceModalContent = ({
                     "w-24 shrink-0",
                     !item.quantity && "opacity-50"
                   )}
-                  max={defaultContent?.[index]?.quantity}
+                  max={defaultContent?.[index]?.quantity_remaining_max}
                   min={0}
                   value={item.quantity}
                   onChange={(e) =>
@@ -168,7 +203,8 @@ export const InvoiceInvoiceModalContent = ({
                           ? {
                               ...s,
                               quantity: Math.min(
-                                defaultContent?.[index]?.quantity || 0,
+                                defaultContent?.[index]
+                                  ?.quantity_remaining_max || 0,
                                 Math.max(0, +e.target.value)
                               ),
                             }
@@ -208,6 +244,24 @@ export const InvoiceInvoiceModalContent = ({
           </div>
         </>
       )}
+
+      <AnimatePresence>
+        {hasntFilledQuoteLines && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Callout.Root color="red" className="mb-4">
+              <Text>
+                <b>Attention!</b> Au moins une ligne de ce devis n'est pas
+                entièrement livrée ou effectuée et va être facturée.
+              </Text>
+            </Callout.Root>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {partialInvoice.isPending ||
         ((partialInvoice.data?.partial_invoice?.total?.total || 0) > 0 && (

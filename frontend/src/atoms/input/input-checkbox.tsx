@@ -69,7 +69,7 @@ export const Checkbox = (props: {
         {renderSwitch()}
         <BaseSmall
           className={twMerge(
-            "ml-2 shrink-0 ",
+            "ml-2 min-w-0 w-full",
             props.disabled ? "opacity-50" : "cursor-pointer",
             props?.labelProps?.className
           )}
