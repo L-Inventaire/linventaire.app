@@ -310,20 +310,21 @@ export const InvoiceLineInput = (props: {
                     </Text>
                     {["quotes", "invoices", "credit_notes"].includes(
                       props.invoice?.type || ""
-                    ) && (
-                      <Tooltip content="Coût estimé (HT) maximum pour cette ligne">
-                        <Text as="div" color="gray" size="2">
-                          Coût{" "}
-                          {_.last(
-                            getCostEstimate(
-                              article || undefined,
-                              false,
-                              value.quantity || 1
-                            ).split("-")
-                          ) || "non renseigné"}
-                        </Text>
-                      </Tooltip>
-                    )}
+                    ) &&
+                      value.type !== "correction" && (
+                        <Tooltip content="Coût estimé (HT) maximum pour cette ligne">
+                          <Text as="div" color="gray" size="2">
+                            Coût{" "}
+                            {_.last(
+                              getCostEstimate(
+                                article || undefined,
+                                false,
+                                value.quantity || 1
+                              ).split("-")
+                            ) || "non renseigné"}
+                          </Text>
+                        </Tooltip>
+                      )}
                     <Text
                       as="div"
                       color="gray"
@@ -619,11 +620,15 @@ const PriceInput = ({
             ctrl={ctrl}
             invoice={invoice}
           />
-          <br />
-          <InvoiceDiscountInput
-            onChange={(d) => onChange?.({ ...value, discount: d })}
-            value={value.discount}
-          />
+          {value.type !== "correction" && (
+            <>
+              <br />
+              <InvoiceDiscountInput
+                onChange={(d) => onChange?.({ ...value, discount: d })}
+                value={value.discount}
+              />
+            </>
+          )}
         </>
       )}
       value={

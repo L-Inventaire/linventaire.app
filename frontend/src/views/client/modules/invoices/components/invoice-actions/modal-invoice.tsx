@@ -3,6 +3,7 @@ import { Checkbox } from "@atoms/input/input-checkbox";
 import { Input } from "@atoms/input/input-text";
 import { Modal, ModalContent } from "@atoms/modal/modal";
 import { SectionSmall } from "@atoms/text";
+import { FormInput } from "@components/form/fields";
 import { withModel } from "@components/search-bar/utils/as-model";
 import { buildQueryFromMap } from "@components/search-bar/utils/utils";
 import { InvoicesApiClient } from "@features/invoices/api-client/invoices-api-client";
@@ -122,7 +123,10 @@ export const InvoiceInvoiceModalContent = ({
   const hasntFilledQuoteLines =
     quote.type === "quotes" &&
     (selection || []).some(
-      (a) => a.quantity && a.quantity > (a.quantity_delivered || 0)
+      (a) =>
+        a.quantity &&
+        a.quantity > (a.quantity_delivered || 0) &&
+        ["service", "product", "consumable"].includes(a.type)
     );
 
   return (
@@ -142,6 +146,17 @@ export const InvoiceInvoiceModalContent = ({
                   ...a,
                   quantity: a.quantity_remaining_max,
                 }))
+              : mode === "down_payment"
+              ? [
+                  {
+                    type: "correction",
+                    name: "Acompte",
+                    quantity: 1,
+                    quantity_on_quote: 0,
+                    quantity_remaining_max: 1,
+                    unit_price: 0,
+                  },
+                ]
               : defaultContent || []
           );
         }}
@@ -151,6 +166,7 @@ export const InvoiceInvoiceModalContent = ({
           {!!defaultContent?.length && (
             <Tabs.Trigger value="partial">Facture partielle</Tabs.Trigger>
           )}
+          <Tabs.Trigger value="down_payment">Acompte</Tabs.Trigger>
         </Tabs.List>
 
         <Box pt="3">
@@ -216,6 +232,27 @@ export const InvoiceInvoiceModalContent = ({
               </div>
             ))}
             <Separator size="4" className="my-4" />
+          </Tabs.Content>
+
+          <Tabs.Content value="down_payment">
+            <Text>Entrez l'acompte souhaité.</Text>
+            <FormInput
+              type="formatted"
+              format="price"
+              size="md"
+              placeholder="0.00 €"
+              className="w-full mb-4 mt-2"
+              value={selection[0]?.unit_price || 0}
+              onChange={(e) => {
+                setSelection([
+                  {
+                    ...selection[0],
+                    unit_price: e,
+                    quantity: 1, // A down payment is usually a single line
+                  },
+                ]);
+              }}
+            />
           </Tabs.Content>
         </Box>
       </Tabs.Root>
@@ -287,7 +324,7 @@ export const InvoiceInvoiceModalContent = ({
                   {formatAmount(
                     partialInvoice.data?.remaining?.total?.total || 0
                   )}{" "}
-                  HT restant à facturer.
+                  HT restera à facturer.
                 </div>
               )}
             </div>

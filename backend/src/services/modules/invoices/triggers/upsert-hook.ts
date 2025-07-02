@@ -71,25 +71,34 @@ export const setUpsertHook = () =>
           a.type === "product" ||
           a.type === "service" ||
           a.type === "consumable";
+        const isCorrection = a.type === "correction";
 
-        const canHavePrice = canHaveArticle || a.type === "correction";
+        const canHavePrice = canHaveArticle || isCorrection;
 
         a.article = canHaveArticle ? a.article || "" : "";
 
         a.optional = canHaveArticle ? a.optional || false : false;
         a.optional_checked = a.optional ? a.optional_checked || false : false;
 
-        a.quantity = canHaveArticle ? numberOrNull(a.quantity) || 0 : 0;
-        a.quantity_delivered = canHaveArticle
+        a.quantity = isCorrection
+          ? 1
+          : canHaveArticle
+          ? numberOrNull(a.quantity) || 0
+          : 0;
+        a.quantity_delivered = isCorrection
+          ? 1
+          : canHaveArticle
           ? numberOrNull(a.quantity_delivered) || 0
           : 0;
-        a.quantity_ready = canHaveArticle
+        a.quantity_ready = isCorrection
+          ? 1
+          : canHaveArticle
           ? numberOrNull(a.quantity_ready) || 0
           : 0;
 
         a.subscription = canHaveArticle ? a.subscription || "" : "";
         a.unit_price = canHavePrice ? numberOrNull(a.unit_price) || 0 : 0;
-        a.discount = canHaveArticle
+        a.discount = canHavePrice
           ? a.discount || { value: 0, mode: "amount" }
           : { value: 0, mode: "amount" };
 

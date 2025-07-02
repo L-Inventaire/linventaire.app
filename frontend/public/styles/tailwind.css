@@ -1966,6 +1966,10 @@ body :is(.w-px) {
   width: 1px;
 }
 
+body :is(.w-48) {
+  width: 12rem;
+}
+
 body :is(.\!min-w-0) {
   min-width: 0px !important;
 }

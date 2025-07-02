@@ -32,20 +32,21 @@ export const InvoiceLinePriceInput = (props: {
         autoFocus
       />
       <FormInput label="TVA" ctrl={ctrl(`tva`)} options={tvaOptions} />
-
-      <Info className="block !mt-4">
-        <Link
-          onClick={() => {
-            onChange!({
-              ...value,
-              unit_price: getCorrectPrice(props!.article!, props!.invoice),
-              tva: props?.article?.tva,
-            });
-          }}
-        >
-          Utiliser le prix de l'article
-        </Link>
-      </Info>
+      {value.type !== "correction" && (
+        <Info className="block !mt-4">
+          <Link
+            onClick={() => {
+              onChange!({
+                ...value,
+                unit_price: getCorrectPrice(props!.article!, props!.invoice),
+                tva: props?.article?.tva,
+              });
+            }}
+          >
+            Utiliser le prix de l'article
+          </Link>
+        </Info>
+      )}
     </div>
   );
 };

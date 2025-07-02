@@ -339,4 +339,81 @@ describe("Compute partial invoices", () => {
     expect(result.partial_invoice.content[0].unit_price).toBe(1000);
     expect(result.partial_invoice.discount.value).toBe(0);
   });
+
+  test("Check down deposit case", async () => {
+    const result = computePartialInvoice(
+      // Quote
+      {
+        type: "quotes",
+        content: [
+          {
+            article: "computer",
+            quantity: 10,
+            unit_price: 100,
+            discount: { mode: "amount", value: 0 },
+          },
+        ],
+        discount: { mode: "amount", value: 0 },
+      } as unknown as Invoices,
+
+      // Already existing invoices
+      [] as Invoices[],
+
+      // Invoice I'm going to create
+      [
+        {
+          type: "correction",
+          quantity: 1,
+          unit_price: 750,
+        },
+      ] as InvoiceLine[]
+    );
+
+    expect(result.partial_invoice.total.total_with_taxes).toBe(750);
+    expect(result.remaining.total.total_with_taxes).toBe(250);
+  });
+
+  test("Check historic down deposit case", async () => {
+    const result = computePartialInvoice(
+      // Quote
+      {
+        type: "quotes",
+        content: [
+          {
+            article: "computer",
+            quantity: 10,
+            unit_price: 100,
+            discount: { mode: "amount", value: 0 },
+          },
+        ],
+        discount: { mode: "amount", value: 0 },
+      } as unknown as Invoices,
+
+      // Already existing invoices
+      [
+        {
+          type: "invoices",
+          content: [
+            {
+              type: "correction",
+              quantity: 1,
+              unit_price: 750,
+            },
+          ],
+          discount: { mode: "amount", value: 0 },
+        },
+      ] as Invoices[],
+
+      // Use all remaining stuff
+      [] as InvoiceLine[]
+    );
+
+    expect(result.partial_invoice.total.total_with_taxes).toBe(250);
+    expect(
+      result.partial_invoice.content.find(
+        (a) => a.type === "correction" && a.unit_price === -750
+      )
+    ).toBeDefined();
+    expect(result.remaining.total.total_with_taxes).toBe(0);
+  });
 });

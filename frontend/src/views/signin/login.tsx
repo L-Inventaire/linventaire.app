@@ -6,10 +6,10 @@ import Link from "@atoms/link";
 import { PageLoader } from "@atoms/page-loader";
 import { Info, Section, Subtitle } from "@atoms/text";
 import { MFAVerificationModal } from "@components/auth/mfa-verification-modal";
-import environment from "@config/environment";
 import { AuthApiClient } from "@features/auth/api-client/api-client";
 import { useAuth } from "@features/auth/state/use-auth";
 import { ROUTES } from "@features/routes";
+import { getCaptchaToken } from "@features/utils/captcha";
 import { useControlledEffect } from "@features/utils/hooks/use-controlled-effect";
 import { useCallback, useRef, useState } from "react";
 import toast from "react-hot-toast";
@@ -78,12 +78,7 @@ export const Login = () => {
     const grecaptcha = (window as any).grecaptcha?.enterprise;
     if (grecaptcha) {
       grecaptcha.ready(async () => {
-        const captchaValidation = await grecaptcha.execute(
-          environment.reCaptchaSiteKey,
-          {
-            action: "captcha",
-          }
-        );
+        const captchaValidation = await getCaptchaToken("email-login");
         request(captchaValidation);
       });
     } else {

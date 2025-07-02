@@ -36,8 +36,8 @@ export const InvoiceLineArticleInput = (props: {
     <>
       <div className="space-x-2 mb-4 flex">
         <RadioCard
-          title={"Article ou service"}
-          value={value.type !== "separation"}
+          title={"Article"}
+          value={value.type !== "separation" && value.type !== "correction"}
           onClick={() =>
             onChange?.({ ...value, type: article?.type || "product" })
           }
@@ -49,10 +49,23 @@ export const InvoiceLineArticleInput = (props: {
             onChange?.({ ...value, type: "separation", article: "" })
           }
         />
+        <RadioCard
+          title={"Acompte"}
+          value={value.type === "correction"}
+          onClick={() =>
+            onChange?.({
+              ...value,
+              type: "correction",
+              article: "",
+              quantity: 1,
+              tva: "0",
+            })
+          }
+        />
       </div>
 
       <div className="space-y-2">
-        {value.type !== "separation" && (
+        {value.type !== "separation" && value.type !== "correction" && (
           <RestDocumentsInput
             size={"xl"}
             className="w-full"
@@ -118,7 +131,8 @@ export const InvoiceLineArticleInput = (props: {
           </>
         )}
 
-        {value.type !== "separation" && !useArticleName && (
+        {((value.type !== "separation" && !useArticleName) ||
+          value.type === "correction") && (
           <>
             <FormInput
               size="md"
@@ -135,20 +149,22 @@ export const InvoiceLineArticleInput = (props: {
               onChange={(description) => onChange?.({ ...value, description })}
             />
 
-            <Info>
-              <Link
-                onClick={() => {
-                  onChange?.({
-                    ...value,
-                    name: article?.name,
-                    description: article?.description,
-                  });
-                  setUseArticleName(true);
-                }}
-              >
-                Utiliser le nom et la description de l'article
-              </Link>
-            </Info>
+            {value.type !== "correction" && (
+              <Info>
+                <Link
+                  onClick={() => {
+                    onChange?.({
+                      ...value,
+                      name: article?.name,
+                      description: article?.description,
+                    });
+                    setUseArticleName(true);
+                  }}
+                >
+                  Utiliser le nom et la description de l'article
+                </Link>
+              </Info>
+            )}
           </>
         )}
 

@@ -4,8 +4,8 @@ import InputCode from "@atoms/input/input-code";
 import { Input } from "@atoms/input/input-text";
 import A from "@atoms/link";
 import { DelayedLoader } from "@atoms/loader";
-import environment from "@config/environment";
 import { AuthApiClient } from "@features/auth/api-client/api-client";
+import { getCaptchaToken } from "@features/utils/captcha";
 import { Transition } from "@headlessui/react";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
@@ -91,12 +91,7 @@ export const VerifyEmail = (props: {
     const grecaptcha = (window as any).grecaptcha.enterprise;
     grecaptcha.ready(async () => {
       try {
-        const captchaValidation = await grecaptcha.execute(
-          environment.reCaptchaSiteKey,
-          {
-            action: "captcha",
-          }
-        );
+        const captchaValidation = await getCaptchaToken("email");
 
         const data = await AuthApiClient.requestEmailMFA(
           email,

@@ -2,12 +2,12 @@ import { Button } from "@atoms/button/button";
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import { InputImage } from "@atoms/input/input-image";
 import { Input } from "@atoms/input/input-text";
-import { Section, Subtitle } from "@atoms/text";
 import { PageLoader } from "@atoms/page-loader";
-import environment from "@config/environment";
+import { Section, Subtitle } from "@atoms/text";
 import { useAuth } from "@features/auth/state/use-auth";
 import { CustomersApiClient } from "@features/customers/api-client/api-client";
 import { ROUTES } from "@features/routes";
+import { getCaptchaToken } from "@features/utils/captcha";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
@@ -32,12 +32,7 @@ export const SignUp = () => {
     setLoading(true);
     const grecaptcha = (window as any).grecaptcha.enterprise;
     grecaptcha.ready(async () => {
-      const captchaValidation = await grecaptcha.execute(
-        environment.reCaptchaSiteKey,
-        {
-          action: "captcha",
-        }
-      );
+      const captchaValidation = await getCaptchaToken("signup");
 
       try {
         if (emailValidation) {

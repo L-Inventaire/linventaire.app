@@ -90,9 +90,12 @@ export const computePartialInvoice = (
 
   // Complete requestedItems if needed
   requestedItems = requestedItems.map((a) => ({
-    unit_price:
-      quote.content.find((b) => b.article === a.article)?.unit_price || 0,
     ...a,
+    unit_price: parseFloat(
+      (a.unit_price ||
+        quote.content.find((b) => b.article === a.article)?.unit_price ||
+        0) as any
+    ),
   }));
 
   let thisPartialInvoiceItems = requestedItems;
@@ -168,6 +171,60 @@ export const computePartialInvoice = (
       });
     }
     nextPartialInvoiceAmount.discount = 0;
+  }
+
+  const nextPartialInvoiceContentTotal = computePricesFromInvoice({
+    content: nextPartialInvoiceItems as Invoices["content"],
+    discount: {
+      mode: "amount",
+      value: nextPartialInvoiceAmount.discount,
+    } as InvoiceDiscount,
+  } as Invoices);
+
+  console.log("Next partial invoice items:", nextPartialInvoiceItems);
+  console.log("Next partial invoice amount:", nextPartialInvoiceAmount);
+  console.log(
+    "Next partial invoice content total:",
+    nextPartialInvoiceContentTotal
+  );
+  console.log("quoteRemainingItems:", nextPartialInvoiceItems.length);
+
+  if (
+    nextPartialInvoiceAmount.total_with_taxes !==
+    nextPartialInvoiceContentTotal.total_with_taxes
+  ) {
+    // If the next partial invoice amount does not match the computed amount, we need to adjust it by adding a correction line
+    const correctionAmount =
+      nextPartialInvoiceAmount.total_with_taxes -
+      nextPartialInvoiceContentTotal.total_with_taxes;
+
+    if (nextPartialInvoiceItems.length === 0) {
+      console.log(
+        "Is final invoice, adding correction line diff amount:",
+        correctionAmount
+      );
+      thisPartialInvoiceItems.push({
+        type: "correction",
+        article: "correction",
+        name:
+          correctionAmount > 0 ? "Correction du solde" : "Acomptes prélevés",
+        quantity: 1,
+        unit_price: correctionAmount,
+        discount: { mode: "amount", value: 0 },
+      });
+      thisPartialInvoiceAmount.discount = 0;
+      thisPartialInvoiceDiscount.value = 0;
+    } else {
+      nextPartialInvoiceItems.push({
+        type: "correction",
+        article: "correction",
+        name: "Correction du solde",
+        quantity: 1,
+        unit_price: correctionAmount,
+        discount: { mode: "amount", value: 0 },
+      });
+      nextPartialInvoiceAmount.discount = 0;
+    }
   }
 
   const tmp = {
