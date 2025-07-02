@@ -409,7 +409,7 @@ export const applyOffset = (
   timezone: string,
   factor = 1
 ) => {
-  const { offset } = getTimezoneOffset(timezone);
+  const { offset } = getTimezoneOffset(timezone, new Date(date).getTime());
   date.setHours(date.getHours() + offset);
 
   const frequency = frequencyAndCount.split("_").pop();

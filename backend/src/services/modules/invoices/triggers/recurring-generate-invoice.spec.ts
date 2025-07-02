@@ -81,7 +81,7 @@ describe("recurring-generate-invoice", () => {
     expect(test.recheckAt).toEqual(new Date("2024-01-31T23:00:00.000Z"));
     expect(test.invoiceDate).toEqual(new Date("2023-12-31T23:00:00.000Z"));
     expect(test.invoicePeriodFrom).toEqual(
-      new Date("2023-12-31T23:00:00.0009Z")
+      new Date("2023-12-31T23:00:00.000Z")
     );
     expect(test.invoicePeriodTo).toEqual(new Date("2024-01-31T22:59:59.999Z"));
 
@@ -152,7 +152,7 @@ describe("recurring-generate-invoice", () => {
     expect(test.recheckAt).toEqual(new Date("2024-01-31T23:00:00.000Z"));
     expect(test.invoiceDate).toEqual(new Date("2023-12-31T23:00:00.000Z"));
     expect(test.invoicePeriodFrom).toEqual(
-      new Date("2023-12-31T23:00:00.0009Z")
+      new Date("2023-12-31T23:00:00.000Z")
     );
     expect(test.invoicePeriodTo).toEqual(new Date("2024-01-31T22:59:59.999Z"));
 

@@ -198,13 +198,15 @@ export const computePricesFromInvoice = (
   };
 };
 
-export const getTimezoneOffset = (timezone: string) => {
+export const getTimezoneOffset = (timezone: string, date?: Date | number) => {
+  const targetDate = date ? new Date(date) : new Date();
+  
   // Generating the formatted text
   // Setting the timeZoneName to longOffset will convert PDT to GMT-07:00
   const dateText = Intl.DateTimeFormat([], {
     timeZone: timezone,
     timeZoneName: "longOffset",
-  }).format(new Date());
+  }).format(targetDate);
 
   // Scraping the numbers we want from the text
   // The default value '+0' is needed when the timezone is missing the number part. Ex. Africa/Bamako --> GMT
@@ -228,7 +230,7 @@ export const getTimezoneOffset = (timezone: string) => {
 };
 
 export const getTimezoneDay = (date: Date | number, timezone: string) => {
-  const offset = getTimezoneOffset(timezone).offset;
+  const offset = getTimezoneOffset(timezone, date).offset;
   const dateObj = new Date(date);
   dateObj.setMinutes(dateObj.getMinutes() + offset);
   return dateObj.getDay();
@@ -252,7 +254,7 @@ export const normalizeDate = (
   const edgeVal = edge === "from" ? "00:00:00.000" : "23:59:59.999";
 
   const str = `${year}-${month}-${day}T${edgeVal}${
-    getTimezoneOffset(timezone).suffix
+    getTimezoneOffset(timezone, date).suffix
   }`;
 
   date.setTime(Date.parse(str));
