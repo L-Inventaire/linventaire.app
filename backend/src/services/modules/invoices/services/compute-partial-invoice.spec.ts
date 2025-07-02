@@ -67,7 +67,7 @@ describe("Compute partial invoices", () => {
     expect(result.remaining.discount.value).toBe(0);
   });
 
-  test.skip("Check bad partial invoices", async () => {
+  test("Check bad partial invoices", async () => {
     const quote = {
       type: "quotes",
       content: [
@@ -117,9 +117,10 @@ describe("Compute partial invoices", () => {
     ).toBe(8);
     expect(result.invoiced.discount.value).toBe(10);
 
-    expect(result.partial_invoice.content.length).toBe(1);
+    expect(result.partial_invoice.content.length).toBe(2);
     expect(result.partial_invoice.content[0].quantity).toBe(2);
-    expect(result.partial_invoice.discount.value).toBe(20);
+    expect(result.partial_invoice.content[1].unit_price).toBe(-20);
+    expect(result.partial_invoice.discount.value).toBe(0);
 
     expect(result.remaining.content.length).toBe(0);
     expect(result.remaining.discount.value).toBe(0);
@@ -131,7 +132,7 @@ describe("Compute partial invoices", () => {
     ).toBe(computePricesFromInvoice(quote).total);
   });
 
-  test.skip("Check overinvoiced cases", async () => {
+  test("Check overinvoiced cases", async () => {
     const quote = {
       type: "quotes",
       content: [
@@ -175,14 +176,18 @@ describe("Compute partial invoices", () => {
       [] as InvoiceLine[]
     );
 
+    console.log("result.here.invoiced", result.invoiced);
+    console.log("result.here.partial_invoice", result.partial_invoice);
+
     expect(result.partial_invoice.type).toBe("credit_notes");
-    expect(result.partial_invoice.content.length).toBe(1);
+    expect(result.partial_invoice.content.length).toBe(2);
     expect(result.partial_invoice.content[0].quantity).toBe(1);
     expect(result.partial_invoice.content[0].unit_price).toBe(13200);
+    expect(result.partial_invoice.content[1].unit_price).toBe(13200);
     expect(result.partial_invoice.discount.value).toBe(0);
   });
 
-  test.skip("Check bad partial invoices and selected items", async () => {
+  test("Check bad partial invoices and selected items", async () => {
     const quote = {
       type: "quotes",
       content: [
@@ -201,6 +206,7 @@ describe("Compute partial invoices", () => {
       ],
       discount: { mode: "percentage", value: 10 }, // 10% off
     } as unknown as Invoices;
+    // Expected total: (1000*10-100 + 500*5) - 10% = (10000 - 100 + 2500) - 10% = 12 400 - 1 240 = 11 160
     const initialInvoices = [
       {
         type: "invoices",
@@ -227,6 +233,7 @@ describe("Compute partial invoices", () => {
         discount: { mode: "amount", value: 10 },
       } as unknown as Invoices,
     ];
+    // Already paid: 2*110 + 6*100 - 10 = 220 + 600-10 = 810
     const result = computePartialInvoice(
       quote,
       initialInvoices as Invoices[],
@@ -237,6 +244,11 @@ describe("Compute partial invoices", () => {
         },
       ] as InvoiceLine[]
     );
+    // Expected new invoice: 2*500 - 10% = 1000 - 100 = 900 (takes default discount is not specified)
+
+    // Remaining: 11 160 - 810 - 900 = 9 450
+
+    console.log("resultss", result.remaining);
 
     expect(result.invoiced.content.length).toBe(2);
     expect(
@@ -248,16 +260,19 @@ describe("Compute partial invoices", () => {
     expect(result.partial_invoice.content[0].quantity).toBe(2);
     expect(result.partial_invoice.discount.value).toBe(100);
 
-    expect(result.remaining.content.length).toBe(2);
+    expect(result.remaining.content.length).toBe(3);
     expect(
       result.remaining.content.find((a) => a.article === "computer").quantity
     ).toBe(2);
     expect(
       result.remaining.content.find((a) => a.article === "table").quantity
     ).toBe(3);
-    expect(result.remaining.discount.value).toBe(
-      computePricesFromInvoice(quote).discount - 10 - 100
-    );
+    expect(
+      result.remaining.content.find((a) => a.article === "correction")
+        .unit_price
+    ).toBe(7180);
+    expect(result.remaining.discount.value).toBe(0);
+    expect(result.remaining.total.total_with_taxes).toBe(9450);
 
     // At this time the remaining invoice can be wrong, now we'll emulate the automated process when invoice in completed
 

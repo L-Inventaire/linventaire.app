@@ -197,6 +197,7 @@ export const DocumentLayout = ({
             invoice={invoiceData}
             alerts={showAlerts}
             className="mb-0"
+            compact={true}
           />
 
           {/* Options section for mobile */}
@@ -242,6 +243,7 @@ export const DocumentLayout = ({
               invoice={invoiceData}
               alerts={showAlerts}
               className="mb-0 max-w-screen-2xl mx-auto"
+              compact={true}
             />
           </div>
 
