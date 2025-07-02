@@ -312,7 +312,7 @@ describe("recurring-generate-invoice", () => {
     invoices = res.invoices;
     recheckAt = res.recheckAt;
 
-    expect(recheckAt).toEqual(new Date("2024-04-01T23:00:00.000Z")); // TODO : This value should be 2024-03-31 but days saving in france starts the 30/03, the system is almost perfect (invoice will be generated 1 day late)
+    expect(recheckAt).toEqual(new Date("2024-03-31T22:00:00.000Z")); // TODO : This value should be 2024-03-31 but days saving in france starts the 30/03, the system is almost perfect (invoice will be generated 1 day late)
     expect(invoices.length).toEqual(1);
     expect(invoices[0].content.length).toEqual(1);
     expect(invoices[0].from_subscription.frequency).toEqual("monthly");
