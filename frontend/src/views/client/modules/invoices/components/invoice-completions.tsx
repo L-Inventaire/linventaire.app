@@ -15,15 +15,16 @@ export const computeStockCompletion = (
   );
   const noPriceWeight =
     lines.reduce(
-      (acc, line) => acc + parseFloat((line.unit_price || 0) as any),
+      (acc, line) =>
+        acc + Math.max(0, parseFloat((line.unit_price || 0) as any)),
       0
     ) / lines.length || 1;
 
   const total = lines.reduce(
     (acc, line) =>
       acc +
-      parseFloat((line.quantity as any) || 0) *
-        parseFloat((line.unit_price as any) || 0 || noPriceWeight),
+      Math.max(0, parseFloat((line.quantity as any) || 0)) *
+        (Math.max(0, parseFloat(line.unit_price as any) || 0) || noPriceWeight),
     0
   );
   if (total === 0) return 1;
@@ -33,13 +34,16 @@ export const computeStockCompletion = (
     (acc, line) =>
       acc +
       (overflow
-        ? parseFloat((line[column] as any) || 0) *
-          parseFloat((line.unit_price as any) || 0 || noPriceWeight)
+        ? Math.max(0, parseFloat((line[column] as any) || 0)) *
+          (Math.max(0, parseFloat(line.unit_price as any) || 0) ||
+            noPriceWeight)
         : Math.min(
-            parseFloat((line.quantity as any) || 0) *
-              parseFloat((line.unit_price as any) || 0 || noPriceWeight),
-            parseFloat((line[column] as any) || 0) *
-              parseFloat((line.unit_price as any) || 0 || noPriceWeight)
+            Math.max(0, parseFloat((line.quantity as any) || 0)) *
+              (Math.max(0, parseFloat(line.unit_price as any) || 0) ||
+                noPriceWeight),
+            Math.max(0, parseFloat((line[column] as any) || 0)) *
+              (Math.max(0, parseFloat(line.unit_price as any) || 0) ||
+                noPriceWeight)
           )),
     0
   );
@@ -65,7 +69,7 @@ export const computePaymentCompletion = (
 ) => {
   const lines = linesu || [];
   const total = lines.reduce(
-    (acc, line) => acc + parseFloat((line.quantity as any) || 0),
+    (acc, line) => acc + Math.max(0, parseFloat((line.quantity as any) || 0)),
     0
   );
   if (total === 0) return 1;
@@ -77,10 +81,10 @@ export const computePaymentCompletion = (
       (acc, line) =>
         acc +
         (overflow
-          ? parseFloat((line[column] as any) || 0)
+          ? Math.max(0, parseFloat((line[column] as any) || 0))
           : Math.min(
-              parseFloat((line.quantity as any) || 0),
-              parseFloat((line[column] as any) || 0)
+              Math.max(0, parseFloat((line.quantity as any) || 0)),
+              Math.max(0, parseFloat((line[column] as any) || 0))
             )),
       0
     ) / total
