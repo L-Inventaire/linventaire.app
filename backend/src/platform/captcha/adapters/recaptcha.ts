@@ -32,6 +32,14 @@ export default class CaptchaRecaptcha implements CaptchaAdapterInterface {
       }
     );
 
+    if (!result.data?.riskAnalysis?.score) {
+      throw new Error(
+        "Invalid response from reCAPTCHA service: " +
+          JSON.stringify(result.data)
+      );
+    }
+
+    console.log("Captcha score:", JSON.stringify(result.data));
     return result.data?.riskAnalysis?.score > 0.5;
   }
 }
