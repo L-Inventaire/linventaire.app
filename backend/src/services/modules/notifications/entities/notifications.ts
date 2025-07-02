@@ -1,4 +1,4 @@
-import Framework from "#src/platform";
+import Framework from "#src/platform/index";
 import { createContext } from "#src/types";
 import { RestTableDefinition } from "../../../../platform/db/api";
 import {

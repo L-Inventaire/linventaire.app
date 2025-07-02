@@ -36,6 +36,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     name: Deploy
+    needs: lint
 
     defaults:
       run:
