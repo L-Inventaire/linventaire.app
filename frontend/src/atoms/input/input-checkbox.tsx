@@ -61,7 +61,7 @@ export const Checkbox = (props: {
     return (
       <div
         className={twMerge(
-          "flex flex-row items-center",
+          "flex flex-row items-center min-w-0",
           props?.labelWrapperProps?.className
         )}
         {..._.omit(props?.labelWrapperProps, "className")}
@@ -82,6 +82,7 @@ export const Checkbox = (props: {
                 );
             }
           }}
+          data-tooltip={typeof props.label === "string" ? props.label : ""}
           {..._.omit(props?.labelProps, "className", "onClick")}
         >
           {props.label}

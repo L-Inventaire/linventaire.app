@@ -97,7 +97,7 @@ export const InvoiceSendModalContent = ({
             <Checkbox
               label={email}
               value={!!draft?.recipients?.find((rec) => rec.email === email)}
-              labelWrapperProps={{ className: "max-w-[40%]" }}
+              labelWrapperProps={{ className: "grow" }}
               labelProps={{ className: "truncate w-full block" }}
               onChange={(status) => {
                 setDraft({
@@ -163,7 +163,7 @@ export const InvoiceSendModalContent = ({
                   newEmail
                     .toLocaleLowerCase()
                     .match(
-                      /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/g
+                      /([a-zA-Z0-9._+-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/g
                     ) || []
                 )
                   .map((email) => ({

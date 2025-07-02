@@ -209,7 +209,7 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
                     const emails = e.target.value
                       .toLocaleLowerCase()
                       .match(
-                        /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/g
+                        /([a-zA-Z0-9._+-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/g
                       );
                     // Remove duplicates using lodash
                     setInvitations(
