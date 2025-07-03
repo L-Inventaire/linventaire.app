@@ -65,7 +65,7 @@ jobs:
       - name: Build and Tag Docker Image
         run: |
           echo "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.eu-west-3.amazonaws.com/linventaireapp:latest"
-          docker build -f docker/node.Dockerfile --build-arg SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} -t linventaireapp backend
+          docker build -f docker/node.Dockerfile --build-arg SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} -t linventaireapp .
           docker tag linventaireapp:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.eu-west-3.amazonaws.com/linventaireapp:latest
           export VERSION=$(git describe --tags --always)
           docker tag linventaireapp:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.eu-west-3.amazonaws.com/linventaireapp:$VERSION
