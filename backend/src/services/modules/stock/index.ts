@@ -2,9 +2,13 @@ import { Express, Router } from "express";
 import { default as Framework, default as platform } from "../../../platform";
 import { Logger } from "../../../platform/logger-db";
 import { InternalApplicationService } from "../../types";
-import { StockItemsDefinition } from "./entities/stock-items";
+import StockItems, { StockItemsDefinition } from "./entities/stock-items";
 import { StockLocationsDefinition } from "./entities/stock-locations";
 import { setUpsertHook } from "./triggers/upsert-hook";
+import { checkRole } from "#src/services/common";
+import { Ctx } from "#src/services/utils";
+import Services from "#src/services/index";
+import _ from "lodash";
 
 export default class Stocks implements InternalApplicationService {
   version = 1;
@@ -13,6 +17,36 @@ export default class Stocks implements InternalApplicationService {
 
   async init(server: Express) {
     const router = Router();
+
+    router.post("/:clientId/batch", checkRole("USER"), async (req, res) => {
+      const ctx = Ctx.get(req)?.context;
+      const stockItems = req.body as StockItems[];
+
+      // Group them by .for_rel_quote x .from_rel_supplier_quote so we have one single trigger for each doc
+      const groupedItems: { [key: string]: StockItems[] } = _.groupBy(
+        stockItems,
+        (item) =>
+          `${item.for_rel_quote || ""}-${item.from_rel_supplier_quote || ""}`
+      );
+
+      // We'll import all without trigger except for the last one that will have a trigger
+      for (const key in groupedItems) {
+        const items = groupedItems[key];
+        for (let i = 0; i < items.length; i++) {
+          const runTrigger = i === items.length - 1;
+          const item = items[i];
+          await Services.Rest.create(ctx, StockItemsDefinition.name, {
+            ...item,
+            _batch_import_ignore_trigger: !runTrigger,
+          });
+        }
+      }
+
+      return res.status(200).json({ ok: true });
+    });
+
+    console.log(`/api/${this.name}/v${this.version}`);
+
     server.use(`/api/${this.name}/v${this.version}`, router);
 
     const db = await platform.Db.getService();

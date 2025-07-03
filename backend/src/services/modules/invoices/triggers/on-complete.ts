@@ -27,11 +27,13 @@ export const setCheckIsCompleteTrigger = () => {
     name: "check-is-complete-invoices-stock-items",
     test: (_ctx, entity, oldEntity) => {
       return (
-        entity?.quantity !== oldEntity?.quantity ||
-        entity?.article !== oldEntity?.article ||
-        entity?.state !== oldEntity?.state ||
-        entity?.for_rel_quote !== oldEntity?.for_rel_quote ||
-        entity?.from_rel_supplier_quote !== oldEntity?.from_rel_supplier_quote
+        !entity._batch_import_ignore_trigger &&
+        (entity?.quantity !== oldEntity?.quantity ||
+          entity?.article !== oldEntity?.article ||
+          entity?.state !== oldEntity?.state ||
+          entity?.for_rel_quote !== oldEntity?.for_rel_quote ||
+          entity?.from_rel_supplier_quote !==
+            oldEntity?.from_rel_supplier_quote)
       );
     },
     callback: async (ctx, entity, oldEntity) => {

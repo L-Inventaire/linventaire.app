@@ -55,7 +55,7 @@ const fetchServerBatch = (() => {
       if (!timeoutId[clientId]) {
         timeoutId[clientId] = setTimeout(() => {
           sendBatchRequest(clientId);
-        }, 10); // Delay batching for 10ms
+        }, 50); // Delay batching for 50ms
       }
     });
   };

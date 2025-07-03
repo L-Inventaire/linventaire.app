@@ -1,20 +1,21 @@
 import { DocumentBar } from "@components/document-bar";
 import { ROUTES, getRoute } from "@features/routes";
-import { Page } from "@views/client/_layout/page";
-import { StockItemsCreateFromOrder } from "../components/stock-item-create-from-order";
-import { useNavigate, useParams } from "react-router-dom";
-import { StockItemsCreateFromSupplier } from "../components/stock-item-create-from-supplier";
+import { StockApiClient } from "@features/stock/api-client/stock-api-client";
 import { StockItems } from "@features/stock/types/types";
-import { useState } from "react";
 import { Button } from "@radix-ui/themes";
-import { useStockItems } from "@features/stock/hooks/use-stock-items";
+import { Page } from "@views/client/_layout/page";
+import { useState } from "react";
 import toast from "react-hot-toast";
+import { useNavigate, useParams } from "react-router-dom";
+import { StockItemsCreateFromOrder } from "../components/stock-item-create-from-order";
+import { StockItemsCreateFromSupplier } from "../components/stock-item-create-from-supplier";
+import { useCurrentClient } from "@features/clients/state/use-clients";
 
 export const StockItemsFromPage = (_props: { readonly?: boolean }) => {
+  const { id: clientId } = useCurrentClient();
   const { from, id } = useParams();
   const navigate = useNavigate();
   const [stockItems, setStockItems] = useState<StockItems[]>([]);
-  const { upsert } = useStockItems();
   const [loading, setLoading] = useState(false);
   return (
     <Page
@@ -57,16 +58,25 @@ export const StockItemsFromPage = (_props: { readonly?: boolean }) => {
           disabled={!stockItems.length}
           onClick={async () => {
             setLoading(true);
-            for (const item of stockItems) {
-              await upsert.mutateAsync(item);
+            try {
+              // Multiple import as once:
+              await StockApiClient.importMultiple(clientId!, stockItems);
+              toast.success("Les éléments ont été ajoutés dans le stock");
+              if (from === "order") {
+                navigate(
+                  getRoute(ROUTES.Invoices, { type: "supplier_quotes" })
+                );
+              } else {
+                navigate(getRoute(ROUTES.Stock));
+              }
+            } catch (e) {
+              setLoading(false);
+              toast.error(
+                "Une erreur est survenue lors de l'import des éléments dans le stock"
+              );
+              console.error(e);
             }
-            toast.success("Les éléments ont été ajoutés dans le stock");
             setLoading(false);
-            if (from === "order") {
-              navigate(getRoute(ROUTES.Invoices, { type: "supplier_quotes" }));
-            } else {
-              navigate(getRoute(ROUTES.Stock));
-            }
           }}
         >
           Ajouter {stockItems.length} éléments dans le stock

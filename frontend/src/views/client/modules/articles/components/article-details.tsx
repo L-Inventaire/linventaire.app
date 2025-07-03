@@ -88,7 +88,7 @@ export const ArticlesDetailsPage = ({
                   options={[
                     {
                       value: "product",
-                      label: "Produit",
+                      label: "Stockable",
                     },
                     {
                       value: "service",
