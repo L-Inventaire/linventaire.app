@@ -99,7 +99,7 @@ export const computePartialInvoice = (
     ),
   }));
 
-  let thisPartialInvoiceItems = requestedItems;
+  const thisPartialInvoiceItems = requestedItems;
   const thisPartialInvoiceDiscount: InvoiceDiscount =
     quote?.discount?.mode === "amount"
       ? {
@@ -185,6 +185,7 @@ export const computePartialInvoice = (
         remainingInvoiceAmount.discount = 0;
       }
     } else {
+      // We paid too much
       const stillToPay =
         thisPartialInvoiceAmount.total_with_taxes +
         remainingInvoiceAmount.total_with_taxes;
@@ -221,7 +222,16 @@ export const computePartialInvoice = (
           });
           remainingInvoiceAmount.discount = 0;
 
-          remainingCreditNoteValue = -gapFromQuote - stillToPay;
+          console.log(
+            "We need a credit note for the remaining invoice",
+            gapFromQuote,
+            stillToPay
+          );
+
+          remainingCreditNoteValue = -(
+            quoteRemainingAmount.total_with_taxes -
+            thisPartialInvoiceAmount.total_with_taxes
+          );
         }
       } else {
         // Cases: if it is more than what we can invoice to the current or remaining invoice, then a credit note will be created

@@ -191,4 +191,5 @@ export type PartialInvoiceOutType = {
   invoiced: Pick<Invoices, "content" | "discount" | "total">;
   partial_invoice: Pick<Invoices, "content" | "discount" | "type" | "total">;
   remaining: Pick<Invoices, "content" | "discount" | "total">;
+  remaining_credit_note?: Pick<Invoices, "content" | "total" | "type">;
 };

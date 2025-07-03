@@ -234,7 +234,7 @@ describe("Compute partial invoices", () => {
       ],
       discount: { mode: "percentage", value: 10 }, // 10% off
     } as unknown as Invoices;
-    // Expected total: (1000*10-100 + 500*5) - 10% = (10000 - 100 + 2500) - 10% = 12 400 - 1 240 = 11 160
+    // Expected total: (1000*10-100 + 500*5) - 10% = (10000 - 100 + 2500) - 10% = 12 400 - 1 240 = 11 160
     const initialInvoices = [
       {
         type: "invoices",
@@ -276,7 +276,7 @@ describe("Compute partial invoices", () => {
     );
     // Expected new invoice: 2*500 - 10% = 1000 - 100 = 900 (takes default discount is not specified)
 
-    // Remaining: 11160 - 810 - 900 = 9 450
+    // Remaining: 11160 - 810 - 900 = 9 450
 
     console.log("result.here.invoiced", result.invoiced);
     console.log("result.here.partial_invoice", result.partial_invoice);
@@ -481,5 +481,45 @@ describe("Compute partial invoices", () => {
     ).toBeDefined();
     expect(result.remaining.total.total_with_taxes).toBe(0);
     expect(result.remaining_credit_note).toBe(undefined);
+  });
+
+  test("Check overflow down deposit case", async () => {
+    const result = computePartialInvoice(
+      // Quote
+      {
+        type: "quotes",
+        content: [
+          {
+            article: "computer",
+            quantity: 10,
+            unit_price: 100,
+            discount: { mode: "amount", value: 10 },
+          },
+        ],
+        discount: { mode: "percentage", value: 20 },
+      } as unknown as Invoices,
+      // Expected total: (100*10 - 10) * 0.8 = 792
+
+      // Already existing invoices
+      [
+        {
+          type: "invoices",
+          content: [
+            {
+              type: "correction",
+              quantity: 1,
+              unit_price: 1500,
+            },
+          ],
+          discount: { mode: "amount", value: 0 },
+        },
+      ] as Invoices[],
+
+      // Use all remaining stuff
+      [] as InvoiceLine[]
+    );
+
+    expect(result.partial_invoice.total.total_with_taxes).toBe(0);
+    expect(result.remaining_credit_note.total.total_with_taxes).toBe(708); // = 1500 - 792
   });
 });
