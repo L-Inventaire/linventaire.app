@@ -11,6 +11,8 @@ export const UsersDefinition: TableDefinition = {
     role: "VARCHAR(64)",
     full_name: "VARCHAR(64)",
     preferences: "JSONB",
+    display_name: "VARCHAR(64)",
+    operation: "VARCHAR(64)",
   },
   pk: ["id"],
   indexes: [["id_email"], ["id_phone"]],

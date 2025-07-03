@@ -32,7 +32,7 @@
 
 .dark .multiselect-container {
     cursor: pointer;
-    --mselect-background-color: #FFFFFF;
+    --mselect-background-color: rgb(8, 4, 3);
 
     @media (prefers-color-scheme: dark) {
         --mselect-background-color: rgb(8, 4, 3);

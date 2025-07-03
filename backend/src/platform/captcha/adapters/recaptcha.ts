@@ -15,6 +15,8 @@ export default class CaptchaRecaptcha implements CaptchaAdapterInterface {
   }
 
   async verify(token: string, ip?: string): Promise<boolean> {
+    console.log(`Verifying reCAPTCHA token: ${token}`);
+
     let action = "captcha";
     if (token.split(":").length > 1) {
       action = token.split(":")[0];
@@ -53,7 +55,7 @@ export default class CaptchaRecaptcha implements CaptchaAdapterInterface {
     }
 
     // Check for action match
-    if (result.data?.tokenProperties?.action !== "captcha") {
+    if (result.data?.tokenProperties?.action !== action) {
       throw new Error(
         `Action mismatch: expected "captcha", got "${result.data?.tokenProperties?.action}"`
       );
@@ -71,13 +73,14 @@ export default class CaptchaRecaptcha implements CaptchaAdapterInterface {
     console.log(`Captcha score: ${score} (Threshold: 0.5)`);
 
     // If score is too low but everything else looks good, provide better error message
-    if (score <= 0.5) {
-      console.warn(
-        `Low reCAPTCHA score (${score}), challenge status: ${result.data.riskAnalysis.challenge}`
-      );
-      // You could throw an error here instead of returning false if you want to force a retry
+    if (score >= 0.5 || (action === "signup" && score >= 0.2)) {
+      return true;
     }
 
-    return score > 0.5;
+    console.warn(
+      `Low reCAPTCHA score (${score}), challenge status: ${result.data.riskAnalysis.challenge}`
+    );
+
+    return false;
   }
 }

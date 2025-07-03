@@ -477,9 +477,11 @@ export const getLatestInvoiceDate = (
   const periodCurrentStart = new Date(periodStartDate);
   const periodNextStart = new Date(periodStartDate);
   const periodNext2Start = new Date(periodStartDate);
+  const periodNext3Start = new Date(periodStartDate);
   applyOffset(periodNextStart, frequency, timezone);
   applyOffset(periodBeforeStart, frequency, timezone, -1);
   applyOffset(periodNext2Start, frequency, timezone, 2);
+  applyOffset(periodNext3Start, frequency, timezone, 3);
 
   const invoicesAndPeriods = [
     getInvoiceDateAndPeriodNormalized(
@@ -497,6 +499,12 @@ export const getLatestInvoiceDate = (
     getInvoiceDateAndPeriodNormalized(
       periodNextStart,
       periodNext2Start,
+      mode,
+      timezone
+    ),
+    getInvoiceDateAndPeriodNormalized(
+      periodNext2Start,
+      periodNext3Start,
       mode,
       timezone
     ),
