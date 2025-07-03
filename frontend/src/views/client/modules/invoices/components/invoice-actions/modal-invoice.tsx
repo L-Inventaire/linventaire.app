@@ -325,6 +325,18 @@ export const InvoiceInvoiceModalContent = ({
                     partialInvoice.data?.remaining?.total?.total || 0
                   )}{" "}
                   HT restera à facturer.
+                  {!!partialInvoice.data?.remaining_credit_note && (
+                    <>
+                      <br />
+                      <Text color="orange">
+                        {formatAmount(
+                          partialInvoice.data?.remaining_credit_note?.total
+                            ?.total || 0
+                        )}{" "}
+                        trop perçu (avoir à créer).
+                      </Text>
+                    </>
+                  )}
                 </div>
               )}
             </div>
