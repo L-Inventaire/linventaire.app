@@ -55,6 +55,24 @@ describe("recurring-generate-invoice", () => {
     expect(date).toEqual(new Date("2024-02-29T23:00:00Z"));
   });
 
+  test("applyOffset", async () => {
+    const values = getLatestInvoiceDate(
+      "first_day",
+      "monthly",
+      new Date("2025-06-02T23:00:00.000Z"),
+      "Europe/Paris",
+      new Date("2025-07-02T22:00:00.000Z")
+    );
+    expect(values.recheckAt).toEqual(new Date("2025-08-02T22:00:00.000Z"));
+    expect(values.invoicePeriodFrom).toEqual(
+      new Date("2025-07-02T22:00:00.000Z")
+    );
+    expect(values.invoicePeriodTo).toEqual(
+      new Date("2025-08-02T21:59:59.999Z")
+    );
+    expect(values.invoiceDate).toEqual(new Date("2025-07-02T22:00:00.000Z"));
+  });
+
   test("getLatestInvoiceDate - Timezones", async () => {
     let throwed = false;
     try {

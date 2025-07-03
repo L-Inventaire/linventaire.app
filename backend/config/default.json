@@ -62,6 +62,9 @@
   "jwt": {
     "secret": "hppuf6WkagQX98%5qjOQ~7e:Ncv-]QXNNB2UCVJk}Ftn>+cuG9O>~:3{2'bmxr%"
   },
+  "signatures": {
+    "secret": "+:!o]wZY>l'{(VF8rIYUf4OVa-848>*J;E2l}^nD:>0e*{8Oa|QEPE=tE@(~Y2"
+  },
   "server": {
     "allow_cors": true,
     "port": 3000,

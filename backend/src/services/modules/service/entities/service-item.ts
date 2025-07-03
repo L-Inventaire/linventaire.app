@@ -25,6 +25,7 @@ export default class ServiceItems extends RestEntity {
   quantity_expected = 0; // In hours
   quantity_spent = 0; // Precomputed: In hours, computed from service times
   started_at = new Date();
+  signatures = ["string"]; // Signatures linked to this service item
 
   client = "type:contacts"; // The client who has this service or plan to have it
   for_rel_quote = "type:invoices"; // The quote or invoice this service is linked to
@@ -50,6 +51,7 @@ export const ServiceItemsDefinition: RestTableDefinition = {
     ...columnsFromEntity(ServiceItems),
     ...new RestEntityColumnsDefinition(),
     notes: "TEXT",
+    signatures: "TEXT[]",
     state_order:
       "BIGINT GENERATED ALWAYS AS (CASE state WHEN 'backlog' THEN 1 WHEN 'todo' THEN 2 WHEN 'in_progress' THEN 3 WHEN 'in_review' THEN 4 WHEN 'done' THEN 5 WHEN 'cancelled' THEN 6 ELSE 7 END) STORED",
   },

@@ -1,4 +1,5 @@
 import { Button } from "@atoms/button/button";
+import { InputSignature } from "@atoms/input/input-signature";
 import InputTime from "@atoms/input/input-time";
 import { PageLoader } from "@atoms/page-loader";
 import { Section } from "@atoms/text";
@@ -326,6 +327,16 @@ export const ServiceItemsDetailsPage = ({
             )}
 
             <div className="mt-12">
+              <Heading size="4">Signatures</Heading>
+              <InputSignature
+                disabled={readonly}
+                value={ctrl("signatures").value || []}
+                onChange={(e) => ctrl("signatures").onChange(e)}
+                clientId={draft.client_id}
+              />
+            </div>
+
+            <div className="mt-12">
               <Heading size="4">Notes et documents internes</Heading>
               <div className="mt-4">
                 <div className="space-y-2 mt-2">
@@ -371,13 +382,15 @@ export const ServiceItemsDetailsPage = ({
           </>
         )}
 
-        <div className="mt-8">
-          <Timeline
-            entity="service_items"
-            id={draft.id}
-            viewRoute={ROUTES.ServiceItemsView}
-          />
-        </div>
+        {draft.id && readonly && (
+          <div className="mt-8">
+            <Timeline
+              entity="service_items"
+              id={draft.id}
+              viewRoute={ROUTES.ServiceItemsView}
+            />
+          </div>
+        )}
       </FormContext>
     </div>
   );

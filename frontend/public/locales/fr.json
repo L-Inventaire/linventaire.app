@@ -368,6 +368,20 @@
         "yd²": "yd²",
         "mi²": "mi²"
       }
+    },
+    "common": {
+      "save": "Enregistrer",
+      "saving": "Enregistrement...",
+      "cancel": "Annuler"
+    },
+    "signature": {
+      "add": "Ajouter une signature",
+      "title": "Ajouter votre signature",
+      "fullName": "Nom complet",
+      "optional": "optionnel",
+      "enterName": "Entrez votre nom complet",
+      "clear": "Effacer la signature",
+      "anonymous": "Anonyme"
     }
   }
 }
