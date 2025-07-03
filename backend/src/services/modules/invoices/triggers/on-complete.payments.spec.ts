@@ -95,8 +95,7 @@ describe("on-complete-payments", () => {
       [_.cloneDeep(invoice1)],
       _.cloneDeep(allPayments)
     );
-    console.log("2-1", res1.transactions);
-    console.log("2-1", res2.transactions);
+
     expect(res1.transactions.total).toBe(50);
     expect(res1.transactions.percentage).toBe(100);
     expect(res1.transactions.ids?.length).toBe(1);
@@ -136,8 +135,7 @@ describe("on-complete-payments", () => {
       [_.cloneDeep(invoice1)],
       _.cloneDeep(allPayments)
     );
-    console.log("2-1 partial", res1.transactions);
-    console.log("2-1 partial", res2.transactions);
+
     expect(res1.transactions.total).toBe(50);
     expect(res1.transactions.percentage).toBe(100);
     expect(res1.transactions.ids?.length).toBe(1);
@@ -187,7 +185,7 @@ describe("on-complete-payments", () => {
       _.cloneDeep(allInvoices),
       _.cloneDeep(allPayments)
     );
-    console.log("test0", res.transactions);
+
     expect(res.transactions.total).toBe(50);
     expect(res.transactions.percentage).toBe(100);
     expect(res.transactions.ids?.length).toBe(1);
@@ -197,7 +195,7 @@ describe("on-complete-payments", () => {
       _.cloneDeep(allInvoices),
       _.cloneDeep(allPayments)
     );
-    console.log("test1", res.transactions);
+
     expect(res.transactions.total).toBe(75);
     expect(res.transactions.percentage).toBe(100);
     expect(res.transactions.ids?.length).toBe(2);
@@ -207,7 +205,7 @@ describe("on-complete-payments", () => {
       _.cloneDeep(allInvoices),
       _.cloneDeep(allPayments)
     );
-    console.log("test2", res.transactions);
+
     expect(res.transactions.total).toBe(25);
     expect(res.transactions.percentage).toBe(25);
     expect(res.transactions.ids?.length).toBe(2);
@@ -256,7 +254,7 @@ describe("on-complete-payments", () => {
       _.cloneDeep(allInvoices),
       _.cloneDeep(allPayments)
     );
-    console.log("test0", res.transactions);
+
     expect(res.transactions.total).toBe(75);
     expect(res.transactions.percentage).toBe(150);
     expect(res.transactions.ids?.length).toBe(2);
@@ -266,7 +264,7 @@ describe("on-complete-payments", () => {
       _.cloneDeep(allInvoices),
       _.cloneDeep(allPayments)
     );
-    console.log("test1", res.transactions);
+
     expect(res.transactions.total).toBe(75);
     expect(res.transactions.percentage).toBe(100);
     expect(res.transactions.ids?.length).toBe(2);
@@ -276,7 +274,7 @@ describe("on-complete-payments", () => {
       _.cloneDeep(allInvoices),
       _.cloneDeep(allPayments)
     );
-    console.log("test2", res.transactions);
+
     expect(res.transactions.total).toBe(0);
     expect(res.transactions.percentage).toBe(0);
     expect(res.transactions.ids?.length).toBe(1);

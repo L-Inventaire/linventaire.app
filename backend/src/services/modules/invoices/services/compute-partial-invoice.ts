@@ -6,6 +6,7 @@ type PartialInvoiceOutType = {
   invoiced: Pick<Invoices, "content" | "discount" | "total">;
   partial_invoice: Pick<Invoices, "content" | "discount" | "type" | "total">;
   remaining: Pick<Invoices, "content" | "discount" | "total">;
+  remaining_credit_note?: Pick<Invoices, "content" | "total" | "type">;
 };
 
 export const computePartialInvoice = (
@@ -23,7 +24,7 @@ export const computePartialInvoice = (
   // - discounts
   // - potentially abnormal invoices not fully matching the quote but still related to the quote
   // - keep track of escomptes and acomptes
-  // If amount is less than 0 we'll generate a credit note instead of an invoice
+  // If amount is less than 0 then we'll fill the credit_notes output
   // If all is already invoiced we return an empty object
 
   // Here's the steps:
@@ -122,149 +123,233 @@ export const computePartialInvoice = (
     discount: thisPartialInvoiceDiscount,
   });
 
-  const nextPartialInvoiceItems = diffContent(
+  const remainingInvoiceItems = diffContent(
     quoteRemainingItems,
     thisPartialInvoiceItems
   );
-  const nextPartialInvoiceAmount = sumTotals(
-    quoteRemainingAmount,
-    thisPartialInvoiceAmount,
-    -1
-  ) as Invoices["total"];
-
-  let thisPartialInvoiceType: Invoices["type"] = invoicesType;
-
-  if (
-    nextPartialInvoiceItems.length === 0 &&
-    nextPartialInvoiceAmount.total !== 0
-  ) {
-    // If we invoiced too much according to invoice then we'll apply a discount automatically (if possible)
-    if (nextPartialInvoiceAmount.total < 0) {
-      if (-nextPartialInvoiceAmount.total <= thisPartialInvoiceAmount.total) {
-        thisPartialInvoiceDiscount.value += -nextPartialInvoiceAmount.total;
-      } else {
-        // If not possible, then we must create a credit note somehow
-        thisPartialInvoiceType = creditNotesType;
-        // Remove all articles and just add a correction line
-        thisPartialInvoiceItems = [
-          {
-            type: "correction",
-            article: "correction",
-            quantity: 1,
-            unit_price: -nextPartialInvoiceAmount.total,
-            discount: { mode: "amount", value: 0 },
-          },
-        ];
-        thisPartialInvoiceDiscount.value = 0;
-      }
-    } else {
-      // We'll add a product line to fix the issue
-      thisPartialInvoiceItems.push({
-        type: "correction",
-        article: "correction",
-        quantity: 1,
-        unit_price:
-          computePricesFromInvoice(quote).total -
-          alreadyInvoicedAmount.total -
-          thisPartialInvoiceAmount.total_with_taxes,
-        discount: { mode: "amount", value: 0 },
-      });
-    }
-    nextPartialInvoiceAmount.discount = 0;
-  }
-
-  const nextPartialInvoiceContentTotal = computePricesFromInvoice({
-    content: nextPartialInvoiceItems as Invoices["content"],
+  const remainingInvoiceAmount = computePricesFromInvoice({
+    content: remainingInvoiceItems as Invoices["content"],
     discount: {
       mode: "amount",
-      value: nextPartialInvoiceAmount.discount,
-    } as InvoiceDiscount,
-  } as Invoices);
+      value: 0,
+    },
+  });
 
-  console.log("Next partial invoice items:", nextPartialInvoiceItems);
-  console.log("Next partial invoice amount:", nextPartialInvoiceAmount);
+  console.log("alreadyInvoicedAmount", alreadyInvoicedAmount);
+  console.log("quoteRemainingAmount", quoteRemainingAmount);
+  console.log("thisPartialInvoiceItems", thisPartialInvoiceItems);
   console.log(
-    "Next partial invoice content total:",
-    nextPartialInvoiceContentTotal
+    "computePricesFromInvoice(quote)",
+    computePricesFromInvoice(quote)
   );
-  console.log("quoteRemainingItems:", nextPartialInvoiceItems.length);
+  console.log("thisPartialInvoiceAmount", thisPartialInvoiceAmount);
+  console.log("remainingInvoiceAmount", remainingInvoiceAmount);
 
-  if (
-    nextPartialInvoiceAmount.total_with_taxes !==
-    nextPartialInvoiceContentTotal.total_with_taxes
-  ) {
-    // If the next partial invoice amount does not match the computed amount, we need to adjust it by adding a correction line
-    const correctionAmount =
-      nextPartialInvoiceAmount.total_with_taxes -
-      nextPartialInvoiceContentTotal.total_with_taxes;
+  // All is computed, we only have to fix the amounts and/or create credit_notes if needed
 
-    if (nextPartialInvoiceItems.length === 0) {
-      console.log(
-        "Is final invoice, adding correction line diff amount:",
-        correctionAmount
-      );
-      thisPartialInvoiceItems.push({
-        type: "correction",
-        article: "correction",
-        name:
-          correctionAmount > 0 ? "Correction du solde" : "Acomptes prélevés",
-        quantity: 1,
-        unit_price: correctionAmount,
-        discount: { mode: "amount", value: 0 },
-      });
-      thisPartialInvoiceAmount.discount = 0;
-      thisPartialInvoiceDiscount.value = 0;
+  // Gap from quote
+  const gapFromQuote =
+    quoteRemainingAmount.total_with_taxes -
+    (remainingInvoiceAmount.total_with_taxes +
+      thisPartialInvoiceAmount.total_with_taxes);
+  const isFinalInvoice = remainingInvoiceItems.length === 0;
+  let remainingCreditNoteValue = 0;
+
+  console.log("gapFromQuote", gapFromQuote);
+  console.log("isFinalInvoice", isFinalInvoice);
+
+  if (gapFromQuote !== 0) {
+    if (gapFromQuote > 0) {
+      console.log("Gap from quote is positive:", gapFromQuote);
+      // Meaning we need to pay more than expected
+      // isFinalInvoice=true then we put everything to the partial invoice, else we put it to the remaining invoice
+      if (isFinalInvoice) {
+        thisPartialInvoiceItems.push({
+          type: "correction",
+          article: "correction_final_invoice",
+          name: "Correction du solde",
+          quantity: 1,
+          unit_price: gapFromQuote - thisPartialInvoiceDiscount.value,
+          discount: { mode: "amount", value: 0 },
+        });
+        thisPartialInvoiceDiscount.value = 0;
+      } else {
+        remainingInvoiceItems.push({
+          type: "correction",
+          article: "correction_final_invoice",
+          name: "Correction du solde",
+          quantity: 1,
+          unit_price: gapFromQuote - remainingInvoiceAmount.discount,
+          discount: { mode: "amount", value: 0 },
+        });
+        remainingInvoiceAmount.discount = 0;
+      }
     } else {
-      nextPartialInvoiceItems.push({
-        type: "correction",
-        article: "correction",
-        name: "Correction du solde",
-        quantity: 1,
-        unit_price: correctionAmount,
-        discount: { mode: "amount", value: 0 },
-      });
-      nextPartialInvoiceAmount.discount = 0;
+      const stillToPay =
+        thisPartialInvoiceAmount.total_with_taxes +
+        remainingInvoiceAmount.total_with_taxes;
+      console.log(
+        "Gap from quote is negative:",
+        gapFromQuote,
+        "stillToPay in invoices:",
+        stillToPay
+      );
+      if (!isFinalInvoice) {
+        if (remainingInvoiceAmount.total_with_taxes > -gapFromQuote) {
+          //No need for a credit note
+          remainingInvoiceItems.push({
+            type: "correction",
+            article: "correction_remaining_only",
+            name: "Correction du solde",
+            quantity: 1,
+            unit_price: gapFromQuote - remainingInvoiceAmount.discount,
+            discount: { mode: "amount", value: 0 },
+          });
+          remainingInvoiceAmount.discount = 0;
+        } else {
+          // Needs a credit note
+          remainingInvoiceItems.push({
+            type: "correction",
+            article: "correction_remaining_only",
+            name: "Correction du solde",
+            quantity: 1,
+            unit_price: -(
+              remainingInvoiceAmount.total_with_taxes -
+              remainingInvoiceAmount.discount
+            ),
+            discount: { mode: "amount", value: 0 },
+          });
+          remainingInvoiceAmount.discount = 0;
+
+          remainingCreditNoteValue = -gapFromQuote - stillToPay;
+        }
+      } else {
+        // Cases: if it is more than what we can invoice to the current or remaining invoice, then a credit note will be created
+        if (stillToPay > -gapFromQuote) {
+          // In this case we'll just edit the next invoices as much as we can
+          const coveredByThisInvoice = Math.min(
+            -gapFromQuote,
+            thisPartialInvoiceAmount.total_with_taxes
+          );
+          thisPartialInvoiceItems.push({
+            type: "correction",
+            article: "correction",
+            name: "Correction du solde",
+            quantity: 1,
+            unit_price:
+              -coveredByThisInvoice - thisPartialInvoiceDiscount.value,
+            discount: { mode: "amount", value: 0 },
+          });
+          thisPartialInvoiceDiscount.value = 0;
+          if (coveredByThisInvoice < -gapFromQuote) {
+            remainingInvoiceItems.push({
+              type: "correction",
+              article: "correction",
+              name: "Correction du solde",
+              quantity: 1,
+              unit_price:
+                gapFromQuote +
+                coveredByThisInvoice -
+                remainingInvoiceAmount.discount,
+              discount: { mode: "amount", value: 0 },
+            });
+            remainingInvoiceAmount.discount = 0;
+          }
+        } else {
+          // In this case we'll have to create a credit note after setting every remaining invoices to 0
+          thisPartialInvoiceItems.push({
+            type: "correction",
+            article: "correction_credit_note",
+            name: "Correction du solde",
+            quantity: 1,
+            unit_price:
+              -thisPartialInvoiceAmount.total_with_taxes -
+              thisPartialInvoiceDiscount.value,
+            discount: { mode: "amount", value: 0 },
+          });
+          thisPartialInvoiceDiscount.value = 0;
+          remainingInvoiceItems.push({
+            type: "correction",
+            article: "correction_credit_note",
+            name: "Correction du solde",
+            quantity: 1,
+            unit_price:
+              -remainingInvoiceAmount.total_with_taxes -
+              remainingInvoiceAmount.discount,
+            discount: { mode: "amount", value: 0 },
+          });
+          remainingInvoiceAmount.discount = 0;
+          remainingCreditNoteValue = -gapFromQuote - stillToPay;
+        }
+      }
     }
   }
 
-  const tmp = {
+  const remainingCreditNote: Invoices =
+    remainingCreditNoteValue > 0
+      ? ({
+          type: creditNotesType,
+          content: [
+            {
+              type: "correction",
+              article: "correction_credit_note",
+              name: "Correction du solde",
+              quantity: 1,
+              unit_price: remainingCreditNoteValue,
+              discount: { mode: "amount", value: 0 },
+            } as InvoiceLine,
+          ],
+        } as Invoices)
+      : undefined;
+  if (remainingCreditNote)
+    remainingCreditNote.total = computePricesFromInvoice(remainingCreditNote);
+
+  console.log("Next partial invoice items:", remainingInvoiceItems);
+  console.log("Next partial invoice amount:", remainingInvoiceAmount);
+  console.log("quoteRemainingItems:", remainingInvoiceItems.length);
+
+  return {
     invoiced: {
       content: alreadyInvoiced as Invoices["content"],
       discount: {
         mode: "amount",
         value: alreadyInvoicedAmount.discount,
       } as InvoiceDiscount,
-    },
+      total: computePricesFromInvoice({
+        content: alreadyInvoiced as Invoices["content"],
+        discount: {
+          mode: "amount",
+          value: alreadyInvoicedAmount.discount,
+        },
+      }),
+    } as Invoices,
     partial_invoice: {
-      type: thisPartialInvoiceType,
+      type: invoicesType,
       content: thisPartialInvoiceItems as Invoices["content"],
       discount: {
         mode: "amount",
         value: thisPartialInvoiceDiscount.value,
       } as InvoiceDiscount,
-    },
+      total: computePricesFromInvoice({
+        content: thisPartialInvoiceItems as Invoices["content"],
+        discount: thisPartialInvoiceDiscount,
+      }),
+    } as Invoices,
     remaining: {
-      content: nextPartialInvoiceItems as Invoices["content"],
+      content: remainingInvoiceItems as Invoices["content"],
       discount: {
         mode: "amount",
-        value: nextPartialInvoiceAmount.discount,
+        value: remainingInvoiceAmount.discount,
       } as InvoiceDiscount,
-    },
-  };
-
-  return {
-    invoiced: {
-      ...tmp.invoiced,
-      total: computePricesFromInvoice(tmp.invoiced),
-    },
-    partial_invoice: {
-      ...tmp.partial_invoice,
-      total: computePricesFromInvoice(tmp.partial_invoice),
-    },
-    remaining: {
-      ...tmp.remaining,
-      total: computePricesFromInvoice(tmp.remaining),
-    },
+      total: computePricesFromInvoice({
+        content: remainingInvoiceItems as Invoices["content"],
+        discount: {
+          mode: "amount",
+          value: remainingInvoiceAmount.discount,
+        },
+      }),
+    } as Invoices,
+    remaining_credit_note: remainingCreditNote,
   };
 };
 
