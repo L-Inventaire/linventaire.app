@@ -471,6 +471,8 @@ export const getLatestInvoiceDate = (
     throw new Error("Period start date is in the future for invoice");
   }
 
+  console.log({ mode, frequency, periodStartDate, timezone, currentDate });
+
   const periodBeforeStart = new Date(periodStartDate);
   const periodCurrentStart = new Date(periodStartDate);
   const periodNextStart = new Date(periodStartDate);
@@ -499,6 +501,16 @@ export const getLatestInvoiceDate = (
       timezone
     ),
   ];
+
+  console.log("invoicesAndPeriods", invoicesAndPeriods);
+  console.log("periodCurrentStart", periodCurrentStart);
+  console.log("periodNextStart", periodNextStart);
+  console.log("periodNext2Start", periodNext2Start);
+  console.log("periodBeforeStart", periodBeforeStart);
+  console.log("currentDate", currentDate);
+  console.log("mode", mode);
+  console.log("frequency", frequency);
+  console.log("timezone", timezone);
 
   const invoiceDate = invoicesAndPeriods
     .filter(
