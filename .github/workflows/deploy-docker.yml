@@ -46,7 +46,7 @@ jobs:
 
       - name: Build Docker image frontend
         run: |
-          docker build -t ghcr.io/l-inventaire/client/nginx:latest --build-arg SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} . -f docker/nginx.Dockerfile
+          docker build -t ghcr.io/l-inventaire/client/nginx:latest --build-arg SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} frontend
 
       - name: Build Docker image backend
         run: |

@@ -5,7 +5,7 @@ ARG SENTRY_AUTH_TOKEN
 
 WORKDIR /app
 
-COPY . .
+COPY backend .
 RUN yarn install
 RUN yarn build
 
