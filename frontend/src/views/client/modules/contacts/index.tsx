@@ -99,7 +99,7 @@ export const ContactsPage = () => {
               ...options,
               limit: page.perPage,
               offset: (page.page - 1) * page.perPage,
-              asc: page.order === "ASC",
+              asc: (page.order || "").toLowerCase() !== "desc",
             });
           }}
           columns={ContactsColumns}

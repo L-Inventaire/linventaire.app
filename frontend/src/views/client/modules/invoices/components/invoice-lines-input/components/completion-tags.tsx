@@ -198,7 +198,7 @@ export const CompletionTags = (props: {
                 const quantity = completed[2];
                 if (quantity > 0) {
                   // Create a new service item to mark it as done
-                  await getRestApiClient("service_items").create(clientId!, {
+                  const serviceItem = {
                     state: "done",
                     title: [
                       line.name,
@@ -215,7 +215,12 @@ export const CompletionTags = (props: {
                     client: props.invoice.client,
                     quantity_expected: quantity,
                     quantity_spent: quantity,
-                  } as Partial<ServiceItems>);
+                  } as Partial<ServiceItems>;
+
+                  await getRestApiClient("service_items").create(
+                    clientId!,
+                    serviceItem
+                  );
                 }
               }
             }
@@ -232,99 +237,101 @@ export const CompletionTags = (props: {
 
   return (
     <DropdownButton
-      className="flex space-x-1 p-0 m-0 cursor-pointer"
       menu={options}
       theme="invisible"
+      className="p-0 m-0 cursor-pointer"
     >
-      {props?.lines?.some((a) => a.type === "service") && (
-        <Tag
-          onClick={() => {}}
-          className={twMerge(shortLeft && "w-5")}
-          noColor
-          size={props.size || "xs"}
-          data-tooltip={"Executé " + readyServiceCompletion[0] + "%"}
-          icon={
-            <CheckCircleIcon
-              className={`w-3 h-3 mr-1 shrink-0 text-${readyServiceCompletion[1]}-500`}
-            />
-          }
-        >
-          {!shortLeft && (
-            <>
-              {readyServiceCompletion[0] > 100 && "⚠️"}
-              {readyServiceCompletion[0]}%{" "}
-            </>
-          )}
-          {shortLeft && <div />}
-        </Tag>
-      )}
-      {props?.lines?.some(
-        (a) => a.type === "product" || a.type === "consumable"
-      ) && (
-        <div className="flex -space-x-px">
-          {props.invoice?.type !== "supplier_quotes" && (
+      <div className="flex space-x-1">
+        {props?.lines?.some((a) => a.type === "service") && (
+          <Tag
+            onClick={() => {}}
+            className={twMerge(shortLeft && "w-5")}
+            noColor
+            size={props.size || "xs"}
+            data-tooltip={"Executé " + readyServiceCompletion[0] + "%"}
+            icon={
+              <CheckCircleIcon
+                className={`w-3 h-3 mr-1 shrink-0 text-${readyServiceCompletion[1]}-500`}
+              />
+            }
+          >
+            {!shortLeft && (
+              <>
+                {readyServiceCompletion[0] > 100 && "⚠️"}
+                {readyServiceCompletion[0]}%{" "}
+              </>
+            )}
+            {shortLeft && <div />}
+          </Tag>
+        )}
+        {props?.lines?.some(
+          (a) => a.type === "product" || a.type === "consumable"
+        ) && (
+          <div className="flex -space-x-px">
+            {props.invoice?.type !== "supplier_quotes" && (
+              <Tag
+                onClick={() => {}}
+                className={twMerge("rounded-r-none", shortLeft && "w-5")}
+                noColor
+                size={props.size || "xs"}
+                data-tooltip={"Reservé " + readyCompletion[0] + "%"}
+                icon={
+                  <CubeIcon
+                    className={`w-3 h-3 mr-1 shrink-0 text-${readyCompletion[1]}-500`}
+                  />
+                }
+              >
+                {!shortLeft && (
+                  <>
+                    {readyCompletion[0] > 100 && "⚠️"}
+                    {readyCompletion[0]}%{" "}
+                  </>
+                )}
+                {shortLeft && <div />}
+              </Tag>
+            )}
             <Tag
               onClick={() => {}}
-              className={twMerge("rounded-r-none", shortLeft && "w-5")}
+              className={twMerge(
+                props.invoice?.type !== "supplier_quotes" && "rounded-l-none",
+                shortRight && "w-5"
+              )}
               noColor
               size={props.size || "xs"}
-              data-tooltip={"Reservé " + readyCompletion[0] + "%"}
+              data-tooltip={"Livré " + deliveredCompletion[0] + "%"}
               icon={
-                <CubeIcon
-                  className={`w-3 h-3 mr-1 shrink-0 text-${readyCompletion[1]}-500`}
+                <TruckIcon
+                  className={`w-3 h-3 mr-1 shrink-0 text-${deliveredCompletion[1]}-500`}
                 />
               }
             >
-              {!shortLeft && (
+              {!shortRight && (
                 <>
-                  {readyCompletion[0] > 100 && "⚠️"}
-                  {readyCompletion[0]}%{" "}
+                  {deliveredCompletion[0] > 100 && "⚠️"}
+                  {deliveredCompletion[0]}%{" "}
                 </>
               )}
-              {shortLeft && <div />}
+              {shortRight && <div />}
             </Tag>
-          )}
-          <Tag
-            onClick={() => {}}
-            className={twMerge(
-              props.invoice?.type !== "supplier_quotes" && "rounded-l-none",
-              shortRight && "w-5"
-            )}
-            noColor
-            size={props.size || "xs"}
-            data-tooltip={"Livré " + deliveredCompletion[0] + "%"}
-            icon={
-              <TruckIcon
-                className={`w-3 h-3 mr-1 shrink-0 text-${deliveredCompletion[1]}-500`}
-              />
-            }
-          >
-            {!shortRight && (
-              <>
-                {deliveredCompletion[0] > 100 && "⚠️"}
-                {deliveredCompletion[0]}%{" "}
-              </>
-            )}
-            {shortRight && <div />}
-          </Tag>
-        </div>
-      )}
-      {(props?.lines || []).some((a) => a.subscription) &&
-        _.uniq(
-          (props?.lines || [])?.map((a) => a.subscription).filter(Boolean)
-        ).map((s) => (
-          <Tag
-            color="blue"
-            size={props.size || "xs"}
-            icon={
-              <ArrowPathIcon
-                className={`w-3 h-3 mr-1 shrink-0 text-blue-500`}
-              />
-            }
-          >
-            {frequencyOptions.find((a) => a.value === s)?.label || s}
-          </Tag>
-        ))}
+          </div>
+        )}
+        {(props?.lines || []).some((a) => a.subscription) &&
+          _.uniq(
+            (props?.lines || [])?.map((a) => a.subscription).filter(Boolean)
+          ).map((s) => (
+            <Tag
+              color="blue"
+              size={props.size || "xs"}
+              icon={
+                <ArrowPathIcon
+                  className={`w-3 h-3 mr-1 shrink-0 text-blue-500`}
+                />
+              }
+            >
+              {frequencyOptions.find((a) => a.value === s)?.label || s}
+            </Tag>
+          ))}
+      </div>
     </DropdownButton>
   );
 };

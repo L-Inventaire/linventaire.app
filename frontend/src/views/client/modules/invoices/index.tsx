@@ -152,7 +152,13 @@ const InvoicesPageContent = () => {
 
   const [options, setOptions] = useState<RestOptions<Invoices>>({
     index:
-      activeTab === "all" ? "reference desc" : "state_order,reference desc",
+      type[0] === "quotes" || type[0] === "supplier_quotes"
+        ? activeTab === "all"
+          ? "emit_date desc"
+          : "state_order,emit_date desc"
+        : activeTab === "all"
+        ? "reference desc"
+        : "state_order,reference desc",
     limit: 20,
     offset: 0,
     query: [],
@@ -539,7 +545,9 @@ const InvoicesPageContent = () => {
                       groupBy,
                       page.orderBy
                         ? page.orderBy +
-                          (page.order === "ASC" ? " asc" : " desc")
+                          ((page.order || "").toLowerCase() !== "desc"
+                            ? " asc"
+                            : " desc")
                         : "",
                     ]
                       .filter(Boolean)

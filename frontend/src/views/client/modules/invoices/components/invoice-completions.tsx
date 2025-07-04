@@ -48,7 +48,15 @@ export const computeStockCompletion = (
     0
   );
 
-  return [val / total, Math.max(0, total - val)];
+  return [
+    val / total,
+
+    lines.reduce(
+      (a, curr) =>
+        a + Math.max(0, (curr.quantity || 0) - (curr.quantity_delivered || 0)),
+      0
+    ),
+  ];
 };
 
 export const renderStockCompletion = (

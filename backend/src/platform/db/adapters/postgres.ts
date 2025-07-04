@@ -430,6 +430,8 @@ export default class DbPostgres implements DbAdapterInterface {
       include_deleted: false,
     }
   ) {
+    options.asc = options.asc !== false; // Default to true if not specified
+
     const client = ctx.db_tnx?.client || this.client;
     const cols = this.tablesDefinitions[table]?.columns || {};
 

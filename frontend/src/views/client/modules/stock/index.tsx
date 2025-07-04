@@ -98,7 +98,7 @@ export const StockPage = () => {
     limit: 20,
     offset: 0,
     query: [],
-    index: "state_order,created_at desc",
+    index: "state_order asc,created_at desc",
   });
   const { stock_items } = useStockItems({
     ...options,
@@ -203,7 +203,7 @@ export const StockPage = () => {
               ...options,
               limit: page.perPage,
               offset: (page.page - 1) * page.perPage,
-              asc: page.order === "ASC",
+              asc: (page.order || "").toLowerCase() !== "desc",
             });
           }}
           columns={StockItemsColumns}
