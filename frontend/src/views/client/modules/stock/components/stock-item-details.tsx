@@ -498,13 +498,15 @@ export const StockItemsDetailsPage = ({
           </>
         )}
 
-        <div className="mt-8">
-          <Timeline
-            entity="stock_items"
-            id={draft.id}
-            viewRoute={ROUTES.StockView}
-          />
-        </div>
+        {readonly && (
+          <div className="mt-8">
+            <Timeline
+              entity="stock_items"
+              id={draft.id}
+              viewRoute={ROUTES.StockView}
+            />
+          </div>
+        )}
       </FormContext>
     </div>
   );

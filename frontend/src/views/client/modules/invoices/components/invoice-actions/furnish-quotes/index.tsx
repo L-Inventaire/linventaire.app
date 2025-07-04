@@ -18,7 +18,7 @@ import _, { max } from "lodash";
 import { useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
-import { FurnishQuotesModalAtom } from "./furnish-quotes-modal";
+import { FurnishQuotesModalAtom } from "./modal-hooks";
 
 export const FurnishQuotesDetails = ({ id }: { id?: string }) => {
   const quote = useInvoice(id || "");
@@ -228,7 +228,7 @@ export const FurnishQuotesDetails = ({ id }: { id?: string }) => {
                 },
               },
               {
-                title: "Reste à fournir après l'opération",
+                title: "Status après l'opération",
                 render: (article) => {
                   const articleFurnishes = modifiedFurnishes.filter(
                     (fur) => fur.articleID === article.id
@@ -242,17 +242,15 @@ export const FurnishQuotesDetails = ({ id }: { id?: string }) => {
                     <div key={article.id} className="mb-1 flex justify-between">
                       <BaseSmall
                         className={twMerge(
-                          (article.totalToFurnish ?? 0) - totalValue > 0 &&
-                            "text-red-500",
-                          max([
-                            (article.totalToFurnish ?? 0) - totalValue,
-                            0,
-                          ]) === 0 && "text-green-500",
+                          (article.totalToFurnish ?? 0) - totalValue > 0
+                            ? "text-red-500"
+                            : (article.totalToFurnish ?? 0) - totalValue < 0
+                            ? "text-purple-500"
+                            : "text-green-500",
                           "whitespace-nowrap"
                         )}
                       >
-                        {max([(article.totalToFurnish ?? 0) - totalValue, 0])} /{" "}
-                        {article.totalToFurnish ?? 0}{" "}
+                        {totalValue} / {article.totalToFurnish ?? 0}{" "}
                         <Unit unit={article.unit} />
                       </BaseSmall>
                     </div>

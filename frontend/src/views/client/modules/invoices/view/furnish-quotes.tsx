@@ -12,7 +12,7 @@ import { Page } from "@views/client/_layout/page";
 import _ from "lodash";
 import { useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { FurnishQuotesDetails } from "../components/invoice-actions/furnish-quotes-details";
+import { FurnishQuotesDetails } from "../components/invoice-actions/furnish-quotes";
 
 export const FurnishQuotesPage = (_props: { readonly?: boolean }) => {
   const { id } = useParamsOrContextId();

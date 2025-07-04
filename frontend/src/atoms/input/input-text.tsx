@@ -2,6 +2,7 @@ import { Shortcut, useShortcuts } from "@features/utils/shortcuts";
 import _ from "lodash";
 import React, { useEffect } from "react";
 import { InputLabel } from "./input-decoration-label";
+import { twMerge } from "tailwind-merge";
 
 export interface InputProps
   extends Omit<
@@ -92,13 +93,11 @@ export const Input = (props: InputProps) => {
         (props.multiline ? (
           <textarea
             ref={inputRef as React.Ref<HTMLTextAreaElement>}
-            className={
-              inputClassName +
-              " " +
-              props.inputClassName +
-              " " +
+            className={twMerge(
+              inputClassName,
+              props.inputClassName,
               props.className
-            }
+            )}
             {..._.omit(
               props as any,
               "label",
