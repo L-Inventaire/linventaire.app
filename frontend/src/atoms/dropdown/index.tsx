@@ -85,7 +85,7 @@ export const DropdownButton = (
                 m.type === "divider" &&
                 (i === 0 ||
                   !visibleMenu[i + 1] ||
-                  visibleMenu[i - 1]?.type === "divider")
+                  visibleMenu[i + 1]?.type === "divider")
               )
           ) // Remove first divider if it exists
           .map((m, i) => {
