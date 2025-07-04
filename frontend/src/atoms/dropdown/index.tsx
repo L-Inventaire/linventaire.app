@@ -24,6 +24,7 @@ export type DropDownMenuType = {
   to?: string;
   active?: boolean;
   className?: string;
+  visible?: boolean; // If false, the item will not be displayed
 }[];
 
 export const DropDownAtom = atom<{
@@ -62,6 +63,8 @@ export const DropdownButton = (
     };
   }, [open]);
 
+  const visibleMenu = props.menu.filter((m) => m.visible !== false);
+
   return (
     <DropdownMenu.Root
       open={open && !props.disabled && !props.readonly}
@@ -75,36 +78,46 @@ export const DropdownButton = (
         </div>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content>
-        {props.menu.map((m, i) => {
-          return m.type === "divider" ? (
-            <DropdownMenu.Separator key={i} />
-          ) : m.type === "label" ? (
-            <DropdownMenu.Label key={i}>{m.label}</DropdownMenu.Label>
-          ) : m.type === "title" ? (
-            <MenuSection key={i} label={m.label} />
-          ) : (
-            <DropdownMenu.Item
-              onClick={
-                m.onClick
-                  ? (e: any) => {
-                      m.onClick?.(e);
-                    }
-                  : undefined
-              }
-              className={twMerge(
-                "my-1",
-                m.type === "danger" &&
-                  "bg-red-500 text-red-500 dark:text-red-500"
-              )}
-              color={m.type === "danger" ? "crimson" : undefined}
-              key={i}
-              shortcut={m.shortcut && showShortCut(m.shortcut)}
-            >
-              {m.icon && m.icon({ className: "w-4 h-4" })}
-              {m.label}
-            </DropdownMenu.Item>
-          );
-        })}
+        {visibleMenu
+          .filter(
+            (m, i) =>
+              !(
+                m.type === "divider" &&
+                (i === 0 ||
+                  !visibleMenu[i + 1] ||
+                  visibleMenu[i - 1]?.type === "divider")
+              )
+          ) // Remove first divider if it exists
+          .map((m, i) => {
+            return m.type === "divider" ? (
+              <DropdownMenu.Separator key={i} />
+            ) : m.type === "label" ? (
+              <DropdownMenu.Label key={i}>{m.label}</DropdownMenu.Label>
+            ) : m.type === "title" ? (
+              <MenuSection key={i} label={m.label} />
+            ) : (
+              <DropdownMenu.Item
+                onClick={
+                  m.onClick
+                    ? (e: any) => {
+                        m.onClick?.(e);
+                      }
+                    : undefined
+                }
+                className={twMerge(
+                  "my-1",
+                  m.type === "danger" &&
+                    "bg-red-500 text-red-500 dark:text-red-500"
+                )}
+                color={m.type === "danger" ? "crimson" : undefined}
+                key={i}
+                shortcut={m.shortcut && showShortCut(m.shortcut)}
+              >
+                {m.icon && m.icon({ className: "w-4 h-4" })}
+                {m.label}
+              </DropdownMenu.Item>
+            );
+          })}
       </DropdownMenu.Content>
     </DropdownMenu.Root>
   );

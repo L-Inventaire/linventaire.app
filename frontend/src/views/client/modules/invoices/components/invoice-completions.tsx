@@ -5,7 +5,7 @@ export const computeStockCompletion = (
   type: "delivered" | "ready" = "ready",
   overflow = false,
   service = false
-) => {
+): [number, number] => {
   const lines = (linesu || []).filter(
     (a) =>
       (service
@@ -27,7 +27,7 @@ export const computeStockCompletion = (
         (Math.max(0, parseFloat(line.unit_price as any) || 0) || noPriceWeight),
     0
   );
-  if (total === 0) return 1;
+  if (total === 0) return [1, 0];
 
   const column = type === "ready" ? "quantity_ready" : "quantity_delivered";
   const val = lines.reduce(
@@ -48,7 +48,7 @@ export const computeStockCompletion = (
     0
   );
 
-  return val / total;
+  return [val / total, Math.max(0, total - val)];
 };
 
 export const renderStockCompletion = (
@@ -56,10 +56,15 @@ export const renderStockCompletion = (
   type: "delivered" | "ready" = "ready",
   overflow = false,
   service = false
-): [number, string] => {
-  const value = computeStockCompletion(lines, type, overflow, service);
+): [number, string, number] => {
+  const [value, missingQuantity] = computeStockCompletion(
+    lines,
+    type,
+    overflow,
+    service
+  );
   const color = value < 0.5 ? "red" : value < 1 ? "orange" : "green";
-  return [Math.round(value * 100), color];
+  return [Math.round(value * 100), color, missingQuantity];
 };
 
 export const computePaymentCompletion = (
@@ -96,7 +101,7 @@ export const renderPaymentCompletion = (
   type: "delivered" | "ready" = "ready",
   overflow = false
 ): [number, string] => {
-  const value = computeStockCompletion(lines, type, overflow);
+  const [value] = computeStockCompletion(lines, type, overflow);
   const color = value < 0.5 ? "red" : value < 1 ? "orange" : "green";
   return [Math.round(value * 100), color];
 };

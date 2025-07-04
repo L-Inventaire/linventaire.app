@@ -1378,6 +1378,16 @@ body :is(.my-8) {
   margin-bottom: 2rem;
 }
 
+body :is(.mx-0) {
+  margin-left: 0px;
+  margin-right: 0px;
+}
+
+body :is(.mx-0\.5) {
+  margin-left: 0.125rem;
+  margin-right: 0.125rem;
+}
+
 body :is(.\!-ml-0) {
   margin-left: -0px !important;
 }
