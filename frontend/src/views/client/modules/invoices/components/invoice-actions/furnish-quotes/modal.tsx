@@ -116,7 +116,6 @@ export const FurnishQuotesModalContent = ({
                     supplierDetails,
                     furnishText,
                     maxFurnishable,
-                    totalValueText,
                   }) => (
                     <div key={fur.ref} className="mb-2">
                       <QuantitySlider

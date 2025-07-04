@@ -1,13 +1,12 @@
 import { Button } from "@atoms/button/button";
+import { Input } from "@atoms/input/input-text";
 import { Info } from "@atoms/text";
-import { FormInput } from "@components/form/fields";
 import { formatAmount } from "@features/utils/format/strings";
 import { TruckIcon, ViewColumnsIcon } from "@heroicons/react/16/solid";
 import { Text } from "@radix-ui/themes";
 import _ from "lodash";
 import { twMerge } from "tailwind-merge";
 import { FurnishQuotesFurnish } from "../../../types";
-import { Input } from "@atoms/input/input-text";
 
 // Component for the action buttons in the footer
 export const ActionButtons = ({

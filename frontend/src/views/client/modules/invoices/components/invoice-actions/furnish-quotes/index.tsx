@@ -14,7 +14,7 @@ import { formatAmount } from "@features/utils/format/strings";
 import { CubeTransparentIcon } from "@heroicons/react/24/outline";
 import { Table } from "@molecules/table";
 import { Card } from "@radix-ui/themes";
-import _, { max } from "lodash";
+import _ from "lodash";
 import { useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
