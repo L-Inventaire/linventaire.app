@@ -12,7 +12,6 @@ export const RestTable = <T,>(
     "onSelect" | "rowIndex" | "loading" | "data" | "total"
   > & {
     entity: string;
-    search?: string;
     data: UseQueryResult<{ total: number; list: T[] }, Error>;
   }
 ) => {

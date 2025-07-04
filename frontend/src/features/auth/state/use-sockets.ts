@@ -34,6 +34,8 @@ export const useWebsockets = () => {
 
       socket.on("message", (event: any) => {
         if (event.event === "invalidated") {
+          const cachedQueries = queryClient.getQueryCache();
+          const otherQueriesToInvalidate = [];
           for (const doc of event.data) {
             // Only update a single document for now
             const invalidated =
@@ -43,6 +45,19 @@ export const useWebsockets = () => {
             queryClient.invalidateQueries({
               queryKey: invalidated,
             });
+
+            // If present in a currently visible list, invalidate it too
+            otherQueriesToInvalidate.push(
+              ...cachedQueries
+                .findAll({
+                  queryKey: [doc.doc_table, doc.doc_pk?.client_id || "client"],
+                })
+                .filter((a) =>
+                  (a.state.data as { list: { id: string }[] })?.list?.some(
+                    (item) => item.id === doc.doc_pk?.id
+                  )
+                )
+            );
 
             if (["threads", "notifications"].includes(doc.doc_table)) {
               // Refresh lists
@@ -73,6 +88,12 @@ export const useWebsockets = () => {
               }
             }
           }
+
+          otherQueriesToInvalidate.forEach((query) => {
+            queryClient.invalidateQueries({
+              queryKey: query.queryKey,
+            });
+          });
         }
       });
     }
