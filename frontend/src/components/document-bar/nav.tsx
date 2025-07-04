@@ -50,7 +50,7 @@ export const DocumentBarNav = (props: {
 
   if (!options || !props.id || props.id === "new") return null;
 
-  if (!options.offset || !items?.data?.total) {
+  if (options.offset === undefined || !items?.data?.total) {
     return;
   }
 
