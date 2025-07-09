@@ -73,7 +73,7 @@ export const ServicePage = () => {
     limit: 20,
     offset: 0,
     query: [],
-    index: "state_order asc,started_at",
+    index: "state_order asc,started_at desc",
   });
   const { service_items } = useServiceItems({
     ...options,
