@@ -148,7 +148,7 @@ export const DocumentViewer = ({
     title={title}
     loading="eager"
     style={{ background: "white" }}
-    sandbox="allow-same-origin allow-scripts allow-forms"
+    sandbox="allow-scripts allow-forms"
   />
 );
 
