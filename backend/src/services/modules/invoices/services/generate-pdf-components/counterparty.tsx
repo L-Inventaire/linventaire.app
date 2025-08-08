@@ -50,7 +50,7 @@ export const InvoiceCounterparty = ({
           counterpartyContact !== billingParty &&
           `, ${getContactName(counterpartyContact)}`}
       </Text>
-      {billingAddress && (
+      {!!billingAddress && (
         <>
           <Text wrap={true}>{billingAddress.address_line_1}</Text>
           <Text wrap={true}>{billingAddress.address_line_2}</Text>
@@ -68,24 +68,25 @@ export const InvoiceCounterparty = ({
         </>
       )}
       {billingParty.type === "company" &&
-        billingParty.business_registered_id && (
+        !!billingParty.business_registered_id && (
           <Text wrap={true}>
             {" "}
             {Framework.I18n.t(ctx, "invoices.identities.registration_number")}
             {billingParty.business_registered_id}
           </Text>
         )}
-      {billingParty.type === "company" && billingParty.business_tax_id && (
+      {billingParty.type === "company" && !!billingParty.business_tax_id && (
         <Text wrap={true}>
           {" "}
           {Framework.I18n.t(ctx, "invoices.identities.vat_number")}
           {billingParty.business_tax_id}
         </Text>
       )}
-
-      {(document.delivery_date ||
+      {!!(
+        document.delivery_date ||
         document.delivery_delay ||
-        document.delivery_address?.address_line_1) &&
+        document.delivery_address?.address_line_1
+      ) &&
         document.type === "quotes" && (
           <KeyValueDisplay
             vertical

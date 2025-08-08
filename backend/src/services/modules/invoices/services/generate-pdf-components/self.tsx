@@ -51,7 +51,7 @@ export const InvoiceSelf = ({
         {Framework.I18n.t(ctx, "invoices.identities.registration_number")}
         {me.company.registration_number}
       </Text>
-      {me.company.tax_number && (
+      {!!me.company.tax_number && (
         <Text>
           {Framework.I18n.t(ctx, "invoices.identities.vat_number")}
           {me.company.tax_number}

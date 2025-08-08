@@ -52,6 +52,21 @@ Font.register({
   ],
 });
 
+const PDFErrorBoundary = (props: any) => {
+  try {
+    return props.children;
+  } catch (e) {
+    console.error("⚠️ PDF rendering error", e);
+    return (
+      <Document>
+        <Page>
+          <Text>An error occurred while generating this document.</Text>
+        </Page>
+      </Document>
+    );
+  }
+};
+
 export const getPdf = async (
   ctx: Context,
   document: Invoices,
@@ -162,224 +177,228 @@ export const getPdf = async (
     document.format.footer_logo
   );
 
-  return {
-    name: document.reference + ".pdf",
-    pdf: await ReactPDF.renderToStream(
-      <Document
-        title={
-          Framework.I18n.t(ctx, "invoices.types." + (as || document.type))
-            .toLocaleLowerCase()
-            .replace(/ /, "-") +
-          "-" +
-          document.reference
-        }
-      >
-        <Page size="A4" style={styles.page}>
-          {logoBuffer && (
-            <View style={{ position: "absolute", right: 30, top: 40 }}>
-              <Image
-                source={Buffer.from(logoBuffer)}
-                style={{ maxWidth: 150, maxHeight: 150 }}
-              />
-            </View>
-          )}
+  try {
+    const pdf = await ReactPDF.renderToStream(
+      <PDFErrorBoundary>
+        <Document
+          title={
+            Framework.I18n.t(ctx, "invoices.types." + (as || document.type))
+              .toLocaleLowerCase()
+              .replace(/ /, "-") +
+            "-" +
+            document.reference
+          }
+        >
+          <Page size="A4" style={styles.page}>
+            {logoBuffer && (
+              <View style={{ position: "absolute", right: 30, top: 40 }}>
+                <Image
+                  source={Buffer.from(logoBuffer)}
+                  style={{ maxWidth: 150, maxHeight: 150 }}
+                />
+              </View>
+            )}
+            {footerLogoBuffer && (
+              <View
+                fixed
+                style={{ position: "absolute", bottom: 15, left: "53%" }}
+              >
+                <Image
+                  source={Buffer.from(footerLogoBuffer)}
+                  style={{ maxWidth: 48, maxHeight: 24 }}
+                />
+              </View>
+            )}
 
-          {footerLogoBuffer && (
-            <View
-              fixed
-              style={{ position: "absolute", bottom: 15, left: "53%" }}
-            >
-              <Image
-                source={Buffer.from(footerLogoBuffer)}
-                style={{ maxWidth: 48, maxHeight: 24 }}
-              />
-            </View>
-          )}
-
-          <Text
-            style={{
-              fontSize: 9,
-              position: "absolute",
-              bottom: 15,
-              right: 30,
-            }}
-            render={({ pageNumber, totalPages }) =>
-              `${pageNumber} / ${totalPages}`
-            }
-            fixed
-          />
-          {!!document.format.branding && (
             <Text
               style={{
                 fontSize: 9,
                 position: "absolute",
                 bottom: 15,
-                left: 30,
-              }}
-              render={() => (
-                <Text>
-                  Copilotez votre entreprise avec{" "}
-                  <Link src="https://linventaire.app">linventaire.app</Link>
-                </Text>
-              )}
-              fixed
-            />
-          )}
-
-          {!!document.format?.footer && (
-            <View
-              style={{
-                fontSize: 8,
-                textAlign: "center",
-                position: "absolute",
-                bottom: 35,
-                left: 30,
                 right: 30,
               }}
-            >
-              {convertHtml(document.format.footer, {
-                fontSize: 8,
-                textAlign: "center",
-              })}
-            </View>
-          )}
-
-          <View style={{ marginBottom: 24 }}>
-            <Text style={styles.title}>
-              {Framework.I18n.t(ctx, "invoices.types." + (as || document.type))}
-            </Text>
-            <Text style={styles.subtitle}>
-              {!!as &&
-                Framework.I18n.t(
-                  ctx,
-                  "invoices.reference_related." + document.type
+              render={({ pageNumber, totalPages }) =>
+                `${pageNumber} / ${totalPages}`
+              }
+              fixed
+            />
+            {!!document.format.branding && (
+              <Text
+                style={{
+                  fontSize: 9,
+                  position: "absolute",
+                  bottom: 15,
+                  left: 30,
+                }}
+                render={() => (
+                  <Text>
+                    Copilotez votre entreprise avec{" "}
+                    <Link src="https://linventaire.app">linventaire.app</Link>
+                  </Text>
                 )}
-              {Framework.I18n.t(ctx, "invoices.no_prefix")}
-              {document.reference}
-            </Text>
-          </View>
-
-          <View
-            style={{ flexDirection: "row", width: "100%", marginBottom: 24 }}
-          >
-            <InvoiceSelf
-              ctx={ctx}
-              colors={colors}
-              me={me}
-              document={document}
-              timezone={timezone}
-              as={as}
-            />
-            <InvoiceCounterparty
-              ctx={ctx}
-              colors={colors}
-              counterparty={counterParty}
-              counterpartyContact={counterPartyContact}
-              document={document}
-              timezone={timezone}
-            />
-          </View>
-
-          {(!!document.name || !!document.alt_reference) && (
-            <View
-              style={{ flexDirection: "row", width: "50%", marginBottom: 24 }}
-            >
-              {!!document.name && (
-                <KeyValueDisplay
-                  vertical
-                  secondaryColor={colors.secondary}
-                  style={{ fontSize: 9 }}
-                  list={[
-                    {
-                      label: Framework.I18n.t(ctx, "invoices.other.title"),
-                      value: document.name,
-                    },
-                  ]}
-                />
-              )}
-              {!!document.alt_reference && (
-                <KeyValueDisplay
-                  vertical
-                  secondaryColor={colors.secondary}
-                  style={{ fontSize: 9 }}
-                  list={[
-                    {
-                      label: Framework.I18n.t(
-                        ctx,
-                        "invoices.other.alt_reference"
-                      ),
-                      value: document.alt_reference,
-                    },
-                  ]}
-                />
-              )}
-            </View>
-          )}
-
-          {document.format?.heading && (
-            <Text style={{ fontSize: 9, marginBottom: 20 }}>
-              {convertHtml(document.format.heading)}
-            </Text>
-          )}
-
-          {document.from_subscription?.from &&
-            document.from_subscription?.to && (
-              <Text style={{ fontSize: 9, marginBottom: 20 }}>
-                {Framework.I18n.t(ctx, "invoices.other.subscription_period", {
-                  replacements: {
-                    from: displayDate(
-                      document.from_subscription.from,
-                      timezone
-                    ),
-                    to: displayDate(document.from_subscription.to, timezone),
-                  },
-                })}
-              </Text>
+                fixed
+              />
             )}
-
-          <InvoiceContent
-            ctx={ctx}
-            colors={colors}
-            document={document}
-            references={references}
-            as={as}
-          />
-
-          {document.content.some((a) => a.optional) && (
-            <Text style={{ fontSize: 8, marginBottom: 8 }}>
-              {Framework.I18n.t(ctx, "invoices.optional_info")}
-            </Text>
-          )}
-
-          {!!attachments?.length && (
-            <Text style={{ fontSize: 8, marginBottom: 8 }}>
-              {Framework.I18n.t(ctx, "invoices.attachments")}{" "}
-              {attachments.map((a) => a.name).join(", ")}
-            </Text>
-          )}
-
-          <View style={{ marginBottom: 16 }} />
-
-          {as !== "delivery_slip" && (
+            {!!document.format?.footer && (
+              <View
+                style={{
+                  fontSize: 8,
+                  textAlign: "center",
+                  position: "absolute",
+                  bottom: 35,
+                  left: 30,
+                  right: 30,
+                }}
+              >
+                {convertHtml(document.format.footer, {
+                  fontSize: 8,
+                  textAlign: "center",
+                })}
+              </View>
+            )}
+            <View style={{ marginBottom: 24 }}>
+              <Text style={styles.title}>
+                {Framework.I18n.t(
+                  ctx,
+                  "invoices.types." + (as || document.type)
+                )}
+              </Text>
+              <Text style={styles.subtitle}>
+                {!!as &&
+                  Framework.I18n.t(
+                    ctx,
+                    "invoices.reference_related." + document.type
+                  )}
+                {Framework.I18n.t(ctx, "invoices.no_prefix")}
+                {document.reference}
+              </Text>
+            </View>
             <View
               style={{ flexDirection: "row", width: "100%", marginBottom: 24 }}
             >
-              <InvoicePaymentDetails
+              <InvoiceSelf
                 ctx={ctx}
                 colors={colors}
+                me={me}
+                document={document}
+                timezone={timezone}
+                as={as}
+              />
+              <InvoiceCounterparty
+                ctx={ctx}
+                colors={colors}
+                counterparty={counterParty}
+                counterpartyContact={counterPartyContact}
                 document={document}
                 timezone={timezone}
               />
-              <InvoiceTotal
-                ctx={ctx}
-                colors={colors}
-                document={document}
-                checkedIndexes={checkedIndexes}
-              />
             </View>
-          )}
-        </Page>
-      </Document>
-    ),
-  };
+            {(!!document.name || !!document.alt_reference) && (
+              <View
+                style={{ flexDirection: "row", width: "50%", marginBottom: 24 }}
+              >
+                {!!document.name && (
+                  <KeyValueDisplay
+                    vertical
+                    secondaryColor={colors.secondary}
+                    style={{ fontSize: 9 }}
+                    list={[
+                      {
+                        label: Framework.I18n.t(ctx, "invoices.other.title"),
+                        value: document.name,
+                      },
+                    ]}
+                  />
+                )}
+                {!!document.alt_reference && (
+                  <KeyValueDisplay
+                    vertical
+                    secondaryColor={colors.secondary}
+                    style={{ fontSize: 9 }}
+                    list={[
+                      {
+                        label: Framework.I18n.t(
+                          ctx,
+                          "invoices.other.alt_reference"
+                        ),
+                        value: document.alt_reference,
+                      },
+                    ]}
+                  />
+                )}
+              </View>
+            )}
+            {document.format?.heading && (
+              <Text style={{ fontSize: 9, marginBottom: 20 }}>
+                {convertHtml(document.format.heading)}
+              </Text>
+            )}
+            {document.from_subscription?.from &&
+              document.from_subscription?.to && (
+                <Text style={{ fontSize: 9, marginBottom: 20 }}>
+                  {Framework.I18n.t(ctx, "invoices.other.subscription_period", {
+                    replacements: {
+                      from: displayDate(
+                        document.from_subscription.from,
+                        timezone
+                      ),
+                      to: displayDate(document.from_subscription.to, timezone),
+                    },
+                  })}
+                </Text>
+              )}
+            <InvoiceContent
+              ctx={ctx}
+              colors={colors}
+              document={document}
+              references={references}
+              as={as}
+            />
+            {document.content.some((a) => a.optional) && (
+              <Text style={{ fontSize: 8, marginBottom: 8 }}>
+                {Framework.I18n.t(ctx, "invoices.optional_info")}
+              </Text>
+            )}
+            {!!attachments?.length && (
+              <Text style={{ fontSize: 8, marginBottom: 8 }}>
+                {Framework.I18n.t(ctx, "invoices.attachments")}{" "}
+                {attachments.map((a) => a.name).join(", ")}
+              </Text>
+            )}
+            <View style={{ marginBottom: 16 }} />
+            {as !== "delivery_slip" && (
+              <View
+                style={{
+                  flexDirection: "row",
+                  width: "100%",
+                  marginBottom: 24,
+                }}
+              >
+                <InvoicePaymentDetails
+                  ctx={ctx}
+                  colors={colors}
+                  document={document}
+                  timezone={timezone}
+                />
+                <InvoiceTotal
+                  ctx={ctx}
+                  colors={colors}
+                  document={document}
+                  checkedIndexes={checkedIndexes}
+                />
+              </View>
+            )}
+          </Page>
+        </Document>
+      </PDFErrorBoundary>
+    );
+    return {
+      name: document.reference + ".pdf",
+      pdf,
+    };
+  } catch (error) {
+    console.error("Error generating PDF:", error);
+    captureException(error);
+    throw new Error("Failed to generate PDF");
+  }
 };

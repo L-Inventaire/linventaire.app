@@ -35,20 +35,25 @@ export const registerRoutes = (router: Router) => {
     );
     if (!document) return res.status(404).json({ error: "Not found" });
 
-    const { name, pdf } = await generatePdf(ctx, document, {
-      checkedIndexes: req.query.checked
-        ? JSON.parse(req.query.checked as string)
-        : {},
-      as: req.query.as as any,
-      content: JSON.parse((req.query.content as string) || "{}") as {
-        _index: number;
-        quantity: number;
-      }[],
-    });
-    res.setHeader("Content-Type", "application/pdf");
-    if (req.query.download)
-      res.setHeader("Content-Disposition", `attachment; filename="${name}"`);
-    res.send(pdf);
+    try {
+      const { name, pdf } = await generatePdf(ctx, document, {
+        checkedIndexes: req.query.checked
+          ? JSON.parse(req.query.checked as string)
+          : {},
+        as: req.query.as as any,
+        content: JSON.parse((req.query.content as string) || "{}") as {
+          _index: number;
+          quantity: number;
+        }[],
+      });
+      res.setHeader("Content-Type", "application/pdf");
+      if (req.query.download)
+        res.setHeader("Content-Disposition", `attachment; filename="${name}"`);
+      res.send(pdf);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      res.status(500).json({ error: "Failed to generate PDF" });
+    }
   });
 
   router.post(

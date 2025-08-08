@@ -1378,16 +1378,6 @@ body :is(.my-8) {
   margin-bottom: 2rem;
 }
 
-body :is(.mx-0) {
-  margin-left: 0px;
-  margin-right: 0px;
-}
-
-body :is(.mx-0\.5) {
-  margin-left: 0.125rem;
-  margin-right: 0.125rem;
-}
-
 body :is(.\!-ml-0) {
   margin-left: -0px !important;
 }
@@ -1728,10 +1718,6 @@ body :is(.h-32) {
 
 body :is(.h-4) {
   height: 1rem;
-}
-
-body :is(.h-40) {
-  height: 10rem;
 }
 
 body :is(.h-48) {
@@ -2105,10 +2091,6 @@ body :is(.flex-grow) {
 
 body :is(.grow) {
   flex-grow: 1;
-}
-
-body :is(.grow-0) {
-  flex-grow: 0;
 }
 
 body :is(.table-fixed) {
