@@ -237,7 +237,9 @@ export const InvoiceLinesInput = ({
       {!props.hideAttachments && (
         <AnimatedHeight className="text-left">
           {!!value?.attachments?.length && (
-            <Info>Documents envoyés avec la facture</Info>
+            <Info>
+              Pièces jointes au document et visible par le destinataire
+            </Info>
           )}
           <div>
             <FilesInput
