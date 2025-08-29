@@ -114,7 +114,9 @@ registerCtrlKRestEntity<AccountingTransactions>("accounting_transactions", {
 });
 
 export const useAccountingAccountDefaultModel: () => Partial<AccountingAccounts> =
-  () => ({});
+  () => ({
+    type: "internal",
+  });
 
 export const AccountingAccountsColumns: Column<AccountingAccounts>[] = [
   {

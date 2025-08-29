@@ -1,3 +1,7 @@
+import Services from "#src/services";
+import AccountingAccounts, {
+  AccountingAccountsDefinition,
+} from "#src/services/modules/accounting/entities/accounts";
 import Articles, {
   ArticlesDefinition,
 } from "#src/services/modules/articles/entities/articles";
@@ -208,6 +212,19 @@ export const createClient = async (ctx: Context, body: Partial<Clients>) => {
       updated_at: new Date(),
       created_by: ctx.id,
     });
+
+    await Services.Rest.create<Partial<AccountingAccounts>>(
+      ctx,
+      AccountingAccountsDefinition.name,
+      {
+        client_id: ctx.client_id,
+        type: "internal",
+        standard_identifier: "512",
+        standard: "pcg",
+        name: "Banque par défaut",
+        notes: "",
+      }
+    );
 
     await db.update<Clients>(
       ctx,

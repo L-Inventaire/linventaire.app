@@ -28,6 +28,7 @@ export const AccountingAccountDetailsPage = ({
     if (!readonly) {
       setDraft((draft) => ({
         ...draft,
+        type: draft.type || "internal",
       }));
     }
   }, [draft.name, draft.notes, draft.standard_identifier]);
