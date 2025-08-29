@@ -193,7 +193,7 @@ export const ArticlesDetailsPage = ({
                 readonly={readonly}
                 value={[
                   ctrl("suppliers").value || [],
-                  ctrl("suppliers_details").value,
+                  ctrl("suppliers_details").value || {},
                 ]}
                 onChange={function (
                   suppliers: string[],
