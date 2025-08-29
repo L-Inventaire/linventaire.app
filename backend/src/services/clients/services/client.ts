@@ -1,4 +1,4 @@
-import Services from "#src/services";
+import Services from "#src/services/index";
 import AccountingAccounts, {
   AccountingAccountsDefinition,
 } from "#src/services/modules/accounting/entities/accounts";
