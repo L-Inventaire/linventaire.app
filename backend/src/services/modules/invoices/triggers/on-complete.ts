@@ -27,7 +27,7 @@ export const setCheckIsCompleteTrigger = () => {
     name: "check-is-complete-invoices-stock-items",
     test: (_ctx, entity, oldEntity) => {
       return (
-        !entity._batch_import_ignore_trigger &&
+        !entity?._batch_import_ignore_trigger &&
         (entity?.quantity !== oldEntity?.quantity ||
           entity?.article !== oldEntity?.article ||
           entity?.state !== oldEntity?.state ||
