@@ -5,7 +5,7 @@ import { useAuth } from "@features/auth/state/use-auth";
 import { useClients } from "@features/clients/state/use-clients";
 import { ROUTES, getRoute } from "@features/routes";
 import { ReactNode, useCallback, useEffect } from "react";
-import { Navigate, Route, useNavigate } from "react-router-dom";
+import { Route, useNavigate } from "react-router-dom";
 import { Login } from "./login";
 import { SignUp } from "./signup";
 

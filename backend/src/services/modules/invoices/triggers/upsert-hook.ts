@@ -11,6 +11,7 @@ import { getContactName } from "#src/services/utils";
 import { getNewInvoicesAndNextDate } from "./recurring-generate-invoice";
 import { Context } from "#src/types";
 import { expandSearchable } from "#src/services/rest/services/rest";
+import Articles, { ArticlesDefinition } from "../../articles/entities/articles";
 
 /** Make sure autocomputed data are autocomputed **/
 export const setUpsertHook = () =>
@@ -104,6 +105,22 @@ export const setUpsertHook = () =>
 
         return a;
       });
+
+      // Make sure content lines have a name
+      for (const line of updated.content || []) {
+        if (!line.name || !line.name.trim()) {
+          if (line.article) {
+            const article = await db.selectOne<Articles>(
+              ctx,
+              ArticlesDefinition.name,
+              { id: line.article, client_id: entity.client_id }
+            );
+            if (article) {
+              line.name = article.name;
+            }
+          }
+        }
+      }
 
       updated.total = computePricesFromInvoice(entity);
 
