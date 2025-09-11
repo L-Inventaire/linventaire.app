@@ -95,7 +95,9 @@ const LoggedOutPage = (props: { children: ReactNode }) => {
   }, []);
 
   if (user?.id) {
-    document.location = "/";
+    setTimeout(() => {
+      document.location = "/";
+    }, 1000);
     return <></>;
   }
 
