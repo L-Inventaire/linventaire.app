@@ -70,6 +70,7 @@ const useRedirectToApp = () => {
   }, [navigate, clients, loading]);
 
   useEffect(() => {
+    console.log("user?.id", user?.id, loading);
     if (user?.id && !loading) redirectToApp();
   }, [user?.id, loading]);
 
