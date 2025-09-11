@@ -5,7 +5,7 @@ import { useAuth } from "@features/auth/state/use-auth";
 import { useClients } from "@features/clients/state/use-clients";
 import { ROUTES, getRoute } from "@features/routes";
 import { ReactNode, useCallback, useEffect } from "react";
-import { Route, useNavigate } from "react-router-dom";
+import { Navigate, Route, useNavigate } from "react-router-dom";
 import { Login } from "./login";
 import { SignUp } from "./signup";
 
@@ -15,25 +15,25 @@ export const LoginRoutes = () => {
       <Route
         path={ROUTES.SignUp}
         element={
-          <PublicPage>
+          <LoggedOutPage>
             <SignUp />
-          </PublicPage>
+          </LoggedOutPage>
         }
       />
       <Route
         path={""}
         element={
-          <PublicPage>
+          <LoggedOutPage>
             <Login />
-          </PublicPage>
+          </LoggedOutPage>
         }
       />
       <Route
         path={"*"}
         element={
-          <PublicPage>
+          <LoggedOutPage>
             <Login />
-          </PublicPage>
+          </LoggedOutPage>
         }
       />
     </Route>
@@ -76,7 +76,7 @@ const useRedirectToApp = () => {
   return { user };
 };
 
-const PublicPage = (props: { children: ReactNode }) => {
+const LoggedOutPage = (props: { children: ReactNode }) => {
   const { user } = useRedirectToApp();
 
   useEffect(() => {
@@ -95,6 +95,7 @@ const PublicPage = (props: { children: ReactNode }) => {
   }, []);
 
   if (user?.id) {
+    document.location = "/";
     return <></>;
   }
 
