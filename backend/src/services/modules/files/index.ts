@@ -58,7 +58,9 @@ export default class Files implements InternalApplicationService {
       } else {
         res.setHeader(
           "Content-Disposition",
-          `attachment; filename="${file.name}"`
+          `attachment; filename="${(file.name || "")
+            .normalize()
+            .replace(/[^.\-A-Za-z0-9]+/gm, "_")}"`
         );
       }
       res.send(
