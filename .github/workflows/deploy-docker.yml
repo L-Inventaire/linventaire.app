@@ -18,6 +18,10 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Remove root ESLint config
+        working-directory: ./
+        run: rm .eslintrc.json
+
       - name: Install dependencies
         working-directory: ./backend
         run: npm install
@@ -38,6 +42,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Remove root ESLint config
+        working-directory: ./
+        run: rm .eslintrc.json
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
