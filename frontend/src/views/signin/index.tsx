@@ -56,16 +56,19 @@ const useRedirectToApp = () => {
       // Check if we have a "redirect" query parameter
       const urlParams = new URLSearchParams(window.location.search);
       const redirect = urlParams.get("redirect");
-      if (redirect) navigate(redirect);
+      if (redirect) document.location = redirect;
       else if (hasAccess("ACCOUNTING_READ"))
-        navigate(getRoute(ROUTES.Home, { client: bestClient }));
+        document.location = getRoute(ROUTES.Home, { client: bestClient });
       else if (hasAccess("INVOICES_READ"))
-        navigate(getRoute(ROUTES.Invoices, { client: bestClient }));
+        document.location = getRoute(ROUTES.Invoices, { client: bestClient });
       else if (hasAccess("ONSITE_SERVICES_READ"))
-        navigate(getRoute(ROUTES.ServiceItems, { client: bestClient }));
-      else navigate(getRoute(ROUTES.Contacts, { client: bestClient }));
+        document.location = getRoute(ROUTES.ServiceItems, {
+          client: bestClient,
+        });
+      else
+        document.location = getRoute(ROUTES.Contacts, { client: bestClient });
     } else {
-      navigate(ROUTES.JoinCompany);
+      document.location = ROUTES.JoinCompany;
     }
   }, [navigate, clients, loading]);
 
