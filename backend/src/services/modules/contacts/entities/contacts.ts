@@ -116,6 +116,18 @@ export const ContactsDefinition: RestTableDefinition = {
     notes: "TEXT",
     documents: "VARCHAR(64)[]",
     tags: "VARCHAR(64)[]",
+
+    /*
+    [person_first_name, person_last_name, business_name, business_registered_name].filter(Boolean).join(" ")
+    */
+    full_name: `TEXT GENERATED ALWAYS AS (
+  trim(
+    coalesce(person_first_name, '') || ' ' ||
+    coalesce(person_last_name, '') || ' ' ||
+    coalesce(business_name, '') || ' ' ||
+    coalesce(business_registered_name, '')
+  )
+) STORED`,
   },
   pk: ["client_id", "id"],
   indexes: ["USING GIN (searchable_generated)"],
@@ -130,22 +142,32 @@ export const ContactsDefinition: RestTableDefinition = {
         .filter(Boolean)
         .join(" "),
     searchable: (entity: Contacts) => {
-      return Object.values(
-        flattenKeys(
-          _.pick(entity, [
-            "email",
-            "phone",
-            "person_first_name",
-            "person_last_name",
-            "business_name",
-            "business_registered_id",
-            "business_registered_name",
-            "business_tax_id",
-            "address",
-            "delivery_address",
-          ])
-        )
-      ).join(" ");
+      return [
+        Object.values(
+          flattenKeys(
+            _.pick(entity, [
+              "person_first_name",
+              "person_last_name",
+              "business_name",
+            ])
+          )
+        ).join(" "),
+        Object.values(
+          flattenKeys(
+            _.pick(entity, ["email", "phone", "business_registered_name"])
+          )
+        ).join(" "),
+        Object.values(
+          flattenKeys(
+            _.pick(entity, [
+              "business_registered_id",
+              "business_tax_id",
+              "address",
+              "delivery_address",
+            ])
+          )
+        ).join(" "),
+      ];
     },
     schema: classToSchema(new Contacts()),
   },

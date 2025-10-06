@@ -83,13 +83,15 @@ export const ArticlesDefinition: RestTableDefinition = {
       (entity.internal_reference ? " (" + entity.internal_reference + ")" : ""),
     searchable: (entity: Articles) => {
       return [
-        ...Object.values(
-          flattenKeys(_.pick(entity, ["name", "internal_reference", "notes"]))
+        Object.values(flattenKeys(_.pick(entity, ["name"]))).join(" "),
+        Object.values(flattenKeys(_.pick(entity, ["internal_reference"]))).join(
+          " "
         ),
-        ...Object.values(entity.suppliers_details || []).map(
-          (a) => a.reference
-        ),
-      ].join(" ");
+        Object.values(entity.suppliers_details || [])
+          .map((a) => a.reference)
+          .join(" "),
+        Object.values(flattenKeys(_.pick(entity, ["notes"]))).join(" "),
+      ];
     },
     schema: classToSchema(new Articles()),
   },

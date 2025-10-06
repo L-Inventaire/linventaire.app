@@ -148,6 +148,7 @@ export const search = async <T>(
     asc?: boolean;
     deleted?: boolean;
     index?: string;
+    rank_query?: string;
   }
 ) => {
   if (!(await isTableAvailable(ctx, table, "READ", query)))
@@ -198,6 +199,13 @@ export const search = async <T>(
       columns,
       _schema
     );
+  }
+
+  if (_.isArray(query) && query?.find((a: any) => a.key === "query")) {
+    options.rank_query = (query as RestSearchQuery[])
+      ?.filter((a: any) => a.key === "query")
+      ?.map((a) => a.values.map((b) => b.value).join(" "))
+      .join(" ");
   }
 
   const result = orderSearchResults(
@@ -423,7 +431,12 @@ const orderSearchResults = (items: RestEntity[], query: string) => {
   );
 };
 
-export const expandSearchable = (searchable: string) => {
+// string: single priority, string[]: multiple priority with first: highest
+export const expandSearchable = (searchable: string | string[]) => {
+  if (_.isArray(searchable)) {
+    return searchable.map((a) => expandSearchable(a)).join(",");
+  }
+
   // If number and string attached, add all detached version as a separated searchable word, same for . , - etc
   let result = [];
   const words = searchable.split(" ");

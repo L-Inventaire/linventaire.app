@@ -15,8 +15,6 @@ export default class CaptchaRecaptcha implements CaptchaAdapterInterface {
   }
 
   async verify(token: string, ip?: string): Promise<boolean> {
-    console.log(`Verifying reCAPTCHA token: ${token}`);
-
     let action = "captcha";
     if (token.split(":").length > 1) {
       action = token.split(":")[0];
@@ -41,9 +39,6 @@ export default class CaptchaRecaptcha implements CaptchaAdapterInterface {
         timeout: 5000,
       }
     );
-
-    // Log detailed information for debugging
-    console.log("Captcha response:", JSON.stringify(result.data, null, 2));
 
     // Check for valid token first
     if (!result.data?.tokenProperties?.valid) {
@@ -70,7 +65,6 @@ export default class CaptchaRecaptcha implements CaptchaAdapterInterface {
     }
 
     const score = result.data.riskAnalysis.score;
-    console.log(`Captcha score: ${score} (Threshold: 0.5)`);
 
     // If score is too low but everything else looks good, provide better error message
     if (score >= 0.5 || (action === "signup" && score >= 0.2)) {

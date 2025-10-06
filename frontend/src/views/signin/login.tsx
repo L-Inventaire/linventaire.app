@@ -146,8 +146,6 @@ export const Login = () => {
     }
   }, [code]);
 
-  console.log({ authLoading });
-
   return (
     <div>
       {authLoading && <PageLoader />}
@@ -193,6 +191,7 @@ export const Login = () => {
                   name="username"
                   size="lg"
                   autoComplete="email"
+                  autoFocus
                   value={email}
                   placeholder="jeff@books.com"
                   onChange={(e) => {

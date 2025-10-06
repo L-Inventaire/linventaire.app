@@ -211,19 +211,30 @@ export const generateWhereClause = (
   });
 
   // Add query string
-  const queryStr = queries.find((q) => q.key === "query")?.values?.[0]?.value;
-  if (queryStr && queryStr.trim() && columnDefinitions.searchable_generated) {
-    const words = queryStr.split(" ");
-    for (const word of words) {
-      if (!word.trim()) continue;
-      where.push(
-        `searchable_generated @@ to_tsquery('simple', unaccent($${counter}))`
-      );
-      const isLast = words.indexOf(word) === words.length - 1;
-      const endsWithNumber = word.match(/\d+$/);
-      values.push(word + (isLast && !endsWithNumber ? ":*" : ""));
-      counter++;
+  const queriesOrValues = queries.find((q) => q.key === "query")?.values;
+  const queriesWhere: string[] = [];
+  for (const query of queriesOrValues || []) {
+    const queryStr = query.value;
+    if (queryStr && queryStr.trim() && columnDefinitions.searchable_generated) {
+      const queriesSubWhere = [];
+      const words = queryStr.split(" ");
+      for (const word of words) {
+        if (!word.trim()) continue;
+        queriesSubWhere.push(
+          `searchable_generated @@ to_tsquery('simple', unaccent($${counter}))`
+        );
+        const isLast = words.indexOf(word) === words.length - 1;
+        const endsWithNumber = word.match(/\d+$/);
+        values.push(word + (isLast && !endsWithNumber ? ":*" : ""));
+        counter++;
+      }
+      if (queriesSubWhere.length) {
+        queriesWhere.push("(" + queriesSubWhere.join(" AND ") + ")");
+      }
     }
+  }
+  if (queriesWhere.length) {
+    where.push("(" + queriesWhere.join(" OR ") + ")");
   }
 
   // Add current client_id

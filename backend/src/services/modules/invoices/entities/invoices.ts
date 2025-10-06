@@ -205,7 +205,7 @@ export const InvoicesDefinition: RestTableDefinition = {
         ).join(" "),
         entity.cache?.partner_names || "",
         entity.cache?.from_rel_quote_ref || "",
-      ].join(" ");
+      ];
     },
     schema: classToSchema(new Invoices()),
   },

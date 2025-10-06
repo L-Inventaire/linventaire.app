@@ -8,6 +8,8 @@ import { CustomFieldsInput } from "@components/custom-fields-input";
 import { FormInput } from "@components/form/fields";
 import { FormContext } from "@components/form/formcontext";
 import { AddressInput } from "@components/input-button/address/form";
+import { TagsInput } from "@components/input-rest/tags";
+import { UsersInput } from "@components/input-rest/users";
 import { useClients } from "@features/clients/state/use-clients";
 import { ContactsApiClient } from "@features/contacts/api-client/contacts-api-client";
 import { ContactsFieldsNames } from "@features/contacts/configuration";
@@ -18,11 +20,8 @@ import { debounce } from "@features/utils/debounce";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { EditorInput } from "@molecules/editor-input";
 import { Timeline } from "@molecules/timeline";
-import {
-  PageBlock,
-  PageBlockHr,
-  PageColumns,
-} from "@views/client/_layout/page";
+import { Heading } from "@radix-ui/themes";
+import { PageColumns } from "@views/client/_layout/page";
 import _ from "lodash";
 import { useEffect } from "react";
 import { InvoiceInputFormat } from "../../invoices/components/input-format";
@@ -82,194 +81,258 @@ export const ContactsDetailsPage = ({
   if (isPending || (id && contact.id !== id)) return <PageLoader />;
 
   return (
-    <>
+    <div className="grow @lg:w-full max-w-4xl mx-auto">
       <FormContext readonly={readonly} alwaysVisible>
-        <PageColumns>
-          <div className="grow space-y-6">
-            <PageBlock closable title="Général">
-              <div className="space-y-2">
-                <FormContext size="md">
-                  <PageColumns>
-                    <FormInput
-                      className="w-max"
-                      label="Type de contact"
-                      type="select"
-                      options={[
-                        {
-                          label: "Aucun",
-                          value: "none",
-                        },
-                        {
-                          label: "Client",
-                          value: "client",
-                        },
-                        {
-                          label: "Fournisseur",
-                          value: "supplier",
-                        },
-                        {
-                          label: "Client et fournisseur",
-                          value: "both",
-                        },
-                      ]}
-                      value={
-                        contact.is_supplier && contact.is_client
-                          ? "both"
-                          : contact.is_supplier
-                          ? "supplier"
-                          : contact.is_client
-                          ? "client"
-                          : "none"
-                      }
-                      onChange={(e) => {
-                        ctrl("is_supplier").onChange(
-                          e === "supplier" || e === "both"
-                        );
-                        ctrl("is_client").onChange(
-                          e === "client" || e === "both"
-                        );
-                      }}
-                    />
-                  </PageColumns>
-                  <PageColumns>
-                    <FormInput
-                      label="Type d'entité"
-                      className="w-auto min-w-32 shrink-0"
-                      type={"select"}
-                      options={[
-                        {
-                          label: "Particulier",
-                          value: "person",
-                        },
-                        {
-                          label: "Entreprise",
-                          value: "company",
-                        },
-                      ]}
-                      ctrl={ctrl("type")}
-                    />
-                    {contact.type === "person" && (
-                      <>
-                        <FormInput
-                          label="Prénom"
-                          ctrl={ctrl("person_first_name")}
-                        />
-                        <FormInput
-                          label="Nom"
-                          ctrl={ctrl("person_last_name")}
-                        />
-                      </>
-                    )}
-                    {contact.type === "company" && (
-                      <>
-                        <FormInput
-                          label="Raison sociale"
-                          ctrl={ctrl("business_registered_name")}
-                        />
-                        <FormInput
-                          label="Nom commercial"
-                          ctrl={ctrl("business_name")}
-                        />
-                      </>
-                    )}
-                    <div className="grow w-full" />
-                  </PageColumns>
+        <div className="space-y-8">
+          <div className="space-y-4">
+            <div className="space-x-2 flex items-center">
+              <Heading className="grow">Contact</Heading>
+              <div className="space-x-2">
+                <TagsInput ctrl={ctrl("tags")} />
+                <UsersInput ctrl={ctrl("assigned")} />
+              </div>
+            </div>
 
-                  {contact.type === "company" && (
-                    <FormContext>
-                      <PageColumns>
-                        <FormInput
-                          label="SIRET / Numéro d'enregistrement"
-                          ctrl={ctrl("business_registered_id")}
-                        />
-                        <FormInput
-                          label="Numéro de TVA"
-                          ctrl={ctrl("business_tax_id")}
-                        />
-                      </PageColumns>
-                    </FormContext>
-                  )}
-                </FormContext>
+            <PageColumns>
+              <FormInput
+                className="w-max"
+                label="Type de contact"
+                type="select"
+                options={[
+                  {
+                    label: "Aucun",
+                    value: "none",
+                  },
+                  {
+                    label: "Client",
+                    value: "client",
+                  },
+                  {
+                    label: "Fournisseur",
+                    value: "supplier",
+                  },
+                  {
+                    label: "Client et fournisseur",
+                    value: "both",
+                  },
+                ]}
+                value={
+                  contact.is_supplier && contact.is_client
+                    ? "both"
+                    : contact.is_supplier
+                    ? "supplier"
+                    : contact.is_client
+                    ? "client"
+                    : "none"
+                }
+                onChange={(e) => {
+                  ctrl("is_supplier").onChange(
+                    e === "supplier" || e === "both"
+                  );
+                  ctrl("is_client").onChange(e === "client" || e === "both");
+                }}
+              />
+              <FormInput
+                label="Type d'entité"
+                className="w-auto min-w-32 shrink-0"
+                type={"select"}
+                options={[
+                  {
+                    label: "Particulier",
+                    value: "person",
+                  },
+                  {
+                    label: "Entreprise",
+                    value: "company",
+                  },
+                ]}
+                ctrl={ctrl("type")}
+              />
+            </PageColumns>
 
-                <FormInput label="Étiquettes" type="tags" ctrl={ctrl("tags")} />
+            <PageColumns>
+              {contact.type === "person" && (
+                <>
+                  <FormInput label="Prénom" ctrl={ctrl("person_first_name")} />
+                  <FormInput label="Nom" ctrl={ctrl("person_last_name")} />
+                </>
+              )}
+              {contact.type === "company" && (
+                <>
+                  <FormInput
+                    label="Raison sociale"
+                    ctrl={ctrl("business_registered_name")}
+                  />
+                  <FormInput
+                    label="Nom commercial"
+                    ctrl={ctrl("business_name")}
+                  />
+                </>
+              )}
+            </PageColumns>
 
-                <PageBlockHr />
+            {contact.type === "company" && (
+              <PageColumns>
+                <FormInput
+                  label="SIRET / Numéro d'enregistrement"
+                  ctrl={ctrl("business_registered_id")}
+                />
+                <FormInput
+                  label="Numéro de TVA"
+                  ctrl={ctrl("business_tax_id")}
+                />
+              </PageColumns>
+            )}
+          </div>
 
+          <div className="space-y-4">
+            <Heading size="4">Contact</Heading>
+
+            <FormInput
+              type="formatted"
+              format="mail"
+              label="Email"
+              placeholder="email@server.com"
+              ctrl={ctrl("email")}
+            />
+            <MultiInput
+              render={(v, onChange) => (
                 <FormInput
                   type="formatted"
                   format="mail"
-                  label="Email"
+                  label="Email supplémentaire"
                   placeholder="email@server.com"
-                  ctrl={ctrl("email")}
+                  value={v}
+                  onChange={onChange}
                 />
-                <MultiInput
-                  render={(v, onChange) => (
-                    <FormInput
-                      type="formatted"
-                      format="mail"
-                      label="Email"
-                      placeholder="email@server.com"
-                      value={v}
-                      onChange={onChange}
-                    />
-                  )}
-                  value={contact.emails || []}
-                  onChange={(phones) => ctrl("emails").onChange(phones)}
-                  title="Ajouter un autre email"
-                />
+              )}
+              value={contact.emails || []}
+              onChange={(emails) => ctrl("emails").onChange(emails)}
+              title="Ajouter un autre email"
+            />
 
+            <FormInput
+              type="phone"
+              label="Téléphone"
+              placeholder="+33 6 12 34 56 78"
+              ctrl={ctrl("phone")}
+            />
+            <MultiInput
+              render={(v, onChange) => (
                 <FormInput
                   type="phone"
-                  label="Téléphone"
+                  label="Téléphone supplémentaire"
                   placeholder="+33 6 12 34 56 78"
-                  ctrl={ctrl("phone")}
+                  value={v}
+                  onChange={onChange}
                 />
-                <MultiInput
-                  render={(v, onChange) => (
-                    <FormInput
-                      type="phone"
-                      label="Téléphone"
-                      placeholder="+33 6 12 34 56 78"
-                      value={v}
-                      onChange={onChange}
-                    />
-                  )}
-                  value={contact.phones || []}
-                  onChange={(phones) => ctrl("phones").onChange(phones)}
-                  title="Ajouter un autre numéro de téléphone"
+              )}
+              value={contact.phones || []}
+              onChange={(phones) => ctrl("phones").onChange(phones)}
+              title="Ajouter un autre numéro de téléphone"
+            />
+          </div>
+
+          {id && (contact.is_client || contact.is_supplier) && (
+            <div className="space-y-4">
+              <Heading size="4">Comptabilité</Heading>
+              {contact.is_client && (
+                <ContactAccountingAccount
+                  type="client"
+                  contactId={id}
+                  readonly={readonly}
                 />
-              </div>
-            </PageBlock>
-            <PageBlock closable title="Notes et documents internes">
-              <div className="space-y-2 mt-4">
-                <InputLabel
-                  label="Notes"
-                  input={
-                    <EditorInput
-                      key={readonly ? ctrl("notes").value : undefined}
-                      placeholder={
-                        readonly
-                          ? "Aucune note"
-                          : "Cliquez pour ajouter des notes"
-                      }
-                      disabled={readonly}
-                      value={ctrl("notes").value || ""}
-                      onChange={(e) => ctrl("notes").onChange(e)}
-                    />
-                  }
+              )}
+              {contact.is_supplier && (
+                <ContactAccountingAccount
+                  type="supplier"
+                  contactId={id}
+                  readonly={readonly}
                 />
+              )}
+            </div>
+          )}
+
+          <RelationsInput
+            id={contact.id}
+            readonly={readonly}
+            value={[
+              ctrl("parents").value || [],
+              ctrl("parents_roles").value || [],
+            ]}
+            onChange={(parents, roles) => {
+              ctrl("parents").onChange(parents);
+              ctrl("parents_roles").onChange(roles);
+              ctrl("has_parents").onChange(!!parents.length);
+            }}
+          />
+
+          <div className="space-y-4">
+            <Heading size="4">Adresse principale</Heading>
+            <AddressInput ctrl={ctrl("address")} autoComplete={false} />
+          </div>
+
+          {["delivery", "billing"].map((addressType) => {
+            const type = addressType as "delivery" | "billing";
+            const name = {
+              delivery: "Adresse de livraison",
+              billing: "Adresse de facturation",
+            }[type];
+            const ctrler = ("other_addresses." + type) as any;
+
+            return (
+              <div key={type} className="space-y-4">
+                <Heading size="4">{name}</Heading>
+                {!contact.other_addresses?.[type] && readonly && (
+                  <Info>{name} égale à l'adresse principale.</Info>
+                )}
                 <FormInput
-                  type="files"
-                  label="Documents"
-                  ctrl={ctrl("documents")}
-                  rest={{
-                    table: "contacts",
-                    id: contact.id || "",
-                    column: "documents",
-                  }}
+                  type="boolean"
+                  placeholder="Utiliser l'adresse principale"
+                  onChange={(e) =>
+                    e
+                      ? ctrl(ctrler).onChange(null)
+                      : ctrl(ctrler).onChange({
+                          ...contact.address,
+                        })
+                  }
+                  value={!contact.other_addresses?.[type]}
                 />
+                {!!contact.other_addresses?.[type] && (
+                  <AddressInput ctrl={ctrl(ctrler)} autoComplete={false} />
+                )}
               </div>
-            </PageBlock>
+            );
+          })}
+
+          <div className="space-y-4">
+            <Heading size="4">Coordonnées bancaires</Heading>
+            <FormInput
+              label="IBAN"
+              ctrl={ctrl("billing.iban")}
+              type="formatted"
+              format="iban"
+            />
+            <PageColumns>
+              <FormInput label="BIC" ctrl={ctrl("billing.bic")} />
+              <FormInput label="Titulaire" ctrl={ctrl("billing.name")} />
+            </PageColumns>
+            <FormInput
+              label="Méthode de paiement par défaut"
+              type="select"
+              ctrl={ctrl("billing.payment_method")}
+              options={[
+                {
+                  label: "Aucun",
+                  value: "",
+                },
+                ...paymentOptions,
+              ]}
+            />
+          </div>
+
+          <div className="space-y-4">
+            <Heading size="4">Préférences et format</Heading>
 
             <div className="flex space-x-4 flex-row">
               <div className="w-auto">
@@ -300,174 +363,86 @@ export const ContactsDetailsPage = ({
               </div>
             </div>
 
-            <RelationsInput
-              id={contact.id}
-              readonly={readonly}
-              value={[
-                ctrl("parents").value || [],
-                ctrl("parents_roles").value || [],
-              ]}
-              onChange={(parents, roles) => {
-                ctrl("parents").onChange(parents);
-                ctrl("parents_roles").onChange(roles);
-                ctrl("has_parents").onChange(!!parents.length);
+            <PageColumns>
+              <FormInput
+                label="Langue de préférence"
+                placeholder="Sélectionner une langue"
+                type="select"
+                ctrl={ctrl("language")}
+                options={[
+                  {
+                    label: "Aucune",
+                    value: "",
+                  },
+                  ...languages,
+                ]}
+              />
+              <FormInput
+                label="Devise de préférence"
+                placeholder="Sélectionner une devise"
+                type="select"
+                ctrl={ctrl("currency")}
+                options={[
+                  {
+                    label: "Aucune",
+                    value: "",
+                  },
+                  ...currencies,
+                ]}
+              />
+            </PageColumns>
+          </div>
+
+          <div className="space-y-4">
+            <Heading size="4">Notes et documents internes</Heading>
+            <InputLabel
+              label="Notes"
+              input={
+                <EditorInput
+                  key={readonly ? ctrl("notes").value : undefined}
+                  placeholder={
+                    readonly ? "Aucune note" : "Cliquez pour ajouter des notes"
+                  }
+                  disabled={readonly}
+                  value={ctrl("notes").value || ""}
+                  onChange={(e) => ctrl("notes").onChange(e)}
+                />
+              }
+            />
+            <FormInput
+              type="files"
+              label="Documents"
+              ctrl={ctrl("documents")}
+              rest={{
+                table: "contacts",
+                id: contact.id || "",
+                column: "documents",
               }}
             />
           </div>
-          <div className="grow lg:max-w-xl">
-            {id && (contact.is_client || contact.is_supplier) && (
-              <PageBlock closable title="Comptabilité">
-                <div className="space-y-2">
-                  {contact.is_client && (
-                    <ContactAccountingAccount
-                      type="client"
-                      contactId={id}
-                      readonly={readonly}
-                    />
-                  )}
-                  {contact.is_supplier && (
-                    <ContactAccountingAccount
-                      type="supplier"
-                      contactId={id}
-                      readonly={readonly}
-                    />
-                  )}
-                </div>
-              </PageBlock>
-            )}
-            <PageBlock closable title="Adresse principale">
-              <AddressInput ctrl={ctrl("address")} autoComplete={false} />
-            </PageBlock>
-            {["delivery", "billing"].map((a) => {
-              const type = a as "delivery" | "billing";
-              const name = {
-                delivery: "Adresse de livraison",
-                billing: "Adresse de facturation",
-              }[type];
-              const ctrler = ("other_addresses." + type) as any;
-              return (
-                <PageBlock closable title={name}>
-                  {!contact.other_addresses?.[type] && readonly && (
-                    <Info>{name} égale à l'adresse principale.</Info>
-                  )}
-                  <FormInput
-                    type="boolean"
-                    placeholder="Utiliser l'adresse principale"
-                    onChange={(e) =>
-                      e
-                        ? ctrl(ctrler).onChange(null)
-                        : ctrl(ctrler).onChange({
-                            ...contact.address,
-                          })
-                    }
-                    value={!contact.other_addresses?.[type]}
-                  />
-                  {!!contact.other_addresses?.[type] && (
-                    <div className="mt-4">
-                      <AddressInput ctrl={ctrl(ctrler)} autoComplete={false} />
-                    </div>
-                  )}
-                </PageBlock>
-              );
-            })}
-            <PageBlock
-              closable
-              title="Coordonnées bancaires"
-              open={
-                !!Object.values(contact.billing || {}).filter(Boolean).length
-              }
-            >
-              <div className="space-y-2 mt-4">
-                <FormInput
-                  label="IBAN"
-                  ctrl={ctrl("billing.iban")}
-                  type="formatted"
-                  format="iban"
-                />
-                <PageColumns>
-                  <FormInput value="" label="BIC" ctrl={ctrl("billing.bic")} />
-                  <FormInput
-                    value=""
-                    label="Titulaire"
-                    ctrl={ctrl("billing.name")}
-                  />
-                </PageColumns>
-                <br />
-                <FormInput
-                  label="Méthode de paiement par défaut"
-                  type="select"
-                  ctrl={ctrl("billing.payment_method")}
-                  options={[
-                    {
-                      label: "Aucun",
-                      value: "",
-                    },
-                    ...paymentOptions,
-                  ]}
-                />
-              </div>
-            </PageBlock>
-            <PageBlock
-              title="Préférences"
-              closable
-              open={
-                !!contact.currency ||
-                !!contact.language ||
-                !!contact.tags?.length
-              }
-            >
-              <div className="space-y-2 mt-4">
-                <FormInput
-                  label="Langue de préférence"
-                  placeholder="Sélectionner une langue"
-                  type="select"
-                  ctrl={ctrl("language")}
-                  options={[
-                    {
-                      label: "Aucune",
-                      value: "",
-                    },
-                    ...languages,
-                  ]}
-                />
-                <FormInput
-                  label="Devise de préférence"
-                  placeholder="Sélectionner une devise"
-                  type="select"
-                  ctrl={ctrl("currency")}
-                  options={[
-                    {
-                      label: "Aucune",
-                      value: "",
-                    },
-                    ...currencies,
-                  ]}
-                />
-              </div>
-            </PageBlock>
-            <CustomFieldsInput
-              table={"contacts"}
-              ctrl={ctrl("fields")}
-              readonly={readonly}
-              entityId={contact.id || ""}
-            />
-          </div>
-        </PageColumns>
 
-        <div className="mt-6 space-y-4">
-          {contact.id && (
+          <CustomFieldsInput
+            table={"contacts"}
+            ctrl={ctrl("fields")}
+            readonly={readonly}
+            entityId={contact.id || ""}
+          />
+        </div>
+
+        {contact.id && (
+          <div className="mt-6 space-y-4">
             <div className="overflow-auto">
               <RelatedInvoicesInput id={contact.id} readonly={readonly} />
             </div>
-          )}
-          <Timeline
-            translations={ContactsFieldsNames() as any}
-            entity={"contacts"}
-            id={contact.id}
-            viewRoute={ROUTES.ContactsView}
-          />
-        </div>
+            <Timeline
+              translations={ContactsFieldsNames() as any}
+              entity={"contacts"}
+              id={contact.id}
+              viewRoute={ROUTES.ContactsView}
+            />
+          </div>
+        )}
       </FormContext>
-    </>
+    </div>
   );
 };

@@ -423,6 +423,7 @@ export default class DbPostgres implements DbAdapterInterface {
       index?: string;
       count?: boolean;
       include_deleted?: boolean;
+      rank_query?: string;
     } = {
       comparator: "=",
       limit: 100,
@@ -472,10 +473,11 @@ export default class DbPostgres implements DbAdapterInterface {
       " " +
       (options.offset ? `OFFSET ${parseInt(options.offset as any)}` : "");
 
-    let orderClause = options.index
-      ? `ORDER BY id ${options.asc ? "ASC" : "DESC"}`
-      : "";
-    if (options.index) {
+    let orderClause =
+      options.index && !options.count
+        ? `ORDER BY id ${options.asc ? "ASC" : "DESC"}`
+        : "";
+    if (options.index && !options.count) {
       const indexes = options.index
         .split(",")
         .map((a) =>
@@ -495,7 +497,22 @@ export default class DbPostgres implements DbAdapterInterface {
         .join(", ")}`;
     }
 
-    const select = !options.count ? "SELECT *" : "SELECT count(*) as total";
+    let select = !options.count
+      ? "SELECT *, 1 as _rank"
+      : "SELECT count(*) as total";
+    if (
+      options?.index?.split(",").indexOf("_rank") !== -1 &&
+      !options?.count &&
+      options?.rank_query
+    ) {
+      // In this case add this to select:
+      // ts_rank_cd(searchable_generated, plainto_tsquery('$searchQuery')) AS rank
+      select = `SELECT *, ts_rank_cd(searchable_generated, plainto_tsquery('simple', $${
+        values.length + 1
+      })) AS _rank`;
+      values.push(options?.rank_query);
+    }
+
     const queryText = `${select} FROM ${table} ${whereClause} ${orderClause} ${limitClause}`;
     const result = await this.query(ctx, client, queryText, values);
 

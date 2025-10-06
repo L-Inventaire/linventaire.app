@@ -9,7 +9,7 @@ export type TableDefinition = {
   indexes?: (string | string[])[];
   auditable?: boolean;
   rest?: {
-    searchable?: (object: any) => string;
+    searchable?: (object: any) => string | string[];
     label?: string | ((object: any) => string);
     hidden?: string[];
     schema?: Schema;
@@ -81,6 +81,7 @@ export interface DbAdapterInterface extends PlatformService {
       asc?: boolean;
       index?: string;
       include_deleted?: boolean;
+      rank_query?: string;
     }
   ): Promise<Entity[]>;
 

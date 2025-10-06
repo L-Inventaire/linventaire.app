@@ -36,6 +36,7 @@ export type RestOptions<T> = {
   key?: string;
   deleted?: boolean;
   ignoreEmptyFilters?: boolean;
+  useRankOrderOnSearch?: boolean;
   queryFn?: () => Promise<{ total: number; list: T[] }>;
 };
 
@@ -168,6 +169,16 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
             isArray(options?.query) &&
             (options?.query as any[])?.find((a) => a.values.length === 0));
 
+        if (
+          options?.useRankOrderOnSearch &&
+          isArray(options?.query) &&
+          options?.query?.length &&
+          options?.query?.find((a) => a.key === "query")
+        ) {
+          options.index =
+            "_rank desc" + (options.index ? "," + options.index : "");
+        }
+
         const temp = invalidRequest
           ? { total: 0, list: [] }
           : options?.id !== undefined
@@ -178,7 +189,7 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
           : await restApiClient.list(
               id || "",
               options?.query,
-              _.omit(options, "query")
+              _.omit(options, "query", "useRankOrderOnSearch")
             );
         setIsPendingModification(false);
 

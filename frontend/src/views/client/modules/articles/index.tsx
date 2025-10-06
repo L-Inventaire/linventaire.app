@@ -22,6 +22,7 @@ import { Page } from "@views/client/_layout/page";
 import { useRef, useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
+import _ from "lodash";
 
 export const ArticlesPage = () => {
   const [options, setOptions] = useState<RestOptions<Articles>>({
@@ -29,7 +30,11 @@ export const ArticlesPage = () => {
     offset: 0,
     query: [],
   });
-  const { articles } = useArticles({ ...options, key: "main" });
+  const { articles } = useArticles({
+    ...options,
+    key: "main",
+    useRankOrderOnSearch: true,
+  });
   const schema = useRestSchema("articles");
   const navigate = useNavigateAlt();
   const hasAccess = useHasAccess();
