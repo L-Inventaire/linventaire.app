@@ -252,6 +252,7 @@ export const NotificationsPage = () => {
 
 const NotificationPreview = ({ id }: { id: string }) => {
   const { notification } = useNotification(id);
+  console.log(CtrlKRestEntities, notification?.entity);
   const configuration = CtrlKRestEntities[notification?.entity || ""];
   if (!notification) return null;
   if (!configuration?.renderPage) {

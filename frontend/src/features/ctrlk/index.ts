@@ -1,11 +1,11 @@
-import { createContext, ReactNode, useContext } from "react";
-import { CtrlKOptionsType } from "./types";
-import { TablePropsType } from "@molecules/table";
+import { Articles } from "@features/articles/types/types";
 import { Contacts } from "@features/contacts/types/types";
 import { Invoices } from "@features/invoices/types/types";
-import { Articles } from "@features/articles/types/types";
-import { useParams } from "react-router-dom";
+import { TablePropsType } from "@molecules/table";
 import { QueryClient } from "@tanstack/react-query";
+import { createContext, ReactNode, useContext } from "react";
+import { useParams } from "react-router-dom";
+import { CtrlKOptionsType } from "./types";
 
 export let RootNavigationItems: CtrlKOptionsType[] = [];
 export const registerRootNavigation = (
@@ -26,6 +26,13 @@ type RestEntityForCtrlK<T> = {
   resultList?: (query: string) => Promise<{ total: number; list: T[] }>;
 
   // Allow to create a new entity
+  renderDocumentBar?: (props: {
+    id: string;
+    readonly?: boolean;
+    onClose?: () => void;
+    onSave?: () => Promise<void>;
+  }) => ReactNode;
+  renderActionsBar?: (props: { id: string; readonly?: boolean }) => ReactNode;
   renderEditor?: (props: { id: string; readonly?: boolean }) => ReactNode;
   renderPage?: (props: { id: string; readonly?: boolean }) => ReactNode;
   useDefaultData?: () => Partial<T>;

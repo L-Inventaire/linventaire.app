@@ -81,6 +81,10 @@ export const ROUTES = {
   ProductsView: "/:client/products/:id",
   ProductsEdit: "/:client/products/:id/form",
 
+  CRM: "/:client/crm",
+  CRMView: "/:client/crm/:id",
+  CRMEdit: "/:client/crm/:id/form",
+
   Settings: "/:client/settings",
   SettingsPreferences: "/:client/settings/preferences",
   SettingsInvoices: "/:client/settings/invoices",
@@ -97,8 +101,6 @@ export const ROUTES = {
 
   SignDocumentView: "/signing-session/:session/view",
   SignedDocumentView: "/signing-session/:session/signed",
-
-  CRMView: "/:client/crm/view",
 
   DevPage: "/:client/dev",
 };

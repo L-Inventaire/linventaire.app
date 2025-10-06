@@ -185,10 +185,10 @@ export const SideBar = () => {
               show={hasAccess("CONTACTS_READ")}
             />
             <SideMenuItem
-              to={getRoute(ROUTES.CRMView)}
+              to={getRoute(ROUTES.CRM)}
               label={t("menu.crm")}
               icon={(p) => <AtSymbolIcon {...p} />}
-              active={location.pathname.indexOf(getRoute(ROUTES.CRMView)) === 0}
+              active={location.pathname.indexOf(getRoute(ROUTES.CRM)) === 0}
               show={hasAccess("CRM_READ")}
             />
           </MenuSection>

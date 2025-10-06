@@ -100,7 +100,6 @@ export const QuotesActions = ({
           <DropdownButton
             disabled={disabled}
             className="m-0"
-            size="lg"
             icon={(p) => <PaperAirplaneIcon {...p} />}
             position="top"
             menu={[
@@ -184,7 +183,6 @@ export const QuotesActions = ({
             confirmMessage="Votre client ne pourra plus voir cette version du devis."
             theme="outlined"
             disabled={disabled}
-            size="lg"
             icon={(p) => <XMarkIcon {...p} />}
             onClick={() => _save({ state: "draft" })}
           >
@@ -194,7 +192,6 @@ export const QuotesActions = ({
             confirmTitle="Valider le devis ?"
             confirmMessage="Un devis marqué comme accepté doit être executé, vous ne pourrez plus revenir en brouillon. Vous pouvez attendre que le client accepte le devis si un email lui a été envoyé."
             disabled={disabled}
-            size="lg"
             icon={(p) => <CheckIcon {...p} />}
             onClick={() => _save({ state: "purchase_order" })}
           >
@@ -209,7 +206,6 @@ export const QuotesActions = ({
         <>
           <DropdownButton
             theme="invisible"
-            size="lg"
             className="m-0"
             icon={(p) => <EllipsisHorizontalIcon {...p} />}
             menu={[
@@ -262,7 +258,6 @@ export const QuotesActions = ({
           />
           <Button
             disabled={disabled}
-            size="lg"
             icon={(p) => <DocumentCheckIcon {...p} />}
             onClick={() => openInvoiceModal(true)}
           >
@@ -275,7 +270,6 @@ export const QuotesActions = ({
         <div>
           <Button
             theme="outlined"
-            size="lg"
             onClick={() => setRecurringModal(draft?.id)}
             icon={(p) => <ArrowPathIcon {...p} />}
           >
@@ -288,7 +282,6 @@ export const QuotesActions = ({
         <>
           <DropdownButton
             theme="invisible"
-            size="lg"
             className="m-0"
             icon={(p) => <EllipsisHorizontalIcon {...p} />}
             menu={[
@@ -299,9 +292,7 @@ export const QuotesActions = ({
               },
             ]}
           />
-          <Button disabled={true} size="lg">
-            Document fermé
-          </Button>
+          <Button disabled={true}>Document fermé</Button>
         </>
       )}
     </>

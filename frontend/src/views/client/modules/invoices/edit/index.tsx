@@ -1,5 +1,5 @@
 import { PageLoader } from "@atoms/page-loader";
-import { DocumentBar } from "@components/document-bar";
+import { getUrlModel } from "@components/search-bar/utils/as-model";
 import { useClients } from "@features/clients/state/use-clients";
 import { useParamsOrContextId } from "@features/ctrlk";
 import { useInvoiceDefaultModel } from "@features/invoices/configuration";
@@ -11,12 +11,12 @@ import { Page } from "@views/client/_layout/page";
 import _ from "lodash";
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { InvoicesDocumentBar } from "../components/document-bar";
 import { InvoiceActions } from "../components/invoice-actions";
 import { InvoicesDetailsPage } from "../components/invoices-details";
-import { getUrlModel } from "@components/search-bar/utils/as-model";
 
 export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
-  const { refresh, loading } = useClients();
+  const { refresh } = useClients();
 
   useEffect(() => {
     refresh();
@@ -30,25 +30,24 @@ export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
   const defaultModel = useRef(useInvoiceDefaultModel()).current;
   const initialModel = getUrlModel<Invoices>();
 
-  const { isInitiating, save, draft, remove, restore, isPendingModification } =
-    useDraftRest<Invoices>(
-      "invoices",
-      id || "new",
-      async (item) => {
-        navigate(getRoute(ROUTES.InvoicesView, { id: item.id }));
-      },
-      _.omit(
-        _.merge(defaultModel, {
-          ...initialModel,
-          content: (initialModel.content || []).map((a) => ({
-            ...a,
-            quantity_delivered: 0,
-            quantity_ready: 0,
-          })),
-        }),
-        "reference"
-      ) as Invoices
-    );
+  const { isInitiating, draft, isPendingModification } = useDraftRest<Invoices>(
+    "invoices",
+    id || "new",
+    async (item) => {
+      navigate(getRoute(ROUTES.InvoicesView, { id: item.id }));
+    },
+    _.omit(
+      _.merge(defaultModel, {
+        ...initialModel,
+        content: (initialModel.content || []).map((a) => ({
+          ...a,
+          quantity_delivered: 0,
+          quantity_ready: 0,
+        })),
+      }),
+      "reference"
+    ) as Invoices
+  );
 
   return (
     <Page
@@ -63,20 +62,7 @@ export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
       footer={
         isRevision ? undefined : <InvoiceActions id={id} readonly={false} />
       }
-      bar={
-        <DocumentBar
-          loading={isInitiating || loading}
-          entity={"invoices"}
-          document={{ id }}
-          mode={"write"}
-          onSave={async () => await save()}
-          backRoute={getRoute(ROUTES.Invoices, { type: draft.type })}
-          viewRoute={ROUTES.InvoicesView}
-          editRoute={ROUTES.InvoicesEdit}
-          onRemove={draft.id ? remove : undefined}
-          onRestore={draft.id ? restore : undefined}
-        />
-      }
+      bar={<InvoicesDocumentBar id={id} />}
     >
       <div className="mt-6" />
       {isInitiating ? (

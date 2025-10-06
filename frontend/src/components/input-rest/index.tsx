@@ -157,7 +157,6 @@ export const RestDocumentsInput = <T extends RestEntity>(
             icon={icon}
             onClick={onClick}
             className={"m-0 " + props.className}
-            size={size}
             readonly={disabled}
             data-tooltip={props["data-tooltip"]}
           />
@@ -200,7 +199,6 @@ export const RestDocumentsInput = <T extends RestEntity>(
             icon={(p) => <PlusIcon {...p} />}
             onClick={onClick}
             className={"m-0 " + props.className}
-            size={size}
             data-tooltip={props["data-tooltip"]}
           />
         )}

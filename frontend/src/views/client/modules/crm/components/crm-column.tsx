@@ -1,14 +1,14 @@
-import { Section } from "@atoms/text";
+import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
+import { useCRMDefaultModel } from "@features/crm/configuration";
 import { CRMItem } from "@features/crm/types/types";
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import { IconButton } from "@radix-ui/themes";
 import _ from "lodash";
 import { useDragLayer, useDrop } from "react-dnd";
-import { useSetRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
 import { CRMCard } from "./crm-card";
-import { CRMItemModalAtom } from "./crm-items-modal";
 import { useHasAccess } from "@features/access";
+import { useAuth } from "@features/auth/state/use-auth";
 
 type CRMColumnProps = {
   title: string;
@@ -36,8 +36,10 @@ export const CRMColumn = ({ title, items, type, ...props }: CRMColumnProps) => {
     isDragging: monitor.isDragging(),
   }));
 
-  const setCRMModal = useSetRecoilState(CRMItemModalAtom);
+  const { user } = useAuth();
 
+  const onEdit = useEditFromCtrlK();
+  const getDefaultModel = useCRMDefaultModel;
   const hasAccess = useHasAccess();
 
   return (
@@ -52,15 +54,16 @@ export const CRMColumn = ({ title, items, type, ...props }: CRMColumnProps) => {
         )}
       >
         <div className="flex w-full justify-between items-center">
-          <Section className="block mb-2 mt-3">{title}</Section>
+          <h2 className="block mb-2 mt-3">{title}</h2>
           {hasAccess("CRM_WRITE") && (
             <IconButton
               className="cursor-pointer"
               variant="ghost"
               onClick={() => {
-                setCRMModal({
-                  open: true,
-                  type,
+                onEdit("crm_items", "", {
+                  ...getDefaultModel(),
+                  seller: user?.id,
+                  state: type,
                 });
               }}
             >

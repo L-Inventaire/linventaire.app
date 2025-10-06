@@ -226,7 +226,6 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
                 }}
               />
               <Button
-                size="xl"
                 className="rounded-l-none"
                 shortcut={["enter"]}
                 disabled={!validateEmail(newInvitationEmail)}

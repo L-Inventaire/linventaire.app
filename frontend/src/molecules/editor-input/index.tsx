@@ -42,6 +42,7 @@ type EditorInputProps = {
   value?: string;
   onChange?: (e: string) => void;
   resetProps?: ResetProps;
+  autoFocus?: boolean;
   className?: string;
 };
 
@@ -118,6 +119,13 @@ export const EditorInput = (props: EditorInputProps) => {
     const hasContent = value.replace(/<[^>]+>/g, "").trim().length > 0;
     props.onChange?.(hasContent ? value : "");
   };
+
+  useEffect(() => {
+    if (props.autoFocus && ref.current) {
+      ref.current.focus();
+      setFocused(true);
+    }
+  }, [props.autoFocus]);
 
   return (
     <div className="relative">

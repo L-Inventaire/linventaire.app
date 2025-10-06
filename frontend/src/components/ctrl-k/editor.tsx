@@ -66,27 +66,47 @@ export const ModalEditor = (props: { index: number }) => {
     )
   );
 
+  const onClose = async () => {
+    setState({
+      ...state,
+      path: state.path.slice(0, state.path.length - 1),
+    });
+  };
+
+  const onSave = async () => {
+    await save();
+    if (currentState?.options?.cb) await currentState.options.cb(draft);
+  };
+
+  const footer = CtrlKRestEntities[
+    currentState.options?.entity || ""
+  ]?.renderActionsBar?.({
+    id: currentState.options?.id || "",
+    readonly: false,
+  });
+
   return (
     <div className="grow flex-col flex relative">
       <div className="border-b flex min-h-12 border-slate-100 dark:border-slate-700 shrink-0">
-        <DocumentBar
-          loading={isInitiating}
-          entity={currentState.options?.entity || ""}
-          document={draft}
-          mode={"write"}
-          onClose={async () => {
-            setState({
-              ...state,
-              path: state.path.slice(0, state.path.length - 1),
-            });
-          }}
-          onSave={async () => {
-            await save();
-            if (currentState?.options?.cb) await currentState.options.cb(draft);
-          }}
-          onRemove={draft.id ? remove : undefined}
-          onRestore={draft.id ? restore : undefined}
-        />
+        {CtrlKRestEntities[
+          currentState.options?.entity || ""
+        ]?.renderDocumentBar?.({
+          id: currentState.options?.id || "",
+          readonly: false,
+          onClose,
+          onSave,
+        }) || (
+          <DocumentBar
+            loading={isInitiating}
+            entity={currentState.options?.entity || ""}
+            document={draft}
+            mode={"write"}
+            onClose={onClose}
+            onSave={onSave}
+            onRemove={draft.id ? remove : undefined}
+            onRestore={draft.id ? restore : undefined}
+          />
+        )}
       </div>
       <Scrollbars>
         <div className="p-4">
@@ -100,6 +120,11 @@ export const ModalEditor = (props: { index: number }) => {
             })}
         </div>
       </Scrollbars>
+      {!!footer && (
+        <div className="border-t border-solid border-slate-100 dark:border-slate-700 p-3">
+          {footer}
+        </div>
+      )}
     </div>
   );
 };

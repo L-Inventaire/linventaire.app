@@ -2,14 +2,13 @@ import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
 import { generateQueryFromMap } from "@components/search-bar/utils/utils";
 import { useContacts } from "@features/contacts/hooks/use-contacts";
+import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { CRMItem } from "@features/crm/types/types";
 import { Card, Heading, Text } from "@radix-ui/themes";
 import _ from "lodash";
 import { useDrag, useDragLayer } from "react-dnd";
-import { useSetRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
 import { prettyContactName } from "../../contacts/utils";
-import { CRMItemModalAtom } from "./crm-items-modal";
 import DOMPurify from "dompurify";
 
 const cleanHTML = (notes: string) =>
@@ -26,7 +25,7 @@ type CRMCardProps = {
 } & React.HTMLAttributes<HTMLDivElement>;
 
 export const CRMCard = ({ crmItem, readonly, ...props }: CRMCardProps) => {
-  const setCRMModal = useSetRecoilState(CRMItemModalAtom);
+  const onEdit = useEditFromCtrlK();
 
   const [__, dragRef] = useDrag(
     () => ({
@@ -57,12 +56,12 @@ export const CRMCard = ({ crmItem, readonly, ...props }: CRMCardProps) => {
       className={twMerge(props.className)}
       {..._.omit(props, "className")}
       onClick={() => {
-        setCRMModal({
-          open: true,
-          id: crmItem.id,
-          type: crmItem.state,
-          readonly,
-        });
+        onEdit(
+          "crm_items",
+          crmItem.id,
+          undefined,
+          readonly ? async () => {} : undefined
+        );
       }}
     >
       <Heading size="4">

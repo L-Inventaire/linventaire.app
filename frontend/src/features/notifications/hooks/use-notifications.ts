@@ -13,7 +13,6 @@ import { Notifications } from "../types/types";
 export const useNotifications = (options?: RestOptions<Notifications>) => {
   const { user } = useAuth();
   const { id: clientId } = useCurrentClient();
-  console.log(options?.query);
   const rest = useRest<Notifications>("notifications", {
     ...options,
     index: "last_notified_at desc",

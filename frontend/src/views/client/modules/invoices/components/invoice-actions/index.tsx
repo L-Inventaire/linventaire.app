@@ -136,9 +136,7 @@ export const InvoiceActions = ({
 
       {!readonly && (
         <>
-          <Button size="lg" onClick={async () => await save()}>
-            Sauvegarder
-          </Button>
+          <Button onClick={async () => await save()}>Sauvegarder</Button>
         </>
       )}
 

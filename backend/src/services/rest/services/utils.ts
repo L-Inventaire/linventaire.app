@@ -94,7 +94,9 @@ export const generateWhereClause = (
       if (isArray) {
         clauseParts.push(`${columnName} IS NULL OR ${columnName} = '{}'`);
       } else if (columnType === "JSONB") {
-        clauseParts.push(`${columnName} IS NULL OR ${columnName} = 'null'`);
+        clauseParts.push(
+          `${columnName} IS NULL OR ${columnName} = 'null' OR ${columnName} = '[null]' OR ${columnName} = '[]' OR ${columnName} = '{}'`
+        );
       } else {
         clauseParts.push(`${columnName} IS NULL OR ${columnName} = ''`);
       }
@@ -217,9 +219,9 @@ export const generateWhereClause = (
     const queryStr = query.value;
     if (queryStr && queryStr.trim() && columnDefinitions.searchable_generated) {
       const queriesSubWhere = [];
-      const words = queryStr.split(" ");
+      const words = queryStr.split(/[^a-z0-9]+/);
       for (const word of words) {
-        if (!word.trim()) continue;
+        if (!word.replace(/[^a-z0-9]/gm, "").trim()) continue;
         queriesSubWhere.push(
           `searchable_generated @@ to_tsquery('simple', unaccent($${counter}))`
         );

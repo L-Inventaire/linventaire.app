@@ -292,7 +292,7 @@ export const CompanyUsersPage = () => {
                 ) : (
                   <>
                     <Button
-                      size="md"
+                      size="sm"
                       className="mr-2"
                       onClick={() => setUpdatingUsers([user.user_id])}
                     >
@@ -303,7 +303,7 @@ export const CompanyUsersPage = () => {
                       onClick={() => {
                         remove(user.user.id);
                       }}
-                      size="md"
+                      size="sm"
                       theme="danger"
                     >
                       Retirer
@@ -312,6 +312,7 @@ export const CompanyUsersPage = () => {
                 ),
             },
           ]}
+          border
         />
       </PageBlock>
     </Page>

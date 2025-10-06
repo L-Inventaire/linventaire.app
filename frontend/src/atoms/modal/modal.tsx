@@ -24,6 +24,8 @@ const ModalsCountState = atom<string[]>({
 
 const visibleModals = { stack: [] as string[] };
 
+let isClickingOutside = false;
+
 export const ModalContext = (props: { level: string }) => {
   const setMenu = useSetRecoilState(DropDownAtom);
   useEffect(() => {
@@ -104,7 +106,13 @@ export const Modal = (props: {
             </Transition.Child>
 
             <div
-              onClick={props.onClose}
+              onMouseDown={() => {
+                isClickingOutside = true;
+              }}
+              onClick={() => {
+                if (isClickingOutside) props.onClose?.();
+                isClickingOutside = false;
+              }}
               className={
                 "fixed z-10 inset-0 overflow-y-auto transition-transform "
               }
@@ -164,6 +172,15 @@ export const Modal = (props: {
                         className="px-4 pt-5 pb-4 sm:p-6"
                         onClick={(e) => {
                           e.stopPropagation();
+                          isClickingOutside = false;
+                        }}
+                        onMouseDown={(e) => {
+                          e.stopPropagation();
+                          isClickingOutside = false;
+                        }}
+                        onMouseUp={(e) => {
+                          e.stopPropagation();
+                          isClickingOutside = false;
                         }}
                       >
                         {props.children}

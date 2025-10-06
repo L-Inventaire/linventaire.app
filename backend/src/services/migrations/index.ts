@@ -17,6 +17,7 @@ import { fixInvoicesSearchables } from "./migrations/009-invoice-fix-searchable"
 import { rebuildContactSearchables } from "./migrations/010-contact-rebuild-searchable";
 import { rebuildStockSearchables } from "./migrations/011-stock-reindex-searchable";
 import { fixNotificationsSearchables } from "./migrations/012-notifications-fix-searchable";
+import { rebuildArticlesSearchables } from "./migrations/013-articles-reindex-searchable";
 
 export default class Clients implements InternalApplicationService {
   version = 1;
@@ -66,6 +67,9 @@ export default class Clients implements InternalApplicationService {
       "010-contact-rebuild-searchable": rebuildContactSearchables,
       "011-stock-reindex-searchable": rebuildStockSearchables,
       "012-notifications-fix-searchable-redo": fixNotificationsSearchables,
+      "013-a-contact-rebuild-searchable": rebuildContactSearchables,
+      "013-b-stock-reindex-searchable": rebuildStockSearchables,
+      "013-c-articles-reindex-searchable": rebuildArticlesSearchables,
     } as {
       [key: string]: (ctx: Context) => Promise<void>;
     };

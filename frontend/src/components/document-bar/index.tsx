@@ -95,7 +95,9 @@ export const DocumentBar = ({
           {
             type: "danger",
             label: "Supprimer",
-            onClick: props.onRemove,
+            onClick: () => {
+              props.onRemove?.();
+            },
           },
         ]
       : []),
@@ -239,7 +241,7 @@ export const DocumentBar = ({
               }
             />
           )}
-          {document?.id && (
+          {document?.id && props.viewRoute && (
             <Button
               data-tooltip="Copier le lien"
               size="xs"
@@ -248,7 +250,8 @@ export const DocumentBar = ({
               icon={(p) => <LinkIcon {...p} />}
               onClick={() =>
                 copyToClipboard(
-                  window.location.href,
+                  window.document.location.origin +
+                    getRoute(props.viewRoute!, { id: document.id }),
                   "Lien copié dans le presse-papier"
                 )
               }

@@ -25,7 +25,7 @@ export interface ButtonProps
     | "default"
     | "outlined"
     | "invisible";
-  size?: "xl" | "lg" | "md" | "sm" | "xs";
+  size?: "md" | "sm" | "xs";
   loading?: boolean;
   disabled?: boolean;
   shortcut?: Shortcut[];

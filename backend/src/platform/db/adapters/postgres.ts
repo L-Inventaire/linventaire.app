@@ -249,6 +249,7 @@ export default class DbPostgres implements DbAdapterInterface {
     const generatedCols = Object.entries(cols)
       .filter(([_, type]) => type.includes("GENERATED"))
       .map(([name, _]) => name);
+    document = _.pick(document as any, Object.keys(cols)) as Entity;
     document = _.omit(document as any, generatedCols) as Entity;
 
     // Execute prehook function
@@ -308,6 +309,7 @@ export default class DbPostgres implements DbAdapterInterface {
     const generatedCols = Object.entries(cols)
       .filter(([_, type]) => type.includes("GENERATED"))
       .map(([name, _]) => name);
+    document = _.pick(document as any, Object.keys(cols)) as Entity;
     document = _.omit(document as any, generatedCols) as Entity;
 
     const previousDocument = await this.selectOne(ctx, table, condition, {

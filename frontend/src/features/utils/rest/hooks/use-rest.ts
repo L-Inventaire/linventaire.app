@@ -163,6 +163,7 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
     queryFn:
       options?.queryFn ||
       (async () => {
+        options = _.cloneDeep(options || {});
         const invalidRequest =
           options?.limit === 0 ||
           (options?.ignoreEmptyFilters !== false &&

@@ -443,7 +443,28 @@ export const expandSearchable = (searchable: string | string[]) => {
   words.forEach((word) => {
     result.push(word);
     // Split word by special characters
-    const specialCharacters = ["-", ".", ","];
+    const specialCharacters = [
+      "-",
+      ".",
+      ",",
+      "@",
+      "#",
+      "_",
+      "/",
+      "\\",
+      "!",
+      "$",
+      "+",
+      "%",
+      "&",
+      "*",
+      "(",
+      ")",
+      "=",
+      "?",
+      ";",
+      ":",
+    ];
     specialCharacters.forEach((char) => {
       if (word.includes(char)) {
         const parts = word.split(char);

@@ -35,6 +35,8 @@ import { ContactsPage } from "./modules/contacts";
 import { ContactsEditPage } from "./modules/contacts/edit";
 import { ContactsViewPage } from "./modules/contacts/view";
 import { CRMPage } from "./modules/crm";
+import { CRMEditPage } from "./modules/crm/edit";
+import { CRMViewPage } from "./modules/crm/view";
 import { DashboardHomePage } from "./modules/dashboard";
 import { InvoicesPage } from "./modules/invoices";
 import { QuoteFromItems } from "./modules/invoices/create-from-items";
@@ -159,7 +161,9 @@ export const BackOfficeRoutes = () => {
         <Route path={ROUTES.SettingsImport} element={<DevPage />} />
         <Route path={ROUTES.SettingsApi} element={<DevPage />} />
 
-        <Route path={ROUTES.CRMView} element={<CRMPage />} />
+        <Route path={ROUTES.CRM} element={<CRMPage />} />
+        <Route path={ROUTES.CRMView} element={<CRMViewPage />} />
+        <Route path={ROUTES.CRMEdit} element={<CRMEditPage />} />
 
         <Route path={ROUTES.DevPage} element={<DevPage />} />
       </Route>

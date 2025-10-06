@@ -24,6 +24,8 @@ import { Column } from "@molecules/table/table";
 import { Badge } from "@radix-ui/themes";
 import { frequencyOptions } from "@views/client/modules/articles/components/article-details";
 import { ContactRestDocument } from "@views/client/modules/contacts/components/contact-input-rest-card";
+import { InvoicesDocumentBar } from "@views/client/modules/invoices/components/document-bar";
+import { InvoiceActions } from "@views/client/modules/invoices/components/invoice-actions";
 import { CompletionTags } from "@views/client/modules/invoices/components/invoice-lines-input/components/completion-tags";
 import { InvoiceRestDocument } from "@views/client/modules/invoices/components/invoice-lines-input/invoice-input-rest-card";
 import { InvoiceStatus } from "@views/client/modules/invoices/components/invoice-status";
@@ -250,6 +252,20 @@ export const InvoicesColumns: Column<Invoices>[] = [
 ];
 
 registerCtrlKRestEntity<Invoices>("invoices", {
+  renderDocumentBar: (props) => (
+    <InvoicesDocumentBar
+      id={props.id}
+      readonly={props.readonly || false}
+      onClose={props.onClose}
+      onSave={props.onSave}
+    />
+  ),
+  renderActionsBar: (props) => {
+    if (!props.readonly) return null;
+    const isRevision = props.id?.includes("~");
+    if (isRevision) return null;
+    return <InvoiceActions id={props.id} readonly={props.readonly} />;
+  },
   renderEditor: (props) => (
     <InvoicesDetailsPage readonly={props.readonly || false} id={props.id} />
   ),
