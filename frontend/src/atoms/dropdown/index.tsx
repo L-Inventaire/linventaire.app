@@ -106,8 +106,7 @@ export const DropdownButton = (
                 }
                 className={twMerge(
                   "my-1",
-                  m.type === "danger" &&
-                    "bg-red-500 text-red-500 dark:text-red-500"
+                  m.type === "danger" && "text-red-500 dark:text-red-500"
                 )}
                 color={m.type === "danger" ? "crimson" : undefined}
                 key={i}
@@ -312,7 +311,7 @@ export const Menu = ({
           <MenuItem
             className={twMerge(
               "my-1",
-              m.type === "danger" && "bg-red-500 text-red-500 dark:text-red-500"
+              m.type === "danger" && "text-red-500 dark:text-red-500"
             )}
             key={i}
             active={active}

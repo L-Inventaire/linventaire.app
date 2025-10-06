@@ -144,7 +144,6 @@ module.exports = {
     ...shades,
   ],
   plugins: [
-    require("tailwindcss-animate"),
     require("@tailwindcss/forms"),
     require("@tailwindcss/container-queries"),
   ],
