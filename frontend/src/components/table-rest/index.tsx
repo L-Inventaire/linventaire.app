@@ -1,10 +1,8 @@
-import { CtrlKAtom } from "@features/ctrlk/store";
 import { useRegisterActiveSelection } from "@features/ctrlk/use-register-current-selection";
 import { Table, TablePropsType } from "@molecules/table";
 import { UseQueryResult } from "@tanstack/react-query";
 import _ from "lodash";
 import { useEffect } from "react";
-import { useSetRecoilState } from "recoil";
 
 export const RestTable = <T,>(
   props: Omit<
@@ -15,7 +13,6 @@ export const RestTable = <T,>(
     data: UseQueryResult<{ total: number; list: T[] }, Error>;
   }
 ) => {
-  const openCtrlK = useSetRecoilState(CtrlKAtom);
   const { register, unregister, runActions } = useRegisterActiveSelection();
   useEffect(() => {
     return () => unregister();

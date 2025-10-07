@@ -13,7 +13,7 @@ export const schemaToSearchFields = (
     [key: string]:
       | boolean
       | string
-      | { label: string; keywords?: string; values?: { [key: string]: {} } };
+      | { label: string; keywords?: string; values?: { [key: string]: any } };
   } = {}
 ) => {
   if (Object.keys(schema || {}).length === 0) return [];
@@ -128,7 +128,7 @@ export const generateQuery = (
               const isRegex = a.regex;
               value = value.replace(/(^~?"|"$)/g, "");
 
-              let [min, max] = value
+              const [min, max] = value
                 .split("->")
                 .map((s) => s.replace(/(>|<|=)/g, "")) as [
                 string | number | Date | null,

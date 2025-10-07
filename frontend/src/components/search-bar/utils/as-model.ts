@@ -99,11 +99,14 @@ export const getUrlModel = <T>() => {
   try {
     return JSON.parse(val || "{}") as T;
   } catch (e) {
+    console.error(e);
     try {
       // If we have a cache model, we can use it
       const tmp = JSON.parse(localStorage.getItem("url_model") || "{}") as T;
       if ((tmp as any)?._cache_model_id === mid) return tmp;
-    } catch (e) {}
+    } catch (e) {
+      console.error(e);
+    }
   }
   return {} as T;
 };

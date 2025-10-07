@@ -62,7 +62,7 @@ export function Radio(props: RadioProps) {
         "value"
       )}
       onChange={(e) => {
-        // @ts-ignore Event bubbling
+        // @ts-expect-error Event bubbling
         props.onChange?.(e?.target?.value ?? "");
       }}
     >

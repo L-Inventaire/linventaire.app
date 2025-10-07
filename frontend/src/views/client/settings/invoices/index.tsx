@@ -76,7 +76,7 @@ export const InvoicesSettingsPage = () => {
                   onClick={() =>
                     update(client?.id || "", {
                       payment: {
-                        ...client?.payment!,
+                        ...client!.payment!,
                         ...payment,
                       },
                     })
@@ -104,7 +104,7 @@ export const InvoicesSettingsPage = () => {
                   onClick={() =>
                     update(client?.id || "", {
                       recurring: {
-                        ...client?.recurring!,
+                        ...client!.recurring!,
                         ...recurring,
                       },
                     })
@@ -142,7 +142,9 @@ export const InvoicesSettingsPage = () => {
                           ...invoices,
                         },
                       });
-                    } catch (error) {}
+                    } catch (error) {
+                      console.error(error);
+                    }
                   }}
                   loading={loading}
                 >

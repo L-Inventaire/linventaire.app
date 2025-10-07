@@ -79,6 +79,7 @@ export const useClients = () => {
       await refresh();
       toast.success("Your company has been updated.");
     } catch (e) {
+      console.error(e);
       toast.error("We couldn't update your company. Please try again.");
     }
   };
@@ -89,6 +90,7 @@ export const useClients = () => {
       try {
         if (user) await refresh();
       } catch (e) {
+        console.error(e);
         toast.error("We couldn't get your clients. Please reload the page.");
       }
     },
@@ -132,6 +134,7 @@ export const useClientInvitations = () => {
       try {
         await refresh();
       } catch (e) {
+        console.error(e);
         toast.error("We couldn't get your invitations.");
       }
     },

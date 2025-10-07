@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 import React, { useRef, useEffect } from "react";
 import "./styles.css";
@@ -193,7 +194,7 @@ export class Multiselect extends React.Component<IMultiselectProps, any> {
       return;
     }
     if (isObject) {
-      let optionList = unfilteredOptions.filter((item) => {
+      const optionList = unfilteredOptions.filter((item) => {
         return selectedValues.findIndex(
           (v) => v[displayValue] === item[displayValue]
         ) === -1
@@ -209,7 +210,7 @@ export class Multiselect extends React.Component<IMultiselectProps, any> {
       );
       return;
     }
-    let optionList = unfilteredOptions.filter(
+    const optionList = unfilteredOptions.filter(
       (item) => selectedValues.indexOf(item) === -1
     );
 
@@ -250,7 +251,12 @@ export class Multiselect extends React.Component<IMultiselectProps, any> {
   }
 
   filterOptionsByInput() {
-    let { options, filteredOptions, inputValue } = this.state;
+    const {
+      options: originalOptions,
+      filteredOptions,
+      inputValue,
+    } = this.state;
+    let options = originalOptions;
     const { isObject, displayValue } = this.props;
     if (isObject) {
       options = filteredOptions.filter((i) =>
@@ -325,7 +331,10 @@ export class Multiselect extends React.Component<IMultiselectProps, any> {
   }
 
   onRemoveSelectedItem(item) {
-    let { selectedValues, index = 0 } = this.state;
+    const { selectedValues: originalSelectedValues, index: originalIndex = 0 } =
+      this.state;
+    const selectedValues = [...originalSelectedValues];
+    let index = originalIndex;
     const { onRemove, showCheckbox, displayValue, isObject } = this.props;
     if (isObject) {
       index = selectedValues.findIndex(

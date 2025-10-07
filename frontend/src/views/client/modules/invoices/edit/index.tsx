@@ -12,7 +12,6 @@ import _ from "lodash";
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { InvoicesDocumentBar } from "../components/document-bar";
-import { InvoiceActions } from "../components/invoice-actions";
 import { InvoicesDetailsPage } from "../components/invoices-details";
 
 export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
@@ -25,7 +24,6 @@ export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
   let { id } = useParamsOrContextId();
   id = id === "new" ? "" : id || "";
   const navigate = useNavigate();
-  const isRevision = id?.includes("~");
 
   const defaultModel = useRef(useInvoiceDefaultModel()).current;
   const initialModel = getUrlModel<Invoices>();

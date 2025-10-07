@@ -41,7 +41,7 @@ export const useDragModal = () => {
     draggableRef.current.style.transition = ""; // Remove any transition during drag
   }, []);
 
-  const handleMouseUp = useCallback((e: any) => {
+  const handleMouseUp = useCallback((_e: any) => {
     if (dragState.current.isDragging) {
       dragState.current.isDragging = false;
       document.body.style.cursor = "";
@@ -75,7 +75,7 @@ export const useDragModal = () => {
     e.preventDefault();
   }, []);
 
-  const handleDoubleClick = useCallback((e: any) => {
+  const handleDoubleClick = useCallback((_e: any) => {
     if (!draggableRef.current) return;
 
     setIsAnimating(true);

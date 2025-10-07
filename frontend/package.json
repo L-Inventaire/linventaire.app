@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "linter": "eslint ."
+    "linter": "export CI=true && eslint src/ --max-warnings 0"
   },
   "dependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
@@ -128,12 +128,18 @@
     "@tailwindcss/vite": "^4.1.14",
     "@tanstack/eslint-plugin-query": "^5.27.7",
     "@types/luxon": "^3.4.2",
+    "@typescript-eslint/eslint-plugin": "^8.46.0",
+    "@typescript-eslint/parser": "^8.46.0",
     "@vitejs/plugin-react": "^5.0.4",
     "concurrently": "^8.2.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^6.1.1",
+    "eslint-plugin-react-refresh": "^0.4.23",
     "mini-css-extract-plugin": "^2.9.1",
     "sass": "^1.66.1",
     "tailwindcss": "^3.0.24",
-    "typescript": "=5.1.6"
+    "typescript": "=5.1.6",
+    "typescript-eslint": "^8.46.0"
   },
   "resolutions": {
     "wrap-ansi": "7.0.0",

@@ -1,8 +1,6 @@
 import { TagProps } from "@atoms/badge/tag";
 import { Invoices } from "@features/invoices/types/types";
-import { CurrencyDollarIcon } from "@heroicons/react/20/solid";
 import { Badge } from "@radix-ui/themes";
-import { twMerge } from "tailwind-merge";
 import { usePaymentCompletion } from "../../../../../features/invoices/hooks/use-payment-completion";
 import { formatAmount } from "../../../../../features/utils/format/strings";
 

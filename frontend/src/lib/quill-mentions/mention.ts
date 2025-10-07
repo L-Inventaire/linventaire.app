@@ -277,12 +277,11 @@ export class Mention extends Module<MentionOption> {
     }
 
     //Bind all option-functions so they have a reasonable context
-    for (let o in this.options) {
+    for (const o in this.options) {
       const key: keyof MentionOption = o as keyof MentionOption;
       const value = this.options[key];
       if (typeof value === "function") {
-        // @ts-ignore
-        this.options[key] = value.bind(this);
+        (this.options as any)[key] = value.bind(this);
       }
     }
 
@@ -329,7 +328,7 @@ export class Mention extends Module<MentionOption> {
       quill.keyboard.bindings[KeysCodes.TAB].pop()!
     );
 
-    for (let selectKey of this.options.selectKeys ?? []) {
+    for (const selectKey of this.options.selectKeys ?? []) {
       quill.keyboard.addBinding(
         {
           key: selectKey,

@@ -7,6 +7,7 @@ import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { useRestSchema } from "@features/utils/rest/hooks/use-rest";
 import { RestEntity } from "@features/utils/rest/types/types";
 import _ from "lodash";
+import { useCallback } from "react";
 import Scrollbars from "react-custom-scrollbars";
 import { useRecoilState } from "recoil";
 
@@ -44,6 +45,11 @@ export const ModalEditor = (props: { stateId: string }) => {
     async (item: RestEntity) => {
       // Set created element as query for the previous path
       const newPath = state.path.slice(0, state.path.length - 1);
+      if (newPath.length === 0) {
+        // No previous path, go back to read mode
+        onChangeMode("read");
+        return;
+      }
       let lastItem = newPath.pop();
       if (lastItem) {
         lastItem = _.set(
@@ -85,11 +91,29 @@ export const ModalEditor = (props: { stateId: string }) => {
     if (currentState?.options?.cb) await currentState.options.cb(draft);
   };
 
+  const onChangeMode = useCallback(
+    (mode: "write" | "read") => {
+      setState({
+        ...state,
+        path: [
+          {
+            ...currentState,
+            options: {
+              ...currentState.options,
+              readonly: mode !== "write",
+            },
+          },
+        ],
+      });
+    },
+    [currentState, state, setState]
+  );
+
   const footer = CtrlKRestEntities[
     currentState.options?.entity || ""
   ]?.renderActionsBar?.({
     id: currentState.options?.id || "",
-    readonly: false,
+    readonly: currentState.options?.readonly,
   });
 
   return (
@@ -102,6 +126,7 @@ export const ModalEditor = (props: { stateId: string }) => {
           readonly: currentState.options?.readonly,
           onClose,
           onSave,
+          onChangeMode,
         }) || (
           <DocumentBar
             loading={isInitiating}
@@ -112,6 +137,7 @@ export const ModalEditor = (props: { stateId: string }) => {
             onSave={onSave}
             onRemove={draft.id ? remove : undefined}
             onRestore={draft.id ? restore : undefined}
+            onChangeMode={onChangeMode}
           />
         )}
       </div>

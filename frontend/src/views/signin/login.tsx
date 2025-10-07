@@ -134,6 +134,7 @@ export const Login = () => {
         }
       }
     } catch (e) {
+      console.error(e);
       toast.error("An error occurred");
     }
 

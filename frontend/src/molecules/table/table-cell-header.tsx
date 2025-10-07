@@ -33,12 +33,11 @@ export function TableCellHeader<T>({
           column.thClassName
         )}
         onClick={() => {
-          if (column.orderBy) {
-            onChangeOrder &&
-              onChangeOrder(
-                column.orderBy,
-                pagination?.order === "ASC" ? "DESC" : "ASC"
-              );
+          if (column.orderBy && onChangeOrder) {
+            onChangeOrder(
+              column.orderBy,
+              pagination?.order === "ASC" ? "DESC" : "ASC"
+            );
           }
         }}
         {..._.omit(props, "onChange")}

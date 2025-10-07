@@ -5,7 +5,7 @@ import { useRecoilState } from "recoil";
 import { CtrlKAtom } from "./store";
 
 export const useRegisterActiveSelection = <T>() => {
-  const [states, setCtrlK] = useRecoilState(CtrlKAtom);
+  const [, setCtrlK] = useRecoilState(CtrlKAtom);
   const stateIdRef = useRef<string>();
   const { pathname } = useLocation();
 

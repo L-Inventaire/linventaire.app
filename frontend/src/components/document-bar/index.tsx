@@ -18,7 +18,6 @@ import {
   LinkIcon,
   PencilSquareIcon,
   PrinterIcon,
-  XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { Badge, Separator } from "@radix-ui/themes";
 import _ from "lodash";
@@ -27,6 +26,7 @@ import toast from "react-hot-toast";
 import { useSetRecoilState } from "recoil";
 import { DraftContext } from "../../features/utils/rest/hooks/use-draft-rest";
 import { DocumentBarNav } from "./nav";
+import { XMarkIcon } from "@heroicons/react/16/solid";
 
 export const DocumentBar = ({
   mode,
@@ -55,6 +55,7 @@ export const DocumentBar = ({
   onSaveDisabled?: boolean;
   onRemove?: () => Promise<void>;
   onRestore?: () => Promise<void>;
+  onChangeMode?: (mode: "write" | "read") => void;
 }) => {
   const isRevision = document?.id?.includes("~");
   const revision = document?.id?.split("~")[1];
@@ -70,6 +71,15 @@ export const DocumentBar = ({
   const { getLastLocations } = useLastLocations();
 
   const cancel = async () => {
+    if (
+      mode === "write" &&
+      !confirm(
+        "Voulez-vous vraiment quitter sans sauvegarder vos modifications ?"
+      )
+    ) {
+      return;
+    }
+
     if (onClose) return onClose();
     // Get previous route that is not the form nor the viewer
     const previousPage = _.last(
@@ -122,18 +132,20 @@ export const DocumentBar = ({
   return (
     <div className="items-center flex grow space-x-2 px-3 text-base h-12 draggable-handle">
       <div className="flex items-center space-x-1">
-        <Button
-          data-tooltip="Retour"
-          size="xs"
-          theme={onClose ? "invisible" : "outlined"}
-          shortcut={["esc"]}
-          icon={
-            onClose
-              ? (p) => <XMarkIcon {...p} />
-              : (p) => <ArrowLeftIcon {...p} />
-          }
-          onClick={cancel}
-        />
+        {(!isModal || !onClose) && (
+          <Button
+            data-tooltip="Retour"
+            size="xs"
+            theme={onClose ? "invisible" : "outlined"}
+            shortcut={["esc"]}
+            icon={
+              onClose
+                ? (p) => <XMarkIcon {...p} />
+                : (p) => <ArrowLeftIcon {...p} />
+            }
+            onClick={cancel}
+          />
+        )}
         {mode === "read" && !isModal && (
           <DocumentBarNav
             entity={entity}
@@ -144,10 +156,10 @@ export const DocumentBar = ({
           />
         )}
       </div>
+      {!document.is_deleted && !isRevision && prefix}
+      <div className="grow" />
       {!loading && (
         <>
-          {!document.is_deleted && !isRevision && prefix}
-          <div className="grow" />
           {isRevision && (
             <>
               <Badge color="bronze" size="2">
@@ -292,7 +304,11 @@ export const DocumentBar = ({
                 theme="invisible"
                 shortcut={["e"]}
                 onClick={async () =>
-                  navigate(getRoute(props.editRoute || "", { id: document.id }))
+                  isModal
+                    ? props.onChangeMode?.("write")
+                    : navigate(
+                        getRoute(props.editRoute || "", { id: document.id })
+                      )
                 }
                 icon={(p) => <PencilSquareIcon {...p} />}
               />
@@ -316,7 +332,14 @@ export const DocumentBar = ({
             !document.is_deleted &&
             mode === "write" && (
               <>
-                <Button size="sm" theme="outlined" onClick={cancel}>
+                <Button
+                  size="sm"
+                  theme="outlined"
+                  onClick={() => {
+                    if (props.onChangeMode) return props.onChangeMode("read");
+                    cancel();
+                  }}
+                >
                   Annuler
                 </Button>
                 <Button
@@ -330,6 +353,20 @@ export const DocumentBar = ({
               </>
             )}
           {!isRevision && !document.is_deleted && suffix}
+        </>
+      )}
+
+      {!!isModal && !!onClose && (
+        <>
+          <Separator orientation="vertical" />
+          <Button
+            data-tooltip="Fermer"
+            size="xs"
+            theme={"invisible"}
+            shortcut={["esc"]}
+            icon={(p) => <XMarkIcon {...p} />}
+            onClick={cancel}
+          />
         </>
       )}
     </div>

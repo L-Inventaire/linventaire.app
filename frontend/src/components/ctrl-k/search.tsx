@@ -194,7 +194,7 @@ export const SearchCtrlK = ({ stateId }: { stateId: string }) => {
         suggestions={
           currentState.mode === "action"
             ? [
-                ...(!!state.selection?.items?.length
+                ...(state.selection?.items?.length
                   ? filterSuggestions(
                       query,
                       CtrlKRestEntities[state.selection.entity || ""]

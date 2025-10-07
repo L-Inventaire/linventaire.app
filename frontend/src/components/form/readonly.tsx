@@ -103,7 +103,7 @@ export const FormReadonly = memo(
                 <Link
                   className="cursor-pointer flex items-center underline"
                   onClick={() => {
-                    props.onClick &&
+                    if (props.onClick)
                       props.onClick({ readonly: true, values: props.values });
                   }}
                 >

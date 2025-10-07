@@ -206,7 +206,7 @@ export const InvoicesColumns: Column<Invoices>[] = [
                   color="blue"
                   size={"xs"}
                   icon={
-                    !!key ? (
+                    key ? (
                       <ArrowPathIcon
                         className={`w-3 h-3 mr-1 shrink-0 text-blue-500`}
                       />
@@ -257,6 +257,7 @@ registerCtrlKRestEntity<Invoices>("invoices", {
       readonly={props.readonly || false}
       onClose={props.onClose}
       onSave={props.onSave}
+      onChangeMode={props.onChangeMode}
     />
   ),
   renderActionsBar: (props) => {
@@ -346,6 +347,7 @@ registerCtrlKRestEntity<Invoices>("invoices", {
                 state: "purchase_order",
               });
             } catch (e) {
+              console.error(e);
               toast.error("Erreur lors de la mise à jour de la facture");
             }
           }

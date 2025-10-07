@@ -34,29 +34,26 @@ export const SignUp = () => {
     grecaptcha.ready(async () => {
       const captchaValidation = await getCaptchaToken("signup");
 
-      try {
-        if (emailValidation) {
-          try {
-            await CustomersApiClient.createAccount(
-              captchaValidation,
-              emailValidation,
-              undefined,
-              name
-            );
-            if (imageBase64) {
-              await CustomersApiClient.setPreferences({
-                avatar: imageBase64,
-              });
-            }
-          } catch (e) {
-            throw e;
-          } finally {
-            await login(emailValidation);
+      if (emailValidation) {
+        try {
+          await CustomersApiClient.createAccount(
+            captchaValidation,
+            emailValidation,
+            undefined,
+            name
+          );
+          if (imageBase64) {
+            await CustomersApiClient.setPreferences({
+              avatar: imageBase64,
+            });
           }
+        } catch (e) {
+          console.error(e);
+          toast.error(t("signin.signup.error"));
+          navigate(ROUTES.Login);
+        } finally {
+          await login(emailValidation);
         }
-      } catch (e) {
-        toast.error(t("signin.signup.error"));
-        navigate(ROUTES.Login);
       }
 
       setLoading(false);

@@ -29,7 +29,7 @@ export const TableExportModal = (props: {
       (props.tableName ? props.tableName + "-" : "") +
       new Date().toISOString();
 
-    let maxItems = parseInt(maxSize);
+    const maxItems = parseInt(maxSize);
     let page = 1;
     let data: any[] = [];
     let previousSize = -1;

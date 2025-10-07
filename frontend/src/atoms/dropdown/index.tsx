@@ -1,4 +1,3 @@
-import { AnimatedHeight } from "@atoms/animated-side/height";
 import { Button, ButtonProps } from "@atoms/button/button";
 import { Info } from "@atoms/text";
 import {

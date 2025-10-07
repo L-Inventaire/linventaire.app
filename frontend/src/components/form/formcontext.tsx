@@ -60,7 +60,7 @@ const FormControllerLockAtom = atomFamily<any, string>({
 
 type NestedKey<T extends string, P extends string> = `${T}.${P}`;
 
-export function useFormController<T extends Object>(
+export function useFormController<T extends object>(
   get: T,
   set: (e: any) => void,
   key?: string

@@ -17,11 +17,13 @@ export const InvoicesDocumentBar = ({
   readonly,
   onClose,
   onSave,
+  onChangeMode,
 }: {
   id: string;
   readonly?: boolean;
   onClose?: () => void;
   onSave?: () => Promise<void>;
+  onChangeMode?: (mode: "write" | "read") => void;
 }) => {
   const { invoice, isPending, remove, restore } = useInvoice(id || "");
   const navigate = useNavigate();
@@ -53,6 +55,7 @@ export const InvoicesDocumentBar = ({
         viewRoute={ROUTES.InvoicesView}
         onPrint={async () => getPdfPreview(invoice)}
         onClose={onClose}
+        onChangeMode={onChangeMode}
         onRemove={
           invoice?.id && invoice?.state === "draft" && hasWriteType
             ? async () => remove.mutateAsync(invoice?.id)
@@ -120,7 +123,12 @@ export const InvoicesDocumentBar = ({
   }
 
   return (
-    <InvoicesDocumentBarEdition id={id} onClose={onClose} onSave={onSave} />
+    <InvoicesDocumentBarEdition
+      id={id}
+      onClose={onClose}
+      onSave={onSave}
+      onChangeMode={onChangeMode}
+    />
   );
 };
 
@@ -128,10 +136,12 @@ const InvoicesDocumentBarEdition = ({
   id,
   onClose,
   onSave,
+  onChangeMode,
 }: {
   id: string;
   onClose?: () => void;
   onSave?: () => Promise<void>;
+  onChangeMode?: (mode: "write" | "read") => void;
 }) => {
   const { refresh, loading } = useClients();
 
@@ -158,6 +168,7 @@ const InvoicesDocumentBarEdition = ({
         }
       }}
       onClose={onClose}
+      onChangeMode={onChangeMode}
       backRoute={getRoute(ROUTES.Invoices, { type: draft.type })}
       viewRoute={ROUTES.InvoicesView}
       editRoute={ROUTES.InvoicesEdit}

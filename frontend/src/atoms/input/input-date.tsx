@@ -48,7 +48,7 @@ export function InputDate(props: InputProps) {
       if (_.isNaN(date.getTime())) return null;
 
       return date;
-    } catch (e: any) {
+    } catch (_e: any) {
       return null;
     }
   };

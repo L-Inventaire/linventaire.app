@@ -185,14 +185,11 @@ const ModalBody = ({
     (e: MouseEvent) => {
       // Only handle outside clicks for the active (topmost) modal
       if (!activeRef.current) return;
-      console.log("close ?");
       if (
         draggableRef.current &&
         !draggableRef.current.contains(e.target as Node)
       ) {
-        console.log("close ?", clickingOutside.current, activeRef.current);
         if (clickingOutside.current) {
-          console.log("close ?");
           props.onClose && props.onClose();
         }
       }

@@ -31,6 +31,7 @@ type RestEntityForCtrlK<T> = {
     readonly?: boolean;
     onClose?: () => void;
     onSave?: () => Promise<void>;
+    onChangeMode?: (mode: "write" | "read") => void;
   }) => ReactNode;
   renderActionsBar?: (props: { id: string; readonly?: boolean }) => ReactNode;
   renderEditor?: (props: { id: string; readonly?: boolean }) => ReactNode;

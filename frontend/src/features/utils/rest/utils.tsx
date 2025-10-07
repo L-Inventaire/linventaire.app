@@ -21,6 +21,7 @@ export const setDefaultRestActions = (
           try {
             await rest.delete(row.client_id, row.id);
           } catch (e) {
+            console.error(e);
             toast.error("Erreur lors de la mise à jour de la facture");
           }
         }
@@ -39,6 +40,7 @@ export const setDefaultRestActions = (
           try {
             await rest.restore(row.client_id, row.id);
           } catch (e) {
+            console.error(e);
             toast.error("Erreur lors de la mise à jour de la facture");
           }
         }

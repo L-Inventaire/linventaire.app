@@ -97,6 +97,7 @@ export const FilesInput = (props: {
           newFilesRef.current[index].entity = entity;
           setNewFiles([...newFilesRef.current]);
         } catch (e) {
+          console.error(e);
           toast.error("Failed to upload file");
           newFilesRef.current[index].progress = -1;
         }
