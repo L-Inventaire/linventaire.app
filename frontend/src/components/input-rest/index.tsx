@@ -296,7 +296,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
                       <Button
                         data-tooltip="Supprimer"
                         className={twMerge(
-                          "text-red-500 dark:text-red-500 w-0 ml-0.5 overflow-hidden",
+                          "bg-red-500 text-red-500 dark:text-red-500 w-0 ml-0.5 overflow-hidden",
                           value && "w-5 ml-px transition-all delay-200"
                         )}
                         theme="invisible"

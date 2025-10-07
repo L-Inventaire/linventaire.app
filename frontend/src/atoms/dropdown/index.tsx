@@ -106,7 +106,8 @@ export const DropdownButton = (
                 }
                 className={twMerge(
                   "my-1",
-                  m.type === "danger" && "text-red-500 dark:text-red-500"
+                  m.type === "danger" &&
+                    "bg-red-500 text-red-500 dark:text-red-500"
                 )}
                 color={m.type === "danger" ? "crimson" : undefined}
                 key={i}
@@ -123,7 +124,6 @@ export const DropdownButton = (
 };
 
 let lastTarget: HTMLElement | null = null;
-let autoHeightTrigger: (() => void) | null = null;
 let timeout: any = 0;
 let backToInitialSizeTimeout: any = 0;
 
@@ -182,9 +182,6 @@ export const DropDownMenu = () => {
           ref.current.style.boxShadow = "";
         }
       }
-
-      // Trigger animated height now
-      autoHeightTrigger?.();
 
       // For next time, we want to animate the transition
       // Also we want to make sure the menu is not outside the screen
@@ -276,12 +273,9 @@ export const DropDownMenu = () => {
       }}
       className="z-90 transition-all fixed sm:bottom-auto bottom-0 h-auto shadow-xl border border-slate-50 dark:border-slate-700 sm:rounded-lg max-w-4xl w-full sm:w-64 bg-white dark:bg-slate-900 overflow-hidden"
     >
-      <AnimatedHeight
-        trigger={(cb) => (autoHeightTrigger = cb)}
-        className="px-2 py-1"
-      >
+      <div className="px-2 py-1">
         <Menu menu={menu} clickItem={() => clickOutside()} />
-      </AnimatedHeight>
+      </div>
     </div>
   );
 };
@@ -311,7 +305,7 @@ export const Menu = ({
           <MenuItem
             className={twMerge(
               "my-1",
-              m.type === "danger" && "text-red-500 dark:text-red-500"
+              m.type === "danger" && "bg-red-500 text-red-500 dark:text-red-500"
             )}
             key={i}
             active={active}
