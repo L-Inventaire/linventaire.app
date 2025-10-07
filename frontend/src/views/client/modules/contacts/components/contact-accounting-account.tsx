@@ -3,7 +3,7 @@ import { pgcLabel } from "@components/pcg-input";
 import { buildQueryFromMap } from "@components/search-bar/utils/utils";
 import { useHasAccess } from "@features/access";
 import { useAccountingAccounts } from "@features/accounting/hooks/use-accounting-accounts";
-import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
+import { useViewWithCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { PencilIcon } from "@heroicons/react/16/solid";
 import { Box, IconButton } from "@radix-ui/themes";
 
@@ -23,7 +23,7 @@ export const ContactAccountingAccount = (props: {
     props.type === "client" ? "Compte client" : "Compte fournisseur";
 
   const hasAccess = useHasAccess();
-  const edit = useEditFromCtrlK();
+  const edit = useViewWithCtrlK();
 
   return (
     <div>

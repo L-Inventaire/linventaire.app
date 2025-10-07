@@ -16,7 +16,7 @@ import { AccountingTransactions } from "@features/accounting/types/types";
 import { useClients } from "@features/clients/state/use-clients";
 import { useContact, useContacts } from "@features/contacts/hooks/use-contacts";
 import { Contacts } from "@features/contacts/types/types";
-import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
+import { useViewWithCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { InvoicesFieldsNames } from "@features/invoices/configuration";
 import { useInvoice, useInvoices } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
@@ -91,7 +91,7 @@ export const InvoicesDetailsPage = ({
     draft.client || draft.supplier
   );
   const { contact: invoiceContact } = useContact(draft.contact);
-  const edit = useEditFromCtrlK();
+  const edit = useViewWithCtrlK();
 
   const { invoice: originQuote } = useInvoice(draft.from_rel_quote?.[0] || "");
 

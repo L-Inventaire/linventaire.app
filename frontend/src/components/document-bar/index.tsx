@@ -8,6 +8,7 @@ import { formatTime } from "@features/utils/format/dates";
 import { useLastLocations } from "@features/utils/hooks/use-navigation-history";
 import { useNavigateAlt } from "@features/utils/navigate";
 import { RestEntity } from "@features/utils/rest/types/types";
+import { XMarkIcon } from "@heroicons/react/16/solid";
 import { ArrowLeftIcon } from "@heroicons/react/20/solid";
 import {
   ArchiveBoxArrowDownIcon,
@@ -26,7 +27,6 @@ import toast from "react-hot-toast";
 import { useSetRecoilState } from "recoil";
 import { DraftContext } from "../../features/utils/rest/hooks/use-draft-rest";
 import { DocumentBarNav } from "./nav";
-import { XMarkIcon } from "@heroicons/react/16/solid";
 
 export const DocumentBar = ({
   mode,
@@ -336,7 +336,8 @@ export const DocumentBar = ({
                   size="sm"
                   theme="outlined"
                   onClick={() => {
-                    if (props.onChangeMode) return props.onChangeMode("read");
+                    if (props.onChangeMode && document.id)
+                      return props.onChangeMode("read");
                     cancel();
                   }}
                 >

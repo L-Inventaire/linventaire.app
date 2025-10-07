@@ -2,7 +2,7 @@ import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
 import { generateQueryFromMap } from "@components/search-bar/utils/utils";
 import { useContacts } from "@features/contacts/hooks/use-contacts";
-import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
+import { useViewWithCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { CRMItem } from "@features/crm/types/types";
 import { Card, Heading, Text } from "@radix-ui/themes";
 import _ from "lodash";
@@ -25,7 +25,7 @@ type CRMCardProps = {
 } & React.HTMLAttributes<HTMLDivElement>;
 
 export const CRMCard = ({ crmItem, readonly, ...props }: CRMCardProps) => {
-  const onEdit = useEditFromCtrlK();
+  const onEdit = useViewWithCtrlK();
 
   const [__, dragRef] = useDrag(
     () => ({
