@@ -93,7 +93,7 @@ export const SearchBar = ({
   });
   const fields = schema.fields.filter((a) => a.label);
 
-  const [valueLocked, setValueLocked] = useState(props.loading);
+  const [valueLocked, setValueLocked] = useState(props.loading && urlSync);
   const [value, setValue] = useState("");
   const rendererRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -129,10 +129,8 @@ export const SearchBar = ({
     if ((urlSync !== false && val) || (!val && valueLocked)) {
       const ready = !loadingCustomFields && props.loading !== true;
       if (!ready) {
-        console.log("setValueLocked to true");
         setValueLocked(true);
       } else {
-        console.log("setValueLocked to false");
         setValueLocked(false);
         if (val !== value) setValue(val);
       }

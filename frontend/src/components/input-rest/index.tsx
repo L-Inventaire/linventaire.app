@@ -9,17 +9,20 @@ import {
 import { buildQueryFromMap } from "@components/search-bar/utils/utils";
 import { CtrlKRestEntities } from "@features/ctrlk";
 import { useCtrlKAsSelect } from "@features/ctrlk/use-ctrlk-as-select";
-import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
+import {
+  useEditFromCtrlK,
+  useViewWithCtrlK,
+} from "@features/ctrlk/use-edit-from-ctrlk";
 import { getRoute } from "@features/routes";
 import { useNavigateAlt } from "@features/utils/navigate";
 import { useRest } from "@features/utils/rest/hooks/use-rest";
 import { RestEntity } from "@features/utils/rest/types/types";
 import { TrashIcon } from "@heroicons/react/16/solid";
 import { PencilSquareIcon, PlusIcon } from "@heroicons/react/20/solid";
+import { motion } from "framer-motion";
 import _ from "lodash";
 import { Fragment, ReactNode, useCallback, useContext, useEffect } from "react";
 import { twMerge } from "tailwind-merge";
-import { motion } from "framer-motion";
 
 export type RestDocumentProps<T> = {
   className?: string;
@@ -57,7 +60,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
 ) => {
   const formContext = useContext(FormContextContext);
   const select = useCtrlKAsSelect();
-  const edit = useEditFromCtrlK();
+  const edit = useViewWithCtrlK();
   const size = props.size || "md";
   const disabled =
     props.disabled === undefined

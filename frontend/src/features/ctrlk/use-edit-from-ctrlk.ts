@@ -1,8 +1,12 @@
 import { useSetRecoilState } from "recoil";
-import { CtrlKAtom } from "./store";
 import { CtrlKRestEntities } from ".";
+import { CtrlKAtom, generateUniqueStateId } from "./store";
 
-export const useEditFromCtrlK = () => {
+export const useViewWithCtrlK = () => {
+  return useEditFromCtrlK(true);
+};
+
+export const useEditFromCtrlK = (readonly?: boolean) => {
   const setCtrlK = useSetRecoilState(CtrlKAtom);
 
   return <T>(
@@ -16,10 +20,12 @@ export const useEditFromCtrlK = () => {
         ...states,
         {
           ...(states[states.length - 1] || {}),
+          id: generateUniqueStateId(),
           path: [
             {
               mode: "editor",
               options: {
+                readonly,
                 entity: entity,
                 id,
                 internalQuery: initialState,

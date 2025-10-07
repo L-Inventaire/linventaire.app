@@ -10,17 +10,24 @@ import _ from "lodash";
 import Scrollbars from "react-custom-scrollbars";
 import { useRecoilState } from "recoil";
 
-export const ModalEditor = (props: { index: number }) => {
+export const ModalEditor = (props: { stateId: string }) => {
   const [states, setStates] = useRecoilState(CtrlKAtom);
 
-  const state = states[props.index];
+  const state = states.find((s) => s.id === props.stateId);
   const setState = (newState: any) => {
     setStates((states) => {
       const newStates = [...states];
-      newStates[props.index] = newState;
+      const targetIndex = newStates.findIndex((s) => s.id === props.stateId);
+      if (targetIndex !== -1) {
+        newStates[targetIndex] = newState;
+      }
       return newStates;
     });
   };
+
+  if (!state) {
+    return null; // State not found
+  }
 
   const currentState = state.path?.[state.path?.length - 1] || {};
   const previousState = state.path?.[state.path?.length - 2] || {};
@@ -92,7 +99,7 @@ export const ModalEditor = (props: { index: number }) => {
           currentState.options?.entity || ""
         ]?.renderDocumentBar?.({
           id: currentState.options?.id || "",
-          readonly: false,
+          readonly: currentState.options?.readonly,
           onClose,
           onSave,
         }) || (
@@ -100,7 +107,7 @@ export const ModalEditor = (props: { index: number }) => {
             loading={isInitiating}
             entity={currentState.options?.entity || ""}
             document={draft}
-            mode={"write"}
+            mode={currentState.options?.readonly ? "read" : "write"}
             onClose={onClose}
             onSave={onSave}
             onRemove={draft.id ? remove : undefined}
@@ -116,7 +123,7 @@ export const ModalEditor = (props: { index: number }) => {
               currentState.options?.entity || ""
             ]?.renderEditor?.({
               id: currentState.options?.id || "",
-              readonly: false,
+              readonly: currentState.options?.readonly,
             })}
         </div>
       </Scrollbars>

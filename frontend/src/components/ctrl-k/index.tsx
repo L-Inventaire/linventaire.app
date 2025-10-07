@@ -38,7 +38,6 @@ import { SearchCtrlK } from "./search";
 
 export const CtrlKModal = () => {
   const [states, setStates] = useRecoilState(CtrlKAtom);
-  const { pathname } = useLocation();
 
   useEffect(() => {
     // remove all items with path length 0
@@ -47,16 +46,20 @@ export const CtrlKModal = () => {
     );
   }, [states.length]);
 
+  const { pathname } = useLocation();
   useEffect(() => {
     // Close all modals on path change
-    setStates((states) => states.filter((_, i) => i === 0));
+    setStates(() => []);
   }, [pathname]);
 
   return states.map((state, index) => {
     const setState = (newState: CtrlKStateType<any>) => {
       setStates((states) => {
         const newStates = [...states];
-        newStates[index] = newState;
+        const targetIndex = newStates.findIndex((s) => s.id === state.id);
+        if (targetIndex !== -1) {
+          newStates[targetIndex] = newState;
+        }
         return newStates;
       });
     };
@@ -64,8 +67,9 @@ export const CtrlKModal = () => {
     const currentState = state.path?.[state.path?.length - 1] || {};
     return (
       <Modal
-        key={index}
+        key={state.id || index}
         open={(state.path?.length || 0) > 0}
+        closable={false}
         onClose={() => {
           setState({
             ...state,
@@ -87,13 +91,13 @@ export const CtrlKModal = () => {
       >
         <DraftContext.Provider
           value={{
-            key: "ctrlk_" + index + "_" + state.path?.length,
+            key: "ctrlk_" + (state.id || index) + "_" + state.path?.length,
             isModal: true,
           }}
         >
           {currentState.mode !== "editor" && (
             <div className="-m-6" style={{ maxHeight: "inherit" }}>
-              <SearchCtrlK index={index} />
+              <SearchCtrlK stateId={state.id || `fallback_${index}`} />
             </div>
           )}
           {currentState.mode === "editor" && (
@@ -104,7 +108,7 @@ export const CtrlKModal = () => {
                 height: "calc(100vh - 100px)",
               }}
             >
-              <ModalEditor index={index} />
+              <ModalEditor stateId={state.id || `fallback_${index}`} />
             </div>
           )}
         </DraftContext.Provider>

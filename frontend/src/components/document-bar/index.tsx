@@ -2,7 +2,7 @@ import { Button } from "@atoms/button/button";
 import { DropDownAtom, DropDownMenuType } from "@atoms/dropdown";
 import { withModel } from "@components/search-bar/utils/as-model";
 import { useRegisterActiveSelection } from "@features/ctrlk/use-register-current-selection";
-import { getRoute } from "@features/routes";
+import { entityRoutes, getRoute } from "@features/routes";
 import { copyToClipboard } from "@features/utils/clipboard";
 import { formatTime } from "@features/utils/format/dates";
 import { useLastLocations } from "@features/utils/hooks/use-navigation-history";
@@ -25,9 +25,8 @@ import _ from "lodash";
 import { useContext, useEffect } from "react";
 import toast from "react-hot-toast";
 import { useSetRecoilState } from "recoil";
-import { DocumentBarNav } from "./nav";
 import { DraftContext } from "../../features/utils/rest/hooks/use-draft-rest";
-import { Link } from "react-router-dom";
+import { DocumentBarNav } from "./nav";
 
 export const DocumentBar = ({
   mode,
@@ -60,6 +59,9 @@ export const DocumentBar = ({
   const isRevision = document?.id?.includes("~");
   const revision = document?.id?.split("~")[1];
   const { isModal } = useContext(DraftContext);
+
+  props.editRoute = props.editRoute || entityRoutes[entity]?.edit;
+  props.viewRoute = props.viewRoute || entityRoutes[entity]?.view;
 
   const setMenu = useSetRecoilState(DropDownAtom);
 
@@ -132,7 +134,7 @@ export const DocumentBar = ({
           }
           onClick={cancel}
         />
-        {mode === "read" && (
+        {mode === "read" && !isModal && (
           <DocumentBarNav
             entity={entity}
             id={document?.id}
@@ -280,18 +282,21 @@ export const DocumentBar = ({
               onClick={props.onPrint}
             />
           )}
-          {!isRevision && !document.is_deleted && mode === "read" && (
-            <Button
-              data-tooltip="Modifier"
-              size="xs"
-              theme="invisible"
-              shortcut={["e"]}
-              onClick={async () =>
-                navigate(getRoute(props.editRoute || "", { id: document.id }))
-              }
-              icon={(p) => <PencilSquareIcon {...p} />}
-            />
-          )}
+          {!isRevision &&
+            !document.is_deleted &&
+            mode === "read" &&
+            !!props.editRoute && (
+              <Button
+                data-tooltip="Modifier"
+                size="xs"
+                theme="invisible"
+                shortcut={["e"]}
+                onClick={async () =>
+                  navigate(getRoute(props.editRoute || "", { id: document.id }))
+                }
+                icon={(p) => <PencilSquareIcon {...p} />}
+              />
+            )}
           {!isRevision && !document.is_deleted && !!actionMenu.length && (
             <Button
               size="xs"

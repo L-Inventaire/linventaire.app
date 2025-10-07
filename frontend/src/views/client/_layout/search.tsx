@@ -2,7 +2,7 @@ import { Button } from "@atoms/button/button";
 import { InputDecorationIcon } from "@atoms/input/input-decoration-icon";
 import { Input } from "@atoms/input/input-text";
 import { Info } from "@atoms/text";
-import { CtrlKAtom } from "@features/ctrlk/store";
+import { CtrlKAtom, generateUniqueStateId } from "@features/ctrlk/store";
 import { showShortCut } from "@features/utils/shortcuts";
 import { Squares2X2Icon } from "@heroicons/react/24/outline";
 import { useRef } from "react";
@@ -34,6 +34,7 @@ export const Search = () => {
                 ...states,
                 {
                   ...(states[states.length - 1] || {}),
+                  id: generateUniqueStateId(),
                   path: [
                     {
                       mode: "action",
@@ -56,6 +57,7 @@ export const Search = () => {
               ...states,
               {
                 ...(states[states.length - 1] || {}),
+                id: generateUniqueStateId(),
                 path: [
                   {
                     mode: "action",

@@ -63,7 +63,7 @@ const RenderInvoiceCard = ({
   return (
     <div className="whitespace-normal">
       {invoices?.map((invoice) => (
-        <div className="line-clamp-1 text-ellipsis">
+        <div className="line-clamp-1 text-ellipsis" key={invoice.id}>
           {[
             invoice?.reference,
             getContactName(

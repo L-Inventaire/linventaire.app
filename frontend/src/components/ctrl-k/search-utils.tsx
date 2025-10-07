@@ -6,18 +6,25 @@ import { CtrlKOptionsType } from "@features/ctrlk/types";
 import { CtrlKAtom } from "@features/ctrlk/store";
 import { useTranslation } from "react-i18next";
 
-export const useSearchableEntities = (index: number) => {
+export const useSearchableEntities = (stateId: string) => {
   const { t } = useTranslation();
   const [states, setStates] = useRecoilState(CtrlKAtom);
 
-  const state = states[index];
+  const state = states.find((s) => s.id === stateId);
   const setState = (newState: any) => {
     setStates((states) => {
       const newStates = [...states];
-      newStates[index] = newState;
+      const targetIndex = newStates.findIndex((s) => s.id === stateId);
+      if (targetIndex !== -1) {
+        newStates[targetIndex] = newState;
+      }
       return newStates;
     });
   };
+
+  if (!state) {
+    return []; // Return empty array if state not found
+  }
 
   const getAction =
     (entity: string, query?: string, internalQuery?: any) => () => {

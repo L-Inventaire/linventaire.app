@@ -166,10 +166,10 @@ export const generateWhereClause = (
           case "lte":
             // For JSONB arrays it will be the number of items in the array
             if (isJsonbArray) {
-              clause = `jsonb_array_length(coalesce(${columnName.replace(
+              clause = `jsonb_array_length(coalesce((${columnName.replace(
                 /->>/gm,
                 "->"
-              )}::jsonb, '[]'::jsonb)) ${
+              )})::jsonb, '[]'::jsonb)) ${
                 value.op === "gte" ? ">=" : "<="
               } $${counter}`;
             } else if (isArray) {
@@ -185,14 +185,14 @@ export const generateWhereClause = (
             break;
           case "range":
             if (isJsonbArray) {
-              clause = `(jsonb_array_length(coalesce(${columnName.replace(
+              clause = `(jsonb_array_length(coalesce((${columnName.replace(
                 /->>/gm,
                 "->"
-              )}::jsonb, '[]'::jsonb)) >= $${counter}
-        AND jsonb_array_length(coalesce(${columnName.replace(
+              )})::jsonb, '[]'::jsonb)) >= $${counter}
+        AND jsonb_array_length(coalesce((${columnName.replace(
           /->>/gm,
           "->"
-        )}::jsonb, '[]'::jsonb)) <= $${counter + 1})`;
+        )})::jsonb, '[]'::jsonb)) <= $${counter + 1})`;
             } else if (isArray) {
               clause = `(array_length(coalesce(${columnName}, '{}'), 1) >= $${counter}
         AND array_length(coalesce(${columnName}, '{}'), 1) <= $${counter + 1})`;
