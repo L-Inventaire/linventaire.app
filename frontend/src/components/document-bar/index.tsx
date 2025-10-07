@@ -11,6 +11,7 @@ import { RestEntity } from "@features/utils/rest/types/types";
 import { ArrowLeftIcon } from "@heroicons/react/20/solid";
 import {
   ArchiveBoxArrowDownIcon,
+  ArrowsPointingOutIcon,
   ArrowUturnLeftIcon,
   DocumentDuplicateIcon,
   EllipsisHorizontalIcon,
@@ -21,10 +22,12 @@ import {
 } from "@heroicons/react/24/outline";
 import { Badge, Separator } from "@radix-ui/themes";
 import _ from "lodash";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import toast from "react-hot-toast";
 import { useSetRecoilState } from "recoil";
 import { DocumentBarNav } from "./nav";
+import { DraftContext } from "../../features/utils/rest/hooks/use-draft-rest";
+import { Link } from "react-router-dom";
 
 export const DocumentBar = ({
   mode,
@@ -56,6 +59,7 @@ export const DocumentBar = ({
 }) => {
   const isRevision = document?.id?.includes("~");
   const revision = document?.id?.split("~")[1];
+  const { isModal } = useContext(DraftContext);
 
   const setMenu = useSetRecoilState(DropDownAtom);
 
@@ -103,18 +107,18 @@ export const DocumentBar = ({
       : []),
   ] as DropDownMenuType;
 
-  const registerActiveSelection = useRegisterActiveSelection();
+  const { register, unregister } = useRegisterActiveSelection();
   useEffect(() => {
     setTimeout(() => {
-      registerActiveSelection(entity, [document]);
+      register(entity, [document]);
     }, 100);
-    return () => registerActiveSelection(entity, []);
+    return () => unregister();
   }, []);
 
   if (!document) return null;
 
   return (
-    <div className="items-center flex grow space-x-2 px-3 text-base h-12">
+    <div className="items-center flex grow space-x-2 px-3 text-base h-12 draggable-handle">
       <div className="flex items-center space-x-1">
         <Button
           data-tooltip="Retour"
@@ -255,6 +259,16 @@ export const DocumentBar = ({
                   "Lien copié dans le presse-papier"
                 )
               }
+            />
+          )}
+          {isModal && document?.id && props.viewRoute && (
+            <Button
+              data-tooltip="Ouvrir en pleine page"
+              size="xs"
+              className="m-0.5"
+              theme="invisible"
+              to={getRoute(props.viewRoute, { id: document.id })}
+              icon={(p) => <ArrowsPointingOutIcon {...p} />}
             />
           )}
           {props.onPrint && (

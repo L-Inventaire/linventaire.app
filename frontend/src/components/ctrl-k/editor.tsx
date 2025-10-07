@@ -22,8 +22,8 @@ export const ModalEditor = (props: { index: number }) => {
     });
   };
 
-  const currentState = state.path[state.path.length - 1] || {};
-  const previousState = state.path[state.path.length - 2] || {};
+  const currentState = state.path?.[state.path?.length - 1] || {};
+  const previousState = state.path?.[state.path?.length - 2] || {};
 
   const defaultData =
     CtrlKRestEntities[currentState.options?.entity || ""]?.useDefaultData?.() ||

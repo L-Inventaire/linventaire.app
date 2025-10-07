@@ -55,7 +55,7 @@ export const SearchCtrlK = ({ index }: { index: number }) => {
   };
 
   const { t } = useTranslation();
-  const currentState = state.path[state.path.length - 1] || {};
+  const currentState = state.path?.[state.path?.length - 1] || {};
   const currentEntity = currentState.options?.entity;
   const [selection, setSelection] = useState<RestEntity[]>(
     currentState.options?.selected || []

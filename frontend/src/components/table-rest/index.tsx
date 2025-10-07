@@ -16,9 +16,9 @@ export const RestTable = <T,>(
   }
 ) => {
   const openCtrlK = useSetRecoilState(CtrlKAtom);
-  const registerActiveSelection = useRegisterActiveSelection();
+  const { register, unregister, runActions } = useRegisterActiveSelection();
   useEffect(() => {
-    return () => registerActiveSelection(props.entity, []);
+    return () => unregister();
   }, []);
 
   return (
@@ -28,20 +28,8 @@ export const RestTable = <T,>(
       data={props.data?.data?.list || []}
       total={props.data?.data?.total || 0}
       rowIndex="id"
-      onSelect={(items) => registerActiveSelection(props.entity, items)}
-      onSelectedActionsClick={() =>
-        openCtrlK((states) => [
-          ...states,
-          {
-            ...(states[states.length - 1] || {}),
-            path: [
-              {
-                mode: "action",
-              },
-            ],
-          },
-        ])
-      }
+      onSelect={(items) => register(props.entity, items)}
+      onSelectedActionsClick={() => runActions()}
     />
   );
 };

@@ -1,17 +1,52 @@
-import { useSetRecoilState } from "recoil";
+import _ from "lodash";
+import { useEffect, useRef } from "react";
+import { useRecoilState } from "recoil";
 import { CtrlKAtom } from "./store";
 
 export const useRegisterActiveSelection = <T>() => {
-  const setCtrlK = useSetRecoilState(CtrlKAtom);
+  const [state, setCtrlK] = useRecoilState(CtrlKAtom);
+  const indexRef = useRef(state.length - 1);
 
-  return (entity: string, items: T[]) =>
+  useEffect(() => {
     setCtrlK((states) => {
-      // If already open we don't want to override the current selection
-      if ((states[states.length - 1]?.path?.length || 0) > 0) return states;
-
-      return [
-        ...(states.filter((a) => a.path.length > 0) || []),
-        { ...(states[states.length - 1] || {}), selection: { entity, items } },
-      ];
+      if (!states[indexRef.current]) {
+        states = [
+          ...states,
+          { path: [], selection: { entity: "", items: [] } },
+        ];
+      }
+      return states;
     });
+  }, [setCtrlK]);
+
+  return {
+    register: (entity: string, items: T[]) =>
+      setCtrlK((states) => {
+        const newStates = _.cloneDeep(states);
+        if (!newStates[indexRef.current]) {
+          newStates[indexRef.current] = {
+            path: [],
+            selection: { entity: "", items: [] },
+          };
+        }
+        newStates[indexRef.current].selection = { entity, items };
+        return newStates;
+      }),
+    unregister: () =>
+      setCtrlK((states) => {
+        // Remove state at indexRef.current
+        return states.filter((_, i) => i !== indexRef.current);
+      }),
+    runActions: () => {
+      setCtrlK((states) => {
+        const newStates = _.cloneDeep(states);
+        newStates[indexRef.current].path = [
+          {
+            mode: "action",
+          },
+        ];
+        return newStates;
+      });
+    },
+  };
 };

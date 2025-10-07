@@ -1,11 +1,12 @@
 import { Modal } from "@atoms/modal/modal";
 import { CtrlKAtom } from "@features/ctrlk/store";
+import { CtrlKStateType } from "@features/ctrlk/types";
+import { DraftContext } from "@features/utils/rest/hooks/use-draft-rest";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { useRecoilState } from "recoil";
 import { ModalEditor } from "./editor";
 import { SearchCtrlK } from "./search";
-import { CtrlKStateType } from "@features/ctrlk/types";
-import { useEffect } from "react";
-import { DraftContext } from "@features/utils/rest/hooks/use-draft-rest";
 
 /*
 [selection] Scenario 1:
@@ -37,6 +38,7 @@ import { DraftContext } from "@features/utils/rest/hooks/use-draft-rest";
 
 export const CtrlKModal = () => {
   const [states, setStates] = useRecoilState(CtrlKAtom);
+  const { pathname } = useLocation();
 
   useEffect(() => {
     // remove all items with path length 0
@@ -45,25 +47,34 @@ export const CtrlKModal = () => {
     );
   }, [states.length]);
 
+  useEffect(() => {
+    // Close all modals on path change
+    setStates((states) => states.filter((_, i) => i === 0));
+  }, [pathname]);
+
+  console.log(JSON.stringify(states, null, 2));
+
   return states.map((state, index) => {
     const setState = (newState: CtrlKStateType<any>) => {
       setStates((states) => {
+        console.log("SET STATE", JSON.stringify(newState, null, 2));
         const newStates = [...states];
         newStates[index] = newState;
+        console.log("SETED STATE", JSON.stringify(newStates, null, 2));
+
         return newStates;
       });
     };
 
-    const currentState = state.path[state.path.length - 1] || {};
+    const currentState = state.path?.[state.path?.length - 1] || {};
     return (
       <Modal
         key={index}
-        open={state.path.length > 0}
-        closable={false}
+        open={(state.path?.length || 0) > 0}
         onClose={() => {
           setState({
             ...state,
-            path: [],
+            path: state.path.slice(0, state.path.length - 1),
           });
         }}
         positioned
@@ -80,7 +91,10 @@ export const CtrlKModal = () => {
         }}
       >
         <DraftContext.Provider
-          value={{ key: "ctrlk_" + index + "_" + state.path.length }}
+          value={{
+            key: "ctrlk_" + index + "_" + state.path?.length,
+            isModal: true,
+          }}
         >
           {currentState.mode !== "editor" && (
             <div className="-m-6" style={{ maxHeight: "inherit" }}>
