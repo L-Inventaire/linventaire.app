@@ -441,11 +441,11 @@ export const InvoicesFieldsNames = () => ({
   },
   "total.total": {
     label: "Total HT",
-    keywords: "total ht",
+    keywords: "total ht montant prix",
   },
   "total.total_with_taxes": {
     label: "Total TTC",
-    keywords: "total ttc",
+    keywords: "total ttc montant prix",
   },
   client: {
     label: "Client",

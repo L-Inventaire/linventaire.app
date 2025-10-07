@@ -165,6 +165,14 @@ export default class DbPostgres implements DbAdapterInterface {
               this.client,
               `ALTER TABLE ${name} ALTER COLUMN ${col.name} TYPE ${col.type}`
             );
+
+            if (!col.type.includes("DEFAULT") && col.type.includes("[]")) {
+              await this.query(
+                null,
+                this.client,
+                `ALTER TABLE ${name} ALTER COLUMN ${col.name} SET DEFAULT '{}'`
+              );
+            }
           } catch (typeError) {
             this.logger.info(
               null,

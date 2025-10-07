@@ -1,11 +1,11 @@
+import { flattenKeys } from "@features/utils/flatten";
+import { getPeriodEnd } from "@features/utils/format/dates";
 import {
   RestSearchQuery,
   RestSearchQueryOp,
 } from "@features/utils/rest/hooks/use-rest";
-import { MatchedStringFilter, OutputQuery, SearchField } from "./types";
-import { flattenKeys } from "@features/utils/flatten";
-import { getPeriodEnd } from "@features/utils/format/dates";
 import _ from "lodash";
+import { MatchedStringFilter, OutputQuery, SearchField } from "./types";
 
 export const schemaToSearchFields = (
   schema: any,
@@ -127,6 +127,37 @@ export const generateQuery = (
             if (field?.type === "text" || field?.type?.indexOf("type:") === 0) {
               const isRegex = a.regex;
               value = value.replace(/(^~?"|"$)/g, "");
+
+              let [min, max] = value
+                .split("->")
+                .map((s) => s.replace(/(>|<|=)/g, "")) as [
+                string | number | Date | null,
+                string | number | Date | null
+              ];
+
+              if (value.startsWith(">=") && !`${min}`.match(/[^0-9]/)) {
+                return {
+                  op: "gte" as RestSearchQueryOp,
+                  value: parseInt(`${min || 0}`),
+                };
+              }
+              if (value.startsWith("<=") && !`${min}`.match(/[^0-9]/)) {
+                return {
+                  op: "lte" as RestSearchQueryOp,
+                  value: parseInt(`${min || 0}`),
+                };
+              }
+              if (
+                value.includes("->") &&
+                !`${min}`.match(/[^0-9]/) &&
+                !`${max}`.match(/[^0-9]/)
+              ) {
+                return {
+                  op: "range" as RestSearchQueryOp,
+                  value: [parseInt(`${min || 0}`), parseInt(`${max || 0}`)],
+                };
+              }
+
               return {
                 op: (isRegex ? "regex" : "equals") as RestSearchQueryOp,
                 value,

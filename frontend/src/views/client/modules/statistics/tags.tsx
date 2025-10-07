@@ -43,7 +43,11 @@ export const TagsPage = ({ year }: { year: number }) => {
       month !== undefined
         ? `emit_date:${format(new Date(year, month, 1), "yyyy-MM")}`
         : "",
-      tag ? `articles.computed_tags:"${tag.name}"` : "",
+      tag
+        ? tag.id === "multiple"
+          ? `articles.computed_tags:>=2`
+          : `articles.computed_tags:"${tag.id === "untagged" ? "" : tag.name}"`
+        : "",
     ]
       .filter(Boolean)
       .join(" ");

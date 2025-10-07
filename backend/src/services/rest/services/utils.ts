@@ -77,10 +77,12 @@ export const generateWhereClause = (
     if (schemaColumnType.match(/^type:/)) {
       query.values = [
         ...query.values,
-        ...query.values.map((a) => ({
-          op: a.op,
-          value: schemaColumnType.split(":").pop() + ":" + a.value,
-        })),
+        ...query.values
+          .filter((a) => a.op === "equals" || a.op === "regex")
+          .map((a) => ({
+            op: a.op,
+            value: schemaColumnType.split(":").pop() + ":" + a.value,
+          })),
       ];
     }
 
@@ -154,19 +156,51 @@ export const generateWhereClause = (
             clause = `((${columnName})::text % $${counter} OR (${columnName})::text ~ $${
               counter + 1
             })`;
+
+            // We'll copy the value as it is used twice here
             values.push(value.value);
             counter++;
+
             break;
           case "gte":
           case "lte":
-            clause = `${columnName} ${
-              value.op === "gte" ? ">=" : "<="
-            } $${counter}`;
+            // For JSONB arrays it will be the number of items in the array
+            if (isJsonbArray) {
+              clause = `jsonb_array_length(coalesce(${columnName.replace(
+                /->>/gm,
+                "->"
+              )}::jsonb, '[]'::jsonb)) ${
+                value.op === "gte" ? ">=" : "<="
+              } $${counter}`;
+            } else if (isArray) {
+              // Compare array length
+              clause = `array_length(coalesce(${columnName}, '{}'), 1) ${
+                value.op === "gte" ? ">=" : "<="
+              } $${counter}`;
+            } else {
+              clause = `${columnName} ${
+                value.op === "gte" ? ">=" : "<="
+              } $${counter}`;
+            }
             break;
           case "range":
-            clause = `(${columnName} >= $${counter} AND ${columnName} <= $${
-              counter + 1
-            })`;
+            if (isJsonbArray) {
+              clause = `(jsonb_array_length(coalesce(${columnName.replace(
+                /->>/gm,
+                "->"
+              )}::jsonb, '[]'::jsonb)) >= $${counter}
+        AND jsonb_array_length(coalesce(${columnName.replace(
+          /->>/gm,
+          "->"
+        )}::jsonb, '[]'::jsonb)) <= $${counter + 1})`;
+            } else if (isArray) {
+              clause = `(array_length(coalesce(${columnName}, '{}'), 1) >= $${counter}
+        AND array_length(coalesce(${columnName}, '{}'), 1) <= $${counter + 1})`;
+            } else {
+              clause = `(${columnName} >= $${counter} AND ${columnName} <= $${
+                counter + 1
+              })`;
+            }
             break;
         }
 
