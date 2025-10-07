@@ -19,6 +19,10 @@ type CRMColumnProps = {
   type: "new" | "qualified" | "proposal" | "won";
   collapsed?: boolean;
   count?: number;
+  onLoadMore?: () => void;
+  onLoadPrevious?: () => void;
+  canLoadMore?: boolean;
+  canLoadPrevious?: boolean;
 } & React.HTMLAttributes<HTMLDivElement>;
 
 const getColumnColor = (type: "new" | "qualified" | "proposal" | "won") => {
@@ -89,6 +93,10 @@ export const CRMColumn = ({
   type,
   collapsed = false,
   count,
+  onLoadMore,
+  onLoadPrevious,
+  canLoadMore = false,
+  canLoadPrevious = false,
   ...props
 }: CRMColumnProps) => {
   const [{ isOver }, dropRef] = useDrop(
@@ -214,9 +222,14 @@ export const CRMColumn = ({
         </div>
 
         <div className="flex-1 grow space-y-2">
-          {count !== undefined && items.length < count && (
+          {canLoadPrevious && (
             <div className="flex justify-center">
-              <Button size="sm" className="mx-auto mt-2" theme="outlined">
+              <Button
+                size="sm"
+                className="mx-auto mt-2"
+                theme="outlined"
+                onClick={onLoadPrevious}
+              >
                 Charger les éléments précédents
               </Button>
             </div>
@@ -231,9 +244,14 @@ export const CRMColumn = ({
             />
           ))}
 
-          {count !== undefined && items.length < count && (
+          {canLoadMore && (
             <div className="flex justify-center">
-              <Button size="sm" className="mx-auto mt-2" theme="outlined">
+              <Button
+                size="sm"
+                className="mx-auto mt-2"
+                theme="outlined"
+                onClick={onLoadMore}
+              >
                 Charger les éléments suivants
               </Button>
             </div>
