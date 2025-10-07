@@ -136,7 +136,7 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
   if (
     options?.query &&
     _.isArray(options?.query) &&
-    options?.query?.find((a) => a.key === "is_deleted")?.values[0].value ===
+    options?.query?.find((a) => a.key === "is_deleted")?.values?.[0]?.value ===
       true
   ) {
     options.deleted = true;

@@ -1,15 +1,14 @@
 import { Button } from "@atoms/button/button";
 import { DocumentBar } from "@components/document-bar";
-import { getUrlModel, withModel } from "@components/search-bar/utils/as-model";
+import { withModel } from "@components/search-bar/utils/as-model";
 import { useHasAccess } from "@features/access";
 import { useClients } from "@features/clients/state/use-clients";
-import { useInvoiceDefaultModel } from "@features/invoices/configuration";
 import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
 import { ROUTES, getRoute } from "@features/routes";
-import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
+import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import _ from "lodash";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getPdfPreview } from "../components/invoices-preview/invoices-preview";
 
@@ -29,9 +28,9 @@ export const InvoicesDocumentBar = ({
   const { client: clientId } = useParams();
   const hasAccess = useHasAccess();
 
-  if (!invoice) return <></>;
-
   if (readonly) {
+    if (!invoice) return <></>;
+
     // Invoices has a special access right system
     const hasWriteType =
       invoice.type === "invoices" || invoice.type === "credit_notes"
@@ -141,29 +140,9 @@ const InvoicesDocumentBarEdition = ({
   }, []);
 
   id = id === "new" ? "" : id || "";
-  const navigate = useNavigate();
 
-  const defaultModel = useRef(useInvoiceDefaultModel()).current;
-  const initialModel = getUrlModel<Invoices>();
-
-  const { isInitiating, save, draft, remove, restore } = useDraftRest<Invoices>(
-    "invoices",
-    id || "new",
-    async (item) => {
-      navigate(getRoute(ROUTES.InvoicesView, { id: item.id }));
-    },
-    _.omit(
-      _.merge(defaultModel, {
-        ...initialModel,
-        content: (initialModel.content || []).map((a) => ({
-          ...a,
-          quantity_delivered: 0,
-          quantity_ready: 0,
-        })),
-      }),
-      "reference"
-    ) as Invoices
-  );
+  const { isInitiating, save, draft, remove, restore } =
+    useReadDraftRest<Invoices>("invoices", id || "new", false);
 
   return (
     <DocumentBar

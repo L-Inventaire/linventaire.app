@@ -14,11 +14,9 @@ import { formatAmount } from "@features/utils/format/strings";
 import { RestFieldsNames } from "@features/utils/rest/configuration";
 import { getRestApiClient } from "@features/utils/rest/hooks/use-rest";
 import {
-  ArchiveBoxArrowDownIcon,
   ArrowPathIcon,
   CheckIcon,
   RectangleStackIcon,
-  TrashIcon,
 } from "@heroicons/react/16/solid";
 import { Column } from "@molecules/table/table";
 import { Badge } from "@radix-ui/themes";
@@ -41,6 +39,7 @@ import { InvoicesViewPage } from "@views/client/modules/invoices/view";
 import { format } from "date-fns";
 import _ from "lodash";
 import toast from "react-hot-toast";
+import { setDefaultRestActions } from "../utils/rest/utils";
 import { InvoicesApiClient } from "./api-client/invoices-api-client";
 import { Invoices } from "./types/types";
 
@@ -319,9 +318,9 @@ registerCtrlKRestEntity<Invoices>("invoices", {
           };
           for (const row of rows) {
             const partial = await InvoicesApiClient.getPartialInvoice(row);
-            invoice.content?.push(...(partial.partial_invoice.content || []));
+            invoice.content?.push(...(partial.partial_invoice?.content || []));
             invoice.discount!.value +=
-              partial.partial_invoice.discount?.value || 0;
+              partial.partial_invoice?.discount?.value || 0;
           }
           document.location = withModel<Invoices>(
             getRoute(ROUTES.InvoicesEdit, {
@@ -355,43 +354,7 @@ registerCtrlKRestEntity<Invoices>("invoices", {
       } as CtrlkAction);
     }
 
-    if (rows.every((a) => !a.is_deleted)) {
-      actions.push({
-        label: "Supprimer",
-        icon: (p) => <TrashIcon {...p} />,
-        action: async () => {
-          const table = "invoices";
-          const rest = getRestApiClient(table);
-          for (const row of rows) {
-            try {
-              await rest.delete(row.client_id, row.id);
-            } catch (e) {
-              toast.error("Erreur lors de la mise à jour de la facture");
-            }
-          }
-          queryClient.invalidateQueries({ queryKey: [table] });
-        },
-      } as CtrlkAction);
-    }
-
-    if (rows.every((a) => a.is_deleted)) {
-      actions.push({
-        label: "Restaurer",
-        icon: (p) => <ArchiveBoxArrowDownIcon {...p} />,
-        action: async () => {
-          const table = "invoices";
-          const rest = getRestApiClient(table);
-          for (const row of rows) {
-            try {
-              await rest.restore(row.client_id, row.id);
-            } catch (e) {
-              toast.error("Erreur lors de la mise à jour de la facture");
-            }
-          }
-          queryClient.invalidateQueries({ queryKey: [table] });
-        },
-      } as CtrlkAction);
-    }
+    setDefaultRestActions(actions, "invoices", rows, queryClient);
 
     return [...actions];
   },

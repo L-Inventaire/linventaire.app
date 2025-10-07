@@ -33,7 +33,7 @@ export const CRMEditPage = (_props: { readonly?: boolean }) => {
     async (item) => {
       navigate(getRoute(ROUTES.CRMView, { id: item.id }));
     },
-    _.merge(defaultModel, initialModel) as CRMItem
+    _.merge({}, defaultModel, initialModel) as CRMItem
   );
 
   return (

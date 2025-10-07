@@ -53,7 +53,10 @@ export const ServiceItemsEditPage = (_props: { readonly?: boolean }) => {
         }
         navigate(getRoute(ROUTES.ServiceItemsView, { id: item.id }));
       },
-      _.omit(_.merge(defaultModel, initialModel), "reference") as ServiceItems
+      _.omit(
+        _.merge({}, defaultModel, initialModel),
+        "reference"
+      ) as ServiceItems
     );
 
   return (

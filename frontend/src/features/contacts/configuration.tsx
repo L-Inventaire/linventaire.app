@@ -2,7 +2,7 @@ import { Button } from "@atoms/button/button";
 import { RestDocumentsInput } from "@components/input-rest";
 import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
-import { registerCtrlKRestEntity } from "@features/ctrlk";
+import { CtrlkAction, registerCtrlKRestEntity } from "@features/ctrlk";
 import { ROUTES } from "@features/routes";
 import { RestFieldsNames } from "@features/utils/rest/configuration";
 import {
@@ -17,6 +17,7 @@ import {
 import { Column } from "@molecules/table/table";
 import { ContactsDetailsPage } from "@views/client/modules/contacts/components/contact-details";
 import { Contacts, getContactName } from "./types/types";
+import { setDefaultRestActions } from "../utils/rest/utils";
 
 export const useContactDefaultModel: () => Partial<Contacts> = () => ({
   type: "company",
@@ -131,6 +132,11 @@ registerCtrlKRestEntity<Contacts>("contacts", {
   renderResult: ContactsColumns,
   useDefaultData: useContactDefaultModel,
   viewRoute: ROUTES.ContactsView,
+  actions: (rows, queryClient) => {
+    const actions: CtrlkAction[] = [];
+    setDefaultRestActions(actions, "contacts", rows, queryClient);
+    return actions;
+  },
 });
 
 export const ContactsFieldsNames = () => ({

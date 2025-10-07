@@ -52,16 +52,11 @@ export const CtrlKModal = () => {
     setStates((states) => states.filter((_, i) => i === 0));
   }, [pathname]);
 
-  console.log(JSON.stringify(states, null, 2));
-
   return states.map((state, index) => {
     const setState = (newState: CtrlKStateType<any>) => {
       setStates((states) => {
-        console.log("SET STATE", JSON.stringify(newState, null, 2));
         const newStates = [...states];
         newStates[index] = newState;
-        console.log("SETED STATE", JSON.stringify(newStates, null, 2));
-
         return newStates;
       });
     };

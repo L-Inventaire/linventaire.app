@@ -37,7 +37,7 @@ export const AccountingTransactionsEditPage = (_props: {
         navigate(getRoute(ROUTES.AccountingView, { id: item.id }));
       },
       _.omit(
-        _.merge(defaultModel, initialModel),
+        _.merge({}, defaultModel, initialModel),
         "reference"
       ) as AccountingTransactions
     );

@@ -37,7 +37,7 @@ export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
       navigate(getRoute(ROUTES.InvoicesView, { id: item.id }));
     },
     _.omit(
-      _.merge(defaultModel, {
+      _.merge({}, defaultModel, {
         ...initialModel,
         content: (initialModel.content || []).map((a) => ({
           ...a,
@@ -59,9 +59,6 @@ export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
         },
         { label: id ? "Modifier" : "Créer" },
       ]}
-      footer={
-        isRevision ? undefined : <InvoiceActions id={id} readonly={false} />
-      }
       bar={<InvoicesDocumentBar id={id} />}
     >
       <div className="mt-6" />

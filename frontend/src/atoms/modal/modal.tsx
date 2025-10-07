@@ -127,29 +127,13 @@ export const Modal = (props: {
                     </span>
                   )
                 }
-                <Transition.Child
-                  as={Fragment}
-                  enter="ease-out duration-200"
-                  enterFrom={
-                    "opacity-0 pointer-events-none sm:translate-y-0 translate-y-4 sm:scale-95"
-                  }
-                  enterTo="opacity-100 translate-y-0 sm:scale-100"
-                  leave="ease-in duration-200"
-                  leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-                  leaveTo={
-                    "opacity-0 pointer-events-none sm:translate-y-0 translate-y-4 sm:scale-95"
-                  }
-                >
-                  <div>
-                    <ModalBody
-                      key={modalId.current}
-                      open={open}
-                      level={level}
-                      active={isTopmostModal}
-                      {...props}
-                    />
-                  </div>
-                </Transition.Child>
+                <ModalBody
+                  key={modalId.current}
+                  open={open}
+                  level={level}
+                  active={isTopmostModal}
+                  {...props}
+                />
               </div>
             </div>
           </div>
@@ -227,42 +211,56 @@ const ModalBody = ({
   }, [handleMouseDown, handleMouseUp]);
 
   return (
-    <div
-      ref={draggableRef}
-      style={props.style || {}}
-      className={
-        "align-bottom bg-white dark:bg-slate-950 text-left w-full overflow-visible shadow-xl transform sm:align-middle " +
-        "relative inline-block rounded-tr-md rounded-tl-md sm:rounded-lg sm:my-8 w-full md:w-[95vw] sm:max-w-[400px] " +
-        "dark:border-slate-700 dark:border " +
-        (props.className || "")
+    <Transition.Child
+      as={Fragment}
+      enter="ease-out duration-200"
+      enterFrom={
+        "opacity-0 pointer-events-none sm:translate-y-0 translate-y-4 sm:scale-95"
+      }
+      enterTo="opacity-100 translate-y-0 sm:scale-100"
+      leave="ease-in duration-200"
+      leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+      leaveTo={
+        "opacity-0 pointer-events-none sm:translate-y-0 translate-y-4 sm:scale-95"
       }
     >
       <div
-        className="h-2 w-full absolute top-0 left-0 z-10 pointer-events-none"
-        ref={dragHandleRef}
-        title="Drag to move modal, double-click to center"
-        style={{
-          background: "transparent",
-          pointerEvents: "auto",
-          cursor: "move",
-        }}
-      ></div>
-      {open && <ModalContext level={level.toString()} />}
-      {props.closable !== false && open && (
-        <div className="z-30 absolute top-0 right-1 pt-4 pr-4">
-          <Button
-            onClick={props.onClose}
-            size="sm"
-            theme="invisible"
-            icon={(p) => <XMarkIcon {...p} />}
-            shortcut={["esc"]}
-          />
-        </div>
-      )}
-      <ErrorBoundary>
-        <div className="px-4 pt-5 pb-4 sm:p-6">{props.children}</div>
-      </ErrorBoundary>
-    </div>
+        ref={draggableRef}
+        style={props.style || {}}
+        className={
+          "align-bottom bg-white dark:bg-slate-950 text-left w-full overflow-visible shadow-xl transform sm:align-middle " +
+          "relative inline-block rounded-tr-md rounded-tl-md sm:rounded-lg sm:my-8 w-full md:w-[95vw] sm:max-w-[400px] " +
+          "dark:border-slate-700 dark:border " +
+          (props.className || "")
+        }
+      >
+        <div
+          className="h-2 w-full absolute top-0 left-0 z-10 pointer-events-none"
+          ref={dragHandleRef}
+          title="Drag to move modal, double-click to center"
+          style={{
+            background: "transparent",
+            pointerEvents: "auto",
+            cursor: "move",
+          }}
+        ></div>
+        {open && <ModalContext level={level.toString()} />}
+        {props.closable !== false && open && (
+          <div className="z-30 absolute top-0 right-1 pt-4 pr-4">
+            <Button
+              onClick={props.onClose}
+              size="sm"
+              theme="invisible"
+              icon={(p) => <XMarkIcon {...p} />}
+              shortcut={["esc"]}
+            />
+          </div>
+        )}
+        <ErrorBoundary>
+          <div className="px-4 pt-5 pb-4 sm:p-6">{props.children}</div>
+        </ErrorBoundary>
+      </div>
+    </Transition.Child>
   );
 };
 

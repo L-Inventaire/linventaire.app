@@ -34,7 +34,7 @@ export const ArticlesEditPage = (_props: { readonly?: boolean }) => {
     async (item) => {
       navigate(getRoute(ROUTES.ProductsView, { id: item.id }));
     },
-    _.merge(defaultModel, initialModel) as Articles
+    _.merge({}, defaultModel, initialModel) as Articles
   );
 
   return (

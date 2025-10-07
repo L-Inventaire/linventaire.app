@@ -1,9 +1,14 @@
-import { ContextId, registerCtrlKRestEntity } from "@features/ctrlk";
+import {
+  ContextId,
+  CtrlkAction,
+  registerCtrlKRestEntity,
+} from "@features/ctrlk";
 import { ROUTES } from "@features/routes";
 import { CRMDetails } from "@views/client/modules/crm/components/crm-details";
 import { CRMEditPage } from "@views/client/modules/crm/edit";
 import { CRMViewPage } from "@views/client/modules/crm/view";
 import { CRMItem } from "./types/types";
+import { setDefaultRestActions } from "../utils/rest/utils";
 
 export const useCRMDefaultModel: () => Partial<CRMItem> = () => ({
   title: "",
@@ -61,4 +66,9 @@ registerCtrlKRestEntity<CRMItem>("crm_items", {
   ),
   renderEditor: CRMEditor,
   viewRoute: ROUTES.CRMView,
+  actions: (rows, queryClient) => {
+    const actions: CtrlkAction[] = [];
+    setDefaultRestActions(actions, "crm_items", rows, queryClient);
+    return actions;
+  },
 });

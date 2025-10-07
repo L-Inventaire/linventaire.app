@@ -34,7 +34,7 @@ export const StockItemsEditPage = (_props: { readonly?: boolean }) => {
       async (item) => {
         navigate(getRoute(ROUTES.StockView, { id: item.id }));
       },
-      _.omit(_.merge(defaultModel, initialModel), "reference") as StockItems
+      _.omit(_.merge({}, defaultModel, initialModel), "reference") as StockItems
     );
 
   return (

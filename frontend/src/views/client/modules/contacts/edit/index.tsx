@@ -27,7 +27,7 @@ export const ContactsEditPage = (_props: { readonly?: boolean }) => {
       async (item) => {
         navigate(getRoute(ROUTES.ContactsView, { id: item.id }));
       },
-      _.merge(defaultModel, initialModel) as Contacts
+      _.merge({}, defaultModel, initialModel) as Contacts
     );
 
   return (
