@@ -244,7 +244,6 @@ export const CRMPage = () => {
     updatePaginationOffset(state, -limit);
   };
 
-  console.log(options.query);
 
   return (
     <Page

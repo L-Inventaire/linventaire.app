@@ -1,3 +1,4 @@
+import { entityToAccessLevel, useHasAccess } from "@/features/access";
 import { Button } from "@atoms/button/button";
 import { DropDownAtom, DropDownMenuType } from "@atoms/dropdown";
 import { withModel } from "@components/search-bar/utils/as-model";
@@ -61,6 +62,16 @@ export const DocumentBar = ({
   const revision = document?.id?.split("~")[1];
   const { isModal } = useContext(DraftContext);
 
+  const hasAccess = useHasAccess();
+  const entityRoleName =
+    entity === "invoices" ? `${entity}_${document?.type}` : entity;
+  const hasManageAccess = hasAccess(
+    entityToAccessLevel(entityRoleName, "MANAGE")
+  );
+  const hasWriteAccess = hasAccess(
+    entityToAccessLevel(entityRoleName, "WRITE")
+  );
+
   props.editRoute = props.editRoute || entityRoutes[entity]?.edit;
   props.viewRoute = props.viewRoute || entityRoutes[entity]?.view;
 
@@ -106,7 +117,7 @@ export const DocumentBar = ({
   };
 
   const actionMenu = [
-    ...(props.onRemove
+    ...(props.onRemove && !!hasManageAccess
       ? [
           {
             type: "danger",
@@ -233,7 +244,7 @@ export const DocumentBar = ({
               <Separator orientation="vertical" />
             </>
           )}
-          {document?.id && props.editRoute && (
+          {document?.id && props.editRoute && !!hasWriteAccess && (
             <Button
               data-tooltip="Dupliquer"
               size="xs"
@@ -297,7 +308,8 @@ export const DocumentBar = ({
           {!isRevision &&
             !document.is_deleted &&
             mode === "read" &&
-            !!props.editRoute && (
+            !!props.editRoute &&
+            !!hasWriteAccess && (
               <Button
                 data-tooltip="Modifier"
                 size="xs"
@@ -343,14 +355,16 @@ export const DocumentBar = ({
                 >
                   Annuler
                 </Button>
-                <Button
-                  size="sm"
-                  onClick={onSave}
-                  shortcut={["cmd+s"]}
-                  disabled={onSaveDisabled}
-                >
-                  Sauvegarder
-                </Button>
+                {!!hasWriteAccess && (
+                  <Button
+                    size="sm"
+                    onClick={onSave}
+                    shortcut={["cmd+s"]}
+                    disabled={onSaveDisabled}
+                  >
+                    Sauvegarder
+                  </Button>
+                )}
               </>
             )}
           {!isRevision && !document.is_deleted && suffix}

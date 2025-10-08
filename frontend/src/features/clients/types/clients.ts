@@ -24,6 +24,7 @@ export type ClientsUserWithUser = ClientsUsers & {
 export const Roles = [
   "ANY", // Anyone in the company can access it
   "CLIENT_MANAGE",
+  "CLIENT_WRITE",
   "CLIENT_READ",
   "CONTACTS_READ",
   "CONTACTS_WRITE",

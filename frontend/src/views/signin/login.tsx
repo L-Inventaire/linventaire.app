@@ -44,6 +44,15 @@ export const Login = () => {
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
 
+  // Pre-fill email from localStorage if available
+  useControlledEffect(() => {
+    const storedEmail = localStorage.getItem("stored_login_email");
+    if (storedEmail && !email) {
+      setEmail(storedEmail);
+      setMode("password");
+    }
+  }, []);
+
   useControlledEffect(() => {
     if (mode === "email" && email) {
       requestEmailMFA();

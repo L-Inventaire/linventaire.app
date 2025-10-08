@@ -67,6 +67,7 @@ import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-ca
 import { InvoiceStatus } from "./invoice-status";
 import { RelatedInvoices } from "./related-invoices";
 import { TagPaymentCompletion } from "./tag-payment-completion";
+import { InvoiceDesignationInput } from "./invoice-designation-input";
 import { format as formatfns } from "date-fns";
 import { Clients } from "@features/clients/types/clients";
 import { getTextFromHtml } from "@features/utils/format/strings";
@@ -481,30 +482,12 @@ export const InvoicesDetailsPage = ({
                   )}
                 </div>
               </Section>
-              <FormContext readonly={readonly} alwaysVisible>
-                {(!readonly || ctrl("name").value) && (
-                  <InputButton
-                    theme="invisible"
-                    size="sm"
-                    className="-mx-1 px-1"
-                    placeholder="Désignation"
-                    content={() => (
-                      <div className="space-y-2 mt-4">
-                        <FormInput ctrl={ctrl("name")} label="Désignation" />
-                        <FormInput
-                          ctrl={ctrl("alt_reference")}
-                          label="Autre référence"
-                        />
-                      </div>
-                    )}
-                    value={
-                      [ctrl("name").value, ctrl("alt_reference").value]
-                        .filter((a) => (a || "").trim())
-                        .join(" - ") || false
-                    }
-                  />
-                )}
-              </FormContext>
+              <InvoiceDesignationInput
+                readonly={readonly}
+                draft={draft}
+                nameCtrl={ctrl("name")}
+                altReferenceCtrl={ctrl("alt_reference")}
+              />
 
               {draft.type === "quotes" && draft.state === "recurring" && (
                 <InputButton

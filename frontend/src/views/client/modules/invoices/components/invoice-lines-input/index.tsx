@@ -1,7 +1,7 @@
 import { AnimatedHeight } from "@atoms/animated-side/height";
 import { Button } from "@atoms/button/button";
 import { Card } from "@atoms/card";
-import { Base, Info, SectionSmall } from "@atoms/text";
+import { Info } from "@atoms/text";
 import { FormContextContext } from "@components/form/formcontext";
 import { InputButton } from "@components/input-button";
 import { FilesInput } from "@components/input-rest/files";
@@ -17,6 +17,7 @@ import _ from "lodash";
 import { Fragment, useContext, useRef } from "react";
 import { twMerge } from "tailwind-merge";
 import { InvoiceDiscountInput } from "./components/discount-input";
+import { InvoiceTotalCard } from "./components/invoice-total-card";
 import { DropInvoiceLine, InvoiceLineInput } from "./invoice-line-input";
 
 export const InvoiceLinesInput = ({
@@ -321,43 +322,7 @@ export const InvoiceLinesInput = ({
                 </Button>
               )}
             </div>
-            <div className="flex justify-end">
-              <div className="flex border border-slate-50 dark:border-slate-800 w-max p-2 rounded-md inline-block">
-                <div className="grow" />
-                <Base>
-                  <div className="space-y-2 min-w-64 block">
-                    <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
-                      <span>Total HT</span>
-                      {formatAmount(value.total?.initial || 0)}
-                    </div>
-                    {!!(value.total?.discount || 0) && (
-                      <>
-                        <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
-                          <span>Remise</span>
-                          <span>
-                            {formatAmount(value.total?.discount || 0)}
-                          </span>
-                        </div>
-                        <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
-                          <span>Total HT après remise</span>
-                          <span>{formatAmount(value.total?.total || 0)}</span>
-                        </div>
-                      </>
-                    )}
-                    <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
-                      <span>TVA</span>
-                      {formatAmount(value.total?.taxes || 0)}
-                    </div>
-                    <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">
-                      <SectionSmall className="inline">Total TTC</SectionSmall>
-                      <SectionSmall className="inline">
-                        {formatAmount(value.total?.total_with_taxes || 0)}
-                      </SectionSmall>
-                    </div>
-                  </div>
-                </Base>
-              </div>
-            </div>
+            <InvoiceTotalCard invoice={value} />
           </div>
         )}
       </AnimatedHeight>
