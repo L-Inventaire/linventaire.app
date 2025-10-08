@@ -1,21 +1,44 @@
+import { Tag } from "@/atoms/badge/tag";
 import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
 import { generateQueryFromMap } from "@components/search-bar/utils/utils";
 import { useContacts } from "@features/contacts/hooks/use-contacts";
-import { useViewWithCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { CRMItem } from "@features/crm/types/types";
+import { useViewWithCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { Card, Heading, Text } from "@radix-ui/themes";
+import DOMPurify from "dompurify";
 import _ from "lodash";
 import { useDrag, useDragLayer } from "react-dnd";
 import { twMerge } from "tailwind-merge";
 import { prettyContactName } from "../../contacts/utils";
-import DOMPurify from "dompurify";
 
-const cleanHTML = (notes: string) =>
-  DOMPurify.sanitize(notes || "", {
-    ALLOWED_TAGS: ["b", "i", "u", "em", "strong", "p", "br", "ul", "ol", "li"], // à ajuster selon besoin
-    ALLOWED_ATTR: [], // aucune attribut autorisé
+const cleanHTML = (notes: string) => {
+  // First sanitize with DOMPurify
+  let cleaned = DOMPurify.sanitize(notes || "", {
+    ALLOWED_TAGS: ["b", "i", "u", "em", "strong", "p", "br", "ul", "ol", "li"],
+    ALLOWED_ATTR: [],
   });
+
+  // Remove empty paragraphs and elements
+  cleaned = cleaned
+    // Remove <p><br></p>, <p><br/></p>, <p><br /></p>
+    .replace(/<p[^>]*>\s*<br\s*\/?>\s*<\/p>/gi, "")
+    // Remove empty paragraphs <p></p> or <p> </p>
+    .replace(/<p[^>]*>\s*<\/p>/gi, "")
+    // Remove multiple consecutive <br> tags (more than 2)
+    .replace(/(<br\s*\/?>){3,}/gi, "<br><br>")
+    // Remove leading/trailing <br> tags
+    .replace(/^(\s*<br\s*\/?>)+/gi, "")
+    .replace(/(<br\s*\/?>)+\s*$/gi, "")
+    // Remove empty list items
+    .replace(/<li[^>]*>\s*<\/li>/gi, "")
+    // Remove empty lists
+    .replace(/<(ul|ol)[^>]*>\s*<\/(ul|ol)>/gi, "")
+    // Trim whitespace
+    .trim();
+
+  return cleaned;
+};
 
 type CRMCardProps = {
   title?: string;
@@ -64,20 +87,9 @@ export const CRMCard = ({ crmItem, readonly, ...props }: CRMCardProps) => {
         );
       }}
     >
-      <Heading size="4" className="min-w-0 w-full">
-        <div className="relative editor-input min-w-0 w-full overflow-hidden">
-          <div
-            className={twMerge(
-              "ql-editor is-disabled min-w-0 break-words overflow-wrap-anywhere w-full whitespace-pre-wrap"
-            )}
-            style={{ wordBreak: "break-word", overflowWrap: "anywhere" }}
-            dangerouslySetInnerHTML={{ __html: cleanHTML(crmItem.notes) || "" }}
-          ></div>
-        </div>
-      </Heading>
       <Text
         size="2"
-        className="min-w-0 break-words w-full overflow-hidden text-ellipsis"
+        className="min-w-0 break-words w-full overflow-hidden text-ellipsis block mb-1 gap-1 flex flex-wrap"
       >
         {(crmItem.contacts ?? [])
           .map((id) => {
@@ -86,9 +98,22 @@ export const CRMCard = ({ crmItem, readonly, ...props }: CRMCardProps) => {
             return prettyContactName(contact);
           })
           .filter(Boolean)
-          .join(", ")}
+          .map((name) => (
+            <Tag size="xs">{name?.toString().trim()}</Tag>
+          ))}
       </Text>
-      <div className="mt-2 min-w-0 w-full overflow-hidden">
+      <Heading size="4" className="min-w-0 w-full">
+        <div className="relative editor-input min-w-0 w-full overflow-hidden">
+          <div
+            className={twMerge(
+              "ql-editor is-disabled min-w-0 break-words overflow-wrap-anywhere w-full whitespace-pre-wrap -ml-1"
+            )}
+            style={{ wordBreak: "break-word", overflowWrap: "anywhere" }}
+            dangerouslySetInnerHTML={{ __html: cleanHTML(crmItem.notes) || "" }}
+          ></div>
+        </div>
+      </Heading>
+      <div className="mt-1 min-w-0 w-full overflow-hidden">
         <div className="float-right min-w-0 max-w-[45%] overflow-hidden">
           <div className="space-x-1 min-w-0 flex flex-wrap gap-1">
             <TagsInput value={crmItem.tags} disabled size="sm" />
