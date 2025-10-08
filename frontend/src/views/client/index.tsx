@@ -53,9 +53,11 @@ import { StockItemsEditPage } from "./modules/stock/edit";
 import { StockItemsFromPage } from "./modules/stock/from";
 import { StockItemsViewPage } from "./modules/stock/view";
 import { NoClientView } from "./no-client";
+import { ApiPage } from "./settings/api";
 import { BankAccountsPage } from "./settings/bank-accounts";
 import { CompanyPage } from "./settings/company";
 import { FieldsPage } from "./settings/fields";
+import { ImportExportPage } from "./settings/import";
 import { InvoicesSettingsPage } from "./settings/invoices";
 import { CompanyPlanPage } from "./settings/plan";
 import { PreferencesPage } from "./settings/preferences";
@@ -158,8 +160,8 @@ export const BackOfficeRoutes = () => {
           path={ROUTES.SettingsBankAccounts}
           element={<BankAccountsPage />}
         />
-        <Route path={ROUTES.SettingsImport} element={<DevPage />} />
-        <Route path={ROUTES.SettingsApi} element={<DevPage />} />
+        <Route path={ROUTES.SettingsImport} element={<ImportExportPage />} />
+        <Route path={ROUTES.SettingsApi} element={<ApiPage />} />
 
         <Route path={ROUTES.CRM} element={<CRMPage />} />
         <Route path={ROUTES.CRMView} element={<CRMViewPage />} />

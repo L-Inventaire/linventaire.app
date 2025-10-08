@@ -135,10 +135,10 @@ export function Table<T>({
   const setPagination = setPaginationState!;
 
   const resetToFirstPage = () => {
-    setPagination({
+    setPagination((pagination) => ({
       ...pagination,
       page: 1,
-    });
+    }));
   };
   useControlledEffect(() => {
     props.resetToFirstPage?.(resetToFirstPage);
@@ -153,10 +153,10 @@ export function Table<T>({
   /* react-hooks/exhaustive-deps issues */
   useControlledEffect(() => {
     if (total !== pagination.total)
-      setPagination({
+      setPagination((pagination) => ({
         ...pagination,
         total: total || 0,
-      });
+      }));
   }, [total, setPagination]);
 
   /* react-hooks/exhaustive-deps issues */
@@ -193,24 +193,24 @@ export function Table<T>({
       onFetchExportData={onFetchExportData}
       checkboxAlwaysVisible={checkboxAlwaysVisible}
       onChangeOrder={(orderBy, direction) => {
-        setPagination({
+        setPagination((pagination) => ({
           ...pagination,
           orderBy: orderBy,
           order: direction,
           page: 1,
-        });
+        }));
       }}
       onChangePage={(page) => {
-        setPagination({
+        setPagination((pagination) => ({
           ...pagination,
           page,
-        });
+        }));
       }}
       onChangePageSize={(size) => {
-        setPagination({
+        setPagination((pagination) => ({
           ...pagination,
           perPage: size,
-        });
+        }));
       }}
       {...props}
     />

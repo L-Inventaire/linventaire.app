@@ -19,6 +19,9 @@ import Contacts, {
   ContactsDefinition,
 } from "../../../contacts/entities/contacts";
 import { Files } from "../../../files/entities/files";
+import AccountingTransactions, {
+  AccountingTransactionsDefinition,
+} from "../../../accounting/entities/transactions";
 import Invoices from "../../entities/invoices";
 import { getInvoiceLogo } from "../../utils";
 import { InvoiceContent } from "./content";
@@ -26,7 +29,12 @@ import { InvoiceCounterparty } from "./counterparty";
 import { InvoicePaymentDetails } from "./payment-details";
 import { InvoiceSelf } from "./self";
 import { InvoiceTotal } from "./total";
-import { convertHtml, displayDate, KeyValueDisplay } from "./utils";
+import {
+  convertHtml,
+  displayDate,
+  formatAmount,
+  KeyValueDisplay,
+} from "./utils";
 import { getInvoiceWithFormatsOverrides } from "../utils";
 import { captureException } from "@sentry/node";
 
@@ -148,6 +156,26 @@ export const getPdf = async (
   const me = await db.selectOne<Clients>(ctx, ClientsDefinition.name, {
     id: ctx.client_id,
   });
+
+  // Load accounting transactions for invoices, supplier_invoices, credit_notes, supplier_credit_notes
+  let accountingTransactions: AccountingTransactions[] = [];
+  if (
+    [
+      "invoices",
+      "supplier_invoices",
+      "credit_notes",
+      "supplier_credit_notes",
+    ].includes(document.type)
+  ) {
+    accountingTransactions = await db.select<AccountingTransactions>(
+      ctx,
+      AccountingTransactionsDefinition.name,
+      {
+        client_id: ctx.client_id,
+        id: document.transactions?.ids || [],
+      }
+    );
+  }
 
   document = getInvoiceWithFormatsOverrides(
     document,
@@ -273,6 +301,21 @@ export const getPdf = async (
                 {document.reference}
               </Text>
             </View>
+            {/* Designation section for quotes (not supplier quotes) */}
+            {document.type === "quotes" && !!document.name && (
+              <View style={{ marginBottom: 24 }}>
+                <Text
+                  style={{
+                    fontSize: 12,
+                    fontWeight: "bold",
+                    marginBottom: 4,
+                  }}
+                >
+                  {document.name}
+                </Text>
+              </View>
+            )}
+
             <View
               style={{ flexDirection: "row", width: "100%", marginBottom: 24 }}
             >
@@ -385,6 +428,36 @@ export const getPdf = async (
                   colors={colors}
                   document={document}
                   checkedIndexes={checkedIndexes}
+                />
+              </View>
+            )}
+
+            {/* Display accounting transactions payments */}
+            {accountingTransactions.length > 0 && (
+              <View style={{ marginTop: 16, marginBottom: 16 }}>
+                <KeyValueDisplay
+                  secondaryColor={colors.secondary}
+                  style={{ fontSize: 9 }}
+                  vertical
+                  list={[
+                    {
+                      label: Framework.I18n.t(ctx, "invoices.payments.title", {
+                        fallback: "Paiements",
+                      }),
+                      value: accountingTransactions
+                        .map(
+                          (transaction) =>
+                            `Payé le ${displayDate(
+                              transaction.transaction_date,
+                              timezone
+                            )} montant ${formatAmount(
+                              transaction.amount,
+                              transaction.currency || document.currency || "EUR"
+                            )}`
+                        )
+                        .join("\n"),
+                    },
+                  ]}
                 />
               </View>
             )}

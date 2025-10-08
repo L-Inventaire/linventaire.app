@@ -2,25 +2,27 @@ import Avatar from "@atoms/avatar/avatar";
 import { Button } from "@atoms/button/button";
 import { ButtonConfirm } from "@atoms/button/confirm";
 import { InputLabel } from "@atoms/input/input-decoration-label";
-import SelectMultiple from "@atoms/input/input-select-multiple";
 import { Input } from "@atoms/input/input-text";
 import { Modal, ModalContent } from "@atoms/modal/modal";
-import { BaseSmall, Info, Section } from "@atoms/text";
+import { BaseSmall, Info } from "@atoms/text";
+import { RoleMatrix } from "@components/role-matrix/role-matrix";
+import { RoleComparison } from "@components/role-matrix/role-comparison";
 import { useHasAccess } from "@features/access";
 import { useAuth } from "@features/auth/state/use-auth";
 import { useClientUsers } from "@features/clients/state/use-client-users";
 import { useClients } from "@features/clients/state/use-clients";
-import { ClientsUsers, Role, Roles } from "@features/clients/types/clients";
+import { ClientsUsers, Role } from "@features/clients/types/clients";
 import { PublicCustomer } from "@features/customers/types/customers";
 import {
   getEmailsFromString,
   getServerUri,
 } from "@features/utils/format/strings";
 import { Table } from "@molecules/table";
+import { Heading } from "@radix-ui/themes";
 import _ from "lodash";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { Page, PageBlock } from "../../_layout/page";
+import { Page } from "../../_layout/page";
 
 export const CompanyUsersPage = () => {
   const { user: me } = useAuth();
@@ -55,68 +57,64 @@ export const CompanyUsersPage = () => {
 
   if (!users) return <></>;
 
-  const manageableRoles = (a: { value: string }) =>
-    a.value.includes("CLIENT_MANAGE") ||
-    a.value.includes("CONTACTS") ||
-    a.value.includes("ARTICLES") ||
-    a.value.includes("STOCK") ||
-    a.value.includes("INVOICES") ||
-    a.value.includes("CRM") ||
-    a.value.includes("QUOTES") ||
-    a.value.includes("ONSITE_SERVICES");
-
   return (
     <Page title={[{ label: "Paramètres" }, { label: "Vos Collaborateurs" }]}>
-      <Modal
-        open={updatingUsers.length > 0}
-        onClose={() => setUpdatingUsers([])}
-      >
-        <ModalContent title="Modifier des utilisateurs">
-          <SelectMultiple
-            disabled={loading}
-            className="grow"
-            placeholder="Rôles"
-            value={updatingRoles}
-            onChange={(e) => setUpdatingRoles(e)}
-            options={getRoles().filter(manageableRoles)}
-          />
-          <Button
-            className="mt-4"
-            loading={loading}
-            onClick={async () => {
-              const roles = updatingRoles as Role[];
-              for (const user of updatingUsers) {
-                const u = users.find((u) => u.user_id === user);
-                if (u) {
-                  await update({ id: user, roles });
-                }
-              }
-              setUpdatingUsers([]);
-            }}
+      <div className="w-full max-w-4xl mx-auto mt-6">
+        <Modal
+          open={updatingUsers.length > 0}
+          onClose={() => setUpdatingUsers([])}
+        >
+          <ModalContent
+            title={`Modifier ${
+              updatingUsers.length > 1
+                ? `${updatingUsers.length} utilisateurs`
+                : "un utilisateur"
+            }`}
           >
-            Appliquer à {updatingUsers.length} utilisateur(s)
-          </Button>
-          <Info className="block mt-4">
-            Chaque module possède 3 niveaux de permissions READ, WRITE et
-            MANAGE:
-            <br />
-            <br />
-            <b>- READ</b>: Voir les données uniquement.
-            <br />
-            <b>- WRITE</b>: Modifier les données excepté les actions de masse et
-            paramètrages.
-            <br />
-            <b>- MANAGE</b>: Niveau le plus élevé.
-            <br />
-            <br />
-            Un niveau de permission inclut les niveaux inférieurs. Par exemple,
-            WRITE inclut READ.
-          </Info>
-        </ModalContent>
-      </Modal>
+            <div className="space-y-6">
+              {updatingUsers.length > 1 && (
+                <RoleComparison
+                  users={updatingUsers
+                    .map((userId) => users.find((u) => u.user_id === userId)!)
+                    .filter(Boolean)}
+                />
+              )}
 
-      <PageBlock>
-        <Section>Inviter un collaborateur</Section>
+              <div>
+                <BaseSmall className="font-medium mb-3">
+                  {updatingUsers.length > 1
+                    ? "Nouvelles permissions à appliquer"
+                    : "Permissions"}
+                </BaseSmall>
+                <RoleMatrix
+                  value={updatingRoles as Role[]}
+                  onChange={(roles) => setUpdatingRoles(roles)}
+                  disabled={loading}
+                />
+              </div>
+
+              <Button
+                className="w-full"
+                loading={loading}
+                onClick={async () => {
+                  const roles = updatingRoles as Role[];
+                  for (const user of updatingUsers) {
+                    const u = users.find((u) => u.user_id === user);
+                    if (u) {
+                      await update({ id: user, roles });
+                    }
+                  }
+                  setUpdatingUsers([]);
+                }}
+              >
+                Appliquer à {updatingUsers.length} utilisateur
+                {updatingUsers.length > 1 ? "s" : ""}
+              </Button>
+            </div>
+          </ModalContent>
+        </Modal>
+
+        <Heading size="6">Inviter un collaborateur</Heading>
         <InputLabel
           className="max-w-xl"
           label="Emails"
@@ -128,18 +126,16 @@ export const CompanyUsersPage = () => {
                 value={invitees}
                 onChange={(e) => setInvitees(e.target.value)}
               />
-              <div className="flex-row flex space-x-2 grow w-full">
-                <SelectMultiple
-                  className="grow"
-                  placeholder="Rôles"
-                  value={inviteesRoles}
-                  onChange={(e) => setInviteesRoles(e)}
-                  options={getRoles().filter(manageableRoles)}
+              <div className="space-y-4">
+                <RoleMatrix
+                  value={inviteesRoles as Role[]}
+                  onChange={(roles) => setInviteesRoles(roles)}
+                  disabled={loading}
                 />
                 <Button
-                  disabled={!invitedEmails.length}
+                  disabled={!invitedEmails.length || !inviteesRoles.length}
                   loading={loading}
-                  className="shrink-0"
+                  className="w-full"
                   onClick={async () => {
                     try {
                       await inviteUsers(
@@ -148,6 +144,7 @@ export const CompanyUsersPage = () => {
                         inviteesRoles as Role[]
                       );
                       setInvitees("");
+                      setInviteesRoles([]);
                       refresh();
                       toast.success("Invitations envoyées");
                     } catch (e) {
@@ -156,87 +153,88 @@ export const CompanyUsersPage = () => {
                     }
                   }}
                 >
-                  Inviter {invitedEmails.length} utilisateurs
+                  Inviter {invitedEmails.length} utilisateur
+                  {invitedEmails.length > 1 ? "s" : ""}
                 </Button>
               </div>
             </div>
           }
         />
-      </PageBlock>
 
-      {!!users.filter((u) => !(u.user as any).id).length && (
-        <PageBlock>
-          <Section>Invitations en attente</Section>
-          <Info className="block mb-3">
-            Ces utilisateurs doivent créer un compte en utilisant l'email défini
-            ci-dessous.
-          </Info>
-          <Table
-            rowIndex="user_id"
-            onSelect={
-              readonly
-                ? undefined
-                : [
-                    {
-                      label: "Changer les rôles",
-                      callback: (users) => {
-                        setUpdatingUsers(users.map((u) => u.user_id));
+        {!!users.filter((u) => !(u.user as any).id).length && (
+          <div className="mt-8">
+            <Heading size="6">Invitations en attente</Heading>
+            <Info className="block mb-3">
+              Ces utilisateurs doivent créer un compte en utilisant l'email
+              défini ci-dessous.
+            </Info>
+            <Table
+              rowIndex="user_id"
+              onSelect={
+                readonly
+                  ? undefined
+                  : [
+                      {
+                        label: "Changer les rôles",
+                        callback: (users) => {
+                          setUpdatingUsers(users.map((u) => u.user_id));
+                        },
                       },
-                    },
-                    {
-                      label: "Retirer",
-                      type: "danger",
-                      callback: async (users) => {
-                        for (const user of users) {
-                          await remove(user.user_id);
-                        }
+                      {
+                        label: "Retirer",
+                        type: "danger",
+                        callback: async (users) => {
+                          for (const user of users) {
+                            await remove(user.user_id);
+                          }
+                        },
                       },
-                    },
-                  ]
-            }
-            data={_.sortBy(
-              users.filter((u) => !(u.user as any).id) as (ClientsUsers & {
-                user: { email: string };
-              })[],
-              (a) => a.user.email
-            )}
-            columns={[
-              {
-                title: "Email",
-                render: (user) => user.user.email,
-              },
-              {
-                title: "Roles",
-                render: (user) => (
-                  <BaseSmall>{roleSumary(user.roles.list)}</BaseSmall>
-                ),
-              },
-              {
-                title: "Actions",
-                hidden: readonly,
-                thClassName: "w-1",
-                render: (user) => (
-                  <>
-                    <Button
-                      loading={loading}
-                      onClick={() => {
-                        remove(user.user.email);
-                      }}
-                      size="md"
-                      theme="danger"
-                    >
-                      Retirer
-                    </Button>
-                  </>
-                ),
-              },
-            ]}
-          />
-        </PageBlock>
-      )}
+                    ]
+              }
+              data={_.sortBy(
+                users.filter((u) => !(u.user as any).id) as (ClientsUsers & {
+                  user: { email: string };
+                })[],
+                (a) => a.user.email
+              )}
+              columns={[
+                {
+                  title: "Email",
+                  render: (user) => user.user.email,
+                },
+                {
+                  title: "Roles",
+                  render: (user) => (
+                    <BaseSmall>{roleSumary(user.roles.list)}</BaseSmall>
+                  ),
+                },
+                {
+                  title: "Actions",
+                  hidden: readonly,
+                  thClassName: "w-1",
+                  render: (user) => (
+                    <>
+                      <Button
+                        loading={loading}
+                        onClick={() => {
+                          remove(user.user.email);
+                        }}
+                        size="md"
+                        theme="danger"
+                      >
+                        Retirer
+                      </Button>
+                    </>
+                  ),
+                },
+              ]}
+            />
+          </div>
+        )}
 
-      <PageBlock>
-        <Section>Vos collaborateur</Section>
+        <Heading size="6" className="mt-8">
+          Vos collaborateur
+        </Heading>
         <Table
           data={_.sortBy(
             users.filter((u) => (u.user as any).id) as (ClientsUsers & {
@@ -314,7 +312,7 @@ export const CompanyUsersPage = () => {
           ]}
           border
         />
-      </PageBlock>
+      </div>
     </Page>
   );
 };
@@ -380,16 +378,3 @@ const RolesNames: any = {
   WRITE: "Lecture et modifications",
   READ: "Lecture",
 };
-
-const getRoles = () =>
-  _.flatMap(
-    Roles.map((level) => ({
-      value: level,
-      label:
-        RolesNames[level] ||
-        (RolesNames[level.split(/_[A-Z]+$/)[0]]
-          ? RolesNames[level.split(/_[A-Z]+$/)[0]] +
-            ` (${RolesNames[level.split(/_([A-Z]+)$/)[1]]})`
-          : level),
-    }))
-  );

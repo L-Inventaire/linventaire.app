@@ -708,7 +708,8 @@ export const InvoicesDetailsPage = ({
                                         rel_invoices: [draft.id],
                                         currency: draft.currency,
                                         amount:
-                                          draft.total?.total_with_taxes || 0,
+                                          (draft.total?.total_with_taxes || 0) -
+                                          (draft.transactions?.total || 0),
                                         reference: draft.reference,
                                       }
                                     )

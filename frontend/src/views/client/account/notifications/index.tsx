@@ -1,5 +1,5 @@
-import { Info, Section } from "@atoms/text";
-import { Page, PageBlock } from "../../_layout/page";
+import { Info } from "@atoms/text";
+import { Page } from "../../_layout/page";
 import { useNotificationsPreferences } from "@features/notifications/hooks/use-notifications-preferences";
 import { Heading } from "@radix-ui/themes";
 import SelectMultiple from "@atoms/input/input-select-multiple";
@@ -10,9 +10,9 @@ export const AccountNotificationsPage = () => {
   if (!preferences) return <></>;
 
   return (
-    <Page title={[{ label: "Compte" }, { label: "Mes Entreprises" }]}>
-      <PageBlock>
-        <Section>Notifications</Section>
+    <Page title={[{ label: "Compte" }, { label: "Notifications" }]}>
+      <div className="w-full max-w-4xl mx-auto mt-6">
+        <Heading size="6">Notifications</Heading>
         <Info>Ces modifications concernent l'entreprise courante.</Info>
         <div className="space-y-2 mt-4">
           <Heading size={"2"}>Toujours me notifier pour ces évènements</Heading>
@@ -35,7 +35,7 @@ export const AccountNotificationsPage = () => {
             onChange={(e) => update({ always_notified: e })}
           />
         </div>
-      </PageBlock>
+      </div>
     </Page>
   );
 };

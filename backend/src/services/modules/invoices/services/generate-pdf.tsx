@@ -163,7 +163,7 @@ export const generatePdf = async (
     }
   });
 
-  const doc = await PDFDocument.load(pdf); //Get the pdf
+  const doc = await PDFDocument.load(pdf as any); //Get the pdf
 
   // Add attachments
   for (const attachment of attachments) {
@@ -182,10 +182,10 @@ export const generatePdf = async (
       } else if (attachment.mime.indexOf("image/") === 0) {
         // Add the image to the document
         const bytes = await sharp(
-          await download(
+          (await download(
             { ...ctx, client_id: attachment.client_id, role: "SYSTEM" },
             attachment
-          )
+          )) as any
         )
           .toFormat("png")
           .toBuffer();
