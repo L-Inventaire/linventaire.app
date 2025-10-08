@@ -129,6 +129,7 @@ registerCtrlKRestEntity<Contacts>("contacts", {
   renderEditor: (props) => (
     <ContactsDetailsPage readonly={props.readonly || false} id={props.id} />
   ),
+  orderBy: "full_name",
   renderResult: ContactsColumns,
   useDefaultData: useContactDefaultModel,
   viewRoute: ROUTES.ContactsView,
