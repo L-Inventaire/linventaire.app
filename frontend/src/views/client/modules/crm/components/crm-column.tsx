@@ -169,7 +169,7 @@ export const CRMColumn = ({
   return (
     <div
       className={twMerge(
-        "flex flex-col flex-1 min-w-72 transition-all duration-200",
+        "flex flex-col flex-1 min-w-64 max-w-80 transition-all duration-200",
         props.className
       )}
       ref={dropRef}
