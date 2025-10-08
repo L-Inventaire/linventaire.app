@@ -60,17 +60,17 @@ export const useSettingsMenu: MenuIndex = () => {
         to: getRoute(ROUTES.SettingsCustomFields),
       },
       {
-        label: t("menu.settings.more"),
-        to: getRoute(ROUTES.SettingsPreferences),
-      },
-      /*{
         label: t("menu.settings.import"),
         to: getRoute(ROUTES.SettingsImport),
       },
       {
         label: t("menu.settings.api"),
         to: getRoute(ROUTES.SettingsApi),
-      },*/
+      },
+      {
+        label: t("menu.settings.more"),
+        to: getRoute(ROUTES.SettingsPreferences),
+      },
       {
         type: "divider",
       },

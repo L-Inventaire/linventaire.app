@@ -29,7 +29,7 @@ export const useRouterState = (
       url.searchParams.set(key, value);
       if (stackHistoryOnChange) {
         window.history.pushState({}, "", url.toString());
-        var navEvent = new Event("navigated");
+        const navEvent = new Event("navigated");
         dispatchEvent(navEvent);
       } else {
         window.history.replaceState({}, "", url.toString());

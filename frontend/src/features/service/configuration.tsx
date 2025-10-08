@@ -5,7 +5,7 @@ import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
 import { Articles } from "@features/articles/types/types";
 import { getContactName } from "@features/contacts/types/types";
-import { registerCtrlKRestEntity } from "@features/ctrlk";
+import { CtrlkAction, registerCtrlKRestEntity } from "@features/ctrlk";
 import { getRoute, ROUTES } from "@features/routes";
 import { formatQuantity } from "@features/utils/format/strings";
 import { DocumentCheckIcon, UserIcon } from "@heroicons/react/16/solid";
@@ -16,9 +16,10 @@ import { InvoiceRestDocument } from "@views/client/modules/invoices/components/i
 import { ServiceItemStatus } from "@views/client/modules/service/components/service-item-status";
 import { ServiceItemsDetailsPage } from "@views/client/modules/service/components/service-items-details";
 import { ServiceTimesDetailsPage } from "@views/client/modules/service/components/service-times-details";
-import { format } from "date-fns";
 import _ from "lodash";
 import { twMerge } from "tailwind-merge";
+import { formatDate } from "../utils/format/dates";
+import { setDefaultRestActions } from "../utils/rest/utils";
 import { ServiceItems, ServiceTimes } from "./types/types";
 
 export const useServiceItemDefaultModel: () => Partial<ServiceItems> = () => {
@@ -33,7 +34,7 @@ export const ServiceItemsColumns: Column<ServiceItems>[] = [
     title: "Date",
     render: (item) => (
       <Base className="whitespace-nowrap">
-        {format(new Date(item.started_at || item.created_at), "PP")}
+        {formatDate(new Date(item.started_at || item.created_at))}
       </Base>
     ),
   },
@@ -141,22 +142,25 @@ registerCtrlKRestEntity<ServiceItems>("service_items", {
   renderResult: ServiceItemsColumns,
   useDefaultData: useServiceItemDefaultModel,
   viewRoute: ROUTES.ServiceItemsView,
-  actions: (rows) => {
+  actions: (rows, queryClient) => {
+    const actions: CtrlkAction[] = [];
+
     // All from the same client
     if (_.uniqBy(rows, "client").length === 1) {
-      return [
-        {
-          label: "Facturer la sélection",
-          icon: (p) => <DocumentCheckIcon {...p} />,
-          action: async () => {
-            document.location = getRoute(ROUTES.InvoicesFromItems, {
-              ids: rows.map((a) => a.id).join(","),
-            });
-          },
+      actions.push({
+        label: "Facturer la sélection",
+        icon: (p) => <DocumentCheckIcon {...p} />,
+        action: async () => {
+          document.location = getRoute(ROUTES.InvoicesFromItems, {
+            ids: rows.map((a) => a.id).join(","),
+          });
         },
-      ];
+      });
     }
-    return [];
+
+    setDefaultRestActions(actions, "service_items", rows, queryClient);
+
+    return actions;
   },
 });
 

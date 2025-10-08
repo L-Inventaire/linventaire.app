@@ -85,6 +85,7 @@ export const getInvoiceNextDate = (
         }
       }
     } catch (e) {
+      console.error(e);
       // Not a valid frequency, ignoring
     }
   }
@@ -204,7 +205,13 @@ export const getInvoiceWithOverrides = (
 };
 
 // Complete object 1 null and undefined values with object 2 values
-export const mergeObjects = <T extends {}>(...overrides: T[]): T => {
+export const mergeObjects = <
+  T extends {
+    [key: string]: any;
+  }
+>(
+  ...overrides: T[]
+): T => {
   if (overrides.length === 1) return overrides[0] as T;
 
   // Merge the last two ones right into left one

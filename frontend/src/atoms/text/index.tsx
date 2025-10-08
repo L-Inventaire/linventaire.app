@@ -33,7 +33,11 @@ export const Subtitle = (props: TypedTextProps) =>
   Text({ type: "subtitle", ...props });
 
 export const Section = (props: TypedTextProps) => (
-  <Heading size="4" {..._.pick(props, "className", "onClick", "style")}>
+  <Heading
+    size="4"
+    {..._.pick(props, "onClick", "style")}
+    className={twMerge("mb-2", props.className)}
+  >
     {props.children}
   </Heading>
 );

@@ -104,7 +104,7 @@ export const QuotesCheckers = ({ items }: { items: StockItems[] }) => {
 
   // Compute if any order or quote will be overflooding
 
-  let overflooding: {
+  const overflooding: {
     [key: string]: {
       [docId: string]: {
         articles: {

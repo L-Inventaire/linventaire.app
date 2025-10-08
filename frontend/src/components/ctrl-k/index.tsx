@@ -1,11 +1,12 @@
 import { Modal } from "@atoms/modal/modal";
 import { CtrlKAtom } from "@features/ctrlk/store";
+import { CtrlKStateType } from "@features/ctrlk/types";
+import { DraftContext } from "@features/utils/rest/hooks/use-draft-rest";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { useRecoilState } from "recoil";
 import { ModalEditor } from "./editor";
 import { SearchCtrlK } from "./search";
-import { CtrlKStateType } from "@features/ctrlk/types";
-import { useEffect } from "react";
-import { DraftContext } from "@features/utils/rest/hooks/use-draft-rest";
 
 /*
 [selection] Scenario 1:
@@ -39,31 +40,43 @@ export const CtrlKModal = () => {
   const [states, setStates] = useRecoilState(CtrlKAtom);
 
   useEffect(() => {
-    // remove all items with path length 0
+    // remove all items with path length 0 and no selection
     setStates((states) =>
-      states.filter((state, i) => i === 0 || state.path.length > 0)
+      states.filter(
+        (state, i) =>
+          i === 0 || state.path.length > 0 || state.selection?.items?.length > 0
+      )
     );
   }, [states.length]);
+
+  const { pathname } = useLocation();
+  useEffect(() => {
+    // Close all modals on path change
+    setStates(() => []);
+  }, [pathname]);
 
   return states.map((state, index) => {
     const setState = (newState: CtrlKStateType<any>) => {
       setStates((states) => {
         const newStates = [...states];
-        newStates[index] = newState;
+        const targetIndex = newStates.findIndex((s) => s.id === state.id);
+        if (targetIndex !== -1) {
+          newStates[targetIndex] = newState;
+        }
         return newStates;
       });
     };
 
-    const currentState = state.path[state.path.length - 1] || {};
+    const currentState = state.path?.[state.path?.length - 1] || {};
     return (
       <Modal
-        key={index}
-        open={state.path.length > 0}
+        key={state.id || index}
+        open={(state.path?.length || 0) > 0}
         closable={false}
         onClose={() => {
           setState({
             ...state,
-            path: [],
+            path: state.path.slice(0, state.path.length - 1),
           });
         }}
         positioned
@@ -80,11 +93,14 @@ export const CtrlKModal = () => {
         }}
       >
         <DraftContext.Provider
-          value={{ key: "ctrlk_" + index + "_" + state.path.length }}
+          value={{
+            key: "ctrlk_" + (state.id || index) + "_" + state.path?.length,
+            isModal: true,
+          }}
         >
           {currentState.mode !== "editor" && (
             <div className="-m-6" style={{ maxHeight: "inherit" }}>
-              <SearchCtrlK index={index} />
+              <SearchCtrlK stateId={state.id || `fallback_${index}`} />
             </div>
           )}
           {currentState.mode === "editor" && (
@@ -95,7 +111,7 @@ export const CtrlKModal = () => {
                 height: "calc(100vh - 100px)",
               }}
             >
-              <ModalEditor index={index} />
+              <ModalEditor stateId={state.id || `fallback_${index}`} />
             </div>
           )}
         </DraftContext.Provider>

@@ -1,10 +1,11 @@
-import { Info, Section, SectionSmall } from "@atoms/text";
+import { Info, SectionSmall } from "@atoms/text";
 import { useCustomerMfa } from "@features/customers/state/hooks";
 import { useEffect } from "react";
-import { Page, PageBlock } from "../../_layout/page";
+import { Page } from "../../_layout/page";
 import { SecurityApp } from "./components/app";
 import { SecurityEmail } from "./components/email";
 import { SecurityPassword } from "./components/password";
+import { Heading } from "@radix-ui/themes";
 
 export const SecurityPage = () => {
   const { getMfas, mfas } = useCustomerMfa();
@@ -17,8 +18,8 @@ export const SecurityPage = () => {
 
   return (
     <Page title={[{ label: "Compte" }, { label: "Sécurité" }]}>
-      <PageBlock>
-        <Section>Authentification</Section>
+      <div className="w-full max-w-4xl mx-auto mt-6">
+        <Heading size="6">Authentification</Heading>
         <SectionSmall>Email</SectionSmall>
         <Info>
           Votre email est toujours utilisable pour récupérer l'accès à votre
@@ -38,9 +39,10 @@ export const SecurityPage = () => {
         <div className="mt-2">
           <SecurityPassword mfa={getMfa("password")} />
         </div>
-      </PageBlock>
-      <PageBlock>
-        <Section>Second facteur d'authentification (2FA)</Section>
+
+        <Heading size="6" className="mt-8">
+          Second facteur d'authentification (2FA)
+        </Heading>
         <Info>
           Pour sécuriser votre compte, vous pouvez activer l'authentification à
           deux facteurs.
@@ -48,7 +50,7 @@ export const SecurityPage = () => {
         <div className="mt-4">
           <SecurityApp mfa={getMfa("app")} />
         </div>
-      </PageBlock>
+      </div>
     </Page>
   );
 };

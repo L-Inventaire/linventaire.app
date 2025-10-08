@@ -1,4 +1,5 @@
 import { RestOptions, useRest } from "@features/utils/rest/hooks/use-rest";
+import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { useEffect } from "react";
 import { CRMItem } from "../types/types";
 
@@ -12,13 +13,19 @@ export const useCRMItems = (options?: RestOptions<CRMItem>) => {
   return { crm_items: rest.items, ...rest };
 };
 
-export const useArticle = (id: string) => {
-  const rest = useCRMItems({ id });
+export const useCRMItem = (
+  id: string,
+  initial?: Partial<CRMItem>,
+  cb?: (item: CRMItem) => Promise<void>
+) => {
+  const rest = useDraftRest<CRMItem>(
+    "crm_items",
+    id,
+    cb || (() => new Promise((resolve) => resolve())),
+    initial
+  );
   return {
-    crm_item: id
-      ? (rest.crm_items.data?.list || []).find((item) => item.id === id)
-      : null,
-    isPending: id ? rest.crm_items.isPending : false,
+    crm_item: rest.draft,
     ...rest,
   };
 };

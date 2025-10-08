@@ -19,7 +19,7 @@ export const useNavigationHistory = () => {
   const location = useLocation();
 
   useEffect(() => {
-    var navEvent = new Event("navigated");
+    const navEvent = new Event("navigated");
     dispatchEvent(navEvent);
   }, [location.pathname, location.search]);
 

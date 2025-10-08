@@ -60,10 +60,6 @@ export const ROUTES = {
   InvoicesFromItems: "/:client/i/from/:ids",
   InvoicesGroup: "/:client/i/group/:ids",
 
-  Receipts: "/:client/deliveries",
-  ReceiptsView: "/:client/deliveries/:id",
-  ReceiptsEdit: "/:client/deliveries/:id/form",
-
   Stock: "/:client/stock",
   StockView: "/:client/stock/:id",
   StockEdit: "/:client/stock/:id/form",
@@ -80,6 +76,10 @@ export const ROUTES = {
   Products: "/:client/products",
   ProductsView: "/:client/products/:id",
   ProductsEdit: "/:client/products/:id/form",
+
+  CRM: "/:client/crm",
+  CRMView: "/:client/crm/:id",
+  CRMEdit: "/:client/crm/:id/form",
 
   Settings: "/:client/settings",
   SettingsPreferences: "/:client/settings/preferences",
@@ -98,7 +98,45 @@ export const ROUTES = {
   SignDocumentView: "/signing-session/:session/view",
   SignedDocumentView: "/signing-session/:session/signed",
 
-  CRMView: "/:client/crm/view",
-
   DevPage: "/:client/dev",
+};
+
+export const entityRoutes: {
+  [key: string]: { view: string; edit: string; list: string };
+} = {
+  contacts: {
+    list: ROUTES.Contacts,
+    view: ROUTES.ContactsView,
+    edit: ROUTES.ContactsEdit,
+  },
+  invoices: {
+    list: ROUTES.Invoices,
+    view: ROUTES.InvoicesView,
+    edit: ROUTES.InvoicesEdit,
+  },
+  stock_items: {
+    list: ROUTES.Stock,
+    view: ROUTES.StockView,
+    edit: ROUTES.StockEdit,
+  },
+  accounting_transactions: {
+    list: ROUTES.Accounting,
+    view: ROUTES.AccountingView,
+    edit: ROUTES.AccountingEdit,
+  },
+  service_items: {
+    list: ROUTES.ServiceItems,
+    view: ROUTES.ServiceItemsView,
+    edit: ROUTES.ServiceItemsEdit,
+  },
+  articles: {
+    list: ROUTES.Products,
+    view: ROUTES.ProductsView,
+    edit: ROUTES.ProductsEdit,
+  },
+  crm_items: {
+    list: ROUTES.CRM,
+    view: ROUTES.CRMView,
+    edit: ROUTES.CRMEdit,
+  },
 };

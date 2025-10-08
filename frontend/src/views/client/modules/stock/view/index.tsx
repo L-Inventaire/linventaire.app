@@ -38,11 +38,6 @@ export const StockItemsViewPage = (_props: { readonly?: boolean }) => {
           entity={"stock_items"}
           document={item || { id }}
           mode={"read"}
-          backRoute={ROUTES.Stock}
-          editRoute={hasAccess("STOCK_WRITE") ? ROUTES.StockEdit : undefined}
-          viewRoute={ROUTES.StockView}
-          prefix={<></>}
-          suffix={<></>}
           onRemove={
             item?.id && hasAccess("STOCK_WRITE")
               ? async () => remove.mutateAsync(item?.id)

@@ -58,7 +58,7 @@ function InputTimeMain(props: InputProps) {
       ];
 
   const convertValueToText = (value: number[]) => {
-    let val1 = value[0].toString();
+    const val1 = value[0].toString();
     let val2 = value[1].toString();
     if (val2.length === 1) {
       val2 = "0" + val2;

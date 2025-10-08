@@ -106,7 +106,11 @@ export const setCheckIsCompleteTrigger = () => {
         }
 
         for (const id of _.uniq(toRecompute.filter(Boolean))) {
-          await recomputeCompletionStatus(ctx, entity.client_id, id);
+          await recomputeCompletionStatus(
+            ctx,
+            (entity || oldEntity).client_id,
+            id
+          );
         }
       },
     }

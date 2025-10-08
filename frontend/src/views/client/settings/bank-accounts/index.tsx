@@ -1,14 +1,15 @@
 import { Button } from "@atoms/button/button";
 import { ButtonConfirm } from "@atoms/button/confirm";
-import { Info, Section } from "@atoms/text";
+import { Info } from "@atoms/text";
 import { useHasAccess } from "@features/access";
 import { AccountingAccountsColumns } from "@features/accounting/configuration";
 import { useAccountingAccounts } from "@features/accounting/hooks/use-accounting-accounts";
 import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { Table } from "@molecules/table";
+import { Heading } from "@radix-ui/themes";
 import _ from "lodash";
-import { Page, PageBlock } from "../../_layout/page";
+import { Page } from "../../_layout/page";
 
 export const BankAccountsPage = () => {
   const { accounting_accounts, remove } = useAccountingAccounts({
@@ -22,7 +23,7 @@ export const BankAccountsPage = () => {
 
   return (
     <Page title={[{ label: "Paramètres" }, { label: "Comptes" }]}>
-      <PageBlock>
+      <div className="w-full max-w-4xl mx-auto mt-6">
         {hasAccess("ACCOUNTING_MANAGE") && (
           <Button
             size="md"
@@ -38,12 +39,13 @@ export const BankAccountsPage = () => {
           </Button>
         )}
 
-        <Section>Comptes</Section>
+        <Heading size="6">Comptes</Heading>
         <Info>
           Définissez les comptes bancaires ou de caisse de votre entreprise.
         </Info>
 
         <Table
+          border
           className="mt-4"
           data={_.sortBy(accounting_accounts.data?.list || [], "name")}
           columns={[
@@ -75,7 +77,7 @@ export const BankAccountsPage = () => {
             },
           ]}
         />
-      </PageBlock>
+      </div>
     </Page>
   );
 };

@@ -16,6 +16,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { atom, useRecoilState, useSetRecoilState } from "recoil";
+import { useDragModal } from "./use-drag-modal";
 
 const ModalsCountState = atom<string[]>({
   key: "ModalsState",
@@ -82,6 +83,8 @@ export const Modal = (props: {
 
   const zIndex = "z-[" + (level + 5) + "0]";
 
+  const isTopmostModal = level === visibleModals.stack.length - 1;
+
   return (
     <>
       {createPortal(
@@ -98,20 +101,19 @@ export const Modal = (props: {
             >
               <div
                 className={
-                  "fixed inset-0 bg-opacity-10 dark:bg-opacity-80 transition-opacity bg-black"
+                  "fixed inset-0 bg-opacity-10 dark:bg-opacity-80 transition-opacity bg-black background-clickable-layer "
                 }
               />
             </Transition.Child>
 
             <div
-              onClick={props.onClose}
               className={
-                "fixed z-10 inset-0 overflow-y-auto transition-transform "
+                "fixed z-10 inset-0 overflow-y-auto transition-transform background-clickable-layer"
               }
             >
               <div
                 className={
-                  "flex items-end justify-center min-h-screen text-center sm:block "
+                  "flex items-end justify-center min-h-screen text-center sm:block background-clickable-layer "
                 }
               >
                 {
@@ -125,52 +127,13 @@ export const Modal = (props: {
                     </span>
                   )
                 }
-                <Transition.Child
-                  as={Fragment}
-                  enter="ease-out duration-200"
-                  enterFrom={
-                    "opacity-0 pointer-events-none sm:translate-y-0 translate-y-4 sm:scale-95"
-                  }
-                  enterTo="opacity-100 translate-y-0 sm:scale-100"
-                  leave="ease-in duration-200"
-                  leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-                  leaveTo={
-                    "opacity-0 pointer-events-none sm:translate-y-0 translate-y-4 sm:scale-95"
-                  }
-                >
-                  <div
-                    className={
-                      "align-bottom bg-white dark:bg-slate-950 text-left w-full overflow-visible shadow-xl transform transition-all sm:align-middle " +
-                      "relative inline-block rounded-tr-md rounded-tl-md sm:rounded-lg sm:my-8 w-full md:w-[95vw] sm:max-w-[400px] " +
-                      "dark:border-slate-700 dark:border " +
-                      (props.className || "")
-                    }
-                    style={props.style || {}}
-                  >
-                    {open && <ModalContext level={level.toString()} />}
-                    {props.closable !== false && open && (
-                      <div className="z-20 absolute top-0 right-1 pt-4 pr-4">
-                        <Button
-                          onClick={props.onClose}
-                          size="sm"
-                          theme="invisible"
-                          icon={(p) => <XMarkIcon {...p} />}
-                          shortcut={["esc"]}
-                        />
-                      </div>
-                    )}
-                    <ErrorBoundary>
-                      <div
-                        className="px-4 pt-5 pb-4 sm:p-6"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                        }}
-                      >
-                        {props.children}
-                      </div>
-                    </ErrorBoundary>
-                  </div>
-                </Transition.Child>
+                <ModalBody
+                  key={modalId.current}
+                  open={open}
+                  level={level}
+                  active={isTopmostModal}
+                  {...props}
+                />
               </div>
             </div>
           </div>
@@ -178,6 +141,131 @@ export const Modal = (props: {
         document.querySelector(".radix-themes") || document.body
       )}
     </>
+  );
+};
+
+const ModalBody = ({
+  open,
+  level,
+  active,
+  ...props
+}: {
+  children?: ReactNode;
+  open?: boolean;
+  onClose?: () => void;
+  closable?: boolean;
+  className?: string;
+  style?: any;
+  level: number;
+  active: boolean;
+}) => {
+  const { draggableRef, dragHandleRef } = useDragModal();
+  const activeRef = useRef(active);
+  activeRef.current = active;
+  const clickingOutside = useRef(false);
+
+  const handleMouseDown = useCallback(
+    (e: MouseEvent) => {
+      // Only handle outside clicks for the active (topmost) modal
+      if (!activeRef.current) return;
+      // Set clickingOutside to true if the click is outside the modal
+      if (
+        draggableRef.current &&
+        !draggableRef.current.contains(e.target as Node) &&
+        // Prevent clicking on drop downs for instance, we need to click on a layer with class background-clickable-layer
+        (e.target as HTMLElement).classList.contains(
+          "background-clickable-layer"
+        )
+      ) {
+        clickingOutside.current = true;
+      } else {
+        clickingOutside.current = false;
+      }
+    },
+    [activeRef, draggableRef, props.onClose]
+  );
+
+  const handleMouseUp = useCallback(
+    (e: MouseEvent) => {
+      // Only handle outside clicks for the active (topmost) modal
+      if (!activeRef.current) return;
+      if (
+        draggableRef.current &&
+        !draggableRef.current.contains(e.target as Node) &&
+        // Prevent clicking on drop downs for instance, we need to click on a layer with class background-clickable-layer
+        (e.target as HTMLElement).classList.contains(
+          "background-clickable-layer"
+        )
+      ) {
+        if (clickingOutside.current) {
+          props.onClose && props.onClose();
+        }
+      }
+      clickingOutside.current = false;
+    },
+    [props.onClose, activeRef, draggableRef]
+  );
+
+  useEffect(() => {
+    window.addEventListener("mousedown", handleMouseDown);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousedown", handleMouseDown);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [handleMouseDown, handleMouseUp]);
+
+  return (
+    <Transition.Child
+      as={Fragment}
+      enter="ease-out duration-200"
+      enterFrom={
+        "opacity-0 pointer-events-none sm:translate-y-0 translate-y-4 sm:scale-95"
+      }
+      enterTo="opacity-100 translate-y-0 sm:scale-100"
+      leave="ease-in duration-200"
+      leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+      leaveTo={
+        "opacity-0 pointer-events-none sm:translate-y-0 translate-y-4 sm:scale-95"
+      }
+    >
+      <div
+        ref={draggableRef}
+        style={props.style || {}}
+        className={
+          "align-bottom bg-white dark:bg-slate-950 text-left w-full overflow-visible shadow-xl transform sm:align-middle " +
+          "relative inline-block rounded-tr-md rounded-tl-md sm:rounded-lg sm:my-8 w-full md:w-[95vw] sm:max-w-[400px] " +
+          "dark:border-slate-700 dark:border " +
+          (props.className || "")
+        }
+      >
+        <div
+          className="h-2 w-full absolute top-0 left-0 z-10 pointer-events-none"
+          ref={dragHandleRef}
+          title="Drag to move modal, double-click to center"
+          style={{
+            background: "transparent",
+            pointerEvents: "auto",
+            cursor: "move",
+          }}
+        ></div>
+        {open && <ModalContext level={level.toString()} />}
+        {props.closable !== false && open && (
+          <div className="z-30 absolute top-0 right-1 pt-4 pr-4">
+            <Button
+              onClick={props.onClose}
+              size="sm"
+              theme="invisible"
+              icon={(p) => <XMarkIcon {...p} />}
+              shortcut={["esc"]}
+            />
+          </div>
+        )}
+        <ErrorBoundary>
+          <div className="px-4 pt-5 pb-4 sm:p-6">{props.children}</div>
+        </ErrorBoundary>
+      </div>
+    </Transition.Child>
   );
 };
 

@@ -99,16 +99,23 @@ export const useAuth = () => {
   const login = extendsToken;
   const getUser = renewAuthorization;
 
-  const logout = useRecoilCallback(() => (withRedirect = true) => {
-    AuthJWT.token = "";
-    localStorage.clear();
-    const redirect = encodeURIComponent(
-      window.location.pathname + window.location.search
-    );
-    document.location.replace(
-      withRedirect ? "/login?redirect=" + redirect : "/"
-    );
-  });
+  const logout = useRecoilCallback(
+    () =>
+      (withRedirect = true, clearEmail = false) => {
+        AuthJWT.token = "";
+        const savedEmail = localStorage.getItem("stored_login_email");
+        localStorage.clear();
+        if (savedEmail && !clearEmail) {
+          localStorage.setItem("stored_login_email", savedEmail || "");
+        }
+        const redirect = encodeURIComponent(
+          window.location.pathname + window.location.search
+        );
+        document.location.replace(
+          withRedirect ? "/login?redirect=" + redirect : "/"
+        );
+      }
+  );
 
   const clearUserCached = useRecoilCallback(({ snapshot }) => () => {
     const updated = {

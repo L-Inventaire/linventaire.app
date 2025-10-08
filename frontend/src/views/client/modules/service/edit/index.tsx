@@ -1,5 +1,6 @@
 import { PageLoader } from "@atoms/page-loader";
 import { DocumentBar } from "@components/document-bar";
+import { getUrlModel } from "@components/search-bar/utils/as-model";
 import { useClients } from "@features/clients/state/use-clients";
 import { useParamsOrContextId } from "@features/ctrlk";
 import { ROUTES, getRoute } from "@features/routes";
@@ -13,7 +14,6 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SpentTime } from "../components/inline-spent-time-input";
 import { ServiceItemsDetailsPage } from "../components/service-items-details";
-import { getUrlModel } from "@components/search-bar/utils/as-model";
 
 export const ServiceItemsEditPage = (_props: { readonly?: boolean }) => {
   const { refresh, loading } = useClients();
@@ -53,7 +53,10 @@ export const ServiceItemsEditPage = (_props: { readonly?: boolean }) => {
         }
         navigate(getRoute(ROUTES.ServiceItemsView, { id: item.id }));
       },
-      _.omit(_.merge(defaultModel, initialModel), "reference") as ServiceItems
+      _.omit(
+        _.merge({}, defaultModel, initialModel),
+        "reference"
+      ) as ServiceItems
     );
 
   return (
@@ -69,14 +72,13 @@ export const ServiceItemsEditPage = (_props: { readonly?: boolean }) => {
           entity={"stock_items"}
           document={{ id }}
           mode={"write"}
-          onSaveDisabled={!draft.title || !draft.client}
+          incomplete={!draft.title || !draft.client}
           onSave={async () => {
-            await save();
-            navigate(getRoute(ROUTES.ServiceItems));
+            const service = await save();
+            if (service?.id) {
+              navigate(getRoute(ROUTES.ServiceItems));
+            }
           }}
-          backRoute={ROUTES.ServiceItems}
-          viewRoute={ROUTES.ServiceItemsView}
-          editRoute={ROUTES.ServiceItemsEdit}
           onRemove={draft.id ? remove : undefined}
           onRestore={draft.id ? restore : undefined}
         />

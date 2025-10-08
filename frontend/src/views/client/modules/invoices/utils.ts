@@ -111,6 +111,7 @@ export const computeDeliveryDelayDate = (invoice: Invoices): DateTime => {
       delay = parseInt(invoice.delivery_delay as any);
       if (isNaN(delay)) delay = 30;
     } catch (e) {
+      console.error(e);
       delay = 30;
     }
     date = date.plus({ days: delay });
@@ -140,6 +141,7 @@ export const computePaymentDelayDate = (invoice: Invoices): DateTime => {
     delay = parseInt(payment.delay as any);
     if (isNaN(delay)) delay = 30;
   } catch (e) {
+    console.error(e);
     delay = 30;
   }
 

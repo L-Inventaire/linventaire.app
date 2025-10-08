@@ -34,7 +34,7 @@ export const StockItemsEditPage = (_props: { readonly?: boolean }) => {
       async (item) => {
         navigate(getRoute(ROUTES.StockView, { id: item.id }));
       },
-      _.omit(_.merge(defaultModel, initialModel), "reference") as StockItems
+      _.omit(_.merge({}, defaultModel, initialModel), "reference") as StockItems
     );
 
   return (
@@ -51,9 +51,6 @@ export const StockItemsEditPage = (_props: { readonly?: boolean }) => {
           document={{ id }}
           mode={"write"}
           onSave={async () => await save()}
-          backRoute={ROUTES.Stock}
-          viewRoute={ROUTES.StockView}
-          editRoute={ROUTES.StockEdit}
           onRemove={draft.id ? remove : undefined}
           onRestore={draft.id ? restore : undefined}
         />

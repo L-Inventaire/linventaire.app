@@ -18,7 +18,7 @@ export const debounce = (
     setTimeout(() => {
       const request = debounceRequests.get(key);
       debounceRequestsHasTimout.delete(key);
-      request && debounce(request, { ...options, key, doInitialCall: true });
+      if (request) debounce(request, { ...options, key, doInitialCall: true });
       debounceRequests.delete(key);
     }, options.timeout);
   } else {

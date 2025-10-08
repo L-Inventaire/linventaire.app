@@ -13,11 +13,12 @@ import {
   EllipsisHorizontalIcon,
   PrinterIcon,
 } from "@heroicons/react/16/solid";
-import { getPdfPreview } from "../../invoices-preview/invoices-preview";
 import _ from "lodash";
+import { getPdfPreview } from "../../invoices-preview/invoices-preview";
 
 export const SupplierQuotesActions = ({
   id,
+  readonly,
 }: {
   id?: string;
   readonly?: boolean;
@@ -26,7 +27,8 @@ export const SupplierQuotesActions = ({
 
   const { draft, save: _save } = useReadDraftRest<Invoices>(
     "invoices",
-    id || "new"
+    id || "new",
+    readonly
   );
   const disabled = draft.state === "closed";
 
@@ -67,7 +69,6 @@ export const SupplierQuotesActions = ({
               disabled={disabled}
               theme="outlined"
               className="m-0"
-              size="lg"
               icon={(p) => <ChatBubbleBottomCenterIcon {...p} />}
               onClick={() => _save({ state: "sent" })}
             >
@@ -77,7 +78,6 @@ export const SupplierQuotesActions = ({
           <Button
             disabled={disabled}
             className="m-0"
-            size="lg"
             icon={(p) => <CheckIcon {...p} />}
             onClick={() => _save({ state: "purchase_order" })}
           >
@@ -89,7 +89,6 @@ export const SupplierQuotesActions = ({
         <>
           <DropdownButton
             theme="invisible"
-            size="lg"
             className="m-0"
             icon={(p) => <EllipsisHorizontalIcon {...p} />}
             menu={[
@@ -110,7 +109,6 @@ export const SupplierQuotesActions = ({
           <Button
             disabled={disabled}
             theme="outlined"
-            size="lg"
             icon={(p) => <DocumentCheckIcon {...p} />}
             onClick={(event: any) =>
               navigate(
@@ -135,7 +133,6 @@ export const SupplierQuotesActions = ({
 
           <Button
             disabled={disabled}
-            size="lg"
             icon={(p) => <CubeIcon {...p} />}
             onClick={(event: any) =>
               navigate(
@@ -152,7 +149,6 @@ export const SupplierQuotesActions = ({
         <>
           <DropdownButton
             theme="invisible"
-            size="lg"
             className="m-0"
             icon={(p) => <EllipsisHorizontalIcon {...p} />}
             menu={[
@@ -165,7 +161,6 @@ export const SupplierQuotesActions = ({
           <Button
             disabled={disabled}
             theme="outlined"
-            size="lg"
             icon={(p) => <DocumentCheckIcon {...p} />}
             onClick={(event: any) =>
               navigate(
@@ -193,7 +188,6 @@ export const SupplierQuotesActions = ({
         <>
           <DropdownButton
             theme="invisible"
-            size="lg"
             className="m-0"
             icon={(p) => <EllipsisHorizontalIcon {...p} />}
             menu={[
@@ -203,9 +197,7 @@ export const SupplierQuotesActions = ({
               },
             ]}
           />
-          <Button disabled={true} size="lg">
-            Document fermé
-          </Button>
+          <Button disabled={true}>Document fermé</Button>
         </>
       )}
     </>

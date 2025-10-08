@@ -44,6 +44,15 @@ export const Login = () => {
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
 
+  // Pre-fill email from localStorage if available
+  useControlledEffect(() => {
+    const storedEmail = localStorage.getItem("stored_login_email");
+    if (storedEmail && !email) {
+      setEmail(storedEmail);
+      setMode("password");
+    }
+  }, []);
+
   useControlledEffect(() => {
     if (mode === "email" && email) {
       requestEmailMFA();
@@ -134,6 +143,7 @@ export const Login = () => {
         }
       }
     } catch (e) {
+      console.error(e);
       toast.error("An error occurred");
     }
 
@@ -145,8 +155,6 @@ export const Login = () => {
       submit();
     }
   }, [code]);
-
-  console.log({ authLoading });
 
   return (
     <div>
@@ -193,6 +201,7 @@ export const Login = () => {
                   name="username"
                   size="lg"
                   autoComplete="email"
+                  autoFocus
                   value={email}
                   placeholder="jeff@books.com"
                   onChange={(e) => {

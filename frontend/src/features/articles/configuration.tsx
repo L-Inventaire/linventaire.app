@@ -1,7 +1,7 @@
 import { Base, Info } from "@atoms/text";
 import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
-import { registerCtrlKRestEntity } from "@features/ctrlk";
+import { CtrlkAction, registerCtrlKRestEntity } from "@features/ctrlk";
 import { ROUTES } from "@features/routes";
 import { formatAmount } from "@features/utils/format/strings";
 import { RestFieldsNames } from "@features/utils/rest/configuration";
@@ -17,6 +17,7 @@ import { Articles } from "./types/types";
 import { ArrowPathIcon } from "@heroicons/react/16/solid";
 import { Tag } from "@atoms/badge/tag";
 import { getCostEstimate } from "./utils";
+import { setDefaultRestActions } from "../utils/rest/utils";
 
 export const useArticleDefaultModel: () => Partial<Articles> = () => ({
   type: "product",
@@ -119,6 +120,11 @@ registerCtrlKRestEntity<Articles>("articles", {
   renderResult: ArticlesColumns,
   useDefaultData: useArticleDefaultModel,
   viewRoute: ROUTES.ProductsView,
+  actions: (rows, queryClient) => {
+    const actions: CtrlkAction[] = [];
+    setDefaultRestActions(actions, "articles", rows, queryClient);
+    return actions;
+  },
 });
 
 export const ArticlesFieldsNames = () => ({

@@ -55,7 +55,7 @@ export const InputSignature = ({
     try {
       setIsSubmitting(true);
       let signatureSvg = signatureRef.current.svg?.outerHTML;
-      let size = signatureRef.current.svg?.getBoundingClientRect();
+      const size = signatureRef.current.svg?.getBoundingClientRect();
 
       if (!signatureSvg) {
         throw new Error("Signature is empty");

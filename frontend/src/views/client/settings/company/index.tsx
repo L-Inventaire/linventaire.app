@@ -3,7 +3,7 @@ import { Button } from "@atoms/button/button";
 import { ButtonConfirm } from "@atoms/button/confirm";
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import { InputImage } from "@atoms/input/input-image";
-import { Info, Section } from "@atoms/text";
+import { Info } from "@atoms/text";
 import { Form } from "@components/form";
 import { ValuesObjectType } from "@components/form/types";
 import { useHasAccess } from "@features/access";
@@ -12,9 +12,10 @@ import { useClientUsers } from "@features/clients/state/use-client-users";
 import { useClients } from "@features/clients/state/use-clients";
 import { Clients } from "@features/clients/types/clients";
 import { getServerUri } from "@features/utils/format/strings";
+import { Heading } from "@radix-ui/themes";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { Page, PageBlock } from "../../_layout/page";
+import { Page } from "../../_layout/page";
 
 export const CompanyPage = () => {
   const { user } = useAuth();
@@ -40,8 +41,8 @@ export const CompanyPage = () => {
 
   return (
     <Page title={[{ label: "Paramètres" }, { label: "Votre Entreprise" }]}>
-      <PageBlock>
-        <Section>Affichage</Section>
+      <div className="w-full max-w-4xl mx-auto mt-6">
+        <Heading size="6">Affichage</Heading>
         <div className="max-w-xs">
           <Form
             readonly={readonly}
@@ -92,10 +93,10 @@ export const CompanyPage = () => {
             </Button>
           )}
         </div>
-      </PageBlock>
 
-      <PageBlock>
-        <Section>Informations légales</Section>
+        <Heading size="6" className="mt-8">
+          Informations légales
+        </Heading>
         <div className="max-w-xs">
           <Form
             readonly={readonly}
@@ -139,10 +140,10 @@ export const CompanyPage = () => {
             </Button>
           )}
         </div>
-      </PageBlock>
 
-      <PageBlock>
-        <Section>Adresse</Section>
+        <Heading size="6" className="mt-8">
+          Adresse
+        </Heading>
         <div className="max-w-xs">
           <Form
             readonly={readonly}
@@ -206,41 +207,41 @@ export const CompanyPage = () => {
             </Button>
           )}
         </div>
-      </PageBlock>
 
-      {hasAccess("CLIENT_MANAGE") && (
-        <PageBlock>
-          <Section noColor className="text-red-500">
-            Destruction de l'entreprise
-          </Section>
-          <Info>
-            Pour détruire l'entreprise, vous devez d'abord supprimer tous les
-            utilisateurs. Une fois l'entreprise détruite, vous ne pourrez pas y
-            accéder. Nous pouvons récupérer les données pour une période de 30
-            jours via un contact avec le support.
-          </Info>
-          <br />
-          <ButtonConfirm
-            disabled={users.length > 1}
-            theme="danger"
-            size="md"
-            className="mt-4"
-            confirmButtonTheme="danger"
-            confirmButtonText="Détruire l'entreprise"
-            onClick={async () => {
-              try {
-                await remove(user?.id || "");
-                document.location.reload();
-              } catch (e) {
-                console.error(e);
-                toast.error("Vous ne pouvez pas supprimer cette entreprise.");
-              }
-            }}
-          >
-            Détruire l'entreprise
-          </ButtonConfirm>
-        </PageBlock>
-      )}
+        {hasAccess("CLIENT_MANAGE") && (
+          <div className="mt-8">
+            <Heading size="6" className="text-red-500">
+              Destruction de l'entreprise
+            </Heading>
+            <Info>
+              Pour détruire l'entreprise, vous devez d'abord supprimer tous les
+              utilisateurs. Une fois l'entreprise détruite, vous ne pourrez pas
+              y accéder. Nous pouvons récupérer les données pour une période de
+              30 jours via un contact avec le support.
+            </Info>
+            <br />
+            <ButtonConfirm
+              disabled={users.length > 1}
+              theme="danger"
+              size="md"
+              className="mt-4"
+              confirmButtonTheme="danger"
+              confirmButtonText="Détruire l'entreprise"
+              onClick={async () => {
+                try {
+                  await remove(user?.id || "");
+                  document.location.reload();
+                } catch (e) {
+                  console.error(e);
+                  toast.error("Vous ne pouvez pas supprimer cette entreprise.");
+                }
+              }}
+            >
+              Détruire l'entreprise
+            </ButtonConfirm>
+          </div>
+        )}
+      </div>
     </Page>
   );
 };

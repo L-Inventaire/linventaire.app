@@ -16,7 +16,9 @@ import { TablePagination, TablePaginationSimple } from "./pagination";
 import { TableCell, TableCellValue } from "./table-cell";
 import { TableCellHeader } from "./table-cell-header";
 
-export type RenderOptions = {};
+export type RenderOptions = {
+  [key: string]: any;
+};
 
 export type Column<T> = {
   id?: string;
@@ -215,9 +217,9 @@ export function RenderedTable<T>({
     }
     //Code to manage shift click range
     if ((e.shiftKey || e.ctrlKey) && selected.length > 0) {
-      let anchor = selected[selected.length - 1];
+      const anchor = selected[selected.length - 1];
       let start = false;
-      let newSelection: T[] = [];
+      const newSelection: T[] = [];
       for (const d of data) {
         if (
           (d as any)[rowIndex || "id"] === (anchor as any)[rowIndex || "id"] ||

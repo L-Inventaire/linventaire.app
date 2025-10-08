@@ -16,7 +16,7 @@ import { AccountingTransactions } from "@features/accounting/types/types";
 import { useClients } from "@features/clients/state/use-clients";
 import { useContact, useContacts } from "@features/contacts/hooks/use-contacts";
 import { Contacts } from "@features/contacts/types/types";
-import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
+import { useViewWithCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { InvoicesFieldsNames } from "@features/invoices/configuration";
 import { useInvoice, useInvoices } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
@@ -26,7 +26,7 @@ import {
   getInvoiceWithOverrides,
 } from "@features/invoices/utils";
 import { ROUTES } from "@features/routes";
-import { formatTime } from "@features/utils/format/dates";
+import { formatDate, formatTime } from "@features/utils/format/dates";
 import { format as formatdfns } from "date-fns";
 import {
   getFormattedNumerotation,
@@ -49,7 +49,6 @@ import { Table } from "@molecules/table";
 import { Timeline } from "@molecules/timeline";
 import { Callout, Code, Heading, Text, Tooltip } from "@radix-ui/themes";
 import { PageColumns } from "@views/client/_layout/page";
-import { format as formatDate } from "date-fns";
 import _ from "lodash";
 import { DateTime } from "luxon";
 import { Fragment, useEffect } from "react";
@@ -67,6 +66,7 @@ import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-ca
 import { InvoiceStatus } from "./invoice-status";
 import { RelatedInvoices } from "./related-invoices";
 import { TagPaymentCompletion } from "./tag-payment-completion";
+import { InvoiceDesignationInput } from "./invoice-designation-input";
 import { format as formatfns } from "date-fns";
 import { Clients } from "@features/clients/types/clients";
 import { getTextFromHtml } from "@features/utils/format/strings";
@@ -91,7 +91,7 @@ export const InvoicesDetailsPage = ({
     draft.client || draft.supplier
   );
   const { contact: invoiceContact } = useContact(draft.contact);
-  const edit = useEditFromCtrlK();
+  const edit = useViewWithCtrlK();
 
   const { invoice: originQuote } = useInvoice(draft.from_rel_quote?.[0] || "");
 
@@ -408,7 +408,7 @@ export const InvoicesDetailsPage = ({
                     >
                       <Text size="2" className="opacity-75" weight="medium">
                         {"Émis le "}
-                        {formatfns(ctrl("emit_date").value || 0, "PPP")}
+                        {formatDate(ctrl("emit_date").value || 0)}
                       </Text>
                     </InputButton>
                   )}
@@ -422,10 +422,7 @@ export const InvoicesDetailsPage = ({
                     >
                       <Text size="2" className="opacity-75" weight="medium">
                         {readonly ? " • " : ""}Paiement avant le{" "}
-                        {formatdfns(
-                          computePaymentDelayDate(draft).toJSDate(),
-                          "PP"
-                        )}
+                        {formatDate(computePaymentDelayDate(draft).toJSDate())}
                       </Text>
                       {computePaymentDelayDate(draft).toMillis() < Date.now() &&
                         draft.state !== "closed" && (
@@ -481,30 +478,12 @@ export const InvoicesDetailsPage = ({
                   )}
                 </div>
               </Section>
-              <FormContext readonly={readonly} alwaysVisible>
-                {(!readonly || ctrl("name").value) && (
-                  <InputButton
-                    theme="invisible"
-                    size="sm"
-                    className="-mx-1 px-1"
-                    placeholder="Désignation"
-                    content={() => (
-                      <div className="space-y-2 mt-4">
-                        <FormInput ctrl={ctrl("name")} label="Désignation" />
-                        <FormInput
-                          ctrl={ctrl("alt_reference")}
-                          label="Autre référence"
-                        />
-                      </div>
-                    )}
-                    value={
-                      [ctrl("name").value, ctrl("alt_reference").value]
-                        .filter((a) => (a || "").trim())
-                        .join(" - ") || false
-                    }
-                  />
-                )}
-              </FormContext>
+              <InvoiceDesignationInput
+                readonly={readonly}
+                draft={draft}
+                nameCtrl={ctrl("name")}
+                altReferenceCtrl={ctrl("alt_reference")}
+              />
 
               {draft.type === "quotes" && draft.state === "recurring" && (
                 <InputButton
@@ -530,10 +509,7 @@ export const InvoicesDetailsPage = ({
                       </Info>
                       <BaseSmall className="block my-2">
                         La prochaine facture sera générée le{" "}
-                        {formatDate(
-                          getInvoiceNextDate(draft) || 0,
-                          "yyyy-MM-dd"
-                        )}
+                        {formatDate(getInvoiceNextDate(draft) || 0)}
                       </BaseSmall>
                     </>
                   )}
@@ -542,16 +518,12 @@ export const InvoicesDetailsPage = ({
                   <Text size="2" className="opacity-75" weight="medium">
                     <PlayCircleIcon className="h-3 w-3 inline-block mr-1 -mt-0.5" />
                     {"Démarre le "}
-                    {formatDate(
-                      draft.subscription_started_at || 0,
-                      "yyyy-MM-dd"
-                    )}
+                    {formatDate(draft.subscription_started_at || 0)}
                     {", prochaine facture le "}
                     {formatDate(
                       getInvoiceNextDate(draft) ||
                         draft.subscription_next_invoice_date ||
-                        0,
-                      "yyyy-MM-dd"
+                        0
                     )}
                   </Text>
                 </InputButton>
@@ -725,7 +697,8 @@ export const InvoicesDetailsPage = ({
                                         rel_invoices: [draft.id],
                                         currency: draft.currency,
                                         amount:
-                                          draft.total?.total_with_taxes || 0,
+                                          (draft.total?.total_with_taxes || 0) -
+                                          (draft.transactions?.total || 0),
                                         reference: draft.reference,
                                       }
                                     )

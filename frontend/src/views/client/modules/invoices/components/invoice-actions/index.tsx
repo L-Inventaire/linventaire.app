@@ -30,10 +30,12 @@ export const InvoiceActions = ({
   const navigate = useNavigateAlt();
   const { draft, save: _save } = useReadDraftRest<Invoices>(
     "invoices",
-    id || "new"
+    id || "new",
+    readonly
   );
 
   const save = async () => {
+    console.log("SAVE CLICKED");
     const item = await _save();
     if (item) navigate(getRoute(ROUTES.InvoicesView, { id: item?.id }));
   };
@@ -136,9 +138,7 @@ export const InvoiceActions = ({
 
       {!readonly && (
         <>
-          <Button size="lg" onClick={async () => await save()}>
-            Sauvegarder
-          </Button>
+          <Button onClick={async () => await save()}>Sauvegarder</Button>
         </>
       )}
 

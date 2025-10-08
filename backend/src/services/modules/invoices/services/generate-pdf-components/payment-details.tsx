@@ -63,7 +63,11 @@ export const InvoicePaymentDetails = ({
                   {
                     replacements: {
                       date: document.subscription?.start
-                        ? displayDate(document.subscription?.start, timezone)
+                        ? displayDate(
+                            document.subscription?.start,
+                            timezone,
+                            document.language
+                          )
                         : "",
                     },
                   }
@@ -77,7 +81,11 @@ export const InvoicePaymentDetails = ({
                   {
                     replacements: {
                       date: document.subscription?.end
-                        ? displayDate(document.subscription?.end, timezone)
+                        ? displayDate(
+                            document.subscription?.end,
+                            timezone,
+                            document.language
+                          )
                         : "",
                       delay: Framework.I18n.t(
                         ctx,

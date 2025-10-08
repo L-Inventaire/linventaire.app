@@ -39,23 +39,30 @@ import { useRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
 import { filterSuggestions, useSearchableEntities } from "./search-utils";
 
-export const SearchCtrlK = ({ index }: { index: number }) => {
+export const SearchCtrlK = ({ stateId }: { stateId: string }) => {
   const [states, setStates] = useRecoilState(CtrlKAtom);
   const [actionLoading, setActionLoading] = useState(false);
 
   const queryClient = useQueryClient();
 
-  const state = states[index];
+  const state = states.find((s) => s.id === stateId);
   const setState = (newState: any) => {
     setStates((states) => {
       const newStates = [...states];
-      newStates[index] = newState;
+      const targetIndex = newStates.findIndex((s) => s.id === stateId);
+      if (targetIndex !== -1) {
+        newStates[targetIndex] = newState;
+      }
       return newStates;
     });
   };
 
+  if (!state) {
+    return null; // State not found
+  }
+
   const { t } = useTranslation();
-  const currentState = state.path[state.path.length - 1] || {};
+  const currentState = state.path?.[state.path?.length - 1] || {};
   const currentEntity = currentState.options?.entity;
   const [selection, setSelection] = useState<RestEntity[]>(
     currentState.options?.selected || []
@@ -84,7 +91,7 @@ export const SearchCtrlK = ({ index }: { index: number }) => {
     });
   };
 
-  const searchableEntities = useSearchableEntities(index);
+  const searchableEntities = useSearchableEntities(stateId);
   const query = currentState.options?.query || "";
   const [searchQuery, setSearchQuery] = useState<RestSearchQuery[]>([]);
   const setQuery = (query: string) => {
@@ -187,7 +194,7 @@ export const SearchCtrlK = ({ index }: { index: number }) => {
         suggestions={
           currentState.mode === "action"
             ? [
-                ...(!!state.selection?.items?.length
+                ...(state.selection?.items?.length
                   ? filterSuggestions(
                       query,
                       CtrlKRestEntities[state.selection.entity || ""]

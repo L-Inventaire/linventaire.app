@@ -20,7 +20,8 @@ export const SupplierInvoicesActions = ({
 }) => {
   const { draft, save: _save } = useReadDraftRest<Invoices>(
     "invoices",
-    id || "new"
+    id || "new",
+    readonly
   );
   const disabled =
     readonly || draft.state === "closed" || draft.state === "completed";
@@ -40,7 +41,6 @@ export const SupplierInvoicesActions = ({
     <>
       {errorFormat && (
         <Button
-          size="lg"
           icon={(p) => <CheckIcon {...p} />}
           onClick={() => {
             navigate(getRoute(ROUTES.SettingsPreferences));
@@ -53,7 +53,6 @@ export const SupplierInvoicesActions = ({
       {draft.state === "draft" && !errorFormat && (
         <Button
           disabled={disabled}
-          size="lg"
           icon={(p) => <CheckIcon {...p} />}
           onClick={() => {
             _save({ state: "sent" });
@@ -78,13 +77,14 @@ export const SupplierInvoicesActions = ({
           />
           <Button
             disabled={disabled}
-            size="lg"
             icon={(p) => <CheckIcon {...p} />}
             onClick={() => {
               edit<AccountingTransactions>("accounting_transactions", "", {
                 rel_invoices: [draft.id],
                 currency: draft.currency,
-                amount: draft.total?.total_with_taxes || 0,
+                amount:
+                  (draft.total?.total_with_taxes || 0) -
+                  (draft.transactions?.total || 0),
                 reference: draft.reference,
               });
             }}
@@ -97,7 +97,6 @@ export const SupplierInvoicesActions = ({
         <>
           <DropdownButton
             theme="invisible"
-            size="lg"
             className="m-0"
             icon={(p) => <EllipsisHorizontalIcon {...p} />}
             menu={[
@@ -107,16 +106,13 @@ export const SupplierInvoicesActions = ({
               },
             ]}
           />
-          <Button disabled={true} size="lg">
-            Document fermé
-          </Button>
+          <Button disabled={true}>Document fermé</Button>
         </>
       )}
       {draft.state === "completed" && !errorFormat && (
         <>
           <DropdownButton
             theme="invisible"
-            size="lg"
             className="m-0"
             icon={(p) => <EllipsisHorizontalIcon {...p} />}
             menu={[
@@ -126,9 +122,7 @@ export const SupplierInvoicesActions = ({
               },
             ]}
           />
-          <Button disabled={true} size="lg">
-            Facture payée et cloturée
-          </Button>
+          <Button disabled={true}>Facture payée et cloturée</Button>
         </>
       )}
     </>

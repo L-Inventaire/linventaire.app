@@ -190,7 +190,7 @@ export const useSuggestions = (
   // Lets keep the map clean
   const cleanMap = () => {
     if (!inputRef.current) return;
-    let value = inputRef.current?.value || "";
+    const value = inputRef.current?.value || "";
     if (!value.trim()) return;
     // Clean the displayValueMap
     displayToValueMap.current = Object.fromEntries(

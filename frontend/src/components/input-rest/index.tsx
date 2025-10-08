@@ -9,17 +9,17 @@ import {
 import { buildQueryFromMap } from "@components/search-bar/utils/utils";
 import { CtrlKRestEntities } from "@features/ctrlk";
 import { useCtrlKAsSelect } from "@features/ctrlk/use-ctrlk-as-select";
-import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
+import { useViewWithCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { getRoute } from "@features/routes";
 import { useNavigateAlt } from "@features/utils/navigate";
 import { useRest } from "@features/utils/rest/hooks/use-rest";
 import { RestEntity } from "@features/utils/rest/types/types";
-import { TrashIcon } from "@heroicons/react/16/solid";
-import { PencilSquareIcon, PlusIcon } from "@heroicons/react/20/solid";
+import { EyeIcon, TrashIcon } from "@heroicons/react/16/solid";
+import { PlusIcon } from "@heroicons/react/20/solid";
+import { motion } from "framer-motion";
 import _ from "lodash";
 import { Fragment, ReactNode, useCallback, useContext, useEffect } from "react";
 import { twMerge } from "tailwind-merge";
-import { motion } from "framer-motion";
 
 export type RestDocumentProps<T> = {
   className?: string;
@@ -57,7 +57,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
 ) => {
   const formContext = useContext(FormContextContext);
   const select = useCtrlKAsSelect();
-  const edit = useEditFromCtrlK();
+  const edit = useViewWithCtrlK();
   const size = props.size || "md";
   const disabled =
     props.disabled === undefined
@@ -141,7 +141,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
             props.max || 1,
             valuesList || []
           )
-        : !!value
+        : value
         ? edit(props.entity, _.isArray(value) ? value[0] : value || "")
         : null;
     },
@@ -157,7 +157,6 @@ export const RestDocumentsInput = <T extends RestEntity>(
             icon={icon}
             onClick={onClick}
             className={"m-0 " + props.className}
-            size={size}
             readonly={disabled}
             data-tooltip={props["data-tooltip"]}
           />
@@ -200,7 +199,6 @@ export const RestDocumentsInput = <T extends RestEntity>(
             icon={(p) => <PlusIcon {...p} />}
             onClick={onClick}
             className={"m-0 " + props.className}
-            size={size}
             data-tooltip={props["data-tooltip"]}
           />
         )}
@@ -276,14 +274,14 @@ export const RestDocumentsInput = <T extends RestEntity>(
                     {value?.[0] &&
                       CtrlKRestEntities[props.entity].renderEditor && (
                         <Button
-                          data-tooltip="Éditer"
+                          data-tooltip="Prévisualiser / éditer"
                           className={twMerge(
                             "w-0 ml-0.5 overflow-hidden",
                             value && "w-5 ml-px transition-all delay-200"
                           )}
                           theme="invisible"
                           size="xs"
-                          icon={(p) => <PencilSquareIcon {...p} />}
+                          icon={(p) => <EyeIcon {...p} />}
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
@@ -298,7 +296,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
                       <Button
                         data-tooltip="Supprimer"
                         className={twMerge(
-                          "text-red-500 dark:text-red-500 w-0 ml-0.5 overflow-hidden",
+                          "bg-opacity-0 bg-red-500 text-red-500 dark:text-red-500 w-0 ml-0.5 overflow-hidden",
                           value && "w-5 ml-px transition-all delay-200"
                         )}
                         theme="invisible"
@@ -310,11 +308,11 @@ export const RestDocumentsInput = <T extends RestEntity>(
                           if (typeof props.max !== "number") {
                             const onChange =
                               props.onChange || props.ctrl?.onChange;
-                            !disabled && onChange?.("", null);
+                            if (!disabled) onChange?.("", null);
                           } else {
                             const onChange =
                               props.onChange || props.ctrl?.onChange;
-                            !disabled && onChange?.([], []);
+                            if (!disabled) onChange?.([], []);
                           }
                         }}
                       />

@@ -36,6 +36,7 @@ export type RestOptions<T> = {
   key?: string;
   deleted?: boolean;
   ignoreEmptyFilters?: boolean;
+  useRankOrderOnSearch?: boolean;
   queryFn?: () => Promise<{ total: number; list: T[] }>;
 };
 
@@ -135,7 +136,7 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
   if (
     options?.query &&
     _.isArray(options?.query) &&
-    options?.query?.find((a) => a.key === "is_deleted")?.values[0].value ===
+    options?.query?.find((a) => a.key === "is_deleted")?.values?.[0]?.value ===
       true
   ) {
     options.deleted = true;
@@ -162,11 +163,22 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
     queryFn:
       options?.queryFn ||
       (async () => {
+        options = _.cloneDeep(options || {});
         const invalidRequest =
           options?.limit === 0 ||
           (options?.ignoreEmptyFilters !== false &&
             isArray(options?.query) &&
             (options?.query as any[])?.find((a) => a.values.length === 0));
+
+        if (
+          options?.useRankOrderOnSearch &&
+          isArray(options?.query) &&
+          options?.query?.length &&
+          options?.query?.find((a) => a.key === "query")
+        ) {
+          options.index =
+            "_rank desc" + (options.index ? "," + options.index : "");
+        }
 
         const temp = invalidRequest
           ? { total: 0, list: [] }
@@ -178,7 +190,7 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
           : await restApiClient.list(
               id || "",
               options?.query,
-              _.omit(options, "query")
+              _.omit(options, "query", "useRankOrderOnSearch")
             );
         setIsPendingModification(false);
 
@@ -193,7 +205,9 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
     });
 
   const remove = useMutation({
-    mutationFn: (itemId: string) => restApiClient.delete(id || "", itemId),
+    mutationFn: (itemId: string) => {
+      return restApiClient.delete(id || "", itemId);
+    },
     onMutate: () => setIsPendingModification(true),
     onSettled: () => {
       queryClient.invalidateQueries({

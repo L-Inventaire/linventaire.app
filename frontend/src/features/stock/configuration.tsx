@@ -6,19 +6,20 @@ import { UsersInput } from "@components/input-rest/users";
 import { useArticle } from "@features/articles/hooks/use-articles";
 import { Articles } from "@features/articles/types/types";
 import { getContactName } from "@features/contacts/types/types";
-import { registerCtrlKRestEntity } from "@features/ctrlk";
+import { CtrlkAction, registerCtrlKRestEntity } from "@features/ctrlk";
 import { ROUTES } from "@features/routes";
 import { formatNumber } from "@features/utils/format/strings";
 import { MapPinIcon, UserIcon } from "@heroicons/react/16/solid";
 import { Column } from "@molecules/table/table";
 import { Badge } from "@radix-ui/themes";
 import { getArticleIcon } from "@views/client/modules/articles/components/article-icon";
+import { InvoiceRestDocument } from "@views/client/modules/invoices/components/invoice-lines-input/invoice-input-rest-card";
 import { StockItemsDetailsPage } from "@views/client/modules/stock/components/stock-item-details";
 import { StockItemStatus } from "@views/client/modules/stock/components/stock-item-status";
 import { useTranslation } from "react-i18next";
+import { setDefaultRestActions } from "../utils/rest/utils";
 import { useStockLocations } from "./hooks/use-stock-locations";
 import { StockItems, StockLocations } from "./types/types";
-import { InvoiceRestDocument } from "@views/client/modules/invoices/components/invoice-lines-input/invoice-input-rest-card";
 
 export const useStockItemDefaultModel: () => Partial<StockItems> = () => ({});
 
@@ -120,6 +121,11 @@ registerCtrlKRestEntity<StockItems>("stock_items", {
   renderResult: StockItemsColumns,
   useDefaultData: useStockItemDefaultModel,
   viewRoute: ROUTES.StockView,
+  actions: (rows, queryClient) => {
+    const actions: CtrlkAction[] = [];
+    setDefaultRestActions(actions, "stock_items", rows, queryClient);
+    return actions;
+  },
 });
 
 export const useStockLocationDefaultModel: () => Partial<StockLocations> =

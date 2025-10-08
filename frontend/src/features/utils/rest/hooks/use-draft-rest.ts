@@ -36,7 +36,7 @@ export const useReadDraftRest = <T extends { id: string }>(
   return useDraftRest<T>(table, id, async () => {}, undefined, readonly);
 };
 
-export const DraftContext = createContext({ key: "" });
+export const DraftContext = createContext({ key: "", isModal: false });
 
 export const useDraftRest = <T extends { id: string }>(
   table: string,
@@ -108,5 +108,6 @@ export const useDraftRest = <T extends { id: string }>(
     ctrl,
     draft,
     setDraft: setDraft,
+    lockNavigation,
   };
 };

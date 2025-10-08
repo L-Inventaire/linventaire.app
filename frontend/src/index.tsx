@@ -1,4 +1,5 @@
 import "@features/utils/i18n";
+import "./tailwind.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import ReactDOM from "react-dom/client";
 import initReactFastclick from "react-fastclick";

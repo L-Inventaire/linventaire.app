@@ -92,11 +92,13 @@ export const registerRoutes = (router: Router) => {
 
       const quote = await db.selectOne<Invoices>(ctx, InvoicesDefinition.name, {
         id: req.params.id,
-        type: "quotes",
         client_id: ctx.client_id,
       });
 
-      if (!quote) {
+      if (
+        !quote ||
+        (quote.type !== "quotes" && quote.type !== "supplier_quotes")
+      ) {
         return res.status(404).json({ error: "Not found" });
       }
 

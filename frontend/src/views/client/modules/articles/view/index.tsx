@@ -25,11 +25,6 @@ export const ArticlesViewPage = (_props: { readonly?: boolean }) => {
           entity={"articles"}
           document={article}
           mode={"read"}
-          backRoute={ROUTES.Products}
-          editRoute={
-            hasAccess("ARTICLES_WRITE") ? ROUTES.ProductsEdit : undefined
-          }
-          viewRoute={ROUTES.ProductsView}
           onRemove={
             article?.id && hasAccess("ARTICLES_WRITE")
               ? async () => remove.mutateAsync(article?.id)

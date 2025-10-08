@@ -77,10 +77,12 @@ export const generateWhereClause = (
     if (schemaColumnType.match(/^type:/)) {
       query.values = [
         ...query.values,
-        ...query.values.map((a) => ({
-          op: a.op,
-          value: schemaColumnType.split(":").pop() + ":" + a.value,
-        })),
+        ...query.values
+          .filter((a) => a.op === "equals" || a.op === "regex")
+          .map((a) => ({
+            op: a.op,
+            value: schemaColumnType.split(":").pop() + ":" + a.value,
+          })),
       ];
     }
 
@@ -94,7 +96,9 @@ export const generateWhereClause = (
       if (isArray) {
         clauseParts.push(`${columnName} IS NULL OR ${columnName} = '{}'`);
       } else if (columnType === "JSONB") {
-        clauseParts.push(`${columnName} IS NULL OR ${columnName} = 'null'`);
+        clauseParts.push(
+          `${columnName} IS NULL OR ${columnName} = 'null' OR ${columnName} = '[null]' OR ${columnName} = '[]' OR ${columnName} = '{}'`
+        );
       } else {
         clauseParts.push(`${columnName} IS NULL OR ${columnName} = ''`);
       }
@@ -152,19 +156,51 @@ export const generateWhereClause = (
             clause = `((${columnName})::text % $${counter} OR (${columnName})::text ~ $${
               counter + 1
             })`;
+
+            // We'll copy the value as it is used twice here
             values.push(value.value);
             counter++;
+
             break;
           case "gte":
           case "lte":
-            clause = `${columnName} ${
-              value.op === "gte" ? ">=" : "<="
-            } $${counter}`;
+            // For JSONB arrays it will be the number of items in the array
+            if (isJsonbArray) {
+              clause = `jsonb_array_length(coalesce((${columnName.replace(
+                /->>/gm,
+                "->"
+              )})::jsonb, '[]'::jsonb)) ${
+                value.op === "gte" ? ">=" : "<="
+              } $${counter}`;
+            } else if (isArray) {
+              // Compare array length
+              clause = `array_length(coalesce(${columnName}, '{}'), 1) ${
+                value.op === "gte" ? ">=" : "<="
+              } $${counter}`;
+            } else {
+              clause = `${columnName} ${
+                value.op === "gte" ? ">=" : "<="
+              } $${counter}`;
+            }
             break;
           case "range":
-            clause = `(${columnName} >= $${counter} AND ${columnName} <= $${
-              counter + 1
-            })`;
+            if (isJsonbArray) {
+              clause = `(jsonb_array_length(coalesce((${columnName.replace(
+                /->>/gm,
+                "->"
+              )})::jsonb, '[]'::jsonb)) >= $${counter}
+        AND jsonb_array_length(coalesce((${columnName.replace(
+          /->>/gm,
+          "->"
+        )})::jsonb, '[]'::jsonb)) <= $${counter + 1})`;
+            } else if (isArray) {
+              clause = `(array_length(coalesce(${columnName}, '{}'), 1) >= $${counter}
+        AND array_length(coalesce(${columnName}, '{}'), 1) <= $${counter + 1})`;
+            } else {
+              clause = `(${columnName} >= $${counter} AND ${columnName} <= $${
+                counter + 1
+              })`;
+            }
             break;
         }
 
@@ -211,19 +247,30 @@ export const generateWhereClause = (
   });
 
   // Add query string
-  const queryStr = queries.find((q) => q.key === "query")?.values?.[0]?.value;
-  if (queryStr && queryStr.trim() && columnDefinitions.searchable_generated) {
-    const words = queryStr.split(" ");
-    for (const word of words) {
-      if (!word.trim()) continue;
-      where.push(
-        `searchable_generated @@ to_tsquery('simple', unaccent($${counter}))`
-      );
-      const isLast = words.indexOf(word) === words.length - 1;
-      const endsWithNumber = word.match(/\d+$/);
-      values.push(word + (isLast && !endsWithNumber ? ":*" : ""));
-      counter++;
+  const queriesOrValues = queries.find((q) => q.key === "query")?.values;
+  const queriesWhere: string[] = [];
+  for (const query of queriesOrValues || []) {
+    const queryStr = query.value;
+    if (queryStr && queryStr.trim() && columnDefinitions.searchable_generated) {
+      const queriesSubWhere = [];
+      const words = queryStr.split(/[^a-z0-9]+/);
+      for (const word of words) {
+        if (!word.replace(/[^a-z0-9]/gm, "").trim()) continue;
+        queriesSubWhere.push(
+          `searchable_generated @@ to_tsquery('simple', unaccent($${counter}))`
+        );
+        const isLast = words.indexOf(word) === words.length - 1;
+        const endsWithNumber = word.match(/\d+$/);
+        values.push(word + (isLast && !endsWithNumber ? ":*" : ""));
+        counter++;
+      }
+      if (queriesSubWhere.length) {
+        queriesWhere.push("(" + queriesSubWhere.join(" AND ") + ")");
+      }
     }
+  }
+  if (queriesWhere.length) {
+    where.push("(" + queriesWhere.join(" OR ") + ")");
   }
 
   // Add current client_id

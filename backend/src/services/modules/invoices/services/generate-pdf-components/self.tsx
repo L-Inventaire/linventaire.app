@@ -71,13 +71,14 @@ export const InvoiceSelf = ({
                 // Bon de livraison: la date d'émission doit être la date d'impression / génération du PDF
                 as === "delivery_slip" ? Date.now() : document.emit_date
               ),
-              timezone
+              timezone,
+              document.language
             ),
           },
           !!payBefore &&
             document.type === "invoices" && {
               label: Framework.I18n.t(ctx, "invoices.other.payment_date"),
-              value: displayDate(payBefore, timezone),
+              value: displayDate(payBefore, timezone, document.language),
             },
         ]}
       />

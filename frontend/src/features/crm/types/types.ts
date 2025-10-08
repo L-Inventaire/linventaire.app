@@ -1,3 +1,5 @@
+import { RestEntity } from "../../utils/rest/types/types";
+
 export type CRMItem = {
   id: string;
   contacts: string[];
@@ -8,7 +10,7 @@ export type CRMItem = {
   tags: string[];
 
   contact_summaries?: ContactSummary[];
-};
+} & RestEntity;
 
 export type ContactSummary = {
   person_first_name: string;

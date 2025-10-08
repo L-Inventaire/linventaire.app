@@ -4,14 +4,14 @@ import { SchemaType } from "../types/types";
 
 /** This will group the GET requests into a single batch if requested under 10ms */
 const fetchServerBatch = (() => {
-  let pendingRequests: {
+  const pendingRequests: {
     [key: string]: {
       url: string;
       body?: any;
       resolves: ((res: any) => void)[];
     }[];
   } = {};
-  let timeoutId: { [key: string]: NodeJS.Timeout | null } = {};
+  const timeoutId: { [key: string]: NodeJS.Timeout | null } = {};
 
   const sendBatchRequest = async (clientId: string) => {
     const requestsToBatch = _.cloneDeep(pendingRequests);

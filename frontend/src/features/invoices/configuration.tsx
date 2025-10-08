@@ -14,16 +14,16 @@ import { formatAmount } from "@features/utils/format/strings";
 import { RestFieldsNames } from "@features/utils/rest/configuration";
 import { getRestApiClient } from "@features/utils/rest/hooks/use-rest";
 import {
-  ArchiveBoxArrowDownIcon,
   ArrowPathIcon,
   CheckIcon,
   RectangleStackIcon,
-  TrashIcon,
 } from "@heroicons/react/16/solid";
 import { Column } from "@molecules/table/table";
 import { Badge } from "@radix-ui/themes";
 import { frequencyOptions } from "@views/client/modules/articles/components/article-details";
 import { ContactRestDocument } from "@views/client/modules/contacts/components/contact-input-rest-card";
+import { InvoicesDocumentBar } from "@views/client/modules/invoices/components/document-bar";
+import { InvoiceActions } from "@views/client/modules/invoices/components/invoice-actions";
 import { CompletionTags } from "@views/client/modules/invoices/components/invoice-lines-input/components/completion-tags";
 import { InvoiceRestDocument } from "@views/client/modules/invoices/components/invoice-lines-input/invoice-input-rest-card";
 import { InvoiceStatus } from "@views/client/modules/invoices/components/invoice-status";
@@ -39,6 +39,8 @@ import { InvoicesViewPage } from "@views/client/modules/invoices/view";
 import { format } from "date-fns";
 import _ from "lodash";
 import toast from "react-hot-toast";
+import { formatDate } from "../utils/format/dates";
+import { setDefaultRestActions } from "../utils/rest/utils";
 import { InvoicesApiClient } from "./api-client/invoices-api-client";
 import { Invoices } from "./types/types";
 
@@ -67,7 +69,7 @@ export const InvoicesColumns: Column<Invoices>[] = [
         <Base className="whitespace-nowrap">
           {invoice.emit_date
             ? // Short format for today
-              format(invoice.emit_date, "PP")
+              formatDate(invoice.emit_date)
             : "-"}
         </Base>
       );
@@ -205,7 +207,7 @@ export const InvoicesColumns: Column<Invoices>[] = [
                   color="blue"
                   size={"xs"}
                   icon={
-                    !!key ? (
+                    key ? (
                       <ArrowPathIcon
                         className={`w-3 h-3 mr-1 shrink-0 text-blue-500`}
                       />
@@ -250,6 +252,21 @@ export const InvoicesColumns: Column<Invoices>[] = [
 ];
 
 registerCtrlKRestEntity<Invoices>("invoices", {
+  renderDocumentBar: (props) => (
+    <InvoicesDocumentBar
+      id={props.id}
+      readonly={props.readonly || false}
+      onClose={props.onClose}
+      onSave={props.onSave}
+      onChangeMode={props.onChangeMode}
+    />
+  ),
+  renderActionsBar: (props) => {
+    if (!props.readonly) return null;
+    const isRevision = props.id?.includes("~");
+    if (isRevision) return null;
+    return <InvoiceActions id={props.id} readonly={props.readonly} />;
+  },
   renderEditor: (props) => (
     <InvoicesDetailsPage readonly={props.readonly || false} id={props.id} />
   ),
@@ -303,9 +320,9 @@ registerCtrlKRestEntity<Invoices>("invoices", {
           };
           for (const row of rows) {
             const partial = await InvoicesApiClient.getPartialInvoice(row);
-            invoice.content?.push(...(partial.partial_invoice.content || []));
+            invoice.content?.push(...(partial.partial_invoice?.content || []));
             invoice.discount!.value +=
-              partial.partial_invoice.discount?.value || 0;
+              partial.partial_invoice?.discount?.value || 0;
           }
           document.location = withModel<Invoices>(
             getRoute(ROUTES.InvoicesEdit, {
@@ -331,6 +348,7 @@ registerCtrlKRestEntity<Invoices>("invoices", {
                 state: "purchase_order",
               });
             } catch (e) {
+              console.error(e);
               toast.error("Erreur lors de la mise à jour de la facture");
             }
           }
@@ -339,43 +357,7 @@ registerCtrlKRestEntity<Invoices>("invoices", {
       } as CtrlkAction);
     }
 
-    if (rows.every((a) => !a.is_deleted)) {
-      actions.push({
-        label: "Supprimer",
-        icon: (p) => <TrashIcon {...p} />,
-        action: async () => {
-          const table = "invoices";
-          const rest = getRestApiClient(table);
-          for (const row of rows) {
-            try {
-              await rest.delete(row.client_id, row.id);
-            } catch (e) {
-              toast.error("Erreur lors de la mise à jour de la facture");
-            }
-          }
-          queryClient.invalidateQueries({ queryKey: [table] });
-        },
-      } as CtrlkAction);
-    }
-
-    if (rows.every((a) => a.is_deleted)) {
-      actions.push({
-        label: "Restaurer",
-        icon: (p) => <ArchiveBoxArrowDownIcon {...p} />,
-        action: async () => {
-          const table = "invoices";
-          const rest = getRestApiClient(table);
-          for (const row of rows) {
-            try {
-              await rest.restore(row.client_id, row.id);
-            } catch (e) {
-              toast.error("Erreur lors de la mise à jour de la facture");
-            }
-          }
-          queryClient.invalidateQueries({ queryKey: [table] });
-        },
-      } as CtrlkAction);
-    }
+    setDefaultRestActions(actions, "invoices", rows, queryClient);
 
     return [...actions];
   },
@@ -425,11 +407,11 @@ export const InvoicesFieldsNames = () => ({
   },
   "total.total": {
     label: "Total HT",
-    keywords: "total ht",
+    keywords: "total ht montant prix",
   },
   "total.total_with_taxes": {
     label: "Total TTC",
-    keywords: "total ttc",
+    keywords: "total ttc montant prix",
   },
   client: {
     label: "Client",

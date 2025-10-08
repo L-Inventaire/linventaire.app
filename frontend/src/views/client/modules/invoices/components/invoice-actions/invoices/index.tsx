@@ -32,7 +32,8 @@ export const InvoicesActions = ({
 
   const { draft, save: _save } = useReadDraftRest<Invoices>(
     "invoices",
-    id || "new"
+    id || "new",
+    readonly
   );
   const disabled =
     readonly || draft.state === "closed" || draft.state === "completed";
@@ -61,7 +62,6 @@ export const InvoicesActions = ({
           <DropdownButton
             disabled={disabled}
             className="m-0"
-            size="lg"
             icon={(p) => <PaperAirplaneIcon {...p} />}
             position="top"
             menu={[
@@ -149,13 +149,14 @@ export const InvoicesActions = ({
           />
           <Button
             disabled={disabled}
-            size="lg"
             icon={(p) => <CheckIcon {...p} />}
             onClick={() => {
               edit<AccountingTransactions>("accounting_transactions", "", {
                 rel_invoices: [draft.id],
                 currency: draft.currency,
-                amount: draft.total?.total_with_taxes || 0,
+                amount:
+                  (draft.total?.total_with_taxes || 0) -
+                  (draft.transactions?.total || 0),
                 reference: draft.reference,
               });
             }}
@@ -169,7 +170,6 @@ export const InvoicesActions = ({
         <>
           <DropdownButton
             theme="invisible"
-            size="lg"
             className="m-0"
             icon={(p) => <EllipsisHorizontalIcon {...p} />}
             menu={[
@@ -180,16 +180,13 @@ export const InvoicesActions = ({
               },
             ]}
           />
-          <Button disabled={true} size="lg">
-            Document fermé
-          </Button>
+          <Button disabled={true}>Document fermé</Button>
         </>
       )}
       {draft.state === "completed" && (
         <>
           <DropdownButton
             theme="invisible"
-            size="lg"
             className="m-0"
             icon={(p) => <EllipsisHorizontalIcon {...p} />}
             menu={[
@@ -200,9 +197,7 @@ export const InvoicesActions = ({
               },
             ]}
           />
-          <Button disabled={true} size="lg">
-            Facture payée et cloturée
-          </Button>
+          <Button disabled={true}>Facture payée et cloturée</Button>
         </>
       )}
     </>

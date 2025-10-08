@@ -11,8 +11,8 @@ export const SetupFeaturebase = ({
 
     const win = window as any;
     if (typeof win.Featurebase !== "function") {
-      win.Featurebase = function () {
-        (win.Featurebase.q = win.Featurebase.q || []).push(arguments);
+      win.Featurebase = function (...args: any[]) {
+        (win.Featurebase.q = win.Featurebase.q || []).push(...args);
       };
     }
 

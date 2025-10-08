@@ -1,5 +1,5 @@
 import { useSetRecoilState } from "recoil";
-import { CtrlKAtom } from "./store";
+import { CtrlKAtom, generateUniqueStateId } from "./store";
 
 export const useCtrlKAsSelect = () => {
   const setCtrlK = useSetRecoilState(CtrlKAtom);
@@ -15,6 +15,7 @@ export const useCtrlKAsSelect = () => {
       ...states,
       {
         ...(states[states.length - 1] || {}),
+        id: generateUniqueStateId(),
         path: [
           {
             mode: "search",

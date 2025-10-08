@@ -27,7 +27,7 @@ export const ContactsEditPage = (_props: { readonly?: boolean }) => {
       async (item) => {
         navigate(getRoute(ROUTES.ContactsView, { id: item.id }));
       },
-      _.merge(defaultModel, initialModel) as Contacts
+      _.merge({}, defaultModel, initialModel) as Contacts
     );
 
   return (
@@ -44,8 +44,6 @@ export const ContactsEditPage = (_props: { readonly?: boolean }) => {
           document={{ id }}
           mode={"write"}
           onSave={async () => await save()}
-          backRoute={ROUTES.Contacts}
-          viewRoute={ROUTES.ContactsView}
           prefix={<span>Créer un contact</span>}
           onRemove={draft.id ? remove : undefined}
           onRestore={draft.id ? restore : undefined}

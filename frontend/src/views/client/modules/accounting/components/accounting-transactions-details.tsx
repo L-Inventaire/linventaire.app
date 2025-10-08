@@ -118,7 +118,7 @@ export const AccountingTransactionsDetailsPage = ({
     <div className="w-full max-w-4xl mx-auto">
       <FormContext readonly={readonly} alwaysVisible>
         {!readonly && (
-          <Card title="Déclarer une opération">
+          <Card title="Déclarer une opération" className="mb-4">
             Déclarez ou éditez une opération comptable.
           </Card>
         )}
@@ -241,13 +241,15 @@ export const AccountingTransactionsDetailsPage = ({
           </div>
         </div>
 
-        <div className="mt-8">
-          <Timeline
-            entity="accounting_transactions"
-            id={draft.id}
-            viewRoute={ROUTES.AccountingView}
-          />
-        </div>
+        {!!draft.id && (
+          <div className="mt-8">
+            <Timeline
+              entity="accounting_transactions"
+              id={draft.id}
+              viewRoute={ROUTES.AccountingView}
+            />
+          </div>
+        )}
       </FormContext>
     </div>
   );

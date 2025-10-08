@@ -1,7 +1,7 @@
 const Env = {
   reCaptchaSiteKey: "6Lf5LxopAAAAALXErlTeGxlWy_x6M8RlKlJzZ4RB",
   server: document.location.protocol + "//api.linventaire.app",
-  version: "1.0.0",
+  version: "1.1.0",
 };
 
 export default Env;

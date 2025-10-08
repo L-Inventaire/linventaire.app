@@ -1,6 +1,7 @@
 import { useAuth } from "@features/auth/state/use-auth";
 import { useGlobalEffect } from "@features/utils/hooks/use-global-effect";
 import { LoadingState } from "@features/utils/store/loading-state-atom";
+import { useEffect } from "react";
 import toast from "react-hot-toast";
 import { useParams } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
@@ -24,6 +25,13 @@ export const useClients = () => {
   const [loading, setLoading] = useRecoilState(LoadingState("useClients"));
   const { client: clientId } = useParams();
   const client = clients.find((c) => c.client.id === clientId);
+
+  useEffect(() => {
+    // URL client not found in clients list, redirect to root
+    if (clients.length && !clients.find((c) => c.client.id === clientId)) {
+      document.location = "/";
+    }
+  }, [clients.length]);
 
   const refresh = async () => {
     setLoading(true);
@@ -71,6 +79,7 @@ export const useClients = () => {
       await refresh();
       toast.success("Your company has been updated.");
     } catch (e) {
+      console.error(e);
       toast.error("We couldn't update your company. Please try again.");
     }
   };
@@ -81,6 +90,7 @@ export const useClients = () => {
       try {
         if (user) await refresh();
       } catch (e) {
+        console.error(e);
         toast.error("We couldn't get your clients. Please reload the page.");
       }
     },
@@ -124,6 +134,7 @@ export const useClientInvitations = () => {
       try {
         await refresh();
       } catch (e) {
+        console.error(e);
         toast.error("We couldn't get your invitations.");
       }
     },

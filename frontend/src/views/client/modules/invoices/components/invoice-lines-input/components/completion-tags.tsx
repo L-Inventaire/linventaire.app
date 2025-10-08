@@ -2,7 +2,7 @@ import { Tag } from "@atoms/badge/tag";
 import { DropdownButton, DropDownMenuType } from "@atoms/dropdown";
 import { buildQueryFromMap } from "@components/search-bar/utils/utils";
 import { useCurrentClient } from "@features/clients/state/use-clients";
-import { CtrlKAtom } from "@features/ctrlk/store";
+import { CtrlKAtom, generateUniqueStateId } from "@features/ctrlk/store";
 import { CtrlKPathType } from "@features/ctrlk/types";
 import { Invoices } from "@features/invoices/types/types";
 import { StockItems } from "@features/stock/types/types";
@@ -53,6 +53,7 @@ export const CompletionTags = (props: {
     openCtrlK((states) => [
       ...states,
       {
+        id: generateUniqueStateId(),
         path: [
           {
             mode: "search",

@@ -2,14 +2,14 @@ import { Button } from "@atoms/button/button";
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import { InputImage } from "@atoms/input/input-image";
 import { Input } from "@atoms/input/input-text";
-import { Section } from "@atoms/text";
 import { useAuth } from "@features/auth/state/use-auth";
 import { CustomersApiClient } from "@features/customers/api-client/api-client";
 import { useState } from "react";
-import { Page, PageBlock } from "../../_layout/page";
+import { Page } from "../../_layout/page";
 import toast from "react-hot-toast";
 import Select from "@atoms/input/input-select";
 import { getServerUri } from "@features/utils/format/strings";
+import { Heading } from "@radix-ui/themes";
 
 export const AccountPage = () => {
   const { user, getUser } = useAuth();
@@ -23,8 +23,8 @@ export const AccountPage = () => {
 
   return (
     <Page title={[{ label: "Compte" }, { label: "Préférences et profil" }]}>
-      <PageBlock>
-        <Section>Profil</Section>
+      <div className="w-full max-w-4xl mx-auto mt-6">
+        <Heading size="6">Profil</Heading>
         <div className="max-w-lg">
           <InputLabel
             label="Nom complet"
@@ -78,10 +78,10 @@ export const AccountPage = () => {
             </Button>
           )}
         </div>
-      </PageBlock>
 
-      <PageBlock>
-        <Section>Préférences</Section>
+        <Heading size="6" className="mt-8">
+          Préférences
+        </Heading>
         <div className="max-w-lg">
           <InputLabel
             label="Langue"
@@ -110,7 +110,7 @@ export const AccountPage = () => {
             }
           />
         </div>
-      </PageBlock>
+      </div>
     </Page>
   );
 };

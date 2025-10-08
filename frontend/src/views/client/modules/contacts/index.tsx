@@ -2,6 +2,7 @@ import { Button } from "@atoms/button/button";
 import { Info } from "@atoms/text";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { RestTable } from "@components/table-rest";
+import { useHasAccess } from "@features/access";
 import {
   ContactsColumns,
   ContactsFieldsNames,
@@ -9,6 +10,7 @@ import {
 import { useContacts } from "@features/contacts/hooks/use-contacts";
 import { Contacts } from "@features/contacts/types/types";
 import { ROUTES, getRoute } from "@features/routes";
+import { formatNumber } from "@features/utils/format/strings";
 import { useNavigateAlt } from "@features/utils/navigate";
 import {
   RestOptions,
@@ -19,14 +21,12 @@ import { Page } from "@views/client/_layout/page";
 import { useRef, useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
-import { formatNumber } from "@features/utils/format/strings";
-import { useHasAccess } from "@features/access";
 
 export const ContactsPage = () => {
   const [options, setOptions] = useState<RestOptions<Contacts>>({
     limit: 20,
     offset: 0,
-    index: "updated_at",
+    index: "full_name,updated_at",
     asc: false,
     query: [],
   });
@@ -34,6 +34,7 @@ export const ContactsPage = () => {
     ...options,
     query: (options?.query as any) || [],
     key: "main",
+    useRankOrderOnSearch: true,
   });
   const schema = useRestSchema("contacts");
   const navigate = useNavigateAlt();

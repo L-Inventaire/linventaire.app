@@ -1,7 +1,7 @@
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import Link from "@atoms/link";
 import { Base, BaseSmall, Info } from "@atoms/text";
-import { formatTime } from "@features/utils/format/dates";
+import { formatDate } from "@features/utils/format/dates";
 import { formatAmount } from "@features/utils/format/strings";
 import { memo } from "react";
 import { SearchFormFieldType } from "./types";
@@ -90,12 +90,7 @@ export const FormReadonly = memo(
             {props.type === "date" && (
               <Base className="whitespace-nowrap">
                 {props.render?.(props.value, props.values) ||
-                  formatTime(props.value as string, {
-                    keepTime: false,
-                    keepSeconds: false,
-                    keepDate: true,
-                    hideTime: true,
-                  })}
+                  formatDate(props.value as any)}
               </Base>
             )}
             {props.type === "modal" && (
@@ -103,7 +98,7 @@ export const FormReadonly = memo(
                 <Link
                   className="cursor-pointer flex items-center underline"
                   onClick={() => {
-                    props.onClick &&
+                    if (props.onClick)
                       props.onClick({ readonly: true, values: props.values });
                   }}
                 >

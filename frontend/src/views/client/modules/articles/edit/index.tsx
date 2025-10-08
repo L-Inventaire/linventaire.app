@@ -34,7 +34,7 @@ export const ArticlesEditPage = (_props: { readonly?: boolean }) => {
     async (item) => {
       navigate(getRoute(ROUTES.ProductsView, { id: item.id }));
     },
-    _.merge(defaultModel, initialModel) as Articles
+    _.merge({}, defaultModel, initialModel) as Articles
   );
 
   return (
@@ -57,8 +57,6 @@ export const ArticlesEditPage = (_props: { readonly?: boolean }) => {
             }
             await save();
           }}
-          backRoute={ROUTES.Products}
-          viewRoute={ROUTES.ProductsView}
           prefix={<span>Créer un article</span>}
           onRemove={article.id ? remove : undefined}
           onRestore={article.id ? restore : undefined}

@@ -141,9 +141,12 @@ module.exports = {
     "bg-emerald-500",
     "bg-purple-500",
     "min-w-full",
+    "bg-opacity-0",
+    "bg-red-500",
     ...shades,
   ],
   plugins: [
+    require("tailwindcss-animate"),
     require("@tailwindcss/forms"),
     require("@tailwindcss/container-queries"),
   ],

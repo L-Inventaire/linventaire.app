@@ -1,3 +1,4 @@
+import { Fragment } from "react/jsx-runtime";
 import "./index.css";
 
 const random = Math.random();
@@ -7,7 +8,7 @@ export const AnimatedBackground = () => {
     <div className="animated-background-parent absolute flex flex-col w-full h-full top-0 left-0 overflow-hidden">
       <div className="animated-background flex flex-col w-full h-full top-0 left-0">
         {[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1].map((_, i) => (
-          <>
+          <Fragment key={i}>
             <div className="grow"></div>
             <div
               className="animated-line-pulse line w-full h-px bg-black bg-opacity-10 dark:bg-white dark:bg-opacity-10"
@@ -24,7 +25,7 @@ export const AnimatedBackground = () => {
                 }}
               ></div>
             </div>
-          </>
+          </Fragment>
         ))}
         <div className="grow"></div>
       </div>

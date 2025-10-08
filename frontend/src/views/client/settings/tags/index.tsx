@@ -65,6 +65,7 @@ export const TagsPage = () => {
         </Info>
 
         <Table
+          border
           className="mt-4"
           data={_.sortBy(tags.data?.list || [], "name")}
           columns={[

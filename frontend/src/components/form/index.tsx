@@ -196,8 +196,10 @@ export const SearchForm = (props: FiltersProps) => {
         <>
           <Tabs
             className="mb-1 mt-1"
-            value={props?.value[display?.groups?.key!] as string}
-            onChange={(v) => change(display?.groups?.key!, v)}
+            value={(props?.value[display?.groups?.key || ""] || "") as string}
+            onChange={(v) =>
+              display?.groups?.key && change(display.groups.key, v)
+            }
             tabs={(display?.groups?.items || [])?.map((e) => ({
               label: e.label,
               value: e.value,
@@ -205,7 +207,7 @@ export const SearchForm = (props: FiltersProps) => {
           />
           {(display?.groups?.items || [])?.map((group, i) => (
             <Fragment key={i}>
-              {group?.value === props?.value[display?.groups?.key!] && (
+              {group?.value === props?.value[display?.groups?.key || ""] && (
                 <DynamicGrid className="grid gap-4">
                   {(group.fields || []).map((key) => (
                     <FormInput
@@ -252,8 +254,13 @@ export const SearchForm = (props: FiltersProps) => {
             <>
               <Tabs
                 className="mb-1 -mt-2"
-                value={props?.value[display?.advanced?.groups?.key!] as string}
-                onChange={(v) => change(display?.advanced?.groups?.key!, v)}
+                value={
+                  props?.value[display?.advanced?.groups?.key || ""] as string
+                }
+                onChange={(v) =>
+                  display?.advanced?.groups?.key &&
+                  change(display.advanced.groups.key, v)
+                }
                 tabs={(display?.advanced?.groups?.items || [])?.map((e) => ({
                   label: e.label,
                   value: e.value,
@@ -263,7 +270,7 @@ export const SearchForm = (props: FiltersProps) => {
                 <Fragment key={i}>
                   {!!(
                     group?.value ===
-                    props?.value[display?.advanced?.groups?.key!]
+                    props?.value[display?.advanced?.groups?.key || ""]
                   ) && (
                     <DynamicGrid className="grid gap-4">
                       {(group.fields || []).map((key) => (

@@ -77,7 +77,7 @@ export const Account = () => {
             {
               type: "danger",
               label: "Se déconnecter",
-              onClick: () => logout(false),
+              onClick: () => logout(false, true),
             },
           ],
         });

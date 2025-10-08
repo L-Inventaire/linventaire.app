@@ -29,6 +29,32 @@ export class RestEntityColumnsDefinition {
   fields = "JSONB";
   display_name = "TEXT";
   searchable = "TEXT";
-  searchable_generated =
-    "tsvector GENERATED ALWAYS AS (to_tsvector('simple', immutable_unaccent(searchable)) || to_tsvector('french', immutable_unaccent(searchable)) || to_tsvector('english', immutable_unaccent(searchable))) STORED";
+
+  // Système de priorité, 4 priorités possibles A A A, B B B, C C, D D D
+  searchable_generated = `tsvector GENERATED ALWAYS AS (
+  setweight(
+    to_tsvector('simple', immutable_unaccent(split_part(searchable, ',', 1))) ||
+    to_tsvector('french', immutable_unaccent(split_part(searchable, ',', 1))) ||
+    to_tsvector('english', immutable_unaccent(split_part(searchable, ',', 1))),
+    'A'
+  ) ||
+  setweight(
+    to_tsvector('simple', immutable_unaccent(split_part(searchable, ',', 2))) ||
+    to_tsvector('french', immutable_unaccent(split_part(searchable, ',', 2))) ||
+    to_tsvector('english', immutable_unaccent(split_part(searchable, ',', 2))),
+    'B'
+  ) ||
+  setweight(
+    to_tsvector('simple', immutable_unaccent(split_part(searchable, ',', 3))) ||
+    to_tsvector('french', immutable_unaccent(split_part(searchable, ',', 3))) ||
+    to_tsvector('english', immutable_unaccent(split_part(searchable, ',', 3))),
+    'C'
+  ) ||
+  setweight(
+    to_tsvector('simple', immutable_unaccent(split_part(searchable, ',', 4))) ||
+    to_tsvector('french', immutable_unaccent(split_part(searchable, ',', 4))) ||
+    to_tsvector('english', immutable_unaccent(split_part(searchable, ',', 4))),
+    'D'
+  )
+) STORED`;
 }
