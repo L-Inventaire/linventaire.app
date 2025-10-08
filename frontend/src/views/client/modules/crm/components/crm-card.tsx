@@ -53,7 +53,7 @@ export const CRMCard = ({ crmItem, readonly, ...props }: CRMCardProps) => {
   return (
     <Card
       ref={dragRef as any}
-      className={twMerge(props.className)}
+      className={twMerge("w-full min-w-0 overflow-hidden", props.className)}
       {..._.omit(props, "className")}
       onClick={() => {
         onEdit(
@@ -64,15 +64,21 @@ export const CRMCard = ({ crmItem, readonly, ...props }: CRMCardProps) => {
         );
       }}
     >
-      <Heading size="4">
-        <div className="relative editor-input">
+      <Heading size="4" className="min-w-0 w-full">
+        <div className="relative editor-input min-w-0 w-full overflow-hidden">
           <div
-            className={twMerge("ql-editor is-disabled")}
+            className={twMerge(
+              "ql-editor is-disabled min-w-0 break-words overflow-wrap-anywhere w-full whitespace-pre-wrap"
+            )}
+            style={{ wordBreak: "break-word", overflowWrap: "anywhere" }}
             dangerouslySetInnerHTML={{ __html: cleanHTML(crmItem.notes) || "" }}
           ></div>
         </div>
       </Heading>
-      <Text size="2">
+      <Text
+        size="2"
+        className="min-w-0 break-words w-full overflow-hidden text-ellipsis"
+      >
         {(crmItem.contacts ?? [])
           .map((id) => {
             const contact = contacts.find((c) => c.id === id);
@@ -82,14 +88,16 @@ export const CRMCard = ({ crmItem, readonly, ...props }: CRMCardProps) => {
           .filter(Boolean)
           .join(", ")}
       </Text>
-      <div className="mt-2">
-        <div className="float-right">
-          <div className="space-x-2">
+      <div className="mt-2 min-w-0 w-full overflow-hidden">
+        <div className="float-right min-w-0 max-w-[45%] overflow-hidden">
+          <div className="space-x-1 min-w-0 flex flex-wrap gap-1">
             <TagsInput value={crmItem.tags} disabled size="sm" />
             <UsersInput value={crmItem.assigned} disabled size="sm" />
           </div>
         </div>
-        <UsersInput value={[crmItem.seller]} disabled={true} />
+        <div className="min-w-0 overflow-hidden max-w-[55%]">
+          <UsersInput value={[crmItem.seller]} disabled={true} />
+        </div>
       </div>
     </Card>
   );

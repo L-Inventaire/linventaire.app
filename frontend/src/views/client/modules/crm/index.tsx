@@ -8,10 +8,10 @@ import {
 } from "@features/utils/rest/hooks/use-rest";
 import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
-import { twMerge } from "tailwind-merge";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
 import { CRMColumn } from "./components/crm-column";
+import { TestFlexLayout } from "./test-flex-layout";
 
 // Types et constantes
 type CRMState = "new" | "qualified" | "proposal" | "won";
@@ -235,8 +235,18 @@ export const CRMPage = () => {
     updatePaginationOffset(state, -limit);
   };
 
+  // Temporary: Show test layout to debug flex behavior step by step
+  const showTestLayout = new URLSearchParams(window.location.search).has(
+    "test"
+  );
+
+  if (showTestLayout) {
+    return <TestFlexLayout />;
+  }
+
   return (
     <Page
+      inset
       title={[{ label: "CRM" }]}
       bar={
         <SearchBar
@@ -251,8 +261,8 @@ export const CRMPage = () => {
         />
       }
     >
-      <div className="-m-3 overflow-auto max-w-[100vw] h-full flex flex-col">
-        <div className="px-3 h-7 w-full bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700">
+      <div className="h-full flex flex-col">
+        <div className="px-3 h-7 w-full bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 flex-shrink-0">
           <Info>
             {counters.new +
               counters.qualified +
@@ -262,27 +272,27 @@ export const CRMPage = () => {
           </Info>
         </div>
 
-        <div className="flex-1 grow overflow-x-auto">
-          <div
-            className={twMerge("flex w-full h-full rounded-none space-x-2 p-2")}
-          >
-            {CRM_STATES_CONFIG.map((config) => (
-              <CRMColumn
-                key={config.key}
-                type={config.key}
-                items={getItemsForState(config.key)}
-                title={config.label}
-                count={counters[config.key]}
-                collapsed={config.collapsedLogic(isSearchMode, selectedState)}
-                onMove={(item) => {
-                  update.mutate({ id: item.id, state: config.key });
-                }}
-                onLoadMore={() => loadMoreItems(config.key)}
-                onLoadPrevious={() => loadPreviousItems(config.key)}
-                canLoadMore={paginationState[config.key].hasMore}
-                canLoadPrevious={paginationState[config.key].offset > 0}
-              />
-            ))}
+        <div className="h-full flex-1 relative">
+          <div className="absolute h-full w-full flex flex-col">
+            <div className="flex-1 flex overflow-hidden p-2 gap-2">
+              {CRM_STATES_CONFIG.map((config) => (
+                <CRMColumn
+                  key={config.key}
+                  type={config.key}
+                  items={getItemsForState(config.key)}
+                  title={config.label}
+                  count={counters[config.key]}
+                  collapsed={config.collapsedLogic(isSearchMode, selectedState)}
+                  onMove={(item) => {
+                    update.mutate({ id: item.id, state: config.key });
+                  }}
+                  onLoadMore={() => loadMoreItems(config.key)}
+                  onLoadPrevious={() => loadPreviousItems(config.key)}
+                  canLoadMore={paginationState[config.key].hasMore}
+                  canLoadPrevious={paginationState[config.key].offset > 0}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>

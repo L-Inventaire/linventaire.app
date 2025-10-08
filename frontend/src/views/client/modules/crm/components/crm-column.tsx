@@ -3,7 +3,7 @@ import { useCRMDefaultModel } from "@features/crm/configuration";
 import { CRMItem } from "@features/crm/types/types";
 import { formatNumber } from "@features/utils/format/strings";
 import { PlusCircleIcon, CheckIcon } from "@heroicons/react/24/outline";
-import { IconButton, Badge } from "@radix-ui/themes";
+import { IconButton, Badge, ScrollArea } from "@radix-ui/themes";
 import _ from "lodash";
 import { useDragLayer, useDrop } from "react-dnd";
 import { twMerge } from "tailwind-merge";
@@ -131,7 +131,7 @@ export const CRMColumn = ({
     return (
       <div
         className={twMerge(
-          "flex flex-col w-16 min-w-16 max-w-16 transition-all duration-200",
+          "flex flex-col w-16 min-w-16 max-w-16 transition-all duration-200 flex-shrink-0",
           props.className
         )}
         ref={dropRef}
@@ -139,7 +139,7 @@ export const CRMColumn = ({
       >
         <div
           className={twMerge(
-            "p-2 flex-1 grow bg-slate-25 dark:bg-slate-990 rounded-md flex flex-col items-center justify-center transition-colors border-2",
+            "p-2 flex-1 bg-slate-25 dark:bg-slate-990 rounded-md flex flex-col items-center justify-center transition-colors border-2",
             isDragging && isOver
               ? config.borderColor
               : "border-slate-200 dark:border-slate-700"
@@ -169,7 +169,7 @@ export const CRMColumn = ({
   return (
     <div
       className={twMerge(
-        "flex flex-col flex-1 min-w-64 transition-all duration-200",
+        "flex-1 min-w-80 flex flex-col transition-all duration-200",
         props.className
       )}
       ref={dropRef}
@@ -177,7 +177,7 @@ export const CRMColumn = ({
     >
       <div
         className={twMerge(
-          "p-3 pt-0 flex-1 grow rounded-md flex flex-col border-2 transition-all duration-200",
+          "flex-1 rounded-md flex flex-col border-2 transition-all duration-200 p-3",
           isDragging && isOver
             ? twMerge(
                 getCollapsedColumnConfig(type).borderColor.replace(
@@ -189,8 +189,8 @@ export const CRMColumn = ({
             : "border-transparent bg-slate-25 dark:bg-slate-990"
         )}
       >
-        <div className="flex w-full justify-between items-center">
-          <div className="flex items-center gap-2 mb-2 mt-3">
+        <div className="flex w-full justify-between items-center flex-shrink-0">
+          <div className="flex items-center gap-2 mb-2">
             <div
               className={twMerge(
                 "w-2 h-2 rounded-full transition-transform duration-200",
@@ -221,41 +221,45 @@ export const CRMColumn = ({
           )}
         </div>
 
-        <div className="flex-1 grow space-y-2 overflow-y-auto min-h-0">
-          {canLoadPrevious && (
-            <div className="flex justify-center">
-              <Button
-                size="sm"
-                className="mx-auto mt-2"
-                theme="outlined"
-                onClick={onLoadPrevious}
-              >
-                Charger les éléments précédents
-              </Button>
-            </div>
-          )}
-
-          {items.map((item, index) => (
-            <CRMCard
-              key={item.id}
-              crmItem={item}
-              className={twMerge(index === 0 && "mt-3")}
-              readonly={!hasAccess("CRM_WRITE")}
-            />
-          ))}
-
-          {canLoadMore && (
-            <div className="flex justify-center">
-              <Button
-                size="sm"
-                className="mx-auto mt-2"
-                theme="outlined"
-                onClick={onLoadMore}
-              >
-                Charger les éléments suivants
-              </Button>
-            </div>
-          )}
+        <div className="flex-1 min-h-0 min-w-0 relative">
+          <div className="absolute h-full w-full">
+            <ScrollArea className="w-full">
+              <div className="space-y-2 w-full min-w-0 overflow-hidden">
+                {canLoadPrevious && (
+                  <div className="flex justify-center">
+                    <Button
+                      size="sm"
+                      className="mx-auto mt-2"
+                      theme="outlined"
+                      onClick={onLoadPrevious}
+                    >
+                      Charger les éléments précédents
+                    </Button>
+                  </div>
+                )}
+                {items.map((item, index) => (
+                  <CRMCard
+                    key={item.id}
+                    crmItem={item}
+                    className={twMerge(index === 0 && "mt-3", "w-full min-w-0")}
+                    readonly={!hasAccess("CRM_WRITE")}
+                  />
+                ))}
+                {canLoadMore && (
+                  <div className="flex justify-center">
+                    <Button
+                      size="sm"
+                      className="mx-auto mt-2"
+                      theme="outlined"
+                      onClick={onLoadMore}
+                    >
+                      Charger les éléments suivants
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+          </div>
         </div>
       </div>
     </div>
