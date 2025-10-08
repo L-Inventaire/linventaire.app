@@ -171,14 +171,6 @@ export const CRMPage = () => {
     won: wonItemsCount?.data?.total || 0,
   };
 
-  // Mapping des données pour chaque état
-  const stateItemsMap = {
-    new: newItems,
-    qualified: qualifiedItems,
-    proposal: proposalItems,
-    won: wonItems,
-  };
-
   const schema = useRestSchema("crm_items");
 
   // Combiner les éléments avec le cache et mettre à jour hasMore
@@ -224,7 +216,6 @@ export const CRMPage = () => {
 
   // Fonctions génériques pour la pagination
   const updatePaginationOffset = (state: CRMState, offsetChange: number) => {
-    const limit = options.limit || DEFAULT_PAGE_SIZE;
     setPaginationState((prev) => ({
       ...prev,
       [state]: {
@@ -243,7 +234,6 @@ export const CRMPage = () => {
     const limit = options.limit || DEFAULT_PAGE_SIZE;
     updatePaginationOffset(state, -limit);
   };
-
 
   return (
     <Page
