@@ -131,7 +131,7 @@ export const CRMColumn = ({
     return (
       <div
         className={twMerge(
-          "flex flex-col w-16 min-w-16 transition-all duration-200",
+          "flex flex-col w-16 min-w-16 max-w-16 transition-all duration-200",
           props.className
         )}
         ref={dropRef}
@@ -139,9 +139,9 @@ export const CRMColumn = ({
       >
         <div
           className={twMerge(
-            "p-2 flex-1 grow bg-slate-25 dark:bg-slate-990 rounded-md flex flex-col items-center justify-center transition-colors",
+            "p-2 flex-1 grow bg-slate-25 dark:bg-slate-990 rounded-md flex flex-col items-center justify-center transition-colors border-2",
             isDragging && isOver
-              ? config.borderColor + " border-2"
+              ? config.borderColor
               : "border-slate-200 dark:border-slate-700"
           )}
         >
@@ -153,14 +153,14 @@ export const CRMColumn = ({
               isDragging && isOver && config.hoverIconColor
             )}
           />
-          <span className="text-xs text-slate-600 dark:text-slate-400 mt-1 text-center font-medium">
+          <span className="text-xs text-slate-600 dark:text-slate-400 mt-1 text-center font-medium w-full">
             {config.title}
           </span>
-          <span className="text-xs text-slate-400 dark:text-slate-500 text-center">
+          <div className="text-xs text-slate-400 dark:text-slate-500 text-center w-full">
             {count !== undefined && (
-              <Badge className="ml-1">{formatNumber(count)}</Badge>
+              <Badge className="text-center">{formatNumber(count)}</Badge>
             )}
-          </span>
+          </div>
         </div>
       </div>
     );
@@ -169,7 +169,7 @@ export const CRMColumn = ({
   return (
     <div
       className={twMerge(
-        "flex flex-col flex-1 min-w-64 max-w-80 transition-all duration-200",
+        "flex flex-col flex-1 min-w-64 transition-all duration-200",
         props.className
       )}
       ref={dropRef}
@@ -177,7 +177,7 @@ export const CRMColumn = ({
     >
       <div
         className={twMerge(
-          "p-3 pt-0 flex-1 grow rounded-md flex flex-col justify-between border-2 transition-all duration-200",
+          "p-3 pt-0 flex-1 grow rounded-md flex flex-col border-2 transition-all duration-200",
           isDragging && isOver
             ? twMerge(
                 getCollapsedColumnConfig(type).borderColor.replace(
@@ -221,7 +221,7 @@ export const CRMColumn = ({
           )}
         </div>
 
-        <div className="flex-1 grow space-y-2">
+        <div className="flex-1 grow space-y-2 overflow-y-auto min-h-0">
           {canLoadPrevious && (
             <div className="flex justify-center">
               <Button

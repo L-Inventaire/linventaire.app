@@ -264,9 +264,7 @@ export const CRMPage = () => {
 
         <div className="flex-1 grow overflow-x-auto">
           <div
-            className={twMerge(
-              "flex h-full rounded-none space-x-2 p-2 min-w-fit"
-            )}
+            className={twMerge("flex w-full h-full rounded-none space-x-2 p-2")}
           >
             {CRM_STATES_CONFIG.map((config) => (
               <CRMColumn
