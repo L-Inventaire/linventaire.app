@@ -165,13 +165,17 @@ Display the date but like if we're in the specified timezone
 */
 export const displayDate = (
   date: Date | number | string,
-  timeZone: string | "Europe/Paris"
+  timeZone: string | "Europe/Paris",
+  language = "fr"
 ) => {
   try {
     // Only case were we don't need to convert the date (it was stored as string)
     if (typeof date === "string") {
       if (date.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        return date;
+        const year = date.split("-")[0];
+        const month = date.split("-")[1];
+        const day = date.split("-")[2];
+        return formatDate(language, year, month, day);
       }
     }
 
@@ -184,8 +188,20 @@ export const displayDate = (
       parseInt(parts.find((part) => part.type === "month").value) - 1; // JS months are 0-indexed
     const day = parseInt(parts.find((part) => part.type === "day").value);
 
-    return new Date(Date.UTC(year, month, day)).toISOString().split("T")[0];
+    return formatDate(language, year + "", month + 1 + "", day + "");
   } catch (e) {
     return null;
   }
 };
+
+function formatDate(
+  language: string,
+  year: string,
+  month: string,
+  day: string
+) {
+  if (language.toLocaleLowerCase().includes("fr")) {
+    return `${day.padStart(2, "0")}/${month.padStart(2, "0")}/${year}`;
+  }
+  return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+}

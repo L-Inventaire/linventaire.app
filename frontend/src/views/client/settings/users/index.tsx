@@ -114,7 +114,9 @@ export const CompanyUsersPage = () => {
           </ModalContent>
         </Modal>
 
-        <Heading size="6">Inviter un collaborateur</Heading>
+        <Heading size="6" className="mb-4">
+          Inviter un collaborateur
+        </Heading>
         <InputLabel
           className="max-w-xl"
           label="Emails"
@@ -232,7 +234,7 @@ export const CompanyUsersPage = () => {
           </div>
         )}
 
-        <Heading size="6" className="mt-8">
+        <Heading size="6" className="mt-8 mb-4">
           Vos collaborateur
         </Heading>
         <Table

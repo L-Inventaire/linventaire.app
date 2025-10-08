@@ -45,6 +45,7 @@ export const BankAccountsPage = () => {
         </Info>
 
         <Table
+          border
           className="mt-4"
           data={_.sortBy(accounting_accounts.data?.list || [], "name")}
           columns={[

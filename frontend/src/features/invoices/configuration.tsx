@@ -39,6 +39,7 @@ import { InvoicesViewPage } from "@views/client/modules/invoices/view";
 import { format } from "date-fns";
 import _ from "lodash";
 import toast from "react-hot-toast";
+import { formatDate } from "../utils/format/dates";
 import { setDefaultRestActions } from "../utils/rest/utils";
 import { InvoicesApiClient } from "./api-client/invoices-api-client";
 import { Invoices } from "./types/types";
@@ -68,7 +69,7 @@ export const InvoicesColumns: Column<Invoices>[] = [
         <Base className="whitespace-nowrap">
           {invoice.emit_date
             ? // Short format for today
-              format(invoice.emit_date, "PP")
+              formatDate(invoice.emit_date)
             : "-"}
         </Base>
       );

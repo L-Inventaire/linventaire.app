@@ -119,3 +119,11 @@ export function timeBase60ToDecimal(timeArray: number[]): number {
   // Convert hours and minutes to decimal
   return hours + minutes / 60;
 }
+
+export const formatDate = (date: any) => {
+  const locale = navigator.language;
+  if (locale.toLocaleLowerCase().includes("fr")) {
+    return format(date, "dd/MM/yyyy");
+  }
+  return format(date, "yyyy-MM-dd");
+};

@@ -95,7 +95,11 @@ export const InvoiceCounterparty = ({
             list={[
               !!document.delivery_date && {
                 label: Framework.I18n.t(ctx, "invoices.other.delivery_date"),
-                value: displayDate(document.delivery_date, timezone),
+                value: displayDate(
+                  document.delivery_date,
+                  timezone,
+                  document.language
+                ),
               },
               !!document.delivery_delay &&
                 document.delivery_delay > 0 && {

@@ -110,6 +110,7 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
 
   return (
     <Table
+      border
       columns={[
         {
           title: "Client",

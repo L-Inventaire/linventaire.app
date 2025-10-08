@@ -106,6 +106,7 @@ export const StockLocationsPage = () => {
         </Info>
 
         <Table
+          border
           className="mt-4"
           data={_.sortBy(stock_locations.data?.list || [], "name")}
           columns={[

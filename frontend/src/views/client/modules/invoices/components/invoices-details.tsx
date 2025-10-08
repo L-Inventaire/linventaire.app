@@ -26,7 +26,7 @@ import {
   getInvoiceWithOverrides,
 } from "@features/invoices/utils";
 import { ROUTES } from "@features/routes";
-import { formatTime } from "@features/utils/format/dates";
+import { formatDate, formatTime } from "@features/utils/format/dates";
 import { format as formatdfns } from "date-fns";
 import {
   getFormattedNumerotation,
@@ -49,7 +49,6 @@ import { Table } from "@molecules/table";
 import { Timeline } from "@molecules/timeline";
 import { Callout, Code, Heading, Text, Tooltip } from "@radix-ui/themes";
 import { PageColumns } from "@views/client/_layout/page";
-import { format as formatDate } from "date-fns";
 import _ from "lodash";
 import { DateTime } from "luxon";
 import { Fragment, useEffect } from "react";
@@ -409,7 +408,7 @@ export const InvoicesDetailsPage = ({
                     >
                       <Text size="2" className="opacity-75" weight="medium">
                         {"Émis le "}
-                        {formatfns(ctrl("emit_date").value || 0, "PPP")}
+                        {formatDate(ctrl("emit_date").value || 0)}
                       </Text>
                     </InputButton>
                   )}
@@ -423,10 +422,7 @@ export const InvoicesDetailsPage = ({
                     >
                       <Text size="2" className="opacity-75" weight="medium">
                         {readonly ? " • " : ""}Paiement avant le{" "}
-                        {formatdfns(
-                          computePaymentDelayDate(draft).toJSDate(),
-                          "PP"
-                        )}
+                        {formatDate(computePaymentDelayDate(draft).toJSDate())}
                       </Text>
                       {computePaymentDelayDate(draft).toMillis() < Date.now() &&
                         draft.state !== "closed" && (
@@ -513,10 +509,7 @@ export const InvoicesDetailsPage = ({
                       </Info>
                       <BaseSmall className="block my-2">
                         La prochaine facture sera générée le{" "}
-                        {formatDate(
-                          getInvoiceNextDate(draft) || 0,
-                          "yyyy-MM-dd"
-                        )}
+                        {formatDate(getInvoiceNextDate(draft) || 0)}
                       </BaseSmall>
                     </>
                   )}
@@ -525,16 +518,12 @@ export const InvoicesDetailsPage = ({
                   <Text size="2" className="opacity-75" weight="medium">
                     <PlayCircleIcon className="h-3 w-3 inline-block mr-1 -mt-0.5" />
                     {"Démarre le "}
-                    {formatDate(
-                      draft.subscription_started_at || 0,
-                      "yyyy-MM-dd"
-                    )}
+                    {formatDate(draft.subscription_started_at || 0)}
                     {", prochaine facture le "}
                     {formatDate(
                       getInvoiceNextDate(draft) ||
                         draft.subscription_next_invoice_date ||
-                        0,
-                      "yyyy-MM-dd"
+                        0
                     )}
                   </Text>
                 </InputButton>

@@ -383,9 +383,14 @@ export const getPdf = async (
                     replacements: {
                       from: displayDate(
                         document.from_subscription.from,
-                        timezone
+                        timezone,
+                        document.language
                       ),
-                      to: displayDate(document.from_subscription.to, timezone),
+                      to: displayDate(
+                        document.from_subscription.to,
+                        timezone,
+                        document.language
+                      ),
                     },
                   })}
                 </Text>
@@ -449,7 +454,8 @@ export const getPdf = async (
                           (transaction) =>
                             `Payé le ${displayDate(
                               transaction.transaction_date,
-                              timezone
+                              timezone,
+                              document.language
                             )} montant ${formatAmount(
                               transaction.amount,
                               transaction.currency || document.currency || "EUR"

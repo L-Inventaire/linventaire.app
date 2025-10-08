@@ -8,8 +8,8 @@ import { Column } from "@molecules/table/table";
 import { AccountingAccountDetailsPage } from "@views/client/modules/accounting/components/accounting-account-details";
 import { AccountingTransactionsDetailsPage } from "@views/client/modules/accounting/components/accounting-transactions-details";
 import { InvoiceRestDocument } from "@views/client/modules/invoices/components/invoice-lines-input/invoice-input-rest-card";
-import { format } from "date-fns";
 import { twMerge } from "tailwind-merge";
+import { formatDate } from "../utils/format/dates";
 import { useAccountingAccounts } from "./hooks/use-accounting-accounts";
 import { AccountingAccounts, AccountingTransactions } from "./types/types";
 
@@ -21,7 +21,7 @@ export const AccountingTransactionsColumns: (
 ) => Column<AccountingTransactions>[] = (referenceAccounts) => [
   {
     title: "Date",
-    render: (item) => <>{format(new Date(item.transaction_date), "PP")}</>,
+    render: (item) => <>{formatDate(new Date(item.transaction_date))}</>,
   },
   { title: "Référence", render: (item) => <>{item.reference}</> },
   {

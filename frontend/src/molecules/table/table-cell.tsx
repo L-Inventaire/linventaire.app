@@ -48,8 +48,6 @@ export function TableCell({
         <Base
           className={twMerge(
             "w-full py-1 px-1 inline-flex items-center h-full",
-            first && "pl-2",
-            last && "pr-2",
             props.className
           )}
         >

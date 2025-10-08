@@ -96,6 +96,7 @@ export const TagsPage = ({ year }: { year: number }) => {
 
   return (
     <Table
+      border
       columns={[
         {
           title: "Date",
