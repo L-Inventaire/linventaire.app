@@ -12,6 +12,7 @@ import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
 import { CRMColumn } from "./components/crm-column";
 import { TestFlexLayout } from "./test-flex-layout";
+import { ScrollArea } from "@radix-ui/themes";
 
 // Types et constantes
 type CRMState = "new" | "qualified" | "proposal" | "won";
@@ -273,8 +274,8 @@ export const CRMPage = () => {
         </div>
 
         <div className="h-full flex-1 relative">
-          <div className="absolute h-full w-full flex flex-col">
-            <div className="flex-1 flex overflow-hidden p-2 gap-2">
+          <ScrollArea className="absolute h-full w-full flex flex-col">
+            <div className="flex-1 flex overflow-hidden p-2 gap-2 h-full">
               {CRM_STATES_CONFIG.map((config) => (
                 <CRMColumn
                   key={config.key}
@@ -293,7 +294,7 @@ export const CRMPage = () => {
                 />
               ))}
             </div>
-          </div>
+          </ScrollArea>
         </div>
       </div>
     </Page>
