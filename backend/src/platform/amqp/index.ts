@@ -1,5 +1,8 @@
-import amqp, { ChannelWrapper } from "amqp-connection-manager";
-import { IAmqpConnectionManager } from "amqp-connection-manager/dist/esm/AmqpConnectionManager";
+import amqp from "amqp-connection-manager";
+import type {
+  ChannelWrapper,
+  AmqpConnectionManager,
+} from "amqp-connection-manager";
 import config from "config";
 import platform from "..";
 import { Context, createContext } from "../../types";
@@ -8,7 +11,7 @@ import { PlatformService } from "../types";
 import { captureException } from "@sentry/node";
 
 const useRabbit = config.get<boolean>("rabbit.use");
-let rabbit: IAmqpConnectionManager = null;
+let rabbit: AmqpConnectionManager = null;
 
 export default class Amqp implements PlatformService {
   private logger = platform.LoggerDb.get("amqp");
@@ -18,7 +21,7 @@ export default class Amqp implements PlatformService {
   } = {};
 
   async init(): Promise<this> {
-    function connect() {
+    const connect = () => {
       rabbit = amqp.connect(config.get<string>("rabbit.url"));
 
       rabbit.on("connect", () => {
@@ -39,7 +42,7 @@ export default class Amqp implements PlatformService {
           connect();
         }, 100);
       });
-    }
+    };
 
     if (useRabbit) {
       connect();
