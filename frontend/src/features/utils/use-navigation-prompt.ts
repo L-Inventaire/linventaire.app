@@ -5,6 +5,8 @@ export const useNavigationPrompt = (lockNavigation?: boolean) => {
   // This hook will prevent navigator page change as well as react router dom page change
   // when the lockNavigation is set to true
 
+  console.log("locked", lockNavigation);
+
   useBlocker(({ currentLocation, nextLocation }) => {
     console.info("beforeunload", lockNavigation);
     if (!lockNavigation) return false;

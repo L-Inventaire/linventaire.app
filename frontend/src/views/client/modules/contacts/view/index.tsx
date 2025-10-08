@@ -29,11 +29,6 @@ export const ContactsViewPage = (_props: { readonly?: boolean }) => {
           entity={"contacts"}
           document={contact || { id }}
           mode={"read"}
-          backRoute={ROUTES.Contacts}
-          editRoute={
-            hasAccess("CONTACTS_WRITE") ? ROUTES.ContactsEdit : undefined
-          }
-          viewRoute={ROUTES.ContactsView}
           onRemove={
             contact?.id && hasAccess("CONTACTS_WRITE")
               ? async () => remove.mutateAsync(contact?.id)

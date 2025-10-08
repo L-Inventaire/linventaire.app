@@ -23,10 +23,13 @@ import {
 } from "@heroicons/react/24/outline";
 import { Badge, Separator } from "@radix-ui/themes";
 import _ from "lodash";
-import { useContext, useEffect } from "react";
+import { useCallback, useContext, useEffect } from "react";
 import toast from "react-hot-toast";
 import { useSetRecoilState } from "recoil";
-import { DraftContext } from "../../features/utils/rest/hooks/use-draft-rest";
+import {
+  DraftContext,
+  useReadDraftRest,
+} from "../../features/utils/rest/hooks/use-draft-rest";
 import { DocumentBarNav } from "./nav";
 
 export const DocumentBar = ({
@@ -45,22 +48,30 @@ export const DocumentBar = ({
   mode: "read" | "write";
   entity: string;
   document: any & RestEntity;
+
   prefix?: React.ReactNode;
   suffix?: React.ReactNode;
+
   onClose?: () => void;
-  backRoute?: string;
-  viewRoute?: string;
-  editRoute?: string;
   onPrint?: () => Promise<void>;
   onSave?: () => Promise<any>;
   onSaveDisabled?: boolean;
   onRemove?: () => Promise<void>;
   onRestore?: () => Promise<void>;
   onChangeMode?: (mode: "write" | "read") => void;
+
+  // Optional routes to override the default ones
+  backRoute?: string;
+  viewRoute?: string;
+  editRoute?: string;
 }) => {
+  const { isModal } = useContext(DraftContext);
+  const setMenu = useSetRecoilState(DropDownAtom);
+  const navigate = useNavigateAlt();
+  const { getLastLocations } = useLastLocations();
+
   const isRevision = document?.id?.includes("~");
   const revision = document?.id?.split("~")[1];
-  const { isModal } = useContext(DraftContext);
 
   const hasAccess = useHasAccess();
   const entityRoleName =
@@ -75,22 +86,14 @@ export const DocumentBar = ({
   props.editRoute = props.editRoute || entityRoutes[entity]?.edit;
   props.viewRoute = props.viewRoute || entityRoutes[entity]?.view;
 
-  const setMenu = useSetRecoilState(DropDownAtom);
+  // Enable amongs other things the navigation confirm prompt when editing a document
+  const { lockNavigation } = useReadDraftRest(
+    entity,
+    document.id || "",
+    mode !== "write"
+  );
 
-  const navigate = useNavigateAlt();
-
-  const { getLastLocations } = useLastLocations();
-
-  const cancel = async () => {
-    if (
-      mode === "write" &&
-      !confirm(
-        "Voulez-vous vraiment quitter sans sauvegarder vos modifications ?"
-      )
-    ) {
-      return;
-    }
-
+  const cancel = useCallback(async () => {
     if (onClose) return onClose();
     // Get previous route that is not the form nor the viewer
     const previousPage = _.last(
@@ -114,7 +117,15 @@ export const DocumentBar = ({
         ? getRoute(props.viewRoute || "/", { id: document.id })
         : previousPage || getRoute(props.backRoute || "/")
     );
-  };
+  }, [
+    document,
+    mode,
+    navigate,
+    onClose,
+    props.backRoute,
+    props.editRoute,
+    props.viewRoute,
+  ]);
 
   const actionMenu = [
     ...(props.onRemove && !!hasManageAccess

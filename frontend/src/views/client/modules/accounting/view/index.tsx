@@ -43,13 +43,6 @@ export const AccountingTransactionsViewPage = (_props: {
           entity={"accounting_transactions"}
           document={item || { id }}
           mode={"read"}
-          backRoute={ROUTES.Accounting}
-          editRoute={
-            hasAccess("ACCOUNTING_WRITE") ? ROUTES.AccountingEdit : undefined
-          }
-          viewRoute={ROUTES.AccountingView}
-          prefix={<></>}
-          suffix={<></>}
           onRemove={
             item?.id && hasAccess("ACCOUNTING_WRITE")
               ? async () => remove.mutateAsync(item?.id)

@@ -57,8 +57,6 @@ export const ArticlesEditPage = (_props: { readonly?: boolean }) => {
             }
             await save();
           }}
-          backRoute={ROUTES.Products}
-          viewRoute={ROUTES.ProductsView}
           prefix={<span>Créer un article</span>}
           onRemove={article.id ? remove : undefined}
           onRestore={article.id ? restore : undefined}

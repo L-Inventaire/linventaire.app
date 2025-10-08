@@ -44,8 +44,6 @@ export const ContactsEditPage = (_props: { readonly?: boolean }) => {
           document={{ id }}
           mode={"write"}
           onSave={async () => await save()}
-          backRoute={ROUTES.Contacts}
-          viewRoute={ROUTES.ContactsView}
           prefix={<span>Créer un contact</span>}
           onRemove={draft.id ? remove : undefined}
           onRestore={draft.id ? restore : undefined}

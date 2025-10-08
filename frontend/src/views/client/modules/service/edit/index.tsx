@@ -77,9 +77,6 @@ export const ServiceItemsEditPage = (_props: { readonly?: boolean }) => {
             await save();
             navigate(getRoute(ROUTES.ServiceItems));
           }}
-          backRoute={ROUTES.ServiceItems}
-          viewRoute={ROUTES.ServiceItemsView}
-          editRoute={ROUTES.ServiceItemsEdit}
           onRemove={draft.id ? remove : undefined}
           onRestore={draft.id ? restore : undefined}
         />

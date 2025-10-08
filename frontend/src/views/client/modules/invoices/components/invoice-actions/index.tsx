@@ -30,7 +30,8 @@ export const InvoiceActions = ({
   const navigate = useNavigateAlt();
   const { draft, save: _save } = useReadDraftRest<Invoices>(
     "invoices",
-    id || "new"
+    id || "new",
+    readonly
   );
 
   const save = async () => {

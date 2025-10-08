@@ -22,9 +22,6 @@ export const CRMViewPage = (_props: { readonly?: boolean }) => {
           entity={"crm_items"}
           document={crmItem}
           mode={"read"}
-          editRoute={ROUTES.CRMEdit}
-          viewRoute={ROUTES.CRMView}
-          backRoute={ROUTES.CRMView}
         />
       }
     >

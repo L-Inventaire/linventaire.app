@@ -108,5 +108,6 @@ export const useDraftRest = <T extends { id: string }>(
     ctrl,
     draft,
     setDraft: setDraft,
+    lockNavigation,
   };
 };

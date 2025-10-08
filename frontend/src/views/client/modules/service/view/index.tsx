@@ -45,8 +45,6 @@ export const ServiceItemsViewPage = (_props: { readonly?: boolean }) => {
               : undefined
           }
           viewRoute={ROUTES.ServiceItemsView}
-          prefix={<></>}
-          suffix={<></>}
           onRemove={
             item?.id && hasAccess("ONSITE_SERVICES_WRITE")
               ? async () => remove.mutateAsync(item?.id)

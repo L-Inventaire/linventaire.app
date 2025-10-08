@@ -13,11 +13,12 @@ import {
   EllipsisHorizontalIcon,
   PrinterIcon,
 } from "@heroicons/react/16/solid";
-import { getPdfPreview } from "../../invoices-preview/invoices-preview";
 import _ from "lodash";
+import { getPdfPreview } from "../../invoices-preview/invoices-preview";
 
 export const SupplierQuotesActions = ({
   id,
+  readonly,
 }: {
   id?: string;
   readonly?: boolean;
@@ -26,7 +27,8 @@ export const SupplierQuotesActions = ({
 
   const { draft, save: _save } = useReadDraftRest<Invoices>(
     "invoices",
-    id || "new"
+    id || "new",
+    readonly
   );
   const disabled = draft.state === "closed";
 

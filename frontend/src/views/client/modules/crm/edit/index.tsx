@@ -53,8 +53,6 @@ export const CRMEditPage = (_props: { readonly?: boolean }) => {
             }
             await save();
           }}
-          backRoute={ROUTES.CRM}
-          viewRoute={ROUTES.CRMView}
           prefix={<span>Créer une opportunité</span>}
           onRemove={crmItem.id ? remove : undefined}
           onRestore={crmItem.id ? restore : undefined}

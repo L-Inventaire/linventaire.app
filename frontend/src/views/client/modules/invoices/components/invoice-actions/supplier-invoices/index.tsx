@@ -20,7 +20,8 @@ export const SupplierInvoicesActions = ({
 }) => {
   const { draft, save: _save } = useReadDraftRest<Invoices>(
     "invoices",
-    id || "new"
+    id || "new",
+    readonly
   );
   const disabled =
     readonly || draft.state === "closed" || draft.state === "completed";
