@@ -101,19 +101,19 @@ export const Modal = (props: {
             >
               <div
                 className={
-                  "fixed inset-0 bg-opacity-10 dark:bg-opacity-80 transition-opacity bg-black"
+                  "fixed inset-0 bg-opacity-10 dark:bg-opacity-80 transition-opacity bg-black background-clickable-layer "
                 }
               />
             </Transition.Child>
 
             <div
               className={
-                "fixed z-10 inset-0 overflow-y-auto transition-transform "
+                "fixed z-10 inset-0 overflow-y-auto transition-transform background-clickable-layer"
               }
             >
               <div
                 className={
-                  "flex items-end justify-center min-h-screen text-center sm:block "
+                  "flex items-end justify-center min-h-screen text-center sm:block background-clickable-layer "
                 }
               >
                 {
@@ -171,7 +171,11 @@ const ModalBody = ({
       // Set clickingOutside to true if the click is outside the modal
       if (
         draggableRef.current &&
-        !draggableRef.current.contains(e.target as Node)
+        !draggableRef.current.contains(e.target as Node) &&
+        // Prevent clicking on drop downs for instance, we need to click on a layer with class background-clickable-layer
+        (e.target as HTMLElement).classList.contains(
+          "background-clickable-layer"
+        )
       ) {
         clickingOutside.current = true;
       } else {
@@ -187,7 +191,11 @@ const ModalBody = ({
       if (!activeRef.current) return;
       if (
         draggableRef.current &&
-        !draggableRef.current.contains(e.target as Node)
+        !draggableRef.current.contains(e.target as Node) &&
+        // Prevent clicking on drop downs for instance, we need to click on a layer with class background-clickable-layer
+        (e.target as HTMLElement).classList.contains(
+          "background-clickable-layer"
+        )
       ) {
         if (clickingOutside.current) {
           props.onClose && props.onClose();

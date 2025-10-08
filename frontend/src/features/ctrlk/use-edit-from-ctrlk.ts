@@ -27,6 +27,7 @@ export const useEditFromCtrlK = (readonly?: boolean) => {
               options: {
                 readonly: readonly && !!id,
                 entity: entity,
+                returnAfterEditing: !readonly,
                 id,
                 internalQuery: initialState,
                 cb,

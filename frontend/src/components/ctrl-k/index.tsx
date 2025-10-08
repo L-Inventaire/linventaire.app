@@ -40,9 +40,12 @@ export const CtrlKModal = () => {
   const [states, setStates] = useRecoilState(CtrlKAtom);
 
   useEffect(() => {
-    // remove all items with path length 0
+    // remove all items with path length 0 and no selection
     setStates((states) =>
-      states.filter((state, i) => i === 0 || state.path.length > 0)
+      states.filter(
+        (state, i) =>
+          i === 0 || state.path.length > 0 || state.selection?.items?.length > 0
+      )
     );
   }, [states.length]);
 

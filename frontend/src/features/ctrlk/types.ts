@@ -9,6 +9,7 @@ export type CtrlKPathOptionType<T> = {
   editor?: (props: { id: string }) => ReactNode;
   onClick?: (items: T[], event: MouseEvent) => void; // Action to apply on selection
   selected?: T[]; // Selected items in search mode
+  returnAfterEditing?: boolean; // After editing, return to previous path instead of closing
   cb?: (item: T) => Promise<void>; // Callback to apply on selection
 };
 

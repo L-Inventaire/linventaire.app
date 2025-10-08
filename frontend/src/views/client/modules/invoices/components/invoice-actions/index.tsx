@@ -35,6 +35,7 @@ export const InvoiceActions = ({
   );
 
   const save = async () => {
+    console.log("SAVE CLICKED");
     const item = await _save();
     if (item) navigate(getRoute(ROUTES.InvoicesView, { id: item?.id }));
   };

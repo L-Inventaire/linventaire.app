@@ -57,9 +57,7 @@ export const InvoicesDocumentBar = ({
         onClose={onClose}
         onChangeMode={onChangeMode}
         onRemove={
-          invoice?.id && invoice?.state === "draft" && hasWriteType
-            ? async () => remove.mutateAsync(invoice?.id)
-            : undefined
+          invoice?.id ? async () => remove.mutateAsync(invoice?.id) : undefined
         }
         onRestore={
           invoice?.id && hasWriteType

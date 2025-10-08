@@ -45,11 +45,17 @@ export const ModalEditor = (props: { stateId: string }) => {
     async (item: RestEntity) => {
       // Set created element as query for the previous path
       const newPath = state.path.slice(0, state.path.length - 1);
-      if (newPath.length === 0) {
+
+      if (
+        newPath.length === 0 &&
+        (currentState.options?.id || "new") !== "new" &&
+        !currentState.options?.returnAfterEditing
+      ) {
         // No previous path, go back to read mode
         onChangeMode("read");
         return;
       }
+
       let lastItem = newPath.pop();
       if (lastItem) {
         lastItem = _.set(
@@ -93,6 +99,7 @@ export const ModalEditor = (props: { stateId: string }) => {
 
   const onChangeMode = useCallback(
     (mode: "write" | "read") => {
+      console.log("CHANGE MODE", mode);
       setState({
         ...state,
         path: [

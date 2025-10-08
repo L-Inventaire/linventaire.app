@@ -28,24 +28,26 @@ export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
   const defaultModel = useRef(useInvoiceDefaultModel()).current;
   const initialModel = getUrlModel<Invoices>();
 
-  const { isInitiating, draft, isPendingModification } = useDraftRest<Invoices>(
-    "invoices",
-    id || "new",
-    async (item) => {
-      navigate(getRoute(ROUTES.InvoicesView, { id: item.id }));
-    },
-    _.omit(
-      _.merge({}, defaultModel, {
-        ...initialModel,
-        content: (initialModel.content || []).map((a) => ({
-          ...a,
-          quantity_delivered: 0,
-          quantity_ready: 0,
-        })),
-      }),
-      "reference"
-    ) as Invoices
-  );
+  const { isInitiating, save, draft, isPendingModification } =
+    useDraftRest<Invoices>(
+      "invoices",
+      id || "new",
+      async (item) => {
+        console.log("SAVED ITEM EDIT HOOK", item);
+        navigate(getRoute(ROUTES.InvoicesView, { id: item.id }));
+      },
+      _.omit(
+        _.merge({}, defaultModel, {
+          ...initialModel,
+          content: (initialModel.content || []).map((a) => ({
+            ...a,
+            quantity_delivered: 0,
+            quantity_ready: 0,
+          })),
+        }),
+        "reference"
+      ) as Invoices
+    );
 
   return (
     <Page
@@ -57,7 +59,18 @@ export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
         },
         { label: id ? "Modifier" : "Créer" },
       ]}
-      bar={<InvoicesDocumentBar id={id} />}
+      bar={
+        <InvoicesDocumentBar
+          id={id}
+          onSave={async () => {
+            const invoice = await save();
+            if (invoice?.id) {
+              console.log("NAVIGATE TO VIEW");
+              navigate(getRoute(ROUTES.InvoicesView, { id: invoice.id }));
+            }
+          }}
+        />
+      }
     >
       <div className="mt-6" />
       {isInitiating ? (

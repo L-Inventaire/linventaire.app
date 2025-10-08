@@ -205,7 +205,9 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
     });
 
   const remove = useMutation({
-    mutationFn: (itemId: string) => restApiClient.delete(id || "", itemId),
+    mutationFn: (itemId: string) => {
+      return restApiClient.delete(id || "", itemId);
+    },
     onMutate: () => setIsPendingModification(true),
     onSettled: () => {
       queryClient.invalidateQueries({
