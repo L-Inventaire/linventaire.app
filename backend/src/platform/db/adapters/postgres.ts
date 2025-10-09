@@ -511,7 +511,7 @@ export default class DbPostgres implements DbAdapterInterface {
       ? "SELECT *, 1 as _rank"
       : "SELECT count(*) as total";
     if (
-      options?.index?.split(",").indexOf("_rank") !== -1 &&
+      options?.index?.indexOf("_rank") !== -1 &&
       !options?.count &&
       options?.rank_query
     ) {
