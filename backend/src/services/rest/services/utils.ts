@@ -253,7 +253,11 @@ export const generateWhereClause = (
     const queryStr = query.value;
     if (queryStr && queryStr.trim() && columnDefinitions.searchable_generated) {
       const queriesSubWhere = [];
-      const words = queryStr.split(/[^a-z0-9]+/);
+      const words = queryStr
+        .normalize("NFD")
+        .replace(/\p{Diacritic}/gu, "")
+        .toLowerCase()
+        .split(/[^a-z0-9]+/);
       for (const word of words) {
         if (!word.replace(/[^a-z0-9]/gm, "").trim()) continue;
         queriesSubWhere.push(
