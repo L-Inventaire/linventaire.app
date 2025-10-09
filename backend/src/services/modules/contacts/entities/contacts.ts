@@ -149,14 +149,13 @@ export const ContactsDefinition: RestTableDefinition = {
               "person_first_name",
               "person_last_name",
               "business_name",
+              "business_registered_name",
             ])
           )
         ).join(" "),
-        Object.values(
-          flattenKeys(
-            _.pick(entity, ["email", "phone", "business_registered_name"])
-          )
-        ).join(" "),
+        Object.values(flattenKeys(_.pick(entity, ["email", "phone"]))).join(
+          " "
+        ),
         Object.values(
           flattenKeys(
             _.pick(entity, [

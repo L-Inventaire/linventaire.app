@@ -67,7 +67,7 @@ export default class Clients implements InternalApplicationService {
       "010-contact-rebuild-searchable": rebuildContactSearchables,
       "011-stock-reindex-searchable": rebuildStockSearchables,
       "012-notifications-fix-searchable-redo": fixNotificationsSearchables,
-      "013-a-contact-rebuild-searchable": rebuildContactSearchables,
+      "013-a2-contact-rebuild-searchable": rebuildContactSearchables,
       "013-b-stock-reindex-searchable": rebuildStockSearchables,
       "013-c-articles-reindex-searchable": rebuildArticlesSearchables,
     } as {
