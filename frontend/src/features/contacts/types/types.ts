@@ -7,6 +7,7 @@ import {
 import { InvoiceSubscription } from "@features/invoices/types/types";
 import { formatAddress } from "@features/utils/format/address";
 import { RestEntity } from "@features/utils/rest/types/types";
+import _ from "lodash";
 
 export type Contacts = RestEntity & {
   client_id: string;
@@ -72,11 +73,21 @@ export type Billing = {
 };
 
 export const getContactName = (contact: Partial<Contacts>) => {
-  return contact.type === "person"
-    ? [contact.person_first_name, contact.person_last_name]
-        .filter(Boolean)
-        .join(" ")
-    : contact.business_name || contact.business_registered_name;
+  return _.uniqBy(
+    [
+      contact.person_first_name,
+      contact.person_last_name,
+      contact.business_name,
+      contact.business_registered_name,
+    ].map((a) => a?.trim()),
+    (a) =>
+      a
+        ?.toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+  )
+    .filter(Boolean)
+    .join(" ");
 };
 
 export const isContactLegalyDefined = (contact: Partial<Contacts>) => {
