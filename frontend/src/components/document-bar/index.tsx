@@ -79,7 +79,7 @@ export const DocumentBar = (props: DocumentBarProps) => {
   });
 
   // Enable among other things the navigation confirm prompt when editing a document
-  useReadDraftRest(entity, document.id || "", mode !== "write");
+  useReadDraftRest(entity, document?.id || "", mode !== "write");
 
   // Register document for global keyboard shortcuts
   useDocumentSelection(entity, document);
