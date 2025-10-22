@@ -797,7 +797,7 @@ export const InvoicesDetailsPage = ({
                       value={ctrl("notes").value || ""}
                       onChange={(e) => ctrl("notes").onChange(e)}
                     />
-                    {(!readonly || ctrl("documents").value?.length) && (
+                    {(!readonly || !!ctrl("documents").value?.length) && (
                       <FilesInput
                         disabled={readonly}
                         ctrl={ctrl("documents")}

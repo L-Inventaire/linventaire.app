@@ -32,7 +32,9 @@ export const RelatedInvoices = ({
     invoice.type === "supplier_credit_notes";
 
   const { invoices: quote } = useInvoices({
-    query: generateQueryFromMap({ id: invoice.from_rel_quote || "none" }),
+    query: generateQueryFromMap({
+      id: invoice.from_rel_quote?.length ? invoice.from_rel_quote : "none",
+    }),
   });
   const { invoices: siblingsInvoices } = useInvoices({
     query: [

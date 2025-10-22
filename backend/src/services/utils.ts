@@ -65,11 +65,6 @@ export function useCtx(server: Express) {
       req_id: id(),
     };
 
-    Framework.LoggerDb.get("api-gateway").info(
-      context,
-      `[${req.method}] ${req.url}`
-    );
-
     try {
       if (req.headers.authorization !== undefined) {
         const auth: Context = jwt.verify(
@@ -83,6 +78,11 @@ export function useCtx(server: Express) {
     } catch (e) {
       console.log(e);
     }
+
+    Framework.LoggerDb.get("api-gateway").info(
+      context,
+      `[${req.method}] ${req.url}`
+    );
 
     const ctx = Ctx.get(req);
     ctx.context = context;
