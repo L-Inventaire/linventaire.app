@@ -1,3 +1,6 @@
+import Clients, {
+  ClientsDefinition,
+} from "#src/services/clients/entities/clients";
 import _ from "lodash";
 import { default as Framework, default as platform } from "../../../platform";
 import { TransactionOperation } from "../../../platform/db/api";
@@ -6,9 +9,6 @@ import { TasksDefinition } from "../../../services/system/entities/tasks";
 import { Context } from "../../../types";
 import { RestEntity } from "../entities/entity";
 import { isTableAvailable } from "./utils";
-import Clients, {
-  ClientsDefinition,
-} from "#src/services/clients/entities/clients";
 
 export const insertIntoHistory = async (
   ctx: Context,
@@ -18,41 +18,40 @@ export const insertIntoHistory = async (
 ) => {
   const { columns } = Framework.TriggersManager.getEntities()[table] || {};
 
+  const snapshot = {
+    ..._.pick(
+      _.omit(
+        (neew || old) as RestEntity,
+        "searchable",
+        "searchable_generated",
+        "comment_id"
+      ),
+      Object.keys(columns)
+    ),
+    updated_at: neew?.updated_at || new Date().getTime(),
+    updated_by: neew?.updated_by || ctx.id || null,
+    ...(columns?.is_deleted
+      ? {
+          is_deleted: !neew ? true : false,
+        }
+      : {}),
+    ...(columns?.comment_id
+      ? {
+          comment_id:
+            neew?.comment_id !== old?.comment_id ? neew?.comment_id : null,
+        }
+      : {}),
+    operation: (!neew
+      ? "delete"
+      : !old
+      ? "insert"
+      : "update") as TransactionOperation<any>["operation"],
+    operation_timestamp: new Date().getTime(),
+  };
+
   const historyTable = table + "_history";
   const driver = await platform.Db.getService();
-  await driver.insert(
-    ctx,
-    historyTable,
-    {
-      ..._.pick(
-        _.omit(
-          (neew || old) as RestEntity,
-          "searchable",
-          "searchable_generated",
-          "comment_id"
-        ),
-        Object.keys(columns)
-      ),
-      ...(columns?.is_deleted
-        ? {
-            is_deleted: !neew ? true : false,
-          }
-        : {}),
-      ...(columns?.comment_id
-        ? {
-            comment_id:
-              neew?.comment_id !== old?.comment_id ? neew?.comment_id : null,
-          }
-        : {}),
-      operation: (!neew
-        ? "delete"
-        : !old
-        ? "insert"
-        : "update") as TransactionOperation<any>["operation"],
-      operation_timestamp: new Date().getTime(),
-    },
-    { triggers: false }
-  );
+  await driver.insert(ctx, historyTable, snapshot, { triggers: false });
 };
 
 export const setupHistoryTrigger = () => {

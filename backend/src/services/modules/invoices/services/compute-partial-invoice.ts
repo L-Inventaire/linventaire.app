@@ -135,6 +135,7 @@ export const computePartialInvoice = (
     },
   });
 
+  /*
   console.log("alreadyInvoicedAmount", alreadyInvoicedAmount);
   console.log("quoteRemainingAmount", quoteRemainingAmount);
   console.log("thisPartialInvoiceItems", thisPartialInvoiceItems);
@@ -144,6 +145,7 @@ export const computePartialInvoice = (
   );
   console.log("thisPartialInvoiceAmount", thisPartialInvoiceAmount);
   console.log("remainingInvoiceAmount", remainingInvoiceAmount);
+  */
 
   // All is computed, we only have to fix the amounts and/or create credit_notes if needed
 
