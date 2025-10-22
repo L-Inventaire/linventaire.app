@@ -17,6 +17,7 @@ import { InvoiceRestDocument } from "@views/client/modules/invoices/components/i
 import { StockItemsDetailsPage } from "@views/client/modules/stock/components/stock-item-details";
 import { StockItemStatus } from "@views/client/modules/stock/components/stock-item-status";
 import { useTranslation } from "react-i18next";
+import { RestFieldsNames } from "../utils/rest/configuration";
 import { setDefaultRestActions } from "../utils/rest/utils";
 import { useStockLocations } from "./hooks/use-stock-locations";
 import { StockItems, StockLocations } from "./types/types";
@@ -163,3 +164,44 @@ const LocationType = ({ type }: { type: StockLocations["type"] }) => {
   const { t } = useTranslation();
   return <>{t("stock.locations.type." + type)}</>;
 };
+
+export const StockItemsFieldsNames = () => ({
+  from_rel_quote: {
+    label: "Devis d'origine",
+    keywords: "devis origine",
+  },
+  from_rel_invoice: {
+    label: "Facture d'origine",
+    keywords: "facture origine",
+  },
+  client: {
+    label: "Client",
+    keywords: "client",
+  },
+  ["cache.client_name"]: {
+    label: "Nom du client",
+    keywords: "client nom",
+  },
+  article: {
+    label: "Article",
+    keywords: "article produit marchandise bien",
+  },
+  serial_number: {
+    label: "Numéro de série",
+    keywords: "numéro série serial number",
+  },
+  location: {
+    label: "Localisation",
+    keywords: "localisation emplacement lieu",
+  },
+  quantity: {
+    label: "Quantité",
+    keywords: "quantité nombre stock",
+  },
+  state: {
+    label: "Statut",
+    keywords: "statut état status",
+  },
+  documents: false,
+  ...RestFieldsNames(),
+});

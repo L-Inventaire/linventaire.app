@@ -3,7 +3,10 @@ import { Info } from "@atoms/text";
 import { RestTable } from "@components/table-rest";
 import { useHasAccess } from "@features/access";
 import { ROUTES, getRoute } from "@features/routes";
-import { StockItemsColumns } from "@features/stock/configuration";
+import {
+  StockItemsColumns,
+  StockItemsFieldsNames,
+} from "@features/stock/configuration";
 import { useStockItems } from "@features/stock/hooks/use-stock-items";
 import { StockItems } from "@features/stock/types/types";
 import { formatNumber } from "@features/utils/format/strings";
@@ -141,7 +144,7 @@ export const StockPage = () => {
         <SearchBar
           schema={{
             table: "stock_items",
-            fields: schemaToSearchFields(schema.data, {}),
+            fields: schemaToSearchFields(schema.data, StockItemsFieldsNames()),
           }}
           loading={schema.isPending}
           onChange={(q) => {

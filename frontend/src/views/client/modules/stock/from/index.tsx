@@ -1,4 +1,5 @@
 import { DocumentBar } from "@components/document-bar";
+import { useCurrentClient } from "@features/clients/state/use-clients";
 import { ROUTES, getRoute } from "@features/routes";
 import { StockApiClient } from "@features/stock/api-client/stock-api-client";
 import { StockItems } from "@features/stock/types/types";
@@ -9,7 +10,6 @@ import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import { StockItemsCreateFromOrder } from "../components/stock-item-create-from-order";
 import { StockItemsCreateFromSupplier } from "../components/stock-item-create-from-supplier";
-import { useCurrentClient } from "@features/clients/state/use-clients";
 
 export const StockItemsFromPage = (_props: { readonly?: boolean }) => {
   const { id: clientId } = useCurrentClient();
@@ -73,6 +73,9 @@ export const StockItemsFromPage = (_props: { readonly?: boolean }) => {
               setLoading(false);
               toast.error(
                 "Une erreur est survenue lors de l'import des éléments dans le stock"
+              );
+              alert(
+                "Nous sommes désolé, une erreur est survenue lors de la réception. Il est possible qu'une partie des éléments ait été ajoutés comme prévu, vérifiez les alertes afin de ne pas réimporter des éléments en double. Contactez le support si le problème persiste."
               );
               console.error(e);
             }
