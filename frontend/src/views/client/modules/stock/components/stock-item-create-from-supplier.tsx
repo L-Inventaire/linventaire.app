@@ -125,7 +125,17 @@ export const StockItemsCreateFromSupplier = ({
       {!loading && (
         <div className="space-y-2">
           <QuotesCheckers items={stockItems} />
-          <SerialNumberCheckers items={stockItems} />
+          <SerialNumberCheckers
+            items={stockItems}
+            onChangeAllowDuplicates={(allow) => {
+              setStockItems((stockItems) =>
+                stockItems.map((item) => ({
+                  ...item,
+                  _allow_duplicate_serial_number: allow,
+                }))
+              );
+            }}
+          />
         </div>
       )}
     </div>

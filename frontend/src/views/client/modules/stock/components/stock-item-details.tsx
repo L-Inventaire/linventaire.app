@@ -39,11 +39,10 @@ import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import { InvoiceRestDocument } from "../../invoices/components/invoice-lines-input/invoice-input-rest-card";
+import { QuotesCheckers, SerialNumberCheckers } from "./create-from/checkers";
 import { StockItemStatus } from "./stock-item-status";
 import { SubdivideStockModalAtom } from "./subdivide-modal";
 import { Tracability } from "./tracability";
-import { QuotesCheckers, SerialNumberCheckers } from "./create-from/checkers";
-import _ from "lodash";
 
 export const StockItemsDetailsPage = ({
   readonly,

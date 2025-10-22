@@ -20,10 +20,16 @@ export default class Stocks implements InternalApplicationService {
 
     router.post("/:clientId/batch", checkRole("USER"), async (req, res) => {
       const ctx = Ctx.get(req)?.context;
-      const stockItems = req.body as StockItems[];
+      const stockItems = req.body as (StockItems & {
+        _allow_duplicate_serial_number?: boolean;
+      })[];
 
       // Group them by .for_rel_quote x .from_rel_supplier_quote so we have one single trigger for each doc
-      const groupedItems: { [key: string]: StockItems[] } = _.groupBy(
+      const groupedItems: {
+        [key: string]: (StockItems & {
+          _allow_duplicate_serial_number?: boolean;
+        })[];
+      } = _.groupBy(
         stockItems,
         (item) =>
           `${item.for_rel_quote || ""}-${item.from_rel_supplier_quote || ""}`
@@ -36,6 +42,24 @@ export default class Stocks implements InternalApplicationService {
           const runTrigger = i === items.length - 1;
           const item = items[i];
           ctx._batch_import_ignore_triggers = !runTrigger;
+
+          if (!item._allow_duplicate_serial_number) {
+            // Check that the serial number is not already used in stock
+            const existingItem = (
+              await Services.Rest.search<StockItems>(
+                ctx,
+                StockItemsDefinition.name,
+                {
+                  serial_number: item.serial_number,
+                  article: item.article,
+                }
+              )
+            )?.list?.map((a) => a.quantity > 0)[0];
+            if (existingItem) {
+              continue;
+            }
+          }
+
           await Services.Rest.create(ctx, StockItemsDefinition.name, item);
         }
       }

@@ -1,3 +1,4 @@
+import { FormInput } from "@/components/form/fields";
 import { buildQueryFromMap } from "@components/search-bar/utils/utils";
 import { useInvoices } from "@features/invoices/hooks/use-invoices";
 import { InvoiceLine, Invoices } from "@features/invoices/types/types";
@@ -8,9 +9,17 @@ import _ from "lodash";
 import { useEffect, useState } from "react";
 
 // This one checks that the serial numbers are not already used
-export const SerialNumberCheckers = ({ items }: { items: StockItems[] }) => {
+export const SerialNumberCheckers = ({
+  items,
+  onChangeAllowDuplicates,
+}: {
+  items: StockItems[];
+  onChangeAllowDuplicates?: (allow?: boolean) => void;
+}) => {
   const serialNumbers = items.map((e) => e.serial_number);
   const articles = items.map((e) => e.article);
+
+  const [allowDuplicates, setAllowDuplicates] = useState<boolean>(false);
 
   const filledSerialNumbers = serialNumbers.filter(Boolean);
   const { stock_items: _existingSerialNumbers } = useStockItems({
@@ -37,6 +46,18 @@ export const SerialNumberCheckers = ({ items }: { items: StockItems[] }) => {
     (e) => !items.map((a) => a.id).includes(e.id)
   );
 
+  const duplicatesInForm =
+    filledSerialNumbers.length > new Set(filledSerialNumbers).size;
+  const duplicatesInStock = (existingSerialNumbers?.length || 0) > 0;
+
+  useEffect(() => {
+    onChangeAllowDuplicates?.(allowDuplicates);
+  }, [allowDuplicates]);
+
+  useEffect(() => {
+    setAllowDuplicates(false);
+  }, [duplicatesInStock, duplicatesInForm]);
+
   return (
     <>
       {serialNumbers.filter((e) => !e)?.length > 1 && (
@@ -52,18 +73,33 @@ export const SerialNumberCheckers = ({ items }: { items: StockItems[] }) => {
         </Callout.Root>
       )}
 
-      {filledSerialNumbers.length > new Set(filledSerialNumbers).size && (
+      {duplicatesInForm && (
         <Callout.Root color="orange">
           Attention certain éléments possèdent un numéro de série en double.
         </Callout.Root>
       )}
 
-      {(existingSerialNumbers?.length || 0) > 0 && (
+      {duplicatesInStock && (
         <Callout.Root color="red">
           Les numéros de série suivants existent déjà dans le stock :{" "}
           {existingSerialNumbers?.map((e) => e.serial_number).join(", ")}
         </Callout.Root>
       )}
+
+      {!!onChangeAllowDuplicates &&
+        ((existingSerialNumbers?.length || 0) > 0 ||
+          filledSerialNumbers.length > new Set(filledSerialNumbers).size) && (
+          <>
+            <FormInput
+              type="boolean"
+              value={allowDuplicates}
+              onChange={(value) => {
+                setAllowDuplicates(value);
+              }}
+              placeholder="Importer tout de même les doublons."
+            />
+          </>
+        )}
     </>
   );
 };
