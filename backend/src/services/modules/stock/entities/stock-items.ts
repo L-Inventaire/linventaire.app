@@ -54,8 +54,6 @@ export default class StockItems extends RestEntity {
     quote_name: "string",
     supplier_quote_name: "string",
   };
-
-  _batch_import_ignore_trigger?: boolean; // Not present in database, that's why we don't have an = "value";
 }
 
 export const StockItemsDefinition: RestTableDefinition = {

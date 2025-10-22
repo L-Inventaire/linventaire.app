@@ -1,3 +1,4 @@
+import { insertIntoHistory } from "#src/services/rest/services/history";
 import Framework from "../../../../platform";
 import Invoices, { InvoicesDefinition } from "../entities/invoices";
 
@@ -10,7 +11,7 @@ export const setStatusTrigger = () => {
     name: "set-status-invoices",
     priority: 100, // Do it at the end of the other processes
     test: (_ctx, entity) => entity?.state !== "closed" && !!entity,
-    callback: async (ctx, entity, prev) => {
+    callback: async (ctx, entity, prev, { table }) => {
       // Quote ready for invoicing
       if (entity.type === "quotes" || entity.type === "supplier_quotes") {
         if (prev?.state === "closed") {
@@ -81,8 +82,13 @@ export const setStatusTrigger = () => {
       }
 
       if (prev?.state !== entity.state) {
+        await insertIntoHistory(ctx, table, entity);
+
         const db = await Framework.Db.getService();
-        entity.updated_by = "system";
+        if (new Date(entity.updated_at || 0).getTime() > Date.now() - 2000) {
+          // If included in a user update, it takes the user as the updater
+          entity.updated_by = "system";
+        }
         await db.update<Invoices>(
           ctx,
           InvoicesDefinition.name,

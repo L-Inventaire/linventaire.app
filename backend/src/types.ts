@@ -22,6 +22,7 @@ export type Context = {
   lang?: string;
   ip?: string;
   db_tnx?: TransactionExecutor;
+  _batch_import_ignore_triggers?: boolean;
   trigger_path: string[];
   cache: any;
 };

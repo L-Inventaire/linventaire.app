@@ -1,14 +1,14 @@
+import { checkRole } from "#src/services/common";
+import Services from "#src/services/index";
+import { Ctx } from "#src/services/utils";
 import { Express, Router } from "express";
+import _ from "lodash";
 import { default as Framework, default as platform } from "../../../platform";
 import { Logger } from "../../../platform/logger-db";
 import { InternalApplicationService } from "../../types";
 import StockItems, { StockItemsDefinition } from "./entities/stock-items";
 import { StockLocationsDefinition } from "./entities/stock-locations";
 import { setUpsertHook } from "./triggers/upsert-hook";
-import { checkRole } from "#src/services/common";
-import { Ctx } from "#src/services/utils";
-import Services from "#src/services/index";
-import _ from "lodash";
 
 export default class Stocks implements InternalApplicationService {
   version = 1;
@@ -35,10 +35,8 @@ export default class Stocks implements InternalApplicationService {
         for (let i = 0; i < items.length; i++) {
           const runTrigger = i === items.length - 1;
           const item = items[i];
-          await Services.Rest.create(ctx, StockItemsDefinition.name, {
-            ...item,
-            _batch_import_ignore_trigger: !runTrigger,
-          });
+          ctx._batch_import_ignore_triggers = !runTrigger;
+          await Services.Rest.create(ctx, StockItemsDefinition.name, item);
         }
       }
 

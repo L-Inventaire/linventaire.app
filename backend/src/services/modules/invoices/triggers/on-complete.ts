@@ -1,18 +1,19 @@
-import { Context } from "../../../../types";
+import Services from "#src/services/index";
+import { insertIntoHistory } from "#src/services/rest/services/history";
+import { buildQueryFromMap } from "#src/services/rest/services/utils";
+import _ from "lodash";
 import Framework from "../../../../platform";
+import { Context } from "../../../../types";
+import AccountingTransactions, {
+  AccountingTransactionsDefinition,
+} from "../../accounting/entities/transactions";
+import ServiceItems, {
+  ServiceItemsDefinition,
+} from "../../service/entities/service-item";
 import StockItems, {
   StockItemsDefinition,
 } from "../../stock/entities/stock-items";
 import Invoices, { InvoicesDefinition } from "../entities/invoices";
-import _ from "lodash";
-import ServiceItems, {
-  ServiceItemsDefinition,
-} from "../../service/entities/service-item";
-import AccountingTransactions, {
-  AccountingTransactionsDefinition,
-} from "../../accounting/entities/transactions";
-import Services from "#src/services/index";
-import { buildQueryFromMap } from "#src/services/rest/services/utils";
 import { computePartialInvoice } from "../services/compute-partial-invoice";
 
 // TODO refactor me: this should NOT change the state but only complete the quantities and payments.
@@ -25,9 +26,9 @@ export const setCheckIsCompleteTrigger = () => {
   // ---------
   Framework.TriggersManager.registerTrigger<StockItems>(StockItemsDefinition, {
     name: "check-is-complete-invoices-stock-items",
-    test: (_ctx, entity, oldEntity) => {
+    test: (ctx, entity, oldEntity) => {
       return (
-        !entity?._batch_import_ignore_trigger &&
+        !ctx?._batch_import_ignore_triggers &&
         (entity?.quantity !== oldEntity?.quantity ||
           entity?.article !== oldEntity?.article ||
           entity?.state !== oldEntity?.state ||
@@ -413,7 +414,11 @@ export const recomputeCompletionStatus = async (
   }
 
   if (!_.isEqual(item, previousValue)) {
-    if (previousValue?.state !== item.state) {
+    await insertIntoHistory(ctx, InvoicesDefinition.name, item);
+    if (
+      previousValue?.state !== item.state &&
+      new Date(item.updated_at || 0).getTime() > Date.now() - 2000 // If included in a user update, it takes the user as the updater
+    ) {
       item.updated_by = "system";
     }
     await db.update<Invoices>(

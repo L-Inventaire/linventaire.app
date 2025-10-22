@@ -14,7 +14,7 @@ export const insertIntoHistory = async (
   ctx: Context,
   table: string,
   neew: RestEntity,
-  old: RestEntity
+  old?: RestEntity
 ) => {
   const { columns } = Framework.TriggersManager.getEntities()[table] || {};
 
