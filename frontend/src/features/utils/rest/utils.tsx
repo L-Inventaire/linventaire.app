@@ -11,7 +11,7 @@ export const setDefaultRestActions = (
   rows: RestEntity[],
   queryClient: QueryClient
 ) => {
-  if (rows.every((a) => !a.is_deleted)) {
+  if (rows.every((a) => a && !a.is_deleted)) {
     actions.push({
       label: "Supprimer",
       icon: (p) => <TrashIcon {...p} />,
@@ -30,7 +30,7 @@ export const setDefaultRestActions = (
     } as CtrlkAction);
   }
 
-  if (rows.every((a) => a.is_deleted)) {
+  if (rows.every((a) => a && a.is_deleted)) {
     actions.push({
       label: "Restaurer",
       icon: (p) => <ArchiveBoxArrowDownIcon {...p} />,
