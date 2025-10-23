@@ -14,6 +14,7 @@ import { AccountingTransactionsColumns } from "@features/accounting/configuratio
 import { useAccountingTransactions } from "@features/accounting/hooks/use-accounting-transactions";
 import { AccountingTransactions } from "@features/accounting/types/types";
 import { useClients } from "@features/clients/state/use-clients";
+import { Clients } from "@features/clients/types/clients";
 import { useContact, useContacts } from "@features/contacts/hooks/use-contacts";
 import { Contacts } from "@features/contacts/types/types";
 import { useViewWithCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
@@ -27,12 +28,12 @@ import {
 } from "@features/invoices/utils";
 import { ROUTES } from "@features/routes";
 import { formatDate, formatTime } from "@features/utils/format/dates";
-import { format as formatdfns } from "date-fns";
 import {
   getFormattedNumerotation,
   getOptimalCounterFormat,
   useFormattedNumerotationByInvoice,
 } from "@features/utils/format/numerotation";
+import { getTextFromHtml } from "@features/utils/format/strings";
 import { useEffectChange } from "@features/utils/hooks/use-changed-effect";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import {
@@ -49,6 +50,7 @@ import { Table } from "@molecules/table";
 import { Timeline } from "@molecules/timeline";
 import { Callout, Code, Heading, Text, Tooltip } from "@radix-ui/themes";
 import { PageColumns } from "@views/client/_layout/page";
+import { format as formatdfns } from "date-fns";
 import _ from "lodash";
 import { DateTime } from "luxon";
 import { Fragment, useEffect } from "react";
@@ -60,16 +62,13 @@ import { InvoicePaymentInput } from "./input-payment";
 import { InvoiceRecurrenceInput } from "./input-recurrence";
 import { InvoiceRecurrencePeriodInput } from "./input-recurrence-period";
 import { InvoiceReminderInput } from "./input-reminder";
+import { InvoiceDesignationInput } from "./invoice-designation-input";
 import { InvoiceLinesInput } from "./invoice-lines-input";
 import { CompletionTags } from "./invoice-lines-input/components/completion-tags";
 import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-card";
 import { InvoiceStatus } from "./invoice-status";
 import { RelatedInvoices } from "./related-invoices";
 import { TagPaymentCompletion } from "./tag-payment-completion";
-import { InvoiceDesignationInput } from "./invoice-designation-input";
-import { format as formatfns } from "date-fns";
-import { Clients } from "@features/clients/types/clients";
-import { getTextFromHtml } from "@features/utils/format/strings";
 
 export const InvoicesDetailsPage = ({
   readonly,
@@ -170,6 +169,7 @@ export const InvoicesDetailsPage = ({
     setDraft((draft) => {
       draft = _.cloneDeep(draft);
       if (
+        Object.values(draft.delivery_address || {}).filter(Boolean).length ||
         draft.content?.some(
           (a) => a.type === "product" || a.type === "consumable"
         )
@@ -182,7 +182,7 @@ export const InvoicesDetailsPage = ({
       }
       return draft;
     });
-  }, [draft.client, draft.supplier, draft.contact, draft.content?.length]);
+  }, [invoiceCounterParty?.id, invoiceContact?.id, draft.content?.length]);
 
   const { accounting_transactions } = useAccountingTransactions({
     query: buildQueryFromMap({
