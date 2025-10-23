@@ -53,7 +53,7 @@ import { PageColumns } from "@views/client/_layout/page";
 import { format as formatdfns } from "date-fns";
 import _ from "lodash";
 import { DateTime } from "luxon";
-import { Fragment, useEffect } from "react";
+import { Fragment, useEffect, useRef } from "react";
 import { ContactRestDocument } from "../../contacts/components/contact-input-rest-card";
 import { computePaymentDelayDate, computePricesFromInvoice } from "../utils";
 import { getBestDeliveryAddress, InputDelivery } from "./input-delivery";
@@ -165,23 +165,37 @@ export const InvoicesDetailsPage = ({
   /**
    * _ si un produit / consommable est ajouté, alors 1. la livraison doit être cochée toute seule
    */
+  const previousCounterPartyId = useRef<string[]>([
+    draft.client || draft.supplier,
+    draft.contact,
+  ]);
   useEffectChange(() => {
-    setDraft((draft) => {
-      draft = _.cloneDeep(draft);
-      if (
-        Object.values(draft.delivery_address || {}).filter(Boolean).length ||
-        draft.content?.some(
-          (a) => a.type === "product" || a.type === "consumable"
-        )
-      ) {
-        draft.delivery_delay = 30; // TODO ability to set the default somewhere in the app
-        draft.delivery_address = getBestDeliveryAddress(
-          invoiceCounterParty!,
-          invoiceContact || undefined
-        );
-      }
-      return draft;
-    });
+    if (
+      (previousCounterPartyId.current[0] &&
+        previousCounterPartyId.current[0] !==
+          (draft.client || draft.supplier)) ||
+      (previousCounterPartyId.current[1] &&
+        previousCounterPartyId.current[1] !== draft.contact)
+    ) {
+      // Differentiate loading and changing client
+
+      setDraft((draft) => {
+        draft = _.cloneDeep(draft);
+        if (
+          Object.values(draft.delivery_address || {}).filter(Boolean).length ||
+          draft.content?.some(
+            (a) => a.type === "product" || a.type === "consumable"
+          )
+        ) {
+          draft.delivery_delay = 30; // TODO ability to set the default somewhere in the app
+          draft.delivery_address = getBestDeliveryAddress(
+            invoiceCounterParty!,
+            invoiceContact || undefined
+          );
+        }
+        return draft;
+      });
+    }
   }, [invoiceCounterParty?.id, invoiceContact?.id, draft.content?.length]);
 
   const { accounting_transactions } = useAccountingTransactions({
