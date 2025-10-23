@@ -11,17 +11,6 @@ export const useEffectChange = <T>(
   const previousValue = useRef<T[]>(value);
   useEffect(() => {
     const tmp = previousValue.current;
-    console.log(
-      tmp,
-      value,
-      previousValue.current.map((val) => {
-        return (
-          val === undefined ||
-          val === null ||
-          _.isEqual(val, value[tmp.indexOf(val)])
-        );
-      })
-    );
     if (
       previousValue.current.every((val) => {
         return (

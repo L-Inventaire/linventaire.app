@@ -166,7 +166,6 @@ export const InvoicesDetailsPage = ({
    * _ si un produit / consommable est ajouté, alors 1. la livraison doit être cochée toute seule
    */
   useEffectChange(() => {
-    console.log("Change detected");
     // Differentiate loading and changing client
     setDraft((draft) => {
       draft = _.cloneDeep(draft);
