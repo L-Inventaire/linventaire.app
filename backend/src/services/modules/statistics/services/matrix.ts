@@ -19,9 +19,12 @@ export const getMatrix = async (
   const client = await Services.Clients.getClient(ctx, clientId);
   const timezone = client?.preferences?.timezone || "Europe/Paris";
 
-  const { offsetms } = getTimezoneOffset(timezone);
+  const { offsetms: fromOffset } = getTimezoneOffset(
+    timezone,
+    new Date(month + "-01").getTime()
+  );
 
-  const from = new Date(month + "-01").getTime() - offsetms;
+  const from = new Date(month + "-01").getTime() - fromOffset;
   const to = new Date(from);
   applyOffset(to, "monthly", timezone);
   const invoices = await db.select<Invoices>(
