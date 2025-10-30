@@ -522,11 +522,17 @@ export const getLatestInvoiceDate = (
 
   const invoiceDate = invoicesAndPeriods
     .filter(
-      (a) => new Date(a.date).getTime() <= new Date(currentDate).getTime()
+      (a) =>
+        new Date(a.date).getTime() <=
+        new Date(currentDate).getTime() + 1000 * 60 * 60 * 3 // Ensure we are past the day (with 3h margin to avoid any issue with timezone winter/summer hours etc)
     )
     .pop();
   const recheckAt = invoicesAndPeriods
-    .filter((a) => new Date(a.date).getTime() > new Date(currentDate).getTime())
+    .filter(
+      (a) =>
+        new Date(a.date).getTime() >
+        new Date(currentDate).getTime() + 1000 * 60 * 60 * 3
+    ) // Ensure we are past the day (with 3h margin to avoid any issue with timezone winter/summer hours etc))
     .shift();
 
   return {
