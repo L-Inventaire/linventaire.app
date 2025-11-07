@@ -75,8 +75,8 @@
       },
       "quotes": {
         "sent": {
-          "subject": "Signature requise pour la validation du devis {{val}}",
-          "message": "<p>Votre signature est requise pour valider le devis {{val}}. <br/><br/> <p><a class='btn-cta' href='{{href}}'>Signer le devis</a></p> </p>",
+          "subject": "Votre devis {{val}}",
+          "message": "<p>Le devis {{val}} est disponible pour signature. <br/><br/> <p><a class='btn-cta' href='{{href}}'>Signer le devis</a></p> </p>",
           "subject_no_signature": "Devis {{val}}",
           "message_no_signature": "<p>Veuillez retrouver ci-joint le devis {{val}} en attente de validation. <br/><br/> <p><a class='btn-cta' href='{{href}}'>Accéder au devis</a></p> </p>"
         },

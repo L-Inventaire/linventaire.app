@@ -53,6 +53,10 @@ export default class PushEMailSmtp
           content: attachment.content,
           encoding: "base64",
         })),
+        headers: {
+          "X-Mailer": "L'inventaire",
+          "X-Auto-Response-Suppress": "All",
+        },
       };
 
       await transporter.sendMail(mailOptions);
