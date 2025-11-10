@@ -43,7 +43,10 @@ export default class Stocks implements InternalApplicationService {
           const item = items[i];
           ctx._batch_import_ignore_triggers = !runTrigger;
 
-          if (!item._allow_duplicate_serial_number) {
+          if (
+            !item._allow_duplicate_serial_number &&
+            item.serial_number?.trim()
+          ) {
             // Check that the serial number is not already used in stock
             const existingItem = (
               await Services.Rest.search<StockItems>(
