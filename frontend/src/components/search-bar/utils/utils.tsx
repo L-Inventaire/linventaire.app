@@ -122,7 +122,9 @@ export const generateQuery = (
           regex: a.regex,
           values: a.values.map((value) => {
             value =
-              replacementsMap?.[(field?.key || a.key) + ":" + value] || value;
+              replacementsMap?.[(field?.key || a.key) + ":" + value] ||
+              replacementsMap?.[(field?.key || a.key) + ':"' + value + '"'] ||
+              value;
 
             if (field?.type === "text" || field?.type?.indexOf("type:") === 0) {
               const isRegex = a.regex;
