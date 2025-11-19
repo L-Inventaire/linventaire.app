@@ -47,10 +47,10 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
       contact !== undefined ? contactKey : "",
       from !== undefined || to !== undefined
         ? `payment_information.computed_date:${
-            fromDate
-              ? `${fromDate}->${
-                  toDate || new Date().toISOString().split("T")[0]
-                }`
+            fromDate && toDate
+              ? `${fromDate}->${toDate}`
+              : fromDate
+              ? `>=${fromDate || new Date().toISOString().split("T")[0]}`
               : `<=${toDate || new Date().toISOString().split("T")[0]}`
           }`
         : "",
@@ -144,7 +144,7 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
               className={twMerge("hover:underline cursor-pointer")}
               href={getLink(row.contact, row.id, 0, undefined)}
             >
-              {formatAmount(row.total.total - row.future.total)}
+              {formatAmount(row.future.total)}
             </Link>
           ),
         },
