@@ -27,7 +27,7 @@ type LateType = {
   id: string;
   contact?: Contacts;
   total: LateCellType;
-  late: LateCellType;
+  future: LateCellType;
   d30: LateCellType;
   d60: LateCellType;
   d90: LateCellType;
@@ -75,7 +75,7 @@ export const getLatePayments = async (
         invoicesType,
       ])
     ).rows;
-    separatedValuesTemp["late"] = (
+    separatedValuesTemp["future"] = (
       await db.custom<{ rows: SumQueryType[] }>(
         ctx,
         `${common1} ${computedDate} > NOW() and ${common2}`,
@@ -85,35 +85,35 @@ export const getLatePayments = async (
     separatedValuesTemp["d30"] = (
       await db.custom<{ rows: SumQueryType[] }>(
         ctx,
-        `${common1} ${computedDate} > NOW() and ${computedDate} <= NOW() + INTERVAL '30 days' and ${common2}`,
+        `${common1} ${computedDate} <= NOW() and ${computedDate} > NOW() - INTERVAL '30 days' and ${common2}`,
         [clientId, invoicesType]
       )
     ).rows;
     separatedValuesTemp["d60"] = (
       await db.custom<{ rows: SumQueryType[] }>(
         ctx,
-        `${common1} ${computedDate} > NOW() + INTERVAL '30 days' and ${computedDate} <= NOW() + INTERVAL '60 days' and ${common2}`,
+        `${common1} ${computedDate} <= NOW() - INTERVAL '30 days' and ${computedDate} > NOW() - INTERVAL '60 days' and ${common2}`,
         [clientId, invoicesType]
       )
     ).rows;
     separatedValuesTemp["d90"] = (
       await db.custom<{ rows: SumQueryType[] }>(
         ctx,
-        `${common1} ${computedDate} > NOW() + INTERVAL '60 days' and ${computedDate} <= NOW() + INTERVAL '90 days' and ${common2}`,
+        `${common1} ${computedDate} <= NOW() - INTERVAL '60 days' and ${computedDate} > NOW() - INTERVAL '90 days' and ${common2}`,
         [clientId, invoicesType]
       )
     ).rows;
     separatedValuesTemp["d120"] = (
       await db.custom<{ rows: SumQueryType[] }>(
         ctx,
-        `${common1} ${computedDate} > NOW() + INTERVAL '90 days' and ${computedDate} <= NOW() + INTERVAL '120 days' and ${common2}`,
+        `${common1} ${computedDate} <= NOW() - INTERVAL '90 days' and ${computedDate} > NOW() - INTERVAL '120 days' and ${common2}`,
         [clientId, invoicesType]
       )
     ).rows;
     separatedValuesTemp["d120plus"] = (
       await db.custom<{ rows: SumQueryType[] }>(
         ctx,
-        `${common1} ${computedDate} > NOW() + INTERVAL '120 days' and ${common2}`,
+        `${common1} ${computedDate} <= NOW() - INTERVAL '120 days' and ${common2}`,
         [clientId, invoicesType]
       )
     ).rows;
@@ -177,7 +177,7 @@ export const getLatePayments = async (
         result.push({
           id: line.contact,
           total: _.cloneDeep(defaultCell),
-          late: _.cloneDeep(defaultCell),
+          future: _.cloneDeep(defaultCell),
           d30: _.cloneDeep(defaultCell),
           d60: _.cloneDeep(defaultCell),
           d90: _.cloneDeep(defaultCell),

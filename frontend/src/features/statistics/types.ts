@@ -56,7 +56,7 @@ type LateType = {
   id: string;
   contact?: Contacts;
   total: LateCellType;
-  late: LateCellType;
+  future: LateCellType;
   d30: LateCellType;
   d60: LateCellType;
   d90: LateCellType;
