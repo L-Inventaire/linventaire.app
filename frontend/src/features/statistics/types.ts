@@ -42,7 +42,7 @@ export type DashboardTags = {
   [tag: string]: number;
 };
 
-type LateCellType = {
+export type LateCellType = {
   total_invoices: number;
   total_credit_notes: number;
   total: number;
