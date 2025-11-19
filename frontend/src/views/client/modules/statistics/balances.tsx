@@ -317,7 +317,7 @@ export const ClickableValue = ({
 }) => {
   const navigateAlt = useNavigateAlt();
 
-  if (value.count_credit_notes === 0 || value.count_invoices === 0) {
+  if (value.total_credit_notes === 0 || value.total_invoices === 0) {
     return (
       <Link
         noColor
@@ -328,7 +328,7 @@ export const ClickableValue = ({
           row.id,
           from,
           to,
-          value.count_invoices === 0 ? "credit_notes" : "invoices"
+          value.total_credit_notes === 0 ? "invoices" : "credit_notes"
         )}
       >
         {formatAmount(value.total)}
