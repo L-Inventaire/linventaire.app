@@ -31,6 +31,13 @@ const FontAttributor = ReactQuill.Quill.import("attributors/style/font");
 FontAttributor.whitelist = [];
 ReactQuill.Quill.register(FontAttributor);
 
+// Disable background colors
+const BackgroundAttributor = ReactQuill.Quill.import(
+  "attributors/style/background"
+);
+BackgroundAttributor.whitelist = [];
+ReactQuill.Quill.register(BackgroundAttributor);
+
 ReactQuill.Quill.register({
   "blots/mention": MentionBlot,
   "modules/mention": Mention,
