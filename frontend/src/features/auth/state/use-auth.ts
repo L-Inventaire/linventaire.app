@@ -103,7 +103,8 @@ export const useAuth = () => {
     () =>
       (withRedirect = true, clearEmail = false) => {
         AuthJWT.token = "";
-        const savedEmail = localStorage.getItem("stored_login_email");
+        const savedEmail =
+          localStorage.getItem("stored_login_email") || auth.user?.email;
         localStorage.clear();
         if (savedEmail && !clearEmail) {
           localStorage.setItem("stored_login_email", savedEmail || "");
