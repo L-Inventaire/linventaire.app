@@ -14,8 +14,10 @@ import { formatNumber } from "@features/utils/format/strings";
 import { useNavigateAlt } from "@features/utils/navigate";
 import {
   RestOptions,
+  useRestExporter,
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
+import { Pagination } from "@molecules/table/table";
 import { PlusIcon } from "@heroicons/react/20/solid";
 import { Page } from "@views/client/_layout/page";
 import { useRef, useState } from "react";
@@ -39,6 +41,46 @@ export const ContactsPage = () => {
   const schema = useRestSchema("contacts");
   const navigate = useNavigateAlt();
   const hasAccess = useHasAccess();
+  const restExporter = useRestExporter<Contacts>("contacts");
+
+  // Exporter function for contacts
+  const exporter =
+    (options: RestOptions<Contacts>) =>
+    async (pagination: Pick<Pagination, "page" | "perPage">) => {
+      const contactsList = await restExporter(options)(pagination);
+      return contactsList.map((contact) => ({
+        id: contact.id,
+        name:
+          [contact.person_first_name, contact.person_last_name]
+            .filter(Boolean)
+            .join(" ") ||
+          contact.business_name ||
+          "",
+        business_name: contact.business_name || "",
+        email: contact.email || "",
+        phone: contact.phone || "",
+        type: contact.type || "",
+        address: [
+          contact.address?.address_line_1,
+          contact.address?.address_line_2,
+          contact.address?.city,
+          contact.address?.zip,
+          contact.address?.country,
+        ]
+          .filter(Boolean)
+          .join(", "),
+        notes: contact.notes || "",
+        tags: (contact.tags || []).join(", "),
+        is_client: contact.is_client ? "Oui" : "Non",
+        is_supplier: contact.is_supplier ? "Oui" : "Non",
+        created_at: contact.created_at
+          ? new Date(contact.created_at).toISOString().slice(0, 10)
+          : "",
+        updated_at: contact.updated_at
+          ? new Date(contact.updated_at).toISOString().slice(0, 10)
+          : "",
+      }));
+    };
 
   const resetToFirstPage = useRef<() => void>(() => {});
 
@@ -104,6 +146,7 @@ export const ContactsPage = () => {
             });
           }}
           columns={ContactsColumns}
+          onFetchExportData={exporter(options)}
         />
       </div>
     </Page>

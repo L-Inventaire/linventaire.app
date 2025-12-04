@@ -28,6 +28,13 @@ export type StockItems = RestEntity & {
   documents: string[];
   tags: string[];
   assigned: string[];
+
+  cache?: {
+    article_name: string;
+    client_name: string;
+    quote_name: string;
+    supplier_quote_name: string;
+  };
 };
 
 export type StockLocations = RestEntity & {

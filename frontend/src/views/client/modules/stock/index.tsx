@@ -15,9 +15,11 @@ import { useNavigateAlt } from "@features/utils/navigate";
 import {
   RestOptions,
   RestSearchQuery,
+  useRestExporter,
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
 import { PlusIcon } from "@heroicons/react/16/solid";
+import { Pagination } from "@molecules/table/table";
 import { Tabs } from "@radix-ui/themes";
 import { Page } from "@views/client/_layout/page";
 import { useRef, useState } from "react";
@@ -134,6 +136,44 @@ export const StockPage = () => {
   const schema = useRestSchema("stock_items");
   const navigate = useNavigateAlt();
   const hasAccess = useHasAccess();
+  const restExporter = useRestExporter<StockItems>("stock_items");
+
+  // State labels for export
+  const getStockStateLabel = (state: string) => {
+    const labels: Record<string, string> = {
+      stock: "Disponible",
+      in_transit: "En transit",
+      delivered: "Livré",
+      returned: "Retourné",
+    };
+    return labels[state] || state;
+  };
+
+  // Exporter function for stock items
+  const exporter =
+    (options: RestOptions<StockItems>) =>
+    async (pagination: Pick<Pagination, "page" | "perPage">) => {
+      const stockList = await restExporter(options)(pagination);
+      return stockList.map((item) => ({
+        id: item.id,
+        reference: item.serial_number || "",
+        state: getStockStateLabel(item.state),
+        product_name: item.cache?.article_name || "",
+        quantity: item.quantity || 0,
+        location: item.location || "",
+        for_client: item.client || "",
+        for_client_name: item.cache?.client_name || "",
+        quote: item.cache?.quote_name || item.for_rel_quote,
+        order: item.cache?.supplier_quote_name || item.from_rel_supplier_quote,
+        notes: item.notes || "",
+        created_at: item.created_at
+          ? new Date(item.created_at).toISOString().slice(0, 10)
+          : "",
+        updated_at: item.updated_at
+          ? new Date(item.updated_at).toISOString().slice(0, 10)
+          : "",
+      }));
+    };
 
   const resetToFirstPage = useRef(() => {});
 
@@ -210,6 +250,7 @@ export const StockPage = () => {
             });
           }}
           columns={StockItemsColumns}
+          onFetchExportData={exporter(options)}
           groupBy="state"
           groupByRender={(row) => (
             <div className="mt-px">
