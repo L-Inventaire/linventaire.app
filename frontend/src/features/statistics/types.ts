@@ -65,3 +65,40 @@ type LateType = {
 };
 
 export type DashboardBalances = LateType[];
+
+export type AccountingExportLine = {
+  // Invoice information
+  invoice_id: string;
+  invoice_reference: string;
+  invoice_emit_date: string;
+  invoice_type: string;
+  invoice_state: string;
+  invoice_total_ht: number;
+  invoice_total_ttc: number;
+
+  // Contact information
+  contact_id: string;
+  contact_name: string;
+
+  // Line information
+  line_index: number;
+  line_article_id: string;
+  line_article_name: string;
+  line_article_reference: string;
+  line_description: string;
+  line_quantity: number;
+  line_unit: string;
+  line_unit_price: number;
+  line_total_ht: number;
+  line_tva_rate: string;
+  line_tva_amount: number;
+  line_total_ttc: number;
+
+  // Accounting information
+  accounting_number: string;
+  accounting_name: string;
+  accounting_standard: string;
+
+  // Tags
+  tags: string;
+};

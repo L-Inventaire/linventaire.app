@@ -5,6 +5,7 @@ import { checkClientRoles, checkRole } from "../../common";
 import { getDashboard } from "./services/dashboard";
 import { getLatePayments } from "./services/late-payments";
 import { getMatrix } from "./services/matrix";
+import { getAccountingExport } from "./services/accounting-export";
 
 export default (router: Router) => {
   router.get(
@@ -63,6 +64,29 @@ export default (router: Router) => {
         );
         res.json(all);
       }
+    }
+  );
+
+  router.get(
+    "/:clientId/accounting-export",
+    checkRole("USER"),
+    checkClientRoles(["ACCOUNTING_READ"]),
+    async (req, res) => {
+      const ctx = Ctx.get(req)?.context;
+      res.json(
+        await getAccountingExport(ctx, req.params.clientId, {
+          from: req.query.from as string | undefined,
+          to: req.query.to as string | undefined,
+          type: req.query.type as
+            | "invoices"
+            | "credit_notes"
+            | "supplier_invoices"
+            | "supplier_credit_notes"
+            | "all"
+            | undefined,
+          state: req.query.state as "all" | "sent" | "closed" | undefined,
+        })
+      );
     }
   );
 };

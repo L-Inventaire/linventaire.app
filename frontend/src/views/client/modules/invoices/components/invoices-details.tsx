@@ -53,7 +53,7 @@ import { PageColumns } from "@views/client/_layout/page";
 import { format as formatdfns } from "date-fns";
 import _ from "lodash";
 import { DateTime } from "luxon";
-import { Fragment, useEffect, useRef } from "react";
+import { Fragment, useEffect } from "react";
 import { ContactRestDocument } from "../../contacts/components/contact-input-rest-card";
 import { computePaymentDelayDate, computePricesFromInvoice } from "../utils";
 import { getBestDeliveryAddress, InputDelivery } from "./input-delivery";

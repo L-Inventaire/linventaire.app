@@ -1,6 +1,10 @@
 import { DropdownButton } from "@/atoms/dropdown";
 import { useNavigateAlt } from "@/features/utils/navigate";
+import { Button } from "@atoms/button/button";
+import { InputLabel } from "@atoms/input/input-decoration-label";
+import Select from "@atoms/input/input-select";
 import Link from "@atoms/link";
+import { ModalContent } from "@atoms/modal/modal";
 import { getContactName } from "@features/contacts/types/types";
 import { getRoute, ROUTES } from "@features/routes";
 import { useDashboardBalances } from "@features/statistics/hooks";
@@ -13,7 +17,118 @@ import {
 import { Table } from "@molecules/table";
 import { Spinner } from "@radix-ui/themes";
 import _ from "lodash";
+import { useState } from "react";
 import { twMerge } from "tailwind-merge";
+import * as XLSX from "xlsx";
+
+export const BalancesExportModal = ({
+  type,
+  onClose,
+}: {
+  type: "client" | "supplier";
+  onClose: () => void;
+}) => {
+  const [exportType, setExportType] = useState("xlsx");
+  const [loading, setLoading] = useState(false);
+
+  const res = useDashboardBalances(type);
+
+  const exportData = async () => {
+    if (!res.data) return;
+
+    setLoading(true);
+
+    const data: Record<string, any>[] = res.data.map((item) => ({
+      [type === "client" ? "Client" : "Fournisseur"]: item.contact
+        ? getContactName(item.contact)
+        : "Inconnu",
+      "Non échus": item.future.total,
+      "1-30 jours": item.d30.total,
+      "31-60 jours": item.d60.total,
+      "61-90 jours": item.d90.total,
+      "91-120 jours": item.d120.total,
+      "120+ jours": item.d120plus.total,
+      Total: item.total.total,
+    }));
+
+    // Add total row
+    data.push({
+      [type === "client" ? "Client" : "Fournisseur"]: "Total",
+      "Non échus": res.data.reduce((acc, item) => acc + item.future.total, 0),
+      "1-30 jours": res.data.reduce((acc, item) => acc + item.d30.total, 0),
+      "31-60 jours": res.data.reduce((acc, item) => acc + item.d60.total, 0),
+      "61-90 jours": res.data.reduce((acc, item) => acc + item.d90.total, 0),
+      "91-120 jours": res.data.reduce((acc, item) => acc + item.d120.total, 0),
+      "120+ jours": res.data.reduce(
+        (acc, item) => acc + item.d120plus.total,
+        0
+      ),
+      Total: res.data.reduce((acc, item) => acc + item.total.total, 0),
+    });
+
+    const fileName = `export-balance-${
+      type === "client" ? "clients" : "fournisseurs"
+    }-${new Date().toISOString().split("T")[0]}`;
+
+    if (exportType === "xlsx") {
+      const worksheet = XLSX.utils.json_to_sheet(data);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, fileName);
+      XLSX.writeFile(workbook, `${fileName}.xlsx`, { compression: true });
+    } else if (exportType === "csv") {
+      const header = Object.keys(data[0]).join(",");
+      const csv = data.map((row) =>
+        Object.values(row)
+          .map((e) => (typeof e === "object" ? JSON.stringify(e) : e))
+          .join(",")
+      );
+      const csvString = header + "\n" + csv.join("\n");
+      const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", fileName + ".csv");
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    setLoading(false);
+    onClose();
+  };
+
+  return (
+    <ModalContent
+      title={`Export - Balance ${
+        type === "client" ? "clients" : "fournisseurs"
+      }`}
+    >
+      <InputLabel
+        className="mb-4"
+        label="Format d'export"
+        input={
+          <Select
+            onChange={(e) => setExportType(e.target.value)}
+            disabled={loading}
+          >
+            <option value="xlsx">Excel</option>
+            <option value="csv">CSV</option>
+          </Select>
+        }
+      />
+      <Button
+        theme="primary"
+        className="w-full mt-2"
+        disabled={loading || !res.data}
+        loading={loading}
+        onClick={exportData}
+      >
+        Exporter
+      </Button>
+    </ModalContent>
+  );
+};
 
 const getLink = (
   type: "client" | "supplier",

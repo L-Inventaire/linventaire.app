@@ -1,13 +1,19 @@
+import { Button } from "@atoms/button/button";
 import Select from "@atoms/input/input-select";
+import { Modal } from "@atoms/modal/modal";
 import { Title } from "@atoms/text";
+import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
-import { TagsPage } from "./tags";
-import { BalancesPage } from "./balances";
+import { TagsPage, TagsExportModal } from "./tags";
+import { BalancesPage, BalancesExportModal } from "./balances";
+import { AccountingExportModal } from "./accounting-export";
 
 export const StatisticsPage = () => {
   const [page, setPage] = useState<string>("tags");
   const [year, setYear] = useState<number>(new Date().getFullYear());
+  const [exportModal, setExportModal] = useState(false);
+  const [accountingExportModal, setAccountingExportModal] = useState(false);
 
   return (
     <Page
@@ -51,7 +57,54 @@ export const StatisticsPage = () => {
             )}
           </div>
           <div className="grow" />
+          <div className="flex gap-2">
+            <Button
+              theme="default"
+              size="sm"
+              icon={(p) => <ArrowDownTrayIcon {...p} />}
+              onClick={() => setExportModal(true)}
+            >
+              Exporter
+            </Button>
+            <Button
+              theme="outlined"
+              size="sm"
+              onClick={() => setAccountingExportModal(true)}
+            >
+              Export comptable
+            </Button>
+          </div>
         </div>
+
+        <Modal open={exportModal} onClose={() => setExportModal(false)}>
+          {page === "tags" && (
+            <TagsExportModal
+              year={year}
+              onClose={() => setExportModal(false)}
+            />
+          )}
+          {page === "balances-clients" && (
+            <BalancesExportModal
+              type="client"
+              onClose={() => setExportModal(false)}
+            />
+          )}
+          {page === "balances-suppliers" && (
+            <BalancesExportModal
+              type="supplier"
+              onClose={() => setExportModal(false)}
+            />
+          )}
+        </Modal>
+
+        <Modal
+          open={accountingExportModal}
+          onClose={() => setAccountingExportModal(false)}
+        >
+          <AccountingExportModal
+            onClose={() => setAccountingExportModal(false)}
+          />
+        </Modal>
 
         {page === "tags" && <TagsPage year={year} />}
         {page === "balances-clients" && <BalancesPage type="client" />}

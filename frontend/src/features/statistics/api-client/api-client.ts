@@ -1,7 +1,12 @@
 import { fetchServer } from "@features/utils/fetch-server";
 
 import { StandardOrErrorResponse } from "@features/utils/rest/types/types";
-import { Dashboard, DashboardBalances, DashboardTags } from "../types";
+import {
+  AccountingExportLine,
+  Dashboard,
+  DashboardBalances,
+  DashboardTags,
+} from "../types";
 
 export class StatisticsApiClient {
   static getDashboard = async (
@@ -29,6 +34,32 @@ export class StatisticsApiClient {
     type: "client" | "supplier"
   ): Promise<StandardOrErrorResponse<DashboardBalances>> => {
     const uri = `/api/statistics/v1/${clientId}/dashboard/balances?type=${type}`;
+    const response = await fetchServer(uri);
+    const data = await response.json();
+    return data;
+  };
+
+  static getAccountingExport = async (
+    clientId: string,
+    options: {
+      from?: string;
+      to?: string;
+      type?:
+        | "invoices"
+        | "credit_notes"
+        | "supplier_invoices"
+        | "supplier_credit_notes"
+        | "all";
+      state?: "all" | "sent" | "closed";
+    }
+  ): Promise<StandardOrErrorResponse<AccountingExportLine[]>> => {
+    const params = new URLSearchParams();
+    if (options.from) params.append("from", options.from);
+    if (options.to) params.append("to", options.to);
+    if (options.type) params.append("type", options.type);
+    if (options.state) params.append("state", options.state);
+
+    const uri = `/api/statistics/v1/${clientId}/accounting-export?${params.toString()}`;
     const response = await fetchServer(uri);
     const data = await response.json();
     return data;
