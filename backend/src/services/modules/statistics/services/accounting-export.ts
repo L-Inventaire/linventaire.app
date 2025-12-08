@@ -147,28 +147,36 @@ export const getAccountingExport = async (
 
   // Collect all article IDs
   const articleIds = _.uniq(
-    invoices.flatMap((invoice) =>
-      (invoice.content || [])
-        .filter((line) => line.article)
-        .map((line) => line.article)
-    )
+    invoices
+      .flatMap((invoice) =>
+        (invoice.content || [])
+          .filter((line) => line.article)
+          .map((line) => line.article)
+      )
+      .filter((id): id is string => typeof id === "string" && id.length > 0)
   );
 
   // Collect all contact IDs (company contacts + person contacts)
   const companyContactIds = _.uniq(
-    invoices.map((invoice) =>
-      invoice.type.startsWith("supplier") ? invoice.supplier : invoice.client
-    )
-  ).filter(Boolean);
+    invoices
+      .map((invoice) =>
+        invoice.type.startsWith("supplier") ? invoice.supplier : invoice.client
+      )
+      .filter((id): id is string => typeof id === "string" && id.length > 0)
+  );
 
   const personContactIds = _.uniq(
-    invoices.map((invoice) => invoice.contact).filter(Boolean)
+    invoices
+      .map((invoice) => invoice.contact)
+      .filter((id): id is string => typeof id === "string" && id.length > 0)
   );
 
   // Collect all quote IDs
   const quoteIds = _.uniq(
-    invoices.flatMap((invoice) => invoice.from_rel_quote || [])
-  ).filter(Boolean);
+    invoices
+      .flatMap((invoice) => invoice.from_rel_quote || [])
+      .filter((id): id is string => typeof id === "string" && id.length > 0)
+  );
 
   // Fetch all articles at once
   const articles =
@@ -215,8 +223,10 @@ export const getAccountingExport = async (
 
   // Collect all tag IDs from articles
   const tagIds = _.uniq(
-    articles.flatMap((article) => article.tags || [])
-  ).filter(Boolean);
+    articles
+      .flatMap((article) => article.tags || [])
+      .filter((id): id is string => typeof id === "string" && id.length > 0)
+  );
 
   // Fetch all tags at once
   const tags =
