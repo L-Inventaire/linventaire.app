@@ -5,6 +5,7 @@ import _ from "lodash";
 import Articles, { ArticlesDefinition } from "../../articles/entities/articles";
 import Contacts, { ContactsDefinition } from "../../contacts/entities/contacts";
 import Invoices, { InvoicesDefinition } from "../../invoices/entities/invoices";
+import { Tags, TagsDefinition } from "../../tags/entities/tags";
 import { getTimezoneOffset } from "../../invoices/utils";
 
 export type AccountingExportLine = {
@@ -17,9 +18,17 @@ export type AccountingExportLine = {
   invoice_total_ht: number;
   invoice_total_ttc: number;
 
-  // Contact information
+  // Quote/Order information
+  quote_id: string;
+  quote_reference: string;
+
+  // Contact information (company)
   contact_id: string;
   contact_name: string;
+
+  // Person contact information
+  person_contact_id: string;
+  person_contact_name: string;
 
   // Line information
   line_index: number;
@@ -145,11 +154,20 @@ export const getAccountingExport = async (
     )
   );
 
-  // Collect all contact IDs
-  const contactIds = _.uniq(
+  // Collect all contact IDs (company contacts + person contacts)
+  const companyContactIds = _.uniq(
     invoices.map((invoice) =>
       invoice.type.startsWith("supplier") ? invoice.supplier : invoice.client
     )
+  ).filter(Boolean);
+
+  const personContactIds = _.uniq(
+    invoices.map((invoice) => invoice.contact).filter(Boolean)
+  );
+
+  // Collect all quote IDs
+  const quoteIds = _.uniq(
+    invoices.flatMap((invoice) => invoice.from_rel_quote || [])
   ).filter(Boolean);
 
   // Fetch all articles at once
@@ -166,34 +184,82 @@ export const getAccountingExport = async (
       : [];
   const articlesMap = _.keyBy(articles, "id");
 
-  // Fetch all contacts at once
+  // Fetch all contacts at once (both company and person contacts)
+  const allContactIds = _.uniq([...companyContactIds, ...personContactIds]);
   const contacts =
-    contactIds.length > 0
+    allContactIds.length > 0
       ? await db.select<Contacts>(
           { ...ctx, role: "SYSTEM" },
           ContactsDefinition.name,
           {
             where: `client_id=$1 AND id = ANY($2)`,
-            values: [clientId, contactIds],
+            values: [clientId, allContactIds],
           }
         )
       : [];
   const contactsMap = _.keyBy(contacts, "id");
 
+  // Fetch all related quotes
+  const quotes =
+    quoteIds.length > 0
+      ? await db.select<Invoices>(
+          { ...ctx, role: "SYSTEM" },
+          InvoicesDefinition.name,
+          {
+            where: `client_id=$1 AND id = ANY($2)`,
+            values: [clientId, quoteIds],
+          }
+        )
+      : [];
+  const quotesMap = _.keyBy(quotes, "id");
+
+  // Collect all tag IDs from articles
+  const tagIds = _.uniq(
+    articles.flatMap((article) => article.tags || [])
+  ).filter(Boolean);
+
+  // Fetch all tags at once
+  const tags =
+    tagIds.length > 0
+      ? await db.select<Tags>({ ...ctx, role: "SYSTEM" }, TagsDefinition.name, {
+          where: `client_id=$1 AND id = ANY($2)`,
+          values: [clientId, tagIds],
+        })
+      : [];
+  const tagsMap = _.keyBy(tags, "id");
+
   // Build export lines
   const exportLines: AccountingExportLine[] = [];
 
+  // Helper function to get contact display name
+  const getContactDisplayName = (contact: Contacts | undefined): string => {
+    if (!contact) return "";
+    return (
+      contact.business_name ||
+      `${contact.person_first_name || ""} ${
+        contact.person_last_name || ""
+      }`.trim() ||
+      ""
+    );
+  };
+
   for (const invoice of invoices) {
     const isSupplier = invoice.type.startsWith("supplier");
-    const contactId = isSupplier ? invoice.supplier : invoice.client;
-    const contact = contactsMap[contactId];
-    const contactName = contact
-      ? contact.business_name ||
-        `${contact.person_first_name || ""} ${
-          contact.person_last_name || ""
-        }`.trim() ||
-        "N/A"
-      : "N/A";
+    const companyContactId = isSupplier ? invoice.supplier : invoice.client;
+    const companyContact = contactsMap[companyContactId];
+    const companyContactName = getContactDisplayName(companyContact);
+
+    // Get person contact
+    const personContactId = invoice.contact || "";
+    const personContact = personContactId
+      ? contactsMap[personContactId]
+      : undefined;
+    const personContactName = getContactDisplayName(personContact);
+
+    // Get related quote
+    const quoteId = (invoice.from_rel_quote || [])[0] || "";
+    const quote = quoteId ? quotesMap[quoteId] : undefined;
+    const quoteReference = quote?.reference || "";
 
     const lines = (invoice.content || []).filter(
       (line) =>
@@ -232,8 +298,11 @@ export const getAccountingExport = async (
       const tvaAmount = lineTotal * (tvaRate / 100);
       const lineTotalTTC = lineTotal + tvaAmount;
 
-      // Get tags from article
-      const tags = article?.tags?.length ? article.tags.join(", ") : "";
+      // Get tags from article and convert IDs to names
+      const tagNames = (article?.tags || [])
+        .map((tagId) => tagsMap[tagId]?.name)
+        .filter(Boolean)
+        .join("; ");
 
       exportLines.push({
         // Invoice information
@@ -247,9 +316,17 @@ export const getAccountingExport = async (
         invoice_total_ht: invoice.total?.total || 0,
         invoice_total_ttc: invoice.total?.total_with_taxes || 0,
 
-        // Contact information
-        contact_id: contactId || "",
-        contact_name: contactName,
+        // Quote/Order information
+        quote_id: quoteId,
+        quote_reference: quoteReference,
+
+        // Contact information (company)
+        contact_id: companyContactId || "",
+        contact_name: companyContactName,
+
+        // Person contact information
+        person_contact_id: personContactId,
+        person_contact_name: personContactName,
 
         // Line information
         line_index: index + 1,
@@ -272,7 +349,7 @@ export const getAccountingExport = async (
         accounting_standard: accountingInfo?.standard || "",
 
         // Tags
-        tags: tags,
+        tags: tagNames,
       });
     });
   }

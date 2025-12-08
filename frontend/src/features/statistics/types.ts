@@ -76,9 +76,17 @@ export type AccountingExportLine = {
   invoice_total_ht: number;
   invoice_total_ttc: number;
 
-  // Contact information
+  // Quote/Order information
+  quote_id: string;
+  quote_reference: string;
+
+  // Contact information (company)
   contact_id: string;
   contact_name: string;
+
+  // Person contact information
+  person_contact_id: string;
+  person_contact_name: string;
 
   // Line information
   line_index: number;

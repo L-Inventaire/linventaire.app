@@ -59,7 +59,9 @@ export const AccountingExportModal = ({ onClose }: { onClose: () => void }) => {
         "Date émission": line.invoice_emit_date,
         "Type document": getDocumentTypeLabel(line.invoice_type),
         État: getStateLabel(line.invoice_state),
+        "Référence devis/commande": line.quote_reference,
         "Client/Fournisseur": line.contact_name,
+        Contact: line.person_contact_name,
         "N° ligne": line.line_index,
         "Référence article": line.line_article_reference,
         Désignation: line.line_article_name,
@@ -89,7 +91,9 @@ export const AccountingExportModal = ({ onClose }: { onClose: () => void }) => {
           { wch: 12 }, // Date émission
           { wch: 18 }, // Type document
           { wch: 10 }, // État
+          { wch: 18 }, // Référence devis/commande
           { wch: 25 }, // Client/Fournisseur
+          { wch: 20 }, // Contact
           { wch: 8 }, // N° ligne
           { wch: 15 }, // Référence article
           { wch: 30 }, // Désignation
