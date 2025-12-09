@@ -1,12 +1,13 @@
 import platform from "#src/platform/index";
 import { Ctx } from "#src/services/utils";
 import { Router } from "express";
+import _ from "lodash";
 import { checkRole } from "../../common";
 import {
   NotificationsPreferences,
   NotificationsPreferencesDefinition,
 } from "./entities/preferences";
-import _ from "lodash";
+import { markAllNotificationsAsRead } from "./services/notify";
 
 export default (router: Router) => {
   router.get("/:clientId/preferences", checkRole("USER"), async (req, res) => {
@@ -73,9 +74,6 @@ export default (router: Router) => {
 
   router.post("/:clientId/read_all", checkRole("USER"), async (req, res) => {
     const ctx = Ctx.get(req)?.context;
-
-    // Import the markAllNotificationsAsRead function from the notify service
-    const { markAllNotificationsAsRead } = await import("./services/notify");
 
     // Mark all notifications as read for this user and client
     await markAllNotificationsAsRead(ctx, req.params.clientId, ctx.id);

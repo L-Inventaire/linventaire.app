@@ -1,4 +1,4 @@
-import { apiClient } from "@config/api-client";
+import { fetchServer } from "../utils/fetch-server";
 
 export type AvailableTable = {
   name: string;
@@ -12,17 +12,25 @@ export type ExportResult = {
 
 export const dataExportApiClient = {
   async getAvailableTables(clientId: string): Promise<AvailableTable[]> {
-    const response = await apiClient.get(
-      `/api/data-export/v1/${clientId}/tables`
+    const response = await fetchServer(
+      `/api/data-export/v1/${clientId}/tables`,
+      {
+        method: "GET",
+      }
     );
-    return response.data;
+    const data = await response.json();
+    return data as AvailableTable[];
   },
 
   async exportData(clientId: string, tables: string[]): Promise<ExportResult> {
-    const response = await apiClient.post(
+    const response = await fetchServer(
       `/api/data-export/v1/${clientId}/export`,
-      { tables }
+      {
+        method: "POST",
+        body: JSON.stringify({ tables }),
+      }
     );
-    return response.data;
+    const data = await response.json();
+    return data as ExportResult;
   },
 };

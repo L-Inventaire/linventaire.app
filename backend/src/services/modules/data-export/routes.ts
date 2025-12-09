@@ -1,7 +1,8 @@
 import { Router } from "express";
-import { checkRole, checkClientRoles } from "../../common";
+import { checkClientRoles, checkRole } from "../../common";
 import { Ctx } from "../../utils";
 import { exportData } from "./services/export";
+import Framework from "#src/platform/index";
 
 export default (router: Router) => {
   // Export data for selected tables
@@ -34,11 +35,8 @@ export default (router: Router) => {
     "/:clientId/tables",
     checkRole("USER"),
     checkClientRoles(["CLIENT_MANAGE"]),
-    async (req, res) => {
+    async (_req, res) => {
       try {
-        const ctx = Ctx.get(req)?.context;
-        const Framework = (await import("#src/platform/index")).default;
-
         const entities = Framework.TriggersManager.getEntities();
         const availableTables = Object.keys(entities)
           .filter((name) => {

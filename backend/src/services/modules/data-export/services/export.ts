@@ -20,12 +20,13 @@ export const exportData = async (
     const definition = entities[tableName];
     const hasClientId = definition.columns.client_id;
 
-    let allData: any[] = [];
+    const allData: any[] = [];
     let offset = 0;
     const batchSize = 1000;
 
     // Fetch all data in batches
-    while (true) {
+    let foundMore = true;
+    while (foundMore) {
       const batch = await db.select(
         { ...ctx, role: "SYSTEM" },
         tableName,
@@ -42,7 +43,7 @@ export const exportData = async (
       allData.push(...batch);
 
       if (batch.length < batchSize) {
-        break;
+        foundMore = false;
       }
 
       offset += batchSize;
