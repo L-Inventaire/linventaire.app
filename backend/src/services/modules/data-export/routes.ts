@@ -22,7 +22,9 @@ export default (router: Router) => {
         return res.json(result);
       } catch (error) {
         console.error("Export error:", error);
-        return res.status(500).json({ error: error.message || "Export failed" });
+        return res
+          .status(500)
+          .json({ error: error.message || "Export failed" });
       }
     }
   );
@@ -36,7 +38,7 @@ export default (router: Router) => {
       try {
         const ctx = Ctx.get(req)?.context;
         const Framework = (await import("#src/platform/index")).default;
-        
+
         const entities = Framework.TriggersManager.getEntities();
         const availableTables = Object.keys(entities)
           .filter((name) => {

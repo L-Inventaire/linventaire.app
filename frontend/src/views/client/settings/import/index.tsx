@@ -164,19 +164,18 @@ export const ImportExportPage = () => {
             ℹ️ Informations
           </Heading>
           <ul className="list-disc list-inside space-y-1 text-sm text-gray-600">
-            <li>Les données exportées incluent les enregistrements supprimés</li>
+            <li>
+              Les données exportées incluent les enregistrements supprimés
+            </li>
             <li>Le format d'export est JSON</li>
             <li>
               L'import n'est pas encore disponible (nécessite une stratégie de
               fusion)
             </li>
-            <li>
-              Seules les données de votre organisation sont exportées
-            </li>
+            <li>Seules les données de votre organisation sont exportées</li>
           </ul>
         </Card>
       </div>
     </Page>
   );
 };
-
