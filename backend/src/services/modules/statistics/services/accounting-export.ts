@@ -359,11 +359,19 @@ export const getAccountingExport = async (
         line_description: (line.description || "")?.replace(/<[^>]*>?/gm, ""),
         line_quantity: quantity,
         line_unit: line.unit || article?.unit || "",
-        line_unit_price: (unitPrice || 0).toFixed(2) as unknown as number,
-        line_total_ht: (lineTotal || 0).toFixed(2) as unknown as number,
+        line_unit_price: parseFloat((unitPrice || 0) as any).toFixed(
+          2
+        ) as unknown as number,
+        line_total_ht: parseFloat((lineTotal || 0) as any).toFixed(
+          2
+        ) as unknown as number,
         line_tva_rate: line.tva || "0",
-        line_tva_amount: (tvaAmount || 0).toFixed(2) as unknown as number,
-        line_total_ttc: (lineTotalTTC || 0).toFixed(2) as unknown as number,
+        line_tva_amount: parseFloat((tvaAmount || 0) as any).toFixed(
+          2
+        ) as unknown as number,
+        line_total_ttc: parseFloat((lineTotalTTC || 0) as any).toFixed(
+          2
+        ) as unknown as number,
 
         // Accounting information - empty if no category/article
         accounting_number: accountingInfo?.standard_identifier || "",
