@@ -5,8 +5,9 @@ import _ from "lodash";
 import Articles, { ArticlesDefinition } from "../../articles/entities/articles";
 import Contacts, { ContactsDefinition } from "../../contacts/entities/contacts";
 import Invoices, { InvoicesDefinition } from "../../invoices/entities/invoices";
-import { Tags, TagsDefinition } from "../../tags/entities/tags";
 import { getTimezoneOffset } from "../../invoices/utils";
+import { Tags, TagsDefinition } from "../../tags/entities/tags";
+import { getContactName } from "#src/services/utils";
 
 export type AccountingExportLine = {
   // Invoice information
@@ -126,15 +127,23 @@ export const getAccountingExport = async (
     paramIndex++;
   }
 
-  const invoices = await db.select<Invoices>(
-    { ...ctx, role: "SYSTEM" },
-    InvoicesDefinition.name,
-    {
-      where: conditions.join(" AND "),
-      values,
-    },
-    { limit: 10000 }
-  );
+  const invoices: Invoices[] = [];
+
+  while (true) {
+    const newInvoices = await db.select<Invoices>(
+      { ...ctx, role: "SYSTEM" },
+      InvoicesDefinition.name,
+      {
+        where: conditions.join(" AND "),
+        values,
+      },
+      { limit: 10000, offset: invoices.length }
+    );
+    invoices.push(...newInvoices);
+    if (newInvoices.length < 10000) {
+      break;
+    }
+  }
 
   // Sort by emit_date after fetching
   invoices.sort(
@@ -144,6 +153,9 @@ export const getAccountingExport = async (
   if (invoices.length === 0) {
     return [];
   }
+
+  // Batch size for pagination to avoid query parameter limits
+  const BATCH_SIZE = 1000;
 
   // Collect all article IDs
   const articleIds = _.uniq(
@@ -171,6 +183,39 @@ export const getAccountingExport = async (
       .filter((id): id is string => typeof id === "string" && id.length > 0)
   );
 
+  // Fetch all articles in batches to avoid query parameter limits
+  const articles: Articles[] = [];
+  for (let i = 0; i < articleIds.length; i += BATCH_SIZE) {
+    const batch = articleIds.slice(i, i + BATCH_SIZE);
+    const batchArticles = await db.select<Articles>(
+      { ...ctx, role: "SYSTEM" },
+      ArticlesDefinition.name,
+      {
+        where: `client_id=$1 AND id = ANY($2)`,
+        values: [clientId, batch],
+      }
+    );
+    articles.push(...batchArticles);
+  }
+  const articlesMap = _.keyBy(articles, "id");
+
+  // Fetch all contacts in batches to avoid query parameter limits
+  const allContactIds = _.uniq([...companyContactIds, ...personContactIds]);
+  const contacts: Contacts[] = [];
+  for (let i = 0; i < allContactIds.length; i += BATCH_SIZE) {
+    const batch = allContactIds.slice(i, i + BATCH_SIZE);
+    const batchContacts = await db.select<Contacts>(
+      { ...ctx, role: "SYSTEM" },
+      ContactsDefinition.name,
+      {
+        where: `client_id=$1 AND id = ANY($2)`,
+        values: [clientId, batch],
+      }
+    );
+    contacts.push(...batchContacts);
+  }
+  const contactsMap = _.keyBy(contacts, "id");
+
   // Collect all quote IDs
   const quoteIds = _.uniq(
     invoices
@@ -178,47 +223,20 @@ export const getAccountingExport = async (
       .filter((id): id is string => typeof id === "string" && id.length > 0)
   );
 
-  // Fetch all articles at once
-  const articles =
-    articleIds.length > 0
-      ? await db.select<Articles>(
-          { ...ctx, role: "SYSTEM" },
-          ArticlesDefinition.name,
-          {
-            where: `client_id=$1 AND id = ANY($2)`,
-            values: [clientId, articleIds],
-          }
-        )
-      : [];
-  const articlesMap = _.keyBy(articles, "id");
-
-  // Fetch all contacts at once (both company and person contacts)
-  const allContactIds = _.uniq([...companyContactIds, ...personContactIds]);
-  const contacts =
-    allContactIds.length > 0
-      ? await db.select<Contacts>(
-          { ...ctx, role: "SYSTEM" },
-          ContactsDefinition.name,
-          {
-            where: `client_id=$1 AND id = ANY($2)`,
-            values: [clientId, allContactIds],
-          }
-        )
-      : [];
-  const contactsMap = _.keyBy(contacts, "id");
-
-  // Fetch all related quotes
-  const quotes =
-    quoteIds.length > 0
-      ? await db.select<Invoices>(
-          { ...ctx, role: "SYSTEM" },
-          InvoicesDefinition.name,
-          {
-            where: `client_id=$1 AND id = ANY($2)`,
-            values: [clientId, quoteIds],
-          }
-        )
-      : [];
+  // Fetch all related quotes in batches to avoid query parameter limits
+  const quotes: Invoices[] = [];
+  for (let i = 0; i < quoteIds.length; i += BATCH_SIZE) {
+    const batch = quoteIds.slice(i, i + BATCH_SIZE);
+    const batchQuotes = await db.select<Invoices>(
+      { ...ctx, role: "SYSTEM" },
+      InvoicesDefinition.name,
+      {
+        where: `client_id=$1 AND id = ANY($2)`,
+        values: [clientId, batch],
+      }
+    );
+    quotes.push(...batchQuotes);
+  }
   const quotesMap = _.keyBy(quotes, "id");
 
   // Collect all tag IDs from articles
@@ -228,43 +246,37 @@ export const getAccountingExport = async (
       .filter((id): id is string => typeof id === "string" && id.length > 0)
   );
 
-  // Fetch all tags at once
-  const tags =
-    tagIds.length > 0
-      ? await db.select<Tags>({ ...ctx, role: "SYSTEM" }, TagsDefinition.name, {
-          where: `client_id=$1 AND id = ANY($2)`,
-          values: [clientId, tagIds],
-        })
-      : [];
+  // Fetch all tags in batches to avoid query parameter limits
+  const tags: Tags[] = [];
+  for (let i = 0; i < tagIds.length; i += BATCH_SIZE) {
+    const batch = tagIds.slice(i, i + BATCH_SIZE);
+    const batchTags = await db.select<Tags>(
+      { ...ctx, role: "SYSTEM" },
+      TagsDefinition.name,
+      {
+        where: `client_id=$1 AND id = ANY($2)`,
+        values: [clientId, batch],
+      }
+    );
+    tags.push(...batchTags);
+  }
   const tagsMap = _.keyBy(tags, "id");
 
   // Build export lines
   const exportLines: AccountingExportLine[] = [];
 
-  // Helper function to get contact display name
-  const getContactDisplayName = (contact: Contacts | undefined): string => {
-    if (!contact) return "";
-    return (
-      contact.business_name ||
-      `${contact.person_first_name || ""} ${
-        contact.person_last_name || ""
-      }`.trim() ||
-      ""
-    );
-  };
-
   for (const invoice of invoices) {
     const isSupplier = invoice.type.startsWith("supplier");
     const companyContactId = isSupplier ? invoice.supplier : invoice.client;
     const companyContact = contactsMap[companyContactId];
-    const companyContactName = getContactDisplayName(companyContact);
+    const companyContactName = getContactName(companyContact);
 
     // Get person contact
     const personContactId = invoice.contact || "";
     const personContact = personContactId
       ? contactsMap[personContactId]
       : undefined;
-    const personContactName = getContactDisplayName(personContact);
+    const personContactName = getContactName(personContact);
 
     // Get related quote
     const quoteId = (invoice.from_rel_quote || [])[0] || "";
@@ -344,14 +356,14 @@ export const getAccountingExport = async (
         line_article_name: line.name || article?.name || "",
         line_article_reference:
           line.reference || article?.internal_reference || "",
-        line_description: line.description || "",
+        line_description: (line.description || "")?.replace(/<[^>]*>?/gm, ""),
         line_quantity: quantity,
         line_unit: line.unit || article?.unit || "",
-        line_unit_price: unitPrice,
-        line_total_ht: lineTotal,
+        line_unit_price: unitPrice.toFixed(2) as unknown as number,
+        line_total_ht: lineTotal.toFixed(2) as unknown as number,
         line_tva_rate: line.tva || "0",
-        line_tva_amount: tvaAmount,
-        line_total_ttc: lineTotalTTC,
+        line_tva_amount: tvaAmount.toFixed(2) as unknown as number,
+        line_total_ttc: lineTotalTTC.toFixed(2) as unknown as number,
 
         // Accounting information - empty if no category/article
         accounting_number: accountingInfo?.standard_identifier || "",

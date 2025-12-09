@@ -5,15 +5,15 @@ import { Title } from "@atoms/text";
 import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import { Page } from "@views/client/_layout/page";
 import { useState } from "react";
-import { TagsPage, TagsExportModal } from "./tags";
-import { BalancesPage, BalancesExportModal } from "./balances";
+import { AccountingReportPage } from "./accounting";
 import { AccountingExportModal } from "./accounting-export";
+import { BalancesExportModal, BalancesPage } from "./balances";
+import { TagsExportModal, TagsPage } from "./tags";
 
 export const StatisticsPage = () => {
   const [page, setPage] = useState<string>("tags");
   const [year, setYear] = useState<number>(new Date().getFullYear());
   const [exportModal, setExportModal] = useState(false);
-  const [accountingExportModal, setAccountingExportModal] = useState(false);
 
   return (
     <Page
@@ -36,6 +36,7 @@ export const StatisticsPage = () => {
               <option value="tags">Chiffre d'affaires catégorisé</option>
               <option value="balances-clients">Balance clients</option>
               <option value="balances-suppliers">Balance fournisseurs</option>
+              <option value="accounting">Export comptable</option>
             </Select>
             {page === "tags" && (
               <Select
@@ -66,13 +67,6 @@ export const StatisticsPage = () => {
             >
               Exporter
             </Button>
-            <Button
-              theme="outlined"
-              size="sm"
-              onClick={() => setAccountingExportModal(true)}
-            >
-              Export comptable
-            </Button>
           </div>
         </div>
 
@@ -95,20 +89,15 @@ export const StatisticsPage = () => {
               onClose={() => setExportModal(false)}
             />
           )}
-        </Modal>
-
-        <Modal
-          open={accountingExportModal}
-          onClose={() => setAccountingExportModal(false)}
-        >
-          <AccountingExportModal
-            onClose={() => setAccountingExportModal(false)}
-          />
+          {page === "accounting" && (
+            <AccountingExportModal onClose={() => setExportModal(false)} />
+          )}
         </Modal>
 
         {page === "tags" && <TagsPage year={year} />}
         {page === "balances-clients" && <BalancesPage type="client" />}
         {page === "balances-suppliers" && <BalancesPage type="supplier" />}
+        {page === "accounting" && <AccountingReportPage />}
       </div>
     </Page>
   );
