@@ -187,15 +187,18 @@ export const getAccountingExport = async (
   const articles: Articles[] = [];
   for (let i = 0; i < articleIds.length; i += BATCH_SIZE) {
     const batch = articleIds.slice(i, i + BATCH_SIZE);
-    const batchArticles = await db.select<Articles>(
-      { ...ctx, role: "SYSTEM" },
-      ArticlesDefinition.name,
-      {
-        where: `client_id=$1 AND id = ANY($2)`,
-        values: [clientId, batch],
-      }
-    );
-    articles.push(...batchArticles);
+    if (batch.length > 0) {
+      const batchArticles = await db.select<Articles>(
+        { ...ctx, role: "SYSTEM" },
+        ArticlesDefinition.name,
+        {
+          where: `client_id=$1 AND id = ANY($2)`,
+          values: [clientId, batch],
+        },
+        { include_deleted: true } // Include deleted articles for historical data
+      );
+      articles.push(...batchArticles);
+    }
   }
   const articlesMap = _.keyBy(articles, "id");
 
@@ -204,15 +207,18 @@ export const getAccountingExport = async (
   const contacts: Contacts[] = [];
   for (let i = 0; i < allContactIds.length; i += BATCH_SIZE) {
     const batch = allContactIds.slice(i, i + BATCH_SIZE);
-    const batchContacts = await db.select<Contacts>(
-      { ...ctx, role: "SYSTEM" },
-      ContactsDefinition.name,
-      {
-        where: `client_id=$1 AND id = ANY($2)`,
-        values: [clientId, batch],
-      }
-    );
-    contacts.push(...batchContacts);
+    if (batch.length > 0) {
+      const batchContacts = await db.select<Contacts>(
+        { ...ctx, role: "SYSTEM" },
+        ContactsDefinition.name,
+        {
+          where: `client_id=$1 AND id = ANY($2)`,
+          values: [clientId, batch],
+        },
+        { include_deleted: true } // Include deleted contacts for historical data
+      );
+      contacts.push(...batchContacts);
+    }
   }
   const contactsMap = _.keyBy(contacts, "id");
 
@@ -227,15 +233,18 @@ export const getAccountingExport = async (
   const quotes: Invoices[] = [];
   for (let i = 0; i < quoteIds.length; i += BATCH_SIZE) {
     const batch = quoteIds.slice(i, i + BATCH_SIZE);
-    const batchQuotes = await db.select<Invoices>(
-      { ...ctx, role: "SYSTEM" },
-      InvoicesDefinition.name,
-      {
-        where: `client_id=$1 AND id = ANY($2)`,
-        values: [clientId, batch],
-      }
-    );
-    quotes.push(...batchQuotes);
+    if (batch.length > 0) {
+      const batchQuotes = await db.select<Invoices>(
+        { ...ctx, role: "SYSTEM" },
+        InvoicesDefinition.name,
+        {
+          where: `client_id=$1 AND id = ANY($2)`,
+          values: [clientId, batch],
+        },
+        { include_deleted: true } // Include deleted quotes for historical data
+      );
+      quotes.push(...batchQuotes);
+    }
   }
   const quotesMap = _.keyBy(quotes, "id");
 
@@ -250,15 +259,18 @@ export const getAccountingExport = async (
   const tags: Tags[] = [];
   for (let i = 0; i < tagIds.length; i += BATCH_SIZE) {
     const batch = tagIds.slice(i, i + BATCH_SIZE);
-    const batchTags = await db.select<Tags>(
-      { ...ctx, role: "SYSTEM" },
-      TagsDefinition.name,
-      {
-        where: `client_id=$1 AND id = ANY($2)`,
-        values: [clientId, batch],
-      }
-    );
-    tags.push(...batchTags);
+    if (batch.length > 0) {
+      const batchTags = await db.select<Tags>(
+        { ...ctx, role: "SYSTEM" },
+        TagsDefinition.name,
+        {
+          where: `client_id=$1 AND id = ANY($2)`,
+          values: [clientId, batch],
+        },
+        { include_deleted: true } // Include deleted tags for historical data
+      );
+      tags.push(...batchTags);
+    }
   }
   const tagsMap = _.keyBy(tags, "id");
 
@@ -383,6 +395,33 @@ export const getAccountingExport = async (
       });
     });
   }
+
+  console.log("Accounting export stats:", {
+    invoices: invoices.length,
+    articles: {
+      unique_ids: articleIds.length,
+      fetched: articles.length,
+      in_map: Object.keys(articlesMap).length,
+    },
+    contacts: {
+      company_ids: companyContactIds.length,
+      person_ids: personContactIds.length,
+      total_ids: allContactIds.length,
+      fetched: contacts.length,
+      in_map: Object.keys(contactsMap).length,
+    },
+    quotes: {
+      unique_ids: quoteIds.length,
+      fetched: quotes.length,
+      in_map: Object.keys(quotesMap).length,
+    },
+    tags: {
+      unique_ids: tagIds.length,
+      fetched: tags.length,
+      in_map: Object.keys(tagsMap).length,
+    },
+    export_lines: exportLines.length,
+  });
 
   return exportLines;
 };
