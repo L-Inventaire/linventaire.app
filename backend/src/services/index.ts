@@ -12,6 +12,7 @@ import CommentsService from "./modules/comments";
 import ContactsService from "./modules/contacts";
 import CRM from "./modules/crm";
 import DataAnalysisService from "./modules/data-analysis";
+import DataExportService from "./modules/data-export";
 import FieldsService from "./modules/fields";
 import FilesService from "./modules/files";
 import InvoicesService from "./modules/invoices";
@@ -49,6 +50,7 @@ export default class Services {
   public static Comments: CommentsService;
   public static Rest: RestService;
   public static Statistics: StatisticsService;
+  public static DataExport: DataExportService;
   public static Migrations: MigrationsService;
   public static CRM: CRM;
 
@@ -112,6 +114,9 @@ export default class Services {
     Services.Rest = await new RestService().init(Services.internalApp);
     Services.CRM = await new CRM().init(Services.internalApp);
     Services.Statistics = await new StatisticsService().init(
+      Services.internalApp
+    );
+    Services.DataExport = await new DataExportService().init(
       Services.internalApp
     );
     Services.DataAnalysis = await new DataAnalysisService().init(

@@ -128,8 +128,8 @@ export const getAccountingExport = async (
   }
 
   const invoices: Invoices[] = [];
-
-  while (true) {
+  let hasNextPage = true;
+  while (hasNextPage) {
     const newInvoices = await db.select<Invoices>(
       { ...ctx, role: "SYSTEM" },
       InvoicesDefinition.name,
@@ -141,7 +141,7 @@ export const getAccountingExport = async (
     );
     invoices.push(...newInvoices);
     if (newInvoices.length < 10000) {
-      break;
+      hasNextPage = false;
     }
   }
 
