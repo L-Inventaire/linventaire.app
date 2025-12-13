@@ -1,12 +1,12 @@
 import Framework from "#src/platform/index";
 import Services from "#src/services/index";
+import { getContactName } from "#src/services/utils";
 import { Context } from "#src/types";
 import _ from "lodash";
 import Articles, { ArticlesDefinition } from "../../articles/entities/articles";
 import Contacts, { ContactsDefinition } from "../../contacts/entities/contacts";
 import Invoices, { InvoicesDefinition } from "../../invoices/entities/invoices";
 import { getTimezoneOffset } from "../../invoices/utils";
-import { getContactName } from "#src/services/utils";
 
 export type TimeRange = {
   label: string;
@@ -42,7 +42,6 @@ export const getClientProfitability = async (
     clientIds?: string[]; // Filter by specific clients, or all if not provided
   }
 ): Promise<ClientProfitabilityResult[]> => {
-  const db = await Framework.Db.getService();
   const client = await Services.Clients.getClient(ctx, clientId);
   const timezone = client?.preferences?.timezone || "Europe/Paris";
 
@@ -51,7 +50,6 @@ export const getClientProfitability = async (
   for (const timeRange of options.timeRanges) {
     const profitabilityData = await calculateProfitabilityForPeriod(
       ctx,
-      db,
       clientId,
       timezone,
       timeRange,
@@ -69,12 +67,12 @@ export const getClientProfitability = async (
 
 async function calculateProfitabilityForPeriod(
   ctx: Context,
-  db: any,
   clientId: string,
   timezone: string,
   timeRange: TimeRange,
   filterClientIds?: string[]
 ): Promise<ClientProfitabilityLine[]> {
+  const db = await Framework.Db.getService();
   const BATCH_SIZE = 1000;
 
   // Build date filters for invoices
@@ -187,7 +185,6 @@ async function calculateProfitabilityForPeriod(
       quotes.push(...batchQuotes);
     }
   }
-  const quotesMap = _.keyBy(quotes, "id");
 
   // Find all supplier invoices that reference these quotes
   const supplierInvoices: Invoices[] = [];
@@ -317,7 +314,10 @@ async function calculateProfitabilityForPeriod(
                     : 0;
                 const lineCost = unitCost * quantity;
 
-                minLineCost = minLineCost === 0 ? lineCost : Math.min(minLineCost, lineCost);
+                minLineCost =
+                  minLineCost === 0
+                    ? lineCost
+                    : Math.min(minLineCost, lineCost);
                 maxLineCost = Math.max(maxLineCost, lineCost);
               }
             }
