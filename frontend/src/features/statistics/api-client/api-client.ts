@@ -3,9 +3,11 @@ import { fetchServer } from "@features/utils/fetch-server";
 import { StandardOrErrorResponse } from "@features/utils/rest/types/types";
 import {
   AccountingExportLine,
+  ClientProfitabilityResult,
   Dashboard,
   DashboardBalances,
   DashboardTags,
+  TimeRange,
 } from "../types";
 
 export class StatisticsApiClient {
@@ -57,10 +59,27 @@ export class StatisticsApiClient {
     if (options.from) params.append("from", options.from);
     if (options.to) params.append("to", options.to);
     if (options.type) params.append("type", options.type);
-    if (options.state) params.append("state", options.state);
-
     const uri = `/api/statistics/v1/${clientId}/accounting-export?${params.toString()}`;
     const response = await fetchServer(uri);
+    const data = await response.json();
+    return data;
+  };
+
+  static getClientProfitability = async (
+    clientId: string,
+    options: {
+      timeRanges: TimeRange[];
+      clientIds?: string[];
+    }
+  ): Promise<StandardOrErrorResponse<ClientProfitabilityResult[]>> => {
+    const uri = `/api/statistics/v1/${clientId}/client-profitability`;
+    const response = await fetchServer(uri, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(options),
+    });
     const data = await response.json();
     return data;
   };

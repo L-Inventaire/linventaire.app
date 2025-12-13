@@ -110,3 +110,26 @@ export type AccountingExportLine = {
   // Tags
   tags: string;
 };
+
+export type TimeRange = {
+  label: string;
+  from: string; // YYYY-MM-DD
+  to: string; // YYYY-MM-DD
+};
+
+export type ClientProfitabilityLine = {
+  client_id: string;
+  client_name: string;
+  revenue: number;
+  min_cost: number;
+  max_cost: number;
+  min_profit: number;
+  max_profit: number;
+  invoice_count: number;
+  quote_count: number;
+};
+
+export type ClientProfitabilityResult = {
+  period: TimeRange;
+  data: ClientProfitabilityLine[];
+};

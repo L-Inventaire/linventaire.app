@@ -6,6 +6,10 @@ import { getDashboard } from "./services/dashboard";
 import { getLatePayments } from "./services/late-payments";
 import { getMatrix } from "./services/matrix";
 import { getAccountingExport } from "./services/accounting-export";
+import {
+  getClientProfitability,
+  TimeRange,
+} from "./services/client-profitability";
 
 export default (router: Router) => {
   router.get(
@@ -66,7 +70,6 @@ export default (router: Router) => {
       }
     }
   );
-
   router.get(
     "/:clientId/accounting-export",
     checkRole("USER"),
@@ -85,6 +88,27 @@ export default (router: Router) => {
             | "all"
             | undefined,
           state: req.query.state as "all" | "sent" | "closed" | undefined,
+        })
+      );
+    }
+  );
+
+  router.post(
+    "/:clientId/client-profitability",
+    checkRole("USER"),
+    checkClientRoles(["ACCOUNTING_READ"]),
+    async (req, res) => {
+      const ctx = Ctx.get(req)?.context;
+      const { timeRanges, clientIds } = req.body;
+
+      if (!Array.isArray(timeRanges) || timeRanges.length === 0) {
+        return res.status(400).json({ error: "timeRanges is required" });
+      }
+
+      res.json(
+        await getClientProfitability(ctx, req.params.clientId, {
+          timeRanges: timeRanges as TimeRange[],
+          clientIds: clientIds as string[] | undefined,
         })
       );
     }
