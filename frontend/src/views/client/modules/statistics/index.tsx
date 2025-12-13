@@ -1,5 +1,6 @@
 import { Button } from "@atoms/button/button";
 import Select from "@atoms/input/input-select";
+import SelectMultiple from "@atoms/input/input-select-multiple";
 import { Modal } from "@atoms/modal/modal";
 import { Title } from "@atoms/text";
 import { RestDocumentsInput } from "@components/input-rest";
@@ -24,16 +25,6 @@ export const StatisticsPage = () => {
     []
   );
   const [exportModal, setExportModal] = useState(false);
-
-  const toggleProfitabilityYear = (y: number) => {
-    if (profitabilityYears.includes(y)) {
-      if (profitabilityYears.length > 1) {
-        setProfitabilityYears(profitabilityYears.filter((yr) => yr !== y));
-      }
-    } else {
-      setProfitabilityYears([...profitabilityYears, y].sort((a, b) => b - a));
-    }
-  };
 
   return (
     <Page
@@ -80,22 +71,20 @@ export const StatisticsPage = () => {
             )}
             {page === "profitability" && (
               <>
-                <div className="flex gap-1 items-center">
-                  {Array.from({ length: 5 }, (_, i) => {
+                <SelectMultiple
+                  className="w-48"
+                  placeholder="Années"
+                  value={profitabilityYears.map(String)}
+                  onChange={(values) =>
+                    setProfitabilityYears(
+                      values.map(Number).sort((a, b) => b - a)
+                    )
+                  }
+                  options={Array.from({ length: 5 }, (_, i) => {
                     const y = new Date().getFullYear() - i;
-                    const isSelected = profitabilityYears.includes(y);
-                    return (
-                      <Button
-                        key={y}
-                        size="sm"
-                        theme={isSelected ? "primary" : "default"}
-                        onClick={() => toggleProfitabilityYear(y)}
-                      >
-                        {y}
-                      </Button>
-                    );
+                    return { label: y.toString(), value: y.toString() };
                   })}
-                </div>
+                />
                 <div className="min-w-48">
                   <RestDocumentsInput<Contacts>
                     entity="contacts"

@@ -280,224 +280,186 @@ export const ProfitabilityPage = ({
 
   return (
     <div className="space-y-8">
-      {res.data.map((periodResult, periodIndex) => (
-        <div key={periodIndex}>
-          {res.data.length > 1 && (
-            <div className="mb-4">
-              <Info className="font-semibold text-lg">
-                {periodResult.period.label}
-              </Info>
-            </div>
-          )}
+      {res.data.map((periodResult, periodIndex) => {
+        // Compute total row
+        const total: ClientProfitabilityLine = {
+          client_id: "total",
+          client_name: "(Total)",
+          revenue: periodResult.data.reduce((acc, row) => acc + row.revenue, 0),
+          min_cost: periodResult.data.reduce(
+            (acc, row) => acc + row.min_cost,
+            0
+          ),
+          max_cost: periodResult.data.reduce(
+            (acc, row) => acc + row.max_cost,
+            0
+          ),
+          min_profit: periodResult.data.reduce(
+            (acc, row) => acc + row.min_profit,
+            0
+          ),
+          max_profit: periodResult.data.reduce(
+            (acc, row) => acc + row.max_profit,
+            0
+          ),
+          invoice_count: periodResult.data.reduce(
+            (acc, row) => acc + row.invoice_count,
+            0
+          ),
+          quote_count: periodResult.data.reduce(
+            (acc, row) => acc + row.quote_count,
+            0
+          ),
+        };
 
-          <Table<ClientProfitabilityLine>
-            border
-            showPagination={false}
-            data={periodResult.data}
-            columns={[
-              {
-                title: "Client",
-                render: (row: ClientProfitabilityLine) => (
-                  <Link
-                    noColor
-                    className="font-medium text-blue-600 hover:text-blue-800 hover:underline dark:text-blue-400"
-                    href={getRoute(ROUTES.ContactsView, { id: row.client_id })}
-                  >
-                    {row.client_name}
-                  </Link>
-                ),
-              },
-              {
-                title: "Chiffre d'affaires",
-                headClassName: "justify-end",
-                cellClassName: "justify-end",
-                render: (row: ClientProfitabilityLine) => (
-                  <span
-                    className={twMerge(
-                      "font-medium",
-                      row.revenue >= 0
-                        ? "text-green-600 dark:text-green-400"
-                        : "text-red-600 dark:text-red-400"
-                    )}
-                  >
-                    {formatAmount(row.revenue)}
-                  </span>
-                ),
-              },
-              {
-                title: "Coût estimé min",
-                headClassName: "justify-end",
-                cellClassName: "justify-end",
-                render: (row: ClientProfitabilityLine) => (
-                  <span className="text-orange-600 dark:text-orange-400">
-                    {formatAmount(row.min_cost)}
-                  </span>
-                ),
-              },
-              {
-                title: "Coût estimé max",
-                headClassName: "justify-end",
-                cellClassName: "justify-end",
-                render: (row: ClientProfitabilityLine) => (
-                  <span className="text-orange-600 dark:text-orange-400">
-                    {formatAmount(row.max_cost)}
-                  </span>
-                ),
-              },
-              {
-                title: "Bénéfice min",
-                headClassName: "justify-end",
-                cellClassName: "justify-end",
-                render: (row: ClientProfitabilityLine) => (
-                  <span
-                    className={twMerge(
-                      "font-medium",
-                      row.min_profit >= 0
-                        ? "text-green-600 dark:text-green-400"
-                        : "text-red-600 dark:text-red-400"
-                    )}
-                  >
-                    {formatAmount(row.min_profit)}
-                  </span>
-                ),
-              },
-              {
-                title: "Bénéfice max",
-                headClassName: "justify-end",
-                cellClassName: "justify-end",
-                render: (row: ClientProfitabilityLine) => (
-                  <span
-                    className={twMerge(
-                      "font-medium",
-                      row.max_profit >= 0
-                        ? "text-green-600 dark:text-green-400"
-                        : "text-red-600 dark:text-red-400"
-                    )}
-                  >
-                    {formatAmount(row.max_profit)}
-                  </span>
-                ),
-              },
-              {
-                title: "Factures",
-                headClassName: "justify-end",
-                cellClassName: "justify-end",
-                render: (row: ClientProfitabilityLine) => (
-                  <span className="text-slate-600 dark:text-slate-400">
-                    {row.invoice_count}
-                  </span>
-                ),
-              },
-              {
-                title: "Commandes",
-                headClassName: "justify-end",
-                cellClassName: "justify-end",
-                render: (row: ClientProfitabilityLine) => (
-                  <span className="text-slate-600 dark:text-slate-400">
-                    {row.quote_count}
-                  </span>
-                ),
-              },
-            ]}
-          />
+        return (
+          <div key={periodIndex}>
+            {res.data.length > 1 && (
+              <div className="mb-4">
+                <Info className="font-semibold text-lg">
+                  {periodResult.period.label}
+                </Info>
+              </div>
+            )}
 
-          {/* Totals row */}
-          <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
-            <div className="grid grid-cols-4 md:grid-cols-8 gap-4 text-sm">
-              <div>
-                <div className="text-slate-500 dark:text-slate-400">
-                  Total clients
-                </div>
-                <div className="font-semibold">{periodResult.data.length}</div>
-              </div>
-              <div>
-                <div className="text-slate-500 dark:text-slate-400">
-                  Chiffre d'affaires
-                </div>
-                <div className="font-semibold text-green-600 dark:text-green-400">
-                  {formatAmount(
-                    periodResult.data.reduce((acc, row) => acc + row.revenue, 0)
-                  )}
-                </div>
-              </div>
-              <div>
-                <div className="text-slate-500 dark:text-slate-400">
-                  Coût min
-                </div>
-                <div className="font-semibold text-orange-600 dark:text-orange-400">
-                  {formatAmount(
-                    periodResult.data.reduce(
-                      (acc, row) => acc + row.min_cost,
-                      0
-                    )
-                  )}
-                </div>
-              </div>
-              <div>
-                <div className="text-slate-500 dark:text-slate-400">
-                  Coût max
-                </div>
-                <div className="font-semibold text-orange-600 dark:text-orange-400">
-                  {formatAmount(
-                    periodResult.data.reduce(
-                      (acc, row) => acc + row.max_cost,
-                      0
-                    )
-                  )}
-                </div>
-              </div>
-              <div>
-                <div className="text-slate-500 dark:text-slate-400">
-                  Bénéfice min
-                </div>
-                <div className="font-semibold text-green-600 dark:text-green-400">
-                  {formatAmount(
-                    periodResult.data.reduce(
-                      (acc, row) => acc + row.min_profit,
-                      0
-                    )
-                  )}
-                </div>
-              </div>
-              <div>
-                <div className="text-slate-500 dark:text-slate-400">
-                  Bénéfice max
-                </div>
-                <div className="font-semibold text-green-600 dark:text-green-400">
-                  {formatAmount(
-                    periodResult.data.reduce(
-                      (acc, row) => acc + row.max_profit,
-                      0
-                    )
-                  )}
-                </div>
-              </div>
-              <div>
-                <div className="text-slate-500 dark:text-slate-400">
-                  Factures
-                </div>
-                <div className="font-semibold">
-                  {periodResult.data.reduce(
-                    (acc, row) => acc + row.invoice_count,
-                    0
-                  )}
-                </div>
-              </div>
-              <div>
-                <div className="text-slate-500 dark:text-slate-400">
-                  Commandes
-                </div>
-                <div className="font-semibold">
-                  {periodResult.data.reduce(
-                    (acc, row) => acc + row.quote_count,
-                    0
-                  )}
-                </div>
-              </div>
-            </div>
+            <Table<ClientProfitabilityLine>
+              border
+              showPagination={false}
+              data={[...periodResult.data, total]}
+              columns={[
+                {
+                  title: "Client",
+                  render: (row: ClientProfitabilityLine) =>
+                    row.client_id === "total" ? (
+                      <span className="font-semibold">{row.client_name}</span>
+                    ) : (
+                      <Link
+                        noColor
+                        className="font-medium text-blue-600 hover:text-blue-800 hover:underline dark:text-blue-400"
+                        href={getRoute(ROUTES.ContactsView, {
+                          id: row.client_id,
+                        })}
+                      >
+                        {row.client_name}
+                      </Link>
+                    ),
+                },
+                {
+                  title: "Chiffre d'affaires",
+                  headClassName: "justify-end",
+                  cellClassName: "justify-end",
+                  render: (row: ClientProfitabilityLine) => (
+                    <span
+                      className={twMerge(
+                        row.client_id === "total" && "font-semibold",
+                        row.revenue >= 0
+                          ? "text-green-600 dark:text-green-400"
+                          : "text-red-600 dark:text-red-400"
+                      )}
+                    >
+                      {formatAmount(row.revenue)}
+                    </span>
+                  ),
+                },
+                {
+                  title: "Coût estimé min",
+                  headClassName: "justify-end",
+                  cellClassName: "justify-end",
+                  render: (row: ClientProfitabilityLine) => (
+                    <span
+                      className={twMerge(
+                        "text-orange-600 dark:text-orange-400",
+                        row.client_id === "total" && "font-semibold"
+                      )}
+                    >
+                      {formatAmount(row.min_cost)}
+                    </span>
+                  ),
+                },
+                {
+                  title: "Coût estimé max",
+                  headClassName: "justify-end",
+                  cellClassName: "justify-end",
+                  render: (row: ClientProfitabilityLine) => (
+                    <span
+                      className={twMerge(
+                        "text-orange-600 dark:text-orange-400",
+                        row.client_id === "total" && "font-semibold"
+                      )}
+                    >
+                      {formatAmount(row.max_cost)}
+                    </span>
+                  ),
+                },
+                {
+                  title: "Bénéfice min",
+                  headClassName: "justify-end",
+                  cellClassName: "justify-end",
+                  render: (row: ClientProfitabilityLine) => (
+                    <span
+                      className={twMerge(
+                        row.client_id === "total" && "font-semibold",
+                        row.min_profit >= 0
+                          ? "text-green-600 dark:text-green-400"
+                          : "text-red-600 dark:text-red-400"
+                      )}
+                    >
+                      {formatAmount(row.min_profit)}
+                    </span>
+                  ),
+                },
+                {
+                  title: "Bénéfice max",
+                  headClassName: "justify-end",
+                  cellClassName: "justify-end",
+                  render: (row: ClientProfitabilityLine) => (
+                    <span
+                      className={twMerge(
+                        row.client_id === "total" && "font-semibold",
+                        row.max_profit >= 0
+                          ? "text-green-600 dark:text-green-400"
+                          : "text-red-600 dark:text-red-400"
+                      )}
+                    >
+                      {formatAmount(row.max_profit)}
+                    </span>
+                  ),
+                },
+                {
+                  title: "Factures",
+                  headClassName: "justify-end",
+                  cellClassName: "justify-end",
+                  render: (row: ClientProfitabilityLine) => (
+                    <span
+                      className={twMerge(
+                        "text-slate-600 dark:text-slate-400",
+                        row.client_id === "total" && "font-semibold"
+                      )}
+                    >
+                      {row.invoice_count}
+                    </span>
+                  ),
+                },
+                {
+                  title: "Commandes",
+                  headClassName: "justify-end",
+                  cellClassName: "justify-end",
+                  render: (row: ClientProfitabilityLine) => (
+                    <span
+                      className={twMerge(
+                        "text-slate-600 dark:text-slate-400",
+                        row.client_id === "total" && "font-semibold"
+                      )}
+                    >
+                      {row.quote_count}
+                    </span>
+                  ),
+                },
+              ]}
+            />
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };
