@@ -39,7 +39,7 @@ export default class Files implements InternalApplicationService {
       "/:clientId/upload",
       checkRole("USER"),
       checkClientRoles(["FILES_WRITE"]),
-      multerUpload.single("file"),
+      multerUpload.single("file") as any,
       async (req, res) => {
         const ctx = Ctx.get(req)?.context;
         const entity = JSON.parse(req.body.entity) as FilesType;
