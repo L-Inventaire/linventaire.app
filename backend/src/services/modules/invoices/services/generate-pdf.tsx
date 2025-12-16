@@ -97,7 +97,8 @@ export const generatePdf = async (
                 : document.from_rel_quote,
           }
         : {}),
-    } as Partial<StockItems>
+    } as Partial<StockItems>,
+    { limit: 1000 }
   );
 
   const { pdf: stream, name } = await getPdf(
