@@ -1,3 +1,4 @@
+import Framework from "#src/platform/index";
 import config from "config";
 import cors from "cors";
 import express, { Express, Request } from "express";
@@ -6,7 +7,6 @@ import seedrandom from "seedrandom";
 import { id } from "../platform/db/utils";
 import { Context, createContext } from "../types";
 import Contacts from "./modules/contacts/entities/contacts";
-import Framework from "#src/platform/index";
 
 export function secureExpress() {
   const app = express();
@@ -18,7 +18,14 @@ export function secureExpress() {
     })
   );
   app.disable("x-powered-by");
-  app.use(express.json({ limit: "1mb" }));
+  app.use((req, res, next) => {
+    // If it's /import route, set higher limit
+    if (req.path.endsWith("/import")) {
+      return express.json({ limit: "500mb" })(req, res, next);
+    } else {
+      return express.json({ limit: "5mb" })(req, res, next);
+    }
+  });
   app.use(express.urlencoded({ extended: true }));
   app.use((req, _, next) => {
     if (req.headers["content-type"] === "application/x-www-form-urlencoded") {
@@ -50,6 +57,7 @@ export class Ctx {
 
 export function useCtx(server: Express) {
   server.use((req, _, next) => {
+    console.log("Binding context to request");
     Ctx.bind(req);
     next();
   });

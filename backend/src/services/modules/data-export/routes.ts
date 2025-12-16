@@ -1,7 +1,9 @@
 import { Router } from "express";
+import express from "express";
 import { checkClientRoles, checkRole } from "../../common";
 import { Ctx } from "../../utils";
 import { exportData } from "./services/export";
+import { importData } from "./services/import";
 import Framework from "#src/platform/index";
 
 export default (router: Router) => {
@@ -40,8 +42,11 @@ export default (router: Router) => {
         const entities = Framework.TriggersManager.getEntities();
         const availableTables = Object.keys(entities)
           .filter((name) => {
+            const entity = entities[name];
+            // Only include tables that have client_id column (client-specific data)
             // Filter out system tables and history tables
             return (
+              entity.columns.client_id &&
               !name.endsWith("_history") &&
               name !== "events" &&
               name !== "tasks" &&
@@ -65,6 +70,31 @@ export default (router: Router) => {
       } catch (error) {
         console.error("Failed to get tables:", error);
         return res.status(500).json({ error: "Failed to retrieve tables" });
+      }
+    }
+  );
+
+  // Import data from JSON - larger body limit for data imports
+  router.post(
+    "/:clientId/import",
+    checkRole("USER"),
+    checkClientRoles(["CLIENT_MANAGE"]),
+    async (req, res) => {
+      try {
+        const ctx = Ctx.get(req)?.context;
+        const { data } = req.body;
+
+        if (!data || typeof data !== "object") {
+          return res.status(400).json({ error: "Invalid import data" });
+        }
+
+        const result = await importData(ctx, data);
+        return res.json(result);
+      } catch (error) {
+        console.error("Import error:", error);
+        return res
+          .status(500)
+          .json({ error: error.message || "Import failed" });
       }
     }
   );

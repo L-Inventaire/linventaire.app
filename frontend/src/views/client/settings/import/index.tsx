@@ -1,13 +1,21 @@
 import { Info } from "@atoms/text";
 import { Heading, Button, Checkbox, Card, Flex, Text } from "@radix-ui/themes";
 import { Page } from "../../_layout/page";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useCurrentClient } from "@features/clients/state/use-clients";
 import {
   dataExportApiClient,
   AvailableTable,
+  ImportResult,
+  ExportResult,
 } from "@features/data-export/api-client";
-import { Download } from "lucide-react";
+import {
+  Download,
+  Upload,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+} from "lucide-react";
 
 export const ImportExportPage = () => {
   const { client } = useCurrentClient();
@@ -15,6 +23,9 @@ export const ImportExportPage = () => {
   const [selectedTables, setSelectedTables] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [importResult, setImportResult] = useState<ImportResult | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (client?.id) {
@@ -82,6 +93,58 @@ export const ImportExportPage = () => {
     } finally {
       setExporting(false);
     }
+  };
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileSelect = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file || !client?.id) return;
+
+    setImporting(true);
+    setImportResult(null);
+
+    try {
+      const text = await file.text();
+      const data: ExportResult = JSON.parse(text);
+
+      // Validate that data is an object with arrays
+      if (typeof data !== "object" || data === null) {
+        throw new Error("Format de fichier invalide");
+      }
+
+      const result = await dataExportApiClient.importData(client.id, data);
+      setImportResult(result);
+    } catch (error) {
+      console.error("Import failed:", error);
+      alert(
+        `L'import a échoué: ${
+          error instanceof Error ? error.message : "Erreur inconnue"
+        }`
+      );
+    } finally {
+      setImporting(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const getTotalStats = () => {
+    if (!importResult) return { imported: 0, skipped: 0, errors: 0 };
+    return Object.values(importResult).reduce(
+      (acc, table) => ({
+        imported: acc.imported + table.imported,
+        skipped: acc.skipped + table.skipped,
+        errors: acc.errors + table.errors.length,
+      }),
+      { imported: 0, skipped: 0, errors: 0 }
+    );
   };
 
   return (
@@ -159,6 +222,86 @@ export const ImportExportPage = () => {
           )}
         </Card>
 
+        <Card className="mt-6">
+          <Heading size="4" className="mb-4">
+            Import des données
+          </Heading>
+
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileSelect}
+            accept=".json"
+            className="hidden"
+          />
+
+          <Flex gap="2" className="mb-4">
+            <Button size="2" onClick={handleImportClick} disabled={importing}>
+              <Upload size={16} />
+              {importing
+                ? "Import en cours..."
+                : "Sélectionner un fichier JSON"}
+            </Button>
+          </Flex>
+
+          <Text size="2" color="gray" className="mb-4 block">
+            Sélectionnez un fichier JSON précédemment exporté. Les données
+            existantes avec le même identifiant seront ignorées (pas de
+            duplication).
+          </Text>
+
+          {importResult && (
+            <div className="mt-4 p-4 bg-gray-50 rounded-md">
+              <Heading size="3" className="mb-3">
+                Résultat de l'import
+              </Heading>
+
+              <Flex gap="4" className="mb-4">
+                <Flex align="center" gap="1">
+                  <CheckCircle size={16} className="text-green-600" />
+                  <Text size="2">{getTotalStats().imported} importé(s)</Text>
+                </Flex>
+                <Flex align="center" gap="1">
+                  <AlertCircle size={16} className="text-yellow-600" />
+                  <Text size="2">{getTotalStats().skipped} ignoré(s)</Text>
+                </Flex>
+                {getTotalStats().errors > 0 && (
+                  <Flex align="center" gap="1">
+                    <XCircle size={16} className="text-red-600" />
+                    <Text size="2">{getTotalStats().errors} erreur(s)</Text>
+                  </Flex>
+                )}
+              </Flex>
+
+              <div className="space-y-2">
+                {Object.entries(importResult).map(([tableName, result]) => (
+                  <div
+                    key={tableName}
+                    className="flex items-center justify-between p-2 bg-white rounded border"
+                  >
+                    <Text size="2" weight="medium">
+                      {tableName}
+                    </Text>
+                    <Flex gap="3">
+                      <Text size="1" color="green">
+                        +{result.imported}
+                      </Text>
+                      <Text size="1" color="yellow">
+                        ~{result.skipped}
+                      </Text>
+                      {result.errors.length > 0 && (
+                        <Text size="1" color="red">
+                          ✗{result.errors.length}
+                        </Text>
+                      )}
+                    </Flex>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </Card>
+
         <Card className="mt-6" variant="surface">
           <Heading size="3" className="mb-2">
             ℹ️ Informations
@@ -167,10 +310,10 @@ export const ImportExportPage = () => {
             <li>
               Les données exportées incluent les enregistrements supprimés
             </li>
-            <li>Le format d'export est JSON</li>
+            <li>Le format d'export et d'import est JSON</li>
             <li>
-              L'import n'est pas encore disponible (nécessite une stratégie de
-              fusion)
+              L'import ignore les enregistrements déjà existants (même client_id
+              + id)
             </li>
             <li>Seules les données de votre organisation sont exportées</li>
           </ul>
