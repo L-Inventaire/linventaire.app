@@ -17,6 +17,8 @@ export const InvoiceTotal = ({
   colors: { primary: string; secondary: string; lightGray: string };
   checkedIndexes?: { [key: number]: boolean };
 }) => {
+  console.log("[PDF] Rendering total");
+
   const invoiceTotal = computePricesFromInvoice(document, checkedIndexes);
 
   return (

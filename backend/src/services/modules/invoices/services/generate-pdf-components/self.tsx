@@ -23,6 +23,8 @@ export const InvoiceSelf = ({
   timezone: string;
   as: "proforma" | "receipt_acknowledgement" | "delivery_slip";
 }) => {
+  console.log("[PDF] Rendering issuer (self)");
+
   let payBefore = null;
   try {
     payBefore = computePaymentDelayDate(document).toJSDate();

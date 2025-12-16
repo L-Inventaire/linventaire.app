@@ -26,6 +26,8 @@ export const InvoiceContent = ({
   };
   references: { article: string; reference: string; line?: number }[];
 }) => {
+  console.log("[PDF] Rendering InvoiceContent");
+
   const styles = StyleSheet.create({
     thead: {
       fontSize: 9,

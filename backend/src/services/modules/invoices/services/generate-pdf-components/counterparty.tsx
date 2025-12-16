@@ -26,6 +26,8 @@ export const InvoiceCounterparty = ({
     return <></>;
   }
 
+  console.log("[PDF] Rendering counterparty");
+
   /*
   Pour chaque facture et avoirs:
   _ utiliser l'adresse de facturation (en priorité celle du contact, puis celle du client sinon, enfin celle par défaut du client si rien ne match)

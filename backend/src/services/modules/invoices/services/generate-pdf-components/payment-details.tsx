@@ -22,6 +22,8 @@ export const InvoicePaymentDetails = ({
   colors: { primary: string; secondary: string };
   timezone: string;
 }) => {
+  console.log("[PDF] Rendering payment details");
+
   const recurringModes = _.uniq(
     document.content
       .filter((a) => a.article)
