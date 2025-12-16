@@ -23,6 +23,13 @@
     ],
     "transform": {
       "^.+\\.(ts|tsx)$": "ts-jest"
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!(@react-pdf)/)"
+    ],
+    "moduleNameMapper": {
+      "^#src/(.*)$": "<rootDir>/src/$1",
+      "@react-pdf/renderer": "<rootDir>/tests/__mocks__/@react-pdf/renderer.ts"
     }
   },
   "devDependencies": {
