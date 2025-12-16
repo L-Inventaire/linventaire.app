@@ -1,10 +1,9 @@
+import Framework from "#src/platform/index";
 import { Router } from "express";
-import express from "express";
 import { checkClientRoles, checkRole } from "../../common";
 import { Ctx } from "../../utils";
 import { exportData } from "./services/export";
 import { importData } from "./services/import";
-import Framework from "#src/platform/index";
 
 export default (router: Router) => {
   // Export data for selected tables

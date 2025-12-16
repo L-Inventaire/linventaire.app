@@ -83,8 +83,18 @@ export const InvoiceContent = ({
     index: number,
     max?: number
   ) => {
+    // Limit input array size to prevent performance issues
+    if (allReferences.length > 10000) {
+      console.warn(
+        "Too many references, truncating from",
+        allReferences.length,
+        "to 10000"
+      );
+      allReferences = allReferences.slice(0, 10000);
+    }
+
     const availableLines = _.uniq(
-      allReferences.filter((a) => _.isNumber(a)).map((a) => a.line)
+      allReferences.filter((a) => _.isNumber(a.line)).map((a) => a.line)
     );
     const matchingLine = _.sortBy(availableLines, (a) =>
       Math.abs(a - index)
@@ -93,9 +103,10 @@ export const InvoiceContent = ({
     if (_.isNumber(matchingLine)) {
       references = allReferences.filter((a) => matchingLine === a.line);
     }
+    // Reduce max limit from 10000 to 500
     references = references
       .filter((a) => !usedReferences.includes(a.reference))
-      .splice(0, _.isNumber(matchingLine) ? 10000 : max);
+      .splice(0, _.isNumber(matchingLine) ? 500 : max || 100);
     references.forEach((a) => {
       if (!usedReferences.includes(a.reference)) {
         usedReferences.push(a.reference);
@@ -154,6 +165,7 @@ export const InvoiceContent = ({
 
       {document.content.map((item, index) => (
         <View
+          key={`content-${index}-${(item as any)._id || item.article || index}`}
           style={{
             borderBottomStyle: "solid",
             borderBottomColor: colors.lightGray,
@@ -248,13 +260,22 @@ export const InvoiceContent = ({
                 `[${item.reference}]`}{" "}
               {item.name}
             </Text>
-            <View>{convertHtml(item.description, { color: colors.gray })}</View>
+            {!!item.description && !!item.description.trim() && (
+              <View>
+                {convertHtml(item.description, { color: colors.gray })}
+              </View>
+            )}
             {getReferences(
               references?.filter((a) => a.article === item.article),
               index + 1,
               item.quantity
-            ).map((a) => (
-              <Text style={{ color: colors.gray }}>{a?.reference}</Text>
+            ).map((a, refIdx) => (
+              <Text
+                key={`ref-${index}-${refIdx}-${a?.reference}`}
+                style={{ color: colors.gray }}
+              >
+                {a?.reference}
+              </Text>
             ))}
           </View>
 

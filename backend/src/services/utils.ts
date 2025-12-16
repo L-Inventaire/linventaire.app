@@ -57,7 +57,6 @@ export class Ctx {
 
 export function useCtx(server: Express) {
   server.use((req, _, next) => {
-    console.log("Binding context to request");
     Ctx.bind(req);
     next();
   });
