@@ -68,6 +68,7 @@ export const InvoicesDocumentBar = ({
           hasWriteType ? (
             <>
               {invoice.type === "quotes" &&
+                invoice.state !== "draft" &&
                 (invoice.content ?? []).some(
                   (line) =>
                     line.type === "product" || line.type === "consumable"
@@ -90,7 +91,7 @@ export const InvoicesDocumentBar = ({
                     </Button>
                   </>
                 )}
-              {invoice.type === "invoices" && (
+              {invoice.type === "invoices" && invoice.state !== "draft" && (
                 <Button
                   size="sm"
                   theme="outlined"
