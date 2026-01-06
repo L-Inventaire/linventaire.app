@@ -110,7 +110,7 @@ export const getInvoiceCounters = (
               existing[_.last(_.sortBy(Object.keys(existing), (a) => a))],
               (v) => ({
                 ...v,
-                counter: v.format.includes("@YYYY") ? 1 : v.counter || 1, // reset counter if format is year based
+                counter: v.format.includes("@YY") ? 1 : v.counter || 1, // reset counter if format is year based
               })
             );
     }
