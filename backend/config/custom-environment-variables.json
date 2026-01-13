@@ -33,11 +33,12 @@
         }
     },
     "signature": {
+        "adapter": "SIGNATURE_ADAPTER",
         "documenso": {
             "key": "SIGNATURE_DOCUMENSO_KEY"
         },
         "webhook": {
-            "to-sign": "SIGNATURE_WEBHOOK_TO_SIGN",
+            "to_sign": "SIGNATURE_WEBHOOK_TO_SIGN",
             "signed": "SIGNATURE_WEBHOOK_SIGNED"
         }
     },

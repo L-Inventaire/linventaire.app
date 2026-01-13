@@ -71,7 +71,7 @@ export const generateEmailMessageToRecipient = async (
   if (signingSession && action === "sent") {
     // TODO make me use config(server.domain) instead of signature webhook stuff
     buttonHref = config
-      .get<string>("signature.webhook.to-sign")
+      .get<string>("signature.webhook.to_sign")
       .replace(":signing-session", signingSession?.id);
   }
 

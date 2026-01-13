@@ -1,6 +1,8 @@
 import Invoices, { InvoiceLine } from "../../invoices/entities/invoices";
 import { generatePdf } from "../../invoices/services/generate-pdf";
 import { SigningSessions } from "../entities/signing-session";
+import Services from "#src/services/index";
+import InternalAdapter from "../adapters/internal/internal";
 
 export const uploadDocumentToSigningSession = async (
   ctx,
@@ -21,6 +23,16 @@ export const uploadDocumentToSigningSession = async (
 
   if (!signingSession.upload_url) {
     throw new Error("Upload URL is required");
+  }
+
+  // Check if using internal adapter
+  if (Services.SignatureSessions.documentSigner instanceof InternalAdapter) {
+    // Use internal upload method
+    await Services.SignatureSessions.documentSigner.uploadDocument(
+      signingSession.external_id,
+      pdf
+    );
+    return;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-var-requires

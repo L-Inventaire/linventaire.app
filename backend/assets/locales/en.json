@@ -9,6 +9,10 @@
       "message": "Enter the following code to enter your account: <b>{{val}}</b><br/><br/>This email contains private information about your account. Please do not forward it.<br/><br/>See you soon,<br/>The L'inventaire team",
       "subject": "Confirmation code for L'inventaire"
     },
+    "signature_verification": {
+      "subject": "Verification code for signature",
+      "message": "Your verification code is: <b>{{val}}</b><br/><br/>This code expires in 10 minutes.<br/><br/>See you soon,<br/>The L'inventaire team"
+    },
     "all": {
       "footer": "This is a notification email, you cannot reply to it",
       "subject_suffix": " - our new ERP-CRM L'inventaire"

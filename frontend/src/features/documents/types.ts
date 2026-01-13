@@ -1,4 +1,5 @@
 export type SigningSession = {
+  id: string;
   recipient_token: string;
   invoice_id: string;
   external_id: string;
@@ -9,4 +10,5 @@ export type SigningSession = {
   document_url: string;
   signing_url: string;
   expired: boolean;
+  linventaire_signature?: boolean;
 };

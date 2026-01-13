@@ -9,9 +9,9 @@ import Invoices, { InvoicesDefinition, Recipient } from "../entities/invoices";
 import { generatePdf } from "../services/generate-pdf";
 
 /**
- * This trigger sends an email to the recipients of the invoice when the invoice is in the state "purchase_order"
- * The email contains the PDF of the invoice
- * It will also set the completion date of the invoice so we now when it was sent and when it'll be late
+ * This trigger sends an email to the recipients of the quote when the quote is in the state "purchase_order"
+ * The email contains the PDF of the quote
+ * It will also set the completion date of the quote so we now when it was sent and when it'll be late
  */
 export const setOnPurchaseOrderTrigger = () =>
   Framework.TriggersManager.registerTrigger<Invoices>(InvoicesDefinition, {
@@ -27,22 +27,19 @@ export const setOnPurchaseOrderTrigger = () =>
     callback: async (ctx, entity) => {
       const db = await Framework.Db.getService();
 
+      // Only send email if a signing session was sent earlier
+      const hasSigningSessions =
+        await Services.SignatureSessions.hasSigningSessions(ctx, entity.id);
+
+      if (!hasSigningSessions) {
+        return;
+      }
+
       const initialState = entity.state;
 
-      // Send email to recipients
-      const contact = await db.selectOne<Contacts>(
-        ctx,
-        ContactsDefinition.name,
-        {
-          client_id: ctx.client_id,
-          id: entity.contact,
-        }
+      const recipients: Recipient[] = (entity.recipients || []).filter(
+        (r) => !!r.email
       );
-
-      const recipients: Recipient[] = [
-        ...entity.recipients,
-        { email: contact?.email, role: "viewer" } as Recipient,
-      ].filter((r) => !!r.email);
 
       if (recipients.length > 0) {
         // TODO: change me to use a boolean or something

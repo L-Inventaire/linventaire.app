@@ -23,6 +23,8 @@ export const SigningSessionPage = () => {
     signSigningSession,
     cancelSigningSession,
     refetchSigningSession,
+    signedDocument,
+    refetchSignedDocument,
   } = useSigningSession(sessionID ?? "");
   const { t: _t } = useTranslation(); // Unused but keeping for future localization
 
@@ -36,6 +38,17 @@ export const SigningSessionPage = () => {
   useEffect(() => {
     viewSigningSession(sessionID ?? "");
   }, [sessionID]);
+
+  // Fetch signed document when available
+  useEffect(() => {
+    if (
+      signingSession &&
+      !isErrorResponse(signingSession) &&
+      signingSession.state === "signed"
+    ) {
+      refetchSignedDocument();
+    }
+  }, [signingSession]);
 
   const invoiceSnapshot =
     signingSession && !isErrorResponse(signingSession)
@@ -88,6 +101,13 @@ export const SigningSessionPage = () => {
         { checked: options }
       )
     : "";
+
+  // Use signed document if available, otherwise use the original PDF
+  const documentUrl = signedDocument
+    ? window.URL.createObjectURL(
+        new Blob([signedDocument], { type: "application/pdf" })
+      )
+    : pdfUrl;
 
   // Handle option change
   const handleOptionChange = (optionId: string, value: boolean) => {
@@ -203,6 +223,11 @@ export const SigningSessionPage = () => {
 
   const isMobile = useMobile();
 
+  // Handle internal signing completion
+  const handleInternalSigned = async () => {
+    await refetchSigningSession();
+  };
+
   return (
     <DocumentLayout
       signingSession={
@@ -212,11 +237,12 @@ export const SigningSessionPage = () => {
       }
       invoiceData={invoiceSnapshot}
       isLoading={isLoading || !signingSession}
-      documentUrl={pdfUrl}
+      documentUrl={documentUrl}
       showAlerts={true}
       options={options}
       onOptionChange={handleOptionChange}
       actions={<ActionButtons isMobile={isMobile} />}
+      onSigned={handleInternalSigned}
     />
   );
 };
