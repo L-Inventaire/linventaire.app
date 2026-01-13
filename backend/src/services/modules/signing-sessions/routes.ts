@@ -26,6 +26,108 @@ import {
   generateEmailMessageToRecipient,
 } from "./services/utils";
 
+/**
+ * Save optional lines selected by user to the invoice
+ */
+async function saveInvoiceOptions(ctx: any, invoice: Invoices, options: any[]) {
+  if (!options || options.length === 0) return;
+
+  const db = await platform.Db.getService();
+  const lines = options.map((line: any, index: number) => ({
+    index,
+    value: [line.article, line.quantity, line.unit_price],
+  }));
+
+  invoice.content = invoice.content.map<InvoiceLine>((line) => {
+    const foundLine = lines.find((l) =>
+      _.isEqual(l.value, [line.article, line.quantity, line.unit_price])
+    );
+
+    if (foundLine) {
+      const realLine = options[foundLine.index];
+      return {
+        ...line,
+        optional: realLine.optional,
+        optional_checked: realLine.optional_checked,
+      };
+    }
+
+    return line;
+  });
+
+  await db.update<Invoices>(
+    ctx,
+    InvoicesDefinition.name,
+    { id: invoice.id },
+    invoice
+  );
+}
+
+/**
+ * Send confirmation emails to recipients after signing
+ */
+async function sendSigningConfirmationEmails(
+  ctx: any,
+  invoice: Invoices,
+  signingSession: SigningSessions
+) {
+  const db = await platform.Db.getService();
+  const recipients = invoice.recipients || [];
+
+  for (const recipient of recipients) {
+    const { message, subject, htmlLogo } =
+      await generateEmailMessageToRecipient(ctx, "signed", invoice, recipient, {
+        signingSession,
+      });
+
+    const { name, pdf } = await generatePdf(
+      { ...ctx, client_id: invoice.client_id },
+      invoice
+    );
+
+    const client = await db.selectOne<Clients>(ctx, ClientsDefinition.name, {
+      id: invoice.client_id,
+    });
+
+    await platform.PushEMail.push(
+      ctx,
+      recipient.email,
+      message,
+      {
+        from: client?.company?.name || client?.company?.legal_name,
+        subject: subject,
+        attachments: [{ filename: name, content: pdf }],
+        logo: htmlLogo,
+      },
+      client.smtp
+    );
+  }
+}
+
+/**
+ * Create timeline event for document signing
+ */
+async function createSigningTimelineEvent(
+  ctx: any,
+  invoice: Invoices,
+  signingSession: SigningSessions
+) {
+  await Services.Comments.createEvent(ctx, {
+    client_id: invoice.client_id,
+    item_entity: "invoices",
+    item_id: invoice.id,
+    type: "event",
+    content: `Signed by ${signingSession.recipient_email}`,
+    metadata: {
+      event_type: "quote_signed",
+      email: signingSession.recipient_email,
+      session_id: signingSession.id,
+    },
+    documents: [],
+    reactions: [],
+  });
+}
+
 export default (router: Router) => {
   router.post(
     "/:clientId/send-invoice/:id",
@@ -207,36 +309,8 @@ export default (router: Router) => {
       state: "sent",
     });
 
-    const lines = options.map((line, index) => ({
-      index,
-      value: [line.article, line.quantity, line.unit_price],
-    }));
-
-    // Update the invoice with the optional lines selected by the signer
-    invoice.content = invoice.content.map<InvoiceLine>((line) => {
-      const foundLine = lines.find((l) =>
-        _.isEqual(l.value, [line.article, line.quantity, line.unit_price])
-      );
-
-      if (foundLine) {
-        const realLine = options[foundLine.index];
-
-        return {
-          ...line,
-          optional: realLine.optional,
-          optional_checked: realLine.optional_checked,
-        };
-      }
-
-      return line;
-    });
-
-    await db.update<Invoices>(
-      ctx,
-      InvoicesDefinition.name,
-      { id: invoice.id },
-      invoice
-    );
+    // Save optional lines selected by the signer
+    await saveInvoiceOptions(ctx, invoice, options);
 
     res.json(signingSession);
   });
@@ -311,61 +385,15 @@ export default (router: Router) => {
       state: "signed",
     });
 
-    const recipients = (signingSession.invoice_snapshot as unknown as Invoices)
-      .recipients;
     const invoice = signingSession.invoice_snapshot as unknown as Invoices;
 
-    for (const recipient of recipients) {
-      // Send email to recipient
-      const { message, subject, htmlLogo } =
-        await generateEmailMessageToRecipient(
-          ctx,
-          "signed",
-          invoice,
-          recipient,
-          { signingSession }
-        );
-
-      const { name, pdf } = await generatePdf(
-        { ...ctx, client_id: invoice?.client_id },
-        invoice
-      );
-
-      const client = await db.selectOne<Clients>(ctx, ClientsDefinition.name, {
-        id: invoice.client_id,
-      });
-
-      await platform.PushEMail.push(
-        ctx,
-        recipient.email,
-        message,
-        {
-          from: client?.company?.name || client?.company?.legal_name,
-          subject: subject,
-          attachments: [{ filename: name, content: pdf }],
-          logo: htmlLogo,
-        },
-        client.smtp
-      );
-    }
+    // Send confirmation emails
+    await sendSigningConfirmationEmails(ctx, invoice, signingSession);
 
     await expireOtherSigningSessions(ctx, [signingSession]);
 
-    // Insérer l'événement dans la timeline
-    await Services.Comments.createEvent(ctx, {
-      client_id: invoice.client_id,
-      item_entity: "invoices",
-      item_id: invoice.id,
-      type: "event",
-      content: `Document signed by ${signingSession.recipient_email}`,
-      metadata: {
-        email: signingSession.recipient_email,
-        event_type: "quote_signed",
-        session_id: signingSession.id,
-      },
-      documents: [],
-      reactions: [],
-    });
+    // Create timeline event
+    await createSigningTimelineEvent(ctx, invoice, signingSession);
 
     res.json(signingSession);
   });
@@ -679,7 +707,11 @@ export default (router: Router) => {
       // Sign the document
       await adapter.signDocument(eSignSession.token, signatureBase64, metadata);
 
-      // Update the signing session state
+      // Save optional lines selected by the signer BEFORE marking as signed
+      const invoice = signingSession.invoice_snapshot as unknown as Invoices;
+      await saveInvoiceOptions(ctx, invoice, options);
+
+      // Update the signing session state (this will trigger onSigningSessionSigned)
       await updateSigningSession(ctx, {
         ...signingSession,
         state: "signed",
@@ -687,63 +719,10 @@ export default (router: Router) => {
       });
 
       // Send confirmation emails
-      const invoice = signingSession.invoice_snapshot as unknown as Invoices;
-      const recipients = invoice.recipients || [];
-
-      for (const recipient of recipients) {
-        const { message, subject, htmlLogo } =
-          await generateEmailMessageToRecipient(
-            ctx,
-            "signed",
-            invoice,
-            recipient,
-            {
-              signingSession,
-            }
-          );
-
-        const { name, pdf } = await generatePdf(
-          { ...ctx, client_id: invoice.client_id },
-          invoice
-        );
-
-        const client = await db.selectOne<Clients>(
-          ctx,
-          ClientsDefinition.name,
-          {
-            id: invoice.client_id,
-          }
-        );
-
-        await platform.PushEMail.push(
-          ctx,
-          recipient.email,
-          message,
-          {
-            from: client?.company?.name || client?.company?.legal_name,
-            subject: subject,
-            attachments: [{ filename: name, content: pdf }],
-            logo: htmlLogo,
-          },
-          client.smtp
-        );
-      }
+      await sendSigningConfirmationEmails(ctx, invoice, signingSession);
 
       // Create timeline event
-      await Services.Comments.createEvent(ctx, {
-        client_id: invoice.client_id,
-        item_entity: "invoices",
-        item_id: invoice.id,
-        type: "event",
-        content: `Signed by ${signingSession.recipient_email}`,
-        metadata: {
-          event_type: "quote_signed",
-          email: signingSession.recipient_email,
-          session_id: signingSession.id,
-        },
-        documents: [],
-        reactions: [],
-      });
+      await createSigningTimelineEvent(ctx, invoice, signingSession);
 
       res.json({ success: true });
     } catch (error) {

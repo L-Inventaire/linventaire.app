@@ -71,10 +71,23 @@ export const setOnPurchaseOrderTrigger = () =>
             recipient
           );
 
-        const { name, pdf } = await generatePdf(
+        const { name, pdf: tmpPdf } = await generatePdf(
           { ...ctx, client_id: entity?.client_id },
           entity
         );
+        let pdf = tmpPdf;
+
+        // If there is signing sessions we can use the signed document directly
+        try {
+          const signedDocument =
+            await Services.SignatureSessions.downloadSignedDocument(
+              ctx,
+              entity.id
+            );
+          pdf = signedDocument;
+        } catch (err) {
+          console.warn("No signed document available, using original PDF");
+        }
 
         const client = await db.selectOne<Clients>(
           ctx,
