@@ -26,87 +26,84 @@ export const setOnPurchaseOrderTrigger = () =>
     },
     callback: async (ctx, entity) => {
       const db = await Framework.Db.getService();
-
-      // Only send email if a signing session was sent earlier
-      const hasSigningSessions =
-        await Services.SignatureSessions.hasSigningSessions(ctx, entity.id);
-
-      if (!hasSigningSessions) {
-        return;
-      }
-
       const initialState = entity.state;
 
-      const recipients: Recipient[] = (entity.recipients || []).filter(
-        (r) => !!r.email
-      );
+      // Only send email if a signing session was sent earlier
+      const shouldSendEmails =
+        await Services.SignatureSessions.hasSigningSessions(ctx, entity.id);
 
-      if (recipients.length > 0) {
-        // TODO: change me to use a boolean or something
-        // Check we did not already send the accepted email looking at the history
-        try {
-          const history = await Services.Rest.searchHistory<Invoices>(
-            ctx,
-            InvoicesDefinition.name,
-            entity.id,
-            50,
-            0
-          );
-          if (history.list.some((a) => a.state === "purchase_order")) {
-            throw new Error("Already sent purchase order email");
-          }
-        } catch (e) {
-          // We won't send it
-          return console.error(e);
-        }
-      }
-
-      for (const recipient of recipients) {
-        // Send email to recipient
-        const { message, subject, htmlLogo } =
-          await generateEmailMessageToRecipient(
-            ctx,
-            "purchase_order",
-            entity,
-            recipient
-          );
-
-        const { name, pdf: tmpPdf } = await generatePdf(
-          { ...ctx, client_id: entity?.client_id },
-          entity
+      if (shouldSendEmails) {
+        const recipients: Recipient[] = (entity.recipients || []).filter(
+          (r) => !!r.email
         );
-        let pdf = tmpPdf;
 
-        // If there is signing sessions we can use the signed document directly
-        try {
-          const signedDocument =
-            await Services.SignatureSessions.downloadSignedDocument(
+        if (recipients.length > 0) {
+          // TODO: change me to use a boolean or something
+          // Check we did not already send the accepted email looking at the history
+          try {
+            const history = await Services.Rest.searchHistory<Invoices>(
               ctx,
-              entity.id
+              InvoicesDefinition.name,
+              entity.id,
+              50,
+              0
             );
-          pdf = signedDocument;
-        } catch (err) {
-          console.warn("No signed document available, using original PDF");
+            if (history.list.some((a) => a.state === "purchase_order")) {
+              throw new Error("Already sent purchase order email");
+            }
+          } catch (e) {
+            // We won't send it
+            return console.error(e);
+          }
         }
 
-        const client = await db.selectOne<Clients>(
-          ctx,
-          ClientsDefinition.name,
-          { id: entity.client_id }
-        );
+        for (const recipient of recipients) {
+          // Send email to recipient
+          const { message, subject, htmlLogo } =
+            await generateEmailMessageToRecipient(
+              ctx,
+              "purchase_order",
+              entity,
+              recipient
+            );
 
-        await platform.PushEMail.push(
-          ctx,
-          recipient.email,
-          message,
-          {
-            from: client?.company?.name || client?.company?.legal_name,
-            subject: subject,
-            attachments: [{ filename: name, content: pdf }],
-            logo: htmlLogo,
-          },
-          client.smtp
-        );
+          const { name, pdf: tmpPdf } = await generatePdf(
+            { ...ctx, client_id: entity?.client_id },
+            entity
+          );
+          let pdf = tmpPdf;
+
+          // If there is signing sessions we can use the signed document directly
+          try {
+            const signedDocument =
+              await Services.SignatureSessions.downloadSignedDocument(
+                ctx,
+                entity.id
+              );
+            pdf = signedDocument;
+          } catch (err) {
+            console.warn("No signed document available, using original PDF");
+          }
+
+          const client = await db.selectOne<Clients>(
+            ctx,
+            ClientsDefinition.name,
+            { id: entity.client_id }
+          );
+
+          await platform.PushEMail.push(
+            ctx,
+            recipient.email,
+            message,
+            {
+              from: client?.company?.name || client?.company?.legal_name,
+              subject: subject,
+              attachments: [{ filename: name, content: pdf }],
+              logo: htmlLogo,
+            },
+            client.smtp
+          );
+        }
       }
 
       if (entity.state === "purchase_order") {
