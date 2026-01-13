@@ -60,6 +60,19 @@ export default class SigningSessionService
     return this;
   }
 
+  async hasSigningSessions(ctx: Context, invoiceId: string) {
+    const db = await platform.Db.getService();
+    const count = await db.count<SigningSessions>(
+      ctx,
+      SigningSessionsDefinition.name,
+      {
+        invoice_id: invoiceId,
+      }
+    );
+
+    return count > 0;
+  }
+
   async downloadSignedDocument(ctx: Context, invoiceId: string) {
     const db = await platform.Db.getService();
     const invoice = await db.selectOne<Invoices>(

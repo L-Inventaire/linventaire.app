@@ -26,77 +26,81 @@ export const setOnPurchaseOrderTrigger = () =>
     },
     callback: async (ctx, entity) => {
       const db = await Framework.Db.getService();
-
       const initialState = entity.state;
 
-      // Send email to recipients
-      const contact = await db.selectOne<Contacts>(
-        ctx,
-        ContactsDefinition.name,
-        {
-          client_id: ctx.client_id,
-          id: entity.contact,
-        }
-      );
+      // Only send email if a signing session was sent earlier
+      const shouldSendEmails =
+        await Services.SignatureSessions.hasSigningSessions(ctx, entity.id);
 
-      const recipients: Recipient[] = [
-        ...entity.recipients,
-        { email: contact?.email, role: "viewer" } as Recipient,
-      ].filter((r) => !!r.email);
-
-      if (recipients.length > 0) {
-        // TODO: change me to use a boolean or something
-        // Check we did not already send the accepted email looking at the history
-        try {
-          const history = await Services.Rest.searchHistory<Invoices>(
-            ctx,
-            InvoicesDefinition.name,
-            entity.id,
-            50,
-            0
-          );
-          if (history.list.some((a) => a.state === "purchase_order")) {
-            throw new Error("Already sent purchase order email");
-          }
-        } catch (e) {
-          // We won't send it
-          return console.error(e);
-        }
-      }
-
-      for (const recipient of recipients) {
-        // Send email to recipient
-        const { message, subject, htmlLogo } =
-          await generateEmailMessageToRecipient(
-            ctx,
-            "purchase_order",
-            entity,
-            recipient
-          );
-
-        const { name, pdf } = await generatePdf(
-          { ...ctx, client_id: entity?.client_id },
-          entity
-        );
-
-        const client = await db.selectOne<Clients>(
+      if (shouldSendEmails) {
+        // Send email to recipients
+        const contact = await db.selectOne<Contacts>(
           ctx,
-          ClientsDefinition.name,
-          { id: entity.client_id }
-        );
-
-        await platform.PushEMail.push(
-          ctx,
-          recipient.email,
-          message,
+          ContactsDefinition.name,
           {
-            from: client?.company?.name || client?.company?.legal_name,
-            subject: subject,
-            attachments: [{ filename: name, content: pdf }],
-            logo: htmlLogo,
-          },
-          client.smtp
+            client_id: ctx.client_id,
+            id: entity.contact,
+          }
         );
+        const recipients: Recipient[] = [
+          ...entity.recipients,
+          { email: contact?.email, role: "viewer" } as Recipient,
+        ].filter((r) => !!r.email);
+
+        if (recipients.length > 0) {
+          // TODO: change me to use a boolean or something
+          // Check we did not already send the accepted email looking at the history
+          try {
+            const history = await Services.Rest.searchHistory<Invoices>(
+              ctx,
+              InvoicesDefinition.name,
+              entity.id,
+              50,
+              0
+            );
+            if (history.list.some((a) => a.state === "purchase_order")) {
+              throw new Error("Already sent purchase order email");
+            }
+          } catch (e) {
+            // We won't send it
+            return console.error(e);
+          }
+        }
+
+        for (const recipient of recipients) {
+          // Send email to recipient
+          const { message, subject, htmlLogo } =
+            await generateEmailMessageToRecipient(
+              ctx,
+              "purchase_order",
+              entity,
+              recipient
+            );
+
+          const { name, pdf } = await generatePdf(
+            { ...ctx, client_id: entity?.client_id },
+            entity
+          );
+
+          const client = await db.selectOne<Clients>(
+            ctx,
+            ClientsDefinition.name,
+            { id: entity.client_id }
+          );
+
+          await platform.PushEMail.push(
+            ctx,
+            recipient.email,
+            message,
+            {
+              from: client?.company?.name || client?.company?.legal_name,
+              subject: subject,
+              attachments: [{ filename: name, content: pdf }],
+              logo: htmlLogo,
+            },
+            client.smtp
+          );
+        }
       }
 
       if (entity.state === "purchase_order") {
