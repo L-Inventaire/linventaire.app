@@ -199,6 +199,8 @@ export const createClient = async (ctx: Context, body: Partial<Clients>) => {
       list: ["CLIENT_MANAGE"],
     });
 
+    ctx.client_id = client.id;
+
     const new_article_id = id();
 
     await db.insert<Partial<Articles>>(ctx, ArticlesDefinition.name, {

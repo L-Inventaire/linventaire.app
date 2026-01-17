@@ -78,11 +78,12 @@
     }
   },
   "signature": {
+    "adapter": "internal",
     "documenso": {
       "key": "api_9bwf5iwx0nh2mhwv"
     },
     "webhook": {
-      "to-sign": "https://app.linventaire.app/signing-session/:signing-session/view",
+      "to_sign": "https://app.linventaire.app/signing-session/:signing-session/view",
       "signed": "https://app.linventaire.app/signing-session/:signing-session/signed"
     }
   },

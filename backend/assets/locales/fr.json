@@ -43,6 +43,10 @@
       "subject": "Code de confirmation pour L'inventaire",
       "message": "Entrez le code suivant pour accéder à votre compte: <b>{{val}}</b><br/><br/>Cet email contient des informations privées sur votre compte. Merci de ne pas le transférer.<br/><br/>À bientôt,<br/>L'équipe L'inventaire"
     },
+    "signature_verification": {
+      "subject": "Code de vérification pour signature",
+      "message": "Votre code de vérification est : <b>{{val}}</b><br/><br/>Ce code expire dans 10 minutes.<br/><br/>À bientôt,<br/>L'équipe L'inventaire"
+    },
     "all": {
       "subject_suffix": " - notre nouveau ERP-CRM L'inventaire",
       "footer": "Ceci est un email de notification, vous ne pouvez pas y répondre"

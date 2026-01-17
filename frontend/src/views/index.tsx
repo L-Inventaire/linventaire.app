@@ -25,7 +25,6 @@ const router = createBrowserRouter(
 
       <Route path={ROUTES.SignDocumentView} element={<SigningSessionPage />} />
       <Route path={ROUTES.SignedDocumentView} element={<SignedSessionPage />} />
-
       <Route path="*" element={<Navigate to={ROUTES.Login} />} />
       <Route path="" element={<Navigate to={ROUTES.Login} />} />
     </Route>

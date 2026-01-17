@@ -1,8 +1,11 @@
 import { Express, Router } from "express";
+import config from "config";
 import { default as Framework, default as platform } from "../../../platform";
 import { Logger } from "../../../platform/logger-db";
 import { InternalApplicationService } from "../../types";
 import DocumensoAdapter from "./adapters/documenso/documenso";
+import InternalAdapter from "./adapters/internal/internal";
+import createInternalRoutes from "./adapters/internal/routes";
 
 import {
   SigningSessions,
@@ -44,7 +47,24 @@ export default class SigningSessionService
 
     this.logger = Framework.LoggerDb.get("signing-sessions");
 
-    this.documentSigner = new DocumensoAdapter();
+    // Choose adapter based on configuration
+    const adapterType = config.has("signature.adapter")
+      ? config.get<string>("signature.adapter")
+      : "documenso";
+
+    if (adapterType === "internal") {
+      this.logger.info(null, "Using internal signing adapter");
+      const internalAdapter = new InternalAdapter();
+      await internalAdapter.init();
+      this.documentSigner = internalAdapter;
+
+      // Register internal adapter routes
+      const internalRouter = createInternalRoutes(internalAdapter);
+      server.use(`/api/${this.name}/internal`, internalRouter);
+    } else {
+      this.logger.info(null, "Using Documenso adapter");
+      this.documentSigner = new DocumensoAdapter();
+    }
 
     Framework.TriggersManager.registerEntities([SigningSessionsDefinition], {
       READ: "SIGNING_SESSIONS_READ",

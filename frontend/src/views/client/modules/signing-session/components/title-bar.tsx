@@ -1,7 +1,7 @@
-import { Alert } from "@atoms/alert";
 import { Info, Section, Title } from "@atoms/text";
 import { SigningSession } from "@features/documents/types";
 import { Invoices } from "@features/invoices/types/types";
+import { Button } from "@radix-ui/themes";
 import _ from "lodash";
 import { twMerge } from "tailwind-merge";
 
@@ -73,36 +73,24 @@ export const TitleBar = ({
 
       <div className={compact ? "flex-shrink-0" : "w-full"}>
         {signingSession.expired && signingSession.state !== "cancelled" && (
-          <Alert
-            title="Document expiré"
-            theme="warning"
-            icon="CheckCircleIcon"
-            className={`p-0 ${compact ? "text-xs" : "text-sm md:-mt-2"}`}
-          ></Alert>
+          <Button disabled className={`bg-orange-500 text-white`}>
+            Document expiré
+          </Button>
         )}
         {signingSession.state === "signed" && alerts && (
-          <Alert
-            title="Le document a déjà été signé"
-            theme="warning"
-            icon="CheckCircleIcon"
-            className={`p-0 ${compact ? "text-xs" : "text-sm md:-mt-2"}`}
-          ></Alert>
+          <Button disabled className={`bg-green-500 text-white`}>
+            Le document a déjà été signé
+          </Button>
         )}
         {signingSession.state === "sent" && alerts && (
-          <Alert
-            title="La session de signature a été démarrée"
-            theme="warning"
-            icon="CheckCircleIcon"
-            className={`p-0 ${compact ? "text-xs" : "text-sm md:-mt-2"}`}
-          ></Alert>
+          <Button disabled className={`bg-orange-500 text-white`}>
+            La session de signature a été démarrée
+          </Button>
         )}
         {signingSession.state === "cancelled" && alerts && (
-          <Alert
-            title="Le document a été refusé"
-            theme="danger"
-            icon="CheckCircleIcon"
-            className={`p-0 ${compact ? "text-xs" : "text-sm md:-mt-2"}`}
-          ></Alert>
+          <Button disabled className={`bg-red-500 text-white`}>
+            Le document a été refusé
+          </Button>
         )}
       </div>
     </div>

@@ -27,6 +27,7 @@ import { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { twMerge } from "tailwind-merge";
 import { TitleBar } from "./title-bar";
+import { InternalSignatureForm } from "./internal-signature-form";
 
 interface DocumentLayoutProps {
   signingSession: SigningSession | null;
@@ -38,6 +39,7 @@ interface DocumentLayoutProps {
   onOptionChange?: (optionId: string, value: boolean) => void;
   actions: ReactNode;
   imageWhenNoDocument?: boolean;
+  onSigned?: () => void;
 }
 
 // Error display when session has an error
@@ -162,6 +164,7 @@ export const DocumentLayout = ({
   onOptionChange,
   actions,
   imageWhenNoDocument = false,
+  onSigned,
 }: DocumentLayoutProps) => {
   if (isLoading || !signingSession) {
     return <DocumentLoading />;
@@ -170,6 +173,13 @@ export const DocumentLayout = ({
   if (isErrorResponse(signingSession)) {
     return <DocumentError />;
   }
+
+  // Check if internal signing mode
+  const isInternalMode =
+    signingSession.linventaire_signature &&
+    signingSession.state !== "signed" &&
+    signingSession.state !== "cancelled" &&
+    signingSession.recipient_role === "signer";
 
   // Option change handler wrapper
   const handleOptionChange = (optionId: string, value: boolean) => {
@@ -199,8 +209,8 @@ export const DocumentLayout = ({
             compact={true}
           />
 
-          {/* Options section for mobile */}
-          {options.length > 0 && (
+          {/* Options section for mobile - only if not internal mode */}
+          {!isInternalMode && options.length > 0 && (
             <div className="px-1 mt-1">
               <OptionsSection
                 options={options}
@@ -212,24 +222,53 @@ export const DocumentLayout = ({
           )}
         </div>
 
-        {/* PDF Content */}
-        <div className="flex-grow relative overflow-hidden">
-          {documentUrl ? (
-            <DocumentViewer
-              url={documentUrl}
-              title={`${
-                invoiceData?.type === "invoices" ? "Facture" : "Devis"
-              } ${invoiceData?.reference}`}
-            />
-          ) : (
-            imageWhenNoDocument && <NoDocumentPlaceholder isMobile={true} />
-          )}
-        </div>
+        {/* PDF Content or Internal Form on mobile */}
+        {isInternalMode ? (
+          <div className="flex-grow flex flex-col overflow-hidden">
+            {/* Document preview - 40% height */}
+            <div className="h-[40%] min-h-[200px] relative border-b border-gray-200">
+              {documentUrl ? (
+                <DocumentViewer
+                  url={documentUrl}
+                  title={`${
+                    invoiceData?.type === "invoices" ? "Facture" : "Devis"
+                  } ${invoiceData?.reference}`}
+                />
+              ) : (
+                <NoDocumentPlaceholder isMobile={true} />
+              )}
+            </div>
+            {/* Signature form - 60% height, scrollable */}
+            <div className="h-[60%] overflow-y-auto bg-white">
+              <InternalSignatureForm
+                signingSession={signingSession}
+                options={options}
+                onOptionChange={handleOptionChange}
+                onSigned={onSigned || (() => {})}
+              />
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="flex-grow relative overflow-hidden">
+              {documentUrl ? (
+                <DocumentViewer
+                  url={documentUrl}
+                  title={`${
+                    invoiceData?.type === "invoices" ? "Facture" : "Devis"
+                  } ${invoiceData?.reference}`}
+                />
+              ) : (
+                imageWhenNoDocument && <NoDocumentPlaceholder isMobile={true} />
+              )}
+            </div>
 
-        {/* Footer with actions for mobile */}
-        <div className="bg-gray-100 dark:bg-gray-900 p-3 shadow-inner flex justify-center">
-          <div className="w-full px-2">{actions}</div>
-        </div>
+            {/* Footer with actions for mobile - only if not internal mode */}
+            <div className="bg-gray-100 dark:bg-gray-900 p-3 shadow-inner flex justify-center">
+              <div className="w-full px-2">{actions}</div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Desktop View */}
@@ -263,35 +302,48 @@ export const DocumentLayout = ({
             </div>
 
             {/* Small action sidebar */}
-            <div className="w-64 h-full border-l border-gray-200 dark:border-gray-800 bg-white flex flex-col p-4">
-              <h3 className="font-medium text-sm mb-4">Actions</h3>
-              {actions}
+            {signingSession.state !== "signed" && (
+              <div className="w-72 h-full border-l border-gray-200 dark:border-gray-800 bg-white flex flex-col">
+                {isInternalMode ? (
+                  <InternalSignatureForm
+                    signingSession={signingSession}
+                    options={options}
+                    onOptionChange={handleOptionChange}
+                    onSigned={onSigned || (() => {})}
+                  />
+                ) : (
+                  <div className="p-4 flex flex-col h-full">
+                    <h3 className="font-medium text-sm mb-4">Actions</h3>
+                    {actions}
 
-              {options.length > 0 && (
-                <div className="mt-6 border-t border-gray-200 dark:border-gray-800 pt-4">
-                  <h4 className="font-medium text-sm mb-2">Options</h4>
-                  <div className="flex flex-col gap-2">
-                    {options.map((option) => (
-                      <Checkbox
-                        key={option._id}
-                        disabled={
-                          signingSession.state === "signed" ||
-                          signingSession.state === "sent"
-                        }
-                        onChange={(value) =>
-                          handleOptionChange(option._id || "", value)
-                        }
-                        label={option.name}
-                        size="sm"
-                        value={option.optional_checked}
-                      />
-                    ))}
+                    {options.length > 0 && (
+                      <div className="mt-6 border-t border-gray-200 dark:border-gray-800 pt-4">
+                        <h4 className="font-medium text-sm mb-2">Options</h4>
+                        <div className="flex flex-col gap-2">
+                          {options.map((option) => (
+                            <Checkbox
+                              key={option._id}
+                              disabled={
+                                signingSession.state === "signed" ||
+                                signingSession.state === "sent"
+                              }
+                              onChange={(value) =>
+                                handleOptionChange(option._id || "", value)
+                              }
+                              label={option.name}
+                              size="sm"
+                              value={option.optional_checked}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {renderInfoSection()}
                   </div>
-                </div>
-              )}
-
-              {renderInfoSection()}
-            </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

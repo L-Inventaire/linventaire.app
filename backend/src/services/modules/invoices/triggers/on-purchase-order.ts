@@ -9,9 +9,9 @@ import Invoices, { InvoicesDefinition, Recipient } from "../entities/invoices";
 import { generatePdf } from "../services/generate-pdf";
 
 /**
- * This trigger sends an email to the recipients of the invoice when the invoice is in the state "purchase_order"
- * The email contains the PDF of the invoice
- * It will also set the completion date of the invoice so we now when it was sent and when it'll be late
+ * This trigger sends an email to the recipients of the quote when the quote is in the state "purchase_order"
+ * The email contains the PDF of the quote
+ * It will also set the completion date of the quote so we now when it was sent and when it'll be late
  */
 export const setOnPurchaseOrderTrigger = () =>
   Framework.TriggersManager.registerTrigger<Invoices>(InvoicesDefinition, {
@@ -33,19 +33,9 @@ export const setOnPurchaseOrderTrigger = () =>
         await Services.SignatureSessions.hasSigningSessions(ctx, entity.id);
 
       if (shouldSendEmails) {
-        // Send email to recipients
-        const contact = await db.selectOne<Contacts>(
-          ctx,
-          ContactsDefinition.name,
-          {
-            client_id: ctx.client_id,
-            id: entity.contact,
-          }
+        const recipients: Recipient[] = (entity.recipients || []).filter(
+          (r) => !!r.email
         );
-        const recipients: Recipient[] = [
-          ...entity.recipients,
-          { email: contact?.email, role: "viewer" } as Recipient,
-        ].filter((r) => !!r.email);
 
         if (recipients.length > 0) {
           // TODO: change me to use a boolean or something
@@ -77,10 +67,23 @@ export const setOnPurchaseOrderTrigger = () =>
               recipient
             );
 
-          const { name, pdf } = await generatePdf(
+          const { name, pdf: tmpPdf } = await generatePdf(
             { ...ctx, client_id: entity?.client_id },
             entity
           );
+          let pdf = tmpPdf;
+
+          // If there is signing sessions we can use the signed document directly
+          try {
+            const signedDocument =
+              await Services.SignatureSessions.downloadSignedDocument(
+                ctx,
+                entity.id
+              );
+            pdf = signedDocument;
+          } catch (err) {
+            console.warn("No signed document available, using original PDF");
+          }
 
           const client = await db.selectOne<Clients>(
             ctx,
