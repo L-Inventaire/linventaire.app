@@ -549,7 +549,7 @@ export default (router: Router) => {
       return res.status(400).json({ error: "Internal signing not enabled" });
     }
 
-    const signingSession = await db.selectOne<SigningSessions>(
+    let signingSession = await db.selectOne<SigningSessions>(
       ctx,
       SigningSessionsDefinition.name,
       { id: req.params.id },
@@ -568,6 +568,20 @@ export default (router: Router) => {
       return res.status(400).json({ error: "Document already signed" });
     }
 
+    if (signingSession.recipient_role !== "signer") {
+      return res.status(400).json({ error: "Recipient is not a signer" });
+    }
+
+    const invoice = signingSession.invoice_snapshot as unknown as Invoices;
+
+    if (!invoice) {
+      return res.status(400).json({ error: "Invoice not found" });
+    }
+
+    if (invoice.type === "invoices") {
+      return res.status(400).json({ error: "Cannot sign invoice" });
+    }
+
     try {
       // Generate and send verification code
       const InternalAdapter = (await import("./adapters/internal/internal"))
@@ -576,15 +590,51 @@ export default (router: Router) => {
         typeof InternalAdapter
       >;
 
-      // Get the e_sign_session by signing_session_id and request code
-      const eSignSession = await adapter.getSigningSessionBySigningSessionId(
+      // Get or create the e_sign_session
+      let eSignSession = await adapter.getSigningSessionBySigningSessionId(
         signingSession.id
       );
-      if (eSignSession) {
-        await adapter.requestVerificationCode(ctx, eSignSession.token);
-      } else {
-        return res.status(404).json({ error: "Internal session not found" });
+
+      if (!eSignSession) {
+        // Create the e_sign_session if it doesn't exist yet
+        const documentToSign = await adapter.addDocumentToSign({
+          signingSessionId: signingSession.id,
+          title: invoice.reference,
+          reference: signingSession.id,
+          recipients: [
+            {
+              name: "Signer",
+              email: signingSession.recipient_email,
+            },
+          ],
+          subject: "",
+          message: "",
+          redirectUrl: config
+            .get<string>("signature.webhook.signed")
+            .replace(":signing-session", signingSession.id),
+        });
+
+        // Update signing session with external_id and token
+        signingSession = await updateSigningSession(ctx, {
+          ...signingSession,
+          external_id: documentToSign.id,
+          recipient_token: documentToSign.recipients[0].token,
+          state: "sent",
+        });
+
+        // Get the newly created e_sign_session
+        eSignSession = await adapter.getSigningSessionBySigningSessionId(
+          signingSession.id
+        );
       }
+
+      if (!eSignSession) {
+        return res
+          .status(500)
+          .json({ error: "Failed to create signing session" });
+      }
+
+      await adapter.requestVerificationCode(ctx, eSignSession.token);
 
       res.json({ success: true });
     } catch (error) {

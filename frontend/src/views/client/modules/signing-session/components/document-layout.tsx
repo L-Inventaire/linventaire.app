@@ -226,7 +226,7 @@ export const DocumentLayout = ({
         {isInternalMode ? (
           <div className="flex-grow flex flex-col overflow-hidden">
             {/* Document preview - 40% height */}
-            <div className="h-[40%] min-h-[200px] relative border-b border-gray-200">
+            <div className="grow min-h-[200px] relative border-b border-gray-200">
               {documentUrl ? (
                 <DocumentViewer
                   url={documentUrl}
@@ -239,7 +239,7 @@ export const DocumentLayout = ({
               )}
             </div>
             {/* Signature form - 60% height, scrollable */}
-            <div className="h-[60%] overflow-y-auto bg-white">
+            <div className="h-max max-h-[60%] shrink-0 overflow-y-auto bg-white">
               <InternalSignatureForm
                 signingSession={signingSession}
                 options={options}

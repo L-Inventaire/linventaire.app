@@ -29,7 +29,9 @@ export const TitleBar = ({
       {..._.omit(props, "className")}
     >
       <div
-        className={`${compact ? "w-auto" : "w-full"} h-full flex items-center`}
+        className={`${
+          compact ? "w-auto" : "w-full"
+        } h-full flex items-center sm:block hidden`}
       >
         <div className="flex items-center">
           <img
