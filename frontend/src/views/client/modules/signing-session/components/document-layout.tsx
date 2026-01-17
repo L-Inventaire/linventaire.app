@@ -23,7 +23,7 @@ import { InvoiceLine, Invoices } from "@features/invoices/types/types";
 import { isErrorResponse } from "@features/utils/rest/types/types";
 import { AspectRatio } from "@radix-ui/themes";
 import { Page } from "@views/client/_layout/page";
-import { ReactNode } from "react";
+import React, { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { twMerge } from "tailwind-merge";
 import { TitleBar } from "./title-bar";
@@ -144,6 +144,8 @@ export const DocumentViewer = ({
   url: string;
   title: string;
 }) => {
+  const [isLoading, setIsLoading] = React.useState(true);
+
   // Detect if we're on mobile (iOS/Android)
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
@@ -154,14 +156,27 @@ export const DocumentViewer = ({
       )}`
     : url;
 
+  // Reset loading state when URL changes
+  React.useEffect(() => {
+    setIsLoading(true);
+  }, [url]);
+
   return (
-    <iframe
-      className="absolute inset-0 w-full h-full border-0"
-      src={viewerUrl}
-      title={title}
-      loading="eager"
-      style={{ background: "white" }}
-    />
+    <div className="relative w-full h-full">
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white z-10">
+          <PageLoader />
+        </div>
+      )}
+      <iframe
+        className="absolute inset-0 w-full h-full border-0"
+        src={viewerUrl}
+        title={title}
+        loading="eager"
+        style={{ background: "white" }}
+        onLoad={() => setIsLoading(false)}
+      />
+    </div>
   );
 };
 

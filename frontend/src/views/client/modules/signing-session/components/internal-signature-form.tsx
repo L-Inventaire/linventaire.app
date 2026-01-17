@@ -241,28 +241,32 @@ export const InternalSignatureForm = ({
           <InputCode onComplete={handleVerifyOtp} loading={otpLoading} />
         </div>
 
-        <div className="mb-2">
-          <Button
-            theme="invisible"
-            className="w-full"
-            onClick={handleResendCode}
-            disabled={!canResend || isLoading}
-          >
-            {canResend
-              ? "Envoyer de nouveau"
-              : `Renvoyer le code (${resendTimer}s)`}
-          </Button>
-        </div>
+        {!otpLoading && (
+          <>
+            <div className="mb-2">
+              <Button
+                theme="invisible"
+                className="w-full"
+                onClick={handleResendCode}
+                disabled={!canResend || isLoading}
+              >
+                {canResend
+                  ? "Envoyer de nouveau"
+                  : `Renvoyer le code (${resendTimer}s)`}
+              </Button>
+            </div>
 
-        <div className="m-2">
-          <Button
-            theme="invisible"
-            className="w-full"
-            onClick={() => setStep("form")}
-          >
-            Retour
-          </Button>
-        </div>
+            <div className="m-2">
+              <Button
+                theme="invisible"
+                className="w-full"
+                onClick={() => setStep("form")}
+              >
+                Retour
+              </Button>
+            </div>
+          </>
+        )}
       </div>
     );
   }
