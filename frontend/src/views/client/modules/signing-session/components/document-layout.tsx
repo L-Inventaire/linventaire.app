@@ -23,7 +23,7 @@ import { InvoiceLine, Invoices } from "@features/invoices/types/types";
 import { isErrorResponse } from "@features/utils/rest/types/types";
 import { AspectRatio } from "@radix-ui/themes";
 import { Page } from "@views/client/_layout/page";
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { twMerge } from "tailwind-merge";
 import { TitleBar } from "./title-bar";
@@ -144,7 +144,9 @@ export const DocumentViewer = ({
   url: string;
   title: string;
 }) => {
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [reloadKey, setReloadKey] = useState(0);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   // Detect if we're on mobile (iOS/Android)
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -157,9 +159,23 @@ export const DocumentViewer = ({
     : url;
 
   // Reset loading state when URL changes
-  React.useEffect(() => {
+  useEffect(() => {
     setIsLoading(true);
-  }, [url]);
+  }, [url, reloadKey]);
+
+  // Auto-reload iframe if loading takes more than 10 seconds
+  useEffect(() => {
+    if (!isLoading) return;
+
+    const timeout = setTimeout(() => {
+      if (isLoading) {
+        console.log("PDF loading timeout, reloading iframe...");
+        setReloadKey((prev) => prev + 1);
+      }
+    }, 10000);
+
+    return () => clearTimeout(timeout);
+  }, [isLoading, reloadKey]);
 
   return (
     <div className="relative w-full h-full">
@@ -169,6 +185,8 @@ export const DocumentViewer = ({
         </div>
       )}
       <iframe
+        ref={iframeRef}
+        key={reloadKey}
         className="absolute inset-0 w-full h-full border-0"
         src={viewerUrl}
         title={title}
