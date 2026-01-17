@@ -3,10 +3,9 @@ import Clients, {
 } from "#src/services/clients/entities/clients";
 import Services from "#src/services/index";
 import platform, { default as Framework } from "../../../../platform";
-import { generateEmailMessageToRecipient } from "../../signing-sessions/services/utils";
 import { getPdfForInvoice } from "../../signing-sessions/routes";
+import { generateEmailMessageToRecipient } from "../../signing-sessions/services/utils";
 import Invoices, { InvoicesDefinition, Recipient } from "../entities/invoices";
-import { generatePdf } from "../services/generate-pdf";
 
 /**
  * This trigger sends an email to the recipients of the quote when the quote is in the state "purchase_order"

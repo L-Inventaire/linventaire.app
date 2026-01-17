@@ -116,7 +116,9 @@ const generateInvoicesForRecurringQuote = async (
   const lastInvoicesPerFrequency: {
     [freq: string]: { total: number; list: Invoices[] };
   } = {};
-  const frequencies = _.uniq(quote.content?.map((a) => a.subscription) || []);
+  const frequencies = _.uniq(
+    quote.content?.map((a) => a.subscription) || []
+  ).filter(Boolean);
   for (const frequency of frequencies) {
     lastInvoicesPerFrequency[frequency] = await Services.Rest.search<Invoices>(
       { ...ctx, client_id: quote.client_id },
@@ -132,6 +134,16 @@ const generateInvoicesForRecurringQuote = async (
         limit: 1,
       }
     );
+  }
+  if (!frequencies.filter(Boolean).length) {
+    console.log("Re-qualify as non-recurring quote ", quote.id);
+    await db.update<Invoices>(
+      ctx,
+      InvoicesDefinition.name,
+      { id: quote.id, client_id: quote.client_id },
+      { state: quote.state === "recurring" ? "completed" : "purchase_order" }
+    );
+    return;
   }
 
   console.log(
