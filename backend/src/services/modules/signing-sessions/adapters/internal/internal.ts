@@ -398,7 +398,6 @@ export default class InternalAdapter implements DocumentSignerInterface {
 
   async uploadDocument(documentID: string, pdfBuffer: Buffer): Promise<void> {
     const db = await Framework.Db.getService();
-    const base64Pdf = pdfBuffer.toString("base64");
 
     const key = `e-sign-documents/${documentID}.pdf`;
     await Framework.S3.upload(key, pdfBuffer);
@@ -501,7 +500,7 @@ export default class InternalAdapter implements DocumentSignerInterface {
     metadata?: any
   ): Promise<void> {
     const page = pdfDoc.addPage();
-    const { width, height } = page.getSize();
+    const { height } = page.getSize();
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 

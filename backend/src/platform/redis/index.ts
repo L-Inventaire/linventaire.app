@@ -20,7 +20,8 @@ export default class Redis implements PlatformService {
   private store: any = {};
 
   async init() {
-    if (isRedisEnabled() && false) {
+    if (isRedisEnabled()) {
+      console.log(config.get("redis"));
       this.client = new RedisClient(getRedisConfiguration());
       this.client.on("connect", function () {
         console.log("[redis] Connected!");

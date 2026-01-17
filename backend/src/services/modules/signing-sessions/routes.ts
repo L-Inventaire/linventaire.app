@@ -576,22 +576,6 @@ export default (router: Router) => {
         typeof InternalAdapter
       >;
 
-      // First ensure the e_sign_session exists
-      const documentToSign = await adapter.addDocumentToSign({
-        signingSessionId: signingSession.id,
-        title: (signingSession.invoice_snapshot as any).reference || "Document",
-        reference: signingSession.id,
-        recipients: [
-          {
-            name: "Signer",
-            email: signingSession.recipient_email,
-          },
-        ],
-        subject: "",
-        message: "",
-        redirectUrl: "",
-      });
-
       // Get the e_sign_session by signing_session_id and request code
       const eSignSession = await adapter.getSigningSessionBySigningSessionId(
         signingSession.id

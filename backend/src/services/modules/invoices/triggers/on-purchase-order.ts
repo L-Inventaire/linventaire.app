@@ -1,9 +1,8 @@
-import Services from "#src/services/index";
 import Clients, {
   ClientsDefinition,
 } from "#src/services/clients/entities/clients";
+import Services from "#src/services/index";
 import platform, { default as Framework } from "../../../../platform";
-import Contacts, { ContactsDefinition } from "../../contacts/entities/contacts";
 import { generateEmailMessageToRecipient } from "../../signing-sessions/services/utils";
 import Invoices, { InvoicesDefinition, Recipient } from "../entities/invoices";
 import { generatePdf } from "../services/generate-pdf";
