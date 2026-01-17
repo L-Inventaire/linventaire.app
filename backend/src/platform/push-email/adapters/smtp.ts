@@ -1,11 +1,17 @@
 import nodemailer from "nodemailer";
 import { EmailAttachment } from "..";
 import { PushEMailInterfaceAdapterInterface, SmtpOptions } from "../api";
+import Framework from "../..";
+import { Logger } from "../../logger-db";
 
 export default class PushEMailSmtp
   implements PushEMailInterfaceAdapterInterface
 {
+  private logger: Logger;
+
   async init() {
+    this.logger = Framework.LoggerDb.get("push-email-smtp");
+    this.logger.info(null, "SMTP adapter initialized");
     return this;
   }
 
@@ -22,6 +28,13 @@ export default class PushEMailSmtp
     },
     smtp: SmtpOptions
   ) {
+    this.logger.info(
+      null,
+      `Sending email via SMTP (${smtp.host}:${smtp.port}) to ${email.to.join(
+        ", "
+      )}`
+    );
+
     try {
       const transporter = nodemailer.createTransport({
         host: smtp.host,
@@ -60,8 +73,9 @@ export default class PushEMailSmtp
       };
 
       await transporter.sendMail(mailOptions);
+      this.logger.info(null, `SMTP email sent successfully via ${smtp.host}`);
     } catch (error) {
-      console.error("Error sending email: ", error);
+      this.logger.error(null, `SMTP send failed via ${smtp.host}`, error);
       throw error;
     }
   }

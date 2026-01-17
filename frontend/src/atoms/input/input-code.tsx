@@ -50,6 +50,8 @@ export default function InputCode(props: InputProps) {
               ref={refs[i]}
               style={{ fontSize: "1.2rem" }}
               value={code[i - 1] || ""}
+              inputMode="numeric"
+              pattern="[0-9]*"
               onKeyDown={(e) => {
                 //If backspace, remove last character
                 if (e.key === "Backspace") {

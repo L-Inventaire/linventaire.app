@@ -440,6 +440,8 @@ export default class InternalAdapter implements DocumentSignerInterface {
       throw new Error("Document already signed");
     }
 
+    console.log("Signing document for session:", session.id);
+
     // Load the original PDF
     const originalPdfBuffer = await this.downloadUnsignedDocument(
       session.document_id

@@ -9,6 +9,7 @@ import { buildHTML } from "./build-email";
 import Framework from "..";
 import PushEMailSmtp from "./adapters/smtp";
 import { captureException } from "@sentry/node";
+import { Logger } from "../logger-db";
 
 export type EmailAttachment = {
   filename: string;
@@ -26,14 +27,17 @@ const demoEmailWhitelist = [
 export default class PushEMail implements PlatformService {
   private service: PushEMailInterfaceAdapterInterface;
   private smtpService: PushEMailInterfaceAdapterInterface;
+  private logger: Logger;
 
   async init() {
+    this.logger = Framework.LoggerDb.get("push-email");
+
     this.smtpService = await new PushEMailSmtp().init();
     if (config.get<string>("email.type") === "ses") {
-      console.log("PushEmail: Using SES");
+      this.logger.info(null, "Initializing PushEmail with SES adapter");
       this.service = await new PushEMailSES().init();
     } else {
-      console.log("PushEmail: Using File");
+      this.logger.info(null, "Initializing PushEmail with File adapter");
       this.service = await new PushEMailFile().init();
     }
     return this;
@@ -96,6 +100,11 @@ export default class PushEMail implements PlatformService {
         subject;
 
     try {
+      this.logger.info(
+        context,
+        `Sending email to ${to.join(", ")} with subject: ${subject}`
+      );
+
       const body = {
         to,
         message: {
@@ -110,21 +119,28 @@ export default class PushEMail implements PlatformService {
       };
       if (smtp?.enabled) {
         try {
+          this.logger.info(context, "Using custom SMTP configuration");
           await this.smtpService.push(body, smtp);
+          this.logger.info(context, "Email sent successfully via SMTP");
         } catch (e) {
           captureException(e);
-          platform.LoggerDb.get("push-email").error(context, e);
-          platform.LoggerDb.get("push-email").info(
-            context,
-            "Falling back to SES"
-          );
+          this.logger.error(context, "SMTP send failed", e);
+          this.logger.info(context, "Falling back to default adapter");
           await this.service.push(body);
+          this.logger.info(
+            context,
+            "Email sent successfully via fallback adapter"
+          );
         }
       } else {
         await this.service.push(body);
+        this.logger.info(
+          context,
+          "Email sent successfully via default adapter"
+        );
       }
     } catch (err) {
-      platform.LoggerDb.get("push-email").error(context, err);
+      this.logger.error(context, "Failed to send email", err);
     }
   }
 }

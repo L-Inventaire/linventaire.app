@@ -74,6 +74,33 @@ async function saveInvoiceOptions(ctx: any, invoice: Invoices, options: any[]) {
 }
 
 /**
+ * Get PDF for invoice, preferring signed document if available
+ */
+export async function getPdfForInvoice(
+  ctx: any,
+  invoice: Invoices,
+  invoiceId?: string
+): Promise<{ name: string; pdf: Buffer }> {
+  const { name, pdf: generatedPdf } = await generatePdf(
+    { ...ctx, client_id: invoice.client_id },
+    invoice
+  );
+
+  // Try to get the signed document with certificate if available
+  try {
+    const signedDocument =
+      await Services.SignatureSessions.downloadSignedDocument(
+        ctx,
+        invoiceId || invoice.id
+      );
+    return { name, pdf: signedDocument };
+  } catch (err) {
+    // No signed document available, use the generated PDF
+    return { name, pdf: generatedPdf };
+  }
+}
+
+/**
  * Send confirmation emails to recipients after signing
  */
 async function sendSigningConfirmationEmails(
@@ -90,10 +117,7 @@ async function sendSigningConfirmationEmails(
         signingSession,
       });
 
-    const { name, pdf } = await generatePdf(
-      { ...ctx, client_id: invoice.client_id },
-      invoice
-    );
+    const { name, pdf } = await getPdfForInvoice(ctx, invoice, invoice.id);
 
     const client = await db.selectOne<Clients>(ctx, ClientsDefinition.name, {
       id: invoice.client_id,

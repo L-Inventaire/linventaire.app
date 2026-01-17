@@ -4,6 +4,7 @@ import Clients, {
 import Services from "#src/services/index";
 import platform, { default as Framework } from "../../../../platform";
 import { generateEmailMessageToRecipient } from "../../signing-sessions/services/utils";
+import { getPdfForInvoice } from "../../signing-sessions/routes";
 import Invoices, { InvoicesDefinition, Recipient } from "../entities/invoices";
 import { generatePdf } from "../services/generate-pdf";
 
@@ -66,23 +67,7 @@ export const setOnPurchaseOrderTrigger = () =>
               recipient
             );
 
-          const { name, pdf: tmpPdf } = await generatePdf(
-            { ...ctx, client_id: entity?.client_id },
-            entity
-          );
-          let pdf = tmpPdf;
-
-          // If there is signing sessions we can use the signed document directly
-          try {
-            const signedDocument =
-              await Services.SignatureSessions.downloadSignedDocument(
-                ctx,
-                entity.id
-              );
-            pdf = signedDocument;
-          } catch (err) {
-            console.warn("No signed document available, using original PDF");
-          }
+          const { name, pdf } = await getPdfForInvoice(ctx, entity, entity.id);
 
           const client = await db.selectOne<Clients>(
             ctx,
