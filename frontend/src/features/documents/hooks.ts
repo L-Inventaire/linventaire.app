@@ -13,35 +13,6 @@ export const useSigningSession = (id: string) => {
     queryFn: () => SigningSessionsApiClient.getSigningSession(id),
   });
 
-  const {
-    data: signedDocument,
-    isLoading: isLoadingSignedDocument,
-    refetch: refetchSignedDocument,
-  } = useQuery({
-    queryKey: ["signing-session", id, "document"],
-    queryFn: async () =>
-      await SigningSessionsApiClient.downloadSignedDocument(id),
-    enabled:
-      signingSession &&
-      !isErrorResponse(signingSession) &&
-      signingSession.state === "signed",
-    retry: (failureCount) => {
-      if (failureCount > 30) {
-        return false;
-      }
-
-      return (
-        (signingSession &&
-          !isErrorResponse(signingSession) &&
-          signingSession.state === "signed") ??
-        false
-      );
-    },
-    // retry: 50,
-    retryDelay: 3000,
-    retryOnMount: true,
-  });
-
   const viewSigningSession = async (contactID: string) => {
     await SigningSessionsApiClient.viewSigningSessio(id, contactID);
   };
@@ -68,9 +39,6 @@ export const useSigningSession = (id: string) => {
     viewSigningSession,
     signSigningSession,
     downloadSignedDocument,
-    signedDocument,
-    isLoadingSignedDocument,
-    refetchSignedDocument,
     cancelSigningSession,
   };
 };
