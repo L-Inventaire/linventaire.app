@@ -13,10 +13,9 @@ export const SignedSessionPage = () => {
   const {
     signingSession,
     refetchSigningSession,
-    signedDocument,
-    refetchSignedDocument,
   } = useSigningSession(sessionID ?? "");
   const [isLoading, setIsLoading] = useState(false);
+  const [refreshTimestamp, setRefreshTimestamp] = useState(Date.now());
 
   useEffect(() => {
     async function action() {
@@ -35,32 +34,22 @@ export const SignedSessionPage = () => {
     action();
   }, [sessionID]);
 
-  // Add a useEffect to handle the document fetch when session is signed
-  useEffect(() => {
-    if (
-      signingSession &&
-      !isErrorResponse(signingSession) &&
-      signingSession.state === "signed"
-    ) {
-      refetchSignedDocument();
-    }
-  }, [signingSession]);
-
   const invoiceData =
     signingSession && !isErrorResponse(signingSession)
       ? (signingSession.invoice_snapshot as unknown as Invoices)
       : null;
 
-  const url = signedDocument
-    ? window.URL.createObjectURL(
-        new Blob([signedDocument ?? ""], { type: "application/pdf" })
-      )
-    : "";
+  // Use direct API URL with timestamp to force refresh
+  const documentUrl =
+    signingSession?.state === "signed" && sessionID
+      ? `/api/signing-sessions/v1/${sessionID}/download?t=${refreshTimestamp}`
+      : "";
 
   const handleRefresh = async () => {
     setIsLoading(true);
     try {
-      await refetchSignedDocument();
+      setRefreshTimestamp(Date.now());
+      await refetchSigningSession();
     } finally {
       setIsLoading(false);
     }
@@ -96,7 +85,7 @@ export const SignedSessionPage = () => {
       }
       invoiceData={invoiceData}
       isLoading={isLoading && !signingSession}
-      documentUrl={url}
+      documentUrl={documentUrl}
       showAlerts={false}
       actions={<ActionButtons isMobile={isMobile} />}
       imageWhenNoDocument={true}
