@@ -4,7 +4,12 @@ import { PlatformService } from "../types";
 import RedisClient from "ioredis";
 
 export const isRedisEnabled = () => {
-  return config.get<boolean>("redis.use");
+  return (
+    config.get<boolean>("redis.use") &&
+    config.get<string>("redis.url") !== "" &&
+    config.get<string>("redis.url") !== "0" &&
+    config.get<string>("redis.url") !== "false"
+  );
 };
 
 export const getRedisConfiguration = () => {
