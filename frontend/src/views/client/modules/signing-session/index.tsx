@@ -90,9 +90,10 @@ export const SigningSessionPage = () => {
     : "";
 
   // Use signed document URL if state is signed, otherwise use the original PDF
+  // Add timestamp to force iframe reload after signing
   const documentUrl =
     signingSession?.state === "signed" && sessionID
-      ? `/api/signing-sessions/v1/${sessionID}/download`
+      ? `/api/signing-sessions/v1/${sessionID}/download?t=${signingSession.state}`
       : pdfUrl;
 
   // Handle option change
