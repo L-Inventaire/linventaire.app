@@ -143,15 +143,27 @@ export const DocumentViewer = ({
 }: {
   url: string;
   title: string;
-}) => (
-  <iframe
-    className="absolute inset-0 w-full h-full border-0"
-    src={url}
-    title={title}
-    loading="eager"
-    style={{ background: "white" }}
-  />
-);
+}) => {
+  // Detect if we're on mobile (iOS/Android)
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+  // Use Google Drive viewer for mobile to ensure full PDF display
+  const viewerUrl = isMobile
+    ? `https://drive.google.com/viewerng/viewer?embedded=true&url=${encodeURIComponent(
+        url
+      )}`
+    : url;
+
+  return (
+    <iframe
+      className="absolute inset-0 w-full h-full border-0"
+      src={viewerUrl}
+      title={title}
+      loading="eager"
+      style={{ background: "white" }}
+    />
+  );
+};
 
 // Main document layout component
 export const DocumentLayout = ({
