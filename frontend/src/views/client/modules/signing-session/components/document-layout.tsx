@@ -198,7 +198,7 @@ export const DocumentLayout = ({
   return (
     <div className="flex flex-col h-dvh w-full overflow-hidden bg-white">
       {/* Mobile View */}
-      <div className="md:hidden flex flex-col h-screen">
+      <div className="md:hidden flex flex-col h-dvh">
         {/* Header for mobile - more compact */}
         <div className="bg-white px-2 py-1 shadow-sm z-10">
           <TitleBar
@@ -226,7 +226,7 @@ export const DocumentLayout = ({
         {isInternalMode ? (
           <div className="flex-grow flex flex-col overflow-hidden">
             {/* Document preview - 40% height */}
-            <div className="grow min-h-[200px] relative border-b border-gray-200">
+            <div className="grow relative border-b border-gray-200">
               {documentUrl ? (
                 <DocumentViewer
                   url={documentUrl}
@@ -239,7 +239,7 @@ export const DocumentLayout = ({
               )}
             </div>
             {/* Signature form - 60% height, scrollable */}
-            <div className="h-max max-h-[60%] shrink-0 overflow-y-auto bg-white">
+            <div className="h-max max-h-[90%] shrink-0 overflow-y-auto bg-white">
               <InternalSignatureForm
                 signingSession={signingSession}
                 options={options}

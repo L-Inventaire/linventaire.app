@@ -27,6 +27,16 @@ import {
 } from "./services/utils";
 
 /**
+ * Check if internal signing adapter is enabled
+ */
+function isInternalSigningEnabled(): boolean {
+  const adapterType = config.has("signature.adapter")
+    ? config.get<string>("signature.adapter")
+    : "documenso";
+  return adapterType === "internal";
+}
+
+/**
  * Save optional lines selected by user to the invoice
  */
 async function saveInvoiceOptions(ctx: any, invoice: Invoices, options: any[]) {
@@ -535,18 +545,19 @@ export default (router: Router) => {
   /**
    * Request verification code for internal signing
    * POST /:id/request-verification
+   * Body: { email: string }
    */
   router.post("/:id/request-verification", async (req, res) => {
     const ctx = Ctx.get(req)?.context;
     const db = await platform.Db.getService();
 
-    // Check if using internal adapter
-    const adapterType = config.has("signature.adapter")
-      ? config.get<string>("signature.adapter")
-      : "documenso";
-
-    if (adapterType !== "internal") {
+    if (!isInternalSigningEnabled()) {
       return res.status(400).json({ error: "Internal signing not enabled" });
+    }
+
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
     }
 
     let signingSession = await db.selectOne<SigningSessions>(
@@ -570,6 +581,11 @@ export default (router: Router) => {
 
     if (signingSession.recipient_role !== "signer") {
       return res.status(400).json({ error: "Recipient is not a signer" });
+    }
+
+    // Verify email matches the signing session recipient
+    if (signingSession.recipient_email !== email) {
+      return res.status(400).json({ error: "Email does not match recipient" });
     }
 
     const invoice = signingSession.invoice_snapshot as unknown as Invoices;
@@ -646,17 +662,13 @@ export default (router: Router) => {
   /**
    * Verify code and sign document for internal signing
    * POST /:id/verify-and-sign
+   * Body: { code: string, signatureBase64: string, options: any[], metadata: any }
    */
   router.post("/:id/verify-and-sign", async (req, res) => {
     const ctx = Ctx.get(req)?.context;
     const db = await platform.Db.getService();
 
-    // Check if using internal adapter
-    const adapterType = config.has("signature.adapter")
-      ? config.get<string>("signature.adapter")
-      : "documenso";
-
-    if (adapterType !== "internal") {
+    if (!isInternalSigningEnabled()) {
       return res.status(400).json({ error: "Internal signing not enabled" });
     }
 
@@ -706,9 +718,13 @@ export default (router: Router) => {
         return res.status(400).json({ error: "Code invalide ou expiré" });
       }
 
+      const invoice = signingSession.invoice_snapshot as unknown as Invoices;
+
+      // Save optional lines selected by the signer BEFORE generating PDF
+      await saveInvoiceOptions(ctx, invoice, options);
+
       // Upload the PDF if not already uploaded and extract signature position
       if (!eSignSession.document_pdf) {
-        const invoice = signingSession.invoice_snapshot as unknown as Invoices;
         const { pdf, positions } = await generatePdf(
           { ...ctx, client_id: invoice.client_id },
           invoice,
@@ -743,22 +759,21 @@ export default (router: Router) => {
       // Sign the document
       await adapter.signDocument(eSignSession.token, signatureBase64, metadata);
 
-      // Save optional lines selected by the signer BEFORE marking as signed
-      const invoice = signingSession.invoice_snapshot as unknown as Invoices;
-      await saveInvoiceOptions(ctx, invoice, options);
-
-      // Update the signing session state (this will trigger onSigningSessionSigned)
-      await updateSigningSession(ctx, {
+      // Update the signing session state
+      const updatedSession = await updateSigningSession(ctx, {
         ...signingSession,
         state: "signed",
         external_id: eSignSession.document_id,
       });
 
+      // Expire other signing sessions for this invoice
+      await expireOtherSigningSessions(ctx, [updatedSession]);
+
       // Send confirmation emails
-      await sendSigningConfirmationEmails(ctx, invoice, signingSession);
+      await sendSigningConfirmationEmails(ctx, invoice, updatedSession);
 
       // Create timeline event
-      await createSigningTimelineEvent(ctx, invoice, signingSession);
+      await createSigningTimelineEvent(ctx, invoice, updatedSession);
 
       res.json({ success: true });
     } catch (error) {
