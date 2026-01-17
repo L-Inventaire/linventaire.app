@@ -196,7 +196,7 @@ export const DocumentLayout = ({
   );
 
   return (
-    <div className="flex flex-col h-screen w-full overflow-hidden bg-white">
+    <div className="flex flex-col h-dvh w-full overflow-hidden bg-white">
       {/* Mobile View */}
       <div className="md:hidden flex flex-col h-screen">
         {/* Header for mobile - more compact */}

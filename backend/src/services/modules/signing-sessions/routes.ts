@@ -582,6 +582,8 @@ export default (router: Router) => {
       );
       if (eSignSession) {
         await adapter.requestVerificationCode(ctx, eSignSession.token);
+      } else {
+        return res.status(404).json({ error: "Internal session not found" });
       }
 
       res.json({ success: true });
