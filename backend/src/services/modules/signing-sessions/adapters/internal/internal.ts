@@ -213,9 +213,7 @@ export default class InternalAdapter implements DocumentSignerInterface {
       session.document_pdf
     ) {
       // If stored as S3 key, retrieve from S3
-      return (await Framework.S3.download(
-        session.document_pdf
-      )) as any as Buffer;
+      return Buffer.from(await Framework.S3.download(session.document_pdf));
     }
 
     return Buffer.from(session.document_pdf, "base64");
@@ -243,9 +241,9 @@ export default class InternalAdapter implements DocumentSignerInterface {
       session.signed_document_pdf
     ) {
       // If stored as S3 key, retrieve from S3
-      return (await Framework.S3.download(
-        session.signed_document_pdf
-      )) as any as Buffer;
+      return Buffer.from(
+        await Framework.S3.download(session.signed_document_pdf)
+      );
     }
 
     return Buffer.from(session.signed_document_pdf, "base64");
