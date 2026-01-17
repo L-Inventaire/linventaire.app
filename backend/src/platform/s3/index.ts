@@ -54,25 +54,27 @@ export default class S3Service implements PlatformService {
     }
   }
 
-  async download(key: string): Promise<ArrayBufferLike> {
+  async download(key: string): Promise<Buffer> {
     this.logger.info(null, `Downloading data from S3 key ${key}`);
 
     if (config.get<boolean>("s3.use")) {
-      return (
-        await (
-          await this.s3.getObject({
-            Bucket: this.bucket,
-            Key: key,
-          })
-        ).Body.transformToByteArray()
-      ).buffer;
+      return Buffer.from(
+        (
+          await (
+            await this.s3.getObject({
+              Bucket: this.bucket,
+              Key: key,
+            })
+          ).Body.transformToByteArray()
+        ).buffer
+      );
     } else {
       const localPath = config.get<string>("s3.local_path");
       const fullPath =
         localPath.replace(/\/$/, "") +
         "/" +
         key.replace(/\.\./gm, "").replace(/^\//, "");
-      return fs.readFileSync(fullPath) as unknown as ArrayBufferLike;
+      return fs.readFileSync(fullPath);
     }
   }
 
