@@ -11,7 +11,7 @@ export const onSigningSessionSigned = async (ctx, session) => {
   if (!["sent"].includes(invoice.state)) return;
 
   await db.update<Invoices>(
-    ctx,
+    { ...ctx, client_id: invoice.client_id }, // This will ensure triggers runs
     InvoicesDefinition.name,
     { id: session.invoice_id },
     { ...invoice, state: "purchase_order" }

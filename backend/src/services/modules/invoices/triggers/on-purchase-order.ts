@@ -94,7 +94,10 @@ export const setOnPurchaseOrderTrigger = () =>
         entity.wait_for_completion_since = new Date();
       }
 
-      if (initialState !== entity.state) {
+      if (
+        initialState !== entity.state ||
+        (entity.state === "purchase_order" && entity.wait_for_completion_since)
+      ) {
         await db.update(
           ctx,
           InvoicesDefinition.name,
