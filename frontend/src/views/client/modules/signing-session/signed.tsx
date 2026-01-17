@@ -10,10 +10,9 @@ import { useMobile } from "./hooks/use-mobile";
 
 export const SignedSessionPage = () => {
   const { session: sessionID } = useParams();
-  const {
-    signingSession,
-    refetchSigningSession,
-  } = useSigningSession(sessionID ?? "");
+  const { signingSession, refetchSigningSession } = useSigningSession(
+    sessionID ?? ""
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [refreshTimestamp, setRefreshTimestamp] = useState(Date.now());
 
