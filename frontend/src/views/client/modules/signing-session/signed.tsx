@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { DocumentLayout } from "./components/document-layout";
 import { useMobile } from "./hooks/use-mobile";
+import Env from "@/config/environment";
 
 export const SignedSessionPage = () => {
   const { session: sessionID } = useParams();
@@ -41,7 +42,10 @@ export const SignedSessionPage = () => {
   // Use direct API URL with timestamp to force refresh
   const documentUrl =
     signingSession?.state === "signed" && sessionID
-      ? `/api/signing-sessions/v1/${sessionID}/download?t=${refreshTimestamp}`
+      ? `${Env.server.replace(
+          /\/$/,
+          ""
+        )}/api/signing-sessions/v1/${sessionID}/download?t=${refreshTimestamp}`
       : "";
 
   const handleRefresh = async () => {

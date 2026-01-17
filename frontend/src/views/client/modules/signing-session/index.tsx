@@ -12,6 +12,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { DocumentLayout } from "./components/document-layout";
 import { useMobile } from "./hooks/use-mobile";
+import Env from "@/config/environment";
 
 export const SigningSessionPage = () => {
   const navigate = useNavigate();
@@ -93,7 +94,12 @@ export const SigningSessionPage = () => {
   // Add timestamp to force iframe reload after signing
   const documentUrl =
     signingSession?.state === "signed" && sessionID
-      ? `/api/signing-sessions/v1/${sessionID}/download?t=${signingSession.state}`
+      ? `${Env.server.replace(
+          /\/$/,
+          ""
+        )}/api/signing-sessions/v1/${sessionID}/download?t=${
+          signingSession.state
+        }`
       : pdfUrl;
 
   // Handle option change
