@@ -105,7 +105,9 @@ export default class DbPostgres implements DbAdapterInterface {
       this.logger.info(
         ctx,
         `[${queryText}] ${end - start}ms`,
-        this.debug ? values.map((a) => JSON.stringify(a).slice(0, 100)) : null
+        this.debug
+          ? (values || []).map((a) => JSON.stringify(a).slice(0, 100))
+          : null
       );
     }
   }
