@@ -25,6 +25,7 @@ import {
   expireOtherSigningSessions,
   generateEmailMessageToRecipient,
 } from "./services/utils";
+import InternalAdapter from "./adapters/internal/internal";
 
 /**
  * Check if internal signing adapter is enabled
@@ -386,6 +387,10 @@ export default (router: Router) => {
   });
 
   router.post("/:id/confirm-signed", async (req, res) => {
+    if (isInternalSigningEnabled()) {
+      return res.status(400).json({ error: "Internal signing enabled" });
+    }
+
     const ctx = Ctx.get(req)?.context;
     const db = await platform.Db.getService();
 
@@ -412,7 +417,8 @@ export default (router: Router) => {
       return res.json(signingSession);
     }
 
-    // TODO we should check if all recipients have signed
+    // TODO we should check if any recipients have signed !!!
+    // TODO here we don't check anything and just mark as signed anyway !!
 
     await updateSigningSession(ctx, {
       ...signingSession,
@@ -689,7 +695,7 @@ export default (router: Router) => {
    * Body: { code: string, signatureBase64: string, options: any[], metadata: any }
    */
   router.post("/:id/verify-and-sign", async (req, res) => {
-    const ctx = Ctx.get(req)?.context;
+    let ctx = Ctx.get(req)?.context;
     const db = await platform.Db.getService();
 
     if (!isInternalSigningEnabled()) {
@@ -722,8 +728,6 @@ export default (router: Router) => {
     }
 
     try {
-      const InternalAdapter = (await import("./adapters/internal/internal"))
-        .default;
       const adapter = Services.SignatureSessions.documentSigner as InstanceType<
         typeof InternalAdapter
       >;
@@ -782,6 +786,13 @@ export default (router: Router) => {
 
       // Sign the document
       await adapter.signDocument(eSignSession.token, signatureBase64, metadata);
+
+      // From now on the system must be used to do several operations
+      ctx = {
+        ...ctx,
+        client_id: invoice.client_id,
+        role: "SYSTEM",
+      };
 
       // Update the signing session state
       const updatedSession = await updateSigningSession(ctx, {

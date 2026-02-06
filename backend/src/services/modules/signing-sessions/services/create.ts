@@ -24,7 +24,7 @@ export const createSigningSession = async (
     external_id: null,
     invoice_snapshot: invoice,
     recipient_email: recipient.email,
-    recipient_role: recipient.role,
+    recipient_role: invoice.type === "quotes" ? recipient.role : "viewer",
     state: "created",
     document_url: null,
     signing_url: null,

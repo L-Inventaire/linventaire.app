@@ -120,6 +120,11 @@ export const expireOtherSigningSessions = async (
   ctx: Context,
   signingSessions: SigningSessions[]
 ) => {
+  console.log(
+    "Expiring other signing sessions for invoice",
+    signingSessions[0].invoice_id
+  ); // Debug log
+
   const db = await platform.Db.getService();
   const signingSession = _.first(signingSessions);
   const invoiceSigningSessions = await db.select<SigningSessions>(

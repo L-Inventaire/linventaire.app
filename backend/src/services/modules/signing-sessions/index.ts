@@ -59,8 +59,9 @@ export default class SigningSessionService
       this.documentSigner = internalAdapter;
 
       // Register internal adapter routes
-      const internalRouter = createInternalRoutes(internalAdapter);
-      server.use(`/api/${this.name}/internal`, internalRouter);
+      // Only register if we want to expose these routes, otherwise we can call the adapter methods directly from the service
+      // const internalRouter = createInternalRoutes(internalAdapter);
+      // server.use(`/api/${this.name}/internal`, internalRouter);
     } else {
       this.logger.info(null, "Using Documenso adapter");
       this.documentSigner = new DocumensoAdapter();

@@ -4,6 +4,7 @@ import { PushEMailInterfaceAdapterInterface } from "../api";
 import { EmailAttachment } from "..";
 import Framework from "../..";
 import { Logger } from "../../logger-db";
+import _ from "lodash";
 
 export default class PushEMailSES
   implements PushEMailInterfaceAdapterInterface
@@ -67,7 +68,11 @@ export default class PushEMailSES
         if (err) {
           this.logger.error(null, "SES send failed", err);
         } else {
-          this.logger.info(null, "SES email sent successfully", info);
+          this.logger.info(
+            null,
+            "SES email sent successfully",
+            _.omit(info, "raw")
+          );
         }
       }
     );
