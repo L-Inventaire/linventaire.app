@@ -24,10 +24,10 @@ import {
 } from "@radix-ui/themes";
 import { format, formatDistance } from "date-fns";
 import _ from "lodash";
+import { AnimatePresence, motion } from "motion/react";
 import { ReactNode } from "react";
 import { CommentCreate } from "./comments";
 import { getEventLine, prepareHistory } from "./timeline";
-import { AnimatePresence, motion } from "motion/react";
 
 export const Timeline = ({
   entity,
@@ -163,7 +163,7 @@ export const Timeline = ({
                 </Button>
               )}
               {prepareHistory(history, hasNextPage, { viewRoute }).map((a) =>
-                getEventLine(a, translations)
+                getEventLine(entity, a, translations),
               )}
             </div>
             {!current.is_deleted && (
@@ -229,7 +229,7 @@ export const EventLine = ({
         <Tooltip
           content={format(
             new Date(parseInt(comment.created_at || "0") || 0),
-            "PPpp"
+            "PPpp",
           )}
         >
           <span>
@@ -238,7 +238,7 @@ export const EventLine = ({
               new Date(),
               {
                 addSuffix: true,
-              }
+              },
             )}
           </span>
         </Tooltip>

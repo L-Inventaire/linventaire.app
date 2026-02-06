@@ -12,6 +12,45 @@ import { Fragment } from "react/jsx-runtime";
 import { twMerge } from "tailwind-merge";
 import { EventLine } from ".";
 import { CommentCard } from "./comments";
+import { useTranslation } from "react-i18next";
+
+const FieldDiff = ({
+  entity,
+  field,
+  oldValue,
+  newValue,
+  translation,
+}: {
+  entity: string;
+  field: string;
+  oldValue: any;
+  newValue: any;
+  translation?: string | { label: string; values?: { [key: string]: string } };
+}) => {
+  const { t } = useTranslation();
+
+  const label = (translation as any)?.label || translation || field;
+  const formatValue = (val: any) => {
+    if (val === null || val === undefined) return "—";
+    if (typeof val === "object") return JSON.stringify(val);
+    return t(`timeline.${entity}.${field}.${String(val)}`, [String(val)]);
+  };
+
+  return (
+    <div className="inline-flex items-center gap-2 text-sm rounded-md">
+      <Badge color="orange" className="pl-1 p-0">
+        {label}
+        <Badge color="gray" variant="soft">
+          {formatValue(oldValue)}
+        </Badge>
+        <span className="text-gray-400 -mx-1">→</span>
+        <Badge color="blue" variant="soft">
+          {formatValue(newValue)}
+        </Badge>
+      </Badge>
+    </div>
+  );
+};
 
 type PreparedEventLine = {
   isIgnore: boolean;
@@ -30,13 +69,33 @@ type PreparedEventLine = {
 export const prepareHistory = (
   history: (RestEntity & any)[],
   hasNextPage: boolean,
-  options: { viewRoute?: string } = {}
+  options: { viewRoute?: string } = {},
 ) => {
-  return history.map((a, i) => {
+  const hist = history.map((a, i) => {
     const isIgnore = i === 0 && !hasNextPage;
 
     const prev = history[i - 1] || {};
-    const isComment = !!a.comment_id;
+    const commentId =
+      !!a.comment_id && a.comment_id !== prev.comment_id ? a.comment_id : null;
+
+    const isComment = !!commentId;
+
+    const omitKeys = [
+      "updated_at",
+      "updated_by",
+      "comment_id",
+      "operation",
+      "operation_timestamp",
+      "revisions",
+      "_rank",
+      "cache",
+      "searchable",
+      "searchable_generated",
+    ];
+    const hasChanges = !_.isEqual(
+      _.omit(a, ...omitKeys),
+      _.omit(prev, ...omitKeys),
+    );
 
     const isFirstInLine =
       (i === 0 && hasNextPage) ||
@@ -49,6 +108,7 @@ export const prepareHistory = (
       !isDeleted &&
       !isRestore &&
       (a.revisions > prev?.revisions ||
+        hasChanges ||
         a.operation_timestamp - prev?.operation_timestamp >
           1000 * 60 * 60 * 24);
     const isRestoreOldVersion =
@@ -68,9 +128,12 @@ export const prepareHistory = (
       previousItem: prev,
     } as PreparedEventLine;
   });
+
+  return hist;
 };
 
 export const getEventLine = (
+  entity: string,
   {
     isIgnore,
     isRestoreOldVersion,
@@ -88,7 +151,7 @@ export const getEventLine = (
     [key: string]:
       | string
       | { label: string; values?: { [key: string]: string } };
-  }
+  },
 ) => {
   const a = item;
   const prev = previousItem;
@@ -183,6 +246,10 @@ export const getEventLine = (
     const changes: string[] = [];
     const added: string[] = [];
     const removed: string[] = [];
+    const changesWithDiff: { key: string; oldValue: any; newValue: any }[] = [];
+
+    const showDiffWhiteList = ["reference", "state"];
+
     Object.keys(
       _.omit(
         a,
@@ -192,8 +259,8 @@ export const getEventLine = (
         "is_deleted",
         "operation",
         "operation_timestamp",
-        "revisions"
-      )
+        "revisions",
+      ),
     ).forEach((key) => {
       const prevValue = (prev as any)[key];
       const newValue = (a as any)[key];
@@ -205,11 +272,14 @@ export const getEventLine = (
           removed.push(key);
         } else {
           changes.push(key);
+          if (showDiffWhiteList.includes(key)) {
+            changesWithDiff.push({ key, oldValue: prevValue, newValue });
+          }
         }
       }
     });
 
-    if (changes.length === 0 && added.length === 0 && removed.length === 0) {
+    if (!changes.length && !added.length && !removed.length) {
       return <Fragment key={key} />;
     }
 
@@ -231,25 +301,43 @@ export const getEventLine = (
             : (p) => <PencilIcon {...p} />
         }
         message={
-          <div className="space-x-1 inline-block">
+          <div className="inline-block space-x-1">
             a{" "}
             {changes.length > 0 && (
               <>
                 modifié{" "}
-                {changes.map((a) => (
-                  <Badge color="orange">
-                    {(translations?.[a] as any)?.label ||
-                      translations?.[a] ||
-                      a}
-                  </Badge>
-                ))}
+                {changes
+                  .filter(
+                    (c) => !changesWithDiff.some((change) => change.key === c),
+                  )
+                  .map((a) => (
+                    <Badge key={a} color="orange">
+                      {(translations?.[a] as any)?.label ||
+                        translations?.[a] ||
+                        a}
+                    </Badge>
+                  ))}
+                {changesWithDiff.length > 0 && (
+                  <div className="inline-block">
+                    {changesWithDiff.map((change) => (
+                      <FieldDiff
+                        key={change.key}
+                        entity={entity}
+                        field={change.key}
+                        oldValue={change.oldValue}
+                        newValue={change.newValue}
+                        translation={translations?.[change.key]}
+                      />
+                    ))}
+                  </div>
+                )}
               </>
             )}{" "}
             {added.length > 0 && (
               <>
                 ajouté{" "}
-                {changes.map((a) => (
-                  <Badge color="green">
+                {added.map((a) => (
+                  <Badge key={a} color="green">
                     {(translations?.[a] as any)?.label ||
                       translations?.[a] ||
                       a}
@@ -260,8 +348,8 @@ export const getEventLine = (
             {removed.length > 0 && (
               <>
                 supprimé{" "}
-                {changes.map((a) => (
-                  <Badge color="green">
+                {removed.map((a) => (
+                  <Badge key={a} color="red">
                     {(translations?.[a] as any)?.label ||
                       translations?.[a] ||
                       a}

@@ -383,5 +383,16 @@
       "clear": "Effacer la signature",
       "anonymous": "Anonyme"
     }
+  },
+  "timeline": {
+    "invoices.state": {
+      "draft": "Brouillon",
+      "sent": "Envoyé",
+      "accounted": "Comptabilisé",
+      "purchase_order": "Accepté",
+      "closed": "Terminé",
+      "completed": "Complété",
+      "recurring": "Abonnement"
+    }
   }
 }

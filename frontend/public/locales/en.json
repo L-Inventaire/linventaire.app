@@ -305,5 +305,16 @@
       "search_in": "Search in",
       "go_to": "Open"
     }
+  },
+  "timeline": {
+    "invoices.state": {
+      "draft": "Draft",
+      "sent": "Sent",
+      "accounted": "Accounted",
+      "purchase_order": "Accepted",
+      "closed": "Closed",
+      "completed": "Completed",
+      "recurring": "Recurring"
+    }
   }
 }
