@@ -1,7 +1,6 @@
+import { InvoiceLine } from "@features/invoices/types/types";
 import { useQuery } from "@tanstack/react-query";
 import { SigningSessionsApiClient } from "./api-client/api-client";
-import { isErrorResponse } from "@features/utils/rest/types/types";
-import { InvoiceLine } from "@features/invoices/types/types";
 
 export const useSigningSession = (id: string) => {
   const {
@@ -24,7 +23,7 @@ export const useSigningSession = (id: string) => {
   const cancelSigningSession = (cancelReason?: string) => {
     return SigningSessionsApiClient.cancelSigningSession(
       id,
-      cancelReason ?? ""
+      cancelReason ?? "",
     );
   };
 
