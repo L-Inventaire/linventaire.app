@@ -1,32 +1,31 @@
-import { Express, Router } from "express";
 import config from "config";
+import { Express, Router } from "express";
 import { default as Framework, default as platform } from "../../../platform";
 import { Logger } from "../../../platform/logger-db";
 import { InternalApplicationService } from "../../types";
 import DocumensoAdapter from "./adapters/documenso/documenso";
 import InternalAdapter from "./adapters/internal/internal";
-import createInternalRoutes from "./adapters/internal/routes";
 
+import Clients, {
+  ClientsDefinition,
+} from "#src/services/clients/entities/clients";
+import { Context } from "#src/types";
+import Invoices, {
+  InvoicesDefinition,
+  Recipient,
+} from "../invoices/entities/invoices";
+import { generatePdf } from "../invoices/services/generate-pdf";
 import {
   SigningSessions,
   SigningSessionsDefinition,
 } from "./entities/signing-session";
 import { DocumentSignerInterface } from "./interface";
 import registerRoutes from "./routes";
+import { createSigningSession } from "./services/create";
 import {
   expireOtherSigningSessions,
   generateEmailMessageToRecipient,
 } from "./services/utils";
-import { generatePdf } from "../invoices/services/generate-pdf";
-import Invoices, {
-  InvoicesDefinition,
-  Recipient,
-} from "../invoices/entities/invoices";
-import { createSigningSession } from "./services/create";
-import { Context } from "#src/types";
-import Clients, {
-  ClientsDefinition,
-} from "#src/services/clients/entities/clients";
 
 export default class SigningSessionService
   implements InternalApplicationService
