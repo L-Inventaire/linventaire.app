@@ -33,7 +33,7 @@ const FieldDiff = ({
   const formatValue = (val: any) => {
     if (val === null || val === undefined) return "—";
     if (typeof val === "object") return JSON.stringify(val);
-    return t(`timeline.${entity}.${field}.${String(val)}`, [String(val)]);
+    return t([`timeline.${entity}.${field}.${String(val)}`, String(val)]);
   };
 
   return (
