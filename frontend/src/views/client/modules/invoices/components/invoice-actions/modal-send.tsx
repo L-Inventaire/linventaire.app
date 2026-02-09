@@ -43,10 +43,11 @@ export const InvoiceSendModalContent = ({
   const { client: clientId } = useParams();
   const { draft, setDraft, save } = useReadDraftRest<Invoices>(
     "invoices",
-    id || "new"
+    id || "new",
   );
   const [newEmail, setNewEmail] = useState<string>("");
   const [finalState, setFinalState] = useState<"sent" | "draft">("sent");
+  const [isSending, setIsSending] = useState(false);
 
   const client = useContact(draft?.client);
   const contact = useContact(draft?.contact);
@@ -104,7 +105,7 @@ export const InvoiceSendModalContent = ({
                   ...draft,
                   recipients: _.uniq([
                     ...(draft.recipients || []).filter(
-                      (rec) => rec.email !== email
+                      (rec) => rec.email !== email,
                     ),
                     ...(status
                       ? [
@@ -133,7 +134,7 @@ export const InvoiceSendModalContent = ({
                       recipients: (data.recipients ?? []).map((rec) =>
                         rec?.email === email
                           ? { email: rec.email, role: e as "signer" | "viewer" }
-                          : rec
+                          : rec,
                       ),
                     }));
                   }}
@@ -163,7 +164,7 @@ export const InvoiceSendModalContent = ({
                   newEmail
                     .toLocaleLowerCase()
                     .match(
-                      /([a-zA-Z0-9._+-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/g
+                      /([a-zA-Z0-9._+-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/g,
                     ) || []
                 )
                   .map((email) => ({
@@ -194,6 +195,7 @@ export const InvoiceSendModalContent = ({
         </Button>
         <Button
           disabled={
+            isSending ||
             !(draft.recipients ?? []).filter(Boolean)?.length ||
             (!draft.recipients?.some((rec) => rec.role === "signer") &&
               needsSignature)
@@ -202,6 +204,7 @@ export const InvoiceSendModalContent = ({
           icon={(p) => <PaperAirplaneIcon {...p} />}
           onClick={async () => {
             try {
+              setIsSending(true);
               if (!clientId) {
                 toast.error("Erreur lors de l'envoi du document");
                 return;
@@ -217,7 +220,7 @@ export const InvoiceSendModalContent = ({
               SigningSessionsApiClient.sendInvoice(
                 clientId,
                 draft.id,
-                draft.recipients ?? []
+                draft.recipients ?? [],
               );
 
               onClose();
@@ -225,6 +228,8 @@ export const InvoiceSendModalContent = ({
             } catch (e) {
               toast.error("Erreur lors de l'envoi du document");
               console.error(e);
+            } finally {
+              setIsSending(false);
             }
           }}
         >

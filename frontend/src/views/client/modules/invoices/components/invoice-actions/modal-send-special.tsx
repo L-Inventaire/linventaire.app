@@ -46,7 +46,7 @@ export const InvoiceSendSpecialModal = ({ id }: { id?: string }) => {
 
 const getDefaultContent = (
   draft: Invoices,
-  as?: "delivery_slip" | "proforma" | "receipt_acknowledgement"
+  as?: "delivery_slip" | "proforma" | "receipt_acknowledgement",
 ) => {
   return (
     draft.content?.map((line, index) => {
@@ -81,8 +81,9 @@ export const InvoiceSendSpecialModalContent = ({
   const { draft } = useReadDraftRest<Invoices>("invoices", id || "new");
   const [newEmail, setNewEmail] = useState<string>("");
   const [recipients, setRecipients] = useState<string[]>([]);
+  const [isSending, setIsSending] = useState(false);
   const [mode, setMode] = useState<"all" | "partial">(
-    as === "delivery_slip" ? "partial" : "all"
+    as === "delivery_slip" ? "partial" : "all",
   );
   const [content, setContent] = useState<
     { _index: number; quantity: number }[]
@@ -104,8 +105,8 @@ export const InvoiceSendSpecialModalContent = ({
         as === "delivery_slip"
           ? t("invoices.send-special.titles.delivery_slip")
           : as === "proforma"
-          ? t("invoices.send-special.titles.proforma")
-          : t("invoices.send-special.titles.receipt_acknowledgement")
+            ? t("invoices.send-special.titles.proforma")
+            : t("invoices.send-special.titles.receipt_acknowledgement")
       }
     >
       <Tabs.Root
@@ -158,7 +159,7 @@ export const InvoiceSendSpecialModalContent = ({
                               _index: index,
                               quantity: parseInt(e.target.value),
                             },
-                          ])
+                          ]),
                         );
                       }}
                     />
@@ -183,7 +184,7 @@ export const InvoiceSendSpecialModalContent = ({
                   _.uniq([
                     ...(recipients || []).filter((rec) => rec !== email),
                     ...(status ? [email.toLocaleLowerCase()] : []),
-                  ]).filter((a) => !!a)
+                  ]).filter((a) => !!a),
                 );
               }}
             />
@@ -200,7 +201,7 @@ export const InvoiceSendSpecialModalContent = ({
               _.uniq([
                 ...recipients,
                 ...(newEmail.split(",").map((e) => e.trim()) || []),
-              ]).filter((a) => !!a)
+              ]).filter((a) => !!a),
             );
             setNewEmail("");
           }}
@@ -225,11 +226,12 @@ export const InvoiceSendSpecialModalContent = ({
           Télécharger
         </Button>
         <Button
-          disabled={!(recipients ?? []).filter(Boolean)?.length}
+          disabled={isSending || !(recipients ?? []).filter(Boolean)?.length}
           size="sm"
           icon={(p) => <PaperAirplaneIcon {...p} />}
           onClick={async () => {
             try {
+              setIsSending(true);
               InvoicesApiClient.send(draft, recipients || [], {
                 as: as || "",
                 content: mode === "all" ? undefined : content,
@@ -239,6 +241,8 @@ export const InvoiceSendSpecialModalContent = ({
             } catch (e) {
               toast.error("Erreur lors de l'envoi du document");
               console.error(e);
+            } finally {
+              setIsSending(false);
             }
           }}
         >
