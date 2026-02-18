@@ -68,7 +68,7 @@ import { InvoiceLineQuantityInput } from "./components/line-quantity";
 
 export const getCorrectPrice = (
   article: Articles | null,
-  invoice: Invoices
+  invoice: Invoices,
 ) => {
   const isSupplierRelated = [
     "supplier_credit_notes",
@@ -110,7 +110,7 @@ export const InvoiceLineInput = (props: {
         dragging: monitor.isDragging() ? true : false,
       }),
     }),
-    [value]
+    [value],
   );
   const [deleted, setDeleted] = useState(true);
   useEffect(() => {
@@ -123,7 +123,7 @@ export const InvoiceLineInput = (props: {
   }));
 
   const hasOptionalArticles = (props.invoice?.content || []).some(
-    (a) => a.optional
+    (a) => a.optional,
   );
   const isSeparation =
     value.type === "separation" || value.type === "correction";
@@ -160,14 +160,14 @@ export const InvoiceLineInput = (props: {
         ref={dragRef}
         className={twMerge(
           "relative flex w-full items-center opacity-100 transition-all mb-3 group/invoice-line",
-          (deleted || dragging) && "max-h-0 opacity-0 !m-0"
+          (deleted || dragging) && "max-h-0 opacity-0 !m-0",
         )}
       >
         {!readonly && (
           <div
             className={twMerge(
               "absolute w-5 h-5 flex items-center justify-start cursor-grab opacity-0 group-hover/invoice-line:opacity-100 -left-4",
-              otherDragging && !dragging && "opacity-0"
+              otherDragging && !dragging && "opacity-0",
             )}
           >
             <EllipsisVerticalIcon className="w-4 h-4 opacity-25 -ml-0.5" />
@@ -180,7 +180,7 @@ export const InvoiceLineInput = (props: {
             "w-full p-0 border m-0 dark:border-slate-700",
             !value.optional_checked &&
               value.optional &&
-              "border-dashed shadow-none"
+              "border-dashed shadow-none",
           )}
         >
           <Flex direction="column">
@@ -199,7 +199,9 @@ export const InvoiceLineInput = (props: {
                 <Box
                   className={twMerge(
                     "text-right w-1/6 shrink-0 p-3",
-                    !value.optional_checked && value.optional && "border-dashed"
+                    !value.optional_checked &&
+                      value.optional &&
+                      "border-dashed",
                   )}
                 >
                   <Text as="div" size="2" weight="bold" className="select-all">
@@ -216,7 +218,9 @@ export const InvoiceLineInput = (props: {
                 <Box
                   className={twMerge(
                     "text-right w-1/6 shrink-0 border-l dark:border-slate-700",
-                    !value.optional_checked && value.optional && "border-dashed"
+                    !value.optional_checked &&
+                      value.optional &&
+                      "border-dashed",
                   )}
                 >
                   <InputButton
@@ -237,12 +241,12 @@ export const InvoiceLineInput = (props: {
                     <Text as="div" color="gray" size="2">
                       {value.subscription &&
                       frequencyOptions?.find(
-                        (a) => a.value === value.subscription
+                        (a) => a.value === value.subscription,
                       )?.label ? (
                         <Badge size="1" color="blue">
                           {
                             frequencyOptions?.find(
-                              (a) => a.value === value.subscription
+                              (a) => a.value === value.subscription,
                             )?.label
                           }
                         </Badge>
@@ -257,7 +261,9 @@ export const InvoiceLineInput = (props: {
                 <Box
                   className={twMerge(
                     "text-right w-1/6 shrink-0 border-l dark:border-slate-700",
-                    !value.optional_checked && value.optional && "border-dashed"
+                    !value.optional_checked &&
+                      value.optional &&
+                      "border-dashed",
                   )}
                 >
                   <PriceInput
@@ -271,7 +277,7 @@ export const InvoiceLineInput = (props: {
                     <Text as="div" size="2" weight="bold">
                       {formatAmount(
                         value.unit_price || 0,
-                        props.invoice?.currency || "EUR"
+                        props.invoice?.currency || "EUR",
                       )}
                     </Text>
                     <Text
@@ -291,7 +297,9 @@ export const InvoiceLineInput = (props: {
                 <Box
                   className={twMerge(
                     "text-right w-1/5 shrink-0 border-l dark:border-slate-700",
-                    !value.optional_checked && value.optional && "border-dashed"
+                    !value.optional_checked &&
+                      value.optional &&
+                      "border-dashed",
                   )}
                 >
                   <PriceInput
@@ -305,11 +313,11 @@ export const InvoiceLineInput = (props: {
                     <Text as="div" size="2" weight="bold">
                       {formatAmount(
                         (value.quantity || 0) * (value.unit_price || 0),
-                        props.invoice?.currency || "EUR"
+                        props.invoice?.currency || "EUR",
                       )}
                     </Text>
                     {["quotes", "invoices", "credit_notes"].includes(
-                      props.invoice?.type || ""
+                      props.invoice?.type || "",
                     ) &&
                       value.type !== "correction" && (
                         <Tooltip content="Coût estimé (HT) maximum pour cette ligne">
@@ -319,8 +327,8 @@ export const InvoiceLineInput = (props: {
                               getCostEstimate(
                                 article || undefined,
                                 false,
-                                value.quantity || 1
-                              ).split("-")
+                                value.quantity || 1,
+                              ).split("-"),
                             ) || "non renseigné"}
                           </Text>
                         </Tooltip>
@@ -354,7 +362,7 @@ export const InvoiceLineInput = (props: {
                 gap="3"
                 className={twMerge(
                   "p-3 border-t dark:border-slate-700",
-                  !value.optional_checked && value.optional && "border-dashed"
+                  !value.optional_checked && value.optional && "border-dashed",
                 )}
               >
                 <Box flexGrow="1">
@@ -560,7 +568,7 @@ export const DropInvoiceLine = (props: {
         isOver: !!monitor.isOver(),
       }),
     }),
-    [props.onMove]
+    [props.onMove],
   );
 
   const { isDragging } = useDragLayer((monitor) => ({
@@ -574,13 +582,13 @@ export const DropInvoiceLine = (props: {
         className={twMerge(
           "absolute w-full h-px top-0 transition-all delay-400 z-10",
           isDragging && "h-24 -top-14 -left-1/2 w-[200%]",
-          isOver && "h-24"
+          isOver && "h-24",
         )}
       ></div>
       <div
         className={twMerge(
           "absolute w-full h-0.5 -top-[5px] opacity-0 transition-all bg-slate-300 rounded-full pointer-events-none shadow-sm",
-          isOver && "opacity-100"
+          isOver && "opacity-100",
         )}
       />
     </div>
@@ -673,7 +681,7 @@ const HoverableArticle = ({
             theme="invisible"
             readonly={readonly}
             className="rounded-none flex grow p-3 m-0 h-full w-full box-border text-left justify-start"
-            autoFocus={!readonly && !value.name}
+            autoFocus={!readonly && !(value.name || value.description)}
             placeholder={!isSeparation ? "Article" : "Texte libre"}
             icon={(p) =>
               isSeparation ? (
@@ -699,7 +707,7 @@ const HoverableArticle = ({
               weight="bold"
               className={twMerge(
                 "overflow-hidden text-ellipsis",
-                !readonly && "line-clamp-1"
+                !readonly && "line-clamp-1",
               )}
             >
               {value.name || article?.name}
@@ -710,11 +718,11 @@ const HoverableArticle = ({
               size="2"
               className={twMerge(
                 "overflow-hidden text-ellipsis",
-                !readonly && "line-clamp-1"
+                !readonly && "line-clamp-1",
               )}
             >
               {getTextFromHtml(
-                value.description || article?.description || "-"
+                value.description || article?.description || "-",
               ).trim() && (
                 <EditorInput
                   disabled
@@ -733,7 +741,7 @@ const HoverableArticle = ({
               <Heading size="2">{value.name}</Heading>
               <Text as="div" color="gray" size="2">
                 {getTextFromHtml(
-                  value.description || article?.description || "-"
+                  value.description || article?.description || "-",
                 ).trim() && (
                   <EditorInput
                     placeholder=""
