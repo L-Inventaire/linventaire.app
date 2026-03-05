@@ -83,11 +83,11 @@ export const InvoicesDetailsPage = ({
   const { isPending, ctrl, draft, setDraft } = useReadDraftRest<Invoices>(
     "invoices",
     id || "new",
-    readonly
+    readonly,
   );
 
   const { contact: invoiceCounterParty } = useContact(
-    draft.client || draft.supplier
+    draft.client || draft.supplier,
   );
   const { contact: invoiceContact } = useContact(draft.contact);
   const edit = useViewWithCtrlK();
@@ -114,7 +114,7 @@ export const InvoicesDetailsPage = ({
         }));
       }
     },
-    [draft.client || draft.supplier]
+    [draft.client || draft.supplier],
   );
 
   useEffectChange(
@@ -126,7 +126,7 @@ export const InvoicesDetailsPage = ({
         }));
       }
     },
-    [draft.client, draft.contact]
+    [draft.client, draft.contact],
   );
 
   const getReference = useFormattedNumerotationByInvoice();
@@ -172,13 +172,13 @@ export const InvoicesDetailsPage = ({
       if (
         Object.values(draft.delivery_address || {}).filter(Boolean).length ||
         draft.content?.some(
-          (a) => a.type === "product" || a.type === "consumable"
+          (a) => a.type === "product" || a.type === "consumable",
         )
       ) {
         draft.delivery_delay = 30; // TODO ability to set the default somewhere in the app
         draft.delivery_address = getBestDeliveryAddress(
           invoiceCounterParty!,
-          invoiceContact || undefined
+          invoiceContact || undefined,
         );
       }
       return draft;
@@ -219,14 +219,14 @@ export const InvoicesDetailsPage = ({
   const activeConfiguration = getInvoiceWithOverrides(
     draft,
     ...([draft.client, draft.contact, clientUser?.client].filter(
-      (a) => a !== undefined && !!a
-    ) as any[])
+      (a) => a !== undefined && !!a,
+    ) as any[]),
   );
 
   const format = getOptimalCounterFormat(
     client.invoices_counters,
     draft.type,
-    draft.emit_date
+    draft.emit_date,
   )?.format;
   const errorFormat = !format;
 
@@ -263,11 +263,14 @@ export const InvoicesDetailsPage = ({
     ].filter((a) => a.visible && (a.with_content || !readonly)),
     (a) => {
       return a.with_content ? -1 : 0;
-    }
+    },
   );
 
   const billableContent = (draft.content || []).filter(
-    (a) => a.unit_price && a.quantity && !(a.optional && !a.optional_checked)
+    (a) =>
+      a.unit_price !== undefined &&
+      a.quantity &&
+      !(a.optional && !a.optional_checked),
   );
 
   const contentReadonly =
@@ -401,7 +404,7 @@ export const InvoicesDetailsPage = ({
                       theme="invisible"
                       className="m-0"
                       data-tooltip={new Date(
-                        ctrl("emit_date").value
+                        ctrl("emit_date").value,
                       ).toDateString()}
                       ctrl={ctrl("emit_date")}
                       placeholder="Date d'emission"
@@ -441,8 +444,8 @@ export const InvoicesDetailsPage = ({
                               Math.floor(
                                 computePaymentDelayDate(draft)
                                   .diff(DateTime.now())
-                                  .as("days")
-                              )
+                                  .as("days"),
+                              ),
                             )}{" "}
                             jours)
                           </Text>
@@ -454,12 +457,12 @@ export const InvoicesDetailsPage = ({
                       theme="invisible"
                       className="m-0"
                       data-tooltip={new Date(
-                        ctrl("wait_for_completion_since").value || Date.now()
+                        ctrl("wait_for_completion_since").value || Date.now(),
                       ).toDateString()}
                       ctrl={ctrl("wait_for_completion_since") || Date.now()}
                       placeholder="Date de signature"
                       value={formatTime(
-                        ctrl("wait_for_completion_since").value || Date.now()
+                        ctrl("wait_for_completion_since").value || Date.now(),
                       )}
                       content={() => (
                         <FormInput
@@ -474,9 +477,9 @@ export const InvoicesDetailsPage = ({
                         {formatdfns(
                           new Date(
                             ctrl("wait_for_completion_since").value ||
-                              Date.now()
+                              Date.now(),
                           ),
-                          "PP"
+                          "PP",
                         )}
                       </Text>
                     </InputButton>
@@ -495,7 +498,7 @@ export const InvoicesDetailsPage = ({
                   theme="invisible"
                   className="my-2 block"
                   data-tooltip={new Date(
-                    ctrl("subscription_started_at").value
+                    ctrl("subscription_started_at").value,
                   ).toDateString()}
                   ctrl={ctrl("subscription_started_at")}
                   placeholder="Date de démarrage"
@@ -528,7 +531,7 @@ export const InvoicesDetailsPage = ({
                     {formatDate(
                       getInvoiceNextDate(draft) ||
                         draft.subscription_next_invoice_date ||
-                        0
+                        0,
                     )}
                   </Text>
                 </InputButton>
@@ -603,7 +606,7 @@ export const InvoicesDetailsPage = ({
                     )}
                   </Section>
                   {getTextFromHtml(
-                    activeConfiguration?.format?.heading || ""
+                    activeConfiguration?.format?.heading || "",
                   ) && (
                     <Text size="2" className="opacity-50 block mb-4">
                       <EditorInput
@@ -705,7 +708,7 @@ export const InvoicesDetailsPage = ({
                                           (draft.total?.total_with_taxes || 0) -
                                           (draft.transactions?.total || 0),
                                         reference: draft.reference,
-                                      }
+                                      },
                                     )
                                   }
                                 >
@@ -853,7 +856,7 @@ export const ReferencePreferenceEditor = ({
       client.invoices_counters[
         new Date(draft.emit_date).getFullYear().toString()
       ][draft.type].counter,
-    draft.emit_date
+    draft.emit_date,
   );
   const { invoices: alreadyUsed } = useInvoices({
     query: buildQueryFromMap({

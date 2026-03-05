@@ -31,7 +31,7 @@ export const InvoiceActions = ({
   const { draft, save: _save } = useReadDraftRest<Invoices>(
     "invoices",
     id || "new",
-    readonly
+    readonly,
   );
 
   const save = async () => {
@@ -47,12 +47,12 @@ export const InvoiceActions = ({
   const isSupplierRelated = isSupplierInvoice || isSupplierQuote;
 
   const { contact: counterparty } = useContact(
-    !isSupplierRelated ? draft.client : draft.supplier
+    !isSupplierRelated ? draft.client : draft.supplier,
   );
 
   const namedCounterparty = !!getContactName(counterparty || {});
   const billableContent = draft?.content?.filter(
-    (c) => c.unit_price && c.quantity
+    (c) => c.unit_price !== undefined && c.quantity,
   )?.length;
 
   let disabled = false;
@@ -62,7 +62,7 @@ export const InvoiceActions = ({
 
   const draftWithOverrides = getInvoiceWithOverrides(
     draft,
-    ...([client, counterparty].filter((a) => a !== undefined && !!a) as any)
+    ...([client, counterparty].filter((a) => a !== undefined && !!a) as any),
   );
 
   /* Warnings:
