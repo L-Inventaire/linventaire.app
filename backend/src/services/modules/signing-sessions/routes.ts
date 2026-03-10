@@ -46,30 +46,35 @@ async function saveInvoiceOptions(
   options: any[],
   altReference?: string
 ) {
-  if (!options || options.length === 0) return;
+  if ((!options || options.length === 0) && !altReference) {
+    return;
+  }
 
   const db = await platform.Db.getService();
-  const lines = options.map((line: any, index: number) => ({
-    index,
-    value: [line.article, line.quantity, line.unit_price],
-  }));
 
-  invoice.content = invoice.content.map<InvoiceLine>((line) => {
-    const foundLine = lines.find((l) =>
-      _.isEqual(l.value, [line.article, line.quantity, line.unit_price])
-    );
+  if (options && options.length > 0) {
+    const lines = options.map((line: any, index: number) => ({
+      index,
+      value: [line.article, line.quantity, line.unit_price],
+    }));
 
-    if (foundLine) {
-      const realLine = options[foundLine.index];
-      return {
-        ...line,
-        optional: realLine.optional,
-        optional_checked: realLine.optional_checked,
-      };
-    }
+    invoice.content = invoice.content.map<InvoiceLine>((line) => {
+      const foundLine = lines.find((l) =>
+        _.isEqual(l.value, [line.article, line.quantity, line.unit_price])
+      );
 
-    return line;
-  });
+      if (foundLine) {
+        const realLine = options[foundLine.index];
+        return {
+          ...line,
+          optional: realLine.optional,
+          optional_checked: realLine.optional_checked,
+        };
+      }
+
+      return line;
+    });
+  }
 
   if (altReference) {
     invoice.alt_reference = altReference;
