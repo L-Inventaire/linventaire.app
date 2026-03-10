@@ -61,12 +61,12 @@ export const BalancesExportModal = ({
       "91-120 jours": res.data.reduce((acc, item) => acc + item.d120.total, 0),
       "120+ jours": res.data.reduce(
         (acc, item) => acc + item.d120plus.total,
-        0
+        0,
       ),
       Total: res.data.reduce((acc, item) => acc + item.total.total, 0),
     });
 
-    const fileName = `export-balance-${
+    const fileName = `balances-${
       type === "client" ? "clients" : "fournisseurs"
     }-${new Date().toISOString().split("T")[0]}`;
 
@@ -80,7 +80,7 @@ export const BalancesExportModal = ({
       const csv = data.map((row) =>
         Object.values(row)
           .map((e) => (typeof e === "object" ? JSON.stringify(e) : e))
-          .join(",")
+          .join(","),
       );
       const csvString = header + "\n" + csv.join("\n");
       const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
@@ -136,7 +136,7 @@ const getLink = (
   contact?: string,
   from?: number,
   to?: number,
-  document: "invoices" | "credit_notes" = "invoices"
+  document: "invoices" | "credit_notes" = "invoices",
 ) => {
   const contactName = contactObj ? getContactName(contactObj) : null;
   const fromDate =
@@ -163,8 +163,8 @@ const getLink = (
           fromDate && toDate
             ? `${fromDate}->${toDate}`
             : fromDate
-            ? `>=${fromDate || new Date().toISOString().split("T")[0]}`
-            : `<=${toDate || new Date().toISOString().split("T")[0]}`
+              ? `>=${fromDate || new Date().toISOString().split("T")[0]}`
+              : `<=${toDate || new Date().toISOString().split("T")[0]}`
         }`
       : "",
   ]
@@ -176,7 +176,7 @@ const getLink = (
       ? `map=${encodeURIComponent(
           JSON.stringify({
             [contactKey]: contact,
-          })
+          }),
         )}`
       : false,
   ]
@@ -408,7 +408,7 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
       ]}
       data={[
         ..._.sortBy(res.data || [], (a) =>
-          a.contact ? getContactName(a.contact) : "zzz"
+          a.contact ? getContactName(a.contact) : "zzz",
         ),
         total as any,
       ]}
@@ -443,7 +443,7 @@ export const ClickableValue = ({
           row.id,
           from,
           to,
-          value.total_credit_notes === 0 ? "invoices" : "credit_notes"
+          value.total_credit_notes === 0 ? "invoices" : "credit_notes",
         )}
       >
         {formatAmount(value.total)}
@@ -462,7 +462,7 @@ export const ClickableValue = ({
             onClick: (event) =>
               navigateAlt(
                 getLink(type, row.contact, row.id, from, to, "invoices"),
-                { event }
+                { event },
               ),
           },
           {
@@ -471,7 +471,7 @@ export const ClickableValue = ({
             onClick: (event) =>
               navigateAlt(
                 getLink(type, row.contact, row.id, from, to, "credit_notes"),
-                { event }
+                { event },
               ),
           },
         ]}

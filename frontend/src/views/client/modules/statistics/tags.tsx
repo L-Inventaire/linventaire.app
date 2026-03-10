@@ -39,11 +39,11 @@ export const TagsExportModal = ({
     const usedTags = _.uniq(
       Object.values(res.data).reduce(
         (acc, monthly) => [...acc, ...Object.keys(monthly)],
-        [] as string[]
-      )
+        [] as string[],
+      ),
     );
     const tagsSorted = _.sortBy(tags.data?.list, "name").filter((tag) =>
-      usedTags.includes(tag.id)
+      usedTags.includes(tag.id),
     );
     tagsSorted.push({
       id: "untagged",
@@ -65,7 +65,7 @@ export const TagsExportModal = ({
       });
       row["Total"] = Object.values(_.omit(monthly, "month")).reduce(
         (acc, a) => acc + (a || 0),
-        0
+        0,
       );
       return row;
     });
@@ -75,7 +75,7 @@ export const TagsExportModal = ({
     tagsSorted.forEach((tag) => {
       totalRow[tag.name] = res.data.reduce(
         (acc, monthly) => acc + (monthly[tag.id] || 0),
-        0
+        0,
       );
     });
     totalRow["Total"] = res.data.reduce(
@@ -83,13 +83,13 @@ export const TagsExportModal = ({
         acc +
         Object.values(_.omit(monthly, "month")).reduce(
           (a, b) => a + (b || 0),
-          0
+          0,
         ),
-      0
+      0,
     );
     data.push(totalRow);
 
-    const fileName = `export-chiffre-affaires-categories-${year}`;
+    const fileName = `ca-${year}`;
 
     if (exportType === "xlsx") {
       const worksheet = XLSX.utils.json_to_sheet(data);
@@ -101,7 +101,7 @@ export const TagsExportModal = ({
       const csv = data.map((row) =>
         Object.values(row)
           .map((e) => (typeof e === "object" ? JSON.stringify(e) : e))
-          .join(",")
+          .join(","),
       );
       const csvString = header + "\n" + csv.join("\n");
       const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
@@ -165,11 +165,11 @@ export const TagsPage = ({ year }: { year: number }) => {
   const usedTags = _.uniq(
     Object.values(res.data).reduce(
       (acc, monthly) => [...acc, ...Object.keys(monthly)],
-      [] as string[]
-    )
+      [] as string[],
+    ),
   );
   const tagsSorted = _.sortBy(tags.data?.list, "name").filter((tag) =>
-    usedTags.includes(tag.id)
+    usedTags.includes(tag.id),
   );
 
   const getLink = (tag?: Tags, month?: number) => {
@@ -189,7 +189,7 @@ export const TagsPage = ({ year }: { year: number }) => {
       `q=${encodeURIComponent(q)}`,
       tag
         ? `map=${encodeURIComponent(
-            JSON.stringify({ [`articles.computed_tags:${tag.name}`]: tag.id })
+            JSON.stringify({ [`articles.computed_tags:${tag.name}`]: tag.id }),
           )}`
         : "",
     ]
@@ -222,10 +222,10 @@ export const TagsPage = ({ year }: { year: number }) => {
       ...acc,
       [tag.id]: Object.values(res.data).reduce(
         (acc, monthly) => acc + (monthly[tag.id] || 0),
-        0
+        0,
       ),
     }),
-    { month: -1 } as DashboardTags
+    { month: -1 } as DashboardTags,
   );
 
   return (
@@ -276,8 +276,8 @@ export const TagsPage = ({ year }: { year: number }) => {
                 (row[a.id] || 0) > 0
                   ? ""
                   : (row[a.id] || 0) < 0
-                  ? "text-red-500"
-                  : "opacity-50"
+                    ? "text-red-500"
+                    : "opacity-50",
               )}
               href={getLink(a, row.month)}
             >
@@ -293,7 +293,7 @@ export const TagsPage = ({ year }: { year: number }) => {
           render: (row: DashboardTags) => {
             const total = Object.values(_.omit(row, "month")).reduce(
               (acc, a) => acc + (a || 0),
-              0
+              0,
             );
             return (
               <Link
@@ -303,8 +303,8 @@ export const TagsPage = ({ year }: { year: number }) => {
                   (total || 0) > 0
                     ? ""
                     : (total || 0) < 0
-                    ? "text-red-500"
-                    : "opacity-50"
+                      ? "text-red-500"
+                      : "opacity-50",
                 )}
                 href={getLink(undefined, row.month)}
               >

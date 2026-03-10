@@ -80,7 +80,7 @@ export const AccountingExportModal = ({ onClose }: { onClose: () => void }) => {
         "Total facture TTC": line.invoice_total_ttc,
       }));
 
-      const fileName = `export-comptable-${fromDate}-${toDate}`;
+      const fileName = `compta-${fromDate}-${toDate}`;
 
       if (exportType === "xlsx") {
         const worksheet = XLSX.utils.json_to_sheet(data);
@@ -128,7 +128,7 @@ export const AccountingExportModal = ({ onClose }: { onClose: () => void }) => {
               }
               return e;
             })
-            .join(";")
+            .join(";"),
         );
         const csvString = "\uFEFF" + header + "\n" + csv.join("\n"); // BOM for UTF-8
         const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });

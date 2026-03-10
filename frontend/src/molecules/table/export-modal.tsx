@@ -11,7 +11,7 @@ export const TableExportModal = (props: {
   tableName?: string;
   pagination?: Pagination;
   fetchData: (
-    pagination: Pick<Pagination, "page" | "perPage">
+    pagination: Pick<Pagination, "page" | "perPage">,
   ) => Promise<any[]>;
   onClose: () => void;
 }) => {
@@ -25,9 +25,7 @@ export const TableExportModal = (props: {
     setProgress(0);
 
     const fileName =
-      "export-" +
-      (props.tableName ? props.tableName + "-" : "") +
-      new Date().toISOString();
+      (props.tableName ? props.tableName + "-" : "") + new Date().toISOString();
 
     const maxItems = parseInt(maxSize);
     let page = 1;

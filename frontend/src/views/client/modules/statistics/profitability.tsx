@@ -23,7 +23,7 @@ import * as XLSX from "xlsx";
 // Hook for client profitability
 export const useClientProfitability = (
   timeRanges: TimeRange[],
-  clientIds?: string[]
+  clientIds?: string[],
 ) => {
   const { client } = useCurrentClient();
 
@@ -121,7 +121,7 @@ export const ProfitabilityExportModal = ({
           max_profit: 0,
           invoice_count: 0,
           quote_count: 0,
-        }
+        },
       );
 
       allData.push({
@@ -150,7 +150,7 @@ export const ProfitabilityExportModal = ({
       }
     }
 
-    const fileName = `export-benefices-clients-${years.join("-")}`;
+    const fileName = `benefices-${years.join("-")}`;
 
     if (exportType === "xlsx") {
       const worksheet = XLSX.utils.json_to_sheet(allData);
@@ -171,7 +171,7 @@ export const ProfitabilityExportModal = ({
       XLSX.utils.book_append_sheet(
         workbook,
         worksheet,
-        "Bénéfices par clients"
+        "Bénéfices par clients",
       );
       XLSX.writeFile(workbook, `${fileName}.xlsx`, { compression: true });
     } else if (exportType === "csv") {
@@ -187,7 +187,7 @@ export const ProfitabilityExportModal = ({
             }
             return e;
           })
-          .join(";")
+          .join(";"),
       );
       const csvString = "\uFEFF" + header + "\n" + csv.join("\n"); // BOM for UTF-8
       const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
@@ -259,7 +259,7 @@ export const ProfitabilityPage = ({
 
   const res = useClientProfitability(
     timeRanges,
-    clientIds && clientIds.length > 0 ? clientIds : undefined
+    clientIds && clientIds.length > 0 ? clientIds : undefined,
   );
 
   if (res.isLoading || !res.data) {
@@ -288,27 +288,27 @@ export const ProfitabilityPage = ({
           revenue: periodResult.data.reduce((acc, row) => acc + row.revenue, 0),
           min_cost: periodResult.data.reduce(
             (acc, row) => acc + row.min_cost,
-            0
+            0,
           ),
           max_cost: periodResult.data.reduce(
             (acc, row) => acc + row.max_cost,
-            0
+            0,
           ),
           min_profit: periodResult.data.reduce(
             (acc, row) => acc + row.min_profit,
-            0
+            0,
           ),
           max_profit: periodResult.data.reduce(
             (acc, row) => acc + row.max_profit,
-            0
+            0,
           ),
           invoice_count: periodResult.data.reduce(
             (acc, row) => acc + row.invoice_count,
-            0
+            0,
           ),
           quote_count: periodResult.data.reduce(
             (acc, row) => acc + row.quote_count,
-            0
+            0,
           ),
         };
 
@@ -354,7 +354,7 @@ export const ProfitabilityPage = ({
                         row.client_id === "total" && "font-semibold",
                         row.revenue >= 0
                           ? "text-green-600 dark:text-green-400"
-                          : "text-red-600 dark:text-red-400"
+                          : "text-red-600 dark:text-red-400",
                       )}
                     >
                       {formatAmount(row.revenue)}
@@ -369,7 +369,7 @@ export const ProfitabilityPage = ({
                     <span
                       className={twMerge(
                         "text-orange-600 dark:text-orange-400",
-                        row.client_id === "total" && "font-semibold"
+                        row.client_id === "total" && "font-semibold",
                       )}
                     >
                       {formatAmount(row.min_cost)}
@@ -384,7 +384,7 @@ export const ProfitabilityPage = ({
                     <span
                       className={twMerge(
                         "text-orange-600 dark:text-orange-400",
-                        row.client_id === "total" && "font-semibold"
+                        row.client_id === "total" && "font-semibold",
                       )}
                     >
                       {formatAmount(row.max_cost)}
@@ -401,7 +401,7 @@ export const ProfitabilityPage = ({
                         row.client_id === "total" && "font-semibold",
                         row.min_profit >= 0
                           ? "text-green-600 dark:text-green-400"
-                          : "text-red-600 dark:text-red-400"
+                          : "text-red-600 dark:text-red-400",
                       )}
                     >
                       {formatAmount(row.min_profit)}
@@ -418,7 +418,7 @@ export const ProfitabilityPage = ({
                         row.client_id === "total" && "font-semibold",
                         row.max_profit >= 0
                           ? "text-green-600 dark:text-green-400"
-                          : "text-red-600 dark:text-red-400"
+                          : "text-red-600 dark:text-red-400",
                       )}
                     >
                       {formatAmount(row.max_profit)}
@@ -433,7 +433,7 @@ export const ProfitabilityPage = ({
                     <span
                       className={twMerge(
                         "text-slate-600 dark:text-slate-400",
-                        row.client_id === "total" && "font-semibold"
+                        row.client_id === "total" && "font-semibold",
                       )}
                     >
                       {row.invoice_count}
@@ -448,7 +448,7 @@ export const ProfitabilityPage = ({
                     <span
                       className={twMerge(
                         "text-slate-600 dark:text-slate-400",
-                        row.client_id === "total" && "font-semibold"
+                        row.client_id === "total" && "font-semibold",
                       )}
                     >
                       {row.quote_count}
