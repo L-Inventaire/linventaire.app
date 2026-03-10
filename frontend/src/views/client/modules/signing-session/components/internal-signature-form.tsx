@@ -31,6 +31,9 @@ export const InternalSignatureForm = ({
 }: InternalSignatureFormProps) => {
   const [step, setStep] = useState<Step>("form");
   const [email, setEmail] = useState(signingSession.recipient_email || "");
+  const [altReference, setAltReference] = useState(
+    signingSession?.invoice_snapshot?.alt_reference || "",
+  );
   const [hasReadDocument, setHasReadDocument] = useState(false);
   const [hasSignature, setHasSignature] = useState(false);
   const [signatureData, setSignatureData] = useState<string | null>(null);
@@ -42,7 +45,7 @@ export const InternalSignatureForm = ({
 
   const sigCanvas = useRef<SignatureCanvas>(null);
   const [tempSignatureData, setTempSignatureData] = useState<string | null>(
-    null
+    null,
   );
 
   // Restore signature if it was temporarily saved
@@ -88,7 +91,7 @@ export const InternalSignatureForm = ({
         {
           method: "POST",
           body: JSON.stringify({ email }),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -136,11 +139,12 @@ export const InternalSignatureForm = ({
             code,
             signatureBase64: signatureData,
             options,
+            reference: altReference,
             metadata: {
               userAgent: navigator.userAgent,
             },
           }),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -153,7 +157,7 @@ export const InternalSignatureForm = ({
       onSigned();
     } catch (error: any) {
       toast.error(
-        error.message || "Code invalide ou erreur lors de la signature"
+        error.message || "Code invalide ou erreur lors de la signature",
       );
       console.error("Verify and sign error:", error);
     } finally {
@@ -172,7 +176,7 @@ export const InternalSignatureForm = ({
         {
           method: "POST",
           body: JSON.stringify({ email }),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -303,6 +307,21 @@ export const InternalSignatureForm = ({
               <h3 className="font-medium text-sm mb-4">
                 Signature du document
               </h3>
+
+              {/* Email field */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Votre référence
+                </label>
+                <Input
+                  type="text"
+                  value={altReference || ""}
+                  onChange={(e) => setAltReference(e.target.value)}
+                  placeholder="Ex: Votre numéro de commande"
+                  disabled
+                  className="w-full"
+                />
+              </div>
 
               {/* Optional lines */}
               {options.length > 0 && (

@@ -14,6 +14,7 @@ import Clients, {
 } from "#src/services/clients/entities/clients";
 import _ from "lodash";
 import { generatePdf } from "../invoices/services/generate-pdf";
+import InternalAdapter from "./adapters/internal/internal";
 import {
   SigningSessions,
   SigningSessionsDefinition,
@@ -25,7 +26,6 @@ import {
   expireOtherSigningSessions,
   generateEmailMessageToRecipient,
 } from "./services/utils";
-import InternalAdapter from "./adapters/internal/internal";
 
 /**
  * Check if internal signing adapter is enabled
@@ -40,7 +40,12 @@ function isInternalSigningEnabled(): boolean {
 /**
  * Save optional lines selected by user to the invoice
  */
-async function saveInvoiceOptions(ctx: any, invoice: Invoices, options: any[]) {
+async function saveInvoiceOptions(
+  ctx: any,
+  invoice: Invoices,
+  options: any[],
+  altReference?: string
+) {
   if (!options || options.length === 0) return;
 
   const db = await platform.Db.getService();
@@ -65,6 +70,10 @@ async function saveInvoiceOptions(ctx: any, invoice: Invoices, options: any[]) {
 
     return line;
   });
+
+  if (altReference) {
+    invoice.alt_reference = altReference;
+  }
 
   await db.update<Invoices>(
     ctx,
@@ -225,13 +234,6 @@ export default (router: Router) => {
       {}
     );
 
-    const currentInvoice = await db.selectOne<Invoices>(
-      ctx,
-      InvoicesDefinition.name,
-      { id: signingSession.invoice_id },
-      {}
-    );
-
     // Check if using internal signing mode
     const adapterType = config.has("signature.adapter")
       ? config.get<string>("signature.adapter")
@@ -239,11 +241,10 @@ export default (router: Router) => {
 
     const mappedDocument = {
       ...signingSession,
-      currentInvoice: currentInvoice,
       linventaire_signature: adapterType === "internal",
     };
 
-    res.json(mappedDocument);
+    res.json(cleanSigningSession(mappedDocument));
   });
 
   /**
@@ -287,6 +288,7 @@ export default (router: Router) => {
     }
 
     const options = req.body.options;
+    const altReference = req.body.reference;
 
     // Prepare document to sign, but the signing session is not started yet
     const documentToSign =
@@ -345,7 +347,7 @@ export default (router: Router) => {
     });
 
     // Save optional lines selected by the signer
-    await saveInvoiceOptions(ctx, invoice, options);
+    await saveInvoiceOptions(ctx, invoice, options, altReference);
 
     res.json(signingSession);
   });
@@ -383,7 +385,7 @@ export default (router: Router) => {
       state: "viewed",
     });
 
-    res.json(signingSession);
+    res.json(cleanSigningSession(signingSession));
   });
 
   router.post("/:id/confirm-signed", async (req, res) => {
@@ -702,7 +704,7 @@ export default (router: Router) => {
       return res.status(400).json({ error: "Internal signing not enabled" });
     }
 
-    const { code, signatureBase64, options, metadata } = req.body;
+    const { code, signatureBase64, options, metadata, reference } = req.body;
 
     if (!code || !signatureBase64) {
       return res.status(400).json({ error: "Code and signature required" });
@@ -749,7 +751,7 @@ export default (router: Router) => {
       const invoice = signingSession.invoice_snapshot as unknown as Invoices;
 
       // Save optional lines selected by the signer BEFORE generating PDF
-      await saveInvoiceOptions(ctx, invoice, options);
+      await saveInvoiceOptions(ctx, invoice, options, reference);
 
       // Upload the PDF if not already uploaded and extract signature position
       if (!eSignSession.document_pdf) {
@@ -816,4 +818,13 @@ export default (router: Router) => {
       res.status(500).json({ error: error.message });
     }
   });
+};
+
+const cleanSigningSession = (session: SigningSessions) => {
+  if (session.invoice_snapshot) {
+    (session.invoice_snapshot as unknown as Invoices).notes = "";
+    (session.invoice_snapshot as unknown as Invoices).name = "";
+  }
+
+  return session;
 };

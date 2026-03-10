@@ -40,12 +40,12 @@ export const InvoiceDesignationInput = ({
               <InputButton
                 theme="invisible"
                 size="sm"
-                placeholder="Autre référence"
+                placeholder="Référence du client"
                 content={() => (
                   <div className="space-y-2 mt-4">
                     <FormInput
                       ctrl={altReferenceCtrl}
-                      label="Autre référence"
+                      label="Référence du client"
                     />
                   </div>
                 )}
@@ -66,7 +66,14 @@ export const InvoiceDesignationInput = ({
               content={() => (
                 <div className="space-y-2 mt-4">
                   <FormInput ctrl={nameCtrl} label="Désignation" />
-                  <FormInput ctrl={altReferenceCtrl} label="Autre référence" />
+                  <FormInput
+                    ctrl={altReferenceCtrl}
+                    label={
+                      draft.type.includes("supplier")
+                        ? "Référence du fournisseur"
+                        : "Référence du client"
+                    }
+                  />
                 </div>
               )}
               value={
