@@ -318,7 +318,6 @@ export const InternalSignatureForm = ({
                   value={altReference || ""}
                   onChange={(e) => setAltReference(e.target.value)}
                   placeholder="Ex: Votre numéro de commande"
-                  disabled
                   className="w-full"
                 />
               </div>
@@ -435,6 +434,20 @@ export const InternalSignatureForm = ({
       <div className="hidden md:flex md:flex-col md:h-full">
         <div className="flex-1 overflow-y-auto p-4">
           <h3 className="font-medium text-sm mb-4">Signature du document</h3>
+
+          {/* Email field */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Votre référence
+            </label>
+            <Input
+              type="text"
+              value={altReference || ""}
+              onChange={(e) => setAltReference(e.target.value)}
+              placeholder="Ex: Votre numéro de commande"
+              className="w-full"
+            />
+          </div>
 
           {/* Optional lines */}
           {options.length > 0 && (
