@@ -63,7 +63,7 @@ export default class Clients implements InternalApplicationService {
       "006-move-articles-references": moveArticleReferences,
       "007-better-search-stock-services-redo-2": betterSearchStockServices,
       "008-fix-payment-date-invoices-redo-2": fixPaymentDatesInvoices,
-      "009-fix-invoices-searchable-1": fixInvoicesSearchables,
+      "009-fix-invoices-searchable-2": fixInvoicesSearchables,
       "010-contact-rebuild-searchable": rebuildContactSearchables,
       "011-stock-reindex-searchable": rebuildStockSearchables,
       "012-notifications-fix-searchable-redo": fixNotificationsSearchables,

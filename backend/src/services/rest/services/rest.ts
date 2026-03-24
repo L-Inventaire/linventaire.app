@@ -437,6 +437,8 @@ export const expandSearchable = (searchable: string | string[]) => {
     return searchable.map((a) => expandSearchable(a)).join(",");
   }
 
+  searchable = (searchable || "").replace(/,/gm, "");
+
   // If number and string attached, add all detached version as a separated searchable word, same for . , - etc
   let result = [];
   const words = searchable.split(" ");
