@@ -1,8 +1,8 @@
 import { createContext } from "#src/types";
 import { describe, expect, test } from "@jest/globals";
-import Invoices, { InvoiceLine } from "../entities/invoices";
-import { fillInvoicePayments, recomputeCompletionStatus } from "./on-complete";
 import StockItems from "../../stock/entities/stock-items";
+import Invoices, { InvoiceLine } from "../entities/invoices";
+import { recomputeCompletionStatus } from "./on-complete";
 
 describe("on-complete-payments", () => {
   test("simple-case", async () => {
