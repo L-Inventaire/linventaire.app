@@ -182,14 +182,22 @@ export const setCheckIsCompleteTrigger = () => {
 export const recomputeCompletionStatus = async (
   ctx: Context,
   client_id: string,
-  id: string
+  id: string,
+  options?: {
+    item?: Invoices;
+    articles?: Record<string, StockItems[]>;
+    services?: Record<string, ServiceItems[]>;
+    dryRun?: boolean;
+  }
 ) => {
-  const db = await Framework.Db.getService();
+  const db = options?.dryRun ? null : await Framework.Db.getService();
 
-  const item = await db.selectOne<Invoices>(ctx, InvoicesDefinition.name, {
-    client_id,
-    id,
-  });
+  const item =
+    options?.item ||
+    (await db.selectOne<Invoices>(ctx, InvoicesDefinition.name, {
+      client_id,
+      id,
+    }));
   const previousValue = _.cloneDeep(item);
 
   if (!item) return;
@@ -210,18 +218,20 @@ export const recomputeCompletionStatus = async (
       // ------------
       // Stock items: only the ones with state "delivered" are considered
       // ------------
-      const allItems = await db.select<StockItems>(
-        ctx,
-        StockItemsDefinition.name,
-        {
-          client_id,
-          article: id,
-          for_rel_quote: item.type === "quotes" ? item.id : undefined,
-          from_rel_supplier_quote:
-            item.type === "supplier_quotes" ? item.id : undefined,
-        },
-        { limit: 1000 }
-      );
+      const allItems = options?.articles
+        ? options?.articles[id] || []
+        : await db.select<StockItems>(
+            ctx,
+            StockItemsDefinition.name,
+            {
+              client_id,
+              article: id,
+              for_rel_quote: item.type === "quotes" ? item.id : undefined,
+              from_rel_supplier_quote:
+                item.type === "supplier_quotes" ? item.id : undefined,
+            },
+            { limit: 1000 }
+          );
 
       for (const a of allItems) {
         // We consider this states as not really there for the quote / invoice
@@ -241,7 +251,7 @@ export const recomputeCompletionStatus = async (
             // Otherwise, we try to even the overflow
             const available = Math.min(
               remainingQuantityToAffect,
-              didAllOnce ? 1 : b.quantity - b.quantity_delivered || 0
+              didAllOnce ? 1 : b.quantity - b.quantity_ready || 0
             );
             // For supplier quotes, we consider that if it is in the stock it is 'delivered' from the supplier point of view
             if (a.state === "delivered" || item.type === "supplier_quotes") {
@@ -258,16 +268,18 @@ export const recomputeCompletionStatus = async (
       // ------------
       // Service items: only the ones with state "done" are considered
       // ------------
-      const allServices = await db.select<ServiceItems>(
-        ctx,
-        ServiceItemsDefinition.name,
-        {
-          client_id,
-          article: id,
-          for_rel_quote: item.type === "quotes" ? item.id : undefined,
-        },
-        { limit: 1000 }
-      );
+      const allServices = options?.services
+        ? options?.services[id] || []
+        : await db.select<ServiceItems>(
+            ctx,
+            ServiceItemsDefinition.name,
+            {
+              client_id,
+              article: id,
+              for_rel_quote: item.type === "quotes" ? item.id : undefined,
+            },
+            { limit: 1000 }
+          );
 
       for (const a of allServices) {
         // We consider this states as not really there for the quote / invoice
@@ -287,7 +299,7 @@ export const recomputeCompletionStatus = async (
             // Otherwise, we try to even the overflow
             const available = Math.min(
               remainingQuantityToAffect,
-              didAllOnce ? 1 : b.quantity - b.quantity_delivered || 0
+              didAllOnce ? 1 : b.quantity - b.quantity_ready || 0
             );
 
             // For service both are the same
@@ -306,17 +318,19 @@ export const recomputeCompletionStatus = async (
   // Quotes and related (invoiced)
   // -------------------
   if (item.type === "quotes" || item.type === "supplier_quotes") {
-    const invoices = (
-      await Services.Rest.search<Invoices>(
-        ctx,
-        InvoicesDefinition.name,
-        buildQueryFromMap({
-          client_id,
-          from_rel_quote: id,
-        }),
-        { limit: 1000 }
-      )
-    ).list;
+    const invoices = options?.dryRun
+      ? []
+      : (
+          await Services.Rest.search<Invoices>(
+            ctx,
+            InvoicesDefinition.name,
+            buildQueryFromMap({
+              client_id,
+              from_rel_quote: id,
+            }),
+            { limit: 1000 }
+          )
+        ).list;
     const sentInvoices = invoices.filter(
       // This triggers need invoiced.percentage to be non draft invoices:
       // - Go to recurring mode (only when invoice is *sent*)
@@ -413,7 +427,7 @@ export const recomputeCompletionStatus = async (
     fillInvoicePayments(item, otherInvoices, payments);
   }
 
-  if (!_.isEqual(item, previousValue)) {
+  if (!_.isEqual(item, previousValue) && !options?.dryRun) {
     await insertIntoHistory(ctx, InvoicesDefinition.name, item);
     if (
       previousValue?.state !== item.state &&
@@ -428,6 +442,8 @@ export const recomputeCompletionStatus = async (
       item
     );
   }
+
+  return item;
 };
 
 export const fillInvoicePayments = (

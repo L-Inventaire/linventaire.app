@@ -77,7 +77,13 @@ export default class Fields implements InternalApplicationService {
 
           try {
             // Verify the signature
-            const decoded = jwt.verify(server_signature, signSecret);
+            const decoded = jwt.verify(server_signature, signSecret) as {
+              svg: string;
+              full_name: string;
+              date: string;
+              user_id: string;
+              client_id: string;
+            };
 
             // Check if the signature belongs to the correct client
             if (decoded.client_id !== clientId) {

@@ -52,7 +52,8 @@ export const setOnPurchaseOrderTrigger = () =>
             }
           } catch (e) {
             // We won't send it
-            return console.error(e);
+            console.log(e);
+            return;
           }
         }
 

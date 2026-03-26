@@ -77,7 +77,7 @@ export function useCtx(server: Express) {
         const auth: Context = jwt.verify(
           req.headers.authorization.split(" ")[1],
           config.get<string>("jwt.secret")
-        );
+        ) as Context;
         context.id = auth.id;
         context.role = auth.role;
         context.mfa = auth.mfa;
