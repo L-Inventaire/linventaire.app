@@ -44,6 +44,9 @@ export default class PushEMailSmtp
           user: smtp.user,
           pass: smtp.pass,
         },
+        tls: {
+          rejectUnauthorized: false,
+        },
         ...(smtp.dkim?.domainName
           ? {
               dkim: {
