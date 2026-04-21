@@ -26,7 +26,7 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
 
   const [step, setStep] = useState(0);
   const setAfterSignUpOrNewCompany = useSetRecoilState(
-    DidCreateCompanyOrSignupAtom
+    DidCreateCompanyOrSignupAtom,
   );
 
   const [companyName, setCompanyName] = useState("");
@@ -76,7 +76,7 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
       navigate(
         getRoute(ROUTES.Home, {
           client: client.client_id,
-        })
+        }),
       );
     } catch (e) {
       setStep(0);
@@ -199,7 +199,7 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
             <div className="flex flex-row">
               <Input
                 size="lg"
-                className="rounded-r-none"
+                className="rounded-r-none h-9"
                 placeholder="john@books.com ou copiez/collez une liste d'emails"
                 type="email"
                 value={newInvitationEmail}
@@ -209,7 +209,7 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
                     const emails = e.target.value
                       .toLocaleLowerCase()
                       .match(
-                        /([a-zA-Z0-9._+-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/g
+                        /([a-zA-Z0-9._+-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/g,
                       );
                     // Remove duplicates using lodash
                     setInvitations(
@@ -218,7 +218,7 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
                             ...emails.map((e) => e.trim()),
                             ...invitations,
                           ])
-                        : invitations
+                        : invitations,
                     );
                     if (emails?.length) return;
                   }

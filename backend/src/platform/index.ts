@@ -12,6 +12,7 @@ import LockService from "./lock";
 import AnalyticsService from "./analytics";
 import PushTextMessageService from "./push-text-message";
 import TriggersManagerService from "./triggers-manager";
+import { EInvoicesService } from "./e-invoices";
 
 export default class Framework {
   public static Db: DbService;
@@ -28,6 +29,7 @@ export default class Framework {
   public static Lock: LockService;
   public static Analytics: AnalyticsService;
   public static TriggersManager: TriggersManagerService;
+  public static EInvoices: EInvoicesService;
 
   static async init() {
     console.log("Initializing platform services...");
@@ -48,6 +50,7 @@ export default class Framework {
     Framework.TriggersManager = await new TriggersManagerService(
       Framework.Socket
     ).init();
+    Framework.EInvoices = await new EInvoicesService().init();
 
     console.log("Finished initializing platform services...");
   }

@@ -58,3 +58,8 @@ export class RestEntityColumnsDefinition {
   )
 ) STORED`;
 }
+
+// Note: if you get a cannot insert a non-DEFAULT value into column \"searchable_generated\", it means you inverted
+//    ...columnsFromEntity(EInvoicingConfig),
+//    ...new RestEntityColumnsDefinition(),
+// Use this order

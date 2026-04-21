@@ -35,6 +35,7 @@
   "db": {
     "type": "postgres",
     "database": "linventaire",
+    "encryption_key": "abcdef",
     "postgres": {
       "host": "localhost",
       "port": 5432,

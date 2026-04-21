@@ -45,6 +45,10 @@ export const useSettingsMenu: MenuIndex = () => {
         to: getRoute(ROUTES.SettingsBankAccounts),
       },
       {
+        label: "Facturation électronique",
+        to: getRoute(ROUTES.SettingsEInvoicing),
+      },
+      {
         type: "divider",
       },
       {

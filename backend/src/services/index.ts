@@ -27,6 +27,7 @@ import RestService from "./rest";
 import EventsService from "./system";
 import UsersService from "./users";
 import { Ctx, secureExpress, useCtx } from "./utils";
+import EInvoicesService from "./modules/e-invoices";
 
 export default class Services {
   private static internalApp: Express;
@@ -53,6 +54,7 @@ export default class Services {
   public static DataExport: DataExportService;
   public static Migrations: MigrationsService;
   public static CRM: CRM;
+  public static EInvoices: EInvoicesService;
 
   static async init() {
     console.log("Initializing application services...");
@@ -75,11 +77,14 @@ export default class Services {
     });
 
     Services.internalApp.use(async (req, res, next) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)?.context!;
+      if (!ctx) {
+        throw new Error("Context not found");
+      }
       try {
-        await limiter.consume(req.ip);
+        await limiter.consume(req.ip || "unknown");
         next();
-      } catch (e) {
+      } catch (e: any) {
         console.error(e);
         // Save the error in the database
         Framework.LoggerDb.get("api-gateway").error(ctx, e);
@@ -122,6 +127,9 @@ export default class Services {
     Services.DataAnalysis = await new DataAnalysisService().init(
       Services.internalApp
     );
+    Services.EInvoices = await new EInvoicesService().init(
+      Services.internalApp
+    );
 
     // This will be done in parallel
     new MigrationsService().init(Services.internalApp);
@@ -136,7 +144,7 @@ export default class Services {
     Sentry.setupExpressErrorHandler(Services.internalApp);
 
     //Return json on 500
-    Services.internalApp.use((err, req, res, next) => {
+    Services.internalApp.use((err: any, req: any, res: any) => {
       const ctx = Ctx.get(req)?.context || ({} as any);
       console.error(err);
       Framework.LoggerDb.get("api-gateway").error(ctx, err);

@@ -84,6 +84,7 @@ export const ROUTES = {
   Settings: "/:client/settings",
   SettingsPreferences: "/:client/settings/preferences",
   SettingsInvoices: "/:client/settings/invoices",
+  SettingsEInvoicing: "/:client/settings/e-invoicing",
   SettingsStockServices: "/:client/settings/stock-services",
   SettingsStockLocations: "/:client/settings/stock-locations",
   SettingsBankAccounts: "/:client/settings/bank-accounts",

@@ -56,6 +56,7 @@ import { NoClientView } from "./no-client";
 import { ApiPage } from "./settings/api";
 import { BankAccountsPage } from "./settings/bank-accounts";
 import { CompanyPage } from "./settings/company";
+import { EInvoicingPage } from "./settings/e-invoicing";
 import { FieldsPage } from "./settings/fields";
 import { ImportExportPage } from "./settings/import";
 import { InvoicesSettingsPage } from "./settings/invoices";
@@ -160,6 +161,7 @@ export const BackOfficeRoutes = () => {
           path={ROUTES.SettingsBankAccounts}
           element={<BankAccountsPage />}
         />
+        <Route path={ROUTES.SettingsEInvoicing} element={<EInvoicingPage />} />
         <Route path={ROUTES.SettingsImport} element={<ImportExportPage />} />
         <Route path={ROUTES.SettingsApi} element={<ApiPage />} />
 
@@ -211,7 +213,7 @@ export const Layout = () => {
       <div
         className={twMerge(
           "sm:overflow-auto overflow-hidden relative flex w-full grow flex-row bg-slate-50 dark:bg-slate-950 h-screen intro-animated-root z-10",
-          afterSignupOrNewCompany ? "fade-in-slow" : ""
+          afterSignupOrNewCompany ? "fade-in-slow" : "",
         )}
       >
         <SideBar />
@@ -227,7 +229,7 @@ export const Layout = () => {
           <div
             className={twMerge(
               "max-w-[100vw] grow flex min-h-0 border-t sm:border shadow-sm bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-700 print:mx-0 sm:mb-2 rounded",
-              menuOpen ? "sm:ml-64" : "sm:mr-2 sm:ml-0"
+              menuOpen ? "sm:ml-64" : "sm:mr-2 sm:ml-0",
             )}
             onClick={() => setMenuOpen(false)}
           >
