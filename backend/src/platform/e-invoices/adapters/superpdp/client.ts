@@ -27,6 +27,24 @@ export interface SuperPDPCompanyResponse {
   }>;
 }
 
+export interface SuperPDPDirectoryEntry {
+  id: number;
+  directory: "peppol" | "ppf";
+  identifier: string;
+  status: "pending" | "created" | "error";
+  status_message: string;
+  is_replyto: boolean;
+  created_at: string;
+}
+
+export interface SuperPDPInvoice {
+  id: number;
+  direction: "in" | "out";
+  status: string[];
+  created_at: string;
+  en_invoice?: any; // Full EN16931 invoice data
+}
+
 export class SuperPDPClient {
   private client: AxiosInstance;
   private accessToken?: string;
@@ -111,22 +129,146 @@ export class SuperPDPClient {
   }
 
   /**
+   * Get directory entries for the company
+   */
+  async getDirectoryEntries(): Promise<SuperPDPDirectoryEntry[]> {
+    if (!this.accessToken) {
+      await this.authenticate();
+    }
+
+    try {
+      const response = await this.client.get("/v1.beta/directory_entries", {
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+        },
+      });
+
+      const entries = response.data.data || [];
+      console.log("[SuperPDPClient.getDirectoryEntries] Retrieved from API:", {
+        count: entries.length,
+        entries: entries,
+      });
+
+      return entries;
+    } catch (error: any) {
+      // If 401, try to re-authenticate
+      if (error.response?.status === 401) {
+        await this.authenticate();
+        const response = await this.client.get("/v1.beta/directory_entries", {
+          headers: {
+            Authorization: `Bearer ${this.accessToken}`,
+          },
+        });
+        const entries = response.data.data || [];
+        console.log(
+          "[SuperPDPClient.getDirectoryEntries] Retrieved from API (after re-auth):",
+          {
+            count: entries.length,
+            entries: entries,
+          }
+        );
+        return entries;
+      }
+
+      throw new Error(
+        `Failed to get directory entries: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    }
+  }
+
+  /**
+   * Get received invoices (direction=in)
+   */
+  async getReceivedInvoices(options?: {
+    limit?: number;
+    startingAfterId?: number;
+  }): Promise<SuperPDPInvoice[]> {
+    if (!this.accessToken) {
+      await this.authenticate();
+    }
+
+    try {
+      const params = new URLSearchParams({
+        direction: "in",
+        limit: (options?.limit || 100).toString(),
+        order: "desc",
+        ...(options?.startingAfterId
+          ? { starting_after_id: options.startingAfterId.toString() }
+          : {}),
+      });
+
+      // Request with expand to get full invoice data
+      const response = await this.client.get(
+        `/v1.beta/invoices?${params.toString()}&expand[]=en_invoice`,
+        {
+          headers: {
+            Authorization: `Bearer ${this.accessToken}`,
+          },
+        }
+      );
+
+      return response.data.data || [];
+    } catch (error: any) {
+      // If 401, try to re-authenticate
+      if (error.response?.status === 401) {
+        await this.authenticate();
+        const params = new URLSearchParams({
+          direction: "in",
+          limit: (options?.limit || 100).toString(),
+          order: "desc",
+          ...(options?.startingAfterId
+            ? { starting_after_id: options.startingAfterId.toString() }
+            : {}),
+        });
+
+        const response = await this.client.get(
+          `/v1.beta/invoices?${params.toString()}&expand[]=en_invoice`,
+          {
+            headers: {
+              Authorization: `Bearer ${this.accessToken}`,
+            },
+          }
+        );
+        return response.data.data || [];
+      }
+
+      throw new Error(
+        `Failed to get received invoices: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    }
+  }
+
+  /**
    * Test connection to SuperPDP
    */
   async testConnection(): Promise<{
     success: boolean;
     company?: SuperPDPCompanyResponse;
+    directoryEntries?: SuperPDPDirectoryEntry[];
     error?: string;
   }> {
     try {
       await this.authenticate();
       const company = await this.getCompanyInfo();
+      const directoryEntries = await this.getDirectoryEntries();
+
+      console.log("[SuperPDPClient.testConnection] Retrieved data:", {
+        company_id: company.id,
+        directory_entries_count: directoryEntries.length,
+        directory_entries: directoryEntries,
+      });
 
       return {
         success: true,
         company,
+        directoryEntries,
       };
     } catch (error: any) {
+      console.error("[SuperPDPClient.testConnection] Error:", error.message);
       return {
         success: false,
         error: error.message,

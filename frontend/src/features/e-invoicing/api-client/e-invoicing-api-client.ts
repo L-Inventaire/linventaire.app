@@ -14,7 +14,14 @@ export class EInvoicingApiClient {
     clientId: string,
   ): Promise<{ config: EInvoicingConfig | null }> {
     const response = await fetchServer(`/api/e-invoices/v1/${clientId}/config`);
-    return await response.json();
+    const data = await response.json();
+    console.log("[EInvoicingApiClient.getConfig] Received from server:", {
+      has_config: !!data.config,
+      directory_entries_count:
+        data.config?.superpdp_directory_entries?.length || 0,
+      directory_entries: data.config?.superpdp_directory_entries,
+    });
+    return data;
   }
 
   /**
@@ -46,7 +53,13 @@ export class EInvoicingApiClient {
         method: "POST",
       },
     );
-    return await response.json();
+    const data = await response.json();
+    console.log("[EInvoicingApiClient.testConnection] Response:", {
+      success: data.success,
+      company_id: data.company?.id,
+      error: data.error,
+    });
+    return data;
   }
 
   /**
@@ -77,5 +90,23 @@ export class EInvoicingApiClient {
       },
     );
     return await response.json();
+  }
+
+  /**
+   * Sync company info and directory entries from SuperPDP
+   */
+  static async syncData(
+    clientId: string,
+  ): Promise<{ success: boolean; config: EInvoicingConfig }> {
+    const response = await fetchServer(`/api/e-invoices/v1/${clientId}/sync`, {
+      method: "POST",
+    });
+    const data = await response.json();
+    console.log("[EInvoicingApiClient.syncData] Synced data:", {
+      success: data.success,
+      directory_entries_count:
+        data.config?.superpdp_directory_entries?.length || 0,
+    });
+    return data;
   }
 }

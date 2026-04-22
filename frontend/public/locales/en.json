@@ -259,6 +259,7 @@
     "stock": "Stock",
     "products": "Items",
     "supplier_invoices": "Purchase invoices",
+    "received_e_invoices": "Received electronic invoices",
     "accounting": "Operations",
     "settings_title": "Company",
     "users": "Users",

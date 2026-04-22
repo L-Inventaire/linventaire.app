@@ -72,6 +72,21 @@ export const useEInvoicingConfig = () => {
     },
   });
 
+  const syncData = useMutation({
+    mutationFn: () => EInvoicingApiClient.syncData(client!.id),
+    onSuccess: (data) => {
+      if (data.success) {
+        toast.success("Données synchronisées");
+        queryClient.invalidateQueries({
+          queryKey: ["e-invoicing-config", client?.id],
+        });
+      }
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Erreur lors de la synchronisation");
+    },
+  });
+
   return {
     config: config.data?.config || null,
     isLoading: config.isLoading,
@@ -79,6 +94,7 @@ export const useEInvoicingConfig = () => {
     testConnection,
     deleteConfig,
     updateSettings,
+    syncData,
     refetch: config.refetch,
   };
 };

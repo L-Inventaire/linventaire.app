@@ -9,6 +9,7 @@ export interface EInvoicingConfig {
   token_expires_at: string;
   superpdp_company_id: number;
   superpdp_company: SuperPDPCompany;
+  superpdp_directory_entries: SuperPDPDirectoryEntry[];
   connection_status: "not_configured" | "connected" | "error";
   last_connection_test: string;
   last_error: string;
@@ -38,6 +39,16 @@ export interface SuperPDPMandate {
   managed_public_company_formal_name: string;
   managed_public_company_number: string;
   owner_id: number;
+  created_at: string;
+}
+
+export interface SuperPDPDirectoryEntry {
+  id: number;
+  directory: "peppol" | "ppf";
+  identifier: string;
+  status: "pending" | "created" | "error";
+  status_message: string;
+  is_replyto: boolean;
   created_at: string;
 }
 

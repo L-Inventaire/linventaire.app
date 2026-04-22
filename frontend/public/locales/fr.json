@@ -201,6 +201,7 @@
     "stock": "Stock",
     "products": "Articles",
     "supplier_invoices": "Factures d'achat",
+    "received_e_invoices": "Facture électroniques",
     "accounting": "Opérations",
     "settings_title": "Entreprise",
     "users": "Utilisateurs",

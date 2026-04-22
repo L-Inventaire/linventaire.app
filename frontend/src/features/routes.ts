@@ -60,6 +60,8 @@ export const ROUTES = {
   InvoicesFromItems: "/:client/i/from/:ids",
   InvoicesGroup: "/:client/i/group/:ids",
 
+  ReceivedEInvoices: "/:client/e-invoices/received",
+
   Stock: "/:client/stock",
   StockView: "/:client/stock/:id",
   StockEdit: "/:client/stock/:id/form",

@@ -5,7 +5,12 @@ import { useHasAccess } from "@features/access";
 import { registerRootNavigation } from "@features/ctrlk";
 import { ROUTES, getRoute } from "@features/routes";
 import { useDashboard } from "@features/statistics/hooks";
-import { AtSymbolIcon, ListBulletIcon } from "@heroicons/react/16/solid";
+import { useEInvoicingConfig } from "@features/e-invoicing/hooks/use-e-invoicing-config";
+import {
+  AtSymbolIcon,
+  InboxStackIcon,
+  ListBulletIcon,
+} from "@heroicons/react/16/solid";
 import { DocumentIcon, PlusIcon } from "@heroicons/react/24/outline";
 import {
   BriefcaseIcon,
@@ -36,6 +41,7 @@ export const SideBar = () => {
   const location = useLocation();
 
   const { counters, unreadNotifications } = useDashboard();
+  const { config: eInvoicingConfig } = useEInvoicingConfig();
 
   return (
     <div
@@ -81,7 +87,7 @@ export const SideBar = () => {
                   undefined,
                   {
                     type: "invoices",
-                  }
+                  },
                 )}
               />
             }
@@ -94,7 +100,7 @@ export const SideBar = () => {
               badge={counters?.quotes?.purchase_order || undefined}
               active={
                 location.pathname.indexOf(
-                  getRoute(ROUTES.Invoices, { type: "quotes" })
+                  getRoute(ROUTES.Invoices, { type: "quotes" }),
                 ) === 0
               }
               show={hasAccess("QUOTES_READ")}
@@ -105,7 +111,7 @@ export const SideBar = () => {
               icon={(p) => <DocumentCheckIcon {...p} />}
               active={
                 location.pathname.indexOf(
-                  getRoute(ROUTES.Invoices, { type: "invoices" })
+                  getRoute(ROUTES.Invoices, { type: "invoices" }),
                 ) === 0
               }
               badge={counters?.invoices?.late || undefined}
@@ -153,6 +159,15 @@ export const SideBar = () => {
               badge={counters?.supplier_invoices?.sent || undefined}
               icon={(p) => <DocumentArrowDownIcon {...p} />}
               show={hasAccess("SUPPLIER_INVOICES_READ")}
+            />
+            <SideMenuItem
+              to={getRoute(ROUTES.ReceivedEInvoices)}
+              label={t("menu.received_e_invoices")}
+              icon={(p) => <InboxStackIcon {...p} />}
+              show={
+                hasAccess("SUPPLIER_INVOICES_READ") &&
+                eInvoicingConfig?.receive_enabled === true
+              }
             />
           </MenuSection>
 

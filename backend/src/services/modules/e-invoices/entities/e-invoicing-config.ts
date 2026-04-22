@@ -26,6 +26,11 @@ export class EInvoicingConfig extends RestEntity {
   superpdp_company_id = 0;
   superpdp_company = {} as SuperPDPCompany;
 
+  // SuperPDP directory entries (cached from /v1.beta/directory_entries)
+  superpdp_directory_entries: SuperPDPDirectoryEntry[] = [
+    {} as SuperPDPDirectoryEntry,
+  ];
+
   // Connection status
   connection_status: "not_configured" | "connected" | "error" =
     "not_configured";
@@ -60,6 +65,16 @@ export class SuperPDPMandate {
   managed_public_company_number = "string";
   owner_id = 0;
   created_at = new Date();
+}
+
+export class SuperPDPDirectoryEntry {
+  id = 0;
+  directory: "peppol" | "ppf" = "peppol";
+  identifier = "string";
+  status: "pending" | "created" | "error" = "created";
+  status_message = "string";
+  is_replyto = false;
+  created_at = 0;
 }
 
 export const EInvoicingConfigDefinition: RestTableDefinition = {

@@ -43,6 +43,7 @@ import { QuoteFromItems } from "./modules/invoices/create-from-items";
 import { InvoicesEditPage } from "./modules/invoices/edit";
 import { InvoicesViewPage } from "./modules/invoices/view";
 import { FurnishQuotesPage } from "./modules/invoices/view/furnish-quotes";
+import { ReceivedEInvoicesPage } from "./modules/e-invoices/received";
 import { NotificationsPage } from "./modules/notifications";
 import { ServicePage } from "./modules/service";
 import { ServiceItemsEditPage } from "./modules/service/edit";
@@ -131,6 +132,11 @@ export const BackOfficeRoutes = () => {
         <Route path={ROUTES.InvoicesEdit} element={<InvoicesEditPage />} />
         <Route path={ROUTES.FurnishQuotes} element={<FurnishQuotesPage />} />
         <Route path={ROUTES.InvoicesFromItems} element={<QuoteFromItems />} />
+
+        <Route
+          path={ROUTES.ReceivedEInvoices}
+          element={<ReceivedEInvoicesPage />}
+        />
 
         <Route
           path={ROUTES.Settings}

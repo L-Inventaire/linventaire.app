@@ -6,7 +6,7 @@ import { FormInput } from "@components/form/fields";
 import { useHasAccess } from "@features/access";
 import { useEInvoicingConfig } from "@features/e-invoicing/hooks/use-e-invoicing-config";
 import { Heading, Switch } from "@radix-ui/themes";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Page } from "../../_layout/page";
 
 export const EInvoicingPage = () => {
@@ -20,11 +20,13 @@ export const EInvoicingPage = () => {
     testConnection,
     deleteConfig,
     updateSettings,
+    syncData,
   } = useEInvoicingConfig();
 
   const [clientId, setClientId] = useState("");
   const [clientSecret, setClientSecret] = useState("");
   const [showForm, setShowForm] = useState(true);
+  const hasSyncedRef = useRef(false);
 
   useEffect(() => {
     if (config) {
@@ -61,8 +63,38 @@ export const EInvoicingPage = () => {
     await updateSettings.mutateAsync({ receive_enabled: enabled });
   };
 
+  const handleSync = async () => {
+    await syncData.mutateAsync();
+  };
+
   const isConfigured = config?.connection_status === "connected";
   const hasError = config?.connection_status === "error";
+
+  // Debug logs
+  useEffect(() => {
+    if (config) {
+      console.log("[EInvoicingPage] Config loaded:", {
+        connection_status: config.connection_status,
+        superpdp_company_id: config.superpdp_company_id,
+        directory_entries_count: config.superpdp_directory_entries?.length || 0,
+        directory_entries: config.superpdp_directory_entries,
+      });
+    }
+  }, [config]);
+
+  // Auto-sync data when page loads if config is connected
+  useEffect(() => {
+    if (
+      config &&
+      config.connection_status === "connected" &&
+      !isLoading &&
+      !hasSyncedRef.current
+    ) {
+      console.log("[EInvoicingPage] Auto-syncing data from SuperPDP...");
+      hasSyncedRef.current = true;
+      syncData.mutate();
+    }
+  }, [config, isLoading, syncData]);
 
   return (
     <Page
@@ -197,14 +229,24 @@ export const EInvoicingPage = () => {
                     Environnement: {config.superpdp_company.env}
                   </p>
                 </div>
-                <ButtonConfirm
-                  theme="danger"
-                  size="sm"
-                  onClick={handleDelete}
-                  loading={deleteConfig.isPending}
-                >
-                  Retirer le connecteur
-                </ButtonConfirm>
+                <div className="flex gap-2">
+                  <Button
+                    theme="secondary"
+                    size="sm"
+                    onClick={handleSync}
+                    loading={syncData.isPending}
+                  >
+                    Actualiser les données
+                  </Button>
+                  <ButtonConfirm
+                    theme="danger"
+                    size="sm"
+                    onClick={handleDelete}
+                    loading={deleteConfig.isPending}
+                  >
+                    Retirer le connecteur
+                  </ButtonConfirm>
+                </div>
               </div>
             </div>
 
@@ -236,7 +278,9 @@ export const EInvoicingPage = () => {
 
             {/* Mandates */}
             <div>
-              <Section>Mandats de facturation (selfbilling)</Section>
+              <Section>
+                Mandats de facturation (envoi des factures électroniques)
+              </Section>
               {config.superpdp_company.mandates &&
               config.superpdp_company.mandates.length > 0 ? (
                 <div className="mt-2 space-y-2">
@@ -260,8 +304,77 @@ export const EInvoicingPage = () => {
                     ⚠️ Aucun mandat configuré
                   </p>
                   <p className="text-yellow-700 text-sm mt-1">
-                    Vous devez configurer au moins un mandat sur SuperPDP pour
-                    pouvoir utiliser la facturation électronique.
+                    Vous devez configurer au moins un mandat avec votre
+                    partenaire pour pouvoir utiliser l'envoi de factures
+                    électronique.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Directory Entries */}
+            <div>
+              <Section>Lignes d'annuaire (réception des factures)</Section>
+              <Info className="mt-1 mb-2">
+                Ces adresses techniques permettent de recevoir des factures
+                électroniques. Gérez-les depuis votre compte SuperPDP.
+              </Info>
+              {config.superpdp_directory_entries &&
+              config.superpdp_directory_entries.length > 0 ? (
+                <div className="mt-2 space-y-2">
+                  {config.superpdp_directory_entries.map((entry) => (
+                    <div
+                      key={entry.id}
+                      className="p-3 border border-gray-200 rounded"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">
+                              {entry.directory.toUpperCase()}
+                            </span>
+                            {entry.is_replyto && (
+                              <span className="px-2 py-0.5 text-xs bg-blue-100 text-blue-700 rounded">
+                                Reply-to
+                              </span>
+                            )}
+                            {entry.status === "created" && (
+                              <span className="px-2 py-0.5 text-xs bg-green-100 text-green-700 rounded">
+                                Actif
+                              </span>
+                            )}
+                            {entry.status === "pending" && (
+                              <span className="px-2 py-0.5 text-xs bg-yellow-100 text-yellow-700 rounded">
+                                En attente
+                              </span>
+                            )}
+                            {entry.status === "error" && (
+                              <span className="px-2 py-0.5 text-xs bg-red-100 text-red-700 rounded">
+                                Erreur
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-sm text-gray-600 mt-1">
+                            {entry.identifier}
+                          </div>
+                          {entry.status_message && (
+                            <div className="text-xs text-gray-500 mt-1">
+                              {entry.status_message}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="mt-2 p-4 bg-yellow-50 border border-yellow-200 rounded">
+                  <p className="text-yellow-800 font-medium">
+                    ⚠️ Aucune ligne d'annuaire configurée
+                  </p>
+                  <p className="text-yellow-700 text-sm mt-1">
+                    Vous devez configurer au moins une ligne d'annuaire chez
+                    votre partenaire pour recevoir des factures électroniques.
                   </p>
                 </div>
               )}
@@ -293,7 +406,12 @@ export const EInvoicingPage = () => {
                     <Switch
                       checked={config.receive_enabled}
                       onCheckedChange={handleToggleReceive}
-                      disabled={readonly || updateSettings.isPending}
+                      disabled={
+                        readonly ||
+                        updateSettings.isPending ||
+                        !config.superpdp_directory_entries ||
+                        config.superpdp_directory_entries.length === 0
+                      }
                     />
                   }
                 />

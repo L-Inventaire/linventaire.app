@@ -41,6 +41,15 @@ export default (router: Router) => {
           return res.json({ config: null });
         }
 
+        console.log("[GET /config] Config from DB:", {
+          id: config.id,
+          connection_status: config.connection_status,
+          superpdp_company_id: config.superpdp_company_id,
+          directory_entries_count:
+            config.superpdp_directory_entries?.length || 0,
+          directory_entries: config.superpdp_directory_entries,
+        });
+
         // Don't send encrypted secrets to frontend
         const sanitized = {
           ...config,
@@ -49,6 +58,12 @@ export default (router: Router) => {
           access_token_encrypted: config.access_token_encrypted ? "***" : "",
           refresh_token_encrypted: config.refresh_token_encrypted ? "***" : "",
         };
+
+        console.log("[GET /config] Sending sanitized config:", {
+          directory_entries_count:
+            sanitized.superpdp_directory_entries?.length || 0,
+          directory_entries: sanitized.superpdp_directory_entries,
+        });
 
         res.json({ config: sanitized });
       } catch (error: any) {
@@ -196,9 +211,26 @@ export default (router: Router) => {
 
         const result = await client.testConnection();
 
-        console.log(result);
+        console.log("[POST /test-connection] Result from SuperPDP:", {
+          success: result.success,
+          company_id: result.company?.id,
+          directory_entries_count: result.directoryEntries?.length || 0,
+          directory_entries: result.directoryEntries,
+        });
 
         if (result.success && result.company) {
+          const directoryEntriesToSave = (result.directoryEntries || []).map(
+            (entry) => ({
+              ...entry,
+              created_at: new Date(entry.created_at).getTime(),
+            })
+          );
+
+          console.log(
+            "[POST /test-connection] Saving directory entries:",
+            directoryEntriesToSave
+          );
+
           // Update config with company info and connection status
           await update(
             ctx,
@@ -215,10 +247,13 @@ export default (router: Router) => {
                   created_at: new Date(m.created_at),
                 })),
               },
+              superpdp_directory_entries: directoryEntriesToSave,
               last_connection_test: Date.now(),
               last_error: "",
             }
           );
+
+          console.log("[POST /test-connection] Config updated successfully");
 
           res.json({
             success: true,
@@ -346,6 +381,173 @@ export default (router: Router) => {
         res.json({ config: updated });
       } catch (error: any) {
         console.error("Error updating settings:", error);
+        res.status(500).json({ error: error.message });
+      }
+    }
+  );
+
+  /**
+   * POST /:clientId/sync
+   * Sync company info and directory entries from SuperPDP
+   */
+  router.post(
+    "/:clientId/sync",
+    checkRole("USER"),
+    checkClientRoles(["CLIENT_MANAGE"]),
+    async (req, res) => {
+      try {
+        const ctx = Ctx.get(req)?.context;
+        if (!ctx) throw new Error("No context");
+
+        const db = await Framework.Db.getService();
+
+        // Get config
+        const configs = await db.select<EInvoicingConfig>(
+          ctx,
+          EInvoicingConfigDefinition.name,
+          {
+            client_id: ctx.client_id,
+          },
+          { limit: 1 }
+        );
+
+        const config = configs[0];
+        if (!config) {
+          return res.status(404).json({ error: "No configuration found" });
+        }
+
+        if (config.connection_status !== "connected") {
+          return res
+            .status(400)
+            .json({ error: "Configuration is not connected" });
+        }
+
+        // Decrypt secret
+        const clientSecret = decrypt(
+          config.integration_client_secret_encrypted
+        );
+        if (!clientSecret) {
+          return res
+            .status(400)
+            .json({ error: "Failed to decrypt client secret" });
+        }
+
+        // Get fresh data from SuperPDP
+        const client = Framework.EInvoices.getClient({
+          clientId: config.integration_client_id,
+          clientSecret,
+        });
+
+        try {
+          const company = await client.getCompanyInfo();
+          const directoryEntries = await client.getDirectoryEntries();
+
+          console.log("[POST /sync] Fetched fresh data from SuperPDP:", {
+            company_id: company.id,
+            directory_entries_count: directoryEntries.length,
+            directory_entries: directoryEntries,
+          });
+
+          // Update config with fresh data
+          await db.update<EInvoicingConfig>(
+            ctx,
+            EInvoicingConfigDefinition.name,
+            { id: config.id, client_id: ctx.client_id },
+            {
+              superpdp_company_id: company.id,
+              superpdp_company: {
+                ...company,
+                created_at: new Date(company.created_at).getTime(),
+                mandates: (company.mandates || []).map((m) => ({
+                  ...m,
+                  created_at: new Date(m.created_at),
+                })),
+              },
+              superpdp_directory_entries: directoryEntries.map((entry) => ({
+                ...entry,
+                created_at: new Date(entry.created_at).getTime(),
+              })),
+              last_connection_test: Date.now(),
+            }
+          );
+
+          const updated = await db.selectOne<EInvoicingConfig>(
+            ctx,
+            EInvoicingConfigDefinition.name,
+            { id: config.id, client_id: ctx.client_id }
+          );
+
+          console.log("[POST /sync] Config updated with fresh data");
+
+          res.json({ success: true, config: updated });
+        } catch (error: any) {
+          console.error("[POST /sync] Error fetching from SuperPDP:", error);
+          res.status(500).json({ error: `Failed to sync: ${error.message}` });
+        }
+      } catch (error: any) {
+        console.error("Error syncing data:", error);
+        res.status(500).json({ error: error.message });
+      }
+    }
+  );
+
+  /**
+   * GET /:clientId/received
+   * Get received e-invoices
+   */
+  router.get(
+    "/:clientId/received",
+    checkRole("USER"),
+    checkClientRoles(["SUPPLIER_INVOICES_READ"]),
+    async (req, res) => {
+      try {
+        const ctx = Ctx.get(req)?.context;
+        if (!ctx) throw new Error("No context");
+
+        const db = await Framework.Db.getService();
+
+        // Check if e-invoicing is enabled for receiving
+        const configs = await db.select<EInvoicingConfig>(
+          ctx,
+          EInvoicingConfigDefinition.name,
+          {
+            client_id: ctx.client_id,
+            receive_enabled: true,
+          },
+          { limit: 1 }
+        );
+
+        if (configs.length === 0) {
+          return res.status(403).json({
+            error: "E-invoicing reception is not enabled for this client",
+          });
+        }
+
+        // Get received invoices
+        const { limit = 100, offset = 0 } = req.query;
+        const invoices = await db.select(
+          ctx,
+          "received_e_invoices",
+          {
+            client_id: ctx.client_id,
+          },
+          {
+            limit: parseInt(limit as string),
+            offset: parseInt(offset as string),
+            index: "received_at desc",
+          }
+        );
+
+        const count = await db.count(ctx, "received_e_invoices", {
+          client_id: ctx.client_id,
+        });
+
+        res.json({
+          data: invoices,
+          total: count,
+        });
+      } catch (error: any) {
+        console.error("Error fetching received e-invoices:", error);
         res.status(500).json({ error: error.message });
       }
     }
