@@ -203,7 +203,8 @@ export function convertEN16931ToInternal(
   }
 
   // Parse payment instructions
-  const payment_information: any = {};
+  const payment_information: Invoices["payment_information"] =
+    {} as Invoices["payment_information"];
   if (en16931Invoice.payment_details) {
     if (en16931Invoice.payment_details.payment_terms) {
       // Try to extract payment delay from payment terms
@@ -219,10 +220,10 @@ export function convertEN16931ToInternal(
     const paymentCode = en16931Invoice.payment_details.payment_means_type_code;
     if (paymentCode === "30" || paymentCode === "58") {
       payment_information.mode = ["bank_transfer"];
-    } else if (paymentCode === "48" || paymentCode === "49") {
-      payment_information.mode = ["card"];
+    } else if (paymentCode === "48") {
+      payment_information.mode = ["credit_card"];
     } else if (paymentCode === "49") {
-      payment_information.mode = ["direct_debit"];
+      payment_information.mode = ["bank_transfer"];
     } else {
       payment_information.mode = ["bank_transfer"]; // Default
     }
@@ -230,7 +231,7 @@ export function convertEN16931ToInternal(
     // Extract IBAN if available
     if (en16931Invoice.payment_details.credit_transfer?.[0]) {
       const ct = en16931Invoice.payment_details.credit_transfer[0];
-      payment_information.iban = ct.payment_account_identifier.value;
+      payment_information.bank_iban = ct.payment_account_identifier.value;
     }
   }
 

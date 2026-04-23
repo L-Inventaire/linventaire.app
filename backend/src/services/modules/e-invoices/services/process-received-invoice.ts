@@ -28,8 +28,6 @@ export async function processReceivedInvoice(
   receivedInvoice: ReceivedEInvoice
 ): Promise<{ success: boolean; invoiceId?: string; error?: string }> {
   try {
-    const db = await Framework.Db.getService();
-
     // Step 1: Extract references from EN16931 invoice
     const references = extractReferencesFromEN16931(receivedInvoice.en_invoice);
 
