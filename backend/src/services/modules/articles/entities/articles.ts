@@ -14,7 +14,7 @@ import { flattenKeys } from "../../../utils";
 export default class Articles extends RestEntity {
   assigned = ["type:users"];
 
-  type = "string"; // Product, Service, Consumable
+  type: "product" | "service" | "consumable" = "product"; // Product, Service, Consumable
   internal_reference = "string";
   supplier_reference = "string";
   name = "string";

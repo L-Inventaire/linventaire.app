@@ -1,5 +1,5 @@
-import { SuperPDPClient } from "#src/platform/e-invoices/adapters/superpdp/client";
 import Framework from "#src/platform/index";
+import { create, remove, update } from "#src/services/rest/services/rest";
 import { Ctx } from "#src/services/utils";
 import { Router } from "express";
 import { checkClientRoles, checkRole } from "../../common";
@@ -8,7 +8,6 @@ import {
   EInvoicingConfigDefinition,
 } from "./entities/e-invoicing-config";
 import { decrypt, encrypt } from "./utils/encryption";
-import { create, remove, update } from "#src/services/rest/services/rest";
 
 export default (router: Router) => {
   /**

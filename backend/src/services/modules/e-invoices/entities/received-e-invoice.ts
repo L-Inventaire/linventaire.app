@@ -8,6 +8,7 @@ import {
   RestEntity,
   RestEntityColumnsDefinition,
 } from "../../../rest/entities/entity";
+import { EN16931Invoice } from "../../../../platform/e-invoices/adapters/superpdp/en16931-types";
 
 export class ReceivedEInvoice extends RestEntity {
   // SuperPDP invoice ID
@@ -39,7 +40,7 @@ export class ReceivedEInvoice extends RestEntity {
   status_message = "string";
 
   // Raw invoice data (EN16931 JSON format)
-  en_invoice = {} as any; // Full invoice data from SuperPDP
+  en_invoice = {} as EN16931Invoice;
 
   // Processing
   processed = false; // Whether we've attempted to create a supplier invoice

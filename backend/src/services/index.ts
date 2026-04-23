@@ -77,7 +77,7 @@ export default class Services {
     });
 
     Services.internalApp.use(async (req, res, next) => {
-      const ctx = Ctx.get(req)?.context!;
+      const ctx = Ctx.get(req)!.context!;
       if (!ctx) {
         throw new Error("Context not found");
       }

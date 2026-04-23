@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from "axios";
+import { EN16931Invoice } from "./en16931-types";
 
 export interface SuperPDPConfig {
   clientId: string;
@@ -42,7 +43,7 @@ export interface SuperPDPInvoice {
   direction: "in" | "out";
   status: string[];
   created_at: string;
-  en_invoice?: any; // Full EN16931 invoice data
+  en_invoice?: EN16931Invoice;
 }
 
 export class SuperPDPClient {

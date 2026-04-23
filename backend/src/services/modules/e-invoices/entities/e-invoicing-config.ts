@@ -11,7 +11,7 @@ import {
 
 export class EInvoicingConfig extends RestEntity {
   // Platform provider
-  pdp_provider: "superpdp" = "superpdp"; // Only SuperPDP for now
+  pdp_provider: "superpdp" | string = "superpdp"; // Only SuperPDP for now
 
   // Connection credentials (encrypted)
   integration_client_id = "string";
