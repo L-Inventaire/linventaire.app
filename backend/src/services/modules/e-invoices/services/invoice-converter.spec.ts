@@ -35,10 +35,11 @@ describe("EN16931 Invoice Converter", () => {
 
     mockSupplier = {
       id: "supplier-1",
-      client_id: "test-client-123",
-      type: "supplier",
-      name: "ACME Corporation",
-      company_name: "ACME Corporation",
+      is_supplier: true,
+      type: "company",
+      business_name: "ACME Corporation",
+      business_registered_name: "ACME Corporation",
+      business_registered_id: "ACME123",
       business_tax_id: "FR12345678901",
       email: "contact@acme.com",
       address: {
@@ -47,15 +48,17 @@ describe("EN16931 Invoice Converter", () => {
         city: "Paris",
         zip: "75001",
         country: "FR",
+        region: "",
       },
-    } as any;
+    } as unknown as Contacts;
 
     mockClient = {
       id: "client-1",
-      client_id: "test-client-123",
-      type: "client",
-      name: "Client Company",
-      company_name: "Client Company",
+      is_client: true,
+      type: "company",
+      business_name: "Client Company",
+      business_registered_name: "Client Company",
+      business_registered_id: "CLIENT123",
       business_tax_id: "FR98765432109",
       email: "client@example.com",
       address: {
@@ -78,8 +81,23 @@ describe("EN16931 Invoice Converter", () => {
       tva: "20",
     } as any;
 
+    const mockArticle2 = {
+      id: "article-2",
+      client_id: "test-client-123",
+      name: "Product A",
+      reference: "PROD-A",
+      description: "Description of Product A",
+      type: "product",
+      unit: "piece",
+      unit_price: 50,
+      tva: "20",
+    } as any;
+
     mockArticlesMap = new Map();
+    mockArticlesMap.set("article-1", mockArticle);
     mockArticlesMap.set("SRV-001", mockArticle);
+    mockArticlesMap.set("article-2", mockArticle2);
+    mockArticlesMap.set("PROD-A", mockArticle2);
   });
 
   describe("extractReferencesFromEN16931", () => {
@@ -509,7 +527,7 @@ describe("EN16931 Invoice Converter", () => {
       mockInvoice.payment_information = {
         mode: ["bank_transfer"],
         delay: 30,
-        iban: "FR7630006000011234567890189",
+        bank_iban: "FR7630006000011234567890189",
       } as any;
       const resolvedEntities: ResolvedEntities = {
         supplier: mockSupplier,
