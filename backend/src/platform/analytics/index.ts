@@ -43,7 +43,7 @@ export default class Analytics implements PlatformService {
           },
         });
       }
-    } catch (e) {
+    } catch (e: any) {
       console.log(e);
     }
   }
@@ -78,7 +78,7 @@ export default class Analytics implements PlatformService {
           user_id: from || ctx.id || "system",
         });
       }
-    } catch (e) {
+    } catch (e: any) {
       console.log(e);
     }
   }

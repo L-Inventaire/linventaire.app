@@ -20,7 +20,7 @@ export const computePaymentDelayDate = (invoice: Invoices): DateTime => {
   try {
     delay = parseInt(payment.delay as any);
     if (isNaN(delay)) delay = 30;
-  } catch (e) {
+  } catch (e: any) {
     delay = 30;
   }
 

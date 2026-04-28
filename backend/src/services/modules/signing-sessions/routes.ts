@@ -182,7 +182,7 @@ export default (router: Router) => {
     "/:clientId/send-invoice/:id",
     checkRole("USER"),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       if (!req.body.recipients) throw new Error("Recipients are required");
 
       const newSigningSessions =
@@ -230,7 +230,7 @@ export default (router: Router) => {
 
   router.get("/:id", async (req, res) => {
     const db = await platform.Db.getService();
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
 
     const signingSession = await db.selectOne<SigningSessions>(
       ctx,
@@ -256,7 +256,7 @@ export default (router: Router) => {
    * Generates a signing session for the given invoice, returns the signing URL
    */
   router.post("/:id/sign", async (req, res) => {
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
     const db = await platform.Db.getService();
 
     let signingSession = await db.selectOne<SigningSessions>(
@@ -358,7 +358,7 @@ export default (router: Router) => {
   });
 
   router.post("/:id/view", async (req, res) => {
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
     const db = await platform.Db.getService();
 
     const signingSession = await db.selectOne<SigningSessions>(
@@ -398,7 +398,7 @@ export default (router: Router) => {
       return res.status(400).json({ error: "Internal signing enabled" });
     }
 
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
     const db = await platform.Db.getService();
 
     const signingSession = await db.selectOne<SigningSessions>(
@@ -446,7 +446,7 @@ export default (router: Router) => {
   });
 
   router.post("/:id/cancel", async (req, res) => {
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
     const db = await platform.Db.getService();
 
     const signingSession = await db.selectOne<SigningSessions>(
@@ -537,7 +537,7 @@ export default (router: Router) => {
   });
 
   router.get("/:id/download", async (req, res) => {
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
     const db = await platform.Db.getService();
     const signingSession = await db.selectOne<SigningSessions>(
       ctx,
@@ -574,7 +574,7 @@ export default (router: Router) => {
       } else {
         res.status(404).send("Document not ready or not found");
       }
-    } catch (e) {
+    } catch (e: any) {
       res.status(404).send("Can't download signed document: " + e.message);
     }
   });
@@ -585,7 +585,7 @@ export default (router: Router) => {
    * Body: { email: string }
    */
   router.post("/:id/request-verification", async (req, res) => {
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
     const db = await platform.Db.getService();
 
     if (!isInternalSigningEnabled()) {
@@ -690,7 +690,7 @@ export default (router: Router) => {
       await adapter.requestVerificationCode(ctx, eSignSession.token);
 
       res.json({ success: true });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Request verification error:", error);
       res.status(500).json({ error: error.message });
     }
@@ -702,7 +702,7 @@ export default (router: Router) => {
    * Body: { code: string, signatureBase64: string, options: any[], metadata: any }
    */
   router.post("/:id/verify-and-sign", async (req, res) => {
-    let ctx = Ctx.get(req)?.context;
+    let ctx = Ctx.get(req)!.context;
     const db = await platform.Db.getService();
 
     if (!isInternalSigningEnabled()) {
@@ -818,7 +818,7 @@ export default (router: Router) => {
       await createSigningTimelineEvent(ctx, invoice, updatedSession);
 
       res.json({ success: true });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Verify and sign error:", error);
       res.status(500).json({ error: error.message });
     }

@@ -37,7 +37,7 @@ export const useNotifications = (options?: RestOptions<Notifications>) => {
       await NotificationsApiClient.markAllNotificationsAsRead(clientId);
       // Refresh the notifications list after marking all as read
       rest.refresh();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to mark all notifications as read:", error);
     }
   }, [clientId, rest]);

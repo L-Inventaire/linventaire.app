@@ -36,7 +36,7 @@ export const InputSignature = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [fullName, setFullName] = useState("");
   const [signatures, setSignatures] = useState<SignatureData[]>(
-    value.map((sig) => JSON.parse(sig))
+    value.map((sig) => JSON.parse(sig)),
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const signatureRef = useRef<SignatureRef>(null);
@@ -69,7 +69,7 @@ export const InputSignature = ({
       const response = await SignatureApiClient.saveSignature(
         clientId,
         signatureSvg,
-        fullName
+        fullName,
       );
 
       setSignatures([
@@ -78,7 +78,7 @@ export const InputSignature = ({
       ]);
       setIsModalOpen(false);
       setFullName("");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to save signature:", error);
       toast.error("Failed to save signature.");
     } finally {
@@ -110,7 +110,7 @@ export const InputSignature = ({
               <div className="w-48 h-24 rounded-md overflow-hidden bg-white">
                 <img
                   src={`data:image/svg+xml;utf8,${encodeURIComponent(
-                    signature.svg
+                    signature.svg,
                   )}`}
                   alt={`Signature ${index + 1}`}
                   className="w-full h-full object-contain"

@@ -108,7 +108,7 @@ export default class LoggerDb implements PlatformService {
           : log.more;
         return log;
       });
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
     }
 

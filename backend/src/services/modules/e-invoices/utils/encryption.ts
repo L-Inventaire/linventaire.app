@@ -48,7 +48,7 @@ export function decrypt(encryptedText: string): string {
     decrypted += decipher.final("utf8");
 
     return decrypted;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Decryption error:", error);
     return "";
   }

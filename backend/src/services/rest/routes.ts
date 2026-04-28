@@ -27,7 +27,7 @@ function chunkArray(arr: any[], size: number) {
 
 const checkClientRolesFromObject = (action: "READ" | "WRITE" | "MANAGE") =>
   checkClientRoles((req) => {
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
     const object = req.params.object;
     return Framework.TriggersManager.hasEntitiesRole(
       ctx,
@@ -57,7 +57,7 @@ export default (router: Router) => {
     checkRole("USER"),
     checkClientRolesFromObject("READ"),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       return res.json(await schema(ctx, req.params.object));
     }
   );
@@ -68,7 +68,7 @@ export default (router: Router) => {
     checkRole("USER"),
     checkClientRolesFromObject("READ"),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       return res.json(
         await suggestions(
           ctx,
@@ -86,7 +86,7 @@ export default (router: Router) => {
     checkRole("USER"),
     checkClientRolesFromObject("READ"),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       let id = req.params.id;
       if (req.params.id && req.params.id.includes("~")) {
         id = req.params.id.split("~")[0];
@@ -109,7 +109,7 @@ export default (router: Router) => {
     checkRole("USER"),
     checkClientRolesFromObject("READ"),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       return res.json(
         await search(
           ctx,
@@ -127,7 +127,7 @@ export default (router: Router) => {
     checkRole("USER"),
     checkClientRolesFromObject("READ"),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       return res.json(
         await getWithRevision(ctx, req.params.object, req.params.id, req.query)
       );
@@ -136,7 +136,7 @@ export default (router: Router) => {
 
   // Batch processing
   router.post("/:clientId/batch", checkRole("USER"), async (req, res) => {
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
 
     try {
       const requests = req.body; // Array of { url: string, body: object|null }
@@ -239,7 +239,7 @@ export default (router: Router) => {
     checkRole("USER"),
     checkClientRolesFromObject("WRITE"),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       let id = req.params.id;
       const body = req.body || {};
       if (req.params.id && req.params.id.includes("~")) {
@@ -264,7 +264,7 @@ export default (router: Router) => {
     checkRole("USER"),
     checkClientRolesFromObject("WRITE"),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       return res.json(await create(ctx, req.params.object, req.body));
     }
   );
@@ -275,7 +275,7 @@ export default (router: Router) => {
     checkRole("USER"),
     checkClientRolesFromObject("MANAGE"),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       let id = req.params.id;
       if (req.params.id && req.params.id.includes("~")) {
         // Restore from revision
@@ -314,7 +314,7 @@ export default (router: Router) => {
     checkRole("USER"),
     checkClientRolesFromObject("MANAGE"),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       return res.json(
         await remove(
           ctx,

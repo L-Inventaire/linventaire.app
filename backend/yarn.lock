@@ -5743,7 +5743,7 @@ __metadata:
     bcrypt: ^5.0.1
     big.js: ^6.2.1
     concurrently: ^7.6.0
-    config: ^3.3.7
+    config: ^4.4.1
     cors: ^2.8.5
     croner: ^6.0.2
     eslint: ^8.24.0
@@ -7028,12 +7028,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"config@npm:^3.3.7":
-  version: 3.3.12
-  resolution: "config@npm:3.3.12"
+"config@npm:^4.4.1":
+  version: 4.4.1
+  resolution: "config@npm:4.4.1"
   dependencies:
     json5: ^2.2.3
-  checksum: db1b7718ffb0a8dc99cac003f31f6af99562362b8b25f2c72104465983d471e683ea25866308886723179248113a584e6ec3f67811e25e3c2b070bee592dd94d
+  checksum: dd72b46a13e04d9b0eb0179a6a73dd57c18519ceb5d8041a5aa641a4ce26e40352affea33461a2bcce3b3a84f5f315648ecf5686db2b738f3276043f84d0a189
   languageName: node
   linkType: hard
 

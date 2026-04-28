@@ -12,7 +12,7 @@ import Env from "@/config/environment";
 export const SignedSessionPage = () => {
   const { session: sessionID } = useParams();
   const { signingSession, refetchSigningSession } = useSigningSession(
-    sessionID ?? ""
+    sessionID ?? "",
   );
   const [isLoading, setIsLoading] = useState(false);
   const [refreshTimestamp, setRefreshTimestamp] = useState(Date.now());
@@ -24,7 +24,7 @@ export const SignedSessionPage = () => {
         setIsLoading(true);
         await SigningSessionsApiClient.confirmSignSigningSession(sessionID);
         await refetchSigningSession();
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error confirming signing session:", error);
       } finally {
         setIsLoading(false);
@@ -44,7 +44,7 @@ export const SignedSessionPage = () => {
     signingSession?.state === "signed" && sessionID
       ? `${Env.server.replace(
           /\/$/,
-          ""
+          "",
         )}/api/signing-sessions/v1/${sessionID}/download?t=${refreshTimestamp}`
       : "";
 
@@ -71,8 +71,8 @@ export const SignedSessionPage = () => {
         {isLoading
           ? "Chargement..."
           : isMobile
-          ? "Rafraîchir le document"
-          : "Rafraîchir"}
+            ? "Rafraîchir le document"
+            : "Rafraîchir"}
       </Button>
     );
   };

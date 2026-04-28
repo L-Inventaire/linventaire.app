@@ -83,7 +83,7 @@ describe("recurring-generate-invoice", () => {
         "UTC",
         new Date("2024-01-01")
       );
-    } catch (e) {
+    } catch (e: any) {
       throwed = true;
     }
     expect(throwed).toBe(true);

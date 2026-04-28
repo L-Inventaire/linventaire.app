@@ -80,6 +80,8 @@ export const useEInvoicingConfig = () => {
         queryClient.invalidateQueries({
           queryKey: ["e-invoicing-config", client?.id],
         });
+      } else {
+        toast.error("Erreur lors de la synchronisation");
       }
     },
     onError: (error: any) => {

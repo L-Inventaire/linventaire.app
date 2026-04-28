@@ -77,7 +77,7 @@ export default class PushEMailSmtp
 
       await transporter.sendMail(mailOptions);
       this.logger.info(null, `SMTP email sent successfully via ${smtp.host}`);
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(null, `SMTP send failed via ${smtp.host}`, error);
       throw error;
     }

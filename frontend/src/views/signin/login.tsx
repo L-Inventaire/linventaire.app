@@ -72,7 +72,7 @@ export const Login = () => {
     const request = async (captchaValidation: string) => {
       const token = await AuthApiClient.requestEmailMFA(
         email,
-        captchaValidation
+        captchaValidation,
       );
       challenge.current = token.token;
       if (!token) {
@@ -102,14 +102,14 @@ export const Login = () => {
         const { methods } = await AuthApiClient.getAvailableMFAs(email);
         setMethods(methods.map((a) => a.method));
         setMode(
-          methods.find((a) => a.method === "password") ? "password" : "email"
+          methods.find((a) => a.method === "password") ? "password" : "email",
         );
       } else {
         let authSecret = null;
         if (mode === "email") {
           const res = await AuthApiClient.verifyEmailMFA(
             challenge.current,
-            code
+            code,
           );
           authSecret = res.validation_token;
         } else {
@@ -142,7 +142,7 @@ export const Login = () => {
           }
         }
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
       toast.error("An error occurred");
     }

@@ -54,19 +54,19 @@ const SubdivideStockModalContent = () => {
   const [modal, setModal] = useRecoilState(SubdivideStockModalAtom);
   const [quantity, setQuantity] = useState<number>(0);
   const [reference, setReference] = useState<string>(
-    modal.item?.serial_number || ""
+    modal.item?.serial_number || "",
   );
   const [status, setStatus] = useState<string>(modal.item?.state || "");
   const [articleId, setArticleId] = useState<string>(modal.item?.article || "");
   const [location, setLocation] = useState<string>(modal.item?.location || "");
   const [client, setClient] = useState<string>(modal.item?.client || "");
   const { article } = useArticle(
-    mode === "piece" ? articleId : modal?.item?.article || ""
+    mode === "piece" ? articleId : modal?.item?.article || "",
   );
 
   const { invoice: quote } = useInvoice(modal.item?.for_rel_quote || "");
   const { invoice: order } = useInvoice(
-    modal.item?.from_rel_supplier_quote || ""
+    modal.item?.from_rel_supplier_quote || "",
   );
 
   const [loading, setLoading] = useState(false);
@@ -261,7 +261,7 @@ const SubdivideStockModalContent = () => {
               } else {
                 throw new Error("Erreur lors de la subdivision du stock");
               }
-            } catch (e) {
+            } catch (e: any) {
               console.error(e);
               toast.error("Erreur lors de la subdivision du stock");
             } finally {

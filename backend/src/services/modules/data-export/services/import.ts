@@ -110,7 +110,7 @@ export const importData = async (
         await db.insert({ ...ctx, role: "SYSTEM" }, tableName, recordToInsert);
 
         result[tableName].imported++;
-      } catch (error) {
+      } catch (error: any) {
         result[tableName].errors.push(
           `Error importing record: ${error.message || error}`
         );

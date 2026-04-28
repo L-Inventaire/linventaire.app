@@ -120,7 +120,7 @@ export const generateThumbnails = async (
       ).output;
       await cleanFiles(videoSnapshots.map((a) => a.path));
       return images;
-    } catch (error) {
+    } catch (error: any) {
       throw Error("failed to generate video preview");
     }
   }

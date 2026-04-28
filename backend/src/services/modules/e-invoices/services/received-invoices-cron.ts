@@ -150,7 +150,7 @@ export const setupCronReceivedInvoices = async () => {
               console.log(
                 `Imported e-invoice ${invoice.id} for client ${ctx.client_id}`
               );
-            } catch (error) {
+            } catch (error: any) {
               console.error(
                 `Error processing invoice ${invoice.id} for client ${ctx.client_id}:`,
                 error
@@ -158,7 +158,7 @@ export const setupCronReceivedInvoices = async () => {
               captureException(error);
             }
           }
-        } catch (error) {
+        } catch (error: any) {
           console.error(
             `Error fetching received invoices for client ${ctx.client_id}:`,
             error

@@ -225,7 +225,7 @@ export const InvoiceSendModalContent = ({
 
               onClose();
               toast.success("Document envoyé");
-            } catch (e) {
+            } catch (e: any) {
               toast.error("Erreur lors de l'envoi du document");
               console.error(e);
             } finally {

@@ -69,7 +69,7 @@ export const FormInput = memo(
         [key: string]: any;
       };
       autoComplete?: string;
-    }
+    },
   ) => {
     const formContext = useContext(FormContextContext);
 
@@ -98,11 +98,11 @@ export const FormInput = memo(
               if (typeof props.options === "function") {
                 const res = await props.options(query);
                 const filteredOptions = _.uniqBy(res, "value").filter(
-                  (e) => e.label?.trim() && e.value?.trim()
+                  (e) => e.label?.trim() && e.value?.trim(),
                 );
                 setOptions(filteredOptions);
               }
-            } catch (e) {
+            } catch (e: any) {
               console.error(e);
             } finally {
               setOptionsLoading(false);
@@ -111,14 +111,14 @@ export const FormInput = memo(
           {
             timeout: 500,
             key: `filters-suggest-${fieldId.current}`,
-          }
+          },
         );
       }
     };
 
     useControlledEffect(
       () => suggest(typeof _value === "string" ? _value : ""),
-      []
+      [],
     );
 
     const onChange = (
@@ -131,7 +131,7 @@ export const FormInput = memo(
         | { label: string; value: string }[]
         | null,
       suggestionQuery?: string,
-      objects?: any
+      objects?: any,
     ) => {
       if (suggestionQuery && typeof props.options === "function") {
         suggest(suggestionQuery || (value as string));
@@ -150,14 +150,14 @@ export const FormInput = memo(
         <div
           className={twMerge(
             "flex flex-row w-full max-w-xl grow items-center",
-            props.className || ""
+            props.className || "",
           )}
         >
           <InputWithSuggestions
             autoFocus={props.autoFocus}
             inputClassName={twMerge(
               props.inputClassName,
-              props.type === "scan" ? "to-focus" : ""
+              props.type === "scan" ? "to-focus" : "",
             )}
             options={options}
             loading={optionsLoading}
@@ -213,7 +213,7 @@ export const FormInput = memo(
                 autoSelectAll={props.autoSelectAll}
                 inputClassName={twMerge(
                   props.inputClassName,
-                  props.type === "scan" && "to-focus"
+                  props.type === "scan" && "to-focus",
                 )}
                 style={{ minWidth: 128 }}
                 options={options}
@@ -353,9 +353,9 @@ export const FormInput = memo(
                         props.max ?? Number.POSITIVE_INFINITY,
                         Math.max(
                           props.min ?? Number.NEGATIVE_INFINITY,
-                          parseFloat(e.target.value)
-                        )
-                      )
+                          parseFloat(e.target.value),
+                        ),
+                      ),
                     );
                   }
                 }}
@@ -496,5 +496,5 @@ export const FormInput = memo(
         }
       />
     );
-  }
+  },
 );

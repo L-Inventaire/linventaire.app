@@ -38,10 +38,10 @@ export const ImportExportPage = () => {
     setLoading(true);
     try {
       const availableTables = await dataExportApiClient.getAvailableTables(
-        client.id
+        client.id,
       );
       setTables(availableTables);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to load tables:", error);
     } finally {
       setLoading(false);
@@ -73,7 +73,7 @@ export const ImportExportPage = () => {
     try {
       const data = await dataExportApiClient.exportData(
         client.id,
-        Array.from(selectedTables)
+        Array.from(selectedTables),
       );
 
       // Create JSON file and download
@@ -87,7 +87,7 @@ export const ImportExportPage = () => {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Export failed:", error);
       alert("L'export a échoué. Veuillez réessayer.");
     } finally {
@@ -100,7 +100,7 @@ export const ImportExportPage = () => {
   };
 
   const handleFileSelect = async (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
     if (!file || !client?.id) return;
@@ -119,12 +119,12 @@ export const ImportExportPage = () => {
 
       const result = await dataExportApiClient.importData(client.id, data);
       setImportResult(result);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Import failed:", error);
       alert(
         `L'import a échoué: ${
           error instanceof Error ? error.message : "Erreur inconnue"
-        }`
+        }`,
       );
     } finally {
       setImporting(false);
@@ -143,7 +143,7 @@ export const ImportExportPage = () => {
         skipped: acc.skipped + table.skipped,
         errors: acc.errors + table.errors.length,
       }),
-      { imported: 0, skipped: 0, errors: 0 }
+      { imported: 0, skipped: 0, errors: 0 },
     );
   };
 

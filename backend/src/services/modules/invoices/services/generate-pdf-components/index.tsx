@@ -63,7 +63,7 @@ Font.register({
 const PDFErrorBoundary = (props: any) => {
   try {
     return props.children;
-  } catch (e) {
+  } catch (e: any) {
     console.error("⚠️ PDF rendering error", e);
     return (
       <Document>
@@ -193,7 +193,7 @@ export const getPdf = async (
       if (document.content[parseInt(i)]) {
         document.content[parseInt(i)].optional_checked = value;
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
       captureException(e);
     }
@@ -475,7 +475,7 @@ export const getPdf = async (
       name: document.reference + ".pdf",
       pdf,
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error generating PDF:", error);
     captureException(error);
     throw new Error("Failed to generate PDF");

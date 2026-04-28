@@ -77,7 +77,7 @@ export default class Services {
     });
 
     Services.internalApp.use(async (req, res, next) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       if (!ctx) {
         throw new Error("Context not found");
       }
@@ -143,10 +143,12 @@ export default class Services {
 
     Sentry.setupExpressErrorHandler(Services.internalApp);
 
-    //Return json on 500
-    Services.internalApp.use((err: any, req: any, res: any) => {
-      const ctx = Ctx.get(req)?.context || ({} as any);
+    // Return json on 500
+    // Note: 4 params are needed for Express to recognize this as an error handler
+    Services.internalApp.use((err: any, req: any, res: any, _next: any) => {
+      const ctx = Ctx.get(req)!.context || ({} as any);
       console.error(err);
+      console.log(`Error in request ${ctx.req_id}:`, err);
       Framework.LoggerDb.get("api-gateway").error(ctx, err);
       res.status(err.status || 500).json({
         error: "Internal server error",

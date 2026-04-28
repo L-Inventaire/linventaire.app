@@ -224,7 +224,7 @@ export const convertHtml = (html: string, style: any = {}) => {
     }
     const filtered = result.filter(Boolean);
     return filtered.length > 0 ? filtered : null;
-  } catch (e) {
+  } catch (e: any) {
     console.error("Failed to parse HTML:", e, "HTML:", html.substring(0, 200));
     // Fallback to plain text
     const plainText = convertHtmlText(html);
@@ -269,7 +269,7 @@ export const displayDate = (
     const day = parseInt(parts.find((part) => part.type === "day").value);
 
     return formatDate(language, year + "", month + 1 + "", day + "");
-  } catch (e) {
+  } catch (e: any) {
     return null;
   }
 };

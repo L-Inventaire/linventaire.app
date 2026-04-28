@@ -8,7 +8,7 @@ export const withSearchAsModelObj = <T>(
   schema: SchemaType,
   model?: Partial<T>,
   filters?: RestSearchQuery[],
-  opt?: { keepArraysFirst?: boolean }
+  opt?: { keepArraysFirst?: boolean },
 ) => {
   if (schema) {
     const _model = {};
@@ -25,7 +25,7 @@ export const withSearchAsModelObj = <T>(
 
         // Only keep equals filters
         const eqValues = filter.values.filter(
-          (v) => v.op === "equals" || v.op === "regex"
+          (v) => v.op === "equals" || v.op === "regex",
         );
         if (!eqValues.length) return;
         let value = isArray ? eqValues.map((a) => a.value) : eqValues[0].value;
@@ -57,7 +57,7 @@ export const withSearchAsModel = <T>(
   route: string,
   schema?: SchemaType,
   model?: Partial<T>,
-  search?: string
+  search?: string,
 ) => {
   const parts = route.split("?");
 
@@ -66,7 +66,9 @@ export const withSearchAsModel = <T>(
     const filters = generateQuery(
       schemaToSearchFields(schema),
       extractFilters(currentFilters),
-      JSON.parse(new URLSearchParams(window.location.search).get("map") || "{}")
+      JSON.parse(
+        new URLSearchParams(window.location.search).get("map") || "{}",
+      ),
     );
     model = withSearchAsModelObj(schema, model, filters.fields);
   }
@@ -98,13 +100,13 @@ export const getUrlModel = <T>() => {
   if (!val) return {} as T;
   try {
     return JSON.parse(val || "{}") as T;
-  } catch (e) {
+  } catch (e: any) {
     console.error(e);
     try {
       // If we have a cache model, we can use it
       const tmp = JSON.parse(localStorage.getItem("url_model") || "{}") as T;
       if ((tmp as any)?._cache_model_id === mid) return tmp;
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
     }
   }

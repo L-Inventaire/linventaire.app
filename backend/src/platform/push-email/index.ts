@@ -70,7 +70,7 @@ export default class PushEMail implements PlatformService {
         post_receipt: options.post_receipt,
         footer: platform.I18n.t(context, "emails.all.footer"),
       });
-    } catch (e) {
+    } catch (e: any) {
       platform.LoggerDb.get("push-email").error(context, e);
       captureException(e);
       return;
@@ -122,7 +122,7 @@ export default class PushEMail implements PlatformService {
           this.logger.info(context, "Using custom SMTP configuration");
           await this.smtpService.push(body, smtp);
           this.logger.info(context, "Email sent successfully via SMTP");
-        } catch (e) {
+        } catch (e: any) {
           captureException(e);
           this.logger.error(context, "SMTP send failed", e);
           this.logger.info(context, "Falling back to default adapter");

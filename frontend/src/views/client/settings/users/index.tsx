@@ -46,10 +46,10 @@ export const CompanyUsersPage = () => {
   useEffect(() => {
     if (updatingUsers.length) {
       const selectedUsers = updatingUsers.map((id) =>
-        users.find((u) => u.user_id === id)
+        users.find((u) => u.user_id === id),
       );
       const roles = _.uniq(
-        _.flatMap(selectedUsers.map((u: any) => u.roles.list))
+        _.flatMap(selectedUsers.map((u: any) => u.roles.list)),
       );
       setUpdatingRoles(roles);
     }
@@ -143,13 +143,13 @@ export const CompanyUsersPage = () => {
                       await inviteUsers(
                         client!.client_id,
                         invitedEmails,
-                        inviteesRoles as Role[]
+                        inviteesRoles as Role[],
                       );
                       setInvitees("");
                       setInviteesRoles([]);
                       refresh();
                       toast.success("Invitations envoyées");
-                    } catch (e) {
+                    } catch (e: any) {
                       console.error(e);
                       toast.error("Erreur lors de l'envoi des invitations");
                     }
@@ -197,7 +197,7 @@ export const CompanyUsersPage = () => {
                 users.filter((u) => !(u.user as any).id) as (ClientsUsers & {
                   user: { email: string };
                 })[],
-                (a) => a.user.email
+                (a) => a.user.email,
               )}
               columns={[
                 {
@@ -242,7 +242,7 @@ export const CompanyUsersPage = () => {
             users.filter((u) => (u.user as any).id) as (ClientsUsers & {
               user: PublicCustomer;
             })[],
-            (a) => a.user.full_name + a.user.email
+            (a) => a.user.full_name + a.user.email,
           )}
           rowIndex="user_id"
           onSelect={
@@ -339,15 +339,18 @@ const roleSumary = (roles: Role[]) => {
     return true;
   });
 
-  const rolesByType = roles.reduce((acc, role) => {
-    const value = role.match(/^(.*)_([A-Z]+)$/)?.[1];
-    const type = role.match(/^(.*)_([A-Z]+)$/)?.[2] as any;
-    if (!acc[type]) {
-      acc[type] = [];
-    }
-    acc[type].push(RolesNames[value as any] || value);
-    return acc;
-  }, {} as Record<string, string[]>);
+  const rolesByType = roles.reduce(
+    (acc, role) => {
+      const value = role.match(/^(.*)_([A-Z]+)$/)?.[1];
+      const type = role.match(/^(.*)_([A-Z]+)$/)?.[2] as any;
+      if (!acc[type]) {
+        acc[type] = [];
+      }
+      acc[type].push(RolesNames[value as any] || value);
+      return acc;
+    },
+    {} as Record<string, string[]>,
+  );
 
   return (
     <>
@@ -358,7 +361,7 @@ const roleSumary = (roles: Role[]) => {
             <div key={level}>
               <b>{RolesNames[level]}</b>: {rolesByType[level].join(", ")}
             </div>
-          )
+          ),
       )}
     </>
   );

@@ -12,7 +12,7 @@ export const dropSearchableTsVectorColumn = async (ctx: Context) => {
           "ALTER TABLE " + def.name + " DROP COLUMN searchable_tsvector",
           []
         );
-      } catch (e) {
+      } catch (e: any) {
         console.log(
           `Error dropping column searchable_tsvector in table ${def.name}`
         );
@@ -23,7 +23,7 @@ export const dropSearchableTsVectorColumn = async (ctx: Context) => {
           "ALTER TABLE " + def.name + " DROP COLUMN searchable_tsvector_v2",
           []
         );
-      } catch (e) {
+      } catch (e: any) {
         console.log(
           `Error dropping column searchable_tsvector in table ${def.name}`
         );

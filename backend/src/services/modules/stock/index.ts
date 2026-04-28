@@ -19,7 +19,7 @@ export default class Stocks implements InternalApplicationService {
     const router = Router();
 
     router.post("/:clientId/batch", checkRole("USER"), async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       const stockItems = req.body as (StockItems & {
         _allow_duplicate_serial_number?: boolean;
       })[];

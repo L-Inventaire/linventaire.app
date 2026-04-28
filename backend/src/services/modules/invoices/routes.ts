@@ -23,7 +23,7 @@ export const registerRoutes = (router: Router) => {
   // Get document PDF ex. /api/invoices/v1/1/invoice/2/pdf?checked={%222%22:1}
   // As you can see in the example, we can override checked items in the invoice
   router.get("/:clientId/invoice/:id/pdf", async (req, res) => {
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
     const db = await Framework.Db.getService();
     const document = await db.selectOne<Invoices>(
       ctx,
@@ -50,7 +50,7 @@ export const registerRoutes = (router: Router) => {
       if (req.query.download)
         res.setHeader("Content-Disposition", `attachment; filename="${name}"`);
       res.send(pdf);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error generating PDF:", error);
       res.status(500).json({ error: "Failed to generate PDF" });
     }
@@ -60,7 +60,7 @@ export const registerRoutes = (router: Router) => {
     "/:clientId/invoice/:id/send",
     checkRole("USER"),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       const db = await Framework.Db.getService();
       const document = await db.selectOne<Invoices>(
         ctx,
@@ -87,7 +87,7 @@ export const registerRoutes = (router: Router) => {
     "/:clientId/invoice/:id/partial",
     checkRole("USER"),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       const db = await Framework.Db.getService();
 
       const quote = await db.selectOne<Invoices>(ctx, InvoicesDefinition.name, {
@@ -123,7 +123,7 @@ export const registerRoutes = (router: Router) => {
     "/:clientId/furnish-invoices",
     checkRole("USER"),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       const db = await Framework.Db.getService();
       const quotesIDs = ((req.query.quotes as string) ?? "").split(",");
 
@@ -147,7 +147,7 @@ export const registerRoutes = (router: Router) => {
     "/:clientId/action-furnish-invoices",
     checkRole("USER"),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       const db = await Framework.Db.getService();
       const quotesIDs = ((req.query.quotes as string) ?? "").split(",");
 

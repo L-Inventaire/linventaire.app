@@ -50,7 +50,7 @@ export const setOnPurchaseOrderTrigger = () =>
             if (history.list.some((a) => a.state === "purchase_order")) {
               throw new Error("Already sent purchase order email");
             }
-          } catch (e) {
+          } catch (e: any) {
             // We won't send it
             console.log(e);
             return;

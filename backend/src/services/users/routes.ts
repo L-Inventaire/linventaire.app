@@ -16,12 +16,12 @@ export default (router: Router) => {
   });
 
   router.post("/users", checkRole("NOTHING"), async (req, res) => {
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
     res.json(await signup(ctx, req.body));
   });
 
   router.get("/users", checkRole("USER"), async (req, res) => {
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
     res.json(
       await getPublicUser(
         ctx,
@@ -33,17 +33,17 @@ export default (router: Router) => {
   });
 
   router.post("/users", checkRole("NOTHING"), async (req, res) => {
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
     res.json(await signup(ctx, req.body));
   });
 
   router.get("/users/mfa", checkRole("USER"), async (req, res) => {
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
     res.json(await getMfas(ctx));
   });
 
   router.post("/users/mfa", checkRole("USER"), checkMfa(), async (req, res) => {
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
     res.json(await upsertMfa(ctx, req.body));
   });
 
@@ -52,18 +52,18 @@ export default (router: Router) => {
     checkRole("USER"),
     checkMfa(),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       res.json(await deleteMfa(ctx, req.params.id));
     }
   );
 
   router.get("/users/me", checkRole("USER"), async (req, res) => {
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
     res.json(await getSelf(ctx));
   });
 
   router.get("/users/:id/avatar", checkRole("NOTHING"), async (req, res) => {
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
     const img = await getAvatar(ctx, req.params.id);
     res.writeHead(200, {
       "Content-Type": "image/png",
@@ -73,7 +73,7 @@ export default (router: Router) => {
   });
 
   router.post("/users/preferences", checkRole("USER"), async (req, res) => {
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
     res.json(await updatePreferences(ctx, req.body));
   });
 };

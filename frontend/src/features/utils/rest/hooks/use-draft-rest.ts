@@ -20,7 +20,7 @@ const RestDraftAtom = atomFamily<any, [string, string | "new", string]>({
         if (key[1] === "new") {
           localStorage.setItem(
             "drafts_" + key.join("_"),
-            JSON.stringify(newVal)
+            JSON.stringify(newVal),
           );
         }
       });
@@ -31,7 +31,7 @@ const RestDraftAtom = atomFamily<any, [string, string | "new", string]>({
 export const useReadDraftRest = <T extends { id: string }>(
   table: string,
   id: string,
-  readonly = false
+  readonly = false,
 ) => {
   return useDraftRest<T>(table, id, async () => {}, undefined, readonly);
 };
@@ -43,7 +43,7 @@ export const useDraftRest = <T extends { id: string }>(
   id: string | "new",
   onSaved: (item: T) => Promise<void>,
   defaultValue?: Partial<T>,
-  readonly = false
+  readonly = false,
 ) => {
   const isNew = !id || id === "new";
   const { items, upsert, remove, restore, isPendingModification, refresh } =
@@ -57,7 +57,7 @@ export const useDraftRest = <T extends { id: string }>(
   const { lockNavigation, ctrl, setLockNavigation } = useFormController(
     draft,
     setDraft,
-    table + "_" + id
+    table + "_" + id,
   );
   useNavigationPrompt(!readonly && lockNavigation);
 
@@ -87,14 +87,14 @@ export const useDraftRest = <T extends { id: string }>(
         await onSaved(newItem);
         refresh();
         return newItem;
-      } catch (e) {
+      } catch (e: any) {
         setLockNavigation(true);
         console.error(e);
         toast.error("An error occurred while saving the item");
       }
       return null;
     },
-    [draft, upsert.mutateAsync, onSaved]
+    [draft, upsert.mutateAsync, onSaved],
   );
 
   return {

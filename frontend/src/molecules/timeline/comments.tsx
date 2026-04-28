@@ -67,7 +67,7 @@ export const CommentCard = ({
           <Tooltip
             content={format(
               new Date(parseInt(comment.created_at || "0") || 0),
-              "PPpp"
+              "PPpp",
             )}
           >
             <span>
@@ -160,7 +160,7 @@ export const CommentCreate = ({
                 refresh();
                 setComment("");
                 setAttachments([]);
-              } catch (e) {
+              } catch (e: any) {
                 console.error(e);
                 toast.error("Impossible d'envoyer le commentaire.");
               } finally {

@@ -142,7 +142,7 @@ export const InvoicesSettingsPage = () => {
                           ...invoices,
                         },
                       });
-                    } catch (error) {
+                    } catch (error: any) {
                       console.error(error);
                     }
                   }}

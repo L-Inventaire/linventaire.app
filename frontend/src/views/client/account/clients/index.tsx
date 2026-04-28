@@ -123,13 +123,13 @@ export const AccountClientsPage = () => {
                         try {
                           await ClientsApiClient.removeUser(
                             c.client_id,
-                            user?.id || ""
+                            user?.id || "",
                           );
                           document.location.reload();
-                        } catch (e) {
+                        } catch (e: any) {
                           console.error(e);
                           toast.error(
-                            "Vous ne pouvez pas quitter cette entreprise."
+                            "Vous ne pouvez pas quitter cette entreprise.",
                           );
                         }
                       }}

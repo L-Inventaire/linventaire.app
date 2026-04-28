@@ -93,7 +93,7 @@ export default class Clients implements InternalApplicationService {
           // Save the migration as run
           await db.insert(ctx, MigrationsDefinition.name, { id: k });
           this.logger.info(ctx, `[migration] Migration ${k} done`);
-        } catch (e) {
+        } catch (e: any) {
           captureException(e);
           this.logger.error(ctx, `[migration] Migration ${k} failed: ${e}`);
         }

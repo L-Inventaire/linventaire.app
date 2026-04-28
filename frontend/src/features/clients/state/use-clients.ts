@@ -43,7 +43,7 @@ export const useClients = () => {
   const inviteUsers = async (
     id: string,
     emails: string[],
-    roles: Role[] = []
+    roles: Role[] = [],
   ) => {
     setLoading(true);
     for (const email of emails) {
@@ -78,7 +78,7 @@ export const useClients = () => {
       await ClientsApiClient.update(clientId, client);
       await refresh();
       toast.success("Your company has been updated.");
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
       toast.error("We couldn't update your company. Please try again.");
     }
@@ -89,12 +89,12 @@ export const useClients = () => {
     async () => {
       try {
         if (user) await refresh();
-      } catch (e) {
+      } catch (e: any) {
         console.error(e);
         toast.error("We couldn't get your clients. Please reload the page.");
       }
     },
-    [!!user]
+    [!!user],
   );
 
   return {
@@ -112,7 +112,7 @@ export const useClients = () => {
 export const useClientInvitations = () => {
   const [invitations, setInvitations] = useRecoilState(ClientInvitationsState);
   const [loading, setLoading] = useRecoilState(
-    LoadingState("useClientInvitations")
+    LoadingState("useClientInvitations"),
   );
 
   const refresh = async () => {
@@ -133,12 +133,12 @@ export const useClientInvitations = () => {
     async () => {
       try {
         await refresh();
-      } catch (e) {
+      } catch (e: any) {
         console.error(e);
         toast.error("We couldn't get your invitations.");
       }
     },
-    []
+    [],
   );
 
   return { loading, invitations, accept, refresh };

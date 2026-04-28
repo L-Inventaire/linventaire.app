@@ -21,7 +21,7 @@ export default class Fields implements InternalApplicationService {
       checkRole("USER"),
       async (req, res) => {
         try {
-          const ctx = Ctx.get(req)?.context;
+          const ctx = Ctx.get(req)!.context;
           const userId = ctx?.id;
           const { clientId } = req.params;
           const signSecret = config.get("signatures.secret");
@@ -54,7 +54,7 @@ export default class Fields implements InternalApplicationService {
             date: timestamp.toISOString(),
             server_signature,
           });
-        } catch (error) {
+        } catch (error: any) {
           console.error("Failed to create signature:", error);
           return res.status(500).json({ error: "Failed to create signature" });
         }
@@ -102,7 +102,7 @@ export default class Fields implements InternalApplicationService {
               .status(400)
               .json({ error: "Invalid signature", valid: false });
           }
-        } catch (error) {
+        } catch (error: any) {
           console.error("Failed to verify signature:", error);
           return res.status(500).json({ error: "Failed to verify signature" });
         }

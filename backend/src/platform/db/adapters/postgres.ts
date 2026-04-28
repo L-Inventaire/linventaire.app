@@ -65,7 +65,7 @@ export default class DbPostgres implements DbAdapterInterface {
     this.client = await this.pool.connect();
     try {
       await this.query(null, this.client, `CREATE DATABASE ${this.database}`);
-    } catch (e) {
+    } catch (e: any) {
       this.logger.info(null, `Database ${this.database} already exists`);
     }
     this.client.release();
@@ -157,7 +157,7 @@ export default class DbPostgres implements DbAdapterInterface {
           this.client,
           `ALTER TABLE ${name} ADD COLUMN ${col.name} ${col.type}`
         );
-      } catch (error) {
+      } catch (error: any) {
         console.log(error.message);
         if (error.message.includes("column")) {
           // If the column exists, try updating its type (this may fail if there are incompatible data types)
@@ -223,7 +223,7 @@ export default class DbPostgres implements DbAdapterInterface {
             this.client,
             `ALTER TABLE ${name}_history ADD COLUMN ${col.name} ${col.type}`
           );
-        } catch (error) {
+        } catch (error: any) {
           if (error.message.includes("column")) {
             // If the column exists in the history table, try updating its type
             try {
@@ -588,7 +588,7 @@ export default class DbPostgres implements DbAdapterInterface {
       const res = await executor({ ...ctx, db_tnx: tnx });
       await tnx.client.query("COMMIT");
       return res;
-    } catch (e) {
+    } catch (e: any) {
       await tnx.client.query("ROLLBACK");
       this.logger.info(ctx, "ROLLBACK transaction " + e.message);
       throw e;

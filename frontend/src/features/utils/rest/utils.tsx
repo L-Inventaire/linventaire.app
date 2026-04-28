@@ -9,7 +9,7 @@ export const setDefaultRestActions = (
   actions: CtrlkAction[],
   table: string,
   rows: RestEntity[],
-  queryClient: QueryClient
+  queryClient: QueryClient,
 ) => {
   if (rows.every((a) => a && !a.is_deleted)) {
     actions.push({
@@ -20,7 +20,7 @@ export const setDefaultRestActions = (
         for (const row of rows) {
           try {
             await rest.delete(row.client_id, row.id);
-          } catch (e) {
+          } catch (e: any) {
             console.error(e);
             toast.error("Erreur lors de la mise à jour de la facture");
           }
@@ -39,7 +39,7 @@ export const setDefaultRestActions = (
         for (const row of rows) {
           try {
             await rest.restore(row.client_id, row.id);
-          } catch (e) {
+          } catch (e: any) {
             console.error(e);
             toast.error("Erreur lors de la mise à jour de la facture");
           }

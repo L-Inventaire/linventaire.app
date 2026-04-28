@@ -357,7 +357,7 @@ export default class InternalAdapter implements DocumentSignerInterface {
           subject,
         }
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to send verification email:", error);
       throw new Error("Failed to send verification code");
     }

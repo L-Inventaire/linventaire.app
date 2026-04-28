@@ -28,7 +28,7 @@ export const SigningSessionPage = () => {
   const { t: _t } = useTranslation(); // Unused but keeping for future localization
 
   const [options, setOptions] = useState<(InvoiceLine & { _index: number })[]>(
-    []
+    [],
   );
   const [cancelling, setCancelling] = useState(false);
   const [cancelReason, setCancelReason] = useState<string>("");
@@ -48,7 +48,7 @@ export const SigningSessionPage = () => {
       invoiceSnapshot?.content
         ?.map((line, i) => ({ ...line, _index: i }))
         ?.filter((line) => line.optional)
-        .map((line) => ({ ...line })) ?? []
+        .map((line) => ({ ...line })) ?? [],
     );
   }, [invoiceSnapshot]);
 
@@ -64,7 +64,7 @@ export const SigningSessionPage = () => {
         return;
       }
       window.location.href = signedSession.signing_url;
-    } catch (error) {
+    } catch (error: any) {
       toast.error("An error occurred while processing your request");
       console.error("Signing error:", error);
     } finally {
@@ -86,7 +86,7 @@ export const SigningSessionPage = () => {
           client_id: invoiceSnapshot?.client_id ?? "",
           id: invoiceSnapshot.id ?? "",
         },
-        { checked: options }
+        { checked: options },
       )
     : "";
 
@@ -96,7 +96,7 @@ export const SigningSessionPage = () => {
     signingSession?.state === "signed" && sessionID
       ? `${Env.server.replace(
           /\/$/,
-          ""
+          "",
         )}/api/signing-sessions/v1/${sessionID}/download?t=${
           signingSession.state
         }`
@@ -106,8 +106,8 @@ export const SigningSessionPage = () => {
   const handleOptionChange = (optionId: string, value: boolean) => {
     setOptions((options) =>
       options.map((o) =>
-        o._id === optionId ? { ...o, optional_checked: value } : o
-      )
+        o._id === optionId ? { ...o, optional_checked: value } : o,
+      ),
     );
   };
 
@@ -124,7 +124,7 @@ export const SigningSessionPage = () => {
               navigate(
                 getRoute(ROUTES.SignedDocumentView, {
                   session: sessionID,
-                })
+                }),
               );
             }}
           >
@@ -193,7 +193,7 @@ export const SigningSessionPage = () => {
                         await cancelSigningSession(cancelReason);
                         await refetchSigningSession();
                         toast.success("La signature a été refusée avec succès");
-                      } catch (error) {
+                      } catch (error: any) {
                         toast.error("Une erreur est survenue");
                         console.error("Cancel error:", error);
                       } finally {

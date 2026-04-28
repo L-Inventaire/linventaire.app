@@ -231,7 +231,7 @@ export const CompanyPage = () => {
                 try {
                   await remove(user?.id || "");
                   document.location.reload();
-                } catch (e) {
+                } catch (e: any) {
                   console.error(e);
                   toast.error("Vous ne pouvez pas supprimer cette entreprise.");
                 }

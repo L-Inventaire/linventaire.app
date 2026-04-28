@@ -10,7 +10,7 @@ export default (router: Router) => {
   });
 
   router.get("/collect", async (req, res) => {
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
     const email = req.query.email as string;
     const external_id = req.query.external_id as string;
 

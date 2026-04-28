@@ -16,7 +16,7 @@ export const getTvaValue = (tva: string): number => {
 
 export const getInvoiceStatusPrettyName = (
   status: InvoicesState,
-  type: InvoicesType
+  type: InvoicesType,
 ) => {
   const prefix = "invoices.states";
   return i18next.t([
@@ -27,7 +27,7 @@ export const getInvoiceStatusPrettyName = (
 
 export const getInvoicesStatusColor = (
   state: InvoicesState,
-  type: InvoicesType
+  type: InvoicesType,
 ) => {
   const colors = {
     draft: "gray",
@@ -49,7 +49,7 @@ export const getInvoicesStatusColor = (
 };
 
 export const computePricesFromInvoice = (
-  invoice: Pick<Invoices, "content" | "discount">
+  invoice: Pick<Invoices, "content" | "discount">,
 ): Invoices["total"] => {
   let initial = 0;
   let discount = 0;
@@ -93,16 +93,16 @@ export const computeDeliveryDelayDate = (invoice: Invoices): DateTime => {
   const delayType = invoice?.delivery_date
     ? "delivery_date"
     : invoice?.delivery_delay
-    ? "delivery_delay"
-    : "no_delivery";
+      ? "delivery_delay"
+      : "no_delivery";
 
   let date = DateTime.fromMillis(
-    new Date(invoice.wait_for_completion_since ?? Date.now()).getTime()
+    new Date(invoice.wait_for_completion_since ?? Date.now()).getTime(),
   );
 
   if (delayType === "delivery_date") {
     date = DateTime.fromMillis(
-      new Date(invoice.delivery_date ?? Date.now()).getTime()
+      new Date(invoice.delivery_date ?? Date.now()).getTime(),
     );
   }
   if (delayType === "delivery_delay") {
@@ -110,7 +110,7 @@ export const computeDeliveryDelayDate = (invoice: Invoices): DateTime => {
     try {
       delay = parseInt(invoice.delivery_delay as any);
       if (isNaN(delay)) delay = 30;
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
       delay = 30;
     }
@@ -132,15 +132,15 @@ export const computePaymentDelayDate = (invoice: Invoices): DateTime => {
     new Date(
       (invoice.type === "quotes"
         ? invoice.wait_for_completion_since
-        : invoice.emit_date) || Date.now()
-    ).getTime()
+        : invoice.emit_date) || Date.now(),
+    ).getTime(),
   );
 
   let delay = 30;
   try {
     delay = parseInt(payment.delay as any);
     if (isNaN(delay)) delay = 30;
-  } catch (e) {
+  } catch (e: any) {
     console.error(e);
     delay = 30;
   }
@@ -158,7 +158,7 @@ export const computePaymentDelayDate = (invoice: Invoices): DateTime => {
   }
   if (delayType === "date") {
     date = DateTime.fromMillis(
-      new Date(payment.delay_date || Date.now()).getTime()
+      new Date(payment.delay_date || Date.now()).getTime(),
     );
   }
 
@@ -171,6 +171,6 @@ export const isPaymentLate = (invoice: Invoices): boolean => {
 
 export const isComplete = (invoice: Invoices): boolean => {
   return !invoice.content?.some(
-    (item) => (item.quantity_delivered || 0) > (item.quantity || 0)
+    (item) => (item.quantity_delivered || 0) > (item.quantity || 0),
   );
 };

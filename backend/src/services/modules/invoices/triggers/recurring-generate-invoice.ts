@@ -45,7 +45,7 @@ export const generateInvoicesForRecurringQuotes = async (ctx: Context) => {
     for (const doc of docs) {
       try {
         await generateInvoicesForRecurringQuote(ctx, doc);
-      } catch (e) {
+      } catch (e: any) {
         console.error("Error while generating invoice for quote", e);
         captureException(e);
       }

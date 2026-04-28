@@ -41,7 +41,7 @@ export default class Files implements InternalApplicationService {
       checkClientRoles(["FILES_WRITE"]),
       multerUpload.single("file") as any,
       async (req, res) => {
-        const ctx = Ctx.get(req)?.context;
+        const ctx = Ctx.get(req)!.context;
         const entity = JSON.parse(req.body.entity) as FilesType;
         const content = req.file.buffer;
         res.send(await upload(ctx, entity, content));
@@ -50,7 +50,7 @@ export default class Files implements InternalApplicationService {
 
     // /download?key=&mime=&name=client_id=
     router.get("/:clientId/download/:key", async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       const file = req.query as unknown as FilesType;
       res.setHeader("Content-Type", file.mime);
       if (req.query?.preview) {
@@ -75,7 +75,7 @@ export default class Files implements InternalApplicationService {
 
     // /thumbnail?key=client_id=
     router.get("/:clientId/thumbnails/:key", async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       res.setHeader("Content-Type", "image/png");
       res.setHeader("Content-Disposition", `inline`);
       const thb = await thumbnail(ctx, {

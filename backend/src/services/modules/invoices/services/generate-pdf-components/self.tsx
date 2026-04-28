@@ -28,7 +28,7 @@ export const InvoiceSelf = ({
   let payBefore = null;
   try {
     payBefore = computePaymentDelayDate(document).toJSDate();
-  } catch (e) {
+  } catch (e: any) {
     console.log(e);
     captureException(e);
   }

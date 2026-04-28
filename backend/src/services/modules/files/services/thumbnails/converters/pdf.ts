@@ -32,7 +32,7 @@ export async function convertFromPdf(
       }
       //Just no more page to convert
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
     for (const file of pages) {
       cleanFiles([file]);

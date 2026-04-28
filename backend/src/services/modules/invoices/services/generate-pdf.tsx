@@ -158,7 +158,7 @@ export const generatePdf = async (
         }
         resolve([signatures[0], ...options]);
       });
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
       reject(e);
     }
@@ -205,7 +205,7 @@ export const generatePdf = async (
       } else {
         // Says that the attachment is not supported
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to add attachment to the document");
     }
   }

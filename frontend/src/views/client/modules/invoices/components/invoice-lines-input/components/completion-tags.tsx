@@ -34,17 +34,17 @@ export const CompletionTags = (props: {
     props.lines,
     "delivered",
     props.overflow,
-    true
+    true,
   );
   const readyCompletion = renderStockCompletion(
     props.lines,
     "ready",
-    props.overflow
+    props.overflow,
   );
   const deliveredCompletion = renderStockCompletion(
     props.lines,
     "delivered",
-    props.overflow
+    props.overflow,
   );
 
   const openCtrlK = useSetRecoilState(CtrlKAtom);
@@ -83,7 +83,7 @@ export const CompletionTags = (props: {
 
   const hasServices = props?.lines?.some((a) => a.type === "service");
   const hasStock = props?.lines?.some(
-    (a) => a.type === "product" || a.type === "consumable"
+    (a) => a.type === "product" || a.type === "consumable",
   );
 
   const options: DropDownMenuType = [
@@ -106,7 +106,7 @@ export const CompletionTags = (props: {
           "stock_items",
           props.invoice?.type === "supplier_quotes"
             ? ""
-            : 'state:"delivered","depleted"'
+            : 'state:"delivered","depleted"',
         );
       },
     },
@@ -154,7 +154,7 @@ export const CompletionTags = (props: {
                     .map((a) => a.article)
                     .filter(Boolean),
                 }),
-                { limit: 1000 }
+                { limit: 1000 },
               );
               for (const stockItem of stockItems.list) {
                 await getRestApiClient("stock_items").update(
@@ -162,10 +162,10 @@ export const CompletionTags = (props: {
                   {
                     state: "delivered",
                   },
-                  stockItem.id
+                  stockItem.id,
                 );
               }
-            } catch (error) {
+            } catch (error: any) {
               console.error("Error marking stock as delivered:", error);
               throw error;
             }
@@ -174,7 +174,7 @@ export const CompletionTags = (props: {
             loading: "Modification en cours...",
             success: "Stock marqué comme livré",
             error: "Erreur lors du marquage du stock",
-          }
+          },
         );
       },
     },
@@ -194,7 +194,7 @@ export const CompletionTags = (props: {
                   [line],
                   "delivered",
                   props.overflow,
-                  true
+                  true,
                 );
                 const quantity = completed[2];
                 if (quantity > 0) {
@@ -220,7 +220,7 @@ export const CompletionTags = (props: {
 
                   await getRestApiClient("service_items").create(
                     clientId!,
-                    serviceItem
+                    serviceItem,
                   );
                 }
               }
@@ -230,7 +230,7 @@ export const CompletionTags = (props: {
             loading: "Modification en cours...",
             success: "Services marqués comme exécutés",
             error: "Erreur lors du marquage des services",
-          }
+          },
         );
       },
     },
@@ -266,7 +266,7 @@ export const CompletionTags = (props: {
           </Tag>
         )}
         {props?.lines?.some(
-          (a) => a.type === "product" || a.type === "consumable"
+          (a) => a.type === "product" || a.type === "consumable",
         ) && (
           <div className="flex -space-x-px">
             {props.invoice?.type !== "supplier_quotes" && (
@@ -295,7 +295,7 @@ export const CompletionTags = (props: {
               onClick={() => {}}
               className={twMerge(
                 props.invoice?.type !== "supplier_quotes" && "rounded-l-none",
-                shortRight && "w-5"
+                shortRight && "w-5",
               )}
               noColor
               size={props.size || "xs"}
@@ -318,7 +318,7 @@ export const CompletionTags = (props: {
         )}
         {(props?.lines || []).some((a) => a.subscription) &&
           _.uniq(
-            (props?.lines || [])?.map((a) => a.subscription).filter(Boolean)
+            (props?.lines || [])?.map((a) => a.subscription).filter(Boolean),
           ).map((s) => (
             <Tag
               color="blue"

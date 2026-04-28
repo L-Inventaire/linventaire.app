@@ -236,7 +236,7 @@ for (const invoice of invoices) {
 
     // Automatically process it
     await processReceivedInvoice(clientCtx, receivedInvoice);
-  } catch (error) {
+  } catch (error: any) {
     console.error(`Error processing invoice ${invoice.id}:`, error);
   }
 }

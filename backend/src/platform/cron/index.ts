@@ -62,7 +62,7 @@ const CronService = {
           }, 30 * 1000);
 
           await callback(ctx);
-        } catch (e) {
+        } catch (e: any) {
           platform.LoggerDb.get("CronService").error(
             ctx,
             `Error with cron job '${name}': ${e}`,

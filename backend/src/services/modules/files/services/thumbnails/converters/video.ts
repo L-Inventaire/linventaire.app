@@ -29,7 +29,7 @@ export async function generateVideoPreview(
         width,
         height,
       });
-    } catch (error) {
+    } catch (error: any) {
       cleanFiles([filePath]);
       throw Error(`failed to generate video preview: ${error}`);
     }

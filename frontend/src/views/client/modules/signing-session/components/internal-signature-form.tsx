@@ -102,7 +102,7 @@ export const InternalSignatureForm = ({
       setResendTimer(10);
       setCanResend(false);
       toast.success("Un code de vérification a été envoyé à votre email");
-    } catch (error) {
+    } catch (error: any) {
       toast.error("Erreur lors de l'envoi du code de vérification");
       console.error("Request verification error:", error);
     } finally {

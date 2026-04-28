@@ -13,7 +13,7 @@ export default (router: Router) => {
     checkRole("USER"),
     checkClientRoles(["EVENTS_READ"]),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       res.json(
         await getEvents(ctx, {
           from: parseInt(`${req.query.from || 0}`),

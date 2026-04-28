@@ -90,18 +90,18 @@ export const FilesInput = (props: {
             (progress) => {
               newFilesRef.current[index].progress = progress;
               setNewFiles([...newFilesRef.current]);
-            }
+            },
           );
 
           newFilesRef.current[index].progress = 1;
           newFilesRef.current[index].entity = entity;
           setNewFiles([...newFilesRef.current]);
-        } catch (e) {
+        } catch (e: any) {
           console.error(e);
           toast.error("Failed to upload file");
           newFilesRef.current[index].progress = -1;
         }
-      })
+      }),
     );
     setNewFiles([]);
     onChange?.([
@@ -119,7 +119,7 @@ export const FilesInput = (props: {
       className={twMerge(
         props.className,
         (existingFiles?.length || !disabled) && "-m-1",
-        "relative"
+        "relative",
       )}
     >
       <div className="w-full">
@@ -221,7 +221,7 @@ export const DroppableFilesInput = ({
     <div
       className={twMerge(
         size === "md" && "w-full relative p-1",
-        size === "sm" && "inline-block"
+        size === "sm" && "inline-block",
       )}
     >
       <div
@@ -229,7 +229,7 @@ export const DroppableFilesInput = ({
           InputOutlinedDefault,
           size === "md" &&
             "cursor-pointer text-center p-2 border-dashed border-2",
-          className
+          className,
         )}
         onClick={() => fileInputRef.current?.click()}
         onDrop={(e) => {

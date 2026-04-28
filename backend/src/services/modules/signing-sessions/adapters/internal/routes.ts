@@ -27,7 +27,7 @@ export default function createInternalRoutes(adapter: InternalAdapter): Router {
         await adapter.uploadDocument(documentId, pdfBuffer);
 
         res.json({ success: true, documentId });
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error uploading document:", error);
         res.status(500).json({ error: error.message });
       }
@@ -44,7 +44,7 @@ export default function createInternalRoutes(adapter: InternalAdapter): Router {
       const session = await adapter.getSigningSessionByToken(token);
 
       res.json(session);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error getting session:", error);
       res.status(404).json({ error: error.message });
     }
@@ -77,7 +77,7 @@ export default function createInternalRoutes(adapter: InternalAdapter): Router {
         'attachment; filename="signed_document.pdf"'
       );
       res.send(signedPdfBuffer);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error signing document:", error);
       res.status(500).json({ error: error.message });
     }
@@ -93,7 +93,7 @@ export default function createInternalRoutes(adapter: InternalAdapter): Router {
       await adapter.markAsViewed(token);
 
       res.json({ success: true });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error marking as viewed:", error);
       res.status(500).json({ error: error.message });
     }
@@ -106,11 +106,11 @@ export default function createInternalRoutes(adapter: InternalAdapter): Router {
   router.post("/request-code/:token", async (req, res) => {
     try {
       const { token } = req.params;
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       await adapter.requestVerificationCode(ctx, token);
 
       res.json({ success: true });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error requesting code:", error);
       res.status(500).json({ error: error.message });
     }
@@ -133,7 +133,7 @@ export default function createInternalRoutes(adapter: InternalAdapter): Router {
       const isValid = await adapter.verifyCode(token, code);
 
       res.json({ valid: isValid });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error verifying code:", error);
       res.status(500).json({ error: error.message });
     }
@@ -151,7 +151,7 @@ export default function createInternalRoutes(adapter: InternalAdapter): Router {
       await adapter.cancelSession(token, reason);
 
       res.json({ success: true });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error cancelling session:", error);
       res.status(500).json({ error: error.message });
     }
@@ -172,7 +172,7 @@ export default function createInternalRoutes(adapter: InternalAdapter): Router {
         'attachment; filename="signed_document.pdf"'
       );
       res.send(signedPdfBuffer);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error downloading document:", error);
       res.status(404).json({ error: error.message });
     }

@@ -13,7 +13,7 @@ export default (router: Router) => {
     checkClientRoles(["CLIENT_MANAGE"]),
     async (req, res) => {
       try {
-        const ctx = Ctx.get(req)?.context;
+        const ctx = Ctx.get(req)!.context;
         const { tables } = req.body;
 
         if (!Array.isArray(tables) || tables.length === 0) {
@@ -80,7 +80,7 @@ export default (router: Router) => {
     checkClientRoles(["CLIENT_MANAGE"]),
     async (req, res) => {
       try {
-        const ctx = Ctx.get(req)?.context;
+        const ctx = Ctx.get(req)!.context;
         const { data } = req.body;
 
         if (!data || typeof data !== "object") {

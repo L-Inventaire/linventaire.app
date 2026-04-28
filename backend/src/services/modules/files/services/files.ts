@@ -29,7 +29,7 @@ export const upload = async (ctx: Context, file: Files, data: Buffer) => {
     const buffer = fs.readFileSync(path);
     await s3.upload(`files/${ctx.client_id}/thumbnails/${key}`, buffer);
     await cleanFiles(thumb.map((t) => t.path));
-  } catch (error) {
+  } catch (error: any) {
     hasThumbnail = false;
   }
 
@@ -44,12 +44,12 @@ export const upload = async (ctx: Context, file: Files, data: Buffer) => {
     if (row === null) throw new Error("Failed to create file");
 
     return row;
-  } catch (error) {
+  } catch (error: any) {
     try {
       await s3.delete(`files/${file.client_id}/${key}`);
       if (hasThumbnail)
         await s3.delete(`files/${file.client_id}/thumbnails/${key}`);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to clean up");
     }
     throw error;
@@ -85,7 +85,7 @@ export const deleteFile = async (
   try {
     await s3.delete(`files/${file.client_id}/${file.key}`);
     await s3.delete(`files/${file.client_id}/thumbnails/${file.key}`);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to delete file");
   }
 };

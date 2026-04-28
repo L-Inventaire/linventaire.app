@@ -85,13 +85,13 @@ export const checkReminders = async (ctx: Context) => {
                 },
                 client.smtp
               );
-            } catch (e) {
+            } catch (e: any) {
               console.error("Error while sending the reminder for ", doc.id, e);
               captureException(e);
             }
           }
         }
-      } catch (e) {
+      } catch (e: any) {
         console.error("Error while updating reminder for quote", doc.id, e);
         captureException(e);
       }

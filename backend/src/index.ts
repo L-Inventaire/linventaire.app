@@ -11,11 +11,9 @@ if (process.env.NODE_ENV === "production" || process.env.USE_SENTRY) {
     // Tracing
     tracesSampleRate: 1.0, //  Capture 100% of the transactions
     // Set environment to config.server.domain
-    environment: config
-      .get("server.domain")
-      .split("//")
-      .pop()
-      .replace(/[^a-z.]/, ""),
+    environment: (
+      (config.get<string>("server.domain") || "").split("//").pop() || ""
+    ).replace(/[^a-z.]/, ""),
   });
 }
 

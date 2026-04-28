@@ -13,7 +13,7 @@ export default (router: Router) => {
     checkRole("USER"),
     checkClientRoles(["CONTACTS_MANAGE"]),
     async (req, res) => {
-      res.json(await getSireneResult(Ctx.get(req)?.context, req.params.siret));
+      res.json(await getSireneResult(Ctx.get(req)!.context, req.params.siret));
     }
   );
 };

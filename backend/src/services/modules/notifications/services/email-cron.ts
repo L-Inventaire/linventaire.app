@@ -112,7 +112,7 @@ export const setupCronEmailNotifications = async () => {
             },
             client.smtp
           );
-        } catch (e) {
+        } catch (e: any) {
           captureException(e);
           console.error(e);
         } finally {

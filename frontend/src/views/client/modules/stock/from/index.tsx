@@ -64,18 +64,18 @@ export const StockItemsFromPage = (_props: { readonly?: boolean }) => {
               toast.success("Les éléments ont été ajoutés dans le stock");
               if (from === "order") {
                 navigate(
-                  getRoute(ROUTES.Invoices, { type: "supplier_quotes" })
+                  getRoute(ROUTES.Invoices, { type: "supplier_quotes" }),
                 );
               } else {
                 navigate(getRoute(ROUTES.Stock));
               }
-            } catch (e) {
+            } catch (e: any) {
               setLoading(false);
               toast.error(
-                "Une erreur est survenue lors de l'import des éléments dans le stock"
+                "Une erreur est survenue lors de l'import des éléments dans le stock",
               );
               alert(
-                "Nous sommes désolé, une erreur est survenue lors de la réception. Il est possible qu'une partie des éléments ait été ajoutés comme prévu, vérifiez les alertes afin de ne pas réimporter des éléments en double. Contactez le support si le problème persiste."
+                "Nous sommes désolé, une erreur est survenue lors de la réception. Il est possible qu'une partie des éléments ait été ajoutés comme prévu, vérifiez les alertes afin de ne pas réimporter des éléments en double. Contactez le support si le problème persiste.",
               );
               console.error(e);
             }

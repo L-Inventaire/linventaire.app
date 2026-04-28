@@ -213,7 +213,7 @@ export default class Notifications implements InternalApplicationService {
               user_id: user,
             }
           );
-        } catch (e) {
+        } catch (e: any) {
           console.error(e);
           throw e;
         }

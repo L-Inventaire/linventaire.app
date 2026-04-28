@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Pre-commit hook to ensure package.json versions match
+
+echo "Checking package.json version consistency..."
+
+# Get version from backend/package.json
+BACKEND_VERSION=$(node -p "require('./backend/package.json').version" 2>/dev/null)
+if [ -z "$BACKEND_VERSION" ]; then
+  echo "❌ Error: Could not read version from backend/package.json"
+  exit 1
+fi
+
+# Get version from frontend/package.json
+FRONTEND_VERSION=$(node -p "require('./frontend/package.json').version" 2>/dev/null)
+if [ -z "$FRONTEND_VERSION" ]; then
+  echo "❌ Error: Could not read version from frontend/package.json"
+  exit 1
+fi
+
+# Compare versions
+if [ "$BACKEND_VERSION" != "$FRONTEND_VERSION" ]; then
+  echo ""
+  echo "❌ Version mismatch detected!"
+  echo "   Backend version:  $BACKEND_VERSION"
+  echo "   Frontend version: $FRONTEND_VERSION"
+  echo ""
+  echo "Please ensure all package.json files have the same version before committing."
+  echo ""
+  exit 1
+fi
+
+echo "✅ All package.json versions match: $BACKEND_VERSION"
+exit 0

@@ -64,8 +64,6 @@ export class SuperPDPClient {
    */
   async authenticate(): Promise<string> {
     try {
-      console.log("Authenticating with SuperPDP...", this.config);
-
       const params = new URLSearchParams({
         grant_type: "client_credentials",
         client_id: this.config.clientId,

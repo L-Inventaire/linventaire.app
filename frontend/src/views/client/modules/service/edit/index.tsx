@@ -48,15 +48,15 @@ export const ServiceItemsEditPage = (_props: { readonly?: boolean }) => {
               });
             }
           }
-        } catch (e) {
+        } catch (e: any) {
           console.log(e);
         }
         navigate(getRoute(ROUTES.ServiceItemsView, { id: item.id }));
       },
       _.omit(
         _.merge({}, defaultModel, initialModel),
-        "reference"
-      ) as ServiceItems
+        "reference",
+      ) as ServiceItems,
     );
 
   return (

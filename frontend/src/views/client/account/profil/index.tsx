@@ -18,7 +18,7 @@ export const AccountPage = () => {
 
   const [fullName, setFullName] = useState<string>(user?.full_name || "");
   const [imageBase64, setImageBase64] = useState<string | undefined>(
-    user?.preferences?.avatar
+    user?.preferences?.avatar,
   );
 
   return (
@@ -68,7 +68,7 @@ export const AccountPage = () => {
                   });
                   await getUser();
                   toast.success("Profil mis à jour");
-                } catch (e) {
+                } catch (e: any) {
                   console.error(e);
                 }
                 setLoading(false);
@@ -98,7 +98,7 @@ export const AccountPage = () => {
                     });
                     await getUser();
                     toast.success("Langue mise à jour");
-                  } catch (e) {
+                  } catch (e: any) {
                     console.error(e);
                   }
                   setLoading(false);

@@ -45,7 +45,7 @@ export const getInvoiceNextDate = (
     | "subscription"
     | "discount"
   >,
-  useCurrentDate = true // Only frontend has this to true
+  useCurrentDate = true, // Only frontend has this to true
 ) => {
   if (quote.state !== "recurring" || !quote?.subscription_started_at)
     return null;
@@ -74,7 +74,7 @@ export const getInvoiceNextDate = (
         const nextInvoiceDate = getInvoiceDateInPeriod(
           currentPeriodStart,
           currentPeriodEnd,
-          quote.subscription?.invoice_date || ("first_day" as any)
+          quote.subscription?.invoice_date || ("first_day" as any),
         );
 
         if (
@@ -84,7 +84,7 @@ export const getInvoiceNextDate = (
           minNextInvoiceDate = nextInvoiceDate.getTime();
         }
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
       // Not a valid frequency, ignoring
     }
@@ -137,13 +137,13 @@ const getTimezoneDay = (date: Date) => {
 export const applyOffset = (
   date: Date,
   frequencyAndCount: string,
-  factor = 1
+  factor = 1,
 ) => {
   const frequency = frequencyAndCount.split("_").pop();
   const periodCount = parseInt(
     frequencyAndCount.split("_")?.length === 2
       ? frequencyAndCount.split("_")[0]
-      : "1"
+      : "1",
   );
   if (frequencyAndCount.split("_").length > 2 || periodCount < 1) {
     throw new Error(`Invalid frequency ${frequencyAndCount}`);
@@ -156,7 +156,7 @@ export const applyOffset = (
     const daysInMonth = new Date(
       date.getFullYear(),
       date.getMonth() + 1,
-      0
+      0,
     ).getDate();
     date.setDate(Math.min(dayOfMonth, daysInMonth));
   };
@@ -185,15 +185,15 @@ export const getInvoiceWithOverrides = (
 ) => {
   const subscription = mergeObjects(
     invoice.subscription || ({} as InvoiceSubscription),
-    ...overrides.map((override) => override.recurring)
+    ...overrides.map((override) => override.recurring),
   );
   const payment_information = mergeObjects(
     invoice.payment_information,
-    ...overrides.map((override) => override.payment)
+    ...overrides.map((override) => override.payment),
   );
   const format = mergeObjects(
     invoice.format || ({} as InvoiceFormat),
-    ...overrides.map((override) => override.invoices)
+    ...overrides.map((override) => override.invoices),
   );
 
   return {
@@ -208,7 +208,7 @@ export const getInvoiceWithOverrides = (
 export const mergeObjects = <
   T extends {
     [key: string]: any;
-  }
+  },
 >(
   ...overrides: T[]
 ): T => {

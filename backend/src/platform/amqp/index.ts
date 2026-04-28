@@ -108,7 +108,7 @@ export default class Amqp implements PlatformService {
             handler(message, () => {
               this.queues[queue].ack(data);
             });
-          } catch (e) {
+          } catch (e: any) {
             captureException(e);
             this.logger.error(
               context,

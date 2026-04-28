@@ -43,7 +43,7 @@ export const checkRoleFromCtxOrThrow = (
 export const checkRoleAny =
   (roles: Context["role"][]) =>
   async (req: Express.Request, res: Express.Response, next: () => void) => {
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
     checkRoleFromCtxOrThrow(ctx, roles);
     if (ctx.client_id && ctx.id) {
       await loadPermissions(req);
@@ -61,7 +61,7 @@ const UsersRolesCache: {
 } = {};
 
 export const loadPermissions = async (req: Express.Request) => {
-  const ctx = Ctx.get(req)?.context;
+  const ctx = Ctx.get(req)!.context;
   const clientId = req.params.clientId;
   if (!clientId) {
     return;
@@ -91,7 +91,7 @@ export const loadPermissions = async (req: Express.Request) => {
 export const checkMfa =
   (options: { min?: number } = {}) =>
   async (req: Express.Request, res: Express.Response, next: () => void) => {
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
     if (!ctx) {
       throw UnauthorizedError("No context found");
     }
@@ -120,7 +120,7 @@ export const checkClientRoles =
     if (!clientId) {
       throw BadRequestError("Client ID is missing");
     }
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
     if (
       !(await Services.Clients.checkUserRoles(
         ctx,
@@ -150,7 +150,7 @@ export const getOrVerifyHash = async (password: string, hash?: string) => {
     try {
       const result = await bcrypt.compare(password, hash);
       return !!result;
-    } catch (e) {
+    } catch (e: any) {
       throw new Error(e);
     }
   }
@@ -164,7 +164,7 @@ export const getOrVerifyHash = async (password: string, hash?: string) => {
         },
         reject
       );
-    } catch (e) {
+    } catch (e: any) {
       reject(e);
     }
   })

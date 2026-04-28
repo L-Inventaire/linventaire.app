@@ -26,10 +26,14 @@ export const extendOrUpdateToken = async (
   let mfas = ctx.mfa;
   let renewing = false;
 
-  let user: Users = null;
+  let user: Users | null = null;
   if (ctx.id) {
     renewing = true;
     user = await Services.Users.getUser(ctx, { id: ctx.id });
+
+    if (!user) {
+      throw BadRequestError("No user found");
+    }
   }
 
   if (body.auth_validation_token) {
@@ -44,7 +48,7 @@ export const extendOrUpdateToken = async (
             "Only email and password are allowed as primary authenticators."
           );
         }
-      } else {
+      } else if (user) {
         //Verified item MUST match user phone or email
         if (decoded.type === "phone") {
           if (decoded.phone !== user.id_phone)
@@ -58,6 +62,8 @@ export const extendOrUpdateToken = async (
         ) {
           throw BadRequestError("Invalid email");
         }
+      } else {
+        throw BadRequestError("No user found for this token");
       }
 
       if (
@@ -137,7 +143,7 @@ export const extendOrUpdateToken = async (
     }
     const methods = await getMethods(ctx, {});
     methods.methods = methods.methods.filter(
-      (m) => m.method === "app" || m.method === "phone"
+      (m: { method: string }) => m.method === "app" || m.method === "phone"
     );
     return { ...methods, need_fa2_validation_token: true };
   }

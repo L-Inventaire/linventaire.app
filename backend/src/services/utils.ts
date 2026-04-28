@@ -82,7 +82,7 @@ export function useCtx(server: Express) {
         context.role = auth.role;
         context.mfa = auth.mfa;
       }
-    } catch (e) {
+    } catch (e: any) {
       console.log(e);
     }
 

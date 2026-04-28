@@ -21,12 +21,12 @@ export default (router: Router) => {
   });
 
   router.get("/clients", checkRole("USER"), async (req, res) => {
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
     res.json(await getClients(ctx));
   });
 
   router.get("/invitations", checkRole("USER"), async (req, res) => {
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
     res.json(await getInvitations(ctx));
   });
 
@@ -34,7 +34,7 @@ export default (router: Router) => {
     "/invitations/:clientId/:action",
     checkRole("USER"),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       res.json(
         await acceptInvitation(
           ctx,
@@ -46,7 +46,7 @@ export default (router: Router) => {
   );
 
   router.post("/clients", checkRole("USER"), async (req, res) => {
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
     res.json(await createClient(ctx, req.body));
   });
 
@@ -55,7 +55,7 @@ export default (router: Router) => {
     checkRole("USER"),
     checkClientRoles([]),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       res.json(await getClient(ctx, req.params.clientId as string));
     }
   );
@@ -65,7 +65,7 @@ export default (router: Router) => {
     checkRole("USER"),
     checkClientRoles(["CLIENT_MANAGE"]),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       res.json(
         await updateClient(ctx, req.params.clientId as string, req.body)
       );
@@ -77,7 +77,7 @@ export default (router: Router) => {
     checkRole("USER"),
     checkClientRoles([]),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       res.json(await getUsers(ctx, req.params.clientId as string));
     }
   );
@@ -87,7 +87,7 @@ export default (router: Router) => {
     checkRole("USER"),
     checkClientRoles(["CLIENT_MANAGE"]),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       res.json(
         await setUser(
           ctx,
@@ -104,7 +104,7 @@ export default (router: Router) => {
     checkRole("USER"),
     checkClientRoles(["CLIENT_MANAGE"]),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       res.json(
         await removeUser(
           ctx,
@@ -119,7 +119,7 @@ export default (router: Router) => {
     "/clients/:clientId/logo",
     checkRole("NOTHING"),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       const img = await getLogo(ctx, req.params.clientId as string);
       res.writeHead(200, {
         "Content-Type": "image/png",

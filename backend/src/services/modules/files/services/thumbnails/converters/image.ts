@@ -43,7 +43,7 @@ export async function generatePreview(
         type: "image/png",
         size: result.size,
       });
-    } catch (error) {
+    } catch (error: any) {
       cleanFiles([outputPath]);
       throw Error("Can't resize thumnail with Sharp");
     }

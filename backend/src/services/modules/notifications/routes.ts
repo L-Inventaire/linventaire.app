@@ -13,7 +13,7 @@ export default (router: Router) => {
   router.get("/:clientId/preferences", checkRole("USER"), async (req, res) => {
     // Ensure a notification preferences object exists for the user
     const db = await platform.Db.getService();
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
     let existing = await db.selectOne<NotificationsPreferences>(
       ctx,
       NotificationsPreferencesDefinition.name,
@@ -46,7 +46,7 @@ export default (router: Router) => {
   router.post("/:clientId/preferences", checkRole("USER"), async (req, res) => {
     // Set a notification preferences object exists for the user
     const db = await platform.Db.getService();
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
 
     await db.update<NotificationsPreferences>(
       ctx,
@@ -73,7 +73,7 @@ export default (router: Router) => {
   });
 
   router.post("/:clientId/read_all", checkRole("USER"), async (req, res) => {
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
 
     // Mark all notifications as read for this user and client
     await markAllNotificationsAsRead(ctx, req.params.clientId, ctx.id);

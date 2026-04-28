@@ -17,7 +17,7 @@ export const SignUp = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const emailValidation = new URLSearchParams(document.location.search).get(
-    "token"
+    "token",
   );
   const { loading: authLoading, login } = useAuth();
   const [name, setName] = useState("");
@@ -40,14 +40,14 @@ export const SignUp = () => {
             captchaValidation,
             emailValidation,
             undefined,
-            name
+            name,
           );
           if (imageBase64) {
             await CustomersApiClient.setPreferences({
               avatar: imageBase64,
             });
           }
-        } catch (e) {
+        } catch (e: any) {
           console.error(e);
           toast.error(t("signin.signup.error"));
           navigate(ROUTES.Login);

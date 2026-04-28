@@ -44,7 +44,7 @@ export const createContext = (id = "SYSTEM", role = "SYSTEM") => {
     role,
     mfa: [],
     created_at: new Date().getTime(),
-  } as Context;
+  } as unknown as Context;
 };
 
 export type ValidResponse =
@@ -55,18 +55,18 @@ export type ValidResponse =
     }
   | any;
 
-export const ForbiddenError = (message) => {
+export const ForbiddenError = (message: string | any) => {
   return { status: 403, error: "Forbidden", message };
 };
 
-export const NotFoundError = (message) => {
+export const NotFoundError = (message: string | any) => {
   return { status: 404, error: "Entity not found", message };
 };
 
-export const UnauthorizedError = (message) => {
+export const UnauthorizedError = (message: string | any) => {
   return { status: 401, error: "Unauthorized", message };
 };
 
-export const BadRequestError = (message) => {
+export const BadRequestError = (message: string | any) => {
   return { status: 400, error: "Bad Request", message };
 };

@@ -17,7 +17,7 @@ export default (router: Router) => {
     checkRole("USER"),
     checkClientRoles(["ACCOUNTING_READ"]),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       res.json(
         await getDashboard(
           ctx,
@@ -33,7 +33,7 @@ export default (router: Router) => {
     checkRole("USER"),
     checkClientRoles(["ACCOUNTING_READ"]),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       res.json(
         await getLatePayments(
           ctx,
@@ -49,7 +49,7 @@ export default (router: Router) => {
     checkRole("USER"),
     checkClientRoles(["ACCOUNTING_READ"]),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       if (((req.query.date || "") as string)?.split("-").length === 2) {
         res.json(
           await getMatrix(ctx, req.params.clientId, req.query.date as string)
@@ -75,7 +75,7 @@ export default (router: Router) => {
     checkRole("USER"),
     checkClientRoles(["ACCOUNTING_READ"]),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       res.json(
         await getAccountingExport(ctx, req.params.clientId, {
           from: req.query.from as string | undefined,
@@ -98,7 +98,7 @@ export default (router: Router) => {
     checkRole("USER"),
     checkClientRoles(["ACCOUNTING_READ"]),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       const { timeRanges, clientIds } = req.body;
 
       if (!Array.isArray(timeRanges) || timeRanges.length === 0) {

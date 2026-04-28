@@ -92,7 +92,7 @@ export const InvoicesColumns: Column<Invoices>[] = [
               {" "}
               • Du {format(
                 invoice.from_subscription.from,
-                "yyyy-MM-dd"
+                "yyyy-MM-dd",
               )} au {format(invoice.from_subscription.to, "yyyy-MM-dd")}
             </span>
           )}
@@ -191,8 +191,8 @@ export const InvoicesColumns: Column<Invoices>[] = [
           {Object.entries(
             _.groupBy(
               invoice.content?.filter((a) => (a.unit_price || 0) >= 0),
-              "subscription"
-            )
+              "subscription",
+            ),
           ).map(([key, value]) => {
             const computed = computePricesFromInvoice({
               content: value,
@@ -328,7 +328,7 @@ registerCtrlKRestEntity<Invoices>("invoices", {
             getRoute(ROUTES.InvoicesEdit, {
               id: "new",
             }),
-            invoice
+            invoice,
           );
         },
       } as CtrlkAction);
@@ -347,7 +347,7 @@ registerCtrlKRestEntity<Invoices>("invoices", {
                 id: row.id,
                 state: "purchase_order",
               });
-            } catch (e) {
+            } catch (e: any) {
               console.error(e);
               toast.error("Erreur lors de la mise à jour de la facture");
             }

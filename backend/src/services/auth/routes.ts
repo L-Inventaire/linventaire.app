@@ -15,7 +15,7 @@ export default (router: Router) => {
   router.get("/status", (req, res) => {
     try {
       //Fixme: check if the service is up
-    } catch (e) {
+    } catch (e: any) {
       res.json({ error: e.message });
       return;
     }
@@ -23,7 +23,7 @@ export default (router: Router) => {
   });
 
   router.post("/login", checkRole("NOTHING"), async (req, res) => {
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
 
     if (req.body.type === "email") {
       res.json(
@@ -54,7 +54,7 @@ export default (router: Router) => {
   });
 
   router.post("/token", checkRoleAny(["NOTHING", "USER"]), async (req, res) => {
-    const ctx = Ctx.get(req)?.context;
+    const ctx = Ctx.get(req)!.context;
     res.json(await extendOrUpdateToken(ctx, req.body));
   });
 
@@ -66,7 +66,7 @@ export default (router: Router) => {
     "/mfa/methods",
     checkRoleAny(["NOTHING", "USER"]),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       res.json(await getMethods(ctx, req.body));
     }
   );
@@ -75,7 +75,7 @@ export default (router: Router) => {
     "/mfa/methods/:method_id/request",
     checkRoleAny(["NOTHING", "USER"]),
     async (req, res) => {
-      const ctx = Ctx.get(req)?.context;
+      const ctx = Ctx.get(req)!.context;
       if (req.params.method_id === "email") {
         res.json(await requestEmailValidation(ctx, req.body));
       } else if (req.params.method_id === "phone") {
@@ -91,7 +91,7 @@ export default (router: Router) => {
     checkRoleAny(["NOTHING", "USER"]),
     async (req, res) => {
       try {
-        const ctx = Ctx.get(req)?.context;
+        const ctx = Ctx.get(req)!.context;
         if (req.params.method_id === "email") {
           res.json(await verifyEmailValidationCode(ctx, req.body));
         } else if (req.params.method_id === "phone") {
@@ -103,7 +103,7 @@ export default (router: Router) => {
         } else {
           throw BadRequestError("Invalid MFA method");
         }
-      } catch (e) {
+      } catch (e: any) {
         console.log(e);
         throw e;
       }

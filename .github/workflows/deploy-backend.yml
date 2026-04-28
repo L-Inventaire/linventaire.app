@@ -76,12 +76,14 @@ jobs:
           echo "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.eu-west-3.amazonaws.com/linventaireapp:latest"
           docker build -f docker/node.Dockerfile --build-arg SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} -t linventaireapp .
           docker tag linventaireapp:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.eu-west-3.amazonaws.com/linventaireapp:latest
-          export VERSION=$(git describe --tags --always)
+          export VERSION=$(node -p "require('./backend/package.json').version")
           docker tag linventaireapp:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.eu-west-3.amazonaws.com/linventaireapp:$VERSION
 
       - name: Push Docker Image to ECR
         run: |
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.eu-west-3.amazonaws.com/linventaireapp:latest
+          export VERSION=$(node -p "require('./backend/package.json').version")
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.eu-west-3.amazonaws.com/linventaireapp:$VERSION
 
       - name: Update ECS Service
         env:

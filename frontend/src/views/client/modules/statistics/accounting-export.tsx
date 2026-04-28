@@ -143,7 +143,7 @@ export const AccountingExportModal = ({ onClose }: { onClose: () => void }) => {
       }
 
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Export error:", error);
       alert("Erreur lors de l'export");
     }

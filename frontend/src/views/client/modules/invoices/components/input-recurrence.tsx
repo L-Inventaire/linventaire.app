@@ -38,7 +38,7 @@ export const InvoiceRecurrenceInput = ({
 }) => {
   const hasSubscription = !!invoice.content?.find((a) => a.subscription);
   const subscriptions = _.uniq(
-    invoice.content?.map((a) => a.subscription)
+    invoice.content?.map((a) => a.subscription),
   ).filter(Boolean) as string[];
   const minimalFrequency = _.minBy(subscriptions, (a) => {
     const t = new Date();
@@ -53,7 +53,7 @@ export const InvoiceRecurrenceInput = ({
       invoice.subscription?.start_type === "date"
         ? Math.max(
             new Date(invoice.emit_date || 0).getTime(),
-            new Date(invoice.subscription?.start || 0).getTime()
+            new Date(invoice.subscription?.start || 0).getTime(),
           )
         : new Date(invoice.emit_date || 0).getTime();
     const end =
@@ -61,7 +61,7 @@ export const InvoiceRecurrenceInput = ({
         ? Math.max(
             new Date(invoice.emit_date || 0).getTime(),
             new Date(invoice.subscription?.end || 0).getTime() +
-              1000 * 60 * 60 * 24 // Add a day for time zones issues
+              1000 * 60 * 60 * 24, // Add a day for time zones issues
           )
         : 100000000000000;
     let date = start;
@@ -75,7 +75,7 @@ export const InvoiceRecurrenceInput = ({
           // Get next monday
           const nextMonday = new Date(date);
           nextMonday.setDate(
-            new Date(date).getDate() + ((1 + 7 - new Date(date).getDay()) % 7)
+            new Date(date).getDate() + ((1 + 7 - new Date(date).getDay()) % 7),
           );
           date = nextMonday.getTime();
         } else if (invoice.subscription?.invoice_date === "first_workday") {
@@ -183,7 +183,7 @@ export const InvoiceRecurrenceInput = ({
               fin{" "}
               {
                 optionsDelays.find(
-                  (a) => a.value === invoice.subscription?.end_delay
+                  (a) => a.value === invoice.subscription?.end_delay,
                 )?.label
               }{" "}
               plus tard
@@ -196,19 +196,19 @@ export const InvoiceRecurrenceInput = ({
           {invoice.subscription?.renew_as === "draft"
             ? "Une fois terminé, dupliquer le devis en brouillon."
             : invoice.subscription?.renew_as === "sent"
-            ? "Une fois terminé, dupliquer le devis et l'envoyer au client."
-            : "Une fois terminé, clôturer ce devis."}
+              ? "Une fois terminé, dupliquer le devis et l'envoyer au client."
+              : "Une fois terminé, clôturer ce devis."}
         </Info>
         <Info>
           {invoice.subscription?.invoice_date === "first_day"
             ? "Facturer à date de renouvellement."
             : invoice.subscription?.invoice_date === "monday"
-            ? "Facturer le lundi."
-            : invoice.subscription?.invoice_date === "first_workday"
-            ? "Facturer le premier jour ouvré."
-            : invoice.subscription?.invoice_date === "last_day"
-            ? "Facturer le dernier jour de la période"
-            : "Facturer le dernier jour ouvré de la période."}
+              ? "Facturer le lundi."
+              : invoice.subscription?.invoice_date === "first_workday"
+                ? "Facturer le premier jour ouvré."
+                : invoice.subscription?.invoice_date === "last_day"
+                  ? "Facturer le dernier jour de la période"
+                  : "Facturer le dernier jour ouvré de la période."}
         </Info>
         <Info>
           {invoice.subscription?.end_type === "date" && (
@@ -297,7 +297,7 @@ const RecurrenceModalPreContent = ({
                 subscription: ctrl("subscription").value,
               });
               onClose();
-            } catch (e) {
+            } catch (e: any) {
               console.error(e);
               toast.error("Erreur lors de la modification de l'abonnement");
             } finally {

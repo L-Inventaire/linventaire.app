@@ -119,7 +119,7 @@ export const setTriggerSetRecurrenceEndDate = () => {
                 },
                 client.smtp
               );
-            } catch (e) {
+            } catch (e: any) {
               console.error(
                 "Error while sending the reminder for ",
                 renewed.id,

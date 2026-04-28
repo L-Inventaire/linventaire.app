@@ -20,7 +20,7 @@ export default (router: Router) => {
     checkClientRoles(["CLIENT_MANAGE"]),
     async (req, res) => {
       try {
-        const ctx = Ctx.get(req)?.context;
+        const ctx = Ctx.get(req)!.context;
         if (!ctx) throw new Error("No context");
 
         const db = await Framework.Db.getService();
@@ -82,7 +82,7 @@ export default (router: Router) => {
     checkClientRoles(["CLIENT_MANAGE"]),
     async (req, res) => {
       try {
-        const ctx = Ctx.get(req)?.context;
+        const ctx = Ctx.get(req)!.context;
         if (!ctx) throw new Error("No context");
 
         const { client_id, client_secret, pdp_provider } = req.body;
@@ -170,7 +170,7 @@ export default (router: Router) => {
     checkClientRoles(["CLIENT_MANAGE"]),
     async (req, res) => {
       try {
-        const ctx = Ctx.get(req)?.context;
+        const ctx = Ctx.get(req)!.context;
         if (!ctx) throw new Error("No context");
 
         const db = await Framework.Db.getService();
@@ -293,7 +293,7 @@ export default (router: Router) => {
     checkClientRoles(["CLIENT_MANAGE"]),
     async (req, res) => {
       try {
-        const ctx = Ctx.get(req)?.context;
+        const ctx = Ctx.get(req)!.context;
         if (!ctx) throw new Error("No context");
 
         const db = await Framework.Db.getService();
@@ -336,7 +336,7 @@ export default (router: Router) => {
     checkClientRoles(["CLIENT_MANAGE"]),
     async (req, res) => {
       try {
-        const ctx = Ctx.get(req)?.context;
+        const ctx = Ctx.get(req)!.context;
         if (!ctx) throw new Error("No context");
 
         const { receive_enabled, send_enabled } = req.body;
@@ -395,7 +395,7 @@ export default (router: Router) => {
     checkClientRoles(["CLIENT_MANAGE"]),
     async (req, res) => {
       try {
-        const ctx = Ctx.get(req)?.context;
+        const ctx = Ctx.get(req)!.context;
         if (!ctx) throw new Error("No context");
 
         const db = await Framework.Db.getService();
@@ -500,7 +500,7 @@ export default (router: Router) => {
     checkClientRoles(["SUPPLIER_INVOICES_READ"]),
     async (req, res) => {
       try {
-        const ctx = Ctx.get(req)?.context;
+        const ctx = Ctx.get(req)!.context;
         if (!ctx) throw new Error("No context");
 
         const db = await Framework.Db.getService();

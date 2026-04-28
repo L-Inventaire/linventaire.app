@@ -41,7 +41,7 @@ export const getSireneResult = async (
   let tmp;
   try {
     tmp = (await fetched.json())?.etablissement;
-  } catch (e) {
+  } catch (e: any) {
     console.error("Error while fetching sirene data", e, fetched);
     return {};
   }
