@@ -178,6 +178,45 @@ export class SuperPDPClient {
   }
 
   /**
+   * Get a single invoice by ID (returns full en_invoice data)
+   */
+  async getInvoice(invoiceId: number): Promise<SuperPDPInvoice> {
+    if (!this.accessToken) {
+      await this.authenticate();
+    }
+
+    try {
+      const response = await this.client.get(`/v1.beta/invoices/${invoiceId}`, {
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+        },
+      });
+
+      return response.data;
+    } catch (error: any) {
+      // If 401, try to re-authenticate
+      if (error.response?.status === 401) {
+        await this.authenticate();
+        const response = await this.client.get(
+          `/v1.beta/invoices/${invoiceId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${this.accessToken}`,
+            },
+          }
+        );
+        return response.data;
+      }
+
+      throw new Error(
+        `Failed to get invoice ${invoiceId}: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    }
+  }
+
+  /**
    * Get received invoices (direction=in)
    */
   async getReceivedInvoices(options?: {
@@ -198,9 +237,9 @@ export class SuperPDPClient {
           : {}),
       });
 
-      // Request with expand to get full invoice data
+      // Request with expand to get full invoice data including seller and buyer
       const response = await this.client.get(
-        `/v1.beta/invoices?${params.toString()}&expand[]=en_invoice`,
+        `/v1.beta/invoices?${params.toString()}&expand[]=en_invoice&expand[]=en_invoice.seller&expand[]=en_invoice.buyer&expand[]=en_invoice.lines`,
         {
           headers: {
             Authorization: `Bearer ${this.accessToken}`,
@@ -223,7 +262,7 @@ export class SuperPDPClient {
         });
 
         const response = await this.client.get(
-          `/v1.beta/invoices?${params.toString()}&expand[]=en_invoice`,
+          `/v1.beta/invoices?${params.toString()}&expand[]=en_invoice&expand[]=en_invoice.seller&expand[]=en_invoice.buyer&expand[]=en_invoice.lines`,
           {
             headers: {
               Authorization: `Bearer ${this.accessToken}`,

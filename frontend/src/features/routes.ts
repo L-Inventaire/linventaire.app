@@ -61,6 +61,7 @@ export const ROUTES = {
   InvoicesGroup: "/:client/i/group/:ids",
 
   ReceivedEInvoices: "/:client/e-invoices/received",
+  ReceivedEInvoicesView: "/:client/e-invoices/received/:id",
 
   Stock: "/:client/stock",
   StockView: "/:client/stock/:id",

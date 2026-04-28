@@ -1,3 +1,6 @@
+import { EN16931Invoice } from "./en16931-types";
+import { RestEntity } from "@/features/utils/rest/types/types";
+
 export interface EInvoicingConfig {
   id: string;
   client_id_main: string;
@@ -67,4 +70,48 @@ export interface SaveConfigRequest {
 export interface UpdateSettingsRequest {
   receive_enabled?: boolean;
   send_enabled?: boolean;
+}
+
+export interface ReceivedEInvoices extends RestEntity {
+  state: "new" | "rejected" | "attached";
+
+  // SuperPDP invoice ID
+  superpdp_invoice_id: number;
+
+  // Invoice direction (should always be "in" for received)
+  direction: "in" | "out";
+
+  // Invoice metadata
+  invoice_number: string;
+  issue_date: number; // timestamp
+  type_code: number; // Invoice type code (380 for invoice, 381 for credit note, etc.)
+  currency_code: string;
+
+  // Parties
+  seller_name: string;
+  seller_vat: string;
+  seller_address: string;
+  buyer_name: string;
+  buyer_vat: string;
+
+  // Amounts
+  total_amount: number;
+  total_tax_amount: number;
+  total_amount_with_tax: number;
+
+  // Status
+  status: "received" | "validated" | "error";
+  status_message: string;
+
+  // Raw invoice data (EN16931 JSON format)
+  en_invoice: EN16931Invoice;
+
+  // Processing
+  processed: boolean; // Whether we've attempted to create a supplier invoice
+  supplier_invoice_id: string; // Link to created supplier invoice if any
+  processing_error: string; // Error message if processing failed
+
+  // Timestamps
+  received_at: number;
+  superpdp_created_at: number;
 }

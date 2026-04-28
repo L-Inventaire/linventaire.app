@@ -15,7 +15,7 @@ import { create } from "#src/services/rest/services/rest";
 export const setupCronReceivedInvoices = async () => {
   Framework.Cron.schedule(
     "e_invoices_fetch_received",
-    "* * * * *", // Every hour at minute 0
+    "0 * * * *", // Every hour at minute 0
     async (ctx) => {
       const db = await Framework.Db.getService();
 
@@ -35,7 +35,7 @@ export const setupCronReceivedInvoices = async () => {
           // Create context for this client
           const clientCtx: Context = {
             ...ctx,
-            client_id: ctx.client_id,
+            client_id: config.client_id,
           };
 
           // Decrypt credentials
@@ -94,24 +94,43 @@ export const setupCronReceivedInvoices = async () => {
                 continue;
               }
 
+              // Fetch full invoice data if en_invoice is incomplete
+              let fullInvoice = invoice;
+              if (!invoice.en_invoice?.seller || !invoice.en_invoice?.buyer) {
+                console.log(
+                  `Fetching complete data for invoice ${invoice.id} for client ${ctx.client_id}`
+                );
+                fullInvoice = await superpdpClient.getInvoice(invoice.id);
+              }
+
               // Extract invoice data
-              const enInvoice = invoice.en_invoice;
+              const enInvoice = fullInvoice.en_invoice;
               if (!enInvoice) {
                 console.error(
-                  `No EN invoice data for invoice ${invoice.id} for client ${ctx.client_id}`
+                  `No EN invoice data for invoice ${fullInvoice.id} for client ${ctx.client_id}`
                 );
                 continue;
               }
+
+              console.log(enInvoice);
 
               const seller = enInvoice.seller;
               const buyer = enInvoice.buyer;
               const totals = enInvoice.totals;
 
+              // Skip if seller or buyer are missing (incomplete invoice data)
+              if (!seller || !buyer) {
+                console.error(
+                  `Missing seller or buyer data for invoice ${fullInvoice.id} for client ${ctx.client_id}`
+                );
+                continue;
+              }
+
               await create<ReceivedEInvoice>(
                 clientCtx,
                 ReceivedEInvoiceDefinition.name,
                 {
-                  superpdp_invoice_id: invoice.id,
+                  superpdp_invoice_id: fullInvoice.id,
                   direction: "in",
                   invoice_number: enInvoice.invoice_number,
                   issue_date: new Date(enInvoice.issue_date).getTime(),
@@ -120,10 +139,10 @@ export const setupCronReceivedInvoices = async () => {
                   seller_name: seller.name,
                   seller_vat: seller.tax_id || seller.vat || "",
                   seller_address: [
-                    seller.postal_address.street_name,
-                    seller.postal_address.city_name,
-                    seller.postal_address.postal_zone,
-                    seller.postal_address.country,
+                    seller.postal_address?.street_name,
+                    seller.postal_address?.city_name,
+                    seller.postal_address?.postal_zone,
+                    seller.postal_address?.country,
                   ]
                     .filter(Boolean)
                     .join(", "),
@@ -141,14 +160,14 @@ export const setupCronReceivedInvoices = async () => {
                   supplier_invoice_id: "",
                   processing_error: "",
                   received_at: Date.now(),
-                  superpdp_created_at: invoice.created_at
-                    ? new Date(invoice.created_at).getTime()
+                  superpdp_created_at: fullInvoice.created_at
+                    ? new Date(fullInvoice.created_at).getTime()
                     : Date.now(),
                 }
               );
 
               console.log(
-                `Imported e-invoice ${invoice.id} for client ${ctx.client_id}`
+                `Imported e-invoice ${fullInvoice.id} for client ${ctx.client_id}`
               );
             } catch (error: any) {
               console.error(

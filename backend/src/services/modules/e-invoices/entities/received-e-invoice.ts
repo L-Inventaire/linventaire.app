@@ -11,6 +11,8 @@ import {
 import { EN16931Invoice } from "../../../../platform/e-invoices/adapters/superpdp/en16931-types";
 
 export class ReceivedEInvoice extends RestEntity {
+  state: "new" | "rejected" | "attached" = "new";
+
   // SuperPDP invoice ID
   superpdp_invoice_id = 0;
 
