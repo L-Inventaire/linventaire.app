@@ -121,6 +121,22 @@ export default (router: Router) => {
     }
   );
 
+  // Search
+  router.post(
+    "/:clientId/:object/count",
+    checkRole("USER"),
+    checkClientRolesFromObject("READ"),
+    async (req, res) => {
+      const ctx = Ctx.get(req)!.context;
+      return res.json(
+        await search(ctx, req.params.object, req.body?.query || {}, {
+          ...(req.body.options || {}),
+          count_only: true,
+        })
+      );
+    }
+  );
+
   // Get single object
   router.get(
     ["/:clientId/:object/:id", "/:object"],
@@ -175,16 +191,14 @@ export default (router: Router) => {
           }
 
           // Route the request to the appropriate handler
-          if (id === "search") {
+          if (id === "search" || id === "count") {
             // Search request
             return {
               status: 200,
-              body: await search(
-                ctx,
-                object,
-                body?.query || {},
-                body?.options || {}
-              ),
+              body: await search(ctx, object, body?.query || {}, {
+                ...(body?.options || {}),
+                count_only: id === "count",
+              }),
             };
           } else if (pathParts.length === 2) {
             // Get single object

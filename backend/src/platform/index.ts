@@ -5,6 +5,7 @@ import CaptchaService from "./captcha";
 import I18nService from "./i18n";
 import SocketService from "./socket";
 import RedisService from "./redis";
+import CacheService from "./cache";
 import AmqpService from "./amqp";
 import S3Service from "./s3";
 import CronService from "./cron";
@@ -23,6 +24,7 @@ export default class Framework {
   public static I18n: I18nService;
   public static Socket: SocketService;
   public static Redis: RedisService;
+  public static Cache: CacheService;
   public static Amqp: AmqpService;
   public static S3: S3Service;
   public static Cron: typeof CronService;
@@ -41,6 +43,7 @@ export default class Framework {
     Framework.Captcha = await new CaptchaService().init();
     Framework.I18n = await new I18nService().init();
     Framework.Redis = await new RedisService().init();
+    Framework.Cache = await new CacheService().init();
     Framework.Socket = await new SocketService().init();
     Framework.Amqp = await new AmqpService().init();
     Framework.S3 = await new S3Service().init();

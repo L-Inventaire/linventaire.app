@@ -1,11 +1,17 @@
 import Clients, {
   ClientsDefinition,
 } from "#src/services/clients/entities/clients";
+import Services from "#src/services/index";
+import { search } from "#src/services/rest/services/rest";
+import _ from "lodash";
 import { PDFDocument } from "pdf-lib";
 import { PDFExtract } from "pdf.js-extract";
 import sharp from "sharp";
 import Framework from "../../../../platform";
 import { Context } from "../../../../types";
+import Articles, { ArticlesDefinition } from "../../articles/entities/articles";
+import Contacts, { ContactsDefinition } from "../../contacts/entities/contacts";
+import { generateFacturXPdf } from "../../e-invoices/services/facturx-generator";
 import { Files, FilesDefinition } from "../../files/entities/files";
 import { download } from "../../files/services/files";
 import { generateEmailMessageToRecipient } from "../../signing-sessions/services/utils";
@@ -210,10 +216,69 @@ export const generatePdf = async (
     }
   }
 
+  let pdfWithAttachments = Buffer.from(await doc.save());
+
+  // Ensure Factur-X compliance
+
+  if (
+    false &&
+    (document.type === "invoices" || document.type === "credit_notes")
+  ) {
+    const client = await Services.Clients.getClient(ctx, ctx.client_id);
+    const contacts = await search<Contacts>(
+      { ...ctx, role: "SYSTEM" },
+      ContactsDefinition.name,
+      {
+        client_id: ctx.client_id,
+        id: document.client,
+      }
+    );
+    const articles = await search<Articles>(
+      { ...ctx, role: "SYSTEM" },
+      ArticlesDefinition.name,
+      {
+        client_id: ctx.client_id,
+        id: _.uniq(
+          document.content?.map((c) => c.article).filter(Boolean) || []
+        ),
+      }
+    );
+    const articlesMap = new Map<string, Articles>();
+    for (const article of articles.list) {
+      articlesMap.set(article.id, article);
+    }
+
+    if (!client) {
+      throw new Error("Client not found for the invoice");
+    }
+
+    if (!contacts?.list?.[0]) {
+      throw new Error("Contact not found for the invoice");
+    }
+
+    pdfWithAttachments = Buffer.from(
+      await generateFacturXPdf(
+        ctx,
+        pdfWithAttachments,
+        {
+          invoice: document,
+          company: client, // The company issuing or receiving the invoice
+          contact: contacts.list[0], // The buyer or supplier contact
+          articles: articlesMap, // Map of article ID to article entity
+        },
+        {
+          level: "en16931",
+          check: true,
+          language: "fr",
+        }
+      )
+    );
+  }
+
   return {
     positions,
     name,
-    pdf: Buffer.from(await doc.save()),
+    pdf: pdfWithAttachments,
   };
 };
 

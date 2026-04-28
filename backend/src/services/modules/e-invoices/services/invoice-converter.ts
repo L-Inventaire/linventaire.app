@@ -402,7 +402,7 @@ export function convertInternalToEN16931(
   // Apply document-level discount
   let documentAllowanceAmount = 0;
   const documentAllowances: any[] = [];
-  if (invoice.discount.mode && invoice.discount.value > 0) {
+  if (invoice.discount?.mode && invoice.discount.value > 0) {
     documentAllowanceAmount =
       invoice.discount.mode === "percentage"
         ? (sumOfLineNetAmounts * invoice.discount.value) / 100

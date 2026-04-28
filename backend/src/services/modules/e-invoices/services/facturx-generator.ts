@@ -1,41 +1,16 @@
 import { Context } from "#src/types";
-import { generate } from "@stafyniaksacha/facturx";
-import {
-  AmountType,
-  CountryIDType,
-  CrossIndustryInvoiceType,
-  CurrencyCodeType,
-  DateTimeType,
-  DocumentCodeType,
-  DocumentContextParameterType,
-  ExchangedDocumentContextType,
-  ExchangedDocumentType,
-  HeaderTradeAgreementType,
-  HeaderTradeDeliveryType,
-  HeaderTradeSettlementType,
-  IDType,
-  SupplyChainTradeTransactionType,
-  TaxCategoryCodeType,
-  TaxTypeCodeType,
-  TextType,
-  TradeAddressType,
-  TradeContactType,
-  TradePartyType,
-  TradeSettlementHeaderMonetarySummationType,
-  TradeTaxType,
-  SupplyChainTradeLineItemType,
-  LineTradeAgreementType,
-  LineTradeDeliveryType,
-  LineTradeSettlementType,
-  QuantityType,
-  TradePriceType,
-} from "@stafyniaksacha/facturx/models";
-import Clients from "../../clients/entities/clients";
+import Clients from "../../../clients/entities/clients";
 import Articles from "../../articles/entities/articles";
 import Contacts from "../../contacts/entities/contacts";
 import Invoices from "../../invoices/entities/invoices";
 import { EN16931Invoice } from "../../../../platform/e-invoices/adapters/superpdp/en16931-types";
-import { convertInternalToEN16931, ResolvedEntities } from "./invoice-converter";
+import {
+  convertInternalToEN16931,
+  ResolvedEntities,
+} from "./invoice-converter";
+
+// Note: @stafyniaksacha/facturx is an ESM-only package and must be imported dynamically
+// All model types are resolved at runtime via dynamic imports
 
 /**
  * Entities required to generate a Factur-X PDF
@@ -50,10 +25,45 @@ export interface FacturXEntities {
 /**
  * Convert EN16931 invoice to Factur-X Cross Industry Invoice model
  */
-function convertEN16931ToFacturX(
+async function convertEN16931ToFacturX(
   en16931: EN16931Invoice,
   level: "minimum" | "basicwl" | "basic" | "en16931" = "en16931"
-): CrossIndustryInvoiceType {
+): Promise<any> {
+  // Dynamically import the models (ESM-only package)
+  const { Models } = await import("@stafyniaksacha/facturx");
+
+  const {
+    AmountType,
+    CountryIDType,
+    CrossIndustryInvoiceType,
+    CurrencyCodeType,
+    DateTimeType,
+    DocumentCodeType,
+    DocumentContextParameterType,
+    ExchangedDocumentContextType,
+    ExchangedDocumentType,
+    HeaderTradeAgreementType,
+    HeaderTradeDeliveryType,
+    HeaderTradeSettlementType,
+    IDType,
+    NoteType,
+    SupplyChainTradeTransactionType,
+    TaxCategoryCodeType,
+    TaxTypeCodeType,
+    TextType,
+    TradeAddressType,
+    TradeContactType,
+    TradePartyType,
+    TradeSettlementHeaderMonetarySummationType,
+    TradeTaxType,
+    SupplyChainTradeLineItemType,
+    LineTradeAgreementType,
+    LineTradeDeliveryType,
+    LineTradeSettlementType,
+    QuantityType,
+    TradePriceType,
+  } = Models;
+
   // Document context (specifies the Factur-X version and level)
   const guidelineID = new IDType({
     value: `urn:factur-x.eu:1p0:${level}`,
@@ -67,7 +77,9 @@ function convertEN16931ToFacturX(
 
   // Document metadata
   const invoiceID = new IDType({ value: en16931.invoice_number });
-  const typeCode = new DocumentCodeType({ value: en16931.type_code.toString() });
+  const typeCode = new DocumentCodeType({
+    value: en16931.type_code.toString(),
+  });
   const issueDateTime = new DateTimeType({
     dateTimeString: en16931.issue_date.replace(/-/g, ""),
     format: "102", // YYYYMMDD format
@@ -78,7 +90,7 @@ function convertEN16931ToFacturX(
     typeCode,
     issueDateTime,
     includedNote: en16931.invoice_note?.map(
-      (note) => new TextType({ value: note.note })
+      (note) => new NoteType({ content: new TextType({ value: note.note }) })
     ),
   });
 
@@ -89,12 +101,14 @@ function convertEN16931ToFacturX(
       value: en16931.seller.postal_address.street_name || "",
     }),
     lineTwo: en16931.seller.postal_address.additional_street_name
-      ? new TextType({ value: en16931.seller.postal_address.additional_street_name })
+      ? new TextType({
+          value: en16931.seller.postal_address.additional_street_name,
+        })
       : undefined,
     cityName: new TextType({
       value: en16931.seller.postal_address.city_name || "",
     }),
-    postCodeCode: new TextType({
+    postcodeCode: new TextType({
       value: en16931.seller.postal_address.postal_zone || "",
     }),
     countryID: new CountryIDType({
@@ -108,10 +122,14 @@ function convertEN16931ToFacturX(
           ? new TextType({ value: en16931.seller.contact.name })
           : undefined,
         telephoneUniversalCommunication: en16931.seller.contact.telephone
-          ? { completeNumber: new TextType({ value: en16931.seller.contact.telephone }) }
+          ? {
+              completeNumber: new TextType({
+                value: en16931.seller.contact.telephone,
+              }),
+            }
           : undefined,
         emailURIUniversalCommunication: en16931.seller.contact.email
-          ? { uriid: new IDType({ value: en16931.seller.contact.email }) }
+          ? { uriID: new IDType({ value: en16931.seller.contact.email }) }
           : undefined,
       })
     : undefined;
@@ -119,7 +137,7 @@ function convertEN16931ToFacturX(
   const sellerParty = new TradePartyType({
     name: sellerName,
     postalTradeAddress: sellerAddress,
-    definedTradeContact: sellerContact,
+    definedTradeContact: sellerContact ? [sellerContact] : undefined,
     specifiedTaxRegistration: en16931.seller.vat
       ? [
           {
@@ -139,12 +157,14 @@ function convertEN16931ToFacturX(
       value: en16931.buyer.postal_address.street_name || "",
     }),
     lineTwo: en16931.buyer.postal_address.additional_street_name
-      ? new TextType({ value: en16931.buyer.postal_address.additional_street_name })
+      ? new TextType({
+          value: en16931.buyer.postal_address.additional_street_name,
+        })
       : undefined,
     cityName: new TextType({
       value: en16931.buyer.postal_address.city_name || "",
     }),
-    postCodeCode: new TextType({
+    postcodeCode: new TextType({
       value: en16931.buyer.postal_address.postal_zone || "",
     }),
     countryID: new CountryIDType({
@@ -158,10 +178,14 @@ function convertEN16931ToFacturX(
           ? new TextType({ value: en16931.buyer.contact.name })
           : undefined,
         telephoneUniversalCommunication: en16931.buyer.contact.telephone
-          ? { completeNumber: new TextType({ value: en16931.buyer.contact.telephone }) }
+          ? {
+              completeNumber: new TextType({
+                value: en16931.buyer.contact.telephone,
+              }),
+            }
           : undefined,
         emailURIUniversalCommunication: en16931.buyer.contact.email
-          ? { uriid: new IDType({ value: en16931.buyer.contact.email }) }
+          ? { uriID: new IDType({ value: en16931.buyer.contact.email }) }
           : undefined,
       })
     : undefined;
@@ -169,7 +193,7 @@ function convertEN16931ToFacturX(
   const buyerParty = new TradePartyType({
     name: buyerName,
     postalTradeAddress: buyerAddress,
-    definedTradeContact: buyerContact,
+    definedTradeContact: buyerContact ? [buyerContact] : undefined,
     specifiedTaxRegistration: en16931.buyer.vat
       ? [
           {
@@ -240,7 +264,9 @@ function convertEN16931ToFacturX(
       }),
     ],
     duePayableAmount: new AmountType({
-      value: en16931.totals.amount_due_for_payment || en16931.totals.invoice_total_amount_with_vat,
+      value:
+        en16931.totals.amount_due_for_payment ||
+        en16931.totals.invoice_total_amount_with_vat,
       currencyID: en16931.currency_code,
     }),
   });
@@ -252,10 +278,13 @@ function convertEN16931ToFacturX(
           typeCode: new TextType({
             value: en16931.payment_details.payment_means_type_code,
           }),
-          payeePartyCreditorFinancialAccount: en16931.payment_details.credit_transfer?.[0]
+          payeePartyCreditorFinancialAccount: en16931.payment_details
+            .credit_transfer?.[0]
             ? {
                 ibanID: new IDType({
-                  value: en16931.payment_details.credit_transfer[0].payment_account_identifier.value,
+                  value:
+                    en16931.payment_details.credit_transfer[0]
+                      .payment_account_identifier.value,
                 }),
               }
             : undefined,
@@ -270,14 +299,20 @@ function convertEN16931ToFacturX(
     }),
     applicableTradeTax,
     specifiedTradePaymentTerms: en16931.payment_details?.payment_terms
-      ? [{ description: new TextType({ value: en16931.payment_details.payment_terms }) }]
+      ? [
+          {
+            description: new TextType({
+              value: en16931.payment_details.payment_terms,
+            }),
+          },
+        ]
       : undefined,
     specifiedTradeSettlementHeaderMonetarySummation: summation,
     specifiedTradeSettlementPaymentMeans: paymentMeans,
   });
 
   // Invoice lines (only for higher levels than minimum)
-  let includedSupplyChainTradeLineItem: SupplyChainTradeLineItemType[] | undefined;
+  let includedSupplyChainTradeLineItem: any[] | undefined;
 
   if (level !== "minimum" && en16931.lines) {
     includedSupplyChainTradeLineItem = en16931.lines.map((line, index) => {
@@ -304,7 +339,8 @@ function convertEN16931ToFacturX(
             categoryCode: new TaxCategoryCodeType({
               value: line.line_vat_information.invoiced_item_vat_category_code,
             }),
-            rateApplicablePercent: line.line_vat_information.invoiced_item_vat_rate
+            rateApplicablePercent: line.line_vat_information
+              .invoiced_item_vat_rate
               ? { value: line.line_vat_information.invoiced_item_vat_rate }
               : undefined,
           }),
@@ -327,10 +363,14 @@ function convertEN16931ToFacturX(
             ? new TextType({ value: line.item_information.description })
             : undefined,
           sellerAssignedID: line.item_information.sellers_item_identification
-            ? new IDType({ value: line.item_information.sellers_item_identification })
+            ? new IDType({
+                value: line.item_information.sellers_item_identification,
+              })
             : undefined,
           buyerAssignedID: line.item_information.buyers_item_identification
-            ? new IDType({ value: line.item_information.buyers_item_identification })
+            ? new IDType({
+                value: line.item_information.buyers_item_identification,
+              })
             : undefined,
         },
         specifiedLineTradeAgreement: lineAgreement,
@@ -391,7 +431,7 @@ export async function generateFacturXPdf(
   const en16931Invoice = convertInternalToEN16931(invoice, resolvedEntities);
 
   // Convert EN16931 to Factur-X Cross Industry Invoice model
-  const facturxInvoice = convertEN16931ToFacturX(en16931Invoice, level);
+  const facturxInvoice = await convertEN16931ToFacturX(en16931Invoice, level);
 
   // Convert the model to XML
   const { invoiceToXml } = await import("@stafyniaksacha/facturx");
@@ -399,6 +439,7 @@ export async function generateFacturXPdf(
   const xmlBuffer = Buffer.from(xml.toString());
 
   // Generate the Factur-X PDF
+  const { generate } = await import("@stafyniaksacha/facturx");
   const facturxPdfBuffer = await generate({
     pdf: pdfBuffer,
     xml: xmlBuffer,
@@ -408,8 +449,18 @@ export async function generateFacturXPdf(
     language: options.language || "en-GB",
     meta: {
       author: company.company?.name || company.company?.legal_name || "Company",
-      title: `${invoice.type === "credit_notes" || invoice.type === "supplier_credit_notes" ? "Credit Note" : "Invoice"} ${invoice.reference || invoice.name}`,
-      subject: `${invoice.type === "credit_notes" || invoice.type === "supplier_credit_notes" ? "Credit Note" : "Invoice"} ${invoice.reference || invoice.name}`,
+      title: `${
+        invoice.type === "credit_notes" ||
+        invoice.type === "supplier_credit_notes"
+          ? "Credit Note"
+          : "Invoice"
+      } ${invoice.reference || invoice.name}`,
+      subject: `${
+        invoice.type === "credit_notes" ||
+        invoice.type === "supplier_credit_notes"
+          ? "Credit Note"
+          : "Invoice"
+      } ${invoice.reference || invoice.name}`,
       keywords: [
         "invoice",
         "facturx",
@@ -445,8 +496,8 @@ export async function extractFacturXXml(pdfBuffer: Buffer): Promise<{
   return {
     xml: result.xml.toString(),
     filename: result.filename,
-    flavor: result.flavor,
-    level: result.level,
+    flavor: result.flavor || "facturx",
+    level: result.level || "en16931",
   };
 }
 
@@ -456,9 +507,7 @@ export async function extractFacturXXml(pdfBuffer: Buffer): Promise<{
  * @param xml - The XML string or buffer to validate
  * @returns Validation result with errors if any
  */
-export async function validateFacturXXml(
-  xml: string | Buffer
-): Promise<{
+export async function validateFacturXXml(xml: string | Buffer): Promise<{
   valid: boolean;
   errors: string[];
   flavor?: string;

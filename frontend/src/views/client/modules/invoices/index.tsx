@@ -20,6 +20,7 @@ import { useNavigateAlt } from "@features/utils/navigate";
 import {
   RestOptions,
   RestSearchQuery,
+  useRestCount,
   useRestExporter,
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
@@ -157,14 +158,14 @@ const InvoicesPageContent = () => {
           ? "emit_date desc"
           : "state_order,emit_date desc"
         : activeTab === "all"
-        ? "reference desc"
-        : "state_order,reference desc",
+          ? "reference desc"
+          : "state_order,reference desc",
     limit: 20,
     offset: 0,
     query: [],
   });
   const [groupBy, setGroupBy] = useState<string>(
-    activeTab === "all" ? "" : "state_order"
+    activeTab === "all" ? "" : "state_order",
   );
 
   const invoiceFilters = {
@@ -246,7 +247,7 @@ const InvoicesPageContent = () => {
 
           if (invoice.from_subscription.from) {
             typeSpecificFields.recurrence_period_from = new Date(
-              invoice.from_subscription.from
+              invoice.from_subscription.from,
             )
               .toISOString()
               .slice(0, 10);
@@ -254,7 +255,7 @@ const InvoicesPageContent = () => {
 
           if (invoice.from_subscription.to) {
             typeSpecificFields.recurrence_period_to = new Date(
-              invoice.from_subscription.to
+              invoice.from_subscription.to,
             )
               .toISOString()
               .slice(0, 10);
@@ -282,44 +283,38 @@ const InvoicesPageContent = () => {
   const navigate = useNavigateAlt();
   const hasAccess = useHasAccess();
 
-  // Counters
-  const { invoices: draftInvoices } = useInvoices({
+  // Counters - Optimisés avec useRestCount
+  const draftCount = useRestCount("invoices", {
     key: "draftInvoices",
-    limit: 1,
     query: [...tabs.draft.filter, ...invoiceFilters.query],
   });
-  const { invoices: sentInvoices } = useInvoices({
+  const sentCount = useRestCount("invoices", {
     key: "sentInvoices",
-    limit: 1,
     query: [...tabs.sent!.filter, ...invoiceFilters.query],
   });
-  const { invoices: inProgressInvoices } = useInvoices({
+  const inProgressCount = useRestCount("invoices", {
     key: "inProgressInvoices",
-    limit: 1,
     query: [...(tabs.purchase_order?.filter || []), ...invoiceFilters.query],
   });
-  const { invoices: recurringInvoices } = useInvoices({
+  const recurringCount = useRestCount("invoices", {
     key: "recurringInvoices",
-    limit: 1,
     query: [...invoiceFilters.query, ...(tabs.recurring?.filter || [])],
   });
-  const { invoices: completedInvoices } = useInvoices({
+  const completedCount = useRestCount("invoices", {
     key: "completedInvoices",
-    limit: 1,
     query: [...invoiceFilters.query, ...(tabs.completed?.filter || [])],
   });
-  const { invoices: lateInvoices } = useInvoices({
+  const lateCount = useRestCount("invoices", {
     key: "lateInvoices",
-    limit: 1,
     query: [...invoiceFilters.query, ...(tabs.late?.filter || [])],
   });
   const counters = {
-    draft: draftInvoices?.data?.total || 0,
-    sent: sentInvoices?.data?.total || 0,
-    purchase_order: inProgressInvoices?.data?.total || 0,
-    recurring: recurringInvoices?.data?.total || 0,
-    completed: completedInvoices?.data?.total || 0,
-    late: lateInvoices?.data?.total || 0,
+    draft: draftCount.data || 0,
+    sent: sentCount.data || 0,
+    purchase_order: inProgressCount.data || 0,
+    recurring: recurringCount.data || 0,
+    completed: completedCount.data || 0,
+    late: lateCount.data || 0,
   };
 
   const resetToFirstPage = useRef(() => {});
@@ -360,7 +355,7 @@ const InvoicesPageContent = () => {
             setOptions({
               ...options,
               index: _.uniq([d.groupBy, ...d.orderBy].filter(Boolean)).join(
-                ","
+                ",",
               ),
             });
             resetToFirstPage.current();
@@ -377,7 +372,7 @@ const InvoicesPageContent = () => {
           suffix={
             hasAccess("INVOICES_WRITE") ? (
               ["supplier_invoices", "supplier_credit_notes"].includes(
-                type[0]
+                type[0],
               ) ? (
                 <>
                   {hasAccess("SUPPLIER_INVOICES_WRITE") && (
@@ -388,7 +383,7 @@ const InvoicesPageContent = () => {
                         to={withSearchAsModel(
                           getRoute(ROUTES.InvoicesEdit, { id: "new" }),
                           schema.data,
-                          { type: "supplier_credit_notes" }
+                          { type: "supplier_credit_notes" },
                         )}
                         icon={(p) => <ArrowUturnLeftIcon {...p} />}
                         hideTextOnMobile
@@ -400,7 +395,7 @@ const InvoicesPageContent = () => {
                         to={withSearchAsModel(
                           getRoute(ROUTES.InvoicesEdit, { id: "new" }),
                           schema.data,
-                          { type: "supplier_invoices" }
+                          { type: "supplier_invoices" },
                         )}
                         icon={(p) => <PlusIcon {...p} />}
                         shortcut={
@@ -421,7 +416,7 @@ const InvoicesPageContent = () => {
                       to={withSearchAsModel(
                         getRoute(ROUTES.InvoicesEdit, { id: "new" }),
                         schema.data,
-                        { type: "supplier_quotes" }
+                        { type: "supplier_quotes" },
                       )}
                       icon={(p) => <PlusIcon {...p} />}
                       shortcut={type.includes("supplier_quotes") ? ["c"] : []}
@@ -440,7 +435,7 @@ const InvoicesPageContent = () => {
                       to={withSearchAsModel(
                         getRoute(ROUTES.InvoicesEdit, { id: "new" }),
                         schema.data,
-                        { type: "credit_notes" }
+                        { type: "credit_notes" },
                       )}
                       icon={(p) => <ArrowUturnLeftIcon {...p} />}
                       shortcut={type.includes("credit_notes") ? ["c"] : []}
@@ -455,7 +450,7 @@ const InvoicesPageContent = () => {
                       to={withSearchAsModel(
                         getRoute(ROUTES.InvoicesEdit, { id: "new" }),
                         schema.data,
-                        { type: "quotes" }
+                        { type: "quotes" },
                       )}
                       icon={(p) => <PlusIcon {...p} />}
                       shortcut={type.includes("quotes") ? ["c"] : []}
@@ -469,7 +464,7 @@ const InvoicesPageContent = () => {
                       to={withSearchAsModel(
                         getRoute(ROUTES.InvoicesEdit, { id: "new" }),
                         schema.data,
-                        { type: "invoices" }
+                        { type: "invoices" },
                       )}
                       icon={(p) => <PlusIcon {...p} />}
                       shortcut={type.includes("invoices") ? ["c"] : []}
@@ -525,7 +520,7 @@ const InvoicesPageContent = () => {
             InvoicesColumns.find(
               (a) =>
                 a.id === groupBy ||
-                a.id === _.findKey(labelColToOrderColMap, (a) => a === groupBy)
+                a.id === _.findKey(labelColToOrderColMap, (a) => a === groupBy),
             )?.render?.(row, {})
           }
           entity="invoices"
@@ -565,11 +560,11 @@ const InvoicesPageContent = () => {
                   type.includes("quotes")
                     ? ["supplier", "origin"]
                     : // If not supplier related then we filter out supplier
-                    type.includes("invoices") || type.includes("credit_notes")
-                    ? ["supplier"]
-                    : []
+                      type.includes("invoices") || type.includes("credit_notes")
+                      ? ["supplier"]
+                      : []
                 ).includes(a.id || "")
-              )
+              ),
           )}
           onFetchExportData={exporter(invoicesQueryOptions)}
         />

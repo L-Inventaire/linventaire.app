@@ -14,6 +14,7 @@ import { useRouterState } from "@/features/utils/hooks/use-router-state";
 import { useNavigateAlt } from "@/features/utils/navigate";
 import {
   RestOptions,
+  useRestCount,
   useRestSchema,
 } from "@/features/utils/rest/hooks/use-rest";
 import { Page } from "@/views/client/_layout/page";
@@ -65,29 +66,23 @@ export const ReceivedEInvoicesPage = () => {
 
   const { receivedEInvoices } = useReceivedEInvoices(invoicesQueryOptions);
 
-  // Counters
-  const { receivedEInvoices: newReceivedEInvoices } = useReceivedEInvoices({
+  // Counters - Optimisés avec useRestCount
+  const newCount = useRestCount("received_e_invoices", {
     key: "newReceivedEInvoices",
-    limit: 1,
     query: [...tabs.new.filter, ...invoiceFilters.query],
   });
-  const { receivedEInvoices: attachedReceivedEInvoices } = useReceivedEInvoices(
-    {
-      key: "attachedReceivedEInvoices",
-      limit: 1,
-      query: [...tabs.attached.filter, ...invoiceFilters.query],
-    },
-  );
-  const { receivedEInvoices: discardedReceivedEInvoices } =
-    useReceivedEInvoices({
-      key: "discardedReceivedEInvoices",
-      limit: 1,
-      query: [...tabs.discarded.filter, ...invoiceFilters.query],
-    });
+  const attachedCount = useRestCount("received_e_invoices", {
+    key: "attachedReceivedEInvoices",
+    query: [...tabs.attached.filter, ...invoiceFilters.query],
+  });
+  const discardedCount = useRestCount("received_e_invoices", {
+    key: "discardedReceivedEInvoices",
+    query: [...tabs.discarded.filter, ...invoiceFilters.query],
+  });
   const counters = {
-    new: newReceivedEInvoices?.data?.total || 0,
-    attached: attachedReceivedEInvoices?.data?.total || 0,
-    discarded: discardedReceivedEInvoices?.data?.total || 0,
+    new: newCount.data || 0,
+    attached: attachedCount.data || 0,
+    discarded: discardedCount.data || 0,
   };
 
   return (

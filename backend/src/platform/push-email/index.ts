@@ -25,9 +25,9 @@ const demoEmailWhitelist = [
 ];
 
 export default class PushEMail implements PlatformService {
-  private service: PushEMailInterfaceAdapterInterface;
-  private smtpService: PushEMailInterfaceAdapterInterface;
-  private logger: Logger;
+  private service!: PushEMailInterfaceAdapterInterface;
+  private smtpService!: PushEMailInterfaceAdapterInterface;
+  private logger!: Logger;
 
   async init() {
     this.logger = Framework.LoggerDb.get("push-email");
@@ -77,7 +77,9 @@ export default class PushEMail implements PlatformService {
     }
 
     // Demo whitelisting system
-    const useWhitelisting = config.get("server.domain").includes("demo");
+    const useWhitelisting = config
+      .get<string>("server.domain")
+      .includes("demo");
     const toWhitelisted = [email].filter((to) =>
       demoEmailWhitelist.some((a) => to.match(a))
     );

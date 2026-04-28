@@ -37,13 +37,14 @@ export type RestOptions<T> = {
   deleted?: boolean;
   ignoreEmptyFilters?: boolean;
   useRankOrderOnSearch?: boolean;
+  count?: boolean; // Si true, ne retourne que le total
   queryFn?: () => Promise<{ total: number; list: T[] }>;
 };
 
 export const useRestSuggestions = <T>(
   table: string,
   column: string,
-  query?: string
+  query?: string,
 ) => {
   restApiClients[table] = restApiClients[table] || new RestApiClient(table);
   const restApiClient = restApiClients[table] as RestApiClient<T>;
@@ -74,7 +75,7 @@ export const useRestSuggestions = <T>(
         return restApiClient.suggestions(
           id || "",
           column,
-          query ? debouncedQuery : ""
+          query ? debouncedQuery : "",
         );
       }
       return [];
@@ -154,7 +155,7 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
   ];
 
   const [isPendingModification, setIsPendingModification] = useRecoilState(
-    LoadingState("loading-modification-" + table)
+    LoadingState("loading-modification-" + table),
   );
 
   const items = useQuery({
@@ -183,15 +184,15 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
         const temp = invalidRequest
           ? { total: 0, list: [] }
           : options?.id !== undefined
-          ? await (async () => {
-              const tmp = await restApiClient.get(id || "", options!.id!);
-              return { total: tmp ? 1 : 0, list: tmp ? [tmp] : [] };
-            })()
-          : await restApiClient.list(
-              id || "",
-              options?.query,
-              _.omit(options, "query", "useRankOrderOnSearch")
-            );
+            ? await (async () => {
+                const tmp = await restApiClient.get(id || "", options!.id!);
+                return { total: tmp ? 1 : 0, list: tmp ? [tmp] : [] };
+              })()
+            : await restApiClient.list(
+                id || "",
+                options?.query,
+                _.omit(options, "query", "useRankOrderOnSearch"),
+              );
         setIsPendingModification(false);
 
         return temp;
@@ -295,4 +296,53 @@ export const useRestExporter = <T>(table: string) => {
         })
       ).list as T[];
     };
+};
+
+/**
+ * Hook optimisé pour récupérer uniquement le count d'une entité
+ * Beaucoup plus performant que useRest avec limit: 1
+ */
+export const useRestCount = <T>(table: string, options?: RestOptions<T>) => {
+  restApiClients[table] = restApiClients[table] || new RestApiClient(table);
+  const restApiClient = restApiClients[table] as RestApiClient<T>;
+  const { id } = useCurrentClient();
+
+  if (
+    options?.query &&
+    _.isArray(options?.query) &&
+    options?.query?.find((a) => a.key === "is_deleted")?.values?.[0]?.value ===
+      true
+  ) {
+    options.deleted = true;
+  }
+
+  const queryKey = [
+    table,
+    id || "client",
+    "count",
+    options?.key || "default",
+    options?.query || "",
+  ];
+
+  const count = useQuery({
+    queryKey,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    queryFn: async () => {
+      const invalidRequest =
+        options?.ignoreEmptyFilters !== false &&
+        isArray(options?.query) &&
+        (options?.query as any[])?.find((a) => a.values.length === 0);
+
+      if (invalidRequest) {
+        return 0;
+      }
+
+      return await restApiClient.count(id || "", options?.query, {
+        deleted: options?.deleted,
+      });
+    },
+    placeholderData: (prev) => prev,
+  });
+
+  return count;
 };

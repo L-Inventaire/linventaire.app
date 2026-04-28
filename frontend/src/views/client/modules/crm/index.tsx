@@ -4,6 +4,7 @@ import { CRMItem } from "@features/crm/types/types";
 import {
   RestOptions,
   RestSearchQuery,
+  useRestCount,
   useRestSchema,
 } from "@features/utils/rest/hooks/use-rest";
 import { Page } from "@views/client/_layout/page";
@@ -61,7 +62,7 @@ const DEFAULT_PAGE_SIZE = 50;
 const useCRMItemsByState = (
   state: CRMState,
   options: RestOptions<CRMItem>,
-  paginationState: { [key: string]: { offset: number; hasMore: boolean } }
+  paginationState: { [key: string]: { offset: number; hasMore: boolean } },
 ) => {
   return useCRMItems({
     key: `crm-${state}-items`,
@@ -77,14 +78,13 @@ const useCRMItemsByState = (
   });
 };
 
-// Hook réutilisable pour charger les compteurs CRM par état
+// Hook réutilisable pour charger les compteurs CRM par état - Optimisé avec useRestCount
 const useCRMCounterByState = (
   state: CRMState,
-  baseQuery: RestSearchQuery[]
+  baseQuery: RestSearchQuery[],
 ) => {
-  return useCRMItems({
+  return useRestCount("crm_items", {
     key: `${state}ItemsCount`,
-    limit: 1,
     query: [
       ...baseQuery,
       {
@@ -134,49 +134,43 @@ export const CRMPage = () => {
   const { crm_items: newItems, update } = useCRMItemsByState(
     "new",
     options,
-    paginationState
+    paginationState,
   );
   const { crm_items: qualifiedItems } = useCRMItemsByState(
     "qualified",
     options,
-    paginationState
+    paginationState,
   );
   const { crm_items: proposalItems } = useCRMItemsByState(
     "proposal",
     options,
-    paginationState
+    paginationState,
   );
   const { crm_items: wonItems } = useCRMItemsByState(
     "won",
     options,
-    paginationState
+    paginationState,
   );
 
-  // Compteurs pour chaque état
+  // Compteurs pour chaque état - Optimisés avec useRestCount
   const baseQuery = options.query as RestSearchQuery[];
-  const { crm_items: newItemsCount } = useCRMCounterByState("new", baseQuery);
-  const { crm_items: qualifiedItemsCount } = useCRMCounterByState(
-    "qualified",
-    baseQuery
-  );
-  const { crm_items: proposalItemsCount } = useCRMCounterByState(
-    "proposal",
-    baseQuery
-  );
-  const { crm_items: wonItemsCount } = useCRMCounterByState("won", baseQuery);
+  const newItemsCount = useCRMCounterByState("new", baseQuery);
+  const qualifiedItemsCount = useCRMCounterByState("qualified", baseQuery);
+  const proposalItemsCount = useCRMCounterByState("proposal", baseQuery);
+  const wonItemsCount = useCRMCounterByState("won", baseQuery);
 
   const counters = {
-    new: newItemsCount?.data?.total || 0,
-    qualified: qualifiedItemsCount?.data?.total || 0,
-    proposal: proposalItemsCount?.data?.total || 0,
-    won: wonItemsCount?.data?.total || 0,
+    new: newItemsCount.data || 0,
+    qualified: qualifiedItemsCount.data || 0,
+    proposal: proposalItemsCount.data || 0,
+    won: wonItemsCount.data || 0,
   };
 
   const schema = useRestSchema("crm_items");
 
   // Combiner les éléments avec le cache et mettre à jour hasMore
   const getItemsForState = (
-    state: "new" | "qualified" | "proposal" | "won"
+    state: "new" | "qualified" | "proposal" | "won",
   ) => {
     let currentItems: CRMItem[] = [];
     let total = 0;
@@ -238,7 +232,7 @@ export const CRMPage = () => {
 
   // Temporary: Show test layout to debug flex behavior step by step
   const showTestLayout = new URLSearchParams(window.location.search).has(
-    "test"
+    "test",
   );
 
   if (showTestLayout) {

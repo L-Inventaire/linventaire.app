@@ -42,9 +42,9 @@ export default class DbPostgres implements DbAdapterInterface {
     const dbConfig = {
       ...this.config,
       database: this.database,
-      connectionTimeoutMillis: 30000, // connexion initiale (30 secondes)
-      idleTimeoutMillis: 30000, // durée max d'inactivité (30 secondes)
-      max: 10, // Ajustez selon vos besoins
+      connectionTimeoutMillis: 30000,
+      idleTimeoutMillis: 30000,
+      max: 10,
       ...(this.config.host.includes("rds.amazonaws.com")
         ? {
             ssl: {
@@ -86,7 +86,7 @@ export default class DbPostgres implements DbAdapterInterface {
       this.client
         .query("SELECT now()")
         .catch((err) => console.error("Keep-Alive Error:", err));
-    }, 60000); // Toutes les 60 secondes
+    }, 60000);
 
     return this;
   }
@@ -138,20 +138,16 @@ export default class DbPostgres implements DbAdapterInterface {
       type,
     }));
 
-    // Construct columns SQL
     const columnsSql = columns
       .map((col) => `${col.name} ${col.type}`)
       .join(", ");
 
-    // Construct primary key SQL
     const primaryKeySql = `PRIMARY KEY (${pk.join(", ")})`;
 
-    // Initial table creation SQL
     const createTableSql = `CREATE TABLE IF NOT EXISTS ${name} (${columnsSql}, ${primaryKeySql})`;
 
     await this.query(null, this.client, createTableSql);
 
-    // Check and update column types if needed
     for (const col of columns) {
       try {
         await this.query(
@@ -162,7 +158,6 @@ export default class DbPostgres implements DbAdapterInterface {
       } catch (error: any) {
         console.log(error.message);
         if (error.message.includes("column")) {
-          // If the column exists, try updating its type (this may fail if there are incompatible data types)
           try {
             await this.query(
               null,
@@ -187,7 +182,6 @@ export default class DbPostgres implements DbAdapterInterface {
       }
     }
 
-    // Create additional indexes
     if (indexes) {
       for (const indexDef of indexes) {
         if (typeof indexDef === "object") {
@@ -208,7 +202,6 @@ export default class DbPostgres implements DbAdapterInterface {
       }
     }
 
-    // History table creation
     if (auditable) {
       const historyColumnsSql = columns
         .map((col) => `${col.name} ${col.type}`)
@@ -227,7 +220,6 @@ export default class DbPostgres implements DbAdapterInterface {
           );
         } catch (error: any) {
           if (error.message.includes("column")) {
-            // If the column exists in the history table, try updating its type
             try {
               await this.query(
                 null,
@@ -264,12 +256,10 @@ export default class DbPostgres implements DbAdapterInterface {
     document = _.pick(document as any, Object.keys(cols)) as Entity;
     document = _.omit(document as any, generatedCols) as Entity;
 
-    // Execute prehook function
     if (this.prehooks[table]) {
       document = this.prehooks[table](document as RestEntity) as Entity;
     }
 
-    // Make sure dates are sent as numbers
     for (const type of Object.keys(cols)) {
       if (cols[type] === "BIGINT") {
         if (document[type]) {
@@ -283,9 +273,7 @@ export default class DbPostgres implements DbAdapterInterface {
       ) {
         document[type] = "";
       }
-      // Null values are bad for postgres
       if (cols[type] === "BOOLEAN" && document[type] !== undefined) {
-        // The key must still be present as it's an update
         document[type] = !!document[type];
       }
     }
@@ -301,6 +289,11 @@ export default class DbPostgres implements DbAdapterInterface {
 
     await this.query(ctx, client, queryText, values);
     this.logger.info(ctx, `Inserted document into ${table}`);
+
+    // Invalider le cache après insertion
+    if (Framework.Cache) {
+      await Framework.Cache.invalidate(ctx, table);
+    }
 
     if (options?.triggers !== false) {
       await Framework.TriggersManager.trigger(ctx, table, document, null);
@@ -328,7 +321,6 @@ export default class DbPostgres implements DbAdapterInterface {
       include_deleted: true,
     });
 
-    // Execute prehook function
     if (this.prehooks[table]) {
       document = this.prehooks[table](
         document as RestEntity,
@@ -336,7 +328,6 @@ export default class DbPostgres implements DbAdapterInterface {
       ) as Entity;
     }
 
-    // Make sure dates are sent as numbers
     for (const type of Object.keys(cols)) {
       if (cols[type] === "BIGINT") {
         if (document[type]) {
@@ -351,9 +342,7 @@ export default class DbPostgres implements DbAdapterInterface {
       ) {
         delete document[type];
       }
-      // Null values are bad for postgres
       if (cols[type] === "BOOLEAN" && document[type] !== undefined) {
-        // The key must still be present as it's an update (or every updates will set the value to false if key is not present)
         document[type] = !!document[type];
       }
     }
@@ -380,6 +369,11 @@ export default class DbPostgres implements DbAdapterInterface {
       ctx,
       `Updated document in ${table} with condition ${JSON.stringify(condition)}`
     );
+
+    // Invalider le cache après update
+    if (Framework.Cache) {
+      await Framework.Cache.invalidate(ctx, table);
+    }
 
     if (options?.triggers !== false) {
       await Framework.TriggersManager.trigger(
@@ -415,6 +409,11 @@ export default class DbPostgres implements DbAdapterInterface {
       `Deleted from ${table} with condition ${JSON.stringify(condition)}`
     );
 
+    // Invalider le cache après delete
+    if (Framework.Cache) {
+      await Framework.Cache.invalidate(ctx, table);
+    }
+
     if (previousDocument) {
       await Framework.TriggersManager.trigger(
         ctx,
@@ -445,7 +444,7 @@ export default class DbPostgres implements DbAdapterInterface {
       include_deleted: false,
     }
   ) {
-    options.asc = options.asc !== false; // Default to true if not specified
+    options.asc = options.asc !== false;
 
     const client = ctx.db_tnx?.client || this.client;
     const cols = this.tablesDefinitions[table]?.columns || {};
@@ -461,6 +460,55 @@ export default class DbPostgres implements DbAdapterInterface {
       (condition as any).is_deleted = false;
     }
 
+    // Vérifier le cache avant d'exécuter la requête (SELECT et COUNT)
+    if (
+      Framework.Cache &&
+      !ctx.db_tnx && // Ne pas utiliser le cache dans une transaction
+      Framework.Cache.canCache(table, condition, options)
+    ) {
+      const cacheKey = Framework.Cache.generateCacheKey(
+        table,
+        condition,
+        options
+      );
+      const cached = await Framework.Cache.get<Entity>(ctx, cacheKey);
+      if (cached !== null) {
+        return cached;
+      }
+
+      // Si pas dans le cache, exécuter la requête et la mettre en cache
+      const result = await this.executeSelect<Entity>(
+        ctx,
+        client,
+        table,
+        condition,
+        options,
+        cols
+      );
+
+      await Framework.Cache.set(ctx, cacheKey, table, result);
+      return result;
+    }
+
+    // Exécution normale sans cache
+    return this.executeSelect<Entity>(
+      ctx,
+      client,
+      table,
+      condition,
+      options,
+      cols
+    );
+  }
+
+  private async executeSelect<Entity>(
+    ctx: Context,
+    client: PoolClient,
+    table: string,
+    condition: Condition<Entity>,
+    options: any,
+    cols: any
+  ): Promise<Entity[]> {
     if (
       ctx.role === "SYSTEM" &&
       (condition as any).sql &&
@@ -519,8 +567,6 @@ export default class DbPostgres implements DbAdapterInterface {
       !options?.count &&
       options?.rank_query
     ) {
-      // In this case add this to select:
-      // ts_rank_cd(searchable_generated, plainto_tsquery('$searchQuery')) AS rank
       select = `SELECT *, ts_rank_cd(searchable_generated, plainto_tsquery('simple', $${
         values.length + 1
       })) AS _rank`;

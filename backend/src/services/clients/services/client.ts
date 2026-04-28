@@ -158,7 +158,9 @@ export const createClient = async (ctx: Context, body: Partial<Clients>) => {
       preferences: {
         language: "en",
       },
-      payment: {} as Payment,
+      payment: {
+        mode: ["bank_transfer"],
+      } as Payment,
       invoices: {
         branding: true,
       } as InvoiceFormat,

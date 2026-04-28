@@ -1,17 +1,21 @@
+import { checkRole } from "#src/services/common";
+import { Ctx } from "#src/services/utils";
+import config from "config";
 import { Express, Router } from "express";
+import jwt from "jsonwebtoken";
 import { default as Framework, default as platform } from "../../../platform";
 import { Logger } from "../../../platform/logger-db";
 import { InternalApplicationService } from "../../types";
 import { FieldsDefinition } from "./entities/fields";
-import { checkRole } from "#src/services/common";
-import { Ctx } from "#src/services/utils";
-import config from "config";
-import jwt from "jsonwebtoken";
 
 export default class Fields implements InternalApplicationService {
   version = 1;
   name = "fields";
   private logger: Logger;
+
+  constructor() {
+    this.logger = Framework.LoggerDb.get("fields");
+  }
 
   async init(server: Express) {
     const router = Router();
@@ -43,7 +47,7 @@ export default class Fields implements InternalApplicationService {
               user_id: userId,
               client_id: clientId,
             },
-            signSecret,
+            signSecret as string,
             { expiresIn: "10y" } // 10 year expiration, effectively permanent
           );
 
@@ -77,7 +81,10 @@ export default class Fields implements InternalApplicationService {
 
           try {
             // Verify the signature
-            const decoded = jwt.verify(server_signature, signSecret) as {
+            const decoded = jwt.verify(
+              server_signature,
+              signSecret as string
+            ) as unknown as {
               svg: string;
               full_name: string;
               date: string;
@@ -113,8 +120,6 @@ export default class Fields implements InternalApplicationService {
 
     const db = await platform.Db.getService();
     await db.createTable(FieldsDefinition);
-
-    this.logger = Framework.LoggerDb.get("fields");
 
     Framework.TriggersManager.registerEntities([FieldsDefinition], {
       READ: "FIELDS_READ",

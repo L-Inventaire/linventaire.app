@@ -40,7 +40,8 @@ const fetchServerBatch = (() => {
 
       const matchingRequest = pendingRequests[clientId]?.find(
         (req) =>
-          req.url === url && ((!req.body && !body) || _.isEqual(req.body, body))
+          req.url === url &&
+          ((!req.body && !body) || _.isEqual(req.body, body)),
       );
 
       if (matchingRequest) {
@@ -73,7 +74,7 @@ export class RestApiClient<T> {
   suggestions = async (
     clientId: string,
     column: string,
-    query?: string
+    query?: string,
   ): Promise<
     {
       value: any;
@@ -97,10 +98,10 @@ export class RestApiClient<T> {
     clientId: string,
     id: string,
     limit: number = 10,
-    offset: number = 0
+    offset: number = 0,
   ): Promise<{ total: number; list: T[]; has_more: boolean }> => {
     const tmp = await fetchServer(
-      `/api/rest/v1/${clientId}/${this.table}/${id}/history?limit=${limit}&offset=${offset}`
+      `/api/rest/v1/${clientId}/${this.table}/${id}/history?limit=${limit}&offset=${offset}`,
     );
     if (tmp.status === 200) return await tmp.json();
     throw new Error("Error fetching data");
@@ -115,21 +116,37 @@ export class RestApiClient<T> {
       limit?: number;
       offset?: number;
       asc?: boolean;
-    }
+    },
   ): Promise<{ total: number; list: T[] }> => {
     const tmp = await fetchServerBatch(
       clientId,
       `/api/rest/v1/${clientId}/${this.table}/search`,
-      { query, options }
+      { query, options },
     );
     if (tmp.status === 200) return tmp.body;
     throw new Error("Error fetching data");
   };
 
+  count = async (
+    clientId: string,
+    query?: Partial<T> | any,
+    options?: {
+      deleted?: boolean;
+    },
+  ): Promise<number> => {
+    const tmp = await fetchServerBatch(
+      clientId,
+      `/api/rest/v1/${clientId}/${this.table}/count`,
+      { query, options: { ...options } }, // limit: 0 pour COUNT
+    );
+    if (tmp.status === 200) return tmp.body.total;
+    throw new Error("Error fetching count");
+  };
+
   get = async (clientId: string, id: string): Promise<T> => {
     const tmp = await fetchServerBatch(
       clientId,
-      `/api/rest/v1/${clientId}/${this.table}/${id}`
+      `/api/rest/v1/${clientId}/${this.table}/${id}`,
     );
     if (tmp.status === 200) return tmp.body;
     throw new Error("Error fetching data");
@@ -141,7 +158,7 @@ export class RestApiClient<T> {
       {
         method: "POST",
         body: JSON.stringify(item),
-      }
+      },
     );
 
     if (resp.status !== 200) {
@@ -154,14 +171,14 @@ export class RestApiClient<T> {
   update = async (
     clientId: string,
     item: Partial<T>,
-    id?: string
+    id?: string,
   ): Promise<T> => {
     const resp = await await fetchServer(
       `/api/rest/v1/${clientId}/${this.table}/${(item as any).id || id}`,
       {
         method: "PUT",
         body: JSON.stringify(item),
-      }
+      },
     );
 
     if (resp.status !== 200) {
@@ -176,7 +193,7 @@ export class RestApiClient<T> {
       `/api/rest/v1/${clientId}/${this.table}/${id}`,
       {
         method: "DELETE",
-      }
+      },
     );
     if (res.status !== 200) {
       throw new Error("Error deleting data");
@@ -188,7 +205,7 @@ export class RestApiClient<T> {
       `/api/rest/v1/${clientId}/${this.table}/${id}/restore`,
       {
         method: "POST",
-      }
+      },
     );
     if (res.status !== 200) {
       throw new Error("Error restoring data");

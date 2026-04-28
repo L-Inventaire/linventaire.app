@@ -149,6 +149,7 @@ export const search = async <T>(
     deleted?: boolean;
     index?: string;
     rank_query?: string;
+    count_only?: boolean;
   }
 ) => {
   if (!(await isTableAvailable(ctx, table, "READ", query)))
@@ -206,6 +207,22 @@ export const search = async <T>(
       ?.filter((a: any) => a.key === "query")
       ?.map((a) => a.values.map((b) => b.value).join(" "))
       .join(" ");
+  }
+
+  // Optimisation: si limit === 0, on ne veut que le COUNT
+  if (options.count_only) {
+    const total = await driver.count(
+      { ...ctx, role: "SYSTEM" },
+      table,
+      conditions,
+      {
+        include_deleted: options.deleted,
+      }
+    );
+    return {
+      total,
+      list: [],
+    };
   }
 
   const result = orderSearchResults(
