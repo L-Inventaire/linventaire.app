@@ -5,7 +5,7 @@ import { BuildingOfficeIcon, UserIcon } from "@heroicons/react/16/solid";
 import { IconButton, Skeleton } from "@radix-ui/themes";
 
 export const ContactRestDocument = (
-  props: Omit<RestDocumentProps<Contacts>, "entity">
+  props: Omit<RestDocumentProps<Contacts>, "entity">,
 ) => {
   const size = props.size || "lg";
   return (

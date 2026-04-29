@@ -297,7 +297,8 @@ export const InvoiceContent = ({
               }}
             >
               <Text>
-                {formatQuantity(item.quantity, item.unit)} {item.unit || "u."}
+                {formatQuantity(item.quantity, item.unit)}{" "}
+                {getUnitLabel(item.unit) || "u."}
               </Text>
               {!!item.subscription && (
                 <Text

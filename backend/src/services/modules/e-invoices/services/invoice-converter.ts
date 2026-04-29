@@ -418,7 +418,6 @@ export function convertInternalToEN16931(
         // If it's not a standard rate, check for exemption reason
         exemptionReasonCode = parts[1];
         // Try to find the full exemption reason text
-        const fullKey = vatCategoryKey;
         const reasonKey = getVatExemptionReason(line.tva);
         if (reasonKey) {
           exemptionReasonCode = reasonKey.split(":")[1];
@@ -590,12 +589,10 @@ export function convertInternalToEN16931(
   // Add global VAT codes if there's only one breakdown entry
   let globalVatCategoryCode: string | undefined = undefined;
   let globalVatExemptionReasonCode: string | undefined = undefined;
-  let globalVatExemptionReason: string | undefined = undefined;
 
   if (vatBreakDown.length === 1) {
     globalVatCategoryCode = vatBreakDown[0].vat_category_code;
     globalVatExemptionReasonCode = vatBreakDown[0].vat_exemption_reason_code;
-    globalVatExemptionReason = vatBreakDown[0].vat_exemption_reason;
   }
 
   // Build seller and buyer based on direction

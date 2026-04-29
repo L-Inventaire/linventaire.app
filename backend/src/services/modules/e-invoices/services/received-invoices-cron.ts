@@ -15,7 +15,7 @@ import { create } from "#src/services/rest/services/rest";
 export const setupCronReceivedInvoices = async () => {
   Framework.Cron.schedule(
     "e_invoices_fetch_received",
-    "0 * * * *", // Every hour at minute 0
+    "* * * * *", // Every hour at minute 0
     async (ctx) => {
       const db = await Framework.Db.getService();
 
@@ -24,6 +24,7 @@ export const setupCronReceivedInvoices = async () => {
         ctx,
         EInvoicingConfigDefinition.name,
         {
+          client_id: ctx.client_id,
           receive_enabled: true,
           connection_status: "connected",
         },
@@ -45,7 +46,9 @@ export const setupCronReceivedInvoices = async () => {
           const lastInvoices = await db.select<ReceivedEInvoice>(
             clientCtx,
             ReceivedEInvoiceDefinition.name,
-            {},
+            {
+              client_id: config.client_id,
+            },
             {
               limit: 1,
               index: "superpdp_invoice_id",
@@ -70,6 +73,7 @@ export const setupCronReceivedInvoices = async () => {
                 clientCtx,
                 ReceivedEInvoiceDefinition.name,
                 {
+                  client_id: config.client_id,
                   superpdp_invoice_id: invoice.id,
                 },
                 { limit: 1 }
@@ -112,45 +116,46 @@ export const setupCronReceivedInvoices = async () => {
                 continue;
               }
 
-              await create<ReceivedEInvoice>(
-                clientCtx,
-                ReceivedEInvoiceDefinition.name,
-                {
-                  superpdp_invoice_id: fullInvoice.id,
-                  direction: "in",
-                  invoice_number: enInvoice.number,
-                  issue_date: new Date(enInvoice.issue_date).getTime(),
-                  type_code: enInvoice.type_code,
-                  currency_code: enInvoice.currency_code,
-                  seller_name: seller.name,
-                  seller_vat: seller.tax_id || seller.vat || "",
-                  seller_address: [
-                    seller.postal_address?.street_name,
-                    seller.postal_address?.city_name,
-                    seller.postal_address?.postal_zone,
-                    seller.postal_address?.country,
-                  ]
-                    .filter(Boolean)
-                    .join(", "),
-                  buyer_name: buyer.name,
-                  buyer_vat: buyer.tax_id || buyer.vat || "",
-                  total_amount:
-                    totals.tax_exclusive_amount ||
-                    totals.invoice_total_amount_without_vat,
-                  total_tax_amount:
-                    totals.tax_amount || totals.invoice_total_vat_amount || 0,
-                  total_amount_with_tax:
-                    totals.tax_inclusive_amount ||
-                    totals.invoice_total_amount_with_vat,
-                  processed: false,
-                  supplier_invoice_id: "",
-                  processing_error: "",
-                  received_at: Date.now(),
-                  superpdp_created_at: fullInvoice.created_at
-                    ? new Date(fullInvoice.created_at).getTime()
-                    : Date.now(),
-                }
-              );
+              if (false)
+                await create<ReceivedEInvoice>(
+                  clientCtx,
+                  ReceivedEInvoiceDefinition.name,
+                  {
+                    superpdp_invoice_id: fullInvoice.id,
+                    direction: "in",
+                    invoice_number: enInvoice.number,
+                    issue_date: new Date(enInvoice.issue_date).getTime(),
+                    type_code: enInvoice.type_code,
+                    currency_code: enInvoice.currency_code,
+                    seller_name: seller.name,
+                    seller_vat: seller.tax_id || seller.vat || "",
+                    seller_address: [
+                      seller.postal_address?.street_name,
+                      seller.postal_address?.city_name,
+                      seller.postal_address?.postal_zone,
+                      seller.postal_address?.country,
+                    ]
+                      .filter(Boolean)
+                      .join(", "),
+                    buyer_name: buyer.name,
+                    buyer_vat: buyer.tax_id || buyer.vat || "",
+                    total_amount:
+                      totals.tax_exclusive_amount ||
+                      totals.invoice_total_amount_without_vat,
+                    total_tax_amount:
+                      totals.tax_amount || totals.invoice_total_vat_amount || 0,
+                    total_amount_with_tax:
+                      totals.tax_inclusive_amount ||
+                      totals.invoice_total_amount_with_vat,
+                    processed: false,
+                    supplier_invoice_id: "",
+                    processing_error: "",
+                    received_at: Date.now(),
+                    superpdp_created_at: fullInvoice.created_at
+                      ? new Date(fullInvoice.created_at).getTime()
+                      : Date.now(),
+                  }
+                );
 
               console.log(
                 `Imported e-invoice ${fullInvoice.id} for client ${ctx.client_id}`

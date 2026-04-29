@@ -24,18 +24,7 @@ export default (router: Router) => {
         const ctx = Ctx.get(req)!.context;
         if (!ctx) throw new Error("No context");
 
-        const db = await Framework.Db.getService();
-
-        const configs = await db.select<EInvoicingConfig>(
-          ctx,
-          EInvoicingConfigDefinition.name,
-          {
-            client_id: ctx.client_id,
-          },
-          { limit: 1 }
-        );
-
-        const config = configs[0];
+        const config = await Services.EInvoices.getConfig(ctx);
 
         if (!config) {
           return res.json({ config: null });
@@ -100,22 +89,15 @@ export default (router: Router) => {
         const db = await Framework.Db.getService();
 
         // Check if config already exists
-        const existingConfigs = await db.select<EInvoicingConfig>(
-          ctx,
-          EInvoicingConfigDefinition.name,
-          {
-            client_id: ctx.client_id,
-          },
-          { limit: 1 }
-        );
+        const existingConfig = await Services.EInvoices.getConfig(ctx);
 
         let config;
-        if (existingConfigs[0]) {
+        if (existingConfig) {
           // Update existing
           await update(
             ctx,
             EInvoicingConfigDefinition.name,
-            { id: existingConfigs[0].id, client_id: ctx.client_id },
+            { id: existingConfig.id, client_id: ctx.client_id },
             {
               pdp_provider: pdp_provider || "superpdp",
               integration_client_id: client_id,
@@ -126,7 +108,7 @@ export default (router: Router) => {
           config = await db.selectOne<EInvoicingConfig>(
             ctx,
             EInvoicingConfigDefinition.name,
-            { id: existingConfigs[0].id, client_id: ctx.client_id }
+            { id: existingConfig.id, client_id: ctx.client_id }
           );
         } else {
           // Create new
@@ -138,13 +120,7 @@ export default (router: Router) => {
             receive_enabled: false,
             send_enabled: false,
           });
-          const configs = await db.select<EInvoicingConfig>(
-            ctx,
-            EInvoicingConfigDefinition.name,
-            { client_id: ctx.client_id },
-            { limit: 1 }
-          );
-          config = configs[0];
+          config = await Services.EInvoices.getConfig(ctx);
         }
 
         // Sanitize response
@@ -177,16 +153,7 @@ export default (router: Router) => {
         const db = await Framework.Db.getService();
 
         // Get config
-        const configs = await db.select<EInvoicingConfig>(
-          ctx,
-          EInvoicingConfigDefinition.name,
-          {
-            client_id: ctx.client_id,
-          },
-          { limit: 1 }
-        );
-
-        const config = configs[0];
+        const config = await Services.EInvoices.getConfig(ctx);
         if (!config) {
           return res.status(404).json({
             error: "No configuration found. Please save configuration first.",
@@ -287,16 +254,7 @@ export default (router: Router) => {
 
         const db = await Framework.Db.getService();
 
-        const configs = await db.select<EInvoicingConfig>(
-          ctx,
-          EInvoicingConfigDefinition.name,
-          {
-            client_id: ctx.client_id,
-          },
-          { limit: 1 }
-        );
-
-        const config = configs[0];
+        const config = await Services.EInvoices.getConfig(ctx);
         if (!config) {
           return res.status(404).json({ error: "No configuration found" });
         }
@@ -332,16 +290,7 @@ export default (router: Router) => {
 
         const db = await Framework.Db.getService();
 
-        const configs = await db.select<EInvoicingConfig>(
-          ctx,
-          EInvoicingConfigDefinition.name,
-          {
-            client_id: ctx.client_id,
-          },
-          { limit: 1 }
-        );
-
-        const config = configs[0];
+        const config = await Services.EInvoices.getConfig(ctx);
         if (!config) {
           return res.status(404).json({ error: "No configuration found" });
         }
@@ -390,16 +339,7 @@ export default (router: Router) => {
         const db = await Framework.Db.getService();
 
         // Get config
-        const configs = await db.select<EInvoicingConfig>(
-          ctx,
-          EInvoicingConfigDefinition.name,
-          {
-            client_id: ctx.client_id,
-          },
-          { limit: 1 }
-        );
-
-        const config = configs[0];
+        const config = await Services.EInvoices.getConfig(ctx);
         if (!config) {
           return res.status(404).json({ error: "No configuration found" });
         }
@@ -482,17 +422,8 @@ export default (router: Router) => {
         const db = await Framework.Db.getService();
 
         // Check if e-invoicing is enabled for receiving
-        const configs = await db.select<EInvoicingConfig>(
-          ctx,
-          EInvoicingConfigDefinition.name,
-          {
-            client_id: ctx.client_id,
-            receive_enabled: true,
-          },
-          { limit: 1 }
-        );
-
-        if (configs.length === 0) {
+        const config = await Services.EInvoices.getConfig(ctx);
+        if (!config || !config.receive_enabled) {
           return res.status(403).json({
             error: "E-invoicing reception is not enabled for this client",
           });
