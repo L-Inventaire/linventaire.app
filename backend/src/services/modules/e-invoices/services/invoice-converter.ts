@@ -355,8 +355,13 @@ export async function getResolvedEntities(
  */
 export function convertInternalToEN16931(
   invoice: Invoices,
-  resolvedEntities: ResolvedEntities
+  resolvedEntities: ResolvedEntities,
+  as?: "proforma" | "receipt_acknowledgement" | "delivery_slip"
 ): EN16931Invoice {
+  if (as === "receipt_acknowledgement" || as === "delivery_slip") {
+    throw new Error(`Conversion to ${as} is not supported yet`);
+  }
+
   const company = resolvedEntities.self;
   // Determine direction from invoice type
   const isSupplier = invoice.type.startsWith("supplier_");
@@ -377,6 +382,10 @@ export function convertInternalToEN16931(
   if (invoice.type.includes("credit_note")) {
     typeCode = 381; // Credit note
   } else if (invoice.type.includes("quote")) {
+    typeCode = 325; // Proforma invoice / quote
+  }
+
+  if (as === "proforma") {
     typeCode = 325; // Proforma invoice / quote
   }
 

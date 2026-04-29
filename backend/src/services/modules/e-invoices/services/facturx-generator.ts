@@ -34,8 +34,13 @@ export async function generateFacturXPdf(
   ctx: Context,
   pdfBuffer: Buffer,
   invoice: Invoices,
-  superpdpClient: SuperPDPClient
+  superpdpClient: SuperPDPClient,
+  as?: "proforma" | "receipt_acknowledgement" | "delivery_slip"
 ): Promise<Buffer> {
+  if (as === "receipt_acknowledgement" || as === "delivery_slip") {
+    return pdfBuffer; // For now, just return the original PDF for unsupported types
+  }
+
   const { self, client, supplier, articles } = await getResolvedEntities(
     ctx,
     invoice
@@ -50,7 +55,11 @@ export async function generateFacturXPdf(
   };
 
   // Convert internal invoice to EN16931 format
-  const en16931Invoice = convertInternalToEN16931(invoice, resolvedEntities);
+  const en16931Invoice = convertInternalToEN16931(
+    invoice,
+    resolvedEntities,
+    as
+  );
 
   console.log("EN16931 Invoice data:", JSON.stringify(en16931Invoice, null, 2));
 

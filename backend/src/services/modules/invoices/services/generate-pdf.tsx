@@ -2,15 +2,11 @@ import Clients, {
   ClientsDefinition,
 } from "#src/services/clients/entities/clients";
 import Services from "#src/services/index";
-import { search } from "#src/services/rest/services/rest";
-import _ from "lodash";
 import { PDFDocument } from "pdf-lib";
 import { PDFExtract } from "pdf.js-extract";
 import sharp from "sharp";
 import Framework from "../../../../platform";
 import { Context } from "../../../../types";
-import Articles, { ArticlesDefinition } from "../../articles/entities/articles";
-import Contacts, { ContactsDefinition } from "../../contacts/entities/contacts";
 import {
   EInvoicingConfig,
   EInvoicingConfigDefinition,
@@ -276,7 +272,8 @@ export const generatePdf = async (
             ctx,
             pdfWithAttachments, // The base PDF to embed invoice data into
             document,
-            superpdpClient // SuperPDP client for Factur-X conversion
+            superpdpClient, // SuperPDP client for Factur-X conversion
+            options.as // Pass the "as" option to handle different invoice types
           )
         );
       }
