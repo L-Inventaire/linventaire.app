@@ -4,7 +4,10 @@ import { search } from "#src/services/rest/services/rest";
 import { getContactName } from "#src/services/utils";
 import { Context } from "#src/types";
 import _ from "lodash";
-import { EN16931Invoice } from "../../../../platform/e-invoices/adapters/superpdp/en16931-types";
+import {
+  EN16931Invoice,
+  EN16931VatBreakDown,
+} from "../../../../platform/e-invoices/adapters/superpdp/en16931-types";
 import Articles, { ArticlesDefinition } from "../../articles/entities/articles";
 import Contacts, { ContactsDefinition } from "../../contacts/entities/contacts";
 import Invoices, {
@@ -563,11 +566,11 @@ export function convertInternalToEN16931(
   });
 
   const vatBreakDown = Array.from(vatBreakdownMap.values()).map((entry) => {
-    const breakdown: any = {
-      vat_category_taxable_amount: entry.taxableAmount,
-      vat_category_tax_amount: entry.vatAmount,
+    const breakdown: EN16931VatBreakDown = {
+      vat_category_taxable_amount: `${entry.taxableAmount}`,
+      vat_category_tax_amount: `${entry.vatAmount}`,
       vat_category_code: entry.key.categoryCode,
-      vat_category_rate: entry.key.rate,
+      vat_category_rate: `${entry.key.rate}`,
     };
 
     if (entry.key.exemptionReasonCode) {
@@ -746,16 +749,18 @@ export function convertInternalToEN16931(
     allowances_charges:
       documentAllowances.length > 0 ? documentAllowances : undefined,
     totals: {
-      sum_of_invoice_net_amounts: sumOfLineNetAmounts,
-      sum_of_allowances_on_document_level:
-        documentAllowanceAmount > 0 ? documentAllowanceAmount : undefined,
-      invoice_total_amount_without_vat: totalWithoutVat,
-      invoice_total_vat_amount: totalVat,
-      invoice_total_amount_with_vat: totalWithVat,
-      amount_due_for_payment: totalWithVat,
-      tax_exclusive_amount: totalWithoutVat,
-      tax_amount: totalVat,
-      tax_inclusive_amount: totalWithVat,
+      sum_invoice_lines_amount: `${sumOfLineNetAmounts}`,
+      sum_allowances_amount:
+        documentAllowanceAmount > 0 ? `${documentAllowanceAmount}` : undefined,
+      total_without_vat: `${totalWithoutVat}`,
+      total_vat_amount:
+        totalVat > 0
+          ? {
+              value: `${totalVat}`,
+            }
+          : undefined,
+      total_with_vat: `${totalWithVat}`,
+      amount_due_for_payment: `${totalWithVat}`,
     },
     vat_break_down: vatBreakDown,
     lines,

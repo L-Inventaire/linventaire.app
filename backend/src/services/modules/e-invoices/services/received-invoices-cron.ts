@@ -24,7 +24,6 @@ export const setupCronReceivedInvoices = async () => {
         ctx,
         EInvoicingConfigDefinition.name,
         {
-          client_id: ctx.client_id,
           receive_enabled: true,
           connection_status: "connected",
         },
@@ -80,6 +79,9 @@ export const setupCronReceivedInvoices = async () => {
               );
 
               if (existing.length > 0) {
+                console.log(
+                  `Invoice ${invoice.id} already exists for client ${clientCtx.client_id}, skipping.`
+                );
                 // Already imported, skip
                 continue;
               }
@@ -88,7 +90,7 @@ export const setupCronReceivedInvoices = async () => {
               let fullInvoice = invoice;
               if (!invoice.en_invoice?.seller || !invoice.en_invoice?.buyer) {
                 console.log(
-                  `Fetching complete data for invoice ${invoice.id} for client ${ctx.client_id}`
+                  `Fetching complete data for invoice ${invoice.id} for client ${clientCtx.client_id}`
                 );
                 fullInvoice = await superpdpClient.getInvoice(invoice.id);
               }
@@ -97,12 +99,10 @@ export const setupCronReceivedInvoices = async () => {
               const enInvoice = fullInvoice.en_invoice;
               if (!enInvoice) {
                 console.error(
-                  `No EN invoice data for invoice ${fullInvoice.id} for client ${ctx.client_id}`
+                  `No EN invoice data for invoice ${fullInvoice.id} for client ${clientCtx.client_id}`
                 );
                 continue;
               }
-
-              console.log(enInvoice);
 
               const seller = enInvoice.seller;
               const buyer = enInvoice.buyer;
@@ -111,58 +111,58 @@ export const setupCronReceivedInvoices = async () => {
               // Skip if seller or buyer are missing (incomplete invoice data)
               if (!seller || !buyer) {
                 console.error(
-                  `Missing seller or buyer data for invoice ${fullInvoice.id} for client ${ctx.client_id}`
+                  `Missing seller or buyer data for invoice ${fullInvoice.id} for client ${clientCtx.client_id}`
                 );
                 continue;
               }
 
-              if (false)
-                await create<ReceivedEInvoice>(
-                  clientCtx,
-                  ReceivedEInvoiceDefinition.name,
-                  {
-                    superpdp_invoice_id: fullInvoice.id,
-                    direction: "in",
-                    invoice_number: enInvoice.number,
-                    issue_date: new Date(enInvoice.issue_date).getTime(),
-                    type_code: enInvoice.type_code,
-                    currency_code: enInvoice.currency_code,
-                    seller_name: seller.name,
-                    seller_vat: seller.tax_id || seller.vat || "",
-                    seller_address: [
-                      seller.postal_address?.street_name,
-                      seller.postal_address?.city_name,
-                      seller.postal_address?.postal_zone,
-                      seller.postal_address?.country,
-                    ]
-                      .filter(Boolean)
-                      .join(", "),
-                    buyer_name: buyer.name,
-                    buyer_vat: buyer.tax_id || buyer.vat || "",
-                    total_amount:
-                      totals.tax_exclusive_amount ||
-                      totals.invoice_total_amount_without_vat,
-                    total_tax_amount:
-                      totals.tax_amount || totals.invoice_total_vat_amount || 0,
-                    total_amount_with_tax:
-                      totals.tax_inclusive_amount ||
-                      totals.invoice_total_amount_with_vat,
-                    processed: false,
-                    supplier_invoice_id: "",
-                    processing_error: "",
-                    received_at: Date.now(),
-                    superpdp_created_at: fullInvoice.created_at
-                      ? new Date(fullInvoice.created_at).getTime()
-                      : Date.now(),
-                  }
-                );
+              await create<ReceivedEInvoice>(
+                clientCtx,
+                ReceivedEInvoiceDefinition.name,
+                {
+                  state: "new",
+                  en_invoice: enInvoice,
+                  superpdp_invoice_id: fullInvoice.id,
+                  direction: "in",
+                  invoice_number: enInvoice.number,
+                  issue_date: new Date(enInvoice.issue_date).getTime(),
+                  type_code: enInvoice.type_code,
+                  currency_code: enInvoice.currency_code,
+                  seller_name: seller.name,
+                  seller_vat: seller.tax_id || seller.vat || "",
+                  seller_address: [
+                    seller.postal_address?.street_name,
+                    seller.postal_address?.city_name,
+                    seller.postal_address?.postal_zone,
+                    seller.postal_address?.country,
+                  ]
+                    .filter(Boolean)
+                    .join(", "),
+                  buyer_name: buyer.name,
+                  buyer_vat: buyer.tax_id || buyer.vat || "",
+                  total_amount: parseFloat(totals.total_without_vat || "0"),
+                  total_tax_amount: parseFloat(
+                    totals.total_vat_amount?.value || "0"
+                  ),
+                  total_amount_with_tax: parseFloat(
+                    totals.total_with_vat || "0"
+                  ),
+                  processed: false,
+                  supplier_invoice_id: "",
+                  processing_error: "",
+                  received_at: Date.now(),
+                  superpdp_created_at: fullInvoice.created_at
+                    ? new Date(fullInvoice.created_at).getTime()
+                    : Date.now(),
+                }
+              );
 
               console.log(
-                `Imported e-invoice ${fullInvoice.id} for client ${ctx.client_id}`
+                `Imported e-invoice ${fullInvoice.id} for client ${clientCtx.client_id}`
               );
             } catch (error: any) {
               console.error(
-                `Error processing invoice ${invoice.id} for client ${ctx.client_id}:`,
+                `Error processing invoice ${invoice.id} for client ${clientCtx.client_id}:`,
                 error
               );
               captureException(error);

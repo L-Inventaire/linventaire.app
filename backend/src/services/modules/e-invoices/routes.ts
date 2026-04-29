@@ -48,12 +48,6 @@ export default (router: Router) => {
           refresh_token_encrypted: config.refresh_token_encrypted ? "***" : "",
         };
 
-        console.log("[GET /config] Sending sanitized config:", {
-          directory_entries_count:
-            sanitized.superpdp_directory_entries?.length || 0,
-          directory_entries: sanitized.superpdp_directory_entries,
-        });
-
         res.json({ config: sanitized });
       } catch (error: any) {
         console.error("Error fetching e-invoicing config:", error);
