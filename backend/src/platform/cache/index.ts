@@ -173,10 +173,8 @@ export default class CacheService implements PlatformService {
    */
   async invalidate(ctx: Context, table: string): Promise<void> {
     try {
-      if (!this.config.cachedEntities.includes(table)) {
-        return;
-      }
-
+      // Note: We invalidate ALL tables, not just whitelisted ones
+      // because COUNT queries are cached for all tables
       // Supprimer toutes les clés commençant par db:table:
       const pattern = `data_db:${table}:*`;
       const keys = await Framework.Redis.keys(pattern);
@@ -202,10 +200,8 @@ export default class CacheService implements PlatformService {
     partialKey?: string
   ): Promise<void> {
     try {
-      if (!this.config.cachedEntities.includes(table)) {
-        return;
-      }
-
+      // Note: We invalidate ALL tables, not just whitelisted ones
+      // because COUNT queries are cached for all tables
       const pattern = partialKey
         ? `data_db:${table}:*${partialKey}*`
         : `data_db:${table}:*`;
