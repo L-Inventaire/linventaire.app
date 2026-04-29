@@ -356,10 +356,10 @@ describe("EN16931 Invoice Converter", () => {
       mockEN16931.delivery_information = {
         actual_delivery_date: "2026-04-30",
         postal_address: {
-          street_name: "789 Delivery St",
-          city_name: "Marseille",
-          postal_zone: "13001",
-          country: "FR",
+          address_line1: "789 Delivery St",
+          city: "Marseille",
+          post_code: "13001",
+          country_code: "FR",
         },
       };
       const resolvedEntities: ResolvedEntities = {
@@ -404,7 +404,7 @@ describe("EN16931 Invoice Converter", () => {
 
     it("should convert invoice notes correctly", () => {
       const mockEN16931 = createMockEN16931Invoice();
-      mockEN16931.invoice_note = [
+      mockEN16931.notes = [
         { note: "First note" },
         { note: "Second note", subject_code: "AAI" },
       ];
@@ -563,10 +563,10 @@ describe("EN16931 Invoice Converter", () => {
       expect(result.delivery_information?.actual_delivery_date).toBe(
         "2026-05-01"
       );
-      expect(result.delivery_information?.postal_address?.street_name).toBe(
+      expect(result.delivery_information?.postal_address?.address_line1).toBe(
         "789 Delivery St"
       );
-      expect(result.delivery_information?.postal_address?.city_name).toBe(
+      expect(result.delivery_information?.postal_address?.city).toBe(
         "Marseille"
       );
     });
@@ -634,18 +634,18 @@ describe("EN16931 Invoice Converter", () => {
 
 function createMockEN16931Invoice(): EN16931Invoice {
   const sellerAddress: EN16931PostalAddress = {
-    street_name: "123 Main Street",
-    additional_street_name: "Building B",
-    city_name: "Paris",
-    postal_zone: "75001",
-    country: "FR",
+    address_line1: "789 Delivery St",
+    address_line2: "Building B",
+    city: "Marseille",
+    post_code: "13001",
+    country_code: "FR",
   };
 
   const buyerAddress: EN16931PostalAddress = {
-    street_name: "456 Oak Avenue",
-    city_name: "Lyon",
-    postal_zone: "69001",
-    country: "FR",
+    address_line1: "789 Delivery St",
+    city: "Marseille",
+    post_code: "13001",
+    country_code: "FR",
   };
 
   return {
@@ -655,7 +655,7 @@ function createMockEN16931Invoice(): EN16931Invoice {
     currency_code: "EUR",
     seller: {
       name: "ACME Corporation",
-      vat: "FR12345678901",
+      vat_identifier: "FR12345678901",
       postal_address: sellerAddress,
       contact: {
         email: "contact@acme.com",
@@ -663,7 +663,7 @@ function createMockEN16931Invoice(): EN16931Invoice {
     },
     buyer: {
       name: "Client Company",
-      vat: "FR98765432109",
+      vat_identifier: "FR98765432109",
       postal_address: buyerAddress,
     },
     totals: {

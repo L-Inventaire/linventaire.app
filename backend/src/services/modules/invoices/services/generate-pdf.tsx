@@ -40,6 +40,7 @@ export const generatePdf = async (
     checkedIndexes: { [key: number]: boolean };
     content?: { _index: number; quantity: number }[];
     as?: "proforma" | "receipt_acknowledgement" | "delivery_slip";
+    facturx?: boolean;
   } = {
     checkedIndexes: {},
   }
@@ -229,11 +230,16 @@ export const generatePdf = async (
   );
 
   if (
-    eInvoicingConfig &&
-    eInvoicingConfig.connection_status === "connected" &&
-    eInvoicingConfig.send_enabled === true
+    options.facturx ||
+    (eInvoicingConfig &&
+      eInvoicingConfig.connection_status === "connected" &&
+      eInvoicingConfig.send_enabled === true)
   )
-    if (document.type === "invoices" || document.type === "credit_notes") {
+    if (
+      options.facturx ||
+      document.type === "invoices" ||
+      document.type === "credit_notes"
+    ) {
       // Get SuperPDP client (automatically decrypts credentials)
       const superpdpClient = await Services.EInvoices.getClient(ctx);
 
@@ -266,7 +272,7 @@ export const generatePdf = async (
           - vat_category ex. "vat_category": "S" (standard)
           - vat_reason ex. "vat_reason": "Exonération de TVA - article 259B du CGI"
       */
-      if (false) {
+      if (options.facturx) {
         pdfWithAttachments = Buffer.from(
           await generateFacturXPdf(
             ctx,

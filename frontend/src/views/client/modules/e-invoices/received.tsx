@@ -36,9 +36,9 @@ export const ReceivedEInvoicesPage = () => {
       label: "Rattachées",
       filter: buildQueryFromMap({ state: "attached" }),
     },
-    discarded: {
+    rejected: {
       label: "Rejetés",
-      filter: buildQueryFromMap({ state: "discarded" }),
+      filter: buildQueryFromMap({ state: "rejected" }),
     },
   };
   const [activeTab, setActiveTab] = useRouterState("tab", "new");
@@ -75,14 +75,14 @@ export const ReceivedEInvoicesPage = () => {
     key: "attachedReceivedEInvoices",
     query: [...tabs.attached.filter, ...invoiceFilters.query],
   });
-  const discardedCount = useRestCount("received_e_invoices", {
-    key: "discardedReceivedEInvoices",
-    query: [...tabs.discarded.filter, ...invoiceFilters.query],
+  const rejectedCount = useRestCount("received_e_invoices", {
+    key: "rejectedReceivedEInvoices",
+    query: [...tabs.rejected.filter, ...invoiceFilters.query],
   });
   const counters = {
     new: newCount.data || 0,
     attached: attachedCount.data || 0,
-    discarded: discardedCount.data || 0,
+    rejected: rejectedCount.data || 0,
   };
 
   return (

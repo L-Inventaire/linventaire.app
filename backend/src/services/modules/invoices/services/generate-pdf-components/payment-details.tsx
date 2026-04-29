@@ -103,7 +103,15 @@ export const InvoicePaymentDetails = ({
             },
           !!document.payment_information.delay && {
             label: Framework.I18n.t(ctx, "invoices.other.delay"),
-            value: document.payment_information.delay + " jours",
+            value:
+              document.payment_information.delay_type === "direct"
+                ? document.payment_information.delay + " jours"
+                : "Avant le " +
+                  displayDate(
+                    document.payment_information.delay_date,
+                    timezone,
+                    document.language
+                  ),
           },
           !!document.payment_information.recovery_fee && {
             label: Framework.I18n.t(ctx, "invoices.other.recovery_fee"),

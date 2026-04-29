@@ -1,5 +1,10 @@
 import Framework from "#src/platform/index";
-import { create, remove, update } from "#src/services/rest/services/rest";
+import {
+  create,
+  remove,
+  search,
+  update,
+} from "#src/services/rest/services/rest";
 import { Ctx } from "#src/services/utils";
 import Services from "#src/services/index";
 import { Router } from "express";
@@ -8,6 +13,7 @@ import {
   EInvoicingConfig,
   EInvoicingConfigDefinition,
 } from "./entities/e-invoicing-config";
+import { ReceivedEInvoice } from "./entities/received-e-invoice";
 import { encrypt } from "./utils/encryption";
 
 export default (router: Router) => {
@@ -448,6 +454,83 @@ export default (router: Router) => {
         });
       } catch (error: any) {
         console.error("Error fetching received e-invoices:", error);
+        res.status(500).json({ error: error.message });
+      }
+    }
+  );
+
+  /**
+   * GET /:clientId/received/:id/matched-entities
+   * Get matched entities (contacts, articles) for a received e-invoice
+   */
+  router.get(
+    "/:clientId/received/:id/matched-entities",
+    checkRole("USER"),
+    checkClientRoles(["SUPPLIER_INVOICES_READ"]),
+    async (req, res) => {
+      try {
+        const ctx = Ctx.get(req)!.context;
+        if (!ctx) throw new Error("No context");
+
+        const { id } = req.params;
+        const db = await Framework.Db.getService();
+
+        // Get the received invoice
+        const receivedInvoice = await db.selectOne<ReceivedEInvoice>(
+          ctx,
+          "received_e_invoices",
+          {
+            id,
+            client_id: ctx.client_id,
+          }
+        );
+
+        if (!receivedInvoice) {
+          return res.status(404).json({ error: "Received invoice not found" });
+        }
+
+        // Extract references from EN16931 invoice
+        const { extractReferencesFromEN16931 } = await import(
+          "./services/invoice-converter"
+        );
+        const references = extractReferencesFromEN16931(
+          receivedInvoice.en_invoice
+        );
+
+        // Find matching supplier contact
+        const supplierMatches = await search(
+          { ...ctx, role: "SYSTEM" },
+          "contacts",
+          {
+            client_id: ctx.client_id,
+            business_registered_id:
+              references.seller.legal_registration_identifier.value,
+          }
+        );
+
+        // Find matching articles/services
+        const articleMatches = new Map();
+        for (const articleRef of references.articles) {
+          const matches = await search({ ...ctx, role: "SYSTEM" }, "articles", {
+            client_id: ctx.client_id,
+            reference: [
+              articleRef.sellers_item_identification,
+              articleRef.buyers_item_identification,
+            ],
+          });
+
+          if (matches.list.length > 0) {
+            articleMatches.set(articleRef.name, matches.list);
+          }
+        }
+
+        res.json({
+          supplier: supplierMatches.list?.[0] || null,
+          articles: Object.fromEntries(articleMatches),
+          references,
+        });
+      } catch (error: any) {
+        console.error("Error finding matched entities:", error);
         res.status(500).json({ error: error.message });
       }
     }

@@ -5,13 +5,12 @@
  */
 
 export interface EN16931PostalAddress {
-  street_name?: string;
-  additional_street_name?: string;
-  city_name?: string;
-  postal_zone?: string;
-  country_subentity?: string;
-  address_line?: string[];
-  country?: string;
+  address_line1?: string;
+  address_line2?: string;
+  city?: string;
+  post_code?: string;
+  country_subdivision?: string;
+  country_code?: string;
 }
 
 export interface EN16931ElectronicAddress {
@@ -332,7 +331,7 @@ export interface EN16931Invoice {
   issue_date: string; // ISO 8601 date format
   payment_due_date?: string;
   type_code: number; // 380 for invoice, 381 for credit note, etc.
-  invoice_note?: EN16931InvoiceNote[];
+  notes?: EN16931InvoiceNote[];
   currency_code: string; // ISO 4217
   vat_accounting_currency_code?: string;
   vat_category_code?: string;

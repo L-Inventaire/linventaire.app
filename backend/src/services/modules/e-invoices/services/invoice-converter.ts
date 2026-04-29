@@ -1,12 +1,16 @@
 import Services from "#src/services/index";
-import Clients from "#src/services/clients/entities/clients";
+import Clients, { Address } from "#src/services/clients/entities/clients";
 import { search } from "#src/services/rest/services/rest";
 import { getContactName } from "#src/services/utils";
 import { Context } from "#src/types";
 import _ from "lodash";
 import {
+  EN16931ElectronicAddress,
   EN16931Invoice,
+  EN16931PostalAddress,
   EN16931VatBreakDown,
+  EN16931Seller,
+  EN16931Buyer,
 } from "../../../../platform/e-invoices/adapters/superpdp/en16931-types";
 import Articles, { ArticlesDefinition } from "../../articles/entities/articles";
 import Contacts, { ContactsDefinition } from "../../contacts/entities/contacts";
@@ -19,6 +23,7 @@ import {
   getVatCategory,
   getVatExemptionReason,
 } from "../../invoices/types/maps";
+import { getTvaValue } from "../../invoices/utils";
 
 /**
  * References extracted from an EN16931 invoice that need to be resolved
@@ -28,16 +33,42 @@ export interface EN16931References {
   // Seller information for contact lookup
   seller: {
     name: string;
-    vat?: string;
-    tax_id?: string;
-    email?: string;
+    vat_identifier?: string;
+    postal_address?: EN16931PostalAddress;
+    identifiers: [
+      {
+        value: string; // SIRENE
+        scheme: string; // Default to "0225";
+      }
+    ];
+    legal_registration_identifier: {
+      value: string; // SIRENE
+      scheme: string; // Default to "0002";
+    };
+    electronic_address: {
+      value: string; // E-INVOICE ADDRESS
+      scheme: string; // Ex. "0225";
+    };
   };
   // Buyer information for contact lookup
   buyer: {
     name: string;
-    vat?: string;
-    tax_id?: string;
-    email?: string;
+    vat_identifier?: string;
+    postal_address?: EN16931PostalAddress;
+    identifiers: [
+      {
+        value: string; // SIRENE
+        scheme: string; // Default to "0225";
+      }
+    ];
+    legal_registration_identifier: {
+      value: string; // SIRENE
+      scheme: string; // Default to "0002";
+    };
+    electronic_address: {
+      value: string; // E-INVOICE ADDRESS
+      scheme: string; // Ex. "0225";
+    };
   };
   // Article names from invoice lines for article lookup
   articles: Array<{
@@ -70,18 +101,8 @@ export function extractReferencesFromEN16931(
   invoice: EN16931Invoice
 ): EN16931References {
   return {
-    seller: {
-      name: invoice.seller.name,
-      vat: invoice.seller.vat,
-      tax_id: invoice.seller.tax_id,
-      email: invoice.seller.contact?.email,
-    },
-    buyer: {
-      name: invoice.buyer.name,
-      vat: invoice.buyer.vat,
-      tax_id: invoice.buyer.tax_id,
-      email: invoice.buyer.contact?.email,
-    },
+    seller: invoice.seller,
+    buyer: invoice.buyer,
     articles: invoice.lines.map((line) => ({
       name: line.item_information.name,
       reference: line.item_information.sellers_item_identification,
@@ -286,12 +307,11 @@ export function convertEN16931ToInternal(
     }
     if (en16931Invoice.delivery_information.postal_address) {
       const addr = en16931Invoice.delivery_information.postal_address;
-      invoice.delivery_address.address_line_1 = addr.street_name || "";
-      invoice.delivery_address.address_line_2 =
-        addr.additional_street_name || "";
-      invoice.delivery_address.city = addr.city_name || "";
-      invoice.delivery_address.zip = addr.postal_zone || "";
-      invoice.delivery_address.country = addr.country || "";
+      invoice.delivery_address.address_line_1 = addr.address_line1 || "";
+      invoice.delivery_address.address_line_2 = addr.address_line2 || "";
+      invoice.delivery_address.city = addr.city || "";
+      invoice.delivery_address.zip = addr.post_code || "";
+      invoice.delivery_address.country = addr.country_code || "";
     }
   }
 
@@ -300,8 +320,8 @@ export function convertEN16931ToInternal(
   invoice.payment_information = payment_information;
 
   // Notes from invoice notes
-  if (en16931Invoice.invoice_note && en16931Invoice.invoice_note.length > 0) {
-    invoice.notes = en16931Invoice.invoice_note.map((n) => n.note).join("\n\n");
+  if (en16931Invoice.notes && en16931Invoice.notes.length > 0) {
+    invoice.notes = en16931Invoice.notes.map((n) => n.note).join("\n\n");
   }
 
   return invoice;
@@ -346,6 +366,147 @@ export async function getResolvedEntities(
     client: contacts.list[0],
     supplier: contacts.list[0],
     articles: articlesMap,
+  };
+}
+
+/**
+ * Parse electronic address identifier from format "scheme:value"
+ * @param identifier - The identifier string (e.g., "0225:315143296_3173")
+ * @returns Object with scheme and value, or undefined if invalid
+ */
+function parseElectronicAddress(
+  identifier?: string
+): { scheme: string; value: string } | undefined {
+  if (!identifier || !identifier.includes(":")) {
+    return undefined;
+  }
+  const [scheme, value] = identifier.split(":", 2);
+  if (!scheme || !value) {
+    return undefined;
+  }
+  return { scheme: scheme.trim(), value: value.trim() };
+}
+
+/**
+ * Build EN16931 postal address from internal Address entity
+ */
+function buildPostalAddress(address?: Address): EN16931PostalAddress {
+  return {
+    address_line1: address?.address_line_1 || "N/A",
+    address_line2: address?.address_line_2 || "",
+    city: address?.city || "N/A",
+    post_code: address?.zip || "00000",
+    country_code: address?.country || "FR",
+  };
+}
+
+/**
+ * Build EN16931 seller information from Client or Contact entity
+ */
+function buildEN16931Seller(
+  entity: Clients | Contacts,
+  isCompany: boolean
+): EN16931Seller {
+  let name: string;
+  let vat_identifier: string | undefined;
+  let siren: string | undefined;
+  let address: Address | undefined;
+  let email: string | undefined;
+  let eInvoiceIdentifier: string | undefined;
+
+  if ("company" in entity) {
+    // It's a Clients entity
+    name = entity.company?.legal_name || entity.company?.name || "N/A";
+    vat_identifier = entity.company?.tax_number;
+    siren = entity.company?.registration_number;
+    address = entity.address;
+    eInvoiceIdentifier = undefined; // Clients don't have e_invoices_identifier yet
+  } else {
+    // It's a Contacts entity
+    name = getContactName(entity) || entity.business_registered_id || entity.id;
+    vat_identifier = entity.business_tax_id;
+    siren = entity.business_registered_id;
+    address = entity.address;
+    email = entity.email;
+    eInvoiceIdentifier = entity.e_invoices_identifier;
+  }
+
+  // Parse electronic address
+  const electronicAddress = parseElectronicAddress(eInvoiceIdentifier);
+
+  return {
+    name,
+    vat_identifier,
+    postal_address: buildPostalAddress(address),
+    identifiers: [
+      {
+        value: siren || "000000000",
+        scheme: "0225", // SIRENE scheme
+      },
+    ],
+    legal_registration_identifier: {
+      value: siren || "000000000",
+      scheme: "0002", // SIREN scheme
+    },
+    electronic_address: electronicAddress || {
+      value: siren || "000000000",
+      scheme: "0225",
+    },
+  };
+}
+
+/**
+ * Build EN16931 buyer information from Client or Contact entity
+ */
+function buildEN16931Buyer(
+  entity: Clients | Contacts,
+  isCompany: boolean
+): EN16931Buyer {
+  let name: string;
+  let vat_identifier: string | undefined;
+  let siren: string | undefined;
+  let address: Address | undefined;
+  let email: string | undefined;
+  let eInvoiceIdentifier: string | undefined;
+
+  if ("company" in entity) {
+    // It's a Clients entity
+    name = entity.company?.name || entity.company?.legal_name || "My Company";
+    vat_identifier = entity.company?.tax_number;
+    siren = entity.company?.registration_number;
+    address = entity.address;
+    eInvoiceIdentifier = undefined; // Clients don't have e_invoices_identifier yet
+  } else {
+    // It's a Contacts entity
+    name = getContactName(entity) || entity.business_registered_id || entity.id;
+    vat_identifier = entity.business_tax_id;
+    siren = entity.business_registered_id;
+    address = entity.address;
+    email = entity.email;
+    eInvoiceIdentifier = entity.e_invoices_identifier;
+  }
+
+  // Parse electronic address
+  const electronicAddress = parseElectronicAddress(eInvoiceIdentifier);
+
+  return {
+    name,
+    vat_identifier,
+    postal_address: buildPostalAddress(address),
+    identifiers: [
+      {
+        value: siren || "000000000",
+        scheme: "0225", // SIRENE scheme
+      },
+    ],
+    legal_registration_identifier: {
+      value: siren || "000000000",
+      scheme: "0002", // SIREN scheme
+    },
+    electronic_address: electronicAddress || {
+      value: siren || "000000000",
+      scheme: "0225",
+    },
   };
 }
 
@@ -401,7 +562,7 @@ export function convertInternalToEN16931(
     }
 
     // Parse VAT rate
-    const vatRate = parseFloat(line.tva) || 0;
+    const vatRate = (getTvaValue(line.tva) || 0) * 100;
 
     // Get unit code (convert from internal label to standard code if needed)
     const unitCode = getUnitCode(line.unit) || line.unit || "C62"; // C62 = unit
@@ -599,89 +760,15 @@ export function convertInternalToEN16931(
   }
 
   // Build seller and buyer based on direction
-  // Use company address if available, fallback to invoice delivery address
-  const myCompanyAddress = {
-    street_name:
-      company?.address?.address_line_1 ||
-      invoice.delivery_address?.address_line_1 ||
-      "N/A",
-    additional_street_name:
-      company?.address?.address_line_2 ||
-      invoice.delivery_address?.address_line_2 ||
-      "",
-    city_name:
-      company?.address?.city || invoice.delivery_address?.city || "N/A",
-    postal_zone:
-      company?.address?.zip || invoice.delivery_address?.zip || "00000",
-    country:
-      company?.address?.country || invoice.delivery_address?.country || "FR",
-  };
-
-  const partnerAddress = {
-    street_name: partnerContact.address?.address_line_1 || "N/A",
-    additional_street_name: partnerContact.address?.address_line_2 || "",
-    city_name: partnerContact.address?.city || "N/A",
-    postal_zone: partnerContact.address?.zip || "00000",
-    country: partnerContact.address?.country || "FR",
-  };
-
-  const seller =
+  const seller: EN16931Seller =
     direction === "out"
-      ? {
-          name: company?.company?.legal_name || company?.company?.name,
-          vat: company?.company?.tax_number,
-          postal_address: myCompanyAddress,
-        }
-      : {
-          name:
-            getContactName(partnerContact) ||
-            partnerContact.business_registered_id ||
-            partnerContact.id,
-          vat: partnerContact.business_tax_id,
-          postal_address: partnerAddress,
-          /*
-          "identifiers": [
-            {
-              "value": "000000001",
-              "scheme": "0225"
-            }
-          ],
-          "legal_registration_identifier": {
-            "value": "000000001",
-            "scheme": "0002"
-          },
-          "vat_identifier": "FR15000000001",
-          "electronic_address": {
-            "value": "315143296_3173",
-            "scheme": "0225"
-          },
-          */
-          contact: partnerContact.email
-            ? { email: partnerContact.email }
-            : undefined,
-        };
+      ? buildEN16931Seller(company, true)
+      : buildEN16931Seller(partnerContact, true);
 
-  const buyer =
+  const buyer: EN16931Buyer =
     direction === "in"
-      ? {
-          name:
-            company?.company?.name ||
-            company?.company?.legal_name ||
-            "My Company",
-          vat: company?.company?.tax_number,
-          postal_address: myCompanyAddress,
-        }
-      : {
-          name:
-            getContactName(partnerContact) ||
-            partnerContact.business_registered_id ||
-            partnerContact.id,
-          vat: partnerContact.business_tax_id,
-          postal_address: partnerAddress,
-          contact: partnerContact.email
-            ? { email: partnerContact.email }
-            : undefined,
-        };
+      ? buildEN16931Buyer(company, true)
+      : buildEN16931Buyer(partnerContact, true);
 
   // Payment instructions
   const paymentDetails = invoice.payment_information.mode
@@ -693,9 +780,11 @@ export function convertInternalToEN16931(
           : invoice.payment_information.mode.includes("credit_card")
           ? "48"
           : "30",
-        payment_terms: invoice.payment_information.delay
-          ? `Payment within ${invoice.payment_information.delay} days`
-          : undefined,
+        payment_terms:
+          invoice.payment_information.delay &&
+          invoice.payment_information.delay_type === "direct"
+            ? `Payment within ${invoice.payment_information.delay} days`
+            : undefined,
         credit_transfer: invoice.payment_information.bank_iban
           ? [
               {
@@ -709,22 +798,66 @@ export function convertInternalToEN16931(
       }
     : undefined;
 
+  // Build standardized notes (PMT, PMD, AAB) from payment information
+  const invoiceNotes: Array<{ note: string; subject_code?: string }> = [];
+
+  // PMT - Recovery fees (Indemnité forfaitaire pour frais de recouvrement)
+  const recoveryFee = invoice.payment_information.recovery_fee?.trim();
+  if (recoveryFee) {
+    invoiceNotes.push({
+      note: `L'indemnité forfaitaire pour frais de recouvrement est de ${recoveryFee}.`,
+      subject_code: "PMT",
+    });
+  } else {
+    invoiceNotes.push({
+      note: "L'indemnité forfaitaire légale pour frais de recouvrement est de 40 €.",
+      subject_code: "PMT",
+    });
+  }
+
+  // PMD - Late payment penalties (Pénalités de retard)
+  const latePenalty = invoice.payment_information.late_penalty?.trim();
+  if (latePenalty) {
+    invoiceNotes.push({
+      note: `À défaut de règlement à la date d'échéance, une pénalité de ${latePenalty} sera applicable immédiatement.`,
+      subject_code: "PMD",
+    });
+  } else {
+    invoiceNotes.push({
+      note: "À défaut de règlement à la date d'échéance, une pénalité égale au taux BCE majoré de 10 points sera applicable immédiatement.",
+      subject_code: "PMD",
+    });
+  }
+
+  // AAB - Early payment discount (Escompte pour paiement anticipé)
+  // TODO: Add early payment discount field to Payment model if needed
+  invoiceNotes.push({
+    note: "Aucun escompte pour paiement anticipé.",
+    subject_code: "AAB",
+  });
+
+  // Add general notes if they exist
+  if (invoice.notes) {
+    invoiceNotes.push({ note: invoice.notes });
+  }
+
   // Build EN16931 invoice
   const en16931Invoice: EN16931Invoice = {
+    process_control: {
+      business_process_type: "M1",
+      specification_identifier: "urn:cen.eu:en16931:2017",
+    },
     number: invoice.reference || invoice.name,
     issue_date: new Date(invoice.emit_date).toISOString().split("T")[0],
-    payment_due_date: invoice.payment_information.delay
-      ? new Date(
-          invoice.emit_date.getTime() +
-            invoice.payment_information.delay * 24 * 60 * 60 * 1000
-        )
+    payment_due_date: invoice.payment_information.computed_date
+      ? new Date(invoice.payment_information.computed_date)
           .toISOString()
           .split("T")[0]
       : undefined,
     type_code: typeCode,
     currency_code: invoice.currency || "EUR",
     buyer_reference: invoice.alt_reference || undefined,
-    invoice_note: invoice.notes ? [{ note: invoice.notes }] : undefined,
+    notes: invoiceNotes.length > 0 ? invoiceNotes : undefined,
     vat_category_code: globalVatCategoryCode,
     vat_exemption_reason_code: globalVatExemptionReasonCode,
     seller,
@@ -736,11 +869,11 @@ export function convertInternalToEN16931(
             .split("T")[0],
           postal_address: invoice.delivery_address.address_line_1
             ? {
-                street_name: invoice.delivery_address.address_line_1,
-                additional_street_name: invoice.delivery_address.address_line_2,
-                city_name: invoice.delivery_address.city,
-                postal_zone: invoice.delivery_address.zip,
-                country: invoice.delivery_address.country,
+                address_line1: invoice.delivery_address.address_line_1,
+                address_line2: invoice.delivery_address.address_line_2,
+                city: invoice.delivery_address.city,
+                post_code: invoice.delivery_address.zip,
+                country_code: invoice.delivery_address.country,
               }
             : undefined,
         }

@@ -129,17 +129,18 @@ export const setupCronReceivedInvoices = async () => {
                   type_code: enInvoice.type_code,
                   currency_code: enInvoice.currency_code,
                   seller_name: seller.name,
-                  seller_vat: seller.tax_id || seller.vat || "",
+                  seller_vat: seller.vat_identifier || "",
                   seller_address: [
-                    seller.postal_address?.street_name,
-                    seller.postal_address?.city_name,
-                    seller.postal_address?.postal_zone,
-                    seller.postal_address?.country,
+                    seller.postal_address?.address_line1,
+                    seller.postal_address?.address_line2,
+                    seller.postal_address?.post_code,
+                    seller.postal_address?.city,
+                    seller.postal_address?.country_code,
                   ]
                     .filter(Boolean)
                     .join(", "),
                   buyer_name: buyer.name,
-                  buyer_vat: buyer.tax_id || buyer.vat || "",
+                  buyer_vat: buyer.vat_identifier || "",
                   total_amount: parseFloat(totals.total_without_vat || "0"),
                   total_tax_amount: parseFloat(
                     totals.total_vat_amount?.value || "0"

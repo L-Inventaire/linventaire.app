@@ -9,17 +9,29 @@ export const setupOnSirenChanged = () => {
     name: "on-contact-siren-changed-update-e-invoices",
     test: (_ctx, entity, old) => {
       // Trigger on create (no old entity) or when SIREN changes
-      if (!old) {
-        return !!entity?.business_registered_id;
-      }
       return (
-        !!entity?.business_registered_id &&
+        !!entity &&
         entity.business_registered_id !== old?.business_registered_id
       );
     },
     callback: async (ctx, entity) => {
       // Only process if we have a SIREN
       if (!entity?.business_registered_id) {
+        if (entity?.e_invoices_identifier || entity?.e_invoices_active) {
+          // If SIREN is removed, clear e-invoices fields
+          const db = await Framework.Db.getService();
+          await db.update<Contacts>(
+            ctx,
+            ContactsDefinition.name,
+            { id: entity.id },
+            {
+              e_invoices_identifier: "",
+              e_invoices_active: false,
+            },
+            { triggers: false }
+          );
+        }
+
         return;
       }
 

@@ -37,7 +37,9 @@ export const computePaymentDelayDate = (invoice: Invoices): DateTime => {
   }
   if (delayType === "date") {
     const todayMidnight = DateTime.now().startOf("day").toMillis();
-    date = DateTime.fromMillis(payment.delay_date || todayMidnight);
+    date = DateTime.fromMillis(
+      new Date(payment.delay_date || todayMidnight).getTime()
+    );
   }
 
   return date;

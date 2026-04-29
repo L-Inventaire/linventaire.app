@@ -5,13 +5,12 @@
  */
 
 export interface EN16931PostalAddress {
-  street_name?: string;
-  additional_street_name?: string;
-  city_name?: string;
-  postal_zone?: string;
-  country_subentity?: string;
-  address_line?: string[];
-  country?: string;
+  address_line1?: string;
+  address_line2?: string;
+  city?: string;
+  post_code?: string;
+  country_subdivision?: string;
+  country_code?: string;
 }
 
 export interface EN16931ElectronicAddress {
@@ -37,25 +36,42 @@ export interface EN16931Contact {
 
 export interface EN16931Seller {
   name: string;
-  trading_name?: string;
-  tax_id?: string;
-  vat?: string;
-  additional_legal_information?: string;
-  electronic_address?: EN16931ElectronicAddress;
-  legal_registration_identifier?: EN16931LegalRegistrationIdentifier;
-  postal_address: EN16931PostalAddress;
-  contact?: EN16931Contact;
+  vat_identifier?: string;
+  postal_address?: EN16931PostalAddress;
+  identifiers: [
+    {
+      value: string; // SIRENE
+      scheme: string; // Default to "0225";
+    }
+  ];
+  legal_registration_identifier: {
+    value: string; // SIRENE
+    scheme: string; // Default to "0002";
+  };
+  electronic_address: {
+    value: string; // E-INVOICE ADDRESS
+    scheme: string; // Ex. "0225";
+  };
 }
 
 export interface EN16931Buyer {
   name: string;
-  trading_name?: string;
-  tax_id?: string;
-  vat?: string;
-  electronic_address?: EN16931ElectronicAddress;
-  legal_registration_identifier?: EN16931LegalRegistrationIdentifier;
-  postal_address: EN16931PostalAddress;
-  contact?: EN16931Contact;
+  vat_identifier?: string;
+  postal_address?: EN16931PostalAddress;
+  identifiers: [
+    {
+      value: string; // SIRENE
+      scheme: string; // Default to "0225";
+    }
+  ];
+  legal_registration_identifier: {
+    value: string; // SIRENE
+    scheme: string; // Default to "0002";
+  };
+  electronic_address: {
+    value: string; // E-INVOICE ADDRESS
+    scheme: string; // Ex. "0225";
+  };
 }
 
 export interface EN16931Payee {
@@ -332,7 +348,7 @@ export interface EN16931Invoice {
   issue_date: string; // ISO 8601 date format
   payment_due_date?: string;
   type_code: number; // 380 for invoice, 381 for credit note, etc.
-  invoice_note?: EN16931InvoiceNote[];
+  notes?: EN16931InvoiceNote[];
   currency_code: string; // ISO 4217
   vat_accounting_currency_code?: string;
   vat_category_code?: string;
@@ -351,7 +367,6 @@ export interface EN16931Invoice {
   // Parties
   seller: EN16931Seller;
   buyer: EN16931Buyer;
-  payee?: EN16931Payee;
   tax_representative?: any; // seller_tax_representative_party
 
   // Delivery

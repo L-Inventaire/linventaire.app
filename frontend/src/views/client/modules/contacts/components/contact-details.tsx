@@ -108,7 +108,7 @@ export const ContactsDetailsPage = ({
 
   const handleSelectCompany = (
     company: FrenchDirectoryCompany,
-    _entries: FrenchDirectoryEntry[],
+    entries: FrenchDirectoryEntry[],
   ) => {
     setContact((prev: Contacts) => ({
       ...prev,
@@ -116,14 +116,17 @@ export const ContactsDetailsPage = ({
       business_registered_name: company.formal_name,
       business_registered_id: company.number,
       address: {
+        ..._.omitBy(prev.address, _.isEmpty),
         address_line_1: company.address,
         address_line_2: "",
         city: company.city,
         region: "",
         zip: company.postcode,
         country: company.country,
-        ..._.omitBy(prev.address, _.isEmpty),
       },
+      e_invoices_active: entries.find((a) => a.is_active)?.is_active || false,
+      e_invoices_identifier:
+        (entries.find((a) => a.is_active) || entries[0])?.identifier || "",
     }));
     setSkipSearch(true); // Now show the full form
   };
@@ -265,22 +268,23 @@ export const ContactsDetailsPage = ({
                         ctrl={ctrl("business_tax_id")}
                       />
                     </PageColumns>
-                    {readonly && contact.e_invoices_identifier && (
-                      <div className="text-sm font-medium space-x-2">
-                        <span>
-                          {contact.e_invoices_active ? (
-                            <span className="text-green-700 font-semibold">
-                              ✓ Facturation électronique active
-                            </span>
-                          ) : (
-                            <span className="text-orange-600 font-semibold">
-                              ⚠ Facturation électronique inactive
-                            </span>
-                          )}
-                        </span>
-                        <span>({contact.e_invoices_identifier})</span>{" "}
-                      </div>
-                    )}
+                    {contact.business_registered_id &&
+                      contact.e_invoices_identifier && (
+                        <div className="text-sm font-medium space-x-2">
+                          <span>
+                            {contact.e_invoices_active ? (
+                              <span className="text-green-700 font-semibold">
+                                ✓ Facturation électronique active
+                              </span>
+                            ) : (
+                              <span className="text-orange-600 font-semibold">
+                                ⚠ Facturation électronique inactive
+                              </span>
+                            )}
+                          </span>
+                          <span>({contact.e_invoices_identifier})</span>{" "}
+                        </div>
+                      )}
                     {!contact.e_invoices_identifier && (
                       <>
                         {contact.type === "company" &&
