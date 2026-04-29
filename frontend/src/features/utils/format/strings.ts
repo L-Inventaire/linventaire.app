@@ -3,13 +3,13 @@ import { prettyPrintTime, timeDecimalToBase60 } from "./dates";
 
 export const validateEmail = (email: string) => {
   return email.match(
-    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
   );
 };
 
 export const validatePassword = (password: string) => {
   const defaultRegex = new RegExp(
-    "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})"
+    "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})",
   );
   return defaultRegex.test(password);
 };
@@ -39,7 +39,7 @@ export const formatIBAN = (iban: string) => {
 };
 
 export const formatQuantity = (quantity?: number, unit = "unité") => {
-  return unit !== "h"
+  return unit !== "HUR"
     ? quantity || 0
     : prettyPrintTime(timeDecimalToBase60(quantity || 0));
 };
@@ -93,7 +93,7 @@ export const buildSearchURL = (params: any): string => {
 export const getEmailsFromString = (str: string) => {
   return (
     (str || "").match(
-      /[^<>()[\]\\.,;:\s@"][^<>()[\]\\,;:\s@"]+@([^<>()[\]\\,;:\s@"]+\.)+[a-zA-Z0-9]+/g
+      /[^<>()[\]\\.,;:\s@"][^<>()[\]\\,;:\s@"]+@([^<>()[\]\\,;:\s@"]+\.)+[a-zA-Z0-9]+/g,
     ) || []
   );
 };
@@ -113,7 +113,7 @@ export const getRandomHexColor = () => {
       .replace(/../g, (x) =>
         Math.floor(parseInt(x, 16) * 0.8)
           .toString(16)
-          .padStart(2, "0")
+          .padStart(2, "0"),
       )
   );
 };

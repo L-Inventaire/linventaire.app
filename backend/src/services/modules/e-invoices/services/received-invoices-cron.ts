@@ -1,6 +1,7 @@
 import Framework from "#src/platform/index";
 import { Context } from "#src/types";
 import { captureException } from "@sentry/node";
+import Services from "#src/services/index";
 import {
   EInvoicingConfig,
   EInvoicingConfigDefinition,
@@ -9,7 +10,6 @@ import {
   ReceivedEInvoice,
   ReceivedEInvoiceDefinition,
 } from "../entities/received-e-invoice";
-import { decrypt } from "../utils/encryption";
 import { create } from "#src/services/rest/services/rest";
 
 export const setupCronReceivedInvoices = async () => {
@@ -38,22 +38,8 @@ export const setupCronReceivedInvoices = async () => {
             client_id: config.client_id,
           };
 
-          // Decrypt credentials
-          const clientSecret = decrypt(
-            config.integration_client_secret_encrypted
-          );
-          if (!clientSecret) {
-            console.error(
-              `Failed to decrypt client secret for client ${ctx.client_id}`
-            );
-            continue;
-          }
-
-          // Get SuperPDP client
-          const superpdpClient = Framework.EInvoices.getClient({
-            clientId: config.integration_client_id,
-            clientSecret,
-          });
+          // Get SuperPDP client (automatically decrypts credentials)
+          const superpdpClient = await Services.EInvoices.getClient(clientCtx);
 
           // Get the last processed invoice ID to fetch only new invoices
           const lastInvoices = await db.select<ReceivedEInvoice>(
@@ -132,7 +118,7 @@ export const setupCronReceivedInvoices = async () => {
                 {
                   superpdp_invoice_id: fullInvoice.id,
                   direction: "in",
-                  invoice_number: enInvoice.invoice_number,
+                  invoice_number: enInvoice.number,
                   issue_date: new Date(enInvoice.issue_date).getTime(),
                   type_code: enInvoice.type_code,
                   currency_code: enInvoice.currency_code,

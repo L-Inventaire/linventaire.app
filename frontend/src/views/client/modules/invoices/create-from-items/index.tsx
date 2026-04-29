@@ -16,6 +16,7 @@ import { InvoiceLinesInput } from "../components/invoice-lines-input";
 import { computePricesFromInvoice } from "../utils";
 import { useClients } from "@features/clients/state/use-clients";
 import { format } from "date-fns";
+import { useInvoiceMaps } from "@features/invoices/hooks/use-invoice-maps";
 
 export const QuoteFromItems = (_props: { readonly?: boolean }) => {
   const { ids } = useParams();
@@ -29,6 +30,7 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
   });
 
   const { upsert } = useInvoices();
+  const { maps } = useInvoiceMaps();
 
   const [loading, setLoading] = useState(false);
 
@@ -55,8 +57,8 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
       const grouped = Object.values(
         _.groupBy(
           usedItems,
-          (a) => a.article + "-" + format(a.created_at as any, "PP")
-        )
+          (a) => a.article + "-" + format(a.created_at as any, "PP"),
+        ),
       );
       const invoice = {
         ...lines,
@@ -65,11 +67,11 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
           lines.content ||
           grouped.map((item) => {
             const article = (articles.data?.list || []).find(
-              (article) => article.id === item[0].article
+              (article) => article.id === item[0].article,
             );
             const defaultArticle = (articles.data?.list || []).find(
               (article) =>
-                article.id === client?.client.service_items?.default_article
+                article.id === client?.client.service_items?.default_article,
             );
             const usedArticle = article || defaultArticle;
 
@@ -87,7 +89,7 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
               quantity:
                 item.reduce(
                   (acc, a) => acc + (a.quantity_spent || a.quantity_expected),
-                  0
+                  0,
                 ) || 0,
               unit_price: usedArticle?.price || 0,
               unit: usedArticle?.unit,
@@ -96,20 +98,23 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
           }),
       };
 
-      invoice.total = computePricesFromInvoice(invoice);
+      invoice.total = computePricesFromInvoice(invoice, maps?.vat_values);
 
       setLines(invoice);
     }
   }, [lines.client, usedItems?.length, JSON.stringify(articles?.data?.list)]);
 
   useEffect(() => {
-    setLines((lines) => ({ ...lines, total: computePricesFromInvoice(lines) }));
+    setLines((lines) => ({
+      ...lines,
+      total: computePricesFromInvoice(lines, maps?.vat_values),
+    }));
   }, [lines.content]);
 
   if (items.isLoading) return <></>;
 
   const missingArticles = lines.content?.some(
-    (a) => !a.article && (a.quantity || 0) > 0
+    (a) => !a.article && (a.quantity || 0) > 0,
   );
 
   return (
@@ -217,12 +222,12 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
                         }
 
                         navigate(
-                          getRoute(ROUTES.InvoicesView, { id: quote.id })
+                          getRoute(ROUTES.InvoicesView, { id: quote.id }),
                         );
                       } finally {
                         setLoading(false);
                       }
-                    }
+                    },
                   )
                 }
               >
@@ -264,12 +269,12 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
                         }
 
                         navigate(
-                          getRoute(ROUTES.InvoicesView, { id: quote.id })
+                          getRoute(ROUTES.InvoicesView, { id: quote.id }),
                         );
                       } finally {
                         setLoading(false);
                       }
-                    }
+                    },
                   )
                 }
               >

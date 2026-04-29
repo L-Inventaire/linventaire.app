@@ -281,6 +281,231 @@ export class SuperPDPClient {
   }
 
   /**
+   * Convert PDF and EN16931 invoice data to Factur-X PDF
+   *
+   * @param pdfBuffer - The base PDF file
+   * @param en16931Invoice - The EN16931 invoice data to embed
+   * @param options - Conversion options
+   * @returns The Factur-X PDF buffer
+   */
+  async convertToFacturX(
+    pdfBuffer: Buffer,
+    en16931Invoice: EN16931Invoice
+  ): Promise<Buffer> {
+    if (!this.accessToken) {
+      await this.authenticate();
+    }
+
+    try {
+      const res = await this.client.get(
+        "https://api.superpdp.tech/v1.beta/invoices/generate_test_invoice?format=en16931",
+        {
+          headers: {
+            Authorization: `Bearer ${this.accessToken}`,
+          },
+        }
+      );
+
+      en16931Invoice = {
+        ...en16931Invoice,
+        payment_due_date: "2026-07-30",
+        process_control: {
+          business_process_type: "M1",
+          specification_identifier: "urn:cen.eu:en16931:2017",
+        },
+        notes: [
+          {
+            subject_code: "PMT",
+            note: "L’indemnité forfaitaire légale pour frais de recouvrement est de 40 €.",
+          },
+          {
+            subject_code: "PMD",
+            note: "À défaut de règlement à la date d’échéance, une pénalité de 10 % du net à payer sera applicable immédiatement.",
+          },
+          {
+            subject_code: "AAB",
+            note: "Aucun escompte pour paiement anticipé.",
+          },
+        ],
+        seller: {
+          name: "Tricatel",
+          identifiers: [
+            {
+              value: "000000001",
+              scheme: "0225",
+            },
+          ],
+          legal_registration_identifier: {
+            value: "000000001",
+            scheme: "0002",
+          },
+          vat_identifier: "FR15000000001",
+          electronic_address: {
+            value: "315143296_3173",
+            scheme: "0225",
+          },
+          postal_address: {
+            country_code: "FR",
+          },
+        },
+        buyer: {
+          name: "Burger Queen",
+          identifiers: [
+            {
+              value: "000000002",
+              scheme: "0225",
+            },
+          ],
+          legal_registration_identifier: {
+            value: "000000002",
+            scheme: "0002",
+          },
+          vat_identifier: "FR18000000002",
+          electronic_address: {
+            value: "315143296_3174",
+            scheme: "0225",
+          },
+          postal_address: {
+            country_code: "FR",
+          },
+        },
+
+        delivery_information: {
+          delivery_date: "2025-06-30",
+        },
+        deliver_to_address: {
+          country_code: "FR",
+        },
+        totals: {
+          sum_invoice_lines_amount: "75",
+          total_without_vat: "75",
+          total_vat_amount: {
+            value: "15",
+            currency_code: "EUR",
+          },
+          total_with_vat: "90",
+          amount_due_for_payment: "90",
+        },
+      } as any;
+      console.log(
+        "[SuperPDPClient.convertToFacturX] Test EN16931 invoice from API:",
+        JSON.stringify(en16931Invoice, null, 2)
+      );
+      const FormData = (await import("form-data")).default;
+      const formData = new FormData();
+
+      console.log("[SuperPDPClient.convertToFacturX] Creating multipart:", {
+        invoiceNumber: en16931Invoice.number,
+        pdfSize: pdfBuffer.length,
+      });
+
+      // Add PDF file (field name must be 'pdf' per API spec)
+      formData.append("pdf", pdfBuffer, {
+        filename: "invoice.pdf",
+        contentType: "application/pdf",
+      });
+
+      // Add EN16931 invoice as JSON (field name must be 'invoice' per API spec)
+      const jsonBuffer = Buffer.from(JSON.stringify(en16931Invoice), "utf-8");
+      formData.append("invoice", jsonBuffer, {
+        filename: "invoice.json",
+        contentType: "application/json",
+      });
+
+      // Send multipart request with from=en16931&to=factur-x
+      const response = await this.client.post(
+        "/v1.beta/invoices/convert?from=en16931&to=factur-x",
+        formData,
+        {
+          headers: {
+            ...formData.getHeaders(),
+            Authorization: `Bearer ${this.accessToken}`,
+          },
+          responseType: "arraybuffer",
+        }
+      );
+
+      return Buffer.from(response.data);
+    } catch (error: any) {
+      // Log detailed error information
+      console.error("[SuperPDPClient.convertToFacturX] Error details:", {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        headers: error.response?.headers,
+        data: error.response?.data,
+        message: error.message,
+      });
+
+      // Try to parse error response (might be JSON or text)
+      let errorMessage = error.message;
+      if (error.response?.data) {
+        try {
+          // If data is a Buffer, try to convert to string
+          const dataStr =
+            error.response.data instanceof Buffer
+              ? error.response.data.toString("utf-8")
+              : error.response.data;
+          console.error(
+            "[SuperPDPClient.convertToFacturX] Response data:",
+            dataStr
+          );
+
+          // Try to parse as JSON
+          const jsonData = JSON.parse(dataStr);
+          errorMessage = jsonData.message || jsonData.error || errorMessage;
+          console.error(
+            "[SuperPDPClient.convertToFacturX] Parsed error:",
+            jsonData
+          );
+        } catch (parseError) {
+          // Not JSON, use as-is
+          console.error(
+            "[SuperPDPClient.convertToFacturX] Could not parse error response"
+          );
+        }
+      }
+
+      // If 401, try to re-authenticate
+      if (error.response?.status === 401) {
+        console.log(
+          "[SuperPDPClient.convertToFacturX] Re-authenticating after 401..."
+        );
+        await this.authenticate();
+
+        const FormData = (await import("form-data")).default;
+        const formData = new FormData();
+
+        formData.append("pdf", pdfBuffer, {
+          filename: "invoice.pdf",
+          contentType: "application/pdf",
+        });
+
+        const jsonBuffer = Buffer.from(JSON.stringify(en16931Invoice), "utf-8");
+        formData.append("invoice", jsonBuffer, {
+          filename: "invoice.json",
+          contentType: "application/json",
+        });
+
+        const response = await this.client.post(
+          "/v1.beta/invoices/convert?from=en16931&to=factur-x",
+          formData,
+          {
+            headers: {
+              ...formData.getHeaders(),
+              Authorization: `Bearer ${this.accessToken}`,
+            },
+            responseType: "arraybuffer",
+          }
+        );
+
+        return Buffer.from(response.data);
+      }
+
+      throw new Error(`Failed to convert to Factur-X: ${errorMessage}`);
+    }
+  }
+
+  /**
    * Test connection to SuperPDP
    */
   async testConnection(): Promise<{

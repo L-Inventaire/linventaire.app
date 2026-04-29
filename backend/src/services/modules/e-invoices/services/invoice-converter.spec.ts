@@ -76,9 +76,9 @@ describe("EN16931 Invoice Converter", () => {
       reference: "SRV-001",
       description: "Consulting services",
       type: "service",
-      unit: "hour",
+      unit: "HUR",
       unit_price: 100,
-      tva: "20",
+      tva: "S:20",
     } as any;
 
     const mockArticle2 = {
@@ -88,9 +88,9 @@ describe("EN16931 Invoice Converter", () => {
       reference: "PROD-A",
       description: "Description of Product A",
       type: "product",
-      unit: "piece",
+      unit: "EA",
       unit_price: 50,
-      tva: "20",
+      tva: "S:20",
     } as any;
 
     mockArticlesMap = new Map();
@@ -135,7 +135,7 @@ describe("EN16931 Invoice Converter", () => {
 
     it("should handle invoices without optional fields", () => {
       const minimalInvoice: EN16931Invoice = {
-        invoice_number: "INV-001",
+        number: "INV-001",
         issue_date: "2026-04-23",
         type_code: 380,
         currency_code: "EUR",
@@ -148,7 +148,7 @@ describe("EN16931 Invoice Converter", () => {
           postal_address: { country: "FR" },
         },
         totals: {
-          sum_of_invoice_line_net_amounts: 100,
+          sum_of_invoice_net_amounts: 100,
           invoice_total_amount_without_vat: 100,
           invoice_total_amount_with_vat: 120,
         },
@@ -164,8 +164,8 @@ describe("EN16931 Invoice Converter", () => {
             line_number: "1",
             invoiced_quantity: 1,
             invoiced_quantity_unit_code: "C62",
-            line_net_amount: 100,
-            line_vat_information: {
+            net_amount: 100,
+            vat_information: {
               invoiced_item_vat_category_code: "S",
               invoiced_item_vat_rate: 20,
             },
@@ -263,7 +263,7 @@ describe("EN16931 Invoice Converter", () => {
       expect(result.content![0].name).toBe("Professional Services");
       expect(result.content![0].quantity).toBe(10);
       expect(result.content![0].unit_price).toBe(100);
-      expect(result.content![0].tva).toBe("20");
+      expect(result.content![0].tva).toBe("S:20");
       expect(result.content![0].article).toBe("article-1");
     });
 
@@ -476,7 +476,7 @@ describe("EN16931 Invoice Converter", () => {
 
       const result = convertInternalToEN16931(mockInvoice, resolvedEntities);
 
-      expect(result.totals.sum_of_invoice_line_net_amounts).toBe(1000);
+      expect(result.totals.sum_of_invoice_net_amounts).toBe(1000);
       expect(result.totals.invoice_total_amount_without_vat).toBe(1000);
       // VAT at 20%
       expect(result.totals.invoice_total_vat_amount).toBeCloseTo(200, 0);
@@ -508,7 +508,7 @@ describe("EN16931 Invoice Converter", () => {
       const mockInvoice = createMockInternalInvoice("supplier_invoices");
       mockInvoice.content[0].quantity = 10;
       mockInvoice.content[0].unit_price = 100;
-      mockInvoice.content[0].tva = "20";
+      mockInvoice.content[0].tva = "S:20";
       const resolvedEntities: ResolvedEntities = {
         supplier: mockSupplier,
         articles: mockArticlesMap,
@@ -649,7 +649,7 @@ function createMockEN16931Invoice(): EN16931Invoice {
   };
 
   return {
-    invoice_number: "INV-2026-001",
+    number: "INV-2026-001",
     issue_date: "2026-04-23",
     type_code: 380,
     currency_code: "EUR",
@@ -667,7 +667,7 @@ function createMockEN16931Invoice(): EN16931Invoice {
       postal_address: buyerAddress,
     },
     totals: {
-      sum_of_invoice_line_net_amounts: 1100,
+      sum_of_invoice_net_amounts: 1100,
       invoice_total_amount_without_vat: 1100,
       invoice_total_vat_amount: 220,
       invoice_total_amount_with_vat: 1320,
@@ -685,8 +685,8 @@ function createMockEN16931Invoice(): EN16931Invoice {
         line_number: "1",
         invoiced_quantity: 10,
         invoiced_quantity_unit_code: "C62",
-        line_net_amount: 1000,
-        line_vat_information: {
+        net_amount: 1000,
+        vat_information: {
           invoiced_item_vat_category_code: "S",
           invoiced_item_vat_rate: 20,
         },
@@ -704,8 +704,8 @@ function createMockEN16931Invoice(): EN16931Invoice {
         line_number: "2",
         invoiced_quantity: 5,
         invoiced_quantity_unit_code: "C62",
-        line_net_amount: 100,
-        line_vat_information: {
+        net_amount: 100,
+        vat_information: {
           invoiced_item_vat_category_code: "S",
           invoiced_item_vat_rate: 20,
         },
@@ -749,7 +749,7 @@ function createMockInternalInvoice(type: Invoices["type"]): Invoices {
       unit: "C62",
       quantity: 1,
       unit_price: 100,
-      tva: "20",
+      tva: "S:20",
       discount: {
         mode: null,
         value: 0,

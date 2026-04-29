@@ -7,6 +7,7 @@ import seedrandom from "seedrandom";
 import { id } from "../platform/db/utils";
 import { Context, createContext } from "../types";
 import Contacts from "./modules/contacts/entities/contacts";
+import { getUnitCode } from "./modules/invoices/types/maps";
 
 export function secureExpress() {
   const app = express();
@@ -215,7 +216,7 @@ export function timeBase60ToDecimal(timeArray: number[]): number {
 }
 
 export const formatQuantity = (quantity?: number, unit = "unité") => {
-  return unit !== "h"
+  return getUnitCode(unit) !== "HUR"
     ? quantity || 0
     : prettyPrintTime(timeDecimalToBase60(quantity || 0));
 };

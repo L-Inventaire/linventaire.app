@@ -1,13 +1,14 @@
 import Framework from "#src/platform/index";
 import { create, remove, update } from "#src/services/rest/services/rest";
 import { Ctx } from "#src/services/utils";
+import Services from "#src/services/index";
 import { Router } from "express";
 import { checkClientRoles, checkRole } from "../../common";
 import {
   EInvoicingConfig,
   EInvoicingConfigDefinition,
 } from "./entities/e-invoicing-config";
-import { decrypt, encrypt } from "./utils/encryption";
+import { encrypt } from "./utils/encryption";
 
 export default (router: Router) => {
   /**
@@ -192,22 +193,10 @@ export default (router: Router) => {
           });
         }
 
-        // Decrypt secret
-        const clientSecret = decrypt(
-          config.integration_client_secret_encrypted
-        );
-        if (!clientSecret) {
-          return res
-            .status(400)
-            .json({ error: "Failed to decrypt client secret" });
-        }
+        // Get SuperPDP client (automatically decrypts credentials)
+        const client = await Services.EInvoices.getClient(ctx);
 
         // Test connection
-        const client = Framework.EInvoices.getClient({
-          clientId: config.integration_client_id,
-          clientSecret,
-        });
-
         const result = await client.testConnection();
 
         console.log("[POST /test-connection] Result from SuperPDP:", {
@@ -421,21 +410,8 @@ export default (router: Router) => {
             .json({ error: "Configuration is not connected" });
         }
 
-        // Decrypt secret
-        const clientSecret = decrypt(
-          config.integration_client_secret_encrypted
-        );
-        if (!clientSecret) {
-          return res
-            .status(400)
-            .json({ error: "Failed to decrypt client secret" });
-        }
-
-        // Get fresh data from SuperPDP
-        const client = Framework.EInvoices.getClient({
-          clientId: config.integration_client_id,
-          clientSecret,
-        });
+        // Get SuperPDP client (automatically decrypts credentials)
+        const client = await Services.EInvoices.getClient(ctx);
 
         try {
           const company = await client.getCompanyInfo();

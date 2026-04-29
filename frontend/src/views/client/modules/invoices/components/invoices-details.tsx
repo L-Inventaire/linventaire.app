@@ -20,6 +20,7 @@ import { Contacts } from "@features/contacts/types/types";
 import { useViewWithCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { InvoicesFieldsNames } from "@features/invoices/configuration";
 import { useInvoice, useInvoices } from "@features/invoices/hooks/use-invoices";
+import { useInvoiceMaps } from "@features/invoices/hooks/use-invoice-maps";
 import { Invoices } from "@features/invoices/types/types";
 import {
   getDocumentName,
@@ -78,6 +79,7 @@ export const InvoicesDetailsPage = ({
   id: string;
 }) => {
   const { client: clientUser } = useClients();
+  const { maps } = useInvoiceMaps();
   const client = clientUser!.client!;
 
   const { isPending, ctrl, draft, setDraft } = useReadDraftRest<Invoices>(
@@ -145,7 +147,7 @@ export const InvoicesDetailsPage = ({
         if (draft.type && !draft.reference && draft.emit_date) {
           draft.reference = getReference(draft);
         }
-        draft.total = computePricesFromInvoice(draft);
+        draft.total = computePricesFromInvoice(draft, maps?.vat_values);
         draft.content = (draft.content || []).map((a) => ({
           ...a,
           _id: a._id || _.uniqueId(),

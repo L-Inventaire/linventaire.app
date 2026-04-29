@@ -18,6 +18,8 @@ import { rebuildContactSearchables } from "./migrations/010-contact-rebuild-sear
 import { rebuildStockSearchables } from "./migrations/011-stock-reindex-searchable";
 import { fixNotificationsSearchables } from "./migrations/012-notifications-fix-searchable";
 import { rebuildArticlesSearchables } from "./migrations/013-articles-reindex-searchable";
+import { convertUnitsToStandardCodes } from "./migrations/014-convert-units-to-standard-codes";
+import { convertVatExemptionsToStandardCodes } from "./migrations/015-convert-vat-exemptions-to-standard-codes";
 
 export default class Clients implements InternalApplicationService {
   version = 1;
@@ -70,6 +72,9 @@ export default class Clients implements InternalApplicationService {
       "013-a2-contact-rebuild-searchable": rebuildContactSearchables,
       "013-b-stock-reindex-searchable": rebuildStockSearchables,
       "013-c-articles-reindex-searchable": rebuildArticlesSearchables,
+      "014-convert-units-to-standard-codes": convertUnitsToStandardCodes,
+      "015-convert-vat-exemptions-to-standard-codes":
+        convertVatExemptionsToStandardCodes,
     } as {
       [key: string]: (ctx: Context) => Promise<void>;
     };

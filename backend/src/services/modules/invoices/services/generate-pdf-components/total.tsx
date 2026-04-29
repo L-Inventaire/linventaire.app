@@ -5,6 +5,10 @@ import { Context } from "../../../../../types";
 import Invoices from "../../entities/invoices";
 import { computePricesFromInvoice } from "../../utils";
 import { convertHtml, formatAmount, KeyValueDisplay } from "./utils";
+import {
+  getVatExemptionReason,
+  vatCategoryCodeToExemptionReason,
+} from "../../types/maps";
 
 export const InvoiceTotal = ({
   ctx,
@@ -101,7 +105,20 @@ export const InvoiceTotal = ({
           },
         ]}
       />
-      <View>{convertHtml(document.format.tva, { fontSize: 9 })}</View>
+      <View
+        style={{
+          width: "250",
+        }}
+      >
+        {convertHtml(
+          !document.format.tva || document.format.tva === "NONE"
+            ? ""
+            : vatCategoryCodeToExemptionReason[
+                getVatExemptionReason(document.format.tva) || ""
+              ] || "",
+          { fontSize: 9 }
+        )}
+      </View>
 
       <View
         id="signature"

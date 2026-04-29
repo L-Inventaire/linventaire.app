@@ -8,6 +8,7 @@ import sharp from "sharp";
 import { Files, FilesDefinition } from "../files/entities/files";
 import { download } from "../files/services/files";
 import Invoices from "./entities/invoices";
+import { getVatCategory, standardCodeToVatValue } from "./types/maps";
 
 export const getCurrentYear = (timezone: string, date?: Date) => {
   date = new Date(date || Date.now());
@@ -123,11 +124,8 @@ export const getFormattedNumerotation = (
 };
 
 export const getTvaValue = (tva: string): number => {
-  tva = tva || "";
-  if (tva.match(/^[0-9.]+.*$/)) {
-    return parseFloat(tva.match(/^([0-9.]+).*$/)[1]) / 100;
-  }
-  return 0;
+  tva = getVatCategory(tva || "") || "";
+  return (standardCodeToVatValue[tva] || 0) / 100;
 };
 
 export const computePricesFromInvoice = (
@@ -200,7 +198,7 @@ export const computePricesFromInvoice = (
 
 export const getTimezoneOffset = (timezone: string, date?: Date | number) => {
   const targetDate = date ? new Date(date) : new Date();
-  
+
   // Generating the formatted text
   // Setting the timeZoneName to longOffset will convert PDT to GMT-07:00
   const dateText = Intl.DateTimeFormat([], {

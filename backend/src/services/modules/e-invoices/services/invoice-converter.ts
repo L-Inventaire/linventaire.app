@@ -1,12 +1,21 @@
+import Services from "#src/services/index";
+import Clients from "#src/services/clients/entities/clients";
+import { search } from "#src/services/rest/services/rest";
 import { getContactName } from "#src/services/utils";
 import { Context } from "#src/types";
+import _ from "lodash";
 import { EN16931Invoice } from "../../../../platform/e-invoices/adapters/superpdp/en16931-types";
-import Articles from "../../articles/entities/articles";
-import Contacts from "../../contacts/entities/contacts";
+import Articles, { ArticlesDefinition } from "../../articles/entities/articles";
+import Contacts, { ContactsDefinition } from "../../contacts/entities/contacts";
 import Invoices, {
   InvoiceDiscount,
   InvoiceLine,
 } from "../../invoices/entities/invoices";
+import {
+  getUnitCode,
+  getVatCategory,
+  getVatExemptionReason,
+} from "../../invoices/types/maps";
 
 /**
  * References extracted from an EN16931 invoice that need to be resolved
@@ -44,6 +53,7 @@ export interface ResolvedEntities {
   supplier?: Contacts; // Contact entity (for supplier invoices)
   client?: Contacts; // Contact entity (for client invoices)
   articles: Map<string, Articles>; // Map of article name/reference to article entity
+  self: Clients;
 }
 
 /**
@@ -142,7 +152,7 @@ export function convertEN16931ToInternal(
     }
 
     // Parse VAT rate
-    const vatRate = line.line_vat_information.invoiced_item_vat_rate || 0;
+    const vatRate = line.vat_information.invoiced_item_vat_rate || 0;
 
     // Calculate discount from allowances/charges
     const discount = new InvoiceDiscount();
@@ -240,8 +250,8 @@ export function convertEN16931ToInternal(
   invoice.client_id = ctx.client_id;
   invoice.type = type;
   invoice.state = "draft"; // New invoices start as draft
-  invoice.name = en16931Invoice.invoice_number;
-  invoice.reference = en16931Invoice.invoice_number;
+  invoice.name = en16931Invoice.number;
+  invoice.reference = en16931Invoice.number;
   invoice.alt_reference = en16931Invoice.buyer_reference || "";
   invoice.emit_date = new Date(en16931Invoice.issue_date);
   invoice.language = "en"; // Default, could be inferred from postal addresses
@@ -294,6 +304,48 @@ export function convertEN16931ToInternal(
   return invoice;
 }
 
+export async function getResolvedEntities(
+  ctx: Context,
+  document: Invoices
+): Promise<ResolvedEntities> {
+  const client = await Services.Clients.getClient(ctx, ctx.client_id);
+  const contacts = await search<Contacts>(
+    { ...ctx, role: "SYSTEM" },
+    ContactsDefinition.name,
+    {
+      client_id: ctx.client_id,
+      id: document.client,
+    }
+  );
+  const articles = await search<Articles>(
+    { ...ctx, role: "SYSTEM" },
+    ArticlesDefinition.name,
+    {
+      client_id: ctx.client_id,
+      id: _.uniq(document.content?.map((c) => c.article).filter(Boolean) || []),
+    }
+  );
+  const articlesMap = new Map<string, Articles>();
+  for (const article of articles.list) {
+    articlesMap.set(article.id, article);
+  }
+
+  if (!client) {
+    throw new Error("Client not found for the invoice");
+  }
+
+  if (!contacts?.list?.[0]) {
+    throw new Error("Contact not found for the invoice");
+  }
+
+  return {
+    self: client,
+    client: contacts.list[0],
+    supplier: contacts.list[0],
+    articles: articlesMap,
+  };
+}
+
 /**
  * Convert internal Invoices format to EN16931 invoice
  *
@@ -305,6 +357,7 @@ export function convertInternalToEN16931(
   invoice: Invoices,
   resolvedEntities: ResolvedEntities
 ): EN16931Invoice {
+  const company = resolvedEntities.self;
   // Determine direction from invoice type
   const isSupplier = invoice.type.startsWith("supplier_");
   const direction: "in" | "out" = isSupplier ? "in" : "out";
@@ -338,12 +391,38 @@ export function convertInternalToEN16931(
     // Parse VAT rate
     const vatRate = parseFloat(line.tva) || 0;
 
-    // Determine VAT category code based on rate
+    // Get unit code (convert from internal label to standard code if needed)
+    const unitCode = getUnitCode(line.unit) || line.unit || "C62"; // C62 = unit
+
+    // Determine VAT category code and exemption reason
+    // line.tva could be a rate like "20%" or a label like "Hors UE"
+    const vatCategoryKey = getVatCategory(line.tva);
     let vatCategoryCode = "S"; // Standard rate
-    if (vatRate === 0) {
-      vatCategoryCode = "Z"; // Zero rated
-    } else if (vatRate < 10) {
-      vatCategoryCode = "AA"; // Reduced rate
+    let exemptionReasonCode: string | undefined = undefined;
+    let exemptionReason: string | undefined = undefined;
+
+    if (vatCategoryKey) {
+      // Split the key format "category:reason" or "category:rate"
+      const parts = vatCategoryKey.split(":");
+      vatCategoryCode = parts[0];
+      if (parts.length > 1 && parts[0] !== "S") {
+        // If it's not a standard rate, check for exemption reason
+        exemptionReasonCode = parts[1];
+        // Try to find the full exemption reason text
+        const fullKey = vatCategoryKey;
+        const reasonKey = getVatExemptionReason(line.tva);
+        if (reasonKey) {
+          exemptionReasonCode = reasonKey.split(":")[1];
+          exemptionReason = line.tva; // Keep the original label as reason text
+        }
+      }
+    } else {
+      // Fallback: determine based on rate
+      if (vatRate === 0) {
+        vatCategoryCode = "Z"; // Zero rated
+      } else if (vatRate < 10 && vatRate > 0) {
+        vatCategoryCode = "S"; // Standard rate (for reduced rates in France)
+      }
     }
 
     // Calculate net amount (quantity * unit_price before discount)
@@ -371,17 +450,19 @@ export function convertInternalToEN16931(
     return {
       line_number: (index + 1).toString(),
       invoiced_quantity: line.quantity,
-      invoiced_quantity_unit_code: line.unit || "C62", // C62 = unit
-      line_net_amount: lineNetAmount,
-      line_vat_information: {
+      invoiced_quantity_unit_code: unitCode,
+      net_amount: lineNetAmount,
+      vat_information: {
         invoiced_item_vat_category_code: vatCategoryCode,
         invoiced_item_vat_rate: vatRate,
+        vat_exemption_reason_code: exemptionReasonCode,
+        vat_exemption_reason: exemptionReason,
       },
       allowances_charges: allowances.length > 0 ? allowances : undefined,
       price_details: {
         item_net_price: line.unit_price,
         base_quantity: 1,
-        base_quantity_unit_code: line.unit || "C62",
+        base_quantity_unit_code: unitCode,
       },
       item_information: {
         name: line.name,
@@ -395,7 +476,7 @@ export function convertInternalToEN16931(
 
   // Calculate totals
   const sumOfLineNetAmounts = lines.reduce(
-    (sum, line) => sum + line.line_net_amount,
+    (sum, line) => sum + line.net_amount,
     0
   );
 
@@ -421,83 +502,125 @@ export function convertInternalToEN16931(
 
   const totalWithoutVat = sumOfLineNetAmounts - documentAllowanceAmount;
 
-  // Calculate VAT breakdown
-  const vatByRate = new Map<number, number>();
-  lines.forEach((line) => {
-    const vatRate = line.line_vat_information.invoiced_item_vat_rate || 0;
-    const taxableAmount = line.line_net_amount;
-    const vatAmount = (taxableAmount * vatRate) / 100;
+  // Calculate VAT breakdown - group by category code + exemption reason code
+  interface VatBreakdownKey {
+    categoryCode: string;
+    exemptionReasonCode?: string;
+    exemptionReason?: string;
+    rate: number;
+  }
 
-    vatByRate.set(vatRate, (vatByRate.get(vatRate) || 0) + vatAmount);
-  });
-
-  // Apply document discount to VAT calculation
-  const adjustedVatByRate = new Map<
-    number,
-    { taxableAmount: number; vatAmount: number }
+  const vatBreakdownMap = new Map<
+    string,
+    {
+      key: VatBreakdownKey;
+      taxableAmount: number;
+      vatAmount: number;
+    }
   >();
+
   const discountRatio = totalWithoutVat / sumOfLineNetAmounts;
 
   lines.forEach((line) => {
-    const vatRate = line.line_vat_information.invoiced_item_vat_rate || 0;
-    const adjustedTaxableAmount = line.line_net_amount * discountRatio;
+    const vatInfo = line.vat_information;
+    const vatRate = vatInfo.invoiced_item_vat_rate || 0;
+    const categoryCode = vatInfo.invoiced_item_vat_category_code;
+    const exemptionReasonCode = vatInfo.vat_exemption_reason_code;
+    const exemptionReason = vatInfo.vat_exemption_reason;
+
+    // Create unique key for grouping
+    const groupKey = `${categoryCode}:${
+      exemptionReasonCode || "none"
+    }:${vatRate}`;
+
+    const adjustedTaxableAmount = line.net_amount * discountRatio;
     const vatAmount = (adjustedTaxableAmount * vatRate) / 100;
 
-    const current = adjustedVatByRate.get(vatRate) || {
-      taxableAmount: 0,
-      vatAmount: 0,
-    };
-    adjustedVatByRate.set(vatRate, {
-      taxableAmount: current.taxableAmount + adjustedTaxableAmount,
-      vatAmount: current.vatAmount + vatAmount,
-    });
+    const current = vatBreakdownMap.get(groupKey);
+    if (current) {
+      current.taxableAmount += adjustedTaxableAmount;
+      current.vatAmount += vatAmount;
+    } else {
+      vatBreakdownMap.set(groupKey, {
+        key: {
+          categoryCode,
+          exemptionReasonCode,
+          exemptionReason,
+          rate: vatRate,
+        },
+        taxableAmount: adjustedTaxableAmount,
+        vatAmount,
+      });
+    }
   });
 
-  const vatBreakDown = Array.from(adjustedVatByRate.entries()).map(
-    ([rate, amounts]) => {
-      let vatCategoryCode = "S"; // Standard rate
-      if (rate === 0) {
-        vatCategoryCode = "Z"; // Zero rated
-      } else if (rate < 10) {
-        vatCategoryCode = "AA"; // Reduced rate
-      }
+  const vatBreakDown = Array.from(vatBreakdownMap.values()).map((entry) => {
+    const breakdown: any = {
+      vat_category_taxable_amount: entry.taxableAmount,
+      vat_category_tax_amount: entry.vatAmount,
+      vat_category_code: entry.key.categoryCode,
+      vat_category_rate: entry.key.rate,
+    };
 
-      return {
-        taxable_amount: amounts.taxableAmount,
-        tax_amount: amounts.vatAmount,
-        vat_category_code: vatCategoryCode,
-        vat_category_rate: rate,
-      };
+    if (entry.key.exemptionReasonCode) {
+      breakdown.vat_exemption_reason_code = entry.key.exemptionReasonCode;
     }
-  );
+    if (entry.key.exemptionReason) {
+      breakdown.vat_exemption_reason = entry.key.exemptionReason;
+    }
 
-  const totalVat = Array.from(adjustedVatByRate.values()).reduce(
-    (sum, amounts) => sum + amounts.vatAmount,
+    return breakdown;
+  });
+
+  const totalVat = Array.from(vatBreakdownMap.values()).reduce(
+    (sum, entry) => sum + entry.vatAmount,
     0
   );
   const totalWithVat = totalWithoutVat + totalVat;
 
+  // Add global VAT codes if there's only one breakdown entry
+  let globalVatCategoryCode: string | undefined = undefined;
+  let globalVatExemptionReasonCode: string | undefined = undefined;
+  let globalVatExemptionReason: string | undefined = undefined;
+
+  if (vatBreakDown.length === 1) {
+    globalVatCategoryCode = vatBreakDown[0].vat_category_code;
+    globalVatExemptionReasonCode = vatBreakDown[0].vat_exemption_reason_code;
+    globalVatExemptionReason = vatBreakDown[0].vat_exemption_reason;
+  }
+
   // Build seller and buyer based on direction
+  // Use company address if available, fallback to invoice delivery address
   const myCompanyAddress = {
-    street_name: invoice.delivery_address?.address_line_1 || "",
-    additional_street_name: invoice.delivery_address?.address_line_2 || "",
-    city_name: invoice.delivery_address?.city || "",
-    postal_zone: invoice.delivery_address?.zip || "",
-    country: invoice.delivery_address?.country || "",
+    street_name:
+      company?.address?.address_line_1 ||
+      invoice.delivery_address?.address_line_1 ||
+      "N/A",
+    additional_street_name:
+      company?.address?.address_line_2 ||
+      invoice.delivery_address?.address_line_2 ||
+      "",
+    city_name:
+      company?.address?.city || invoice.delivery_address?.city || "N/A",
+    postal_zone:
+      company?.address?.zip || invoice.delivery_address?.zip || "00000",
+    country:
+      company?.address?.country || invoice.delivery_address?.country || "FR",
   };
 
   const partnerAddress = {
-    street_name: partnerContact.address?.address_line_1 || "",
+    street_name: partnerContact.address?.address_line_1 || "N/A",
     additional_street_name: partnerContact.address?.address_line_2 || "",
-    city_name: partnerContact.address?.city || "",
-    postal_zone: partnerContact.address?.zip || "",
-    country: partnerContact.address?.country || "",
+    city_name: partnerContact.address?.city || "N/A",
+    postal_zone: partnerContact.address?.zip || "00000",
+    country: partnerContact.address?.country || "FR",
   };
 
   const seller =
     direction === "out"
       ? {
-          name: "My Company", // Should be from context/config
+          name: company?.company?.legal_name || company?.company?.name,
+          vat: company?.company?.tax_number,
           postal_address: myCompanyAddress,
         }
       : {
@@ -507,6 +630,23 @@ export function convertInternalToEN16931(
             partnerContact.id,
           vat: partnerContact.business_tax_id,
           postal_address: partnerAddress,
+          /*
+          "identifiers": [
+            {
+              "value": "000000001",
+              "scheme": "0225"
+            }
+          ],
+          "legal_registration_identifier": {
+            "value": "000000001",
+            "scheme": "0002"
+          },
+          "vat_identifier": "FR15000000001",
+          "electronic_address": {
+            "value": "315143296_3173",
+            "scheme": "0225"
+          },
+          */
           contact: partnerContact.email
             ? { email: partnerContact.email }
             : undefined,
@@ -515,7 +655,11 @@ export function convertInternalToEN16931(
   const buyer =
     direction === "in"
       ? {
-          name: "My Company", // Should be from context/config
+          name:
+            company?.company?.name ||
+            company?.company?.legal_name ||
+            "My Company",
+          vat: company?.company?.tax_number,
           postal_address: myCompanyAddress,
         }
       : {
@@ -558,9 +702,9 @@ export function convertInternalToEN16931(
 
   // Build EN16931 invoice
   const en16931Invoice: EN16931Invoice = {
-    invoice_number: invoice.reference || invoice.name,
+    number: invoice.reference || invoice.name,
     issue_date: new Date(invoice.emit_date).toISOString().split("T")[0],
-    due_date: invoice.payment_information.delay
+    payment_due_date: invoice.payment_information.delay
       ? new Date(
           invoice.emit_date.getTime() +
             invoice.payment_information.delay * 24 * 60 * 60 * 1000
@@ -572,6 +716,8 @@ export function convertInternalToEN16931(
     currency_code: invoice.currency || "EUR",
     buyer_reference: invoice.alt_reference || undefined,
     invoice_note: invoice.notes ? [{ note: invoice.notes }] : undefined,
+    vat_category_code: globalVatCategoryCode,
+    vat_exemption_reason_code: globalVatExemptionReasonCode,
     seller,
     buyer,
     delivery_information: invoice.delivery_date
@@ -594,7 +740,7 @@ export function convertInternalToEN16931(
     allowances_charges:
       documentAllowances.length > 0 ? documentAllowances : undefined,
     totals: {
-      sum_of_invoice_line_net_amounts: sumOfLineNetAmounts,
+      sum_of_invoice_net_amounts: sumOfLineNetAmounts,
       sum_of_allowances_on_document_level:
         documentAllowanceAmount > 0 ? documentAllowanceAmount : undefined,
       invoice_total_amount_without_vat: totalWithoutVat,

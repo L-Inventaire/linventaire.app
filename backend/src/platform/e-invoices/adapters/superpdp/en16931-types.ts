@@ -69,7 +69,7 @@ export interface EN16931Amount {
 }
 
 export interface EN16931Totals {
-  sum_of_invoice_line_net_amounts: number;
+  sum_of_invoice_net_amounts: number;
   sum_of_allowances_on_document_level?: number;
   sum_of_charges_on_document_level?: number;
   invoice_total_amount_without_vat: number;
@@ -231,9 +231,9 @@ export interface EN16931InvoiceLine {
   invoiced_object_identifier?: EN16931Identifier;
   invoiced_quantity: number;
   invoiced_quantity_unit_code: string;
-  line_net_amount: number;
+  net_amount: number;
   referenced_purchase_order_line_reference?: string;
-  line_vat_information: EN16931LineVatInformation;
+  vat_information: EN16931LineVatInformation;
   invoicing_period?: EN16931InvoicingPeriod;
   allowances_charges?: EN16931InvoiceLineAllowanceOrCharge[];
   price_details: EN16931PriceDetails;
@@ -249,13 +249,15 @@ export interface EN16931Invoice {
   process_control?: EN16931ProcessControl;
 
   // Invoice metadata
-  invoice_number: string;
+  number: string;
   issue_date: string; // ISO 8601 date format
-  due_date?: string;
+  payment_due_date?: string;
   type_code: number; // 380 for invoice, 381 for credit note, etc.
   invoice_note?: EN16931InvoiceNote[];
   currency_code: string; // ISO 4217
   vat_accounting_currency_code?: string;
+  vat_category_code?: string;
+  vat_exemption_reason_code?: string;
 
   // References
   buyer_reference?: string;

@@ -12,7 +12,7 @@ import {
   getInvoiceWithOverrides,
   mergeObjects,
 } from "@features/invoices/utils";
-import { tvaMentionOptions } from "@features/utils/constants";
+import { useInvoiceMaps } from "@features/invoices/hooks/use-invoice-maps";
 import { EditorInput } from "@molecules/editor-input";
 import { PageBlockHr } from "@views/client/_layout/page";
 import _ from "lodash";
@@ -30,12 +30,13 @@ export type InvoiceFormatInputProps = {
 export const InvoiceFormatInput = (props: InvoiceFormatInputProps) => {
   const { t } = useTranslation();
   const { client: me } = useClients();
+  const { tvaMentionOptions } = useInvoiceMaps();
 
   const defaultConfig = getInvoiceWithOverrides(
     {} as Invoices,
     ...([props.client, props.contact, me?.client].filter(
-      (a) => a !== undefined && !!a
-    ) as any[])
+      (a) => a !== undefined && !!a,
+    ) as any[]),
   );
 
   const getReset = (key: keyof InvoiceFormat | `${string}.${string}`) => {
@@ -61,7 +62,7 @@ export const InvoiceFormatInput = (props: InvoiceFormatInputProps) => {
       form,
       (v, k) =>
         _.isEqual(v, defaultConfig.format[k as keyof InvoiceFormat]) &&
-        !props.baseConfiguration
+        !props.baseConfiguration,
     );
     props.ctrl.onChange(formWithNull as InvoiceFormat);
   }, [JSON.stringify(form)]);
@@ -110,8 +111,9 @@ export const InvoiceFormatInput = (props: InvoiceFormatInputProps) => {
         label={t("settings.invoices.tva")}
         value={ctrl("tva").value}
         readonly={readonly}
+        type="select"
         ctrl={ctrl("tva")}
-        options={tvaMentionOptions.map((a) => ({ label: a, value: a }))}
+        options={tvaMentionOptions}
       />
 
       <FormInput

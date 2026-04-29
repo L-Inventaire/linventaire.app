@@ -18,8 +18,48 @@ import {
   furnishInvoices,
 } from "./services/furnish-invoices";
 import { generatePdf, sendPdf } from "./services/generate-pdf";
+import {
+  standardCodeToUnit,
+  standardCodeToVatCategory,
+  standardCodeToVatValue,
+  vatCategoryCodeToExemptionReason,
+} from "./types/maps";
+import { convertInternalToEN16931 } from "../e-invoices/services";
+import { getResolvedEntities } from "../e-invoices/services/invoice-converter";
 
 export const registerRoutes = (router: Router) => {
+  router.get("/maps", async (req, res) => {
+    res.json({
+      units: standardCodeToUnit,
+      vat: standardCodeToVatCategory,
+      vat_values: standardCodeToVatValue,
+      vat_exemption: vatCategoryCodeToExemptionReason,
+    });
+  });
+
+  // Get document PDF ex. /api/invoices/v1/1/invoice/2/pdf?checked={%222%22:1}
+  // As you can see in the example, we can override checked items in the invoice
+  router.get("/:clientId/invoice/:id/en16931", async (req, res) => {
+    const ctx = Ctx.get(req)!.context;
+    const db = await Framework.Db.getService();
+    const document = await db.selectOne<Invoices>(
+      ctx,
+      InvoicesDefinition.name,
+      {
+        id: req.params.id,
+        client_id: ctx.client_id,
+      }
+    );
+    if (!document) return res.status(404).json({ error: "Not found" });
+
+    res.json(
+      convertInternalToEN16931(
+        document,
+        await getResolvedEntities(ctx, document)
+      )
+    );
+  });
+
   // Get document PDF ex. /api/invoices/v1/1/invoice/2/pdf?checked={%222%22:1}
   // As you can see in the example, we can override checked items in the invoice
   router.get("/:clientId/invoice/:id/pdf", async (req, res) => {

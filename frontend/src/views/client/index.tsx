@@ -67,6 +67,7 @@ import { StockLocationsPage } from "./settings/stock-locations";
 import { StockAndServicesPreferences } from "./settings/stock-services";
 import { TagsPage } from "./settings/tags";
 import { CompanyUsersPage } from "./settings/users";
+import { useInvoiceMaps } from "@/features/invoices/hooks/use-invoice-maps";
 
 export const BackOfficeRoutes = () => {
   return (
@@ -184,6 +185,7 @@ export const BackOfficeRoutes = () => {
 export const Layout = () => {
   useCustomersConfiguration();
   useTagConfiguration();
+  const { maps } = useInvoiceMaps();
 
   const [menuOpen, setMenuOpen] = useRecoilState(ResponsiveMenuAtom);
   useNavigationHistory();
@@ -209,6 +211,10 @@ export const Layout = () => {
       navigate(ROUTES.JoinCompany);
     }
 
+    return <></>;
+  }
+
+  if (!Object.keys(maps?.units || {})?.length) {
     return <></>;
   }
 

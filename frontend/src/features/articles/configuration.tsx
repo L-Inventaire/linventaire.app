@@ -21,8 +21,8 @@ import { setDefaultRestActions } from "../utils/rest/utils";
 
 export const useArticleDefaultModel: () => Partial<Articles> = () => ({
   type: "product",
-  unit: "unit",
-  tva: "20",
+  unit: "EA",
+  tva: "S:20",
 });
 
 export const ArticlesColumns: Column<Articles>[] = [

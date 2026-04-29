@@ -7,6 +7,7 @@ import { Context } from "../../../../../types";
 import { getTvaValue } from "../../utils";
 import { formatQuantity } from "#src/services/utils";
 import _ from "lodash";
+import { getUnitCode, getUnitLabel } from "../../types/maps";
 
 export const InvoiceContent = ({
   ctx,
@@ -56,7 +57,10 @@ export const InvoiceContent = ({
 
   const quantityRowSize = getRowSize(
     document.content,
-    (r) => formatNumber(r.quantity) + " " + r.unit,
+    (r) =>
+      formatNumber(r.quantity) +
+      " " +
+      getUnitLabel(getUnitCode(r.unit) || r.unit),
     10,
     20
   );
@@ -99,7 +103,7 @@ export const InvoiceContent = ({
       allReferences.filter((a) => _.isNumber(a.line)).map((a) => a.line)
     );
     const matchingLine = _.sortBy(availableLines, (a) =>
-      Math.abs(a - index)
+      Math.abs((a || 0) - index)
     )[0];
     let references = allReferences;
     if (_.isNumber(matchingLine)) {

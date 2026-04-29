@@ -8,7 +8,7 @@ import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
 import { Articles } from "@features/articles/types/types";
 import { getRoute, ROUTES } from "@features/routes";
-import { tvaOptions } from "@features/utils/constants";
+import { useInvoiceMaps } from "@features/invoices/hooks/use-invoice-maps";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { EditorInput } from "@molecules/editor-input";
 import { Timeline } from "@molecules/timeline";
@@ -42,20 +42,21 @@ export const ArticlesDetailsPage = ({
   const { draft, ctrl, isPending } = useReadDraftRest<Articles>(
     "articles",
     id || "new",
-    readonly
+    readonly,
   );
+  const { tvaOptions } = useInvoiceMaps();
 
   const getInvoicesLink = (
     type:
       | "invoices"
       | "quotes"
       | "supplier_quotes"
-      | "supplier_invoices" = "invoices"
+      | "supplier_invoices" = "invoices",
   ) => {
     const query = [
       `q=${encodeURIComponent(`articles.all:"${draft.name}"`)}`,
       `map=${encodeURIComponent(
-        JSON.stringify({ [`articles.all:${draft.name}`]: draft.id })
+        JSON.stringify({ [`articles.all:${draft.name}`]: draft.id }),
       )}`,
     ].join("&");
     return getRoute(ROUTES.Invoices, { type }) + "?" + query;
@@ -139,12 +140,14 @@ export const ArticlesDetailsPage = ({
                   type="formatted"
                   format="price"
                 />
-                <FormInput
-                  ctrl={ctrl("tva")}
-                  label="TVA"
-                  type="select"
-                  options={tvaOptions}
-                />
+                {tvaOptions.length && (
+                  <FormInput
+                    ctrl={ctrl("tva")}
+                    label="TVA"
+                    type="select"
+                    options={tvaOptions}
+                  />
+                )}
                 <div className="w-1/3">
                   <InputLabel
                     label="Unité"
@@ -197,7 +200,7 @@ export const ArticlesDetailsPage = ({
                 ]}
                 onChange={function (
                   suppliers: string[],
-                  details: Articles["suppliers_details"]
+                  details: Articles["suppliers_details"],
                 ): void {
                   ctrl("suppliers").onChange(suppliers);
                   ctrl("suppliers_details").onChange(details);

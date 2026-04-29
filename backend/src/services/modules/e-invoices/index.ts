@@ -2,10 +2,16 @@ import { Express, Router } from "express";
 import { default as Framework } from "../../../platform/index";
 import { Logger } from "../../../platform/logger-db";
 import { InternalApplicationService } from "../../types";
+import { Context } from "../../../types";
 import registerRoutes from "./routes";
-import { EInvoicingConfigDefinition } from "./entities/e-invoicing-config";
+import {
+  EInvoicingConfig,
+  EInvoicingConfigDefinition,
+} from "./entities/e-invoicing-config";
 import { ReceivedEInvoiceDefinition } from "./entities/received-e-invoice";
 import { setupCronReceivedInvoices } from "./services/received-invoices-cron";
+import { decrypt } from "./utils/encryption";
+import { SuperPDPClient } from "../../../platform/e-invoices/adapters/superpdp/client";
 
 export default class EInvoicesService implements InternalApplicationService {
   version = 1;
@@ -43,5 +49,48 @@ export default class EInvoicesService implements InternalApplicationService {
     console.log(`${this.name}:v${this.version} initialized`);
 
     return this;
+  }
+
+  /**
+   * Get a configured SuperPDP client for the given context
+   * Automatically fetches configuration from DB and decrypts credentials
+   *
+   * @param ctx - Context with client_id
+   * @returns SuperPDPClient instance
+   * @throws Error if configuration not found or credentials cannot be decrypted
+   */
+  async getClient(ctx: Context): Promise<SuperPDPClient> {
+    const db = await Framework.Db.getService();
+
+    // Get config for this client
+    const configs = await db.select<EInvoicingConfig>(
+      ctx,
+      EInvoicingConfigDefinition.name,
+      {
+        client_id: ctx.client_id,
+      },
+      { limit: 1 }
+    );
+
+    const config = configs[0];
+    if (!config) {
+      throw new Error(
+        `E-invoicing configuration not found for client ${ctx.client_id}`
+      );
+    }
+
+    // Decrypt credentials
+    const clientSecret = decrypt(config.integration_client_secret_encrypted);
+    if (!clientSecret) {
+      throw new Error(
+        `Failed to decrypt client secret for client ${ctx.client_id}`
+      );
+    }
+
+    // Create and return SuperPDP client
+    return Framework.EInvoices.getClient({
+      clientId: config.integration_client_id,
+      clientSecret,
+    });
   }
 }

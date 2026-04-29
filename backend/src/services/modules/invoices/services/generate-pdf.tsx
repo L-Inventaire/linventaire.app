@@ -11,6 +11,10 @@ import Framework from "../../../../platform";
 import { Context } from "../../../../types";
 import Articles, { ArticlesDefinition } from "../../articles/entities/articles";
 import Contacts, { ContactsDefinition } from "../../contacts/entities/contacts";
+import {
+  EInvoicingConfig,
+  EInvoicingConfigDefinition,
+} from "../../e-invoices/entities/e-invoicing-config";
 import { generateFacturXPdf } from "../../e-invoices/services/facturx-generator";
 import { Files, FilesDefinition } from "../../files/entities/files";
 import { download } from "../../files/services/files";
@@ -219,61 +223,64 @@ export const generatePdf = async (
   let pdfWithAttachments = Buffer.from(await doc.save());
 
   // Ensure Factur-X compliance
+  // Get E-invoicing configuration to create SuperPDP client
+  const eInvoicingConfig = await db.selectOne<EInvoicingConfig>(
+    { ...ctx, role: "SYSTEM" },
+    EInvoicingConfigDefinition.name,
+    {
+      client_id: ctx.client_id,
+    }
+  );
 
   if (
-    false &&
-    (document.type === "invoices" || document.type === "credit_notes")
-  ) {
-    const client = await Services.Clients.getClient(ctx, ctx.client_id);
-    const contacts = await search<Contacts>(
-      { ...ctx, role: "SYSTEM" },
-      ContactsDefinition.name,
-      {
-        client_id: ctx.client_id,
-        id: document.client,
+    eInvoicingConfig &&
+    eInvoicingConfig.connection_status === "connected" &&
+    eInvoicingConfig.send_enabled === true
+  )
+    if (document.type === "invoices" || document.type === "credit_notes") {
+      // Get SuperPDP client (automatically decrypts credentials)
+      const superpdpClient = await Services.EInvoices.getClient(ctx);
+
+      // SuperPDP API embeds EN16931 data into the PDF (creates Factur-X)
+      // Right now we are not supporting that, too many constraints to solve first:
+      /*
+        - Contacts should have 
+          /*
+          "identifiers": [
+            {
+              "value": "000000001",
+              "scheme": "0225"
+            }
+          ],
+          "legal_registration_identifier": {
+            "value": "000000001",
+            "scheme": "0002"
+          },
+          "vat_identifier": "FR15000000001",
+          "electronic_address": {
+            "value": "315143296_3173",
+            "scheme": "0225"
+          },
+        - All payments details should be coded and added to notes:
+          - PMT (Ex. Virement bancaire, Prélèvement automatique, etc.)
+          - PMD (Règlement à réception, 30 jours fin de mois, etc.)
+          - AAB (Règle escompte)
+        - Units should be encoded with correct codes
+        - VAT types should be encoded too with:
+          - vat_category ex. "vat_category": "S" (standard)
+          - vat_reason ex. "vat_reason": "Exonération de TVA - article 259B du CGI"
+      */
+      if (false) {
+        pdfWithAttachments = Buffer.from(
+          await generateFacturXPdf(
+            ctx,
+            pdfWithAttachments, // The base PDF to embed invoice data into
+            document,
+            superpdpClient // SuperPDP client for Factur-X conversion
+          )
+        );
       }
-    );
-    const articles = await search<Articles>(
-      { ...ctx, role: "SYSTEM" },
-      ArticlesDefinition.name,
-      {
-        client_id: ctx.client_id,
-        id: _.uniq(
-          document.content?.map((c) => c.article).filter(Boolean) || []
-        ),
-      }
-    );
-    const articlesMap = new Map<string, Articles>();
-    for (const article of articles.list) {
-      articlesMap.set(article.id, article);
     }
-
-    if (!client) {
-      throw new Error("Client not found for the invoice");
-    }
-
-    if (!contacts?.list?.[0]) {
-      throw new Error("Contact not found for the invoice");
-    }
-
-    pdfWithAttachments = Buffer.from(
-      await generateFacturXPdf(
-        ctx,
-        pdfWithAttachments,
-        {
-          invoice: document,
-          company: client, // The company issuing or receiving the invoice
-          contact: contacts.list[0], // The buyer or supplier contact
-          articles: articlesMap, // Map of article ID to article entity
-        },
-        {
-          level: "en16931",
-          check: true,
-          language: "fr",
-        }
-      )
-    );
-  }
 
   return {
     positions,

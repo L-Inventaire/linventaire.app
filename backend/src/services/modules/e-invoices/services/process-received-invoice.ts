@@ -12,6 +12,7 @@ import {
   extractReferencesFromEN16931,
   ResolvedEntities,
 } from "./invoice-converter";
+import Services from "#src/services/index";
 
 /**
  * Process a received e-invoice and convert it to an internal supplier invoice.
@@ -53,6 +54,7 @@ export async function processReceivedInvoice(
     const resolvedEntities: ResolvedEntities = {
       supplier,
       articles: articlesMap,
+      self: await Services.Clients.getClient(ctx, ctx.client_id), // Get self client entity
     };
 
     const internalInvoice = convertEN16931ToInternal(

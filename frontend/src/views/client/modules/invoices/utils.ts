@@ -1,3 +1,4 @@
+import { getInvoiceMaps } from "@/features/invoices/hooks/use-invoice-maps";
 import {
   Invoices,
   InvoicesState,
@@ -8,6 +9,17 @@ import { DateTime } from "luxon";
 
 export const getTvaValue = (tva: string): number => {
   tva = tva || "";
+
+  const vatValues = getInvoiceMaps()?.vat_values;
+
+  // Try to use server-provided VAT values first
+  if (vatValues && tva in vatValues) {
+    return vatValues[tva] / 100;
+  }
+
+  console.log("H");
+
+  // Fall back to parsing the string
   if (tva.match(/^[0-9.]+.*/)) {
     return parseFloat(tva) / 100;
   }
@@ -50,6 +62,7 @@ export const getInvoicesStatusColor = (
 
 export const computePricesFromInvoice = (
   invoice: Pick<Invoices, "content" | "discount">,
+  vatValues?: Record<string, number>,
 ): Invoices["total"] => {
   let initial = 0;
   let discount = 0;

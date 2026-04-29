@@ -327,7 +327,8 @@ export const FormInput = memo(
               />
             )}
             {(props.type === "number" ||
-              (props.type === "quantity" && props.metadata?.unit !== "h")) && (
+              (props.type === "quantity" &&
+                props.metadata?.unit !== "HUR")) && (
               <Input
                 autoFocus={!!props.autoFocus}
                 autoSelect={props.autoSelect}

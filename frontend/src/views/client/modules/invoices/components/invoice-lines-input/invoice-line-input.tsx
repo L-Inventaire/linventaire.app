@@ -11,7 +11,7 @@ import { Articles } from "@features/articles/types/types";
 import { getCostEstimate } from "@features/articles/utils";
 import { InvoiceLine, Invoices } from "@features/invoices/types/types";
 import { getRoute, ROUTES } from "@features/routes";
-import { tvaOptions } from "@features/utils/constants";
+import { useInvoiceMaps } from "@features/invoices/hooks/use-invoice-maps";
 import {
   formatAmount,
   formatQuantity,
@@ -93,6 +93,7 @@ export const InvoiceLineInput = (props: {
   readonly?: boolean;
 }) => {
   const formContext = useContext(FormContextContext);
+  const { tvaOptions, maps } = useInvoiceMaps();
 
   const value = props.ctrl?.value || props.value || ({} as InvoiceLine);
   const onChange = props.ctrl?.onChange || props.onChange;

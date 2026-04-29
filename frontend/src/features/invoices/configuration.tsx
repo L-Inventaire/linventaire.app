@@ -9,6 +9,7 @@ import {
   CtrlkAction,
   registerCtrlKRestEntity,
 } from "@features/ctrlk";
+import { useInvoiceMaps } from "@features/invoices/hooks/use-invoice-maps";
 import { getRoute, ROUTES } from "@features/routes";
 import { formatAmount } from "@features/utils/format/strings";
 import { RestFieldsNames } from "@features/utils/rest/configuration";
@@ -46,6 +47,7 @@ import { Invoices } from "./types/types";
 
 export const useInvoiceDefaultModel: () => Partial<Invoices> = () => {
   const { client } = useCurrentClient();
+  const { maps } = useInvoiceMaps();
 
   return {
     type: "quotes",

@@ -99,7 +99,7 @@ const SpentTimeLine = (props: {
           </div>
         }
       />
-      {!!props.unit && props.unit !== "h" && (
+      {!!props.unit && props.unit !== "HUR" && (
         <Input
           label={"Temps passé en " + getUnitLabel(props.unit || "h", t)}
           type="number"
@@ -122,7 +122,7 @@ const SpentTimeLine = (props: {
             props.onChange({
               ...props.value,
               quantity,
-              unit: "h",
+              unit: "HUR",
             });
           }}
           className={"!mx-3"}

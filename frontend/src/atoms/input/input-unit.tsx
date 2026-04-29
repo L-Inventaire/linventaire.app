@@ -1,5 +1,6 @@
 import { Select } from "@radix-ui/themes";
 import { TFunction, useTranslation } from "react-i18next";
+import { useInvoiceMaps } from "@features/invoices/hooks/use-invoice-maps";
 
 /** An input to select a unit and functions to convert them */
 // This is present in backend, keep in sync
@@ -7,14 +8,12 @@ export const supportedUnits = {
   general: ["unit"],
   time: ["min", "h", "d", "w", "mo", "y"],
   length: ["mm", "cm", "m", "km"],
-  mass: ["mg", "g", "kg", "t"],
-  volume: ["l", "m³"],
-  area: ["cm²", "m²", "ha", "km²"],
+  mass: ["mg", "g", "kg"],
 };
 
 export const getUnitLabel = (
   unit: string = "",
-  t: TFunction<"translation", undefined>
+  t: TFunction<"translation", undefined>,
 ) => {
   return t("atoms.input.unit." + (unit || "unit"), {
     defaultValue: unit,
@@ -23,31 +22,29 @@ export const getUnitLabel = (
 
 export const Unit = (props: { unit?: string }) => {
   const { t } = useTranslation();
-  return getUnitLabel(props.unit || "unit", t);
+  const { maps } = useInvoiceMaps();
+  return getUnitLabel(maps?.units?.[props.unit || "EA"] || "unit", t);
 };
 
 export const InputUnit = (props: Select.RootProps & { className?: string }) => {
   const { t } = useTranslation();
+  const { unitOptions, maps } = useInvoiceMaps();
 
   return (
     <Select.Root {...props}>
       <Select.Trigger className={props.className}>
-        {t("atoms.input.unit." + (props.value || "unit"), {
-          defaultValue: props.value,
-        })}
+        {getUnitLabel(
+          maps?.units?.[props.value as string] ||
+            props.value ||
+            t("atoms.input.unit.unit"),
+          t,
+        )}
       </Select.Trigger>
       <Select.Content>
-        {Object.entries(supportedUnits).map(([group, units]) => (
-          <Select.Group key={group}>
-            <Select.Label>
-              {t("atoms.input.unit.categories." + group)}
-            </Select.Label>
-            {units.map((unit) => (
-              <Select.Item key={unit} value={unit}>
-                {t("atoms.input.unit." + unit)}
-              </Select.Item>
-            ))}
-          </Select.Group>
+        {unitOptions.map((option) => (
+          <Select.Item key={option.value} value={option.value}>
+            {getUnitLabel(option.label, t)}
+          </Select.Item>
         ))}
       </Select.Content>
     </Select.Root>
@@ -58,7 +55,7 @@ export const isConvertable = (from: string, to: string) => {
   if (from === to) return true;
   if (from === "unit" || to === "unit") return true;
   return Object.values(supportedUnits).some(
-    (units) => units.includes(from) && units.includes(to)
+    (units) => units.includes(from) && units.includes(to),
   );
 };
 
@@ -106,6 +103,7 @@ export const convertUnit = (value: number, from: string, to: string) => {
   }
 
   // Volume related
+  /*
   const volumeFactors: any = {
     l: 1,
     "m³": 1000,
@@ -127,6 +125,7 @@ export const convertUnit = (value: number, from: string, to: string) => {
   if (supportedUnits.area.includes(from) && supportedUnits.area.includes(to)) {
     return (value * (areaFactors[from] || 0)) / (areaFactors[to] || 1);
   }
+    */
 
   return value;
 };

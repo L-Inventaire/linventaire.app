@@ -1,3 +1,4 @@
+import { useInvoiceMaps } from "@/features/invoices/hooks/use-invoice-maps";
 import { Base, Info } from "@atoms/text";
 import { FormInput } from "@components/form/fields";
 import { FormControllerType } from "@components/form/formcontext";
@@ -27,6 +28,7 @@ export const InvoiceInputFormat = ({
   contact?: Contacts;
   btnKey?: string;
 }) => {
+  const { maps } = useInvoiceMaps();
   return (
     <InputButton
       readonly={readonly}
@@ -62,7 +64,13 @@ export const InvoiceInputFormat = ({
     >
       <div className="flex flex-col space-y-0 text-left">
         <Base>{languageOptions.find((a) => a.value === language)?.label}</Base>
-        <Info>{ctrl?.value?.tva || "Format de facture/devis par défaut"}</Info>
+        <Info>
+          {(ctrl?.value?.tva
+            ? (maps?.vat_exemption as any)[ctrl?.value?.tva]
+            : null) ||
+            ctrl?.value?.tva ||
+            "Format de facture/devis par défaut"}
+        </Info>
         <Info>
           {
             [
