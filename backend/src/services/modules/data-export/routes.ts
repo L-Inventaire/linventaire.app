@@ -22,7 +22,7 @@ export default (router: Router) => {
 
         const result = await exportData(ctx, tables);
         return res.json(result);
-      } catch (error) {
+      } catch (error: any) {
         console.error("Export error:", error);
         return res
           .status(500)
@@ -66,7 +66,7 @@ export default (router: Router) => {
           .sort((a, b) => a.label.localeCompare(b.label));
 
         return res.json(availableTables);
-      } catch (error) {
+      } catch (error: any) {
         console.error("Failed to get tables:", error);
         return res.status(500).json({ error: "Failed to retrieve tables" });
       }
@@ -89,7 +89,7 @@ export default (router: Router) => {
 
         const result = await importData(ctx, data);
         return res.json(result);
-      } catch (error) {
+      } catch (error: any) {
         console.error("Import error:", error);
         return res
           .status(500)
