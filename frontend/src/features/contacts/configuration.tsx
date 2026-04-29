@@ -18,6 +18,7 @@ import { Column } from "@molecules/table/table";
 import { ContactsDetailsPage } from "@views/client/modules/contacts/components/contact-details";
 import { Contacts, getContactName } from "./types/types";
 import { setDefaultRestActions } from "../utils/rest/utils";
+import { twMerge } from "tailwind-merge";
 
 export const useContactDefaultModel: () => Partial<Contacts> = () => ({
   type: "company",
@@ -87,11 +88,10 @@ export const ContactsColumns: Column<Contacts>[] = [
               ) : (
                 <BuildingOfficeIcon {...p} />
               )}
-              {contact.e_invoices_active ? (
-                <div className="w-1.5 h-1.5 bg-green-500 rounded-full absolute right-[2px] bottom-[2px]" />
-              ) : (
-                <div className="w-1.5 h-1.5 bg-red-500 rounded-full absolute right-[2px] bottom-[2px]" />
-              )}
+              <ContactReadiness
+                contact={contact}
+                className="absolute right-[2px] bottom-[2px]"
+              />
             </>
           )}
         />
@@ -192,3 +192,41 @@ export const ContactsFieldsNames = () => ({
   documents: false,
   ...RestFieldsNames(),
 });
+
+export const isContactReady = (contact: Contacts) => {
+  return (
+    // Active an OK
+    contact.e_invoices_active ||
+    // Not a client / not a supplier
+    !(contact.is_supplier || contact.is_client) ||
+    // Not in France
+    (contact.address.country && contact.address.country !== "FR")
+  );
+};
+
+export const ContactReadiness = ({
+  contact,
+  className,
+}: {
+  contact: Contacts;
+  className?: string;
+}) => {
+  return (
+    <>
+      {isContactReady(contact) ? (
+        <></>
+      ) : contact.business_registered_id ? (
+        <div
+          className={twMerge(
+            "w-1.5 h-1.5 bg-yellow-500 rounded-full",
+            className,
+          )}
+        />
+      ) : (
+        <div
+          className={twMerge("w-1.5 h-1.5 bg-red-500 rounded-full", className)}
+        />
+      )}
+    </>
+  );
+};

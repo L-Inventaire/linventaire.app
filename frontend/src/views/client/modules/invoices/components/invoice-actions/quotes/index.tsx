@@ -40,7 +40,7 @@ export const QuotesActions = ({
   const { draft, save: _save } = useReadDraftRest<Invoices>(
     "invoices",
     id || "new",
-    readonly
+    readonly,
   );
   const disabled = readonly || draft.state === "closed";
   const setRecurringModal = useSetRecoilState(RecurrenceModalAtom);
@@ -81,7 +81,7 @@ export const QuotesActions = ({
                   if (
                     // TODO: make a better modal
                     window.confirm(
-                      "Le devis sera marqué comme accepté par le client et une facture sera créée."
+                      "Le devis sera marqué comme accepté par le client et une facture sera créée.",
                     )
                   ) {
                     await _save({ state: "purchase_order" });
@@ -167,14 +167,14 @@ export const QuotesActions = ({
                         draft,
                         "id",
                         "emit_date",
-                        "reference_preferred_value"
+                        "reference_preferred_value",
                       ),
                       from_rel_quote: [draft.id],
                       type: "supplier_quotes",
                       state: "draft",
                       id: "",
                     }),
-                    { event }
+                    { event },
                   ),
               },
             ]}
@@ -246,13 +246,13 @@ export const QuotesActions = ({
                         draft,
                         "id",
                         "emit_date",
-                        "reference_preferred_value"
+                        "reference_preferred_value",
                       ),
                       from_rel_quote: [draft.id],
                       type: "supplier_quotes",
                       state: "draft",
                     }),
-                    { event }
+                    { event },
                   ),
               },
             ]}

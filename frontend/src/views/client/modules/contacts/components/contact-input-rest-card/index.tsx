@@ -1,3 +1,4 @@
+import { ContactReadiness } from "@/features/contacts/configuration";
 import { Info } from "@atoms/text";
 import { RestDocumentProps, RestDocumentsInput } from "@components/input-rest";
 import { Contacts, getContactName } from "@features/contacts/types/types";
@@ -47,6 +48,7 @@ const RenderContactCard = ({
         <IconButton
           size="1"
           variant="ghost"
+          className="relative"
           data-tooltip={contact.type === "person" ? "Personne" : "Entreprise"}
         >
           {contact.type === "person" ? (
@@ -58,6 +60,7 @@ const RenderContactCard = ({
         <span className="line-clamp-1 text-ellipsis">
           {getContactName(contact)}
         </span>
+        <ContactReadiness contact={contact} />
       </div>
       {size === "lg" && (
         <div className="line-clamp-1 text-ellipsis items-center flex space-x-1">

@@ -281,7 +281,7 @@ export const ContactsDetailsPage = ({
                         <span>({contact.e_invoices_identifier})</span>{" "}
                       </div>
                     )}
-                    {!contact.business_registered_id && (
+                    {!contact.e_invoices_identifier && (
                       <>
                         {contact.type === "company" &&
                         (contact.business_name ||
@@ -289,7 +289,7 @@ export const ContactsDetailsPage = ({
                         contact.address ? (
                           <SirenAutoSuggestions
                             businessName={contact.business_name || ""}
-                            businessRegisteredName={}
+                            businessRegisteredName={
                               contact.business_registered_name || ""
                             }
                             address={contact.address}
@@ -301,7 +301,7 @@ export const ContactsDetailsPage = ({
                         ) : (
                           <div className="p-3 bg-amber-50 border border-amber-200 rounded-md text-amber-800 text-sm">
                             <strong>Attention :</strong> Aucun numéro SIREN
-                            renseigné.
+                            actif renseigné.
                             {!readonly && (
                               <>
                                 {" "}

@@ -28,7 +28,7 @@ export const SupplierQuotesActions = ({
   const { draft, save: _save } = useReadDraftRest<Invoices>(
     "invoices",
     id || "new",
-    readonly
+    readonly,
   );
   const disabled = draft.state === "closed";
 
@@ -117,14 +117,14 @@ export const SupplierQuotesActions = ({
                     draft,
                     "id",
                     "emit_date",
-                    "reference_preferred_value"
+                    "reference_preferred_value",
                   ),
                   type: "supplier_invoices",
                   state: "draft",
                   from_rel_quote: [draft.id],
                   id: "",
                 }),
-                { event }
+                { event },
               )
             }
           >
@@ -137,7 +137,7 @@ export const SupplierQuotesActions = ({
             onClick={(event: any) =>
               navigate(
                 getRoute(ROUTES.StockEditFrom, { from: "order", id: draft.id }),
-                { event }
+                { event },
               )
             }
           >
@@ -169,14 +169,14 @@ export const SupplierQuotesActions = ({
                     draft,
                     "id",
                     "emit_date",
-                    "reference_preferred_value"
+                    "reference_preferred_value",
                   ),
                   type: "supplier_invoices",
                   state: "draft",
                   from_rel_quote: [draft.id],
                   id: "",
                 }),
-                { event }
+                { event },
               )
             }
           >

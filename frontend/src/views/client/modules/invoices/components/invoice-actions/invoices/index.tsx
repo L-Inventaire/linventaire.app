@@ -33,7 +33,7 @@ export const InvoicesActions = ({
   const { draft, save: _save } = useReadDraftRest<Invoices>(
     "invoices",
     id || "new",
-    readonly
+    readonly,
   );
   const disabled =
     readonly || draft.state === "closed" || draft.state === "completed";
@@ -135,14 +135,14 @@ export const InvoicesActions = ({
                         draft,
                         "id",
                         "emit_date",
-                        "reference_preferred_value"
+                        "reference_preferred_value",
                       ),
                       from_rel_quote: [draft.id],
                       type: "supplier_quotes",
                       state: "draft",
                       id: "",
                     }),
-                    { event }
+                    { event },
                   ),
               },
             ]}

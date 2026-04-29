@@ -58,7 +58,7 @@ export const SirenAutoSuggestions = ({
       hasSearched.current = true;
       search({
         formal_name_starts_with: searchName.toUpperCase(),
-        limit: 10,
+        limit: 100,
       });
     }
   }, []);
@@ -130,7 +130,7 @@ export const SirenAutoSuggestions = ({
         <div className="flex items-center gap-2">
           <PageLoader />
           <span>
-            <strong>⚠️ Attention :</strong> Aucun numéro SIREN renseigné.
+            <strong>Attention :</strong> Aucun numéro SIREN actif renseigné.
             Recherche en cours...
           </span>
         </div>
@@ -141,7 +141,7 @@ export const SirenAutoSuggestions = ({
   if (!sortedCompanies.length) {
     return (
       <div className="p-3 bg-amber-50 border border-amber-200 rounded-md text-amber-800 text-sm">
-        <strong>⚠️ Attention :</strong> Aucun numéro SIREN renseigné.{" "}
+        <strong>Attention :</strong> Aucun numéro SIREN actif renseigné.{" "}
         <Link
           onClick={onOpenFullSearch}
           className="text-amber-900 underline font-medium"
@@ -160,22 +160,17 @@ export const SirenAutoSuggestions = ({
       )}
     >
       {readonly && (
-        <div
-          onClick={() =>
-            navigate(getRoute(ROUTES.ContactsEdit, { id: contactId }))
-          }
-          className="absolute top-0 left-0 w-full h-full bg-black/10 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer rounded-md"
-        >
-          <Button>Passer en édition</Button>
+        <div className="absolute top-0 left-0 w-full h-full bg-black/10 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer rounded-md">
+          <Button size="xs">Passer en mode édition</Button>
         </div>
       )}
       <div className="text-amber-800 text-sm">
-        <strong>⚠️ Attention :</strong> Aucun numéro SIREN renseigné. Voici des
-        entreprises correspondantes :
+        <strong>Attention :</strong> Aucun numéro SIREN actif renseigné. Voici
+        des entreprises correspondantes :
       </div>
 
       <div className="space-y-1">
-        {sortedCompanies.map((company) => (
+        {sortedCompanies.slice(0, 10).map((company) => (
           <button
             key={company.number}
             onClick={() => {
