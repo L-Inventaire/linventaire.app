@@ -570,23 +570,11 @@ export function convertInternalToEN16931(
     // line.tva could be a rate like "20%" or a label like "Hors UE"
     const vatCategoryKey = getVatCode(line.tva);
     let vatCategoryCode = "S"; // Standard rate
-    let exemptionReasonCode: string | undefined = undefined;
-    let exemptionReason: string | undefined = undefined;
 
     if (vatCategoryKey) {
       // Split the key format "category:reason" or "category:rate"
       const parts = vatCategoryKey.split(":");
       vatCategoryCode = parts[0];
-      if (parts.length > 1 && parts[0] !== "S") {
-        // If it's not a standard rate, check for exemption reason
-        exemptionReasonCode = parts[1];
-        // Try to find the full exemption reason text
-        const reasonKey = getVatExemptionReason(line.tva);
-        if (reasonKey) {
-          exemptionReasonCode = reasonKey.split(":")[1];
-          exemptionReason = line.tva; // Keep the original label as reason text
-        }
-      }
     } else {
       // Fallback: determine based on rate
       if (vatRate === 0) {
@@ -700,7 +688,10 @@ export function convertInternalToEN16931(
     const vatInfo = line.vat_information;
     const vatRate = parseFloat(vatInfo.invoiced_item_vat_rate || "0");
     const categoryCode = vatInfo.invoiced_item_vat_category_code;
-    const hasExemption = invoice.format.tva && invoice.format.tva !== "NONE";
+    const hasExemption =
+      categoryCode !== "S" &&
+      invoice.format.tva &&
+      invoice.format.tva !== "NONE";
     const exemptionReasonCode =
       (hasExemption && getVatExemptionOnly(invoice.format.tva)) || undefined;
     const exemptionReason =
@@ -740,10 +731,8 @@ export function convertInternalToEN16931(
       vat_category_rate: `${entry.key.rate}`,
     };
 
-    if (entry.key.exemptionReasonCode) {
+    if (entry.key.exemptionReasonCode && entry.key.exemptionReason) {
       breakdown.vat_exemption_reason_code = entry.key.exemptionReasonCode;
-    }
-    if (entry.key.exemptionReason) {
       breakdown.vat_exemption_reason = entry.key.exemptionReason;
     }
 
