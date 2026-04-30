@@ -1,4 +1,5 @@
 import Framework from "#src/platform/index";
+import Services from "#src/services/index";
 import {
   create,
   remove,
@@ -6,9 +7,10 @@ import {
   update,
 } from "#src/services/rest/services/rest";
 import { Ctx } from "#src/services/utils";
-import Services from "#src/services/index";
 import { Router } from "express";
 import { checkClientRoles, checkRole } from "../../common";
+import { ArticlesDefinition } from "../articles/entities/articles";
+import Contacts, { ContactsDefinition } from "../contacts/entities/contacts";
 import {
   EInvoicingConfig,
   EInvoicingConfigDefinition,
@@ -531,6 +533,140 @@ export default (router: Router) => {
         });
       } catch (error: any) {
         console.error("Error finding matched entities:", error);
+        res.status(500).json({ error: error.message });
+      }
+    }
+  );
+
+  /**
+   * POST /:clientId/received/:id/convert
+   * Convert a received e-invoice to a supplier invoice
+   */
+  router.post(
+    "/:clientId/received/:id/convert",
+    checkRole("USER"),
+    checkClientRoles(["SUPPLIER_INVOICES_WRITE"]),
+    async (req, res) => {
+      try {
+        const ctx = Ctx.get(req)!.context;
+        if (!ctx) throw new Error("No context");
+
+        const { id } = req.params;
+        const { supplier_id } = req.body;
+        const db = await Framework.Db.getService();
+
+        // Validate supplier_id is provided
+        if (!supplier_id) {
+          return res.status(400).json({
+            error: "supplier_id is required",
+          });
+        }
+
+        // Get the received invoice
+        const receivedInvoice = await db.selectOne<ReceivedEInvoice>(
+          ctx,
+          "received_e_invoices",
+          {
+            id,
+            client_id: ctx.client_id,
+          }
+        );
+
+        if (!receivedInvoice) {
+          return res.status(404).json({ error: "Received invoice not found" });
+        }
+
+        if (receivedInvoice.state !== "new") {
+          return res.status(400).json({
+            error: "Invoice has already been processed",
+          });
+        }
+
+        // Get the supplier contact
+        const supplier = await db.selectOne<Contacts>(
+          ctx,
+          ContactsDefinition.name,
+          {
+            id: supplier_id,
+            client_id: ctx.client_id,
+          }
+        );
+
+        if (!supplier) {
+          return res.status(400).json({
+            error: "Supplier contact not found",
+          });
+        }
+
+        // Validate supplier business_registered_id matches invoice
+        const sellerRegistrationId =
+          receivedInvoice.en_invoice?.seller?.legal_registration_identifier
+            ?.value;
+        if (
+          sellerRegistrationId &&
+          supplier.business_registered_id !== sellerRegistrationId
+        ) {
+          return res.status(400).json({
+            error:
+              "Supplier business registration ID does not match invoice seller registration ID",
+            expected: sellerRegistrationId,
+            actual: supplier.business_registered_id,
+          });
+        }
+
+        // Extract references and find matching articles
+        const { extractReferencesFromEN16931, convertEN16931ToInternal } =
+          await import("./services/invoice-converter");
+        const references = extractReferencesFromEN16931(
+          receivedInvoice.en_invoice
+        );
+
+        // Find matching articles
+        const articleMatches = new Map();
+        for (const articleRef of references.articles) {
+          const matches = await search(
+            { ...ctx, role: "SYSTEM" },
+            ArticlesDefinition.name,
+            {
+              client_id: ctx.client_id,
+              internal_reference: [
+                articleRef.sellers_item_identification,
+                articleRef.buyers_item_identification,
+              ],
+            }
+          );
+
+          if (matches.list.length > 0) {
+            articleMatches.set(articleRef.name, matches.list[0]);
+          }
+        }
+
+        // Get client info
+        const client = await Services.Clients.getClient(ctx, ctx.client_id);
+        if (!client) {
+          throw new Error("Client not found");
+        }
+
+        // Convert EN16931 to internal format
+        const resolvedEntities = {
+          supplier,
+          articles: articleMatches,
+          self: client,
+        };
+
+        const internalInvoice = convertEN16931ToInternal(
+          receivedInvoice.en_invoice,
+          resolvedEntities,
+          "in",
+          ctx
+        );
+
+        res.json({
+          success: true,
+          invoice: internalInvoice,
+        });
+      } catch (error: any) {
+        console.error("Error converting e-invoice:", error);
         res.status(500).json({ error: error.message });
       }
     }

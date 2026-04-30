@@ -1,16 +1,29 @@
+import { Contacts } from "@/features/contacts/types/types";
+import { useReceivedEInvoice } from "@/features/e-invoicing/hooks/use-received-e-invoices";
 import { NotFound } from "@atoms/not-found/not-found";
 import { PageLoader } from "@atoms/page-loader";
 import { useParamsOrContextId } from "@features/ctrlk";
-import { useReceivedEInvoice } from "@/features/e-invoicing/hooks/use-received-e-invoices";
 import { getRoute, ROUTES } from "@features/routes";
 import { Page } from "@views/client/_layout/page";
+import { useState } from "react";
 import { ReceivedEInvoiceActions } from "./received-invoice-actions";
-import { ReceivedEInvoiceDetails } from "./received-invoice-details";
+import { ReceivedEInvoiceContent } from "./received-invoice-content";
 
 export const ReceivedEInvoiceViewPage = () => {
   const { id } = useParamsOrContextId();
   const { receivedEInvoice, items } = useReceivedEInvoice(id || "");
   const isPending = items.isPending;
+  const [supplier, setSupplier] = useState<Contacts | null>(null);
+
+  // Extract seller's business_registered_id from EN16931 invoice
+  const sellerRegistrationId =
+    receivedEInvoice?.en_invoice?.seller?.legal_registration_identifier?.value;
+
+  // Check if supplier is valid (has matching business_registered_id)
+  const isSupplierValid =
+    supplier &&
+    sellerRegistrationId &&
+    supplier.business_registered_id === sellerRegistrationId;
 
   if (!receivedEInvoice && isPending)
     return (
@@ -41,10 +54,21 @@ export const ReceivedEInvoiceViewPage = () => {
         },
         { label: receivedEInvoice.invoice_number || "" },
       ]}
-      footer={<ReceivedEInvoiceActions id={id} invoice={receivedEInvoice} />}
+      footer={
+        <ReceivedEInvoiceActions
+          id={id}
+          invoice={receivedEInvoice}
+          supplier={supplier}
+          isSupplierValid={!!isSupplierValid}
+        />
+      }
     >
-      <div className="mt-6" />
-      <ReceivedEInvoiceDetails invoice={receivedEInvoice} />
+      <ReceivedEInvoiceContent
+        invoice={receivedEInvoice}
+        supplier={supplier}
+        setSupplier={setSupplier}
+        isSupplierValid={!!isSupplierValid}
+      />
     </Page>
   );
 };

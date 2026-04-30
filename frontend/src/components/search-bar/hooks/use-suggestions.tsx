@@ -36,7 +36,7 @@ export const useSuggestions = (
   inputRef: React.RefObject<HTMLInputElement>,
   setValue: (value: string) => void,
   initialDisplayToValueMap: any,
-  additionalSuggestions?: Suggestions
+  additionalSuggestions?: Suggestions,
 ) => {
   const fields = schema.fields;
   const { getCaretPosition, replaceAtCursor } = useCaret(inputRef, setValue);
@@ -57,7 +57,7 @@ export const useSuggestions = (
   );
 
   const currentField = schema.fields.find(
-    (a) => labelToVariable(a.label) === status.filter?.key
+    (a) => labelToVariable(a.label) === status.filter?.key,
   );
   const columnSearch = [
     !["boolean", "date", "number"].includes(currentField?.type as string)
@@ -67,22 +67,22 @@ export const useSuggestions = (
   ] as [string, string];
 
   const [recentSearches, _setRecentSearches] = useState<string[]>(
-    JSON.parse(localStorage.getItem("search-recent-" + schema.table) || "[]")
+    JSON.parse(localStorage.getItem("search-recent-" + schema.table) || "[]"),
   );
   const [popularFilters, _setPopularFilters] = useState<string[]>(
     JSON.parse(
-      localStorage.getItem("search-popular-filters-" + schema.table) || "[]"
-    )
+      localStorage.getItem("search-popular-filters-" + schema.table) || "[]",
+    ),
   );
 
   useEffect(() => {
     localStorage.setItem(
       "search-recent-" + schema.table,
-      JSON.stringify(recentSearches)
+      JSON.stringify(recentSearches),
     );
     localStorage.setItem(
       "search-popular-filters-" + schema.table,
-      JSON.stringify(popularFilters)
+      JSON.stringify(popularFilters),
     );
   }, [recentSearches, popularFilters]);
 
@@ -90,7 +90,7 @@ export const useSuggestions = (
     useRestSuggestions<SearchField>(
       schema.table,
       columnSearch[0],
-      columnSearch[1]
+      columnSearch[1],
     );
 
   useEffect(() => {
@@ -146,8 +146,8 @@ export const useSuggestions = (
             if (alreadyHasValue) {
               displayToValueMap.current = Object.fromEntries(
                 Object.entries(displayToValueMap.current).filter(
-                  ([key]) => key !== field?.key + ":" + inputValue
-                )
+                  ([key]) => key !== field?.key + ":" + inputValue,
+                ),
               );
             } else {
               displayToValueMap.current = {
@@ -195,8 +195,8 @@ export const useSuggestions = (
     // Clean the displayValueMap
     displayToValueMap.current = Object.fromEntries(
       Object.entries(displayToValueMap.current).filter(
-        ([key]) => value.indexOf(key.split(":").slice(1).join(":")) >= 0
-      )
+        ([key]) => value.indexOf(key.split(":").slice(1).join(":")) >= 0,
+      ),
     );
   };
 
@@ -290,12 +290,12 @@ export const useSuggestions = (
   const getSuggestions = () => {
     const status = getCaretPosition();
     const field = fields.find(
-      (a) => labelToVariable(a.label) === status.filter?.key
+      (a) => labelToVariable(a.label) === status.filter?.key,
     );
     setCurrentFilterValues(
       (status.filter?.values || []).map(
-        (a) => displayToValueMap.current[field?.key + ":" + a] || a
-      )
+        (a) => displayToValueMap.current[field?.key + ":" + a] || a,
+      ),
     );
 
     if (status.text.current?.indexOf(":") === -1) {
@@ -322,8 +322,8 @@ export const useSuggestions = (
         .filter((a: any) =>
           a.item.labels.some(
             (b: string) =>
-              normalizeString(b)[0] === normalizeString(fieldTyped)[0]
-          )
+              normalizeString(b)[0] === normalizeString(fieldTyped)[0],
+          ),
         );
 
       const resultFields = fieldTyped
@@ -335,7 +335,7 @@ export const useSuggestions = (
               }))
               .filter(Boolean),
             "score",
-            (r) => r.label.length
+            (r) => r.label.length,
           )
         : [];
 
@@ -352,21 +352,21 @@ export const useSuggestions = (
               field?.type === "text"
                 ? ':~""'
                 : field?.type === "boolean"
-                ? ":1 "
-                : ":";
+                  ? ":1 "
+                  : ":";
             const defaultOffset = field?.type === "text" ? -1 : 0;
             const currentValue = status.text?.current?.split(":")[1] || "";
             replaceAtCursor(
               labelToVariable(activeField?.label || "") +
                 (currentValue ? ":" + currentValue : defaultSuffix),
-              defaultOffset
+              defaultOffset,
             );
           },
-        }))
+        })),
       );
     } else {
       const field = schema.fields.find(
-        (a) => labelToVariable(a.label) === status.filter?.key
+        (a) => labelToVariable(a.label) === status.filter?.key,
       );
 
       // Inside a filter's value
@@ -400,7 +400,7 @@ export const useSuggestions = (
                       .replace(/(,"")+/, ',""')
                       .replace(/(,"?"?$)/, "") +
                       (field?.type === "text" ? ',""' : ","),
-                    field?.type === "text" ? -1 : 0
+                    field?.type === "text" ? -1 : 0,
                   );
                 },
                 render: (
@@ -441,7 +441,7 @@ export const useSuggestions = (
                   const status = getCaretPosition();
                   replaceAtCursor(
                     status.text.current.replace(/:.*$/, ':""') + " ",
-                    0
+                    0,
                   );
                 },
                 render: (

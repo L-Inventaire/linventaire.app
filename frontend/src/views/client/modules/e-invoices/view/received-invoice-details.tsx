@@ -48,7 +48,7 @@ export const ReceivedEInvoiceDetails = ({
   const stateInfo = getStateLabel(invoice.state);
 
   return (
-    <div className="max-w-5xl mx-auto p-6 space-y-6">
+    <div className="space-y-6">
       {/* Header Section */}
       <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
         <div className="flex justify-between items-start mb-4">

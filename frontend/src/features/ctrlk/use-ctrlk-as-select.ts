@@ -9,7 +9,10 @@ export const useCtrlKAsSelect = () => {
     filter: any,
     cb: (entities: T[]) => void,
     max: number = 1,
-    selected: T[] = []
+    selected: T[] = [],
+    options: {
+      query?: string;
+    } = {},
   ) => {
     setCtrlK((states) => [
       ...states,
@@ -23,6 +26,7 @@ export const useCtrlKAsSelect = () => {
             options: {
               entity: entity,
               internalQuery: filter,
+              query: options?.query || "",
               onClick: cb,
               selected: max > 1 ? selected : undefined,
             },

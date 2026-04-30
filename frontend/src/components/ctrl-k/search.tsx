@@ -65,10 +65,10 @@ export const SearchCtrlK = ({ stateId }: { stateId: string }) => {
   const currentState = state.path?.[state.path?.length - 1] || {};
   const currentEntity = currentState.options?.entity;
   const [selection, setSelection] = useState<RestEntity[]>(
-    currentState.options?.selected || []
+    currentState.options?.selected || [],
   );
   const [initialSelection, setInitialSelection] = useState<RestEntity[]>(
-    currentState.options?.selected || []
+    currentState.options?.selected || [],
   );
 
   useEffect(() => {
@@ -79,7 +79,7 @@ export const SearchCtrlK = ({ stateId }: { stateId: string }) => {
     setSelection((prev) =>
       prev.find((a) => a.id === item.id)
         ? prev.filter((a) => a.id !== item.id)
-        : [...prev, item]
+        : [...prev, item],
     );
   };
 
@@ -100,9 +100,9 @@ export const SearchCtrlK = ({ stateId }: { stateId: string }) => {
         ...state.path.map((a, i) =>
           i === state.path.length - 1
             ? _.set(_.cloneDeep(a), "options.query", query)
-            : a
+            : a,
         ),
-      ])
+      ]),
     );
   };
   const typedQueryStr =
@@ -125,7 +125,7 @@ export const SearchCtrlK = ({ stateId }: { stateId: string }) => {
     queryFn: CtrlKRestEntities[currentEntity || ""]?.resultList
       ? async () =>
           (await CtrlKRestEntities[currentEntity || ""]?.resultList?.(
-            typedQueryStr
+            typedQueryStr,
           )) || {
             total: 0,
             list: [],
@@ -207,7 +207,7 @@ export const SearchCtrlK = ({ stateId }: { stateId: string }) => {
                                   className: "h-4 w-4 mx-1 opacity-50",
                                 })
                             : undefined,
-                        })) || []
+                        })) || [],
                     ).map(
                       (a) =>
                         ({
@@ -217,7 +217,7 @@ export const SearchCtrlK = ({ stateId }: { stateId: string }) => {
                               className={twMerge(
                                 "flex items-center",
                                 "-ml-1",
-                                a.className
+                                a.className,
                               )}
                             >
                               {a.icon &&
@@ -238,7 +238,7 @@ export const SearchCtrlK = ({ stateId }: { stateId: string }) => {
                                 }
                               }
                             : undefined,
-                        } as Suggestions[0])
+                        }) as Suggestions[0],
                     )
                   : []),
                 ...filterSuggestions(query, [
@@ -267,7 +267,7 @@ export const SearchCtrlK = ({ stateId }: { stateId: string }) => {
                         <div
                           className={twMerge(
                             "flex items-center",
-                            a.icon ? "-ml-1" : ""
+                            a.icon ? "-ml-1" : "",
                           )}
                         >
                           {a.icon &&
@@ -276,68 +276,70 @@ export const SearchCtrlK = ({ stateId }: { stateId: string }) => {
                         </div>
                       ),
                       onClick: a.action,
-                    } as Suggestions[0])
+                    }) as Suggestions[0],
                 ),
               ]
             : currentState.mode === "search"
-            ? [
-                // If id is used we don't want to create a new item
-                query.indexOf("id:") < 0 &&
-                (CtrlKRestEntities[currentEntity || ""]?.onCreate?.(
-                  typedQueryStr
-                )?.label ||
-                  CtrlKRestEntities[currentEntity || ""]?.renderEditor)
-                  ? ({
-                      type: CtrlKRestEntities[currentEntity || ""]?.onCreate?.(
-                        typedQueryStr
-                      )?.label
-                        ? "navigation"
-                        : "operator",
-                      value: "editor",
-                      render: CtrlKRestEntities[currentEntity || ""]
-                        ?.onCreate ? (
-                        CtrlKRestEntities[currentEntity || ""]?.onCreate?.(
-                          typedQueryStr
-                        ).label
-                      ) : (
-                        <div className={twMerge("flex items-center -ml-3")}>
-                          <PlusIcon className="h-4 w-4 mx-1 opacity-50" />
-                          {typedQueryStr
-                            ? `Créer '${typedQueryStr}'`
-                            : "Créer un nouvel élément"}
-                        </div>
-                      ),
-                      onClick: async () => {
-                        if (CtrlKRestEntities[currentEntity || ""]?.onCreate) {
-                          const res = await CtrlKRestEntities[
-                            currentEntity || ""
-                          ]
-                            ?.onCreate?.(query)
-                            .callback(query);
-                          if (typeof res === "string") {
-                            setQuery(res);
+              ? [
+                  // If id is used we don't want to create a new item
+                  !query.match(/(^| )id:/) &&
+                  (CtrlKRestEntities[currentEntity || ""]?.onCreate?.(
+                    typedQueryStr,
+                  )?.label ||
+                    CtrlKRestEntities[currentEntity || ""]?.renderEditor)
+                    ? ({
+                        type: CtrlKRestEntities[
+                          currentEntity || ""
+                        ]?.onCreate?.(typedQueryStr)?.label
+                          ? "navigation"
+                          : "operator",
+                        value: "editor",
+                        render: CtrlKRestEntities[currentEntity || ""]
+                          ?.onCreate ? (
+                          CtrlKRestEntities[currentEntity || ""]?.onCreate?.(
+                            typedQueryStr,
+                          ).label
+                        ) : (
+                          <div className={twMerge("flex items-center -ml-3")}>
+                            <PlusIcon className="h-4 w-4 mx-1 opacity-50" />
+                            {typedQueryStr
+                              ? `Créer '${typedQueryStr}'`
+                              : "Créer un nouvel élément"}
+                          </div>
+                        ),
+                        onClick: async () => {
+                          if (
+                            CtrlKRestEntities[currentEntity || ""]?.onCreate
+                          ) {
+                            const res = await CtrlKRestEntities[
+                              currentEntity || ""
+                            ]
+                              ?.onCreate?.(query)
+                              .callback(query);
+                            if (typeof res === "string") {
+                              setQuery(res);
+                            } else {
+                              close();
+                            }
                           } else {
-                            close();
-                          }
-                        } else {
-                          setState({
-                            ...state,
-                            path: [
-                              ...state.path,
-                              {
-                                mode: "editor",
-                                options: {
-                                  entity: currentEntity || "",
+                            setState({
+                              ...state,
+                              path: [
+                                ...state.path,
+                                {
+                                  mode: "editor",
+                                  options: {
+                                    entity: currentEntity || "",
+                                  },
                                 },
-                              },
-                            ],
-                          });
-                        }
-                      },
-                    } as Suggestions[0])
-                  : ({} as Suggestions[0]),
-              ]
-            : []
+                              ],
+                            });
+                          }
+                        },
+                      } as Suggestions[0])
+                    : ({} as Suggestions[0]),
+                ]
+              : []
         }
         afterSuggestions={
           <>
@@ -364,7 +366,7 @@ export const SearchCtrlK = ({ stateId }: { stateId: string }) => {
                           selection.length
                             ? _.uniqBy([...selection, a], "id")
                             : [a],
-                          event
+                          event,
                         );
                         return;
                       }
@@ -372,9 +374,9 @@ export const SearchCtrlK = ({ stateId }: { stateId: string }) => {
                         getRoute(
                           CtrlKRestEntities[currentEntity || ""]?.viewRoute ||
                             "/:client/" + currentEntity + "/:id",
-                          { id: a.id }
+                          { id: a.id },
                         ),
-                        { event }
+                        { event },
                       );
                     }, 100);
                   }}
@@ -383,7 +385,8 @@ export const SearchCtrlK = ({ stateId }: { stateId: string }) => {
                   data={[
                     ...(initialSelection || []),
                     ...((items.data?.list || [])?.filter(
-                      (a) => initialSelection.map((b) => b.id).indexOf(a.id) < 0
+                      (a) =>
+                        initialSelection.map((b) => b.id).indexOf(a.id) < 0,
                     ) || []),
                   ]}
                   showPagination={false}
