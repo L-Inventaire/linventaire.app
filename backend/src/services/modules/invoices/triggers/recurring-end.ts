@@ -56,7 +56,7 @@ export const checkQuotesThatMustEndRecurrence = async (ctx: Context) => {
         const nextDate = getInvoiceNextDate(quote);
         if (
           nextDate &&
-          nextDate > new Date(quote.subscription_ends_at || 0).getTime()
+          nextDate >= new Date(quote.subscription_ends_at || 0).getTime()
         ) {
           canClose = true;
         }
