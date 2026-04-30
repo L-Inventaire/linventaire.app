@@ -97,7 +97,7 @@
 {
 "line_number": "1",
 "invoiced_quantity": 1,
-"invoiced_quantity_unit_code": "HUR",
+"invoiced_quantity_code": "HUR",
 "net_amount": 75,
 "vat_information": {
 "invoiced_item_vat_category_code": "S",

@@ -25,7 +25,6 @@ import { useEInvoicesReady } from "@features/invoices/hooks/use-e-invoices-ready
 import { Invoices } from "@features/invoices/types/types";
 import {
   getDocumentName,
-  getInvoiceNextDate,
   getInvoiceWithOverrides,
 } from "@features/invoices/utils";
 import { ROUTES } from "@features/routes";
@@ -39,6 +38,7 @@ import { getTextFromHtml } from "@features/utils/format/strings";
 import { useEffectChange } from "@features/utils/hooks/use-changed-effect";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import {
+  ArrowPathIcon,
   ExclamationCircleIcon,
   PlayCircleIcon,
 } from "@heroicons/react/16/solid";
@@ -50,14 +50,14 @@ import {
 import { EditorInput } from "@molecules/editor-input";
 import { Table } from "@molecules/table";
 import { Timeline } from "@molecules/timeline";
-import { Callout, Code, Heading, Text, Tooltip } from "@radix-ui/themes";
+import { Badge, Callout, Code, Heading, Text, Tooltip } from "@radix-ui/themes";
 import { PageColumns } from "@views/client/_layout/page";
 import { format as formatdfns } from "date-fns";
 import _ from "lodash";
 import { DateTime } from "luxon";
 import { Fragment, useEffect } from "react";
 import { ContactRestDocument } from "../../contacts/components/contact-input-rest-card";
-import { computePaymentDelayDate, computePricesFromInvoice } from "../utils";
+import { computePricesFromInvoice } from "../utils";
 import { getBestDeliveryAddress, InputDelivery } from "./input-delivery";
 import { InvoiceInputFormat } from "./input-format";
 import { InvoicePaymentInput } from "./input-payment";
@@ -71,6 +71,7 @@ import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-ca
 import { InvoiceStatus } from "./invoice-status";
 import { RelatedInvoices } from "./related-invoices";
 import { TagPaymentCompletion } from "./tag-payment-completion";
+import { computePaymentDelayDate, getInvoiceNextDate } from "@shared/invoices";
 
 export const InvoicesDetailsPage = ({
   readonly,
@@ -360,6 +361,18 @@ export const InvoicesDetailsPage = ({
                 type={draft.type}
                 onChange={(value) => setDraft({ ...draft, state: value })}
               />
+              {!!draft.content?.find((a) => a.subscription) &&
+                draft.subscription?.end_type === "none" && (
+                  <Badge
+                    className="ml-2"
+                    variant="outline"
+                    color="green"
+                    size="2"
+                  >
+                    <ArrowPathIcon className="h-3 w-3 inline-block mr-1 -mt-0.5" />
+                    Tacite reconduction
+                  </Badge>
+                )}
               <div className="grow" />
               {draft.type === "invoices" && (
                 <TagPaymentCompletion invoice={draft} />

@@ -1,6 +1,7 @@
 import { Button } from "@/atoms/button/button";
 import { ButtonConfirm } from "@/atoms/button/confirm";
 import { useCurrentClient } from "@/features/clients/state/use-clients";
+import { Articles } from "@/features/articles/types/types";
 import { Contacts } from "@/features/contacts/types/types";
 import { useCtrlKAsSelect } from "@/features/ctrlk/use-ctrlk-as-select";
 import { ReceivedEInvoices } from "@/features/e-invoicing/types/types";
@@ -17,18 +18,22 @@ export const ReceivedEInvoiceActions = ({
   invoice,
   supplier,
   isSupplierValid,
+  areArticlesValid,
+  articleMatches,
 }: {
   id: string | undefined;
   invoice: ReceivedEInvoices;
   supplier: Contacts | null;
   isSupplierValid: boolean;
+  areArticlesValid: boolean;
+  articleMatches: Record<string, Articles | null>;
 }) => {
   const { update } = useRest<ReceivedEInvoices>("received_e_invoices");
   const select = useCtrlKAsSelect();
   const { client } = useCurrentClient();
   const [isCreating, setIsCreating] = useState(false);
 
-  const canProcessInvoice = supplier && isSupplierValid;
+  const canProcessInvoice = supplier && isSupplierValid && areArticlesValid;
 
   const handleReject = () => {
     if (!id) return;
@@ -83,12 +88,21 @@ export const ReceivedEInvoiceActions = ({
 
     setIsCreating(true);
     try {
+      // Prepare article mappings (line_number -> article_id)
+      const article_mappings: Record<string, string> = {};
+      Object.entries(articleMatches).forEach(([lineNumber, article]) => {
+        if (article) {
+          article_mappings[lineNumber] = article.id;
+        }
+      });
+
       const response = await fetchServer(
         `/api/e-invoices/v1/${client?.id}/received/${id}/convert`,
         {
           method: "POST",
           body: JSON.stringify({
             supplier_id: supplier.id,
+            article_mappings,
           }),
         },
       );

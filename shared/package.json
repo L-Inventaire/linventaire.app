@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@types/lodash": "^4.17.24",
+    "@types/luxon": "^3.7.1",
+    "lodash": "^4.18.1",
+    "luxon": "^3.7.2"
+  }
+}

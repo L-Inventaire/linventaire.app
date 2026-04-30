@@ -139,6 +139,32 @@ export const getVatCategory = (value: string): string | null => {
   );
 };
 
+export const getVatCategoryOnly = (value: string): string | null => {
+  if (standardCodeToVatCategory[value]) {
+    return value?.split(":")[0] || null; // Extract category code (e.g. "S" from "S:20")
+  }
+  return (
+    (
+      Object.keys(standardCodeToVatCategory).find(
+        (key) => standardCodeToVatCategory[key] === value
+      ) || null
+    )?.split(":")[0] || null
+  );
+};
+
+export const getVatExemptionOnly = (value: string): string | null => {
+  if (standardCodeToVatCategory[value]) {
+    return value.split(":")[1]; // Extract exemption code (e.g. "E" from "E:VATEX-FR-CGI261-4-1")
+  }
+  return (
+    (
+      Object.keys(standardCodeToVatCategory).find(
+        (key) => standardCodeToVatCategory[key] === value
+      ) || null
+    )?.split(":")[1] || null
+  );
+};
+
 export const getUnitCode = (value: string): string | null => {
   if (standardCodeToUnit[value]) {
     return value;

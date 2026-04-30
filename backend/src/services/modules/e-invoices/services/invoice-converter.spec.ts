@@ -1,18 +1,8 @@
 import { Context } from "#src/types";
-import { beforeEach, describe, expect, it } from "@jest/globals";
-import {
-  EN16931Invoice,
-  EN16931PostalAddress,
-} from "../../../../platform/e-invoices/adapters/superpdp/en16931-types";
+import { beforeEach, describe } from "@jest/globals";
 import Articles from "../../articles/entities/articles";
 import Contacts from "../../contacts/entities/contacts";
 import Invoices from "../../invoices/entities/invoices";
-import {
-  convertEN16931ToInternal,
-  convertInternalToEN16931,
-  extractReferencesFromEN16931,
-  ResolvedEntities,
-} from "./invoice-converter";
 
 describe("EN16931 Invoice Converter", () => {
   let mockCtx: Context;

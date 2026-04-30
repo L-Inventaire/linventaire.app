@@ -224,6 +224,13 @@ export const InvoicesColumns: Column<Invoices>[] = [
               </div>
             );
           })}
+          {!!invoice.content?.find((a) => a.subscription) &&
+            invoice.subscription?.end_type === "none" && (
+              <Badge className="ml-2" variant="outline" color="green" size="1">
+                <ArrowPathIcon className="h-3 w-3 inline-block mr-1 -mt-0.5" />
+                Tacite reconduction
+              </Badge>
+            )}
         </Base>
       ) : (
         <Base className="text-right whitespace-nowrap">

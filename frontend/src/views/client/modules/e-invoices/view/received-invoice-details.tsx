@@ -1,5 +1,5 @@
 import { ReceivedEInvoices } from "@/features/e-invoicing/types/types";
-import { formatNumber } from "@/features/utils/format/strings";
+import { formatAmount, formatNumber } from "@/features/utils/format/strings";
 import { Badge } from "@radix-ui/themes";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -104,9 +104,9 @@ export const ReceivedEInvoiceDetails = ({
           </h3>
           <div className="space-y-2 text-sm">
             <p className="font-medium">{enInvoice.seller.name}</p>
-            {enInvoice.seller.vat && (
+            {enInvoice.seller.vat_identifier && (
               <p className="text-slate-600 dark:text-slate-400">
-                TVA: {enInvoice.seller.vat}
+                TVA: {enInvoice.seller.vat_identifier}
               </p>
             )}
             {enInvoice.seller.postal_address && (
@@ -126,11 +126,6 @@ export const ReceivedEInvoiceDetails = ({
                 )}
               </div>
             )}
-            {enInvoice.seller.contact?.email && (
-              <p className="text-slate-600 dark:text-slate-400">
-                {enInvoice.seller.contact.email}
-              </p>
-            )}
           </div>
         </div>
 
@@ -141,9 +136,9 @@ export const ReceivedEInvoiceDetails = ({
           </h3>
           <div className="space-y-2 text-sm">
             <p className="font-medium">{enInvoice.buyer.name}</p>
-            {enInvoice.buyer.vat && (
+            {enInvoice.buyer.vat_identifier && (
               <p className="text-slate-600 dark:text-slate-400">
-                TVA: {enInvoice.buyer.vat}
+                TVA: {enInvoice.buyer.vat_identifier}
               </p>
             )}
             {enInvoice.buyer.postal_address && (
@@ -162,11 +157,6 @@ export const ReceivedEInvoiceDetails = ({
                   <p>{enInvoice.buyer.postal_address.country_code}</p>
                 )}
               </div>
-            )}
-            {enInvoice.buyer.contact?.email && (
-              <p className="text-slate-600 dark:text-slate-400">
-                {enInvoice.buyer.contact.email}
-              </p>
             )}
           </div>
         </div>
@@ -216,11 +206,13 @@ export const ReceivedEInvoiceDetails = ({
                   </td>
                   <td className="px-6 py-4 text-right">
                     {formatNumber(line.invoiced_quantity)}{" "}
-                    {line.invoiced_quantity_unit_code}
+                    {line.invoiced_quantity_code}
                   </td>
                   <td className="px-6 py-4 text-right">
-                    {formatNumber(line.price_details.item_net_price)}{" "}
-                    {invoice.currency_code}
+                    {formatAmount(
+                      line.price_details.item_net_price,
+                      invoice.currency_code,
+                    )}
                   </td>
                   <td className="px-6 py-4 text-right">
                     {line.vat_information.invoiced_item_vat_rate
@@ -228,7 +220,7 @@ export const ReceivedEInvoiceDetails = ({
                       : line.vat_information.invoiced_item_vat_category_code}
                   </td>
                   <td className="px-6 py-4 text-right font-medium">
-                    {formatNumber(line.net_amount)} {invoice.currency_code}
+                    {formatAmount(line.net_amount, invoice.currency_code)}
                   </td>
                 </tr>
               ))}
@@ -245,20 +237,22 @@ export const ReceivedEInvoiceDetails = ({
               Total HT:
             </span>
             <span className="font-medium">
-              {formatNumber(invoice.total_amount)} {invoice.currency_code}
+              {formatAmount(invoice.total_amount, invoice.currency_code)}
             </span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-slate-600 dark:text-slate-400">TVA:</span>
             <span className="font-medium">
-              {formatNumber(invoice.total_tax_amount)} {invoice.currency_code}
+              {formatAmount(invoice.total_tax_amount, invoice.currency_code)}
             </span>
           </div>
           <div className="flex justify-between text-lg font-bold pt-3 border-t border-slate-200 dark:border-slate-700">
             <span>Total TTC:</span>
             <span>
-              {formatNumber(invoice.total_amount_with_tax)}{" "}
-              {invoice.currency_code}
+              {formatAmount(
+                invoice.total_amount_with_tax,
+                invoice.currency_code,
+              )}
             </span>
           </div>
         </div>

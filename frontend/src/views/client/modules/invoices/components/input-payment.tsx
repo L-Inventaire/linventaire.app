@@ -10,7 +10,8 @@ import { formatIBAN } from "@features/utils/format/strings";
 import { BanknotesIcon } from "@heroicons/react/20/solid";
 import { PageBlockHr } from "@views/client/_layout/page";
 import { format } from "date-fns";
-import { computePaymentDelayDate, isPaymentLate } from "../utils";
+import { isPaymentLate } from "../utils";
+import { computePaymentDelayDate } from "@shared/invoices";
 
 export const InvoicePaymentInput = ({
   ctrl,
@@ -77,7 +78,7 @@ export const InvoicePaymentInput = ({
         <Info>
           Paiement sous {paymentInfo?.delay} jours{" "}
           {["month_end_delay_first", "month_end_delay_last"].includes(
-            paymentInfo?.delay_type || ""
+            paymentInfo?.delay_type || "",
           ) && "fin de mois"}
           , pénalité {paymentInfo?.late_penalty}.
         </Info>

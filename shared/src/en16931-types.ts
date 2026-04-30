@@ -42,7 +42,7 @@ export interface EN16931Seller {
     {
       value: string; // SIRENE
       scheme: string; // Default to "0225";
-    }
+    },
   ];
   legal_registration_identifier: {
     value: string; // SIRENE
@@ -62,7 +62,7 @@ export interface EN16931Buyer {
     {
       value: string; // SIRENE
       scheme: string; // Default to "0225";
-    }
+    },
   ];
   legal_registration_identifier: {
     value: string; // SIRENE
@@ -190,14 +190,21 @@ export interface EN16931VatBreakDown {
 }
 
 export interface EN16931AllowanceOrCharge {
-  amount: number;
-  kind: "allowance" | "charge";
-  base_amount?: number;
-  percentage?: number;
-  reason_code?: string;
+  amount: string;
+
+  vat_category_code: string;
+
+  base_amount?: string;
+  percent?: string;
+
   reason?: string;
-  vat_category_code?: string;
-  vat_rate?: number;
+  reason_code?: string;
+
+  vat_rate?: string;
+  vat_identifier?: string;
+
+  vat_exemption_reason?: string;
+  vat_exemption_reason_code?: string;
 }
 
 export interface EN16931InvoicingPeriod {
@@ -272,10 +279,10 @@ export interface EN16931AdditionalSupportingDocument {
 }
 
 export interface EN16931PriceDetails {
-  item_net_price: number;
-  item_price_discount?: number;
-  item_gross_price?: number;
-  base_quantity?: number;
+  item_net_price: string;
+  item_price_discount?: string;
+  item_gross_price?: string;
+  base_quantity?: string;
   base_quantity_unit_code?: string;
 }
 
@@ -303,16 +310,15 @@ export interface EN16931ItemInformation {
 
 export interface EN16931LineVatInformation {
   invoiced_item_vat_category_code: string;
-  invoiced_item_vat_rate?: number;
+  invoiced_item_vat_rate?: string;
 }
 
 export interface EN16931InvoiceLineAllowanceOrCharge {
-  amount: number;
-  kind?: "allowance" | "charge";
-  base_amount?: number;
-  percentage?: number;
-  reason_code?: string;
+  amount: string;
+  base_amount?: string;
+  percent?: string;
   reason?: string;
+  reason_code?: string;
 }
 
 export interface EN16931InvoiceLineNote {
@@ -321,18 +327,55 @@ export interface EN16931InvoiceLineNote {
 }
 
 export interface EN16931InvoiceLine {
-  line_number: string;
-  line_note?: EN16931InvoiceLineNote[];
-  invoiced_object_identifier?: EN16931Identifier;
-  invoiced_quantity: number;
-  invoiced_quantity_unit_code: string;
-  net_amount: number;
-  referenced_purchase_order_line_reference?: string;
-  vat_information: EN16931LineVatInformation;
-  invoicing_period?: EN16931InvoicingPeriod;
-  allowances_charges?: EN16931InvoiceLineAllowanceOrCharge[];
-  price_details: EN16931PriceDetails;
+  identifier: string;
+  additional_reference_previous_invoice_line?: AdditionalReferencePreviousInvoiceLine;
+  allowances?: EN16931InvoiceLineAllowanceOrCharge[];
+  charges?: EN16931InvoiceLineAllowanceOrCharge[];
+  buyer_accounting_reference?: string;
+  delivery_address?: LineDeliveryAddress;
+  invoiced_quantity: string;
+  invoiced_quantity_code: string;
   item_information: EN16931ItemInformation;
+  line_vat_accounting_currency?: string;
+  line_vat_amount?: string;
+  line_vat_amount_accounting_currency?: string;
+  line_vat_currency?: string;
+  line_with_vat_net_amount?: string;
+  net_amount: string;
+  notes?: EN16931InvoiceLineNote[];
+  object_identifier?: EN16931Identifier[];
+  parent_identifier?: string;
+  parent_unit_code?: string;
+  parent_unit_quantity?: string;
+  period?: EN16931InvoicingPeriod;
+  price_details: EN16931PriceDetails;
+  purchase_order_reference_from_buyer?: string;
+  real_delivery_date?: string; // ISO date
+  receipt_voucher?: LineIdentifier;
+  referenced_purchase_order_line_reference?: string;
+  sales_order?: LineIdentifier;
+  seller?: EN16931Seller;
+  shipping_notice?: LineIdentifier;
+  subtype?: "DETAIL" | "GROUP" | "INFORMATION";
+  vat_information: EN16931LineVatInformation;
+}
+
+export interface AdditionalReferencePreviousInvoiceLine {
+  previous_invoice_id: string;
+  previous_invoice_issue_date: string; // ISO date (YYYY-MM-DD)
+  previous_invoice_line_number: string;
+  previous_invoice_type_code: number;
+}
+
+export interface LineDeliveryAddress {
+  delivery_place_identifier: EN16931Identifier[];
+  delivery_place_name: string;
+  postal_address: EN16931PostalAddress;
+}
+
+export interface LineIdentifier {
+  identifier: string;
+  line_identifier: string;
 }
 
 /**
@@ -367,6 +410,7 @@ export interface EN16931Invoice {
   // Parties
   seller: EN16931Seller;
   buyer: EN16931Buyer;
+  payee?: EN16931Payee;
   tax_representative?: any; // seller_tax_representative_party
 
   // Delivery
@@ -376,7 +420,8 @@ export interface EN16931Invoice {
   payment_details?: EN16931PaymentInstructions;
 
   // Allowances and charges
-  allowances_charges?: EN16931AllowanceOrCharge[];
+  document_level_allowances?: EN16931AllowanceOrCharge[];
+  document_level_charges?: EN16931AllowanceOrCharge[];
 
   // Totals
   totals: EN16931Totals;

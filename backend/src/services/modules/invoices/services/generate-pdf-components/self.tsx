@@ -5,8 +5,8 @@ import { Context } from "../../../../../types";
 import Clients from "../../../../clients/entities/clients";
 import Invoices from "../../entities/invoices";
 import { displayDate, KeyValueDisplay } from "./utils";
-import { computePaymentDelayDate } from "../../triggers/on-payment-delay-changed";
 import { captureException } from "@sentry/node";
+import { computePaymentDelayDate } from "@shared/invoices";
 
 export const InvoiceSelf = ({
   ctx,

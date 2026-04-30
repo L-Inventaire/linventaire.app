@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from "axios";
-import { EN16931Invoice } from "./en16931-types";
+import { EN16931Invoice } from "@shared/en16931-types";
 
 export interface SuperPDPConfig {
   clientId: string;

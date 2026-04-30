@@ -36,7 +36,8 @@ import {
   buildQueryFromMap,
   schemaToSearchFields,
 } from "../../../../components/search-bar/utils/utils";
-import { computePaymentDelayDate, getInvoiceStatusPrettyName } from "./utils";
+import { getInvoiceStatusPrettyName } from "./utils";
+import { computePaymentDelayDate } from "@shared/invoices";
 
 export const InvoicesPage = () => {
   const key = useParams().type;

@@ -1,17 +1,16 @@
-import Services from "#src/services/index";
 import Clients, { Address } from "#src/services/clients/entities/clients";
+import Services from "#src/services/index";
 import { search } from "#src/services/rest/services/rest";
 import { getContactName } from "#src/services/utils";
 import { Context } from "#src/types";
-import _ from "lodash";
 import {
-  EN16931ElectronicAddress,
+  EN16931Buyer,
   EN16931Invoice,
   EN16931PostalAddress,
-  EN16931VatBreakDown,
   EN16931Seller,
-  EN16931Buyer,
-} from "../../../../platform/e-invoices/adapters/superpdp/en16931-types";
+  EN16931VatBreakDown,
+} from "@shared/en16931-types";
+import _ from "lodash";
 import Articles, { ArticlesDefinition } from "../../articles/entities/articles";
 import Contacts, { ContactsDefinition } from "../../contacts/entities/contacts";
 import Invoices, {
@@ -21,6 +20,7 @@ import Invoices, {
 import {
   getUnitCode,
   getVatCategory,
+  getVatExemptionOnly,
   getVatExemptionReason,
 } from "../../invoices/types/maps";
 import { getTvaValue } from "../../invoices/utils";
@@ -180,17 +180,15 @@ export function convertEN16931ToInternal(
 
     // Calculate discount from allowances/charges
     const discount = new InvoiceDiscount();
-    if (line.allowances_charges && line.allowances_charges.length > 0) {
-      const allowance = line.allowances_charges.find(
-        (ac) => ac.kind === "allowance"
-      );
+    if (line.allowances && line.allowances.length > 0) {
+      const allowance = line.allowances[0];
       if (allowance) {
-        if (allowance.percentage) {
+        if (allowance.percent) {
           discount.mode = "percentage";
-          discount.value = allowance.percentage;
+          discount.value = parseFloat(allowance.percent);
         } else {
           discount.mode = "amount";
-          discount.value = allowance.amount;
+          discount.value = parseFloat(allowance.amount);
         }
       }
     }
@@ -202,9 +200,9 @@ export function convertEN16931ToInternal(
     invoiceLine.reference =
       line.item_information.sellers_item_identification || "";
     invoiceLine.description = line.item_information.description || "";
-    invoiceLine.unit = line.invoiced_quantity_unit_code;
-    invoiceLine.quantity = line.invoiced_quantity;
-    invoiceLine.unit_price = line.price_details.item_net_price;
+    invoiceLine.unit = line.invoiced_quantity_code;
+    invoiceLine.quantity = parseFloat(line.invoiced_quantity);
+    invoiceLine.unit_price = parseFloat(line.price_details.item_net_price);
     invoiceLine.tva = vatRate.toString();
     invoiceLine.discount = discount;
     invoiceLine.subscription = "";
@@ -219,19 +217,17 @@ export function convertEN16931ToInternal(
   // Calculate document-level discount
   const documentDiscount = new InvoiceDiscount();
   if (
-    en16931Invoice.allowances_charges &&
-    en16931Invoice.allowances_charges.length > 0
+    en16931Invoice.document_level_allowances &&
+    en16931Invoice.document_level_allowances.length > 0
   ) {
-    const allowance = en16931Invoice.allowances_charges.find(
-      (ac) => ac.kind === "allowance"
-    );
+    const allowance = en16931Invoice.document_level_allowances[0];
     if (allowance) {
-      if (allowance.percentage) {
+      if (allowance.percent) {
         documentDiscount.mode = "percentage";
-        documentDiscount.value = allowance.percentage;
+        documentDiscount.value = parseFloat(allowance.percent);
       } else {
         documentDiscount.mode = "amount";
-        documentDiscount.value = allowance.amount;
+        documentDiscount.value = parseFloat(allowance.amount);
       }
     }
   }
@@ -620,22 +616,13 @@ export function convertInternalToEN16931(
     }
 
     return {
-      line_number: (index + 1).toString(),
-      invoiced_quantity: line.quantity,
-      invoiced_quantity_unit_code: unitCode,
-      net_amount: lineNetAmount,
-      vat_information: {
-        invoiced_item_vat_category_code: vatCategoryCode,
-        invoiced_item_vat_rate: vatRate,
-        vat_exemption_reason_code: exemptionReasonCode,
-        vat_exemption_reason: exemptionReason,
-      },
-      allowances_charges: allowances.length > 0 ? allowances : undefined,
-      price_details: {
-        item_net_price: line.unit_price,
-        base_quantity: 1,
-        base_quantity_unit_code: unitCode,
-      },
+      identifier: (index + 1).toString(),
+
+      invoiced_quantity: `${line.quantity}`,
+      invoiced_quantity_code: unitCode,
+
+      net_amount: `${lineNetAmount}`,
+
       item_information: {
         name: line.name,
         description: line.description || undefined,
@@ -643,12 +630,25 @@ export function convertInternalToEN16931(
         buyers_item_identification:
           article.supplier_reference || article.internal_reference || undefined,
       },
-    };
+
+      allowances: allowances.length > 0 ? allowances : undefined,
+
+      price_details: {
+        item_net_price: `${line.unit_price}`,
+        base_quantity: "1",
+        base_quantity_unit_code: unitCode,
+      },
+
+      vat_information: {
+        invoiced_item_vat_category_code: vatCategoryCode,
+        invoiced_item_vat_rate: `${vatRate}`,
+      },
+    } as EN16931Invoice["lines"][0];
   });
 
   // Calculate totals
   const sumOfLineNetAmounts = lines.reduce(
-    (sum, line) => sum + line.net_amount,
+    (sum, line) => sum + parseFloat(line.net_amount),
     0
   );
 
@@ -695,17 +695,20 @@ export function convertInternalToEN16931(
 
   lines.forEach((line) => {
     const vatInfo = line.vat_information;
-    const vatRate = vatInfo.invoiced_item_vat_rate || 0;
+    const vatRate = parseFloat(vatInfo.invoiced_item_vat_rate || "0");
     const categoryCode = vatInfo.invoiced_item_vat_category_code;
-    const exemptionReasonCode = vatInfo.vat_exemption_reason_code;
-    const exemptionReason = vatInfo.vat_exemption_reason;
+    const hasExemption = invoice.format.tva && invoice.format.tva !== "NONE";
+    const exemptionReasonCode =
+      (hasExemption && getVatExemptionOnly(invoice.format.tva)) || undefined;
+    const exemptionReason =
+      (hasExemption && getVatExemptionReason(invoice.format.tva)) || undefined;
 
     // Create unique key for grouping
     const groupKey = `${categoryCode}:${
       exemptionReasonCode || "none"
     }:${vatRate}`;
 
-    const adjustedTaxableAmount = line.net_amount * discountRatio;
+    const adjustedTaxableAmount = parseFloat(line.net_amount) * discountRatio;
     const vatAmount = (adjustedTaxableAmount * vatRate) / 100;
 
     const current = vatBreakdownMap.get(groupKey);
@@ -879,7 +882,7 @@ export function convertInternalToEN16931(
         }
       : undefined,
     payment_details: paymentDetails,
-    allowances_charges:
+    document_level_allowances:
       documentAllowances.length > 0 ? documentAllowances : undefined,
     totals: {
       sum_invoice_lines_amount: `${sumOfLineNetAmounts}`,

@@ -2,8 +2,8 @@ import Framework from "#src/platform/index";
 import Invoices, {
   InvoicesDefinition,
 } from "#src/services/modules/invoices/entities/invoices";
-import { computePaymentDelayDate } from "#src/services/modules/invoices/triggers/on-payment-delay-changed";
 import { Context } from "#src/types";
+import { computePaymentDelayDate } from "@shared/invoices";
 
 export const fixPaymentDatesInvoices = async (ctx: Context) => {
   // For all invoices

@@ -552,7 +552,7 @@ export default (router: Router) => {
         if (!ctx) throw new Error("No context");
 
         const { id } = req.params;
-        const { supplier_id } = req.body;
+        const { supplier_id, article_mappings } = req.body;
         const db = await Framework.Db.getService();
 
         // Validate supplier_id is provided
@@ -621,23 +621,33 @@ export default (router: Router) => {
           receivedInvoice.en_invoice
         );
 
-        // Find matching articles
+        // Build article matches map from provided article_mappings
         const articleMatches = new Map();
-        for (const articleRef of references.articles) {
-          const matches = await search(
-            { ...ctx, role: "SYSTEM" },
-            ArticlesDefinition.name,
-            {
-              client_id: ctx.client_id,
-              internal_reference: [
-                articleRef.sellers_item_identification,
-                articleRef.buyers_item_identification,
-              ],
-            }
-          );
+        if (article_mappings && typeof article_mappings === "object") {
+          // article_mappings is { line_number: article_id }
+          for (const [lineNumber, articleId] of Object.entries(
+            article_mappings
+          )) {
+            if (articleId && typeof articleId === "string") {
+              const article = await db.selectOne(ctx, ArticlesDefinition.name, {
+                id: articleId as string,
+                client_id: ctx.client_id,
+              });
 
-          if (matches.list.length > 0) {
-            articleMatches.set(articleRef.name, matches.list[0]);
+              if (article) {
+                // Find the corresponding line in the invoice
+                const invoiceLine = receivedInvoice.en_invoice?.lines?.find(
+                  (line) => line.identifier === lineNumber
+                );
+
+                if (invoiceLine) {
+                  articleMatches.set(
+                    invoiceLine.item_information.name,
+                    article
+                  );
+                }
+              }
+            }
           }
         }
 
