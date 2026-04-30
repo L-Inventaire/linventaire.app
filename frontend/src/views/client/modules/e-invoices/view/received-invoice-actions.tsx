@@ -1,5 +1,6 @@
 import { Button } from "@/atoms/button/button";
 import { ButtonConfirm } from "@/atoms/button/confirm";
+import { DropdownButton } from "@atoms/dropdown";
 import { useCurrentClient } from "@/features/clients/state/use-clients";
 import { Articles } from "@/features/articles/types/types";
 import { Contacts } from "@/features/contacts/types/types";
@@ -12,6 +13,9 @@ import { ArrowLeftIcon } from "@heroicons/react/16/solid";
 import { CheckIcon, PlusIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { getRoute, ROUTES } from "@/features/routes";
+import { withModel } from "@/components/search-bar/utils/as-model";
+import { useNavigateAlt } from "@/features/utils/navigate";
 
 export const ReceivedEInvoiceActions = ({
   id,
@@ -32,6 +36,7 @@ export const ReceivedEInvoiceActions = ({
   const select = useCtrlKAsSelect();
   const { client } = useCurrentClient();
   const [isCreating, setIsCreating] = useState(false);
+  const navigate = useNavigateAlt();
 
   const canProcessInvoice = supplier && isSupplierValid && areArticlesValid;
 
@@ -83,7 +88,7 @@ export const ReceivedEInvoiceActions = ({
     );
   };
 
-  const handleCreate = async () => {
+  const handleCreate = async (asQuote: boolean = true) => {
     if (!id || isCreating || !canProcessInvoice || !supplier) return;
 
     setIsCreating(true);
@@ -119,6 +124,13 @@ export const ReceivedEInvoiceActions = ({
         }
         return;
       }
+
+      navigate(
+        withModel<Invoices>(getRoute(ROUTES.InvoicesEdit, { id: "new" }), {
+          ...data.invoice,
+          ...(asQuote ? { type: "supplier_quotes" } : {}),
+        }),
+      );
     } catch (error: any) {
       console.error("Error creating invoice:", error);
       toast.error("Une erreur est survenue lors de la création de la facture");
@@ -162,14 +174,24 @@ export const ReceivedEInvoiceActions = ({
             >
               Rattacher
             </Button>
-            <Button
+            <DropdownButton
               theme="primary"
-              onClick={handleCreate}
               icon={(p) => <PlusIcon {...p} />}
               disabled={isCreating || !canProcessInvoice}
+              position="top"
+              menu={[
+                {
+                  label: "Créer une commande",
+                  onClick: () => handleCreate(true),
+                },
+                {
+                  label: "Créer une facture",
+                  onClick: () => handleCreate(false),
+                },
+              ]}
             >
               {isCreating ? "Création..." : "Créer"}
-            </Button>
+            </DropdownButton>
           </>
         )}
       </div>

@@ -8,7 +8,7 @@ import sharp from "sharp";
 import { Files, FilesDefinition } from "../files/entities/files";
 import { download } from "../files/services/files";
 import Invoices from "./entities/invoices";
-import { getVatCategory, standardCodeToVatValue } from "./types/maps";
+import { getVatCode, standardCodeToVatValue } from "./types/maps";
 import { getTimezoneOffset } from "@shared/invoices";
 
 export const getCurrentYear = (timezone: string, date?: Date) => {
@@ -125,7 +125,7 @@ export const getFormattedNumerotation = (
 };
 
 export const getTvaValue = (tva: string): number => {
-  tva = getVatCategory(tva || "") || "";
+  tva = getVatCode(tva || "") || "";
   return (standardCodeToVatValue[tva] || 0) / 100;
 };
 

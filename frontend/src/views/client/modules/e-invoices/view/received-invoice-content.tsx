@@ -17,7 +17,7 @@ import {
 } from "@heroicons/react/24/solid";
 import { useInvoices } from "@/features/invoices/hooks/use-invoices";
 import { Heading } from "@radix-ui/themes";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { ReceivedEInvoiceDetails } from "./received-invoice-details";
 
 // Component to match one article from invoice line
@@ -36,6 +36,8 @@ const ArticleMatchLine = ({
   value: Articles | null;
   onChange: (article: Articles | null) => void;
 }) => {
+  const autoSelectedOnce = useRef(false);
+
   // Auto-search by reference if available, otherwise by name
   const { articles } = useArticles({
     key: `article-match-${lineNumber}`,
@@ -57,16 +59,12 @@ const ArticleMatchLine = ({
     limit: 1,
   });
 
-  console.log("ArticleMatchLine", lineNumber, articles.data?.list, {
-    reference,
-    itemName,
-  });
-
   useEffect(() => {
-    if (articles.data?.list?.[0] && !value) {
+    if (articles.data?.list?.[0] && !value && !autoSelectedOnce.current) {
+      autoSelectedOnce.current = true;
       onChange(articles.data.list[0]);
     }
-  }, [articles.data?.list, value]);
+  }, [articles.data?.list, value, autoSelectedOnce]);
 
   // Validation: if reference exists, it must match
   const isValid =

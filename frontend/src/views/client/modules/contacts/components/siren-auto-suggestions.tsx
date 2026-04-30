@@ -124,6 +124,10 @@ export const SirenAutoSuggestions = ({
     }
   };
 
+  if (address.country !== "FR") {
+    return;
+  }
+
   if (isPending) {
     return (
       <div className="p-3 bg-amber-50 border border-amber-200 rounded-md text-amber-800 text-sm">

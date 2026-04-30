@@ -615,10 +615,8 @@ export default (router: Router) => {
         }
 
         // Extract references and find matching articles
-        const { extractReferencesFromEN16931, convertEN16931ToInternal } =
-          await import("./services/invoice-converter");
-        const references = extractReferencesFromEN16931(
-          receivedInvoice.en_invoice
+        const { convertEN16931ToInternal } = await import(
+          "./services/invoice-converter"
         );
 
         // Build article matches map from provided article_mappings

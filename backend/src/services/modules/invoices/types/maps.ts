@@ -128,15 +128,34 @@ export const getVatExemptionReason = (value: string): string | null => {
   );
 };
 
-export const getVatCategory = (value: string): string | null => {
+export const getVatCode = (value: string, category?: string): string | null => {
   if (standardCodeToVatCategory[value]) {
     return value;
   }
-  return (
+  const candidate =
     Object.keys(standardCodeToVatCategory).find(
       (key) => standardCodeToVatCategory[key] === value
-    ) || null
-  );
+    ) || null;
+  if (candidate) return candidate;
+
+  try {
+    const rate = parseFloat(value);
+    if (rate === 0) {
+      return (
+        Object.keys(standardCodeToVatCategory).find(
+          (key) => key.indexOf((category || "O") + ":") === 0
+        ) || "O:VATEX-EU-O"
+      );
+    } else {
+      return (
+        Object.keys(standardCodeToVatCategory).find(
+          (key) => key.indexOf("S:" + Math.floor(rate)) === 0
+        ) || null
+      );
+    }
+  } catch (e) {
+    return null;
+  }
 };
 
 export const getVatCategoryOnly = (value: string): string | null => {

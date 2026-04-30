@@ -19,7 +19,7 @@ import Invoices, {
 } from "../../invoices/entities/invoices";
 import {
   getUnitCode,
-  getVatCategory,
+  getVatCode,
   getVatExemptionOnly,
   getVatExemptionReason,
 } from "../../invoices/types/maps";
@@ -176,10 +176,13 @@ export function convertEN16931ToInternal(
     }
 
     // Parse VAT rate
-    const vatRate = line.vat_information.invoiced_item_vat_rate || 0;
+    const vatFullCode = getVatCode(
+      line.vat_information.invoiced_item_vat_rate || "0",
+      line.vat_information.invoiced_item_vat_category_code
+    );
 
     // Calculate discount from allowances/charges
-    const discount = new InvoiceDiscount();
+    const discount = {} as InvoiceDiscount;
     if (line.allowances && line.allowances.length > 0) {
       const allowance = line.allowances[0];
       if (allowance) {
@@ -193,7 +196,7 @@ export function convertEN16931ToInternal(
       }
     }
 
-    const invoiceLine = new InvoiceLine();
+    const invoiceLine = {} as InvoiceLine;
     invoiceLine.article = article.id;
     invoiceLine.type = article.type || "product";
     invoiceLine.name = line.item_information.name;
@@ -203,7 +206,7 @@ export function convertEN16931ToInternal(
     invoiceLine.unit = line.invoiced_quantity_code;
     invoiceLine.quantity = parseFloat(line.invoiced_quantity);
     invoiceLine.unit_price = parseFloat(line.price_details.item_net_price);
-    invoiceLine.tva = vatRate.toString();
+    invoiceLine.tva = vatFullCode || "S:20";
     invoiceLine.discount = discount;
     invoiceLine.subscription = "";
     invoiceLine.quantity_ready = 0;
@@ -215,7 +218,7 @@ export function convertEN16931ToInternal(
   });
 
   // Calculate document-level discount
-  const documentDiscount = new InvoiceDiscount();
+  const documentDiscount = {} as InvoiceDiscount;
   if (
     en16931Invoice.document_level_allowances &&
     en16931Invoice.document_level_allowances.length > 0
@@ -266,7 +269,7 @@ export function convertEN16931ToInternal(
   }
 
   // Build the internal invoice
-  const invoice = new Invoices();
+  const invoice = {} as Invoices;
   invoice.client_id = ctx.client_id;
   invoice.type = type;
   invoice.state = "draft"; // New invoices start as draft
@@ -565,7 +568,7 @@ export function convertInternalToEN16931(
 
     // Determine VAT category code and exemption reason
     // line.tva could be a rate like "20%" or a label like "Hors UE"
-    const vatCategoryKey = getVatCategory(line.tva);
+    const vatCategoryKey = getVatCode(line.tva);
     let vatCategoryCode = "S"; // Standard rate
     let exemptionReasonCode: string | undefined = undefined;
     let exemptionReason: string | undefined = undefined;
