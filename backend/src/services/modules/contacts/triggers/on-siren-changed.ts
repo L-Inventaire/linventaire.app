@@ -37,20 +37,13 @@ export const setupOnSirenChanged = () => {
 
       // Extract SIREN from business_registered_id (could be SIRET or SIREN)
       // SIREN is the first 9 digits
-      const siren = entity.business_registered_id
-        .replace(/\s/g, "")
-        .slice(0, 9);
-
-      // Validate SIREN format (9 digits)
-      if (!/^\d{9}$/.test(siren)) {
-        return;
-      }
+      const registrationId = entity.business_registered_id.replace(/\s/g, "");
 
       try {
         const db = await Framework.Db.getService();
 
         // Call the French Directory to get e-invoice entries
-        const entries = await getFrenchDirectoryEntries(ctx, siren);
+        const entries = await getFrenchDirectoryEntries(ctx, registrationId);
 
         // Find the first active entry or fallback to first entry
         const activeEntry = entries.find((e) => e.is_active);
@@ -62,6 +55,7 @@ export const setupOnSirenChanged = () => {
           ContactsDefinition.name,
           { id: entity.id },
           {
+            business_registered_id: registrationId, // Normalize to SIREN
             e_invoices_identifier: entry?.identifier || "",
             e_invoices_active: entry?.is_active || false,
           },
@@ -75,6 +69,7 @@ export const setupOnSirenChanged = () => {
           ContactsDefinition.name,
           { id: entity.id },
           {
+            business_registered_id: registrationId, // Still update SIREN even if API fails
             e_invoices_identifier: "",
             e_invoices_active: false,
           },
