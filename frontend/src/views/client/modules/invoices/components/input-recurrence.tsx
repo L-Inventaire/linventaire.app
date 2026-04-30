@@ -9,7 +9,7 @@ import { optionsDelays, RecurrenceInput } from "@components/recurring-input";
 import { Contacts } from "@features/contacts/types/types";
 import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
-import { applyOffset } from "@features/invoices/utils";
+import { applyOffset } from "@shared/invoices";
 import { ArrowPathIcon } from "@heroicons/react/20/solid";
 import { Button } from "@radix-ui/themes";
 import { format } from "date-fns";
@@ -42,7 +42,7 @@ export const InvoiceRecurrenceInput = ({
   ).filter(Boolean) as string[];
   const minimalFrequency = _.minBy(subscriptions, (a) => {
     const t = new Date();
-    applyOffset(t, a, 1);
+    applyOffset(t, a, Intl.DateTimeFormat().resolvedOptions().timeZone, 1);
     return t.getTime();
   });
 

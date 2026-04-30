@@ -6,11 +6,13 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "dist",
+    "rootDir": ".",
     "baseUrl": ".",
     "skipLibCheck": true,
     "jsx": "react", // Enable JSX for React
     "paths": {
-      "#src/*": ["src/*"]
+      "#src/*": ["src/*"],
+      "@shared/*": ["../shared/src/*"]
     },
     "plugins": [
       // Transform paths in output .js files
@@ -27,6 +29,15 @@
     // from generated source code references.
     // This improves issue grouping in Sentry.
     "sourceRoot": "/"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "tests", "gulpfile.ts"],
+  "references": [{ "path": "../shared" }],
+  "ts-node": {
+    "files": true,
+    "compilerOptions": {
+      "module": "commonjs"
+    }
   },
   "lib": ["es2015"]
 }

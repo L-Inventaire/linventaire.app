@@ -111,20 +111,18 @@ export const ReceivedEInvoiceDetails = ({
             )}
             {enInvoice.seller.postal_address && (
               <div className="text-slate-600 dark:text-slate-400">
-                {enInvoice.seller.postal_address.street_name && (
-                  <p>{enInvoice.seller.postal_address.street_name}</p>
+                {enInvoice.seller.postal_address.address_line1 && (
+                  <p>{enInvoice.seller.postal_address.address_line1}</p>
                 )}
-                {enInvoice.seller.postal_address.additional_street_name && (
-                  <p>
-                    {enInvoice.seller.postal_address.additional_street_name}
-                  </p>
+                {enInvoice.seller.postal_address.address_line2 && (
+                  <p>{enInvoice.seller.postal_address.address_line2}</p>
                 )}
                 <p>
-                  {enInvoice.seller.postal_address.postal_zone}{" "}
-                  {enInvoice.seller.postal_address.city_name}
+                  {enInvoice.seller.postal_address.post_code}{" "}
+                  {enInvoice.seller.postal_address.city}
                 </p>
-                {enInvoice.seller.postal_address.country && (
-                  <p>{enInvoice.seller.postal_address.country}</p>
+                {enInvoice.seller.postal_address.country_code && (
+                  <p>{enInvoice.seller.postal_address.country_code}</p>
                 )}
               </div>
             )}
@@ -150,18 +148,18 @@ export const ReceivedEInvoiceDetails = ({
             )}
             {enInvoice.buyer.postal_address && (
               <div className="text-slate-600 dark:text-slate-400">
-                {enInvoice.buyer.postal_address.street_name && (
-                  <p>{enInvoice.buyer.postal_address.street_name}</p>
+                {enInvoice.buyer.postal_address.address_line1 && (
+                  <p>{enInvoice.buyer.postal_address.address_line1}</p>
                 )}
-                {enInvoice.buyer.postal_address.additional_street_name && (
-                  <p>{enInvoice.buyer.postal_address.additional_street_name}</p>
+                {enInvoice.buyer.postal_address.address_line2 && (
+                  <p>{enInvoice.buyer.postal_address.address_line2}</p>
                 )}
                 <p>
-                  {enInvoice.buyer.postal_address.postal_zone}{" "}
-                  {enInvoice.buyer.postal_address.city_name}
+                  {enInvoice.buyer.postal_address.post_code}{" "}
+                  {enInvoice.buyer.postal_address.city}
                 </p>
-                {enInvoice.buyer.postal_address.country && (
-                  <p>{enInvoice.buyer.postal_address.country}</p>
+                {enInvoice.buyer.postal_address.country_code && (
+                  <p>{enInvoice.buyer.postal_address.country_code}</p>
                 )}
               </div>
             )}
@@ -338,13 +336,13 @@ export const ReceivedEInvoiceDetails = ({
       )}
 
       {/* Notes */}
-      {enInvoice.invoice_note && enInvoice.invoice_note.length > 0 && (
+      {enInvoice.notes && enInvoice.notes.length > 0 && (
         <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
           <h3 className="text-lg font-semibold mb-4 text-slate-900 dark:text-slate-100">
             Notes
           </h3>
           <div className="space-y-2">
-            {enInvoice.invoice_note.map((note, index) => (
+            {enInvoice.notes.map((note, index) => (
               <p
                 key={index}
                 className="text-sm text-slate-600 dark:text-slate-400"
