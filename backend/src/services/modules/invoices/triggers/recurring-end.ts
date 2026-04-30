@@ -10,6 +10,7 @@ import Invoices, { InvoicesDefinition } from "../entities/invoices";
 import { generatePdf } from "../services/generate-pdf";
 import { normalizeDate } from "../utils";
 import { ensureRecipients } from "./recurring-generate-invoice";
+import { update } from "#src/services/rest/services/rest";
 
 /**
  * This trigger will set the state of the quote to "closed" when the recurring period ends
@@ -97,8 +98,8 @@ export const setTriggerSetRecurrenceEndDate = () => {
         quote.subscription?.renew_as === "sent"
       ) {
         const db = await Framework.Db.getService();
-        await db.update<Invoices>(
-          ctx,
+        await update(
+          { ...ctx, client_id: quote.client_id, role: "SYSTEM" },
           InvoicesDefinition.name,
           {
             client_id: quote.client_id,

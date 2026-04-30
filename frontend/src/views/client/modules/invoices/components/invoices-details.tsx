@@ -460,7 +460,7 @@ export const InvoicesDetailsPage = ({
                             {Math.abs(
                               Math.floor(
                                 computePaymentDelayDate(draft)
-                                  .diff(DateTime.now())
+                                  .diff(DateTime.now() as any)
                                   .as("days"),
                               ),
                             )}{" "}
