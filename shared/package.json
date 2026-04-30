@@ -1,8 +1,12 @@
 {
+  "scripts": {
+    "build": "tsc --build --force"
+  },
   "dependencies": {
     "@types/lodash": "^4.17.24",
     "@types/luxon": "^3.7.1",
     "lodash": "^4.18.1",
-    "luxon": "^3.7.2"
+    "luxon": "^3.7.2",
+    "typescript": "^6.0.3"
   }
 }

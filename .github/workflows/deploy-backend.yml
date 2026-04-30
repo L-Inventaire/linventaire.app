@@ -26,6 +26,14 @@ jobs:
         working-directory: ./
         run: rm .eslintrc.json
 
+      - name: Install shared dependencies
+        working-directory: ./shared
+        run: npm install
+
+      - name: Build shared library
+        working-directory: ./shared
+        run: npm run build
+
       - name: Install dependencies
         working-directory: ./backend
         run: npm install

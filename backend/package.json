@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --require tsconfig-paths/register src/index.ts",
     "dev:test": "TZ=UTC JEST=1 jest --watchAll ",
-    "build": "tspc && cp -R ./assets ./dist/ && yarn sentry:sourcemaps",
+    "build": "cd ../shared && npx tsc --build && cd ../backend && tspc && cp -R ./assets ./dist/ && (yarn sentry:sourcemaps || true)",
     "start": "tsc && cp -R ./assets ./dist/ && node --prof ./dist/src/index.js",
     "serve": "node --inspect ./dist/src/index.js",
     "test": "tsc && rm -R dist/tests && TZ=UTC JEST=1 CREATE_SERVER=1 NODE_ENV=tests jest --runInBand --watchAll=false --forceExit --coverage ./",

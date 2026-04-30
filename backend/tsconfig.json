@@ -12,7 +12,7 @@
     "jsx": "react", // Enable JSX for React
     "paths": {
       "#src/*": ["src/*"],
-      "@shared/*": ["../shared/src/*"]
+      "@shared/*": ["../shared/dist/*"]
     },
     "plugins": [
       // Transform paths in output .js files
