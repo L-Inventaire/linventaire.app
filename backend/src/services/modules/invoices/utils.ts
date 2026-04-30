@@ -9,6 +9,7 @@ import { Files, FilesDefinition } from "../files/entities/files";
 import { download } from "../files/services/files";
 import Invoices from "./entities/invoices";
 import { getVatCategory, standardCodeToVatValue } from "./types/maps";
+import { getTimezoneOffset } from "@shared/invoices";
 
 export const getCurrentYear = (timezone: string, date?: Date) => {
   date = new Date(date || Date.now());
@@ -193,37 +194,6 @@ export const computePricesFromInvoice = (
     total: parseFloat(total.toFixed(2)),
     taxes: parseFloat(taxes.toFixed(2)),
     total_with_taxes: parseFloat(total_with_taxes.toFixed(2)),
-  };
-};
-
-export const getTimezoneOffset = (timezone: string, date?: Date | number) => {
-  const targetDate = date ? new Date(date) : new Date();
-
-  // Generating the formatted text
-  // Setting the timeZoneName to longOffset will convert PDT to GMT-07:00
-  const dateText = Intl.DateTimeFormat([], {
-    timeZone: timezone,
-    timeZoneName: "longOffset",
-  }).format(targetDate);
-
-  // Scraping the numbers we want from the text
-  // The default value '+0' is needed when the timezone is missing the number part. Ex. Africa/Bamako --> GMT
-  let timezoneString = dateText.split(" ")[1].slice(3) || "+0";
-
-  // Getting the offset
-  let timezoneOffset = parseInt(timezoneString.split(":")[0]) * 60;
-
-  // Checking for a minutes offset and adding if appropriate
-  if (timezoneString.includes(":")) {
-    timezoneOffset = timezoneOffset + parseInt(timezoneString.split(":")[1]);
-  } else if (timezoneOffset === 0) {
-    timezoneString = "";
-  }
-
-  return {
-    offset: timezoneOffset,
-    suffix: timezoneString,
-    offsetms: timezoneOffset * 60000,
   };
 };
 

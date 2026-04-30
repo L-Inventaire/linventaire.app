@@ -29,6 +29,8 @@ export type Contacts = RestEntity & {
   business_registered_name: string;
   business_registered_id: string;
   business_tax_id: string;
+  e_invoices_identifier: string;
+  e_invoices_active: boolean;
 
   person_first_name: string;
   person_last_name: string;
@@ -84,7 +86,7 @@ export const getContactName = (contact: Partial<Contacts>) => {
       a
         ?.toLowerCase()
         .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[\u0300-\u036f]/g, ""),
   )
     .filter(Boolean)
     .join(" ");

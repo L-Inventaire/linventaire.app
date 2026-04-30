@@ -2,6 +2,7 @@ import _ from "lodash";
 import { InvoiceFormat, Invoices, InvoiceSubscription } from "./types/types";
 import { Clients } from "@features/clients/types/clients";
 import { Contacts } from "@features/contacts/types/types";
+import { applyOffset } from "@shared/invoices";
 
 export const getDocumentName = (type: Invoices["type"]) => {
   return (
@@ -69,7 +70,11 @@ export const getInvoiceNextDate = (
       const currentPeriodEnd = new Date(recurringStartedAt);
       while (currentPeriodStart.getTime() <= new Date(currentDate).getTime()) {
         currentPeriodStart = new Date(currentPeriodEnd);
-        applyOffset(currentPeriodEnd, frequency);
+        applyOffset(
+          currentPeriodEnd,
+          frequency,
+          Intl.DateTimeFormat().resolvedOptions().timeZone,
+        );
 
         const nextInvoiceDate = getInvoiceDateInPeriod(
           currentPeriodStart,
@@ -79,7 +84,7 @@ export const getInvoiceNextDate = (
 
         if (
           minNextInvoiceDate === null ||
-          minNextInvoiceDate < nextInvoiceDate.getTime()
+          minNextInvoiceDate > nextInvoiceDate.getTime()
         ) {
           minNextInvoiceDate = nextInvoiceDate.getTime();
         }
@@ -131,52 +136,6 @@ export const getInvoiceDateInPeriod = (from: Date, to: Date, mode: string) => {
 
 const getTimezoneDay = (date: Date) => {
   return new Date(date).getDay();
-};
-
-/** MONOREPO needed -> Function also present in backend, if changed, change it in front too */
-export const applyOffset = (
-  date: Date,
-  frequencyAndCount: string,
-  factor = 1,
-) => {
-  const frequency = frequencyAndCount.split("_").pop();
-  const periodCount = parseInt(
-    frequencyAndCount.split("_")?.length === 2
-      ? frequencyAndCount.split("_")[0]
-      : "1",
-  );
-  if (frequencyAndCount.split("_").length > 2 || periodCount < 1) {
-    throw new Error(`Invalid frequency ${frequencyAndCount}`);
-  }
-
-  const monthly = (date: Date) => {
-    const dayOfMonth = date.getDate();
-    date.setDate(1);
-    date.setMonth(date.getMonth() + 1 * factor * periodCount);
-    const daysInMonth = new Date(
-      date.getFullYear(),
-      date.getMonth() + 1,
-      0,
-    ).getDate();
-    date.setDate(Math.min(dayOfMonth, daysInMonth));
-  };
-
-  switch (frequency) {
-    case "daily":
-      date.setDate(date.getDate() + 1 * factor * periodCount);
-      break;
-    case "weekly":
-      date.setDate(date.getDate() + 7 * factor * periodCount);
-      break;
-    case "monthly":
-      monthly(date);
-      break;
-    case "yearly":
-      date.setFullYear(date.getFullYear() + 1 * factor * periodCount);
-      break;
-    default:
-      throw new Error(`Unknown frequency ${frequencyAndCount}`);
-  }
 };
 
 export const getInvoiceWithOverrides = (

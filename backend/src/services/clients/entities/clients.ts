@@ -56,7 +56,7 @@ export class InvoiceSubscription {
     | "monday"
     | "last_workday"
     | "last_day" = "first_day";
-  invoice_state: "draft" | "sent";
+  invoice_state: "draft" | "sent" = "draft";
   start = new Date();
   start_type: "after_first_invoice" | "acceptance_start" | "date" =
     "after_first_invoice"; // "after_first_invoice" | "acceptance_start" | "date"
@@ -73,10 +73,10 @@ export class Payment {
   delay = 0; // In days
   delay_date = 0; // ms timestamp
   delay_type:
-    | "normal"
+    | "direct"
     | "month_end_delay_first"
     | "month_end_delay_last"
-    | "date" = "normal";
+    | "date" = "direct";
   bank_name = "string";
   bank_iban = "string";
   bank_bic = "string";

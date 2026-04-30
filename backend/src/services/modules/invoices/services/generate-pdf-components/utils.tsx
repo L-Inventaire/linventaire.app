@@ -5,11 +5,11 @@ import React from "react";
 export const KeyValueDisplay = (props: {
   secondaryColor?: string;
   style?: any;
-  list: { label: any; value: any }[];
+  list: ({ label: any; value: any } | false)[];
   vertical?: boolean;
 }) => (
   <View style={{ width: "100%", ...(props.style || {}) }}>
-    {props.list.filter(Boolean).map((item, index) => (
+    {props.list.filter(Boolean).map((item: any, index) => (
       <View
         key={index}
         style={{

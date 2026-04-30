@@ -129,17 +129,6 @@ export const ReceivedEInvoicesColumns: Column<ReceivedEInvoices>[] = [
       </Badge>
     ),
   },
-  {
-    title: "Statut",
-    thClassName: "w-1",
-    cellClassName: "justify-end",
-    headClassName: "justify-end",
-    render: (item) => (
-      <Base className="whitespace-nowrap text-xs">
-        {getStatusLabel(item.status)}
-      </Base>
-    ),
-  },
 ];
 
 registerCtrlKRestEntity<ReceivedEInvoices>("received_e_invoices", {

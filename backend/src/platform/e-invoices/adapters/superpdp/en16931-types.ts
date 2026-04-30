@@ -5,13 +5,12 @@
  */
 
 export interface EN16931PostalAddress {
-  street_name?: string;
-  additional_street_name?: string;
-  city_name?: string;
-  postal_zone?: string;
-  country_subentity?: string;
-  address_line?: string[];
-  country?: string;
+  address_line1?: string;
+  address_line2?: string;
+  city?: string;
+  post_code?: string;
+  country_subdivision?: string;
+  country_code?: string;
 }
 
 export interface EN16931ElectronicAddress {
@@ -37,25 +36,42 @@ export interface EN16931Contact {
 
 export interface EN16931Seller {
   name: string;
-  trading_name?: string;
-  tax_id?: string;
-  vat?: string;
-  additional_legal_information?: string;
-  electronic_address?: EN16931ElectronicAddress;
-  legal_registration_identifier?: EN16931LegalRegistrationIdentifier;
-  postal_address: EN16931PostalAddress;
-  contact?: EN16931Contact;
+  vat_identifier?: string;
+  postal_address?: EN16931PostalAddress;
+  identifiers: [
+    {
+      value: string; // SIRENE
+      scheme: string; // Default to "0225";
+    }
+  ];
+  legal_registration_identifier: {
+    value: string; // SIRENE
+    scheme: string; // Default to "0002";
+  };
+  electronic_address: {
+    value: string; // E-INVOICE ADDRESS
+    scheme: string; // Ex. "0225";
+  };
 }
 
 export interface EN16931Buyer {
   name: string;
-  trading_name?: string;
-  tax_id?: string;
-  vat?: string;
-  electronic_address?: EN16931ElectronicAddress;
-  legal_registration_identifier?: EN16931LegalRegistrationIdentifier;
-  postal_address: EN16931PostalAddress;
-  contact?: EN16931Contact;
+  vat_identifier?: string;
+  postal_address?: EN16931PostalAddress;
+  identifiers: [
+    {
+      value: string; // SIRENE
+      scheme: string; // Default to "0225";
+    }
+  ];
+  legal_registration_identifier: {
+    value: string; // SIRENE
+    scheme: string; // Default to "0002";
+  };
+  electronic_address: {
+    value: string; // E-INVOICE ADDRESS
+    scheme: string; // Ex. "0225";
+  };
 }
 
 export interface EN16931Payee {
@@ -64,34 +80,113 @@ export interface EN16931Payee {
 }
 
 export interface EN16931Amount {
-  value: number;
+  value: string;
   currency_code?: string;
 }
 
 export interface EN16931Totals {
-  sum_of_invoice_net_amounts: number;
-  sum_of_allowances_on_document_level?: number;
-  sum_of_charges_on_document_level?: number;
-  invoice_total_amount_without_vat: number;
-  invoice_total_vat_amount?: number;
-  invoice_total_vat_amount_in_accounting_currency?: EN16931Amount;
-  invoice_total_amount_with_vat: number;
-  paid_amount?: number;
-  rounding_amount?: number;
-  amount_due_for_payment?: number;
-  // Aliases for common fields
-  tax_exclusive_amount?: number;
-  tax_amount?: number;
-  tax_inclusive_amount?: number;
+  /**
+   * BT-106
+   * Sum of Invoice line net amount
+   */
+  sum_invoice_lines_amount: string;
+
+  /**
+   * BT-107
+   * Sum of allowances on document level
+   */
+  sum_allowances_amount?: string;
+
+  /**
+   * BT-108
+   * Sum of charges on document level
+   */
+  sum_charges_amount?: string;
+
+  /**
+   * BT-109
+   * Invoice total amount without VAT
+   */
+  total_without_vat: string;
+
+  /**
+   * BT-110
+   * Invoice total VAT amount
+   */
+  total_vat_amount?: EN16931Amount;
+
+  /**
+   * BT-111
+   * Invoice total VAT amount in accounting currency
+   */
+  total_vat_amount_accounting_currency?: EN16931Amount;
+
+  /**
+   * BT-112
+   * Invoice total amount with VAT
+   */
+  total_with_vat: string;
+
+  /**
+   * BT-113
+   * Paid amount
+   */
+  paid_amount?: string;
+
+  /**
+   * BT-114
+   * Rounding amount
+   */
+  rounding_amount?: string;
+
+  /**
+   * BT-115
+   * Amount due for payment
+   */
+  amount_due_for_payment: string;
 }
 
 export interface EN16931VatBreakDown {
-  taxable_amount: number;
-  tax_amount: number;
+  /**
+   * BT-116
+   * VAT category taxable amount
+   */
+  vat_category_taxable_amount: string;
+
+  /**
+   * BT-117
+   * VAT category tax amount
+   */
+  vat_category_tax_amount: string;
+
+  /**
+   * BT-118
+   * VAT category code
+   */
   vat_category_code: string;
-  vat_category_rate?: number;
+
+  /**
+   * BT-119
+   * VAT category rate (%)
+   */
+  vat_category_rate?: string;
+
+  /**
+   * BT-120
+   * VAT exemption reason text
+   */
+  vat_exemption_reason?: string;
+
+  /**
+   * VAT exemption reason code
+   */
   vat_exemption_reason_code?: string;
-  vat_exemption_reason_text?: string;
+
+  /**
+   * BT-118-0
+   * VAT type code identifier qualifier
+   */
+  vat_identifier?: string;
 }
 
 export interface EN16931AllowanceOrCharge {
@@ -253,7 +348,7 @@ export interface EN16931Invoice {
   issue_date: string; // ISO 8601 date format
   payment_due_date?: string;
   type_code: number; // 380 for invoice, 381 for credit note, etc.
-  invoice_note?: EN16931InvoiceNote[];
+  notes?: EN16931InvoiceNote[];
   currency_code: string; // ISO 4217
   vat_accounting_currency_code?: string;
   vat_category_code?: string;
@@ -272,7 +367,6 @@ export interface EN16931Invoice {
   // Parties
   seller: EN16931Seller;
   buyer: EN16931Buyer;
-  payee?: EN16931Payee;
   tax_representative?: any; // seller_tax_representative_party
 
   // Delivery

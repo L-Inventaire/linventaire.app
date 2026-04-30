@@ -16,6 +16,7 @@ import { SupplierInvoicesActions } from "./supplier-invoices";
 import { SupplierQuotesActions } from "./supplier-quotes";
 import { InvoiceSendSpecialModal } from "./modal-send-special";
 import { getInvoiceWithOverrides } from "@features/invoices/utils";
+import { useEInvoicesReady } from "@features/invoices/hooks/use-e-invoices-ready";
 
 export const InvoiceActions = ({
   id,
@@ -49,6 +50,7 @@ export const InvoiceActions = ({
   const { contact: counterparty } = useContact(
     !isSupplierRelated ? draft.client : draft.supplier,
   );
+  const { isReady: eInvoicesReady, missingReason } = useEInvoicesReady(draft);
 
   const namedCounterparty = !!getContactName(counterparty || {});
   const billableContent = draft?.content?.filter(
@@ -121,6 +123,10 @@ export const InvoiceActions = ({
           Date.now() - 31 * 24 * 60 * 606 * 1000)
     ) {
       error = "La date d'émission du document est invalide.";
+    }
+
+    if (!eInvoicesReady && missingReason) {
+      error = missingReason;
     }
   }
 

@@ -44,6 +44,7 @@ import { InvoicesEditPage } from "./modules/invoices/edit";
 import { InvoicesViewPage } from "./modules/invoices/view";
 import { FurnishQuotesPage } from "./modules/invoices/view/furnish-quotes";
 import { ReceivedEInvoicesPage } from "./modules/e-invoices/received";
+import { ReceivedEInvoiceViewPage } from "./modules/e-invoices/view";
 import { NotificationsPage } from "./modules/notifications";
 import { ServicePage } from "./modules/service";
 import { ServiceItemsEditPage } from "./modules/service/edit";
@@ -137,6 +138,10 @@ export const BackOfficeRoutes = () => {
         <Route
           path={ROUTES.ReceivedEInvoices}
           element={<ReceivedEInvoicesPage />}
+        />
+        <Route
+          path={ROUTES.ReceivedEInvoicesView}
+          element={<ReceivedEInvoiceViewPage />}
         />
 
         <Route

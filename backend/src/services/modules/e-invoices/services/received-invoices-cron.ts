@@ -15,7 +15,7 @@ import { create } from "#src/services/rest/services/rest";
 export const setupCronReceivedInvoices = async () => {
   Framework.Cron.schedule(
     "e_invoices_fetch_received",
-    "0 * * * *", // Every hour at minute 0
+    "* * * * *", // Every hour at minute 0
     async (ctx) => {
       const db = await Framework.Db.getService();
 
@@ -45,7 +45,9 @@ export const setupCronReceivedInvoices = async () => {
           const lastInvoices = await db.select<ReceivedEInvoice>(
             clientCtx,
             ReceivedEInvoiceDefinition.name,
-            {},
+            {
+              client_id: config.client_id,
+            },
             {
               limit: 1,
               index: "superpdp_invoice_id",
@@ -70,12 +72,16 @@ export const setupCronReceivedInvoices = async () => {
                 clientCtx,
                 ReceivedEInvoiceDefinition.name,
                 {
+                  client_id: config.client_id,
                   superpdp_invoice_id: invoice.id,
                 },
                 { limit: 1 }
               );
 
               if (existing.length > 0) {
+                console.log(
+                  `Invoice ${invoice.id} already exists for client ${clientCtx.client_id}, skipping.`
+                );
                 // Already imported, skip
                 continue;
               }
@@ -84,7 +90,7 @@ export const setupCronReceivedInvoices = async () => {
               let fullInvoice = invoice;
               if (!invoice.en_invoice?.seller || !invoice.en_invoice?.buyer) {
                 console.log(
-                  `Fetching complete data for invoice ${invoice.id} for client ${ctx.client_id}`
+                  `Fetching complete data for invoice ${invoice.id} for client ${clientCtx.client_id}`
                 );
                 fullInvoice = await superpdpClient.getInvoice(invoice.id);
               }
@@ -93,12 +99,10 @@ export const setupCronReceivedInvoices = async () => {
               const enInvoice = fullInvoice.en_invoice;
               if (!enInvoice) {
                 console.error(
-                  `No EN invoice data for invoice ${fullInvoice.id} for client ${ctx.client_id}`
+                  `No EN invoice data for invoice ${fullInvoice.id} for client ${clientCtx.client_id}`
                 );
                 continue;
               }
-
-              console.log(enInvoice);
 
               const seller = enInvoice.seller;
               const buyer = enInvoice.buyer;
@@ -107,7 +111,7 @@ export const setupCronReceivedInvoices = async () => {
               // Skip if seller or buyer are missing (incomplete invoice data)
               if (!seller || !buyer) {
                 console.error(
-                  `Missing seller or buyer data for invoice ${fullInvoice.id} for client ${ctx.client_id}`
+                  `Missing seller or buyer data for invoice ${fullInvoice.id} for client ${clientCtx.client_id}`
                 );
                 continue;
               }
@@ -116,6 +120,8 @@ export const setupCronReceivedInvoices = async () => {
                 clientCtx,
                 ReceivedEInvoiceDefinition.name,
                 {
+                  state: "new",
+                  en_invoice: enInvoice,
                   superpdp_invoice_id: fullInvoice.id,
                   direction: "in",
                   invoice_number: enInvoice.number,
@@ -123,25 +129,25 @@ export const setupCronReceivedInvoices = async () => {
                   type_code: enInvoice.type_code,
                   currency_code: enInvoice.currency_code,
                   seller_name: seller.name,
-                  seller_vat: seller.tax_id || seller.vat || "",
+                  seller_vat: seller.vat_identifier || "",
                   seller_address: [
-                    seller.postal_address?.street_name,
-                    seller.postal_address?.city_name,
-                    seller.postal_address?.postal_zone,
-                    seller.postal_address?.country,
+                    seller.postal_address?.address_line1,
+                    seller.postal_address?.address_line2,
+                    seller.postal_address?.post_code,
+                    seller.postal_address?.city,
+                    seller.postal_address?.country_code,
                   ]
                     .filter(Boolean)
                     .join(", "),
                   buyer_name: buyer.name,
-                  buyer_vat: buyer.tax_id || buyer.vat || "",
-                  total_amount:
-                    totals.tax_exclusive_amount ||
-                    totals.invoice_total_amount_without_vat,
-                  total_tax_amount:
-                    totals.tax_amount || totals.invoice_total_vat_amount || 0,
-                  total_amount_with_tax:
-                    totals.tax_inclusive_amount ||
-                    totals.invoice_total_amount_with_vat,
+                  buyer_vat: buyer.vat_identifier || "",
+                  total_amount: parseFloat(totals.total_without_vat || "0"),
+                  total_tax_amount: parseFloat(
+                    totals.total_vat_amount?.value || "0"
+                  ),
+                  total_amount_with_tax: parseFloat(
+                    totals.total_with_vat || "0"
+                  ),
                   processed: false,
                   supplier_invoice_id: "",
                   processing_error: "",
@@ -153,11 +159,11 @@ export const setupCronReceivedInvoices = async () => {
               );
 
               console.log(
-                `Imported e-invoice ${fullInvoice.id} for client ${ctx.client_id}`
+                `Imported e-invoice ${fullInvoice.id} for client ${clientCtx.client_id}`
               );
             } catch (error: any) {
               console.error(
-                `Error processing invoice ${invoice.id} for client ${ctx.client_id}:`,
+                `Error processing invoice ${invoice.id} for client ${clientCtx.client_id}:`,
                 error
               );
               captureException(error);

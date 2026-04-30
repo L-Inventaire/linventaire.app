@@ -3,11 +3,12 @@ import Services from "#src/services/index";
 import { buildQueryFromMap } from "#src/services/rest/services/utils";
 import { Context } from "#src/types";
 import { captureException } from "@sentry/node";
+import { applyOffset } from "@shared/invoices";
 import _ from "lodash";
 import Contacts, { ContactsDefinition } from "../../contacts/entities/contacts";
 import Invoices, { InvoicesDefinition, Recipient } from "../entities/invoices";
 import { sendPdf } from "../services/generate-pdf";
-import { getTimezoneDay, getTimezoneOffset, normalizeDate } from "../utils";
+import { getTimezoneDay, normalizeDate } from "../utils";
 
 /**
  * This trigger will generate the invoices for any quote in the state "recurring"
@@ -412,58 +413,6 @@ export const getNewInvoicesAndNextDate = (
   }
 
   return { recheckAt, invoices };
-};
-
-/** Function also present in frontend, if changed, change it in front too */
-export const applyOffset = (
-  date: Date,
-  frequencyAndCount: string,
-  timezone: string,
-  factor = 1
-) => {
-  const { offset } = getTimezoneOffset(timezone, new Date(date).getTime());
-  date.setHours(date.getHours() + offset);
-
-  const frequency = frequencyAndCount.split("_").pop();
-  const periodCount = parseInt(
-    frequencyAndCount.split("_")?.length === 2
-      ? frequencyAndCount.split("_")[0]
-      : "1"
-  );
-  if (frequencyAndCount.split("_").length > 2 || periodCount < 1) {
-    throw new Error(`Invalid frequency ${frequencyAndCount}`);
-  }
-
-  const monthly = (date: Date) => {
-    const dayOfMonth = date.getDate();
-    date.setDate(1);
-    date.setMonth(date.getMonth() + 1 * factor * periodCount);
-    const daysInMonth = new Date(
-      date.getFullYear(),
-      date.getMonth() + 1,
-      0
-    ).getDate();
-    date.setDate(Math.min(dayOfMonth, daysInMonth));
-  };
-
-  switch (frequency) {
-    case "daily":
-      date.setDate(date.getDate() + 1 * factor * periodCount);
-      break;
-    case "weekly":
-      date.setDate(date.getDate() + 7 * factor * periodCount);
-      break;
-    case "monthly":
-      monthly(date);
-      break;
-    case "yearly":
-      date.setFullYear(date.getFullYear() + 1 * factor * periodCount);
-      break;
-    default:
-      throw new Error(`Unknown frequency ${frequencyAndCount}`);
-  }
-
-  date.setHours(date.getHours() - offset);
 };
 
 /**

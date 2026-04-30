@@ -1,13 +1,21 @@
 import Framework from "#src/platform/index";
-import { create, remove, update } from "#src/services/rest/services/rest";
-import { Ctx } from "#src/services/utils";
 import Services from "#src/services/index";
+import {
+  create,
+  remove,
+  search,
+  update,
+} from "#src/services/rest/services/rest";
+import { Ctx } from "#src/services/utils";
 import { Router } from "express";
 import { checkClientRoles, checkRole } from "../../common";
+import { ArticlesDefinition } from "../articles/entities/articles";
+import Contacts, { ContactsDefinition } from "../contacts/entities/contacts";
 import {
   EInvoicingConfig,
   EInvoicingConfigDefinition,
 } from "./entities/e-invoicing-config";
+import { ReceivedEInvoice } from "./entities/received-e-invoice";
 import { encrypt } from "./utils/encryption";
 
 export default (router: Router) => {
@@ -24,18 +32,7 @@ export default (router: Router) => {
         const ctx = Ctx.get(req)!.context;
         if (!ctx) throw new Error("No context");
 
-        const db = await Framework.Db.getService();
-
-        const configs = await db.select<EInvoicingConfig>(
-          ctx,
-          EInvoicingConfigDefinition.name,
-          {
-            client_id: ctx.client_id,
-          },
-          { limit: 1 }
-        );
-
-        const config = configs[0];
+        const config = await Services.EInvoices.getConfig(ctx);
 
         if (!config) {
           return res.json({ config: null });
@@ -58,12 +55,6 @@ export default (router: Router) => {
           access_token_encrypted: config.access_token_encrypted ? "***" : "",
           refresh_token_encrypted: config.refresh_token_encrypted ? "***" : "",
         };
-
-        console.log("[GET /config] Sending sanitized config:", {
-          directory_entries_count:
-            sanitized.superpdp_directory_entries?.length || 0,
-          directory_entries: sanitized.superpdp_directory_entries,
-        });
 
         res.json({ config: sanitized });
       } catch (error: any) {
@@ -100,22 +91,15 @@ export default (router: Router) => {
         const db = await Framework.Db.getService();
 
         // Check if config already exists
-        const existingConfigs = await db.select<EInvoicingConfig>(
-          ctx,
-          EInvoicingConfigDefinition.name,
-          {
-            client_id: ctx.client_id,
-          },
-          { limit: 1 }
-        );
+        const existingConfig = await Services.EInvoices.getConfig(ctx);
 
         let config;
-        if (existingConfigs[0]) {
+        if (existingConfig) {
           // Update existing
           await update(
             ctx,
             EInvoicingConfigDefinition.name,
-            { id: existingConfigs[0].id, client_id: ctx.client_id },
+            { id: existingConfig.id, client_id: ctx.client_id },
             {
               pdp_provider: pdp_provider || "superpdp",
               integration_client_id: client_id,
@@ -126,7 +110,7 @@ export default (router: Router) => {
           config = await db.selectOne<EInvoicingConfig>(
             ctx,
             EInvoicingConfigDefinition.name,
-            { id: existingConfigs[0].id, client_id: ctx.client_id }
+            { id: existingConfig.id, client_id: ctx.client_id }
           );
         } else {
           // Create new
@@ -138,13 +122,7 @@ export default (router: Router) => {
             receive_enabled: false,
             send_enabled: false,
           });
-          const configs = await db.select<EInvoicingConfig>(
-            ctx,
-            EInvoicingConfigDefinition.name,
-            { client_id: ctx.client_id },
-            { limit: 1 }
-          );
-          config = configs[0];
+          config = await Services.EInvoices.getConfig(ctx);
         }
 
         // Sanitize response
@@ -177,16 +155,7 @@ export default (router: Router) => {
         const db = await Framework.Db.getService();
 
         // Get config
-        const configs = await db.select<EInvoicingConfig>(
-          ctx,
-          EInvoicingConfigDefinition.name,
-          {
-            client_id: ctx.client_id,
-          },
-          { limit: 1 }
-        );
-
-        const config = configs[0];
+        const config = await Services.EInvoices.getConfig(ctx);
         if (!config) {
           return res.status(404).json({
             error: "No configuration found. Please save configuration first.",
@@ -287,16 +256,7 @@ export default (router: Router) => {
 
         const db = await Framework.Db.getService();
 
-        const configs = await db.select<EInvoicingConfig>(
-          ctx,
-          EInvoicingConfigDefinition.name,
-          {
-            client_id: ctx.client_id,
-          },
-          { limit: 1 }
-        );
-
-        const config = configs[0];
+        const config = await Services.EInvoices.getConfig(ctx);
         if (!config) {
           return res.status(404).json({ error: "No configuration found" });
         }
@@ -332,16 +292,7 @@ export default (router: Router) => {
 
         const db = await Framework.Db.getService();
 
-        const configs = await db.select<EInvoicingConfig>(
-          ctx,
-          EInvoicingConfigDefinition.name,
-          {
-            client_id: ctx.client_id,
-          },
-          { limit: 1 }
-        );
-
-        const config = configs[0];
+        const config = await Services.EInvoices.getConfig(ctx);
         if (!config) {
           return res.status(404).json({ error: "No configuration found" });
         }
@@ -390,16 +341,7 @@ export default (router: Router) => {
         const db = await Framework.Db.getService();
 
         // Get config
-        const configs = await db.select<EInvoicingConfig>(
-          ctx,
-          EInvoicingConfigDefinition.name,
-          {
-            client_id: ctx.client_id,
-          },
-          { limit: 1 }
-        );
-
-        const config = configs[0];
+        const config = await Services.EInvoices.getConfig(ctx);
         if (!config) {
           return res.status(404).json({ error: "No configuration found" });
         }
@@ -482,17 +424,8 @@ export default (router: Router) => {
         const db = await Framework.Db.getService();
 
         // Check if e-invoicing is enabled for receiving
-        const configs = await db.select<EInvoicingConfig>(
-          ctx,
-          EInvoicingConfigDefinition.name,
-          {
-            client_id: ctx.client_id,
-            receive_enabled: true,
-          },
-          { limit: 1 }
-        );
-
-        if (configs.length === 0) {
+        const config = await Services.EInvoices.getConfig(ctx);
+        if (!config || !config.receive_enabled) {
           return res.status(403).json({
             error: "E-invoicing reception is not enabled for this client",
           });
@@ -523,6 +456,217 @@ export default (router: Router) => {
         });
       } catch (error: any) {
         console.error("Error fetching received e-invoices:", error);
+        res.status(500).json({ error: error.message });
+      }
+    }
+  );
+
+  /**
+   * GET /:clientId/received/:id/matched-entities
+   * Get matched entities (contacts, articles) for a received e-invoice
+   */
+  router.get(
+    "/:clientId/received/:id/matched-entities",
+    checkRole("USER"),
+    checkClientRoles(["SUPPLIER_INVOICES_READ"]),
+    async (req, res) => {
+      try {
+        const ctx = Ctx.get(req)!.context;
+        if (!ctx) throw new Error("No context");
+
+        const { id } = req.params;
+        const db = await Framework.Db.getService();
+
+        // Get the received invoice
+        const receivedInvoice = await db.selectOne<ReceivedEInvoice>(
+          ctx,
+          "received_e_invoices",
+          {
+            id,
+            client_id: ctx.client_id,
+          }
+        );
+
+        if (!receivedInvoice) {
+          return res.status(404).json({ error: "Received invoice not found" });
+        }
+
+        // Extract references from EN16931 invoice
+        const { extractReferencesFromEN16931 } = await import(
+          "./services/invoice-converter"
+        );
+        const references = extractReferencesFromEN16931(
+          receivedInvoice.en_invoice
+        );
+
+        // Find matching supplier contact
+        const supplierMatches = await search(
+          { ...ctx, role: "SYSTEM" },
+          "contacts",
+          {
+            client_id: ctx.client_id,
+            business_registered_id:
+              references.seller.legal_registration_identifier.value,
+          }
+        );
+
+        // Find matching articles/services
+        const articleMatches = new Map();
+        for (const articleRef of references.articles) {
+          const matches = await search({ ...ctx, role: "SYSTEM" }, "articles", {
+            client_id: ctx.client_id,
+            reference: [
+              articleRef.sellers_item_identification,
+              articleRef.buyers_item_identification,
+            ],
+          });
+
+          if (matches.list.length > 0) {
+            articleMatches.set(articleRef.name, matches.list);
+          }
+        }
+
+        res.json({
+          supplier: supplierMatches.list?.[0] || null,
+          articles: Object.fromEntries(articleMatches),
+          references,
+        });
+      } catch (error: any) {
+        console.error("Error finding matched entities:", error);
+        res.status(500).json({ error: error.message });
+      }
+    }
+  );
+
+  /**
+   * POST /:clientId/received/:id/convert
+   * Convert a received e-invoice to a supplier invoice
+   */
+  router.post(
+    "/:clientId/received/:id/convert",
+    checkRole("USER"),
+    checkClientRoles(["SUPPLIER_INVOICES_WRITE"]),
+    async (req, res) => {
+      try {
+        const ctx = Ctx.get(req)!.context;
+        if (!ctx) throw new Error("No context");
+
+        const { id } = req.params;
+        const { supplier_id } = req.body;
+        const db = await Framework.Db.getService();
+
+        // Validate supplier_id is provided
+        if (!supplier_id) {
+          return res.status(400).json({
+            error: "supplier_id is required",
+          });
+        }
+
+        // Get the received invoice
+        const receivedInvoice = await db.selectOne<ReceivedEInvoice>(
+          ctx,
+          "received_e_invoices",
+          {
+            id,
+            client_id: ctx.client_id,
+          }
+        );
+
+        if (!receivedInvoice) {
+          return res.status(404).json({ error: "Received invoice not found" });
+        }
+
+        if (receivedInvoice.state !== "new") {
+          return res.status(400).json({
+            error: "Invoice has already been processed",
+          });
+        }
+
+        // Get the supplier contact
+        const supplier = await db.selectOne<Contacts>(
+          ctx,
+          ContactsDefinition.name,
+          {
+            id: supplier_id,
+            client_id: ctx.client_id,
+          }
+        );
+
+        if (!supplier) {
+          return res.status(400).json({
+            error: "Supplier contact not found",
+          });
+        }
+
+        // Validate supplier business_registered_id matches invoice
+        const sellerRegistrationId =
+          receivedInvoice.en_invoice?.seller?.legal_registration_identifier
+            ?.value;
+        if (
+          sellerRegistrationId &&
+          supplier.business_registered_id !== sellerRegistrationId
+        ) {
+          return res.status(400).json({
+            error:
+              "Supplier business registration ID does not match invoice seller registration ID",
+            expected: sellerRegistrationId,
+            actual: supplier.business_registered_id,
+          });
+        }
+
+        // Extract references and find matching articles
+        const { extractReferencesFromEN16931, convertEN16931ToInternal } =
+          await import("./services/invoice-converter");
+        const references = extractReferencesFromEN16931(
+          receivedInvoice.en_invoice
+        );
+
+        // Find matching articles
+        const articleMatches = new Map();
+        for (const articleRef of references.articles) {
+          const matches = await search(
+            { ...ctx, role: "SYSTEM" },
+            ArticlesDefinition.name,
+            {
+              client_id: ctx.client_id,
+              internal_reference: [
+                articleRef.sellers_item_identification,
+                articleRef.buyers_item_identification,
+              ],
+            }
+          );
+
+          if (matches.list.length > 0) {
+            articleMatches.set(articleRef.name, matches.list[0]);
+          }
+        }
+
+        // Get client info
+        const client = await Services.Clients.getClient(ctx, ctx.client_id);
+        if (!client) {
+          throw new Error("Client not found");
+        }
+
+        // Convert EN16931 to internal format
+        const resolvedEntities = {
+          supplier,
+          articles: articleMatches,
+          self: client,
+        };
+
+        const internalInvoice = convertEN16931ToInternal(
+          receivedInvoice.en_invoice,
+          resolvedEntities,
+          "in",
+          ctx
+        );
+
+        res.json({
+          success: true,
+          invoice: internalInvoice,
+        });
+      } catch (error: any) {
+        console.error("Error converting e-invoice:", error);
         res.status(500).json({ error: error.message });
       }
     }

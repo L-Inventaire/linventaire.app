@@ -21,6 +21,7 @@ import { useViewWithCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { InvoicesFieldsNames } from "@features/invoices/configuration";
 import { useInvoice, useInvoices } from "@features/invoices/hooks/use-invoices";
 import { useInvoiceMaps } from "@features/invoices/hooks/use-invoice-maps";
+import { useEInvoicesReady } from "@features/invoices/hooks/use-e-invoices-ready";
 import { Invoices } from "@features/invoices/types/types";
 import {
   getDocumentName,
@@ -92,6 +93,7 @@ export const InvoicesDetailsPage = ({
     draft.client || draft.supplier,
   );
   const { contact: invoiceContact } = useContact(draft.contact);
+  const { isReady: eInvoicesReady, missingReason } = useEInvoicesReady(draft);
   const edit = useViewWithCtrlK();
 
   const { invoice: originQuote } = useInvoice(draft.from_rel_quote?.[0] || "");
@@ -593,6 +595,13 @@ export const InvoicesDetailsPage = ({
                   )}
                 </PageColumns>
               </div>
+
+              {hasClientOrSupplier && !eInvoicesReady && missingReason && (
+                <Callout.Root color="red" className="mb-4">
+                  <Callout.Text>{missingReason}</Callout.Text>
+                </Callout.Root>
+              )}
+
               {hasClientOrSupplier && (
                 <>
                   <Section className="mb-2">

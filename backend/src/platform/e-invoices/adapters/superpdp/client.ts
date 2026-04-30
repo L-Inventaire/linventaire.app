@@ -46,6 +46,33 @@ export interface SuperPDPInvoice {
   en_invoice?: EN16931Invoice;
 }
 
+export interface FrenchDirectoryCompany {
+  number: string; // SIREN
+  formal_name: string;
+  address: string;
+  postcode: string;
+  city: string;
+  country: string;
+}
+
+export interface FrenchDirectoryEntry {
+  company: FrenchDirectoryCompany;
+  identifier: string; // Peppol address format: 0225:{siren}*
+  is_active: boolean;
+}
+
+export interface FrenchDirectorySearchOptions {
+  formal_name_starts_with?: string;
+  post_code_starts_with?: string;
+  number?: string; // SIREN
+  limit?: number; // max 1000, default 100
+}
+
+export interface FrenchDirectorySearchResult {
+  data: FrenchDirectoryCompany[];
+  has_more: boolean;
+}
+
 export class SuperPDPClient {
   private client: AxiosInstance;
   private accessToken?: string;
@@ -297,100 +324,6 @@ export class SuperPDPClient {
     }
 
     try {
-      const res = await this.client.get(
-        "https://api.superpdp.tech/v1.beta/invoices/generate_test_invoice?format=en16931",
-        {
-          headers: {
-            Authorization: `Bearer ${this.accessToken}`,
-          },
-        }
-      );
-
-      en16931Invoice = {
-        ...en16931Invoice,
-        payment_due_date: "2026-07-30",
-        process_control: {
-          business_process_type: "M1",
-          specification_identifier: "urn:cen.eu:en16931:2017",
-        },
-        notes: [
-          {
-            subject_code: "PMT",
-            note: "L’indemnité forfaitaire légale pour frais de recouvrement est de 40 €.",
-          },
-          {
-            subject_code: "PMD",
-            note: "À défaut de règlement à la date d’échéance, une pénalité de 10 % du net à payer sera applicable immédiatement.",
-          },
-          {
-            subject_code: "AAB",
-            note: "Aucun escompte pour paiement anticipé.",
-          },
-        ],
-        seller: {
-          name: "Tricatel",
-          identifiers: [
-            {
-              value: "000000001",
-              scheme: "0225",
-            },
-          ],
-          legal_registration_identifier: {
-            value: "000000001",
-            scheme: "0002",
-          },
-          vat_identifier: "FR15000000001",
-          electronic_address: {
-            value: "315143296_3173",
-            scheme: "0225",
-          },
-          postal_address: {
-            country_code: "FR",
-          },
-        },
-        buyer: {
-          name: "Burger Queen",
-          identifiers: [
-            {
-              value: "000000002",
-              scheme: "0225",
-            },
-          ],
-          legal_registration_identifier: {
-            value: "000000002",
-            scheme: "0002",
-          },
-          vat_identifier: "FR18000000002",
-          electronic_address: {
-            value: "315143296_3174",
-            scheme: "0225",
-          },
-          postal_address: {
-            country_code: "FR",
-          },
-        },
-
-        delivery_information: {
-          delivery_date: "2025-06-30",
-        },
-        deliver_to_address: {
-          country_code: "FR",
-        },
-        totals: {
-          sum_invoice_lines_amount: "75",
-          total_without_vat: "75",
-          total_vat_amount: {
-            value: "15",
-            currency_code: "EUR",
-          },
-          total_with_vat: "90",
-          amount_due_for_payment: "90",
-        },
-      } as any;
-      console.log(
-        "[SuperPDPClient.convertToFacturX] Test EN16931 invoice from API:",
-        JSON.stringify(en16931Invoice, null, 2)
-      );
       const FormData = (await import("form-data")).default;
       const formData = new FormData();
 
@@ -502,6 +435,160 @@ export class SuperPDPClient {
       }
 
       throw new Error(`Failed to convert to Factur-X: ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Search French Directory companies by SIREN or name
+   * Note: This endpoint does not require authentication
+   *
+   * @param options - Search criteria
+   * @returns List of companies matching the search criteria
+   */
+  async searchFrenchDirectoryCompanies(
+    options: FrenchDirectorySearchOptions
+  ): Promise<FrenchDirectorySearchResult> {
+    try {
+      const params = new URLSearchParams();
+
+      if (options.formal_name_starts_with) {
+        params.append(
+          "formal_name_starts_with",
+          options.formal_name_starts_with
+        );
+      }
+      if (options.post_code_starts_with) {
+        params.append("post_code_starts_with", options.post_code_starts_with);
+      }
+      if (options.number) {
+        params.append("number", options.number);
+      }
+      if (options.limit) {
+        params.append("limit", options.limit.toString());
+      }
+
+      console.log(
+        "[SuperPDPClient.searchFrenchDirectoryCompanies] Searching with:",
+        {
+          options,
+          params: params.toString(),
+        }
+      );
+
+      const response = await this.client.get(
+        `/v1.beta/french_directory/companies?${params.toString()}`
+      );
+
+      console.log("[SuperPDPClient.searchFrenchDirectoryCompanies] Results:", {
+        count: response.data.data?.length || 0,
+        has_more: response.data.has_more,
+      });
+
+      return {
+        data: response.data.data || [],
+        has_more: response.data.has_more || false,
+      };
+    } catch (error: any) {
+      throw new Error(
+        `Failed to search French directory companies: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    }
+  }
+
+  /**
+   * Get directory entries for a French company by SIREN
+   * Note: This endpoint does not require authentication
+   *
+   * @param siren - The SIREN number of the company
+   * @returns List of directory entries (Peppol addresses) for the company
+   */
+  async getFrenchDirectoryEntries(
+    siren: string
+  ): Promise<FrenchDirectoryEntry[]> {
+    try {
+      console.log(
+        "[SuperPDPClient.getFrenchDirectoryEntries] Getting entries for SIREN:",
+        siren
+      );
+
+      const response = await this.client.get(
+        `/v1.beta/french_directory/entries?number=${encodeURIComponent(siren)}`
+      );
+
+      const entries = response.data.data || [];
+      console.log(
+        "[SuperPDPClient.getFrenchDirectoryEntries] Retrieved entries:",
+        {
+          siren,
+          count: entries.length,
+          entries: entries,
+        }
+      );
+
+      return entries;
+    } catch (error: any) {
+      throw new Error(
+        `Failed to get French directory entries for SIREN ${siren}: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    }
+  }
+
+  /**
+   * Get full company details by SIREN (company info + directory entries)
+   *
+   * @param siren - The SIREN number of the company
+   * @returns Company information and its directory entries
+   */
+  async getFrenchCompanyBySiren(siren: string): Promise<{
+    company: FrenchDirectoryCompany | null;
+    entries: FrenchDirectoryEntry[];
+  }> {
+    try {
+      console.log(
+        "[SuperPDPClient.getFrenchCompanyBySiren] Looking up SIREN:",
+        siren
+      );
+
+      // Search for the company by exact SIREN
+      const searchResult = await this.searchFrenchDirectoryCompanies({
+        number: siren,
+        limit: 1,
+      });
+
+      const company =
+        searchResult.data.length > 0 ? searchResult.data[0] : null;
+
+      if (!company) {
+        console.log(
+          "[SuperPDPClient.getFrenchCompanyBySiren] Company not found for SIREN:",
+          siren
+        );
+        return { company: null, entries: [] };
+      }
+
+      // Get directory entries for the company
+      const entries = await this.getFrenchDirectoryEntries(siren);
+
+      console.log(
+        "[SuperPDPClient.getFrenchCompanyBySiren] Complete data retrieved:",
+        {
+          siren,
+          company: company.formal_name,
+          entries_count: entries.length,
+        }
+      );
+
+      return { company, entries };
+    } catch (error: any) {
+      throw new Error(
+        `Failed to get French company by SIREN ${siren}: ${
+          error.response?.data?.message || error.message
+        }`
+      );
     }
   }
 

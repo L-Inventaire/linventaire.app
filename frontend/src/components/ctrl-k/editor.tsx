@@ -1,6 +1,11 @@
 import { DocumentBar } from "@components/document-bar";
 import { withSearchAsModelObj } from "@components/search-bar/utils/as-model";
-import { buildQueryFromMap } from "@components/search-bar/utils/utils";
+import {
+  buildQueryFromMap,
+  extractFilters,
+  generateQuery,
+  schemaToSearchFields,
+} from "@components/search-bar/utils/utils";
 import { CtrlKRestEntities } from "@features/ctrlk";
 import { CtrlKAtom } from "@features/ctrlk/store";
 import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
@@ -61,7 +66,7 @@ export const ModalEditor = (props: { stateId: string }) => {
         lastItem = _.set(
           _.cloneDeep(lastItem || ({} as any)),
           "options.query",
-          `id:"${item.id}" `
+          `id:"${item.id}" `,
         );
         newPath.push(lastItem);
       }
@@ -75,14 +80,24 @@ export const ModalEditor = (props: { stateId: string }) => {
       withSearchAsModelObj(
         schema.data!,
         {},
-        buildQueryFromMap(
-          currentState?.options?.internalQuery ||
-            previousState?.options?.internalQuery ||
-            {}
-        ),
-        { keepArraysFirst: true } // Used for supplier invoice where query use a "or"
-      ) || {}
-    )
+        [
+          ...generateQuery(
+            schemaToSearchFields(schema),
+            extractFilters(
+              currentState.options?.query ||
+                previousState?.options?.query ||
+                "",
+            ),
+          ).fields,
+          ...buildQueryFromMap(
+            currentState?.options?.internalQuery ||
+              previousState?.options?.internalQuery ||
+              {},
+          ),
+        ],
+        { keepArraysFirst: true }, // Used for supplier invoice where query use a "or"
+      ) || {},
+    ),
   );
 
   const onClose = async () => {
@@ -113,7 +128,7 @@ export const ModalEditor = (props: { stateId: string }) => {
         ],
       });
     },
-    [currentState, state, setState]
+    [currentState, state, setState],
   );
 
   const footer = CtrlKRestEntities[

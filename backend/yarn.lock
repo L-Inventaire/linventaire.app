@@ -5739,6 +5739,7 @@ __metadata:
     ts-node: ^10.9.2
     ts-node-dev: ^2.0.0
     ts-patch: ^3.2.1
+    tsconfig-paths: ^4.2.0
     twig: ^1.16.0
     typescript: 5.5
     typescript-transform-paths: ^3.5.1
@@ -10395,7 +10396,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"json5@npm:^2.2.3":
+"json5@npm:^2.2.2, json5@npm:^2.2.3":
   version: 2.2.3
   resolution: "json5@npm:2.2.3"
   bin:
@@ -14057,6 +14058,17 @@ __metadata:
     ts-patch: bin/ts-patch.js
     tspc: bin/tspc.js
   checksum: b9c85e338406ae75a306d0e12d9968ee3819922f996cecc5d7176842d2e5cb5f194bd651a85098b0a5b6c432fb29f0305e57003d4920ff0a5dfa5b111b9d3e7c
+  languageName: node
+  linkType: hard
+
+"tsconfig-paths@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "tsconfig-paths@npm:4.2.0"
+  dependencies:
+    json5: ^2.2.2
+    minimist: ^1.2.6
+    strip-bom: ^3.0.0
+  checksum: 28c5f7bbbcabc9dabd4117e8fdc61483f6872a1c6b02a4b1c4d68c5b79d06896c3cc9547610c4c3ba64658531caa2de13ead1ea1bf321c7b53e969c4752b98c7
   languageName: node
   linkType: hard
 
