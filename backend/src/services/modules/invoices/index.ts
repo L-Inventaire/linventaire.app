@@ -89,7 +89,7 @@ export default class Invoices implements InternalApplicationService {
     setTriggerSetFirstNextInvoice();
     Framework.Cron.schedule(
       this.name + "-recurring-cron",
-      "0 */10 * * * *", // Every 10 minutes
+      "0 0 */2 * * *", // Every 2 hours
       async (ctx) => {
         await generateInvoicesForRecurringQuotes(ctx);
         await checkQuotesThatMustEndRecurrence(ctx);

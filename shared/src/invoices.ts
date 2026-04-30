@@ -182,8 +182,13 @@ export const getInvoiceNextDate = (
     content?: { subscription?: string }[];
     subscription?: { invoice_date?: string };
   },
-  forceNextOne = true,
+  options: { forceNextOne: boolean; ignoreEndDate: boolean } = {
+    forceNextOne: true, // To avoid showing in frontend today's date if it should be today
+    ignoreEndDate: true, // Some processes rely on this function to get the next invoice date even after the end of the subscription, so by default we ignore the end date here. The caller can choose to take it into account if needed.
+  },
 ) => {
+  const forceNextOne = options?.forceNextOne ?? true;
+
   if (quote.state !== "recurring" || !quote?.subscription_started_at)
     return null;
 

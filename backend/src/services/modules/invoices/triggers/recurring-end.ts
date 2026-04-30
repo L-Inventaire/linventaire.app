@@ -1,10 +1,9 @@
 import Clients, {
   ClientsDefinition,
 } from "#src/services/clients/entities/clients";
-import Services from "#src/services/index";
 import { Context } from "#src/types";
 import { captureException } from "@sentry/node";
-import _ from "lodash";
+import { getInvoiceNextDate } from "@shared/invoices";
 import { default as Framework } from "../../../../platform";
 import { generateEmailMessageToRecipient } from "../../signing-sessions/services/utils";
 import Invoices, { InvoicesDefinition } from "../entities/invoices";
@@ -21,7 +20,9 @@ import { ensureRecipients } from "./recurring-generate-invoice";
  *
  * Note: This must be executed *after* the invoice generation trigger because after this date, no more invoices will be generated
  *
- * Note 2: (!important) If we manually stopped the recurring quote, then we must *not* automatically re-create and sent quote
+ * Note 2: We will convert back to draft up to 1 month before the real end, if the minimal frequency and invoicing date allows it.
+ *
+ * Note 3: (!important) If we manually stopped the recurring quote, then we must *not* automatically re-create and sent quote
  */
 export const checkQuotesThatMustEndRecurrence = async (ctx: Context) => {
   const db = await Framework.Db.getService();
@@ -36,7 +37,7 @@ export const checkQuotesThatMustEndRecurrence = async (ctx: Context) => {
       InvoicesDefinition.name,
       {
         where: `type = $1 AND state = $2 AND subscription_ends_at < $3 AND is_deleted = false`,
-        values: ["quotes", "recurring", Date.now()],
+        values: ["quotes", "recurring", Date.now() + 25 * 24 * 3600 * 1000], // We put 25 days here to be sure to catch all quotes that should end, even if the cron is a bit late, and to give a little bit of time to convert back to draft if needed
       },
       {
         limit,
@@ -45,6 +46,21 @@ export const checkQuotesThatMustEndRecurrence = async (ctx: Context) => {
     );
 
     for (const quote of quotes) {
+      // Check if we can close the quote now
+      let canClose = false;
+      if (new Date(quote.subscription_ends_at || 0).getTime() <= Date.now()) {
+        canClose = true;
+      } else {
+        // Check next invoice theorical date
+        const nextDate = getInvoiceNextDate(quote);
+        if (
+          nextDate &&
+          nextDate > new Date(quote.subscription_ends_at || 0).getTime()
+        ) {
+          canClose = true;
+        }
+      }
+
       await db.update<Invoices>(
         ctx,
         InvoicesDefinition.name,
@@ -74,14 +90,38 @@ export const setTriggerSetRecurrenceEndDate = () => {
       );
     },
     callback: async (ctx, quote) => {
+      if (!quote) return;
+
       if (
         quote.subscription?.renew_as === "draft" ||
         quote.subscription?.renew_as === "sent"
       ) {
-        const renewed = await Services.Rest.create<Invoices>(
-          { ...ctx, client_id: quote.client_id },
-          "invoices",
-          { ..._.omit(quote, "id", "state"), state: "draft" }
+        const db = await Framework.Db.getService();
+        await db.update<Invoices>(
+          ctx,
+          InvoicesDefinition.name,
+          {
+            client_id: quote.client_id,
+            id: quote.id,
+          },
+          {
+            state: "draft",
+            name: quote.name + " (renouvellement)",
+            emit_date: new Date(), // We set the emit date to now to avoid any issue with next invoice date calculation and to be sure the quote is visible in the UI
+            subscription_ends_at: null,
+            subscription_next_invoice_date: null,
+            subscription_started_at: null,
+            wait_for_completion_since: null,
+            recipients: [],
+          }
+        );
+        const renewed = await db.selectOne<Invoices>(
+          ctx,
+          InvoicesDefinition.name,
+          {
+            client_id: quote.client_id,
+            id: quote.id,
+          }
         );
 
         if (!renewed?.id) {
@@ -89,7 +129,6 @@ export const setTriggerSetRecurrenceEndDate = () => {
         }
 
         if (quote.subscription?.renew_as === "sent") {
-          const db = await Framework.Db.getService();
           const client = await db.selectOne<Clients>(
             ctx,
             ClientsDefinition.name,
@@ -146,9 +185,11 @@ export const setTriggerSetRecurrenceEndDate = () => {
       );
     },
     callback: async (ctx, quote) => {
+      if (!quote) return;
+
       const db = await Framework.Db.getService();
 
-      let subscription_ends_at = quote.subscription_ends_at;
+      let subscription_ends_at = quote.subscription_ends_at || null;
       // Set the subscription_ends_at value
       if (quote.subscription?.end_type === "date") {
         subscription_ends_at = new Date(quote.subscription.end || Date.now());
