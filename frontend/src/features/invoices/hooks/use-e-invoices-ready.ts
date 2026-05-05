@@ -1,6 +1,7 @@
 import { useContact } from "@features/contacts/hooks/use-contacts";
 import { Invoices } from "../types/types";
 import { isContactReady } from "@/features/contacts/configuration";
+import { useEInvoicingConfig } from "@/features/e-invoicing/hooks/use-e-invoicing-config";
 
 /**
  * Hook to check if the supplier or client is ready for e-invoicing.
@@ -9,6 +10,8 @@ import { isContactReady } from "@/features/contacts/configuration";
  * Note: We only check the supplier/client, not the contact person.
  */
 export const useEInvoicesReady = (invoice?: Invoices) => {
+  const { config: eInvoicingConfig } = useEInvoicingConfig();
+
   // Determine if this is a supplier invoice type
   const isSupplierInvoice =
     invoice?.type === "supplier_credit_notes" ||
@@ -28,6 +31,7 @@ export const useEInvoicesReady = (invoice?: Invoices) => {
     isReady,
     isPending,
     contact,
+    enforced: eInvoicingConfig?.send_enabled,
     missingReason: !isReady
       ? `${isSupplierInvoice ? "Le fournisseur" : "Le client"} nécessite une configuration supplémentaire`
       : undefined,

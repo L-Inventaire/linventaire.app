@@ -36,14 +36,18 @@ export const InvoiceDiscountInput = (props: {
           label="Réduction"
           value={value?.value}
           onChange={(e) => {
-            if (e > 0) {
+            if (e.trim() && !isNaN(parseFloat(e)) && parseFloat(e) > 0) {
               onChange!({
                 ...value,
                 value: e,
                 mode: ctrl("mode").value || "percentage",
               });
             } else {
-              onChange!(undefined);
+              onChange!({
+                ...value,
+                value: 0,
+                mode: ctrl("mode").value || "percentage",
+              });
             }
           }}
           type="formatted"
@@ -54,7 +58,10 @@ export const InvoiceDiscountInput = (props: {
       <Info className="block mt-2">
         <Link
           onClick={() => {
-            onChange!(undefined);
+            onChange!({
+              value: 0,
+              mode: ctrl("mode").value || "percentage",
+            });
           }}
         >
           Ne pas appliquer de réduction

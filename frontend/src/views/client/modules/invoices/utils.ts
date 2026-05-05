@@ -18,8 +18,6 @@ export const getTvaValue = (tva: string): number => {
     return vatValues[tva] / 100;
   }
 
-  console.log("H");
-
   // Fall back to parsing the string
   if (tva.match(/^[0-9.]+.*/)) {
     return parseFloat(tva) / 100;
