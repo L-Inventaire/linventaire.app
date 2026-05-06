@@ -333,6 +333,7 @@ export const computePricesFromInvoice = (
     [vat: string]: NonNullable<InvoiceTotal["allowances_breakdown"]>[0];
   } = {};
   for (const vat in vatBreakdown) {
+    if (initial - discount === 0) break; // Avoid division by zero if total is 0 after discounts
     const proportion = vatBreakdown[vat].taxable_amount / (initial - discount);
     const discountAmount = globalDiscount * proportion;
     const totalProportion = (initial - discount) * proportion;
@@ -363,6 +364,18 @@ export const computePricesFromInvoice = (
   );
   const total = initial - discount - globalDiscount;
   const total_with_taxes = total + allTaxes;
+
+  if (isNaN(total_with_taxes)) {
+    console.log({
+      total_with_taxes,
+      total,
+      allTaxes,
+      initial,
+      discount,
+      globalDiscount,
+      vatBreakdown,
+    });
+  }
 
   return {
     initial: parseFloat(initial.toFixed(2)),

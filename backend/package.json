@@ -29,6 +29,7 @@
     ],
     "moduleNameMapper": {
       "^#src/(.*)$": "<rootDir>/src/$1",
+      "^@shared/(.*)$": "<rootDir>/../shared/dist/$1",
       "@react-pdf/renderer": "<rootDir>/tests/__mocks__/@react-pdf/renderer.ts"
     }
   },
