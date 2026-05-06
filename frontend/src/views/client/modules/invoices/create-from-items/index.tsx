@@ -13,7 +13,7 @@ import _ from "lodash";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { InvoiceLinesInput } from "../components/invoice-lines-input";
-import { computePricesFromInvoice } from "../utils";
+import { computePricesFromInvoice } from "@shared/invoices";
 import { useClients } from "@features/clients/state/use-clients";
 import { format } from "date-fns";
 import { useInvoiceMaps } from "@features/invoices/hooks/use-invoice-maps";
@@ -98,7 +98,7 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
           }),
       };
 
-      invoice.total = computePricesFromInvoice(invoice, maps?.vat_values);
+      invoice.total = computePricesFromInvoice(invoice);
 
       setLines(invoice);
     }
@@ -107,7 +107,7 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
   useEffect(() => {
     setLines((lines) => ({
       ...lines,
-      total: computePricesFromInvoice(lines, maps?.vat_values),
+      total: computePricesFromInvoice(lines),
     }));
   }, [lines.content]);
 

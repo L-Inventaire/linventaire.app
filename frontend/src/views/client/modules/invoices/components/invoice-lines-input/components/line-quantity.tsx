@@ -53,7 +53,7 @@ export const InvoiceLineQuantityInput = (props: {
           onClick={() => {
             onChange!({
               ...value,
-              unit: props?.article?.unit,
+              unit: props?.article?.unit || "EA",
             });
           }}
         >

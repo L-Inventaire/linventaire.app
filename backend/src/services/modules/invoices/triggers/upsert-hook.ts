@@ -2,7 +2,8 @@ import _ from "lodash";
 import Framework from "../../../../platform";
 import Invoices, { InvoicesDefinition } from "../entities/invoices";
 import { setArticlesTagsToInvoices } from "../services/db";
-import { computePricesFromInvoice, numberOrNull } from "../utils";
+import { numberOrNull } from "../utils";
+import { computePricesFromInvoice } from "@shared/invoices";
 import Clients, {
   ClientsDefinition,
 } from "#src/services/clients/entities/clients";
@@ -123,6 +124,7 @@ export const setUpsertHook = () =>
       }
 
       updated.total = computePricesFromInvoice(entity);
+      console.log("Computed total", updated.total);
 
       updated.articles = updated.articles || ({} as any);
       updated.articles.all = (entity.content || []).map((a) => a.article);

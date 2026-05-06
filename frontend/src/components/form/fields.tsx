@@ -233,7 +233,7 @@ export const FormInput = memo(
                 autoComplete={props.autoComplete}
               />
             )}
-            {props.type === "quantity" && props.metadata?.unit === "h" && (
+            {props.type === "quantity" && props.metadata?.unit === "HUR" && (
               <InputTime
                 className={twMerge(props.inputClassName)}
                 onChange={(_, number) => {

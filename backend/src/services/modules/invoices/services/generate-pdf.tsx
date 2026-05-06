@@ -19,7 +19,7 @@ import StockItems, {
   StockItemsDefinition,
 } from "../../stock/entities/stock-items";
 import Invoices from "../entities/invoices";
-import { computePricesFromInvoice } from "../utils";
+import { computePricesFromInvoice } from "@shared/invoices";
 import { getPdf } from "./generate-pdf-components";
 
 export type PositionPdf = {

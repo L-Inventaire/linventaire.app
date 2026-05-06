@@ -23,7 +23,7 @@ import {
   standardCodeToVatCategory,
   standardCodeToVatValue,
   vatCategoryCodeToExemptionReason,
-} from "./types/maps";
+} from "@shared/consts";
 import { convertInternalToEN16931 } from "../e-invoices/services";
 import { getResolvedEntities } from "../e-invoices/services/invoice-converter";
 

@@ -29,7 +29,7 @@ export const InvoiceLineArticleInput = (props: {
   const [useArticleName, setUseArticleName] = useState(
     !article ||
       (value.name === article?.name &&
-        value.description === article?.description)
+        value.description === article?.description),
   );
 
   return (
@@ -96,7 +96,7 @@ export const InvoiceLineArticleInput = (props: {
                       quantity: value.quantity || 1,
                       subscription: article.subscription,
                     }
-                  : { ...value, article: "" }
+                  : { ...value, article: "" },
               );
               props.close?.();
             }}
@@ -155,8 +155,8 @@ export const InvoiceLineArticleInput = (props: {
                   onClick={() => {
                     onChange?.({
                       ...value,
-                      name: article?.name,
-                      description: article?.description,
+                      name: article?.name || "",
+                      description: article?.description || "",
                     });
                     setUseArticleName(true);
                   }}

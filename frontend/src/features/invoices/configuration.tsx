@@ -32,10 +32,10 @@ import { InvoicesDetailsPage } from "@views/client/modules/invoices/components/i
 import { TagPaymentCompletion } from "@views/client/modules/invoices/components/tag-payment-completion";
 import { InvoicesEditPage } from "@views/client/modules/invoices/edit";
 import {
-  computePricesFromInvoice,
   isDeliveryLate,
   isPaymentLate,
-} from "@views/client/modules/invoices/utils";
+  computePricesFromInvoice,
+} from "@shared/invoices";
 import { InvoicesViewPage } from "@views/client/modules/invoices/view";
 import { format } from "date-fns";
 import _ from "lodash";
@@ -47,7 +47,6 @@ import { Invoices } from "./types/types";
 
 export const useInvoiceDefaultModel: () => Partial<Invoices> = () => {
   const { client } = useCurrentClient();
-  const { maps } = useInvoiceMaps();
 
   return {
     type: "quotes",

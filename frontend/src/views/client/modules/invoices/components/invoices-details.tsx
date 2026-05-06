@@ -57,7 +57,7 @@ import _ from "lodash";
 import { DateTime } from "luxon";
 import { Fragment, useEffect } from "react";
 import { ContactRestDocument } from "../../contacts/components/contact-input-rest-card";
-import { computePricesFromInvoice } from "../utils";
+import { computePricesFromInvoice } from "@shared/invoices";
 import { getBestDeliveryAddress, InputDelivery } from "./input-delivery";
 import { InvoiceInputFormat } from "./input-format";
 import { InvoicePaymentInput } from "./input-payment";
@@ -150,7 +150,7 @@ export const InvoicesDetailsPage = ({
         if (draft.type && !draft.reference && draft.emit_date) {
           draft.reference = getReference(draft);
         }
-        draft.total = computePricesFromInvoice(draft, maps?.vat_values);
+        draft.total = computePricesFromInvoice(draft);
         draft.content = (draft.content || []).map((a) => ({
           ...a,
           _id: a._id || _.uniqueId(),

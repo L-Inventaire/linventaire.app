@@ -8,7 +8,6 @@ import sharp from "sharp";
 import { Files, FilesDefinition } from "../files/entities/files";
 import { download } from "../files/services/files";
 import Invoices from "./entities/invoices";
-import { getVatCode, standardCodeToVatValue } from "./types/maps";
 import { getTimezoneOffset } from "@shared/invoices";
 
 export const getCurrentYear = (timezone: string, date?: Date) => {
@@ -122,79 +121,6 @@ export const getFormattedNumerotation = (
   n = n.replace(/@C/g, counter.toString());
 
   return n;
-};
-
-export const getTvaValue = (tva: string): number => {
-  tva = getVatCode(tva || "") || "";
-  return (standardCodeToVatValue[tva] || 0) / 100;
-};
-
-export const computePricesFromInvoice = (
-  invoice: Pick<Invoices, "content" | "discount">,
-  checkedIndexes?: { [key: number]: boolean }
-): Invoices["total"] => {
-  let initial = 0;
-  let discount = 0;
-  let taxes = 0;
-
-  const content = [...invoice.content];
-  for (const [index, item] of content.entries()) {
-    let value = content[index]?.optional
-      ? content[index]?.optional_checked
-      : true;
-
-    if (_.has(checkedIndexes, index)) {
-      value = ["true", "1", 1, true].includes(
-        checkedIndexes?.[index] as unknown as string
-      )
-        ? true
-        : false;
-    }
-
-    content[index] = {
-      ...item,
-      optional_checked: value || false,
-    };
-  }
-
-  content.forEach((item) => {
-    if (!item.optional_checked) return;
-
-    const itemsPrice =
-      (parseFloat(item.unit_price as any) || 0) *
-      (parseFloat(item.quantity as any) || 0);
-
-    let itemsDiscount = 0;
-    if (item.discount?.mode === "percentage") {
-      itemsDiscount =
-        (itemsPrice + itemsPrice * getTvaValue(item.tva || "")) *
-        (parseFloat(item.discount.value as any) / 100);
-    } else if (item.discount?.mode === "amount") {
-      itemsDiscount = parseFloat(item.discount.value as any);
-    }
-
-    initial += itemsPrice;
-    discount += itemsDiscount;
-
-    taxes += itemsPrice * getTvaValue(item.tva || "");
-  });
-
-  if (invoice.discount?.mode === "percentage") {
-    discount +=
-      (initial - discount) * (parseFloat(invoice.discount.value as any) / 100);
-  } else if (invoice.discount?.mode === "amount") {
-    discount += parseFloat(invoice.discount.value as any);
-  }
-  const total = initial - discount;
-  const total_with_taxes = total + taxes;
-
-  return {
-    initial: parseFloat(initial.toFixed(2)),
-    discount: parseFloat(discount.toFixed(2)),
-    total: parseFloat(total.toFixed(2)),
-    taxes: parseFloat(taxes.toFixed(2)),
-    total_with_taxes: parseFloat(total_with_taxes.toFixed(2)),
-  };
 };
 
 export const getTimezoneDay = (date: Date | number, timezone: string) => {

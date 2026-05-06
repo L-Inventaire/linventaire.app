@@ -3,12 +3,12 @@ import React from "react";
 import Framework from "../../../../../platform";
 import { Context } from "../../../../../types";
 import Invoices from "../../entities/invoices";
-import { computePricesFromInvoice } from "../../utils";
+import { computePricesFromInvoice } from "@shared/invoices";
 import { convertHtml, formatAmount, KeyValueDisplay } from "./utils";
 import {
   getVatExemptionReason,
   vatCategoryCodeToExemptionReason,
-} from "../../types/maps";
+} from "@shared/consts";
 
 export const InvoiceTotal = ({
   ctx,

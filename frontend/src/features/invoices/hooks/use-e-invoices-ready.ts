@@ -33,7 +33,7 @@ export const useEInvoicesReady = (invoice?: Invoices) => {
     contact,
     enforced: eInvoicingConfig?.send_enabled,
     missingReason: !isReady
-      ? `${isSupplierInvoice ? "Le fournisseur" : "Le client"} nécessite une configuration supplémentaire`
+      ? `${isSupplierInvoice ? "Le fournisseur" : "Le client"} ne possède pas de SIRET valide.`
       : undefined,
   };
 };

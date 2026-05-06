@@ -1,3 +1,13 @@
+import {
+  FromSubscription,
+  InvoicedComputed,
+  InvoiceDiscount,
+  InvoiceLine,
+  InvoiceReminder,
+  InvoiceTotal,
+  PaymentComputed,
+  Recipient,
+} from "@shared/types";
 import _ from "lodash";
 import { RestTableDefinition } from "../../../../platform/db/api";
 import {
@@ -104,81 +114,16 @@ export default class Invoices extends RestEntity {
   };
 }
 
-export class FromSubscription {
-  // When invoice was generated from a subscription, details goes there
-  frequency: "daily" | "weekly" | "monthly" | "yearly" | string = "monthly";
-  from = new Date(); // Invoiced period start
-  to = new Date(); // Invoiced period end
-}
-
-export class PaymentComputed {
-  percentage = 0; // Between 0 and 100
-  total = 0; // This one is automatically generated from the transactions
-  ids = ["type:accounting_transactions"]; // List of payments executed automatically generated from trigger
-}
-
-export class Recipient {
-  email = "string";
-  role: "signer" | "viewer" = "signer";
-}
-
-export class InvoicedComputed {
-  percentage = 0; // Between 0 and 100
-  percentage_with_draft = 0; // Between 0 and 100
-  ids = ["type:invoices"]; // List of invoices automatically generated from trigger
-}
-
-export class InvoicePaymentExecuted {
-  date = new Date();
-  mode: Payment["mode"] = ["bank_transfer"];
-  reference = "string";
-  amount = 0;
-  notes = "string";
-}
-
-export class InvoiceTotal {
-  initial = 0;
-  discount = 0;
-  total = 0;
-  taxes = 0;
-  total_with_taxes = 0;
-}
-
-export class InvoiceReminder {
-  enabled = false;
-  repetition = 0; // Number of weeks of repetitions
-}
-
-export class InvoiceLine {
-  article = "type:articles"; // Nullable
-
-  type: "product" | "service" | "consumable" | "separation" | "correction" =
-    "product"; // product, service, consumable, separation
-  name = "string";
-  reference = "string";
-  description = "string";
-
-  unit = "string";
-  quantity = 0;
-  unit_price = 0;
-  tva = "string";
-  discount = new InvoiceDiscount();
-
-  subscription: "" | "daily" | "monthly" | "yearly" | "weekly" | string = ""; // Can be 3_yearly, 6_monthly etc
-
-  // Only for quotes and supplier quotes
-  quantity_ready = 0; //Quantity received or sent to determine if the line is ready to be "completed"
-  quantity_delivered = 0; //Quantity received or sent to determine if the line is ready to be duplicated as "invoices"
-  // Automatically maintained up to date from the stock_items.rel_quote, cannot be changed from invoice
-
-  optional = false;
-  optional_checked = false; // Checked by the client or by the agent (like a default checked option)
-}
-
-export class InvoiceDiscount {
-  mode: "percentage" | "amount" | null = "amount"; // "percentage" | "amount"
-  value = 0;
-}
+export {
+  FromSubscription,
+  InvoicedComputed,
+  InvoiceDiscount,
+  InvoiceLine,
+  InvoiceReminder,
+  InvoiceTotal,
+  PaymentComputed,
+  Recipient,
+} from "@shared/types";
 
 export const InvoicesDefinition: RestTableDefinition = {
   name: "invoices",

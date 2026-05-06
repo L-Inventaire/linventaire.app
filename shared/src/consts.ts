@@ -123,7 +123,7 @@ export const getVatExemptionReason = (value: string): string | null => {
   }
   return (
     Object.keys(vatCategoryCodeToExemptionReason).find(
-      (key) => vatCategoryCodeToExemptionReason[key] === value
+      (key) => vatCategoryCodeToExemptionReason[key] === value,
     ) || null
   );
 };
@@ -134,7 +134,7 @@ export const getVatCode = (value: string, category?: string): string | null => {
   }
   const candidate =
     Object.keys(standardCodeToVatCategory).find(
-      (key) => standardCodeToVatCategory[key] === value
+      (key) => standardCodeToVatCategory[key] === value,
     ) || null;
   if (candidate) return candidate;
 
@@ -143,13 +143,13 @@ export const getVatCode = (value: string, category?: string): string | null => {
     if (rate === 0) {
       return (
         Object.keys(standardCodeToVatCategory).find(
-          (key) => key.indexOf((category || "O") + ":") === 0
+          (key) => key.indexOf((category || "O") + ":") === 0,
         ) || "O:VATEX-EU-O"
       );
     } else {
       return (
         Object.keys(standardCodeToVatCategory).find(
-          (key) => key.indexOf("S:" + Math.floor(rate)) === 0
+          (key) => key.indexOf("S:" + Math.floor(rate)) === 0,
         ) || null
       );
     }
@@ -165,7 +165,7 @@ export const getVatCategoryOnly = (value: string): string | null => {
   return (
     (
       Object.keys(standardCodeToVatCategory).find(
-        (key) => standardCodeToVatCategory[key] === value
+        (key) => standardCodeToVatCategory[key] === value,
       ) || null
     )?.split(":")[0] || null
   );
@@ -178,7 +178,7 @@ export const getVatExemptionOnly = (value: string): string | null => {
   return (
     (
       Object.keys(standardCodeToVatCategory).find(
-        (key) => standardCodeToVatCategory[key] === value
+        (key) => standardCodeToVatCategory[key] === value,
       ) || null
     )?.split(":")[1] || null
   );
@@ -190,7 +190,7 @@ export const getUnitCode = (value: string): string | null => {
   }
   return (
     Object.keys(standardCodeToUnit).find(
-      (key) => standardCodeToUnit[key] === value
+      (key) => standardCodeToUnit[key] === value,
     ) || null
   );
 };

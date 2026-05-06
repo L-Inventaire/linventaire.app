@@ -7,7 +7,7 @@ import seedrandom from "seedrandom";
 import { id } from "../platform/db/utils";
 import { Context, createContext } from "../types";
 import Contacts from "./modules/contacts/entities/contacts";
-import { getUnitCode } from "./modules/invoices/types/maps";
+import { getUnitCode } from "@shared/consts";
 
 export function secureExpress() {
   const app = express();

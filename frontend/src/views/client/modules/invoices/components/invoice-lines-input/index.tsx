@@ -5,7 +5,7 @@ import { Info } from "@atoms/text";
 import { FormContextContext } from "@components/form/formcontext";
 import { InputButton } from "@components/input-button";
 import { FilesInput } from "@components/input-rest/files";
-import { Invoices } from "@features/invoices/types/types";
+import { InvoiceLine, Invoices } from "@features/invoices/types/types";
 import { formatAmount } from "@features/utils/format/strings";
 import {
   PaperClipIcon,
@@ -48,7 +48,7 @@ export const InvoiceLinesInput = ({
           unit: "",
           unit_price: 0,
           quantity: 1,
-        },
+        } as InvoiceLine,
       ],
     });
   };

@@ -10,7 +10,7 @@ import { formatIBAN } from "@features/utils/format/strings";
 import { BanknotesIcon } from "@heroicons/react/20/solid";
 import { PageBlockHr } from "@views/client/_layout/page";
 import { format } from "date-fns";
-import { isPaymentLate } from "../utils";
+import { isPaymentLate } from "@shared/invoices";
 import { computePaymentDelayDate } from "@shared/invoices";
 
 export const InvoicePaymentInput = ({

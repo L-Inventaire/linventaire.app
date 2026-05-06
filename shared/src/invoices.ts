@@ -1,5 +1,7 @@
-import { DateTime } from "luxon";
 import _ from "lodash";
+import { DateTime } from "luxon";
+import { getVatCode, standardCodeToVatValue } from "./consts";
+import { InvoicesBase as Invoices, InvoiceTotal } from "./types";
 
 export const applyOffset = (
   date: Date,
@@ -243,4 +245,182 @@ export const getInvoiceNextDate = (
   }
 
   return minNextInvoiceDate;
+};
+
+export const getTvaValue = (tva: string): number => {
+  tva = getVatCode(tva || "") || "";
+  return (standardCodeToVatValue[tva] || 0) / 100;
+};
+
+export const computePricesFromInvoice = (
+  invoice: Pick<Invoices, "content" | "discount">,
+  checkedIndexes?: { [key: number]: boolean },
+): Invoices["total"] => {
+  let initial = 0;
+  let discount = 0;
+
+  console.log("Computing prices for invoice", invoice, { checkedIndexes });
+
+  const content = [...(invoice.content || [])];
+  for (let index = 0; index < content.length; index++) {
+    const item = content[index];
+    let value = content[index]?.optional
+      ? content[index]?.optional_checked
+      : true;
+
+    if (_.has(checkedIndexes, index)) {
+      value = ["true", "1", 1, true].includes(
+        checkedIndexes?.[index] as unknown as string,
+      )
+        ? true
+        : false;
+    }
+
+    content[index] = {
+      ...item,
+      optional_checked: value || false,
+    };
+  }
+
+  const vatBreakdown: {
+    [vat: string]: NonNullable<InvoiceTotal["vat_breakdown"]>[0];
+  } = {};
+
+  content.forEach((item) => {
+    if (!item.optional_checked) return;
+
+    const itemsPrice =
+      (parseFloat(item.unit_price as any) || 0) *
+      (parseFloat(item.quantity as any) || 0);
+
+    let itemsDiscount = 0;
+    if (item.discount?.mode === "percentage") {
+      itemsDiscount =
+        itemsPrice * (parseFloat(item.discount.value as any) / 100);
+    } else if (item.discount?.mode === "amount") {
+      itemsDiscount = parseFloat(item.discount.value as any);
+    }
+
+    const taxableAmount =
+      (itemsPrice - itemsDiscount) * getTvaValue(item.tva || "");
+
+    initial += itemsPrice;
+    discount += itemsDiscount;
+
+    const tvaCode = item.tva || "O:VATEX-EU-O";
+    if (vatBreakdown[tvaCode]) {
+      vatBreakdown[tvaCode].taxable_amount += parseFloat(
+        (itemsPrice - itemsDiscount).toFixed(2),
+      );
+      vatBreakdown[tvaCode].tax_amount += parseFloat(taxableAmount.toFixed(2));
+    } else {
+      vatBreakdown[tvaCode] = {
+        tva: tvaCode,
+        taxable_amount: parseFloat((itemsPrice - itemsDiscount).toFixed(2)),
+        tax_amount: parseFloat(taxableAmount.toFixed(2)),
+      };
+    }
+  });
+
+  let globalDiscount = 0;
+  if (invoice.discount?.mode === "percentage") {
+    globalDiscount =
+      (initial - discount) * (parseFloat(invoice.discount.value as any) / 100);
+  } else if (invoice.discount?.mode === "amount") {
+    globalDiscount = parseFloat(invoice.discount.value as any);
+  }
+
+  // Apply discount proportionally to each VAT rate in breakdown
+  const documentWideAllowancesBreakdown: {
+    [vat: string]: NonNullable<InvoiceTotal["allowances_breakdown"]>[0];
+  } = {};
+  for (const vat in vatBreakdown) {
+    const proportion = vatBreakdown[vat].taxable_amount / (initial - discount);
+    const discountAmount = globalDiscount * proportion;
+    const totalProportion = (initial - discount) * proportion;
+    vatBreakdown[vat].taxable_amount -= parseFloat(discountAmount.toFixed(2));
+    vatBreakdown[vat].tax_amount -= parseFloat(
+      (discountAmount * getTvaValue(vat)).toFixed(2),
+    );
+
+    if (documentWideAllowancesBreakdown[vat]) {
+      documentWideAllowancesBreakdown[vat].base_amount += parseFloat(
+        totalProportion.toFixed(2),
+      );
+      documentWideAllowancesBreakdown[vat].amount += parseFloat(
+        discountAmount.toFixed(2),
+      );
+    } else {
+      documentWideAllowancesBreakdown[vat] = {
+        base_amount: parseFloat(totalProportion.toFixed(2)),
+        amount: parseFloat(discountAmount.toFixed(2)),
+        tva: vat,
+      };
+    }
+  }
+
+  console.log({ vatBreakdown, documentWideAllowancesBreakdown });
+
+  const allTaxes = Object.values(vatBreakdown).reduce(
+    (sum, vat) => sum + vat.tax_amount,
+    0,
+  );
+  const total = initial - discount - globalDiscount;
+  const total_with_taxes = total + allTaxes;
+
+  return {
+    initial: parseFloat(initial.toFixed(2)),
+    discount: parseFloat((discount + globalDiscount).toFixed(2)),
+    total: parseFloat(total.toFixed(2)),
+    taxes: parseFloat(allTaxes.toFixed(2)),
+    total_with_taxes: parseFloat(total_with_taxes.toFixed(2)),
+    vat_breakdown: Object.keys(vatBreakdown).map((key) => vatBreakdown[key]),
+    allowances_breakdown: Object.keys(documentWideAllowancesBreakdown).map(
+      (key) => documentWideAllowancesBreakdown[key],
+    ),
+  };
+};
+
+export const computeDeliveryDelayDate = (invoice: Invoices): DateTime => {
+  const delayType = invoice?.delivery_date
+    ? "delivery_date"
+    : invoice?.delivery_delay
+      ? "delivery_delay"
+      : "no_delivery";
+
+  let date = DateTime.fromMillis(
+    new Date(invoice.wait_for_completion_since ?? Date.now()).getTime(),
+  );
+
+  if (delayType === "delivery_date") {
+    date = DateTime.fromMillis(
+      new Date(invoice.delivery_date ?? Date.now()).getTime(),
+    );
+  }
+  if (delayType === "delivery_delay") {
+    let delay = 30;
+    try {
+      delay = parseInt(invoice.delivery_delay as any);
+      if (isNaN(delay)) delay = 30;
+    } catch (_: any) {
+      delay = 30;
+    }
+    date = date.plus({ days: delay });
+  }
+
+  return date;
+};
+
+export const isDeliveryLate = (invoice: Invoices): boolean => {
+  return DateTime.now() > computeDeliveryDelayDate(invoice);
+};
+
+export const isPaymentLate = (invoice: Invoices): boolean => {
+  return DateTime.now() > computePaymentDelayDate(invoice);
+};
+
+export const isComplete = (invoice: Invoices): boolean => {
+  return !invoice.content?.some(
+    (item) => (item.quantity_delivered || 0) > (item.quantity || 0),
+  );
 };

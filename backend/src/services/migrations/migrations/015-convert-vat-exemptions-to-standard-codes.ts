@@ -8,7 +8,7 @@ import Contacts, {
 import Invoices, {
   InvoicesDefinition,
 } from "#src/services/modules/invoices/entities/invoices";
-import { getVatExemptionReason } from "#src/services/modules/invoices/types/maps";
+import { getVatExemptionReason } from "@shared/consts";
 import { Context } from "#src/types";
 
 export const convertVatExemptionsToStandardCodes = async (ctx: Context) => {

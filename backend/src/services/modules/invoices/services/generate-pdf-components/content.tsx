@@ -4,10 +4,10 @@ import Invoices from "../../entities/invoices";
 import { convertHtml, formatAmount, formatNumber } from "./utils";
 import Framework from "../../../../../platform";
 import { Context } from "../../../../../types";
-import { getTvaValue } from "../../utils";
+import { getTvaValue } from "@shared/invoices";
 import { formatQuantity } from "#src/services/utils";
 import _ from "lodash";
-import { getUnitCode, getUnitLabel } from "../../types/maps";
+import { getUnitCode, getUnitLabel } from "@shared/consts";
 
 export const InvoiceContent = ({
   ctx,
@@ -169,218 +169,149 @@ export const InvoiceContent = ({
         )}
       </View>
 
-      {document.content.map((item, index) => (
-        <View
-          key={`content-${index}-${(item as any)._id || item.article || index}`}
-          style={{
-            borderBottomStyle: "solid",
-            borderBottomColor: colors.lightGray,
-            borderBottomWidth: 1,
-            flexDirection: "row",
-            marginTop: item.type === "separation" ? 8 : 0,
-          }}
-        >
-          {!!["separation"].includes(item.type) && (
-            <>
-              <View
-                style={{
-                  ...styles.td,
-                  marginLeft: 0,
-                  width: "5%",
-                }}
-              ></View>
-            </>
-          )}
-          {!["separation"].includes(item.type) && (
-            <>
-              <View
-                style={{
-                  ...styles.td,
-                  marginLeft: 0,
-                  width: "5%",
-                  alignItems: "center",
-                }}
-              >
-                <Text style={{ fontWeight: "bold" }}>{itemIndex++}</Text>
-                {item.optional && (
-                  <View
-                    id={"optional_item_" + index}
-                    style={{
-                      marginTop: 4,
-                      borderWidth: 1,
-                      borderColor: item.optional_checked
-                        ? colors.primary
-                        : colors.gray,
-                      backgroundColor: item.optional_checked
-                        ? colors.primary
-                        : undefined,
-                      color: item.optional_checked ? "#FFFFFF" : undefined,
-                      width: 16,
-                      height: 16,
-                      borderRadius: 4,
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      fontWeight: "bold",
-                      position: "relative",
-                    }}
-                  >
-                    {item.optional_checked && (
-                      <Svg width="8" height="8" viewBox="0 0 24 24">
-                        <Path
-                          fill="#FFFFFF"
-                          d="M0 12.116l2.053-1.897c2.401 1.162 3.924 2.045 6.622 3.969 5.073-5.757 8.426-8.678 14.657-12.555l.668 1.536c-5.139 4.484-8.902 9.479-14.321 19.198-3.343-3.936-5.574-6.446-9.679-10.251z"
-                        />
-                      </Svg>
-                    )}
-                    <Text
-                      style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        fontSize: 1,
-                        opacity: 0,
-                      }}
-                    >
-                      {`OPTION_${index}_HERE`}
-                    </Text>
-                  </View>
-                )}
-              </View>
-            </>
-          )}
+      {document.content.map((item, index) => {
+        const discountDisplay =
+          item.discount.mode === "amount"
+            ? formatAmount(item.discount.value, document.currency)
+            : item.discount.value + "%";
+        const discountValue =
+          item.discount.mode === "amount"
+            ? item.discount.value
+            : (item.discount.value / 100) * (item.unit_price * item.quantity);
+        return (
           <View
+            key={`content-${index}-${
+              (item as any)._id || item.article || index
+            }`}
             style={{
-              ...styles.td,
-              flexGrow: 1,
-              alignItems: "flex-start",
-              textDecoration:
-                !item.optional_checked && item.optional
-                  ? "line-through"
-                  : "none",
+              borderBottomStyle: "solid",
+              borderBottomColor: colors.lightGray,
+              borderBottomWidth: 1,
+              flexDirection: "row",
+              marginTop: item.type === "separation" ? 8 : 0,
             }}
           >
-            <Text style={{ fontWeight: "bold" }}>
-              {showInternalReferences &&
-                !!item.reference &&
-                `[${item.reference}]`}{" "}
-              {item.name}
-            </Text>
-            {!!item.description && !!item.description.trim() && (
-              <View>
-                {convertHtml(item.description, { color: colors.gray })}
-              </View>
-            )}
-            {getReferences(
-              references?.filter((a) => a.article === item.article),
-              index + 1,
-              item.quantity
-            ).map((a, refIdx) => (
-              <Text
-                key={`ref-${index}-${refIdx}-${a?.reference}`}
-                style={{ color: colors.gray }}
-              >
-                {a?.reference}
-              </Text>
-            ))}
-          </View>
-
-          {!["separation", "correction"].includes(item.type) && (
-            <View
-              style={{
-                ...styles.td,
-                width: quantityRowSize,
-                textDecoration:
-                  !item.optional_checked && item.optional
-                    ? "line-through"
-                    : "none",
-              }}
-            >
-              <Text>
-                {formatQuantity(item.quantity, item.unit)}{" "}
-                {getUnitLabel(item.unit) || "u."}
-              </Text>
-              {!!item.subscription && (
-                <Text
-                  style={{
-                    fontSize: 8,
-                    padding: 2,
-                    paddingLeft: 4,
-                    paddingRight: 4,
-                    borderRadius: 4,
-                    backgroundColor: "#DDDDFF",
-                    marginTop: 2,
-                    marginRight: -4,
-                  }}
-                >
-                  {Framework.I18n.t(
-                    ctx,
-                    "invoices.other.frequency." + item.subscription
-                  )}
-                </Text>
-              )}
-            </View>
-          )}
-
-          {!["separation", "correction"].includes(item.type) &&
-            as !== "delivery_slip" && (
+            {!!["separation"].includes(item.type) && (
               <>
                 <View
                   style={{
                     ...styles.td,
-                    width: unitPriceRowSize,
-                    textDecoration:
-                      !item.optional_checked && item.optional
-                        ? "line-through"
-                        : "none",
+                    marginLeft: 0,
+                    width: "5%",
+                  }}
+                ></View>
+              </>
+            )}
+            {!["separation"].includes(item.type) && (
+              <>
+                <View
+                  style={{
+                    ...styles.td,
+                    marginLeft: 0,
+                    width: "5%",
+                    alignItems: "center",
                   }}
                 >
-                  <Text>
-                    {formatAmount(item.unit_price, document.currency)}
-                  </Text>
-                  {!!getTvaValue(item.tva) && (
-                    <Text style={{ fontSize: 8, opacity: 0.5 }}>
-                      {formatAmount(
-                        item.unit_price * (1 + getTvaValue(item.tva)),
-                        document.currency
-                      )}{" "}
-                      {Framework.I18n.t(ctx, "invoices.content.ttc")}
-                    </Text>
+                  <Text style={{ fontWeight: "bold" }}>{itemIndex++}</Text>
+                  {item.optional && (
+                    <View
+                      id={"optional_item_" + index}
+                      style={{
+                        marginTop: 4,
+                        borderWidth: 1,
+                        borderColor: item.optional_checked
+                          ? colors.primary
+                          : colors.gray,
+                        backgroundColor: item.optional_checked
+                          ? colors.primary
+                          : undefined,
+                        color: item.optional_checked ? "#FFFFFF" : undefined,
+                        width: 16,
+                        height: 16,
+                        borderRadius: 4,
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        fontWeight: "bold",
+                        position: "relative",
+                      }}
+                    >
+                      {item.optional_checked && (
+                        <Svg width="8" height="8" viewBox="0 0 24 24">
+                          <Path
+                            fill="#FFFFFF"
+                            d="M0 12.116l2.053-1.897c2.401 1.162 3.924 2.045 6.622 3.969 5.073-5.757 8.426-8.678 14.657-12.555l.668 1.536c-5.139 4.484-8.902 9.479-14.321 19.198-3.343-3.936-5.574-6.446-9.679-10.251z"
+                          />
+                        </Svg>
+                      )}
+                      <Text
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          fontSize: 1,
+                          opacity: 0,
+                        }}
+                      >
+                        {`OPTION_${index}_HERE`}
+                      </Text>
+                    </View>
                   )}
                 </View>
               </>
             )}
-          {!["separation"].includes(item.type) && as !== "delivery_slip" && (
             <View
               style={{
                 ...styles.td,
-                width: totalRowSize,
+                flexGrow: 1,
+                alignItems: "flex-start",
                 textDecoration:
                   !item.optional_checked && item.optional
                     ? "line-through"
                     : "none",
               }}
             >
-              <Text>
-                {formatAmount(
-                  item.unit_price * item.quantity,
-                  document.currency
-                )}
+              <Text style={{ fontWeight: "bold" }}>
+                {showInternalReferences &&
+                  !!item.reference &&
+                  `[${item.reference}]`}{" "}
+                {item.name}
               </Text>
-              {!!getTvaValue(item.tva) && (
-                <Text style={{ fontSize: 8, opacity: 0.5 }}>
-                  {formatAmount(
-                    item.unit_price *
-                      item.quantity *
-                      (1 + getTvaValue(item.tva)),
-                    document.currency
-                  )}
-                  {" "}
-                  {Framework.I18n.t(ctx, "invoices.content.ttc")}
-                </Text>
+              {!!item.description && !!item.description.trim() && (
+                <View>
+                  {convertHtml(item.description, { color: colors.gray })}
+                </View>
               )}
-              {!!item.discount?.value && (
-                <>
+              {getReferences(
+                references?.filter((a) => a.article === item.article),
+                index + 1,
+                item.quantity
+              ).map((a, refIdx) => (
+                <Text
+                  key={`ref-${index}-${refIdx}-${a?.reference}`}
+                  style={{ color: colors.gray }}
+                >
+                  {a?.reference}
+                </Text>
+              ))}
+            </View>
+
+            {!["separation", "correction"].includes(item.type) && (
+              <View
+                style={{
+                  ...styles.td,
+                  width: quantityRowSize,
+                  textDecoration:
+                    !item.optional_checked && item.optional
+                      ? "line-through"
+                      : "none",
+                }}
+              >
+                <Text>
+                  {formatQuantity(item.quantity, item.unit)}{" "}
+                  {getUnitLabel(item.unit) || "u."}
+                </Text>
+                {!!item.subscription && (
                   <Text
                     style={{
                       fontSize: 8,
@@ -388,35 +319,99 @@ export const InvoiceContent = ({
                       paddingLeft: 4,
                       paddingRight: 4,
                       borderRadius: 4,
-                      backgroundColor: "#FFDDDD",
-                      marginTop: 4,
+                      backgroundColor: "#DDDDFF",
+                      marginTop: 2,
+                      marginRight: -4,
                     }}
                   >
-                    -{" "}
-                    {item.discount.mode === "amount"
-                      ? formatAmount(item.discount.value, document.currency)
-                      : item.discount.value + "%"}
+                    {Framework.I18n.t(
+                      ctx,
+                      "invoices.other.frequency." + item.subscription
+                    )}
                   </Text>
+                )}
+              </View>
+            )}
+
+            {!["separation", "correction"].includes(item.type) &&
+              as !== "delivery_slip" && (
+                <>
+                  <View
+                    style={{
+                      ...styles.td,
+                      width: unitPriceRowSize,
+                      textDecoration:
+                        !item.optional_checked && item.optional
+                          ? "line-through"
+                          : "none",
+                    }}
+                  >
+                    <Text>
+                      {formatAmount(item.unit_price, document.currency)}
+                    </Text>
+                    {!!getTvaValue(item.tva) && (
+                      <Text style={{ fontSize: 8, opacity: 0.5 }}>
+                        {formatAmount(
+                          item.unit_price * (1 + getTvaValue(item.tva)),
+                          document.currency
+                        )}{" "}
+                        {Framework.I18n.t(ctx, "invoices.content.ttc")}
+                      </Text>
+                    )}
+                  </View>
+                </>
+              )}
+            {!["separation"].includes(item.type) && as !== "delivery_slip" && (
+              <View
+                style={{
+                  ...styles.td,
+                  width: totalRowSize,
+                  textDecoration:
+                    !item.optional_checked && item.optional
+                      ? "line-through"
+                      : "none",
+                }}
+              >
+                <Text>
+                  {formatAmount(
+                    item.unit_price * item.quantity,
+                    document.currency
+                  )}
+                </Text>
+                {!!item.discount?.value && (
+                  <>
+                    <Text
+                      style={{
+                        fontSize: 8,
+                        padding: 2,
+                        paddingLeft: 4,
+                        paddingRight: 4,
+                        borderRadius: 4,
+                        backgroundColor: "#FFDDDD",
+                        marginBottom: 2,
+                        marginTop: 2,
+                      }}
+                    >
+                      - {discountDisplay}
+                    </Text>
+                  </>
+                )}
+                {!!getTvaValue(item.tva) && (
                   <Text style={{ fontSize: 8, opacity: 0.5 }}>
-                    -{" "}
                     {formatAmount(
-                      item.discount.mode === "amount"
-                        ? item.discount.value
-                        : (item.discount.value / 100) *
-                            (item.unit_price *
-                              item.quantity *
-                              (1 + getTvaValue(item.tva))),
+                      (item.unit_price * item.quantity - discountValue) *
+                        (1 + getTvaValue(item.tva)),
                       document.currency
                     )}
                     {" "}
                     {Framework.I18n.t(ctx, "invoices.content.ttc")}
                   </Text>
-                </>
-              )}
-            </View>
-          )}
-        </View>
-      ))}
+                )}
+              </View>
+            )}
+          </View>
+        );
+      })}
     </View>
   );
 };

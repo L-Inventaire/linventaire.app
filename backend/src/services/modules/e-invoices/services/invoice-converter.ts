@@ -22,8 +22,9 @@ import {
   getVatCode,
   getVatExemptionOnly,
   getVatExemptionReason,
-} from "../../invoices/types/maps";
-import { getTvaValue } from "../../invoices/utils";
+} from "@shared/consts";
+import { getTvaValue } from "@shared/invoices";
+import { getInvoiceWithFormatsOverrides } from "../../invoices/services/utils";
 
 /**
  * References extracted from an EN16931 invoice that need to be resolved
@@ -183,17 +184,26 @@ export function convertEN16931ToInternal(
 
     // Calculate discount from allowances/charges
     const discount = {} as InvoiceDiscount;
+    let totalAllowanceAmount = 0;
+    let totalChargeAmount = 0;
+
     if (line.allowances && line.allowances.length > 0) {
-      const allowance = line.allowances[0];
-      if (allowance) {
-        if (allowance.percent) {
-          discount.mode = "percentage";
-          discount.value = parseFloat(allowance.percent);
-        } else {
-          discount.mode = "amount";
-          discount.value = parseFloat(allowance.amount);
-        }
+      for (const allowance of line.allowances) {
+        totalAllowanceAmount += parseFloat(allowance.amount || "0");
       }
+    }
+
+    if (line.charges && line.charges.length > 0) {
+      for (const charge of line.charges) {
+        totalChargeAmount += parseFloat(charge.amount || "0");
+      }
+    }
+
+    const netDiscountAmount = totalAllowanceAmount - totalChargeAmount;
+
+    if (netDiscountAmount > 0) {
+      discount.mode = "amount";
+      discount.value = netDiscountAmount;
     }
 
     const invoiceLine = {} as InvoiceLine;
@@ -219,20 +229,32 @@ export function convertEN16931ToInternal(
 
   // Calculate document-level discount
   const documentDiscount = {} as InvoiceDiscount;
+  let totalDocAllowanceAmount = 0;
+  let totalDocChargeAmount = 0;
+
   if (
     en16931Invoice.document_level_allowances &&
     en16931Invoice.document_level_allowances.length > 0
   ) {
-    const allowance = en16931Invoice.document_level_allowances[0];
-    if (allowance) {
-      if (allowance.percent) {
-        documentDiscount.mode = "percentage";
-        documentDiscount.value = parseFloat(allowance.percent);
-      } else {
-        documentDiscount.mode = "amount";
-        documentDiscount.value = parseFloat(allowance.amount);
-      }
+    for (const allowance of en16931Invoice.document_level_allowances) {
+      totalDocAllowanceAmount += parseFloat(allowance.amount || "0");
     }
+  }
+
+  if (
+    en16931Invoice.document_level_charges &&
+    en16931Invoice.document_level_charges.length > 0
+  ) {
+    for (const charge of en16931Invoice.document_level_charges) {
+      totalDocChargeAmount += parseFloat(charge.amount || "0");
+    }
+  }
+
+  const netDocDiscountAmount = totalDocAllowanceAmount - totalDocChargeAmount;
+
+  if (netDocDiscountAmount > 0) {
+    documentDiscount.mode = "amount";
+    documentDiscount.value = netDocDiscountAmount;
   }
 
   // Parse payment instructions
@@ -534,6 +556,15 @@ export function convertInternalToEN16931(
   const partnerContact =
     direction === "in" ? resolvedEntities.supplier : resolvedEntities.client;
 
+  // Apply format overrides from client/company defaults
+  invoice = getInvoiceWithFormatsOverrides(
+    invoice,
+    company,
+    ...([resolvedEntities.supplier, resolvedEntities.client].filter(
+      Boolean
+    ) as Contacts[]) // Apply overrides from both supplier and client if available
+  );
+
   if (!partnerContact) {
     throw new Error(
       `Contact not found for ${direction === "in" ? "supplier" : "client"}`
@@ -589,21 +620,38 @@ export function convertInternalToEN16931(
 
     // Apply line discount
     const allowances: any[] = [];
-    if (line.discount.mode && line.discount.value > 0) {
+    const charges: any[] = [];
+    if (line.discount && line.discount.mode && line.discount.value > 0) {
       const discountAmount =
         line.discount.mode === "percentage"
           ? (lineNetAmount * line.discount.value) / 100
           : line.discount.value;
 
-      allowances.push({
-        amount: discountAmount,
-        kind: "allowance",
-        percentage:
-          line.discount.mode === "percentage" ? line.discount.value : undefined,
-        base_amount: lineNetAmount,
-      });
-
-      lineNetAmount -= discountAmount;
+      // If discount is positive, create allowance; if negative, create charge
+      if (discountAmount > 0) {
+        allowances.push({
+          amount: discountAmount,
+          percentage:
+            line.discount.mode === "percentage"
+              ? line.discount.value
+              : undefined,
+          base_amount: lineNetAmount,
+          reason_code: "42", // Other services
+        });
+        lineNetAmount -= discountAmount;
+      } else {
+        const chargeAmount = Math.abs(discountAmount);
+        charges.push({
+          amount: chargeAmount,
+          percentage:
+            line.discount.mode === "percentage"
+              ? line.discount.value
+              : undefined,
+          base_amount: lineNetAmount,
+          reason_code: "42", // Other services
+        });
+        lineNetAmount += chargeAmount; // Charges increase the net amount
+      }
     }
 
     return {
@@ -623,6 +671,7 @@ export function convertInternalToEN16931(
       },
 
       allowances: allowances.length > 0 ? allowances : undefined,
+      charges: charges.length > 0 ? charges : undefined,
 
       price_details: {
         item_net_price: `${line.unit_price}`,
@@ -643,106 +692,65 @@ export function convertInternalToEN16931(
     0
   );
 
-  // Apply document-level discount
-  let documentAllowanceAmount = 0;
+  // Use precomputed allowances breakdown
   const documentAllowances: any[] = [];
-  if (invoice.discount?.mode && invoice.discount.value > 0) {
-    documentAllowanceAmount =
-      invoice.discount.mode === "percentage"
-        ? (sumOfLineNetAmounts * invoice.discount.value) / 100
-        : invoice.discount.value;
+  const documentCharges: any[] = [];
+  let documentAllowanceAmount = 0;
+  let documentChargeAmount = 0;
 
-    documentAllowances.push({
-      amount: documentAllowanceAmount,
-      kind: "allowance",
-      percentage:
-        invoice.discount.mode === "percentage"
-          ? invoice.discount.value
-          : undefined,
-      base_amount: sumOfLineNetAmounts,
-    });
-  }
+  if (invoice.total?.allowances_breakdown) {
+    for (const allowance of invoice.total.allowances_breakdown) {
+      const vatCategoryKey = getVatCode(allowance.tva);
+      let vatCategoryCode = "S"; // Standard rate
+      if (vatCategoryKey) {
+        const parts = vatCategoryKey.split(":");
+        vatCategoryCode = parts[0];
+      }
+      const vatRate = getTvaValue(allowance.tva) * 100;
 
-  const totalWithoutVat = sumOfLineNetAmounts - documentAllowanceAmount;
-
-  // Calculate VAT breakdown - group by category code + exemption reason code
-  interface VatBreakdownKey {
-    categoryCode: string;
-    exemptionReasonCode?: string;
-    exemptionReason?: string;
-    rate: number;
-  }
-
-  const vatBreakdownMap = new Map<
-    string,
-    {
-      key: VatBreakdownKey;
-      taxableAmount: number;
-      vatAmount: number;
+      documentAllowances.push({
+        amount: allowance.amount.toString(),
+        base_amount: allowance.base_amount.toString(),
+        reason_code: "42", // Other services
+        vat_category_code: vatCategoryCode,
+        vat_rate: vatRate.toString(),
+      });
+      documentAllowanceAmount += allowance.amount;
     }
-  >();
+  }
 
-  const discountRatio = totalWithoutVat / sumOfLineNetAmounts;
+  // Use precomputed VAT breakdown
+  const vatBreakDown: EN16931VatBreakDown[] = [];
+  if (invoice.total?.vat_breakdown) {
+    for (const vb of invoice.total.vat_breakdown) {
+      const vatCategoryKey = getVatCode(vb.tva);
+      let vatCategoryCode = "S"; // Standard rate
+      if (vatCategoryKey) {
+        const parts = vatCategoryKey.split(":");
+        vatCategoryCode = parts[0];
+      }
+      const vatRate = getTvaValue(vb.tva) * 100;
 
-  lines.forEach((line) => {
-    const vatInfo = line.vat_information;
-    const vatRate = parseFloat(vatInfo.invoiced_item_vat_rate || "0");
-    const categoryCode = vatInfo.invoiced_item_vat_category_code;
-    const hasExemption =
-      categoryCode !== "S" &&
-      invoice.format.tva &&
-      invoice.format.tva !== "NONE";
-    const exemptionReasonCode =
-      (hasExemption && getVatExemptionOnly(invoice.format.tva)) || undefined;
-    const exemptionReason =
-      (hasExemption && getVatExemptionReason(invoice.format.tva)) || undefined;
-
-    // Create unique key for grouping
-    const groupKey = `${categoryCode}:${
-      exemptionReasonCode || "none"
-    }:${vatRate}`;
-
-    const adjustedTaxableAmount = parseFloat(line.net_amount) * discountRatio;
-    const vatAmount = (adjustedTaxableAmount * vatRate) / 100;
-
-    const current = vatBreakdownMap.get(groupKey);
-    if (current) {
-      current.taxableAmount += adjustedTaxableAmount;
-      current.vatAmount += vatAmount;
-    } else {
-      vatBreakdownMap.set(groupKey, {
-        key: {
-          categoryCode,
-          exemptionReasonCode,
-          exemptionReason,
-          rate: vatRate,
-        },
-        taxableAmount: adjustedTaxableAmount,
-        vatAmount,
+      vatBreakDown.push({
+        vat_category_taxable_amount: vb.taxable_amount.toString(),
+        vat_category_tax_amount: vb.tax_amount.toString(),
+        vat_category_code: vatCategoryCode,
+        vat_category_rate: vatRate.toString(),
       });
     }
-  });
+  }
 
-  const vatBreakDown = Array.from(vatBreakdownMap.values()).map((entry) => {
-    const breakdown: EN16931VatBreakDown = {
-      vat_category_taxable_amount: `${entry.taxableAmount}`,
-      vat_category_tax_amount: `${entry.vatAmount}`,
-      vat_category_code: entry.key.categoryCode,
-      vat_category_rate: `${entry.key.rate}`,
-    };
+  // Calculate totals from precomputed
+  const totalWithoutVat = invoice.total?.vat_breakdown
+    ? invoice.total.vat_breakdown.reduce(
+        (sum, vb) => sum + vb.taxable_amount,
+        0
+      )
+    : sumOfLineNetAmounts - documentAllowanceAmount + documentChargeAmount;
 
-    if (entry.key.exemptionReasonCode && entry.key.exemptionReason) {
-      breakdown.vat_exemption_reason_code = entry.key.exemptionReasonCode;
-      breakdown.vat_exemption_reason = entry.key.exemptionReason;
-    }
-
-    return breakdown;
-  });
-
-  const totalVat = Array.from(vatBreakdownMap.values()).reduce(
-    (sum, entry) => sum + entry.vatAmount,
-    0
-  );
+  const totalVat = invoice.total?.vat_breakdown
+    ? invoice.total.vat_breakdown.reduce((sum, vb) => sum + vb.tax_amount, 0)
+    : 0;
   const totalWithVat = totalWithoutVat + totalVat;
 
   // Add global VAT codes if there's only one breakdown entry
@@ -855,6 +863,19 @@ export function convertInternalToEN16931(
     notes: invoiceNotes.length > 0 ? invoiceNotes : undefined,
     vat_category_code: globalVatCategoryCode,
     vat_exemption_reason_code: globalVatExemptionReasonCode,
+    invoicing_period:
+      invoice.from_subscription?.from &&
+      invoice.from_subscription?.to &&
+      invoice.from_subscription?.frequency
+        ? {
+            start_date: new Date(invoice.from_subscription.from)
+              .toISOString()
+              .split("T")[0],
+            end_date: new Date(invoice.from_subscription.to)
+              .toISOString()
+              .split("T")[0],
+          }
+        : undefined,
     seller,
     buyer,
     delivery_information: invoice.delivery_date
@@ -876,10 +897,14 @@ export function convertInternalToEN16931(
     payment_details: paymentDetails,
     document_level_allowances:
       documentAllowances.length > 0 ? documentAllowances : undefined,
+    document_level_charges:
+      documentCharges.length > 0 ? documentCharges : undefined,
     totals: {
       sum_invoice_lines_amount: `${sumOfLineNetAmounts}`,
       sum_allowances_amount:
         documentAllowanceAmount > 0 ? `${documentAllowanceAmount}` : undefined,
+      sum_charges_amount:
+        documentChargeAmount > 0 ? `${documentChargeAmount}` : undefined,
       total_without_vat: `${totalWithoutVat}`,
       total_vat_amount:
         totalVat > 0
@@ -887,8 +912,12 @@ export function convertInternalToEN16931(
               value: `${totalVat}`,
             }
           : undefined,
-      total_with_vat: `${totalWithVat}`,
-      amount_due_for_payment: `${totalWithVat}`,
+      total_with_vat: invoice.total?.total_with_taxes
+        ? `${invoice.total.total_with_taxes}`
+        : `${totalWithoutVat + totalVat}`,
+      amount_due_for_payment: invoice.total?.total_with_taxes
+        ? `${invoice.total.total_with_taxes}`
+        : `${totalWithoutVat + totalVat}`,
     },
     vat_break_down: vatBreakDown,
     lines,

@@ -1,7 +1,7 @@
 import { describe, expect, test } from "@jest/globals";
 import { computePartialInvoice } from "./compute-partial-invoice";
 import Invoices, { InvoiceLine } from "../entities/invoices";
-import { computePricesFromInvoice } from "../utils";
+import { computePricesFromInvoice } from "@shared/invoices";
 import _ from "lodash";
 
 describe("Compute partial invoices", () => {
