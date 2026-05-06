@@ -1,6 +1,9 @@
+import { useEInvoicingConfig } from "@/features/e-invoicing/hooks/use-e-invoicing-config";
 import { Button } from "@atoms/button/button";
 import { DropdownButton } from "@atoms/dropdown";
 import { withModel } from "@components/search-bar/utils/as-model";
+import { AccountingTransactions } from "@features/accounting/types/types";
+import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { Invoices } from "@features/invoices/types/types";
 import { getRoute, ROUTES } from "@features/routes";
 import { useNavigateAlt } from "@features/utils/navigate";
@@ -11,13 +14,11 @@ import {
   PaperAirplaneIcon,
   PrinterIcon,
 } from "@heroicons/react/16/solid";
+import _ from "lodash";
 import { useSetRecoilState } from "recoil";
 import { getPdfPreview } from "../../invoices-preview/invoices-preview";
 import { InvoiceSendModalAtom } from "../modal-send";
-import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
-import { AccountingTransactions } from "@features/accounting/types/types";
 import { InvoiceSendSpecialModalAtom } from "../modal-send-special";
-import _ from "lodash";
 
 export const InvoicesActions = ({
   id,
@@ -29,6 +30,7 @@ export const InvoicesActions = ({
   const navigate = useNavigateAlt();
   const openSendModal = useSetRecoilState(InvoiceSendModalAtom);
   const openSendSpecialModal = useSetRecoilState(InvoiceSendSpecialModalAtom);
+  const { config: eInvoicingConfig } = useEInvoicingConfig();
 
   const { draft, save: _save } = useReadDraftRest<Invoices>(
     "invoices",
@@ -38,6 +40,9 @@ export const InvoicesActions = ({
   const disabled =
     readonly || draft.state === "closed" || draft.state === "completed";
 
+  const canSend = !!draft?.en16931 || !eInvoicingConfig?.send_enabled;
+  const en16931Warning = !draft?.en16931;
+
   const edit = useEditFromCtrlK();
 
   const commonOptions = [
@@ -46,21 +51,28 @@ export const InvoicesActions = ({
       onClick: () => {
         openSendSpecialModal("receipt_acknowledgement");
       },
+      disabled: !canSend,
     },
     {
       label: "Bon de livraison...",
       onClick: () => {
         openSendSpecialModal("delivery_slip");
       },
+      disabled: !canSend,
     },
   ];
 
   return (
     <>
+      {!!en16931Warning && (
+        <div className="text-sm text-red-500">
+          Impossible de compiler en e-facture pour l'envoi.
+        </div>
+      )}
       {draft.state === "draft" && (
         <>
           <DropdownButton
-            disabled={disabled}
+            disabled={disabled || !canSend}
             className="m-0"
             icon={(p) => <PaperAirplaneIcon {...p} />}
             position="top"
@@ -70,6 +82,7 @@ export const InvoicesActions = ({
                 onClick: () => {
                   openSendSpecialModal("proforma");
                 },
+                disabled: !canSend,
               },
               ...commonOptions,
               {
@@ -79,6 +92,7 @@ export const InvoicesActions = ({
                 label: "Envoyer par email...",
                 icon: (p) => <PaperAirplaneIcon {...p} />,
                 onClick: () => openSendModal(true),
+                disabled: !canSend,
               },
               {
                 type: "divider",
@@ -87,11 +101,13 @@ export const InvoicesActions = ({
                 label: "Télécharger le PDF",
                 icon: (p) => <PrinterIcon {...p} />,
                 onClick: () => getPdfPreview(draft),
+                disabled: !canSend,
               },
               {
                 label: "Marquer comme envoyé",
                 icon: (p) => <CheckIcon {...p} />,
                 onClick: () => _save({ state: "sent" }),
+                disabled: !canSend,
               },
             ]}
           >
@@ -121,10 +137,12 @@ export const InvoicesActions = ({
               {
                 label: "Envoyer de nouveau...",
                 onClick: () => openSendModal(true),
+                disabled: !canSend,
               },
               {
                 label: "Télécharger en PDF",
                 onClick: () => getPdfPreview(draft),
+                disabled: !canSend,
               },
               {
                 label: "Créer une commande",

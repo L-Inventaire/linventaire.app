@@ -1,5 +1,6 @@
 import { Address, Payment } from "@features/clients/types/clients";
 import { RestEntity } from "@features/utils/rest/types/types";
+import { EN16931Invoice } from "@shared/en16931-types";
 import * as Shared from "@shared/types";
 
 export type InvoicesType =
@@ -98,6 +99,8 @@ export type Invoices = RestEntity & {
     from: number; // Invoiced period start
     to: number; // Invoiced period end
   };
+
+  en16931?: EN16931Invoice;
 
   cache?: {
     partner_names: string; // Cached names of the partner (client or supplier) for quick access

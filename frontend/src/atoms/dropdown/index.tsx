@@ -23,6 +23,7 @@ export type DropDownMenuType = {
   to?: string;
   active?: boolean;
   className?: string;
+  disabled?: boolean; // If false, the item will not be displayed
   visible?: boolean; // If false, the item will not be displayed
 }[];
 
@@ -45,7 +46,7 @@ export const DropdownButton = (
   props: {
     menu: DropDownMenuType;
     position?: "top" | "left" | "bottom" | "right";
-  } & ButtonProps
+  } & ButtonProps,
 ) => {
   const [open, setOpen] = useState(false);
 
@@ -85,7 +86,7 @@ export const DropdownButton = (
                 (i === 0 ||
                   !visibleMenu[i + 1] ||
                   visibleMenu[i + 1]?.type === "divider")
-              )
+              ),
           ) // Remove first divider if it exists
           .map((m, i) => {
             return m.type === "divider" ? (
@@ -96,8 +97,9 @@ export const DropdownButton = (
               <MenuSection key={i} label={m.label} />
             ) : (
               <DropdownMenu.Item
+                disabled={m.disabled}
                 onClick={
-                  m.onClick
+                  m.onClick && !m.disabled
                     ? (e: any) => {
                         m.onClick?.(e);
                       }
@@ -106,7 +108,7 @@ export const DropdownButton = (
                 className={twMerge(
                   "my-1",
                   m.type === "danger" &&
-                    "bg-red-500 text-red-500 dark:text-red-500"
+                    "bg-red-500 text-red-500 dark:text-red-500",
                 )}
                 color={m.type === "danger" ? "crimson" : undefined}
                 key={i}
@@ -132,7 +134,7 @@ export const DropDownMenu = () => {
   const [query] = useState("");
   const [state, setState] = useRecoilState(DropDownAtom);
   const [menu, setMenu] = useState<DropDownMenuType>(
-    typeof state.menu === "function" ? [] : state.menu
+    typeof state.menu === "function" ? [] : state.menu,
   );
   const ref = React.useRef<HTMLDivElement>(null);
 
@@ -164,14 +166,14 @@ export const DropDownMenu = () => {
           window.screen.width < 640
             ? [0, 0]
             : state.position === "left"
-            ? [targetRect.x - 256, targetRect.y]
-            : state.position === "right"
-            ? [targetRect.x + targetRect.width, targetRect.y]
-            : [targetRect.x, targetRect.y + targetRect.height];
+              ? [targetRect.x - 256, targetRect.y]
+              : state.position === "right"
+                ? [targetRect.x + targetRect.width, targetRect.y]
+                : [targetRect.x, targetRect.y + targetRect.height];
 
         ref.current.style.transform = `translate(${Math.min(
           Math.max(Math.ceil(position[0]), 0),
-          windowWidth - 256
+          windowWidth - 256,
         )}px, ${Math.max(Math.ceil(position[1]), 0)}px)`;
 
         if (window.screen.width < 640) {
@@ -204,9 +206,9 @@ export const DropDownMenu = () => {
           }px, ${Math.max(
             Math.min(
               windowHeight - height,
-              parseInt(currentTransform ? currentTransform[1] : "0")
+              parseInt(currentTransform ? currentTransform[1] : "0"),
             ),
-            0
+            0,
           )}px)`;
         }
       }, 200);
@@ -224,7 +226,7 @@ export const DropDownMenu = () => {
         setState({ ...state, target: null });
       }
     },
-    [state, setState]
+    [state, setState],
   );
 
   useEffect(() => {
@@ -304,7 +306,8 @@ export const Menu = ({
           <MenuItem
             className={twMerge(
               "my-1",
-              m.type === "danger" && "bg-red-500 text-red-500 dark:text-red-500"
+              m.type === "danger" &&
+                "bg-red-500 text-red-500 dark:text-red-500",
             )}
             key={i}
             active={active}

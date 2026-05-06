@@ -593,6 +593,60 @@ export class SuperPDPClient {
   }
 
   /**
+   * Validate an EN16931 invoice
+   */
+  async validateInvoice(
+    en16931Invoice: EN16931Invoice
+  ): Promise<{ valid: boolean; report: any }> {
+    const FormData = (await import("form-data")).default;
+    const formData = new FormData();
+
+    const jsonBuffer = Buffer.from(JSON.stringify(en16931Invoice), "utf-8");
+    formData.append("invoices", jsonBuffer, {
+      filename: "invoice.json",
+      contentType: "application/json",
+    });
+
+    try {
+      const response = await this.client.post(
+        "/v1.beta/validation_reports",
+        formData,
+        {
+          headers: {
+            ...formData.getHeaders(),
+            Authorization: `Bearer ${this.accessToken}`,
+          },
+        }
+      );
+
+      const rawData = response.data;
+      const report = rawData.data || rawData;
+      const finalReport = Array.isArray(report) ? report[0] : report;
+
+      // Check if valid: if no errors in subreport messages
+      const hasErrors =
+        report.subreport?.messages?.some(
+          (message: any) => message.level === "error"
+        ) || false;
+      const valid = !hasErrors;
+
+      return { valid, report };
+    } catch (error: any) {
+      // If 401, try to re-authenticate
+      if (error.response?.status === 401) {
+        await this.authenticate();
+        return this.validateInvoice(en16931Invoice);
+      }
+
+      throw new Error(
+        `Failed to validate invoice: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    }
+  }
+
+  /**
    * Test connection to SuperPDP
    */
   async testConnection(): Promise<{

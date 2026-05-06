@@ -259,8 +259,6 @@ export const computePricesFromInvoice = (
   let initial = 0;
   let discount = 0;
 
-  console.log("Computing prices for invoice", invoice, { checkedIndexes });
-
   const content = [...(invoice.content || [])];
   for (let index = 0; index < content.length; index++) {
     const item = content[index];
@@ -358,8 +356,6 @@ export const computePricesFromInvoice = (
       };
     }
   }
-
-  console.log({ vatBreakdown, documentWideAllowancesBreakdown });
 
   const allTaxes = Object.values(vatBreakdown).reduce(
     (sum, vat) => sum + vat.tax_amount,
