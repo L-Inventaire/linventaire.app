@@ -1,19 +1,19 @@
 import { Button } from "@atoms/button/button";
-import { PageLoader } from "@atoms/page-loader";
 import Link from "@atoms/link";
+import { PageLoader } from "@atoms/page-loader";
 import { useClients } from "@features/clients/state/use-clients";
+import { Address } from "@features/clients/types/clients";
 import {
   ContactsApiClient,
   FrenchDirectoryCompany,
   FrenchDirectoryEntry,
 } from "@features/contacts/api-client/contacts-api-client";
 import { useFrenchDirectorySearchManual } from "@features/contacts/hooks/use-french-directory";
-import { Building2, MapPin } from "lucide-react";
-import { useEffect, useState, useMemo, useRef } from "react";
-import Fuse from "fuse.js";
-import { Address } from "@features/clients/types/clients";
-import { useNavigate } from "react-router-dom";
 import { ROUTES, getRoute } from "@features/routes";
+import Fuse from "fuse.js";
+import { Building2 } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 
 interface SirenAutoSuggestionsProps {

@@ -44,19 +44,6 @@ const getStateColor = (state: ReceivedEInvoices["state"]) => {
   }
 };
 
-const getStatusLabel = (status: ReceivedEInvoices["status"]) => {
-  switch (status) {
-    case "received":
-      return "Reçue";
-    case "validated":
-      return "Validée";
-    case "error":
-      return "Erreur";
-    default:
-      return status;
-  }
-};
-
 export const ReceivedEInvoicesColumns: Column<ReceivedEInvoices>[] = [
   {
     title: "Date",

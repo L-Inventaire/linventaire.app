@@ -19,9 +19,8 @@ import { useContact, useContacts } from "@features/contacts/hooks/use-contacts";
 import { Contacts } from "@features/contacts/types/types";
 import { useViewWithCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { InvoicesFieldsNames } from "@features/invoices/configuration";
-import { useInvoice, useInvoices } from "@features/invoices/hooks/use-invoices";
-import { useInvoiceMaps } from "@features/invoices/hooks/use-invoice-maps";
 import { useEInvoicesReady } from "@features/invoices/hooks/use-e-invoices-ready";
+import { useInvoice, useInvoices } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
 import {
   getDocumentName,
@@ -51,13 +50,17 @@ import { EditorInput } from "@molecules/editor-input";
 import { Table } from "@molecules/table";
 import { Timeline } from "@molecules/timeline";
 import { Badge, Callout, Code, Heading, Text, Tooltip } from "@radix-ui/themes";
+import {
+  computePaymentDelayDate,
+  computePricesFromInvoice,
+  getInvoiceNextDate,
+} from "@shared/invoices";
 import { PageColumns } from "@views/client/_layout/page";
 import { format as formatdfns } from "date-fns";
 import _ from "lodash";
 import { DateTime } from "luxon";
 import { Fragment, useEffect } from "react";
 import { ContactRestDocument } from "../../contacts/components/contact-input-rest-card";
-import { computePricesFromInvoice } from "@shared/invoices";
 import { getBestDeliveryAddress, InputDelivery } from "./input-delivery";
 import { InvoiceInputFormat } from "./input-format";
 import { InvoicePaymentInput } from "./input-payment";
@@ -71,7 +74,6 @@ import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-ca
 import { InvoiceStatus } from "./invoice-status";
 import { RelatedInvoices } from "./related-invoices";
 import { TagPaymentCompletion } from "./tag-payment-completion";
-import { computePaymentDelayDate, getInvoiceNextDate } from "@shared/invoices";
 
 export const InvoicesDetailsPage = ({
   readonly,
@@ -81,7 +83,6 @@ export const InvoicesDetailsPage = ({
   id: string;
 }) => {
   const { client: clientUser } = useClients();
-  const { maps } = useInvoiceMaps();
   const client = clientUser!.client!;
 
   const { isPending, ctrl, draft, setDraft } = useReadDraftRest<Invoices>(

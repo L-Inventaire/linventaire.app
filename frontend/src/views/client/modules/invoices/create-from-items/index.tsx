@@ -2,21 +2,20 @@ import { DocumentBar } from "@components/document-bar";
 import { RestDocumentsInput } from "@components/input-rest";
 import { buildQueryFromMap } from "@components/search-bar/utils/utils";
 import { useArticles } from "@features/articles/hooks/use-articles";
+import { useClients } from "@features/clients/state/use-clients";
 import { useCtrlKAsSelect } from "@features/ctrlk/use-ctrlk-as-select";
 import { useInvoices } from "@features/invoices/hooks/use-invoices";
 import { InvoiceLine, Invoices } from "@features/invoices/types/types";
 import { ROUTES, getRoute } from "@features/routes";
 import { useServiceItems } from "@features/service/hooks/use-service-items";
 import { Button, Callout, Heading } from "@radix-ui/themes";
+import { computePricesFromInvoice } from "@shared/invoices";
 import { Page } from "@views/client/_layout/page";
+import { format } from "date-fns";
 import _ from "lodash";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { InvoiceLinesInput } from "../components/invoice-lines-input";
-import { computePricesFromInvoice } from "@shared/invoices";
-import { useClients } from "@features/clients/state/use-clients";
-import { format } from "date-fns";
-import { useInvoiceMaps } from "@features/invoices/hooks/use-invoice-maps";
 
 export const QuoteFromItems = (_props: { readonly?: boolean }) => {
   const { ids } = useParams();
@@ -30,7 +29,6 @@ export const QuoteFromItems = (_props: { readonly?: boolean }) => {
   });
 
   const { upsert } = useInvoices();
-  const { maps } = useInvoiceMaps();
 
   const [loading, setLoading] = useState(false);
 

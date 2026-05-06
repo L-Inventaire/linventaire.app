@@ -1,8 +1,6 @@
-import _ from "lodash";
-import { InvoiceFormat, Invoices, InvoiceSubscription } from "./types/types";
 import { Clients } from "@features/clients/types/clients";
 import { Contacts } from "@features/contacts/types/types";
-import { applyOffset } from "@shared/invoices";
+import { InvoiceFormat, Invoices, InvoiceSubscription } from "./types/types";
 
 export const getDocumentName = (type: Invoices["type"]) => {
   return (

@@ -95,7 +95,7 @@ export const ReceivedEInvoicesPage = () => {
             fields: schemaToSearchFields(schema.data),
           }}
           loading={schema.isPending}
-          onChangeDisplay={(d) => {
+          onChangeDisplay={() => {
             setOptions({
               ...options,
             });
