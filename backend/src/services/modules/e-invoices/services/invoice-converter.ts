@@ -3,6 +3,7 @@ import Services from "#src/services/index";
 import { search } from "#src/services/rest/services/rest";
 import { getContactName } from "#src/services/utils";
 import { Context } from "#src/types";
+import { getUnitCode, getVatCode } from "@shared/consts";
 import {
   EN16931Buyer,
   EN16931Invoice,
@@ -10,6 +11,7 @@ import {
   EN16931Seller,
   EN16931VatBreakDown,
 } from "@shared/en16931-types";
+import { getTvaValue } from "@shared/invoices";
 import _ from "lodash";
 import Articles, { ArticlesDefinition } from "../../articles/entities/articles";
 import Contacts, { ContactsDefinition } from "../../contacts/entities/contacts";
@@ -17,13 +19,6 @@ import Invoices, {
   InvoiceDiscount,
   InvoiceLine,
 } from "../../invoices/entities/invoices";
-import {
-  getUnitCode,
-  getVatCode,
-  getVatExemptionOnly,
-  getVatExemptionReason,
-} from "@shared/consts";
-import { getTvaValue } from "@shared/invoices";
 import { getInvoiceWithFormatsOverrides } from "../../invoices/services/utils";
 
 /**
@@ -426,13 +421,12 @@ function buildPostalAddress(address?: Address): EN16931PostalAddress {
  */
 function buildEN16931Seller(
   entity: Clients | Contacts,
-  isCompany: boolean
+  _isCompany: boolean
 ): EN16931Seller {
   let name: string;
   let vat_identifier: string | undefined;
   let siren: string | undefined;
   let address: Address | undefined;
-  let email: string | undefined;
   let eInvoiceIdentifier: string | undefined;
 
   if ("company" in entity) {
@@ -481,13 +475,12 @@ function buildEN16931Seller(
  */
 function buildEN16931Buyer(
   entity: Clients | Contacts,
-  isCompany: boolean
+  _isCompany: boolean
 ): EN16931Buyer {
   let name: string;
   let vat_identifier: string | undefined;
   let siren: string | undefined;
   let address: Address | undefined;
-  let email: string | undefined;
   let eInvoiceIdentifier: string | undefined;
 
   if ("company" in entity) {
@@ -696,7 +689,7 @@ export function convertInternalToEN16931(
   const documentAllowances: any[] = [];
   const documentCharges: any[] = [];
   let documentAllowanceAmount = 0;
-  let documentChargeAmount = 0;
+  const documentChargeAmount = 0;
 
   if (invoice.total?.allowances_breakdown) {
     for (const allowance of invoice.total.allowances_breakdown) {
@@ -751,7 +744,6 @@ export function convertInternalToEN16931(
   const totalVat = invoice.total?.vat_breakdown
     ? invoice.total.vat_breakdown.reduce((sum, vb) => sum + vb.tax_amount, 0)
     : 0;
-  const totalWithVat = totalWithoutVat + totalVat;
 
   // Add global VAT codes if there's only one breakdown entry
   let globalVatCategoryCode: string | undefined = undefined;

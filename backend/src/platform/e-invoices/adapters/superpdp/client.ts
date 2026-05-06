@@ -621,7 +621,6 @@ export class SuperPDPClient {
 
       const rawData = response.data;
       const report = rawData.data || rawData;
-      const finalReport = Array.isArray(report) ? report[0] : report;
 
       // Check if valid: if no errors in subreport messages
       const hasErrors =

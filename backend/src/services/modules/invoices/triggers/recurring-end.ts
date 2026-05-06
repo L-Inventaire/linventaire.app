@@ -62,16 +62,18 @@ export const checkQuotesThatMustEndRecurrence = async (ctx: Context) => {
         }
       }
 
-      await db.update<Invoices>(
-        ctx,
-        InvoicesDefinition.name,
-        {
-          id: quote.id,
-        },
-        {
-          state: "closed",
-        }
-      );
+      if (canClose) {
+        await db.update<Invoices>(
+          ctx,
+          InvoicesDefinition.name,
+          {
+            id: quote.id,
+          },
+          {
+            state: "closed",
+          }
+        );
+      }
     }
 
     offset += limit;

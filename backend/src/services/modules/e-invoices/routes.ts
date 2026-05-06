@@ -152,8 +152,6 @@ export default (router: Router) => {
         const ctx = Ctx.get(req)!.context;
         if (!ctx) throw new Error("No context");
 
-        const db = await Framework.Db.getService();
-
         // Get config
         const config = await Services.EInvoices.getConfig(ctx);
         if (!config) {
@@ -253,8 +251,6 @@ export default (router: Router) => {
       try {
         const ctx = Ctx.get(req)!.context;
         if (!ctx) throw new Error("No context");
-
-        const db = await Framework.Db.getService();
 
         const config = await Services.EInvoices.getConfig(ctx);
         if (!config) {

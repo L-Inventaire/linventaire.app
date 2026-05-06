@@ -1,5 +1,4 @@
 import Framework from "#src/platform/index";
-import _ from "lodash";
 import Contacts, { ContactsDefinition } from "../entities/contacts";
 import { getFrenchDirectoryEntries } from "../services/french-directory";
 

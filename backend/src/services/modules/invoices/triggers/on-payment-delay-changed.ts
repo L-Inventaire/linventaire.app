@@ -1,8 +1,7 @@
-import { DateTime } from "luxon";
+import { computePaymentDelayDate } from "@shared/invoices";
+import _ from "lodash";
 import { default as Framework } from "../../../../platform";
 import Invoices, { InvoicesDefinition } from "../entities/invoices";
-import _ from "lodash";
-import { computePaymentDelayDate } from "@shared/invoices";
 
 export const setOnPaymentDelayChanged = () =>
   Framework.TriggersManager.registerTrigger<Invoices>(InvoicesDefinition, {
