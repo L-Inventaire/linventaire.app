@@ -158,7 +158,7 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
             />
 
             <InputLabel
-              label="SIRET (optionnel)"
+              label="SIRET"
               className="mt-4"
               input={
                 <Input
@@ -170,7 +170,7 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
             />
 
             <InputLabel
-              label="Numéro de TVA (optionnel)"
+              label="Numéro de TVA"
               className="mt-4"
               input={
                 <Input
@@ -296,7 +296,9 @@ export const NewClientForm = (props: { onClose?: () => void }) => {
                 address.zip &&
                 address.city &&
                 address.country &&
-                companyLegalName
+                companyLegalName &&
+                companyRegistrationNumber &&
+                companyTaxNumber
               ) &&
                 step === 1)
             }
