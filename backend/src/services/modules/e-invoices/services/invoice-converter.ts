@@ -442,7 +442,6 @@ function buildEN16931Seller(
     vat_identifier = entity.business_tax_id;
     siren = entity.business_registered_id;
     address = entity.address;
-    email = entity.email;
     eInvoiceIdentifier = entity.e_invoices_identifier;
   }
 
@@ -496,7 +495,6 @@ function buildEN16931Buyer(
     vat_identifier = entity.business_tax_id;
     siren = entity.business_registered_id;
     address = entity.address;
-    email = entity.email;
     eInvoiceIdentifier = entity.e_invoices_identifier;
   }
 
