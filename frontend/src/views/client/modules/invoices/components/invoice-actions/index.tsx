@@ -16,6 +16,7 @@ import { SupplierInvoicesActions } from "./supplier-invoices";
 import { SupplierQuotesActions } from "./supplier-quotes";
 import { InvoiceSendSpecialModal } from "./modal-send-special";
 import { getInvoiceWithOverrides } from "@features/invoices/utils";
+import { useEInvoicesReady } from "@features/invoices/hooks/use-e-invoices-ready";
 
 export const InvoiceActions = ({
   id,
@@ -49,6 +50,11 @@ export const InvoiceActions = ({
   const { contact: counterparty } = useContact(
     !isSupplierRelated ? draft.client : draft.supplier,
   );
+  const {
+    isReady: eInvoicesReady,
+    missingReason,
+    enforced,
+  } = useEInvoicesReady(draft);
 
   const namedCounterparty = !!getContactName(counterparty || {});
   const billableContent = draft?.content?.filter(
@@ -74,6 +80,20 @@ export const InvoiceActions = ({
     Missing sender identification / status
     */
   let error = "";
+
+  if (client && !client.company.tax_number) {
+    error = "Vous devez définir un numéro de TVA dans vos paramètres";
+  }
+
+  if (client && !client.company.legal_name) {
+    error = "Vous devez définir une raison sociale dans vos paramètres";
+  }
+
+  if (client && !client.company.registration_number) {
+    error =
+      "Vous devez définir un numéro d'immatriculation dans vos paramètres";
+  }
+
   if (counterparty) {
     if (["quotes", "invoices"].includes(draft.type)) {
       if (
@@ -125,6 +145,13 @@ export const InvoiceActions = ({
   }
 
   disabled = disabled || !!error;
+
+  if (!eInvoicesReady && missingReason) {
+    error = missingReason;
+    if (enforced) {
+      disabled = true;
+    }
+  }
 
   return (
     <div className="text-right space-x-2 flex items-center">

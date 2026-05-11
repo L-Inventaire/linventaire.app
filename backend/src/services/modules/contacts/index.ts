@@ -5,6 +5,7 @@ import { InternalApplicationService } from "../../types";
 import { ContactsDefinition } from "./entities/contacts";
 import registerRoutes from "./routes";
 import { setupOnContactRelationsChanged } from "./services/update-relations";
+import { setupOnSirenChanged } from "./triggers/on-siren-changed";
 
 export default class Contacts implements InternalApplicationService {
   version = 1;
@@ -22,6 +23,7 @@ export default class Contacts implements InternalApplicationService {
     Contacts.logger = Framework.LoggerDb.get("contacts");
 
     setupOnContactRelationsChanged();
+    setupOnSirenChanged();
 
     Framework.TriggersManager.registerEntities([ContactsDefinition], {
       READ: "CONTACTS_READ",

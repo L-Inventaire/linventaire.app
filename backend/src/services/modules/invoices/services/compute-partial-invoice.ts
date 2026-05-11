@@ -1,6 +1,6 @@
 import _ from "lodash";
 import Invoices, { InvoiceDiscount, InvoiceLine } from "../entities/invoices";
-import { computePricesFromInvoice } from "../utils";
+import { computePricesFromInvoice } from "@shared/invoices";
 
 type PartialInvoiceOutType = {
   invoiced: Pick<Invoices, "content" | "discount" | "total">;

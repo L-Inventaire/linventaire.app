@@ -52,17 +52,14 @@ export default class EInvoicesService implements InternalApplicationService {
   }
 
   /**
-   * Get a configured SuperPDP client for the given context
-   * Automatically fetches configuration from DB and decrypts credentials
+   * Get e-invoicing configuration for a client
    *
    * @param ctx - Context with client_id
-   * @returns SuperPDPClient instance
-   * @throws Error if configuration not found or credentials cannot be decrypted
+   * @returns EInvoicingConfig or null if not found
    */
-  async getClient(ctx: Context): Promise<SuperPDPClient> {
+  async getConfig(ctx: Context): Promise<EInvoicingConfig | null> {
     const db = await Framework.Db.getService();
 
-    // Get config for this client
     const configs = await db.select<EInvoicingConfig>(
       ctx,
       EInvoicingConfigDefinition.name,
@@ -72,7 +69,20 @@ export default class EInvoicesService implements InternalApplicationService {
       { limit: 1 }
     );
 
-    const config = configs[0];
+    return configs[0] || null;
+  }
+
+  /**
+   * Get a configured SuperPDP client for the given context
+   * Automatically fetches configuration from DB and decrypts credentials
+   *
+   * @param ctx - Context with client_id
+   * @returns SuperPDPClient instance
+   * @throws Error if configuration not found or credentials cannot be decrypted
+   */
+  async getClient(ctx: Context): Promise<SuperPDPClient> {
+    // Get config for this client
+    const config = await this.getConfig(ctx);
     if (!config) {
       throw new Error(
         `E-invoicing configuration not found for client ${ctx.client_id}`

@@ -44,19 +44,6 @@ const getStateColor = (state: ReceivedEInvoices["state"]) => {
   }
 };
 
-const getStatusLabel = (status: ReceivedEInvoices["status"]) => {
-  switch (status) {
-    case "received":
-      return "Reçue";
-    case "validated":
-      return "Validée";
-    case "error":
-      return "Erreur";
-    default:
-      return status;
-  }
-};
-
 export const ReceivedEInvoicesColumns: Column<ReceivedEInvoices>[] = [
   {
     title: "Date",
@@ -127,17 +114,6 @@ export const ReceivedEInvoicesColumns: Column<ReceivedEInvoices>[] = [
       <Badge color={getStateColor(item.state)}>
         {getStateLabel(item.state)}
       </Badge>
-    ),
-  },
-  {
-    title: "Statut",
-    thClassName: "w-1",
-    cellClassName: "justify-end",
-    headClassName: "justify-end",
-    render: (item) => (
-      <Base className="whitespace-nowrap text-xs">
-        {getStatusLabel(item.status)}
-      </Base>
     ),
   },
 ];

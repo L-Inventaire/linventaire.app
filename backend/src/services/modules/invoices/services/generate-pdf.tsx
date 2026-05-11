@@ -19,8 +19,9 @@ import StockItems, {
   StockItemsDefinition,
 } from "../../stock/entities/stock-items";
 import Invoices from "../entities/invoices";
-import { computePricesFromInvoice } from "../utils";
+import { computePricesFromInvoice } from "@shared/invoices";
 import { getPdf } from "./generate-pdf-components";
+import { captureException } from "@sentry/node";
 
 export type PositionPdf = {
   label: "SIGNATURE" | string;
@@ -40,6 +41,7 @@ export const generatePdf = async (
     checkedIndexes: { [key: number]: boolean };
     content?: { _index: number; quantity: number }[];
     as?: "proforma" | "receipt_acknowledgement" | "delivery_slip";
+    facturx?: boolean;
   } = {
     checkedIndexes: {},
   }
@@ -228,45 +230,30 @@ export const generatePdf = async (
     }
   );
 
-  if (
-    eInvoicingConfig &&
-    eInvoicingConfig.connection_status === "connected" &&
-    eInvoicingConfig.send_enabled === true
-  )
-    if (document.type === "invoices" || document.type === "credit_notes") {
-      // Get SuperPDP client (automatically decrypts credentials)
-      const superpdpClient = await Services.EInvoices.getClient(ctx);
-
-      // SuperPDP API embeds EN16931 data into the PDF (creates Factur-X)
-      // Right now we are not supporting that, too many constraints to solve first:
-      /*
-        - Contacts should have 
-          /*
-          "identifiers": [
-            {
-              "value": "000000001",
-              "scheme": "0225"
-            }
-          ],
-          "legal_registration_identifier": {
-            "value": "000000001",
-            "scheme": "0002"
-          },
-          "vat_identifier": "FR15000000001",
-          "electronic_address": {
-            "value": "315143296_3173",
-            "scheme": "0225"
-          },
-        - All payments details should be coded and added to notes:
-          - PMT (Ex. Virement bancaire, Prélèvement automatique, etc.)
-          - PMD (Règlement à réception, 30 jours fin de mois, etc.)
-          - AAB (Règle escompte)
-        - Units should be encoded with correct codes
-        - VAT types should be encoded too with:
-          - vat_category ex. "vat_category": "S" (standard)
-          - vat_reason ex. "vat_reason": "Exonération de TVA - article 259B du CGI"
-      */
-      if (false) {
+  if (document.type === "invoices" || document.type === "credit_notes") {
+    // Get SuperPDP client (automatically decrypts credentials)
+    const superpdpClient = await Services.EInvoices.getClient(ctx);
+    if (
+      options.facturx ||
+      (eInvoicingConfig &&
+        eInvoicingConfig.connection_status === "connected" &&
+        eInvoicingConfig.send_enabled === true)
+    ) {
+      pdfWithAttachments = Buffer.from(
+        await generateFacturXPdf(
+          ctx,
+          pdfWithAttachments, // The base PDF to embed invoice data into
+          document,
+          superpdpClient, // SuperPDP client for Factur-X conversion
+          options.as // Pass the "as" option to handle different invoice types
+        )
+      );
+    } else if (
+      eInvoicingConfig &&
+      eInvoicingConfig.connection_status === "connected"
+    ) {
+      // Disabled but we'll run it anyway to get warnings and sentry errors
+      try {
         pdfWithAttachments = Buffer.from(
           await generateFacturXPdf(
             ctx,
@@ -276,8 +263,21 @@ export const generatePdf = async (
             options.as // Pass the "as" option to handle different invoice types
           )
         );
+      } catch (e: any) {
+        console.error(
+          "Factur-X generation failed, but e-invoicing is disabled, so we'll ignore this error",
+          e
+        );
+        captureException(e, {
+          tags: {
+            module: "invoices",
+            action: "generate_pdf",
+            reason: "facturx_generation_failed",
+          },
+        });
       }
     }
+  }
 
   return {
     positions,

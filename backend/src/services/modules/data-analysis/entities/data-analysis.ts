@@ -11,6 +11,10 @@ import {
 export default class DataAnalysis extends RestEntity {
   email = "string";
   external_id = "string";
+  name = "string";
+  subject = "string";
+  message = "string";
+  type = "string";
 }
 
 export const DataAnalysisDefinition: RestTableDefinition = {
@@ -19,6 +23,10 @@ export const DataAnalysisDefinition: RestTableDefinition = {
     ...new RestEntityColumnsDefinition(),
     email: "VARCHAR(128)",
     external_id: "VARCHAR(128)",
+    name: "VARCHAR(255)",
+    subject: "VARCHAR(512)",
+    message: "TEXT",
+    type: "VARCHAR(64)",
   },
   pk: ["email", "id"],
   indexes: ["USING GIN (searchable_generated)"],

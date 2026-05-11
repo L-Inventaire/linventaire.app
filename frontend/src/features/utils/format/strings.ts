@@ -44,15 +44,15 @@ export const formatQuantity = (quantity?: number, unit = "unité") => {
     : prettyPrintTime(timeDecimalToBase60(quantity || 0));
 };
 
-export const formatAmount = (number: number, currency = "EUR") => {
+export const formatAmount = (number: number | string, currency = "EUR") => {
   return (parseFloat(number as any) || 0).toLocaleString("fr-FR", {
     style: "currency",
     currency,
   });
 };
 
-export const formatNumber = (number: number) => {
-  return (number || 0).toLocaleString("fr-FR");
+export const formatNumber = (number: number | string) => {
+  return parseFloat((number || 0) + "").toLocaleString("fr-FR");
 };
 
 export const applySearchFilter = (search: string, item: string) => {

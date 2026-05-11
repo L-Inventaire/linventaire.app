@@ -2,10 +2,10 @@ import { describe, expect, test } from "@jest/globals";
 import {
   getNewInvoicesAndNextDate,
   getLatestInvoiceDate,
-  applyOffset,
 } from "./recurring-generate-invoice";
 import { normalizeDate } from "../utils";
 import Invoices from "../entities/invoices";
+import { applyOffset } from "@shared/invoices";
 
 const baseQuote = {
   state: "recurring",

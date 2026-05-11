@@ -1,3 +1,5 @@
+import { convertInternalToEN16931 } from "#src/services/modules/e-invoices/services/index";
+import { getResolvedEntities } from "#src/services/modules/e-invoices/services/invoice-converter";
 import ReactPDF, {
   Document,
   Font,
@@ -8,6 +10,7 @@ import ReactPDF, {
   Text,
   View,
 } from "@react-pdf/renderer";
+import { captureException } from "@sentry/node";
 import React from "react";
 import tinycolor from "tinycolor2";
 import Framework from "../../../../../platform";
@@ -15,15 +18,16 @@ import Clients, {
   ClientsDefinition,
 } from "../../../../../services/clients/entities/clients";
 import { Context } from "../../../../../types";
+import AccountingTransactions, {
+  AccountingTransactionsDefinition,
+} from "../../../accounting/entities/transactions";
 import Contacts, {
   ContactsDefinition,
 } from "../../../contacts/entities/contacts";
 import { Files } from "../../../files/entities/files";
-import AccountingTransactions, {
-  AccountingTransactionsDefinition,
-} from "../../../accounting/entities/transactions";
 import Invoices from "../../entities/invoices";
 import { getInvoiceLogo } from "../../utils";
+import { getInvoiceWithFormatsOverrides } from "../utils";
 import { InvoiceContent } from "./content";
 import { InvoiceCounterparty } from "./counterparty";
 import { InvoicePaymentDetails } from "./payment-details";
@@ -35,8 +39,6 @@ import {
   formatAmount,
   KeyValueDisplay,
 } from "./utils";
-import { getInvoiceWithFormatsOverrides } from "../utils";
-import { captureException } from "@sentry/node";
 
 Font.register({
   family: "Arial",
@@ -83,6 +85,16 @@ export const getPdf = async (
   references: { article: string; reference: string; line?: number }[] = [],
   as?: "proforma" | "receipt_acknowledgement" | "delivery_slip"
 ): Promise<{ name: string; pdf: NodeJS.ReadableStream }> => {
+  // TODO: step by step the idea would be to only rely on the en16931 information to build the invoice
+  try {
+    convertInternalToEN16931(
+      document,
+      await getResolvedEntities(ctx, document)
+    );
+  } catch (e: any) {
+    captureException(e);
+  }
+
   const base = tinycolor(document.format?.color || "#007bff");
   const primaryColor = base.toHexString();
 

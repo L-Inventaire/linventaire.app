@@ -2,7 +2,8 @@ import _ from "lodash";
 import Framework from "../../../../platform";
 import Invoices, { InvoicesDefinition } from "../entities/invoices";
 import { setArticlesTagsToInvoices } from "../services/db";
-import { computePricesFromInvoice, numberOrNull } from "../utils";
+import { numberOrNull } from "../utils";
+import { computePricesFromInvoice } from "@shared/invoices";
 import Clients, {
   ClientsDefinition,
 } from "#src/services/clients/entities/clients";
@@ -12,14 +13,19 @@ import { getNewInvoicesAndNextDate } from "./recurring-generate-invoice";
 import { Context } from "#src/types";
 import { expandSearchable } from "#src/services/rest/services/rest";
 import Articles, { ArticlesDefinition } from "../../articles/entities/articles";
+import { convertInternalToEN16931 } from "../../e-invoices/services";
+import { getResolvedEntities } from "../../e-invoices/services/invoice-converter";
+import Services from "#src/services/index";
 
 /** Make sure autocomputed data are autocomputed **/
 export const setUpsertHook = () =>
   Framework.TriggersManager.registerTrigger<Invoices>(InvoicesDefinition, {
     test: (_, entity) => !!entity,
     callback: async (ctx, entity, prev) => {
-      const updated = _.cloneDeep(entity);
+      const updated = _.cloneDeep(entity) as Invoices;
       const db = await Framework.Db.getService();
+
+      if (!entity) return;
 
       // In case of duplication or creation, we need to set some default values
       if (!prev) {
@@ -189,13 +195,39 @@ export const setUpsertHook = () =>
         await setCacheQuoteRef(ctx, updated);
       }
 
+      // If superPDP is enabled, do the following
+      const config = await Services.EInvoices.getConfig(ctx);
+      if (config && config.connection_status === "connected") {
+        // Test conversion to en16931, and if field changed, then validate it with superPDP
+        const en16931 = convertInternalToEN16931(
+          updated,
+          await getResolvedEntities(ctx, updated)
+        );
+        if (!_.isEqual(entity.en16931, en16931)) {
+          updated.en16931 = null;
+          const client = await Services.EInvoices.getClient(ctx);
+          try {
+            const { valid } = await client.validateInvoice(en16931);
+            if (valid) {
+              updated.en16931 = en16931;
+            } else {
+              console.log(
+                "EN16931 validation failed, not saving en16931 field"
+              );
+            }
+          } catch (error) {
+            console.error("Error validating EN16931 with SuperPDP:", error);
+            // Don't save if validation fails due to error
+          }
+        }
+      }
+
       if (!_.isEqual(entity, updated)) {
         const db = await Framework.Db.getService();
 
         updated.searchable = expandSearchable(
-          Framework.TriggersManager.getEntities()[
-            InvoicesDefinition.name
-          ].rest.searchable(updated)
+          Framework.TriggersManager.getEntities()[InvoicesDefinition.name]!
+            .rest!.searchable!(updated)
         );
 
         await db.update<Invoices>(

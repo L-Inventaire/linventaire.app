@@ -1,21 +1,25 @@
+import Clients, { Address } from "#src/services/clients/entities/clients";
 import Services from "#src/services/index";
-import Clients from "#src/services/clients/entities/clients";
 import { search } from "#src/services/rest/services/rest";
 import { getContactName } from "#src/services/utils";
 import { Context } from "#src/types";
+import { getUnitCode, getVatCode } from "@shared/consts";
+import {
+  EN16931Buyer,
+  EN16931Invoice,
+  EN16931PostalAddress,
+  EN16931Seller,
+  EN16931VatBreakDown,
+} from "@shared/en16931-types";
+import { getTvaValue } from "@shared/invoices";
 import _ from "lodash";
-import { EN16931Invoice } from "../../../../platform/e-invoices/adapters/superpdp/en16931-types";
 import Articles, { ArticlesDefinition } from "../../articles/entities/articles";
 import Contacts, { ContactsDefinition } from "../../contacts/entities/contacts";
 import Invoices, {
   InvoiceDiscount,
   InvoiceLine,
 } from "../../invoices/entities/invoices";
-import {
-  getUnitCode,
-  getVatCategory,
-  getVatExemptionReason,
-} from "../../invoices/types/maps";
+import { getInvoiceWithFormatsOverrides } from "../../invoices/services/utils";
 
 /**
  * References extracted from an EN16931 invoice that need to be resolved
@@ -25,16 +29,42 @@ export interface EN16931References {
   // Seller information for contact lookup
   seller: {
     name: string;
-    vat?: string;
-    tax_id?: string;
-    email?: string;
+    vat_identifier?: string;
+    postal_address?: EN16931PostalAddress;
+    identifiers: [
+      {
+        value: string; // SIRENE
+        scheme: string; // Default to "0225";
+      }
+    ];
+    legal_registration_identifier: {
+      value: string; // SIRENE
+      scheme: string; // Default to "0002";
+    };
+    electronic_address: {
+      value: string; // E-INVOICE ADDRESS
+      scheme: string; // Ex. "0225";
+    };
   };
   // Buyer information for contact lookup
   buyer: {
     name: string;
-    vat?: string;
-    tax_id?: string;
-    email?: string;
+    vat_identifier?: string;
+    postal_address?: EN16931PostalAddress;
+    identifiers: [
+      {
+        value: string; // SIRENE
+        scheme: string; // Default to "0225";
+      }
+    ];
+    legal_registration_identifier: {
+      value: string; // SIRENE
+      scheme: string; // Default to "0002";
+    };
+    electronic_address: {
+      value: string; // E-INVOICE ADDRESS
+      scheme: string; // Ex. "0225";
+    };
   };
   // Article names from invoice lines for article lookup
   articles: Array<{
@@ -67,18 +97,8 @@ export function extractReferencesFromEN16931(
   invoice: EN16931Invoice
 ): EN16931References {
   return {
-    seller: {
-      name: invoice.seller.name,
-      vat: invoice.seller.vat,
-      tax_id: invoice.seller.tax_id,
-      email: invoice.seller.contact?.email,
-    },
-    buyer: {
-      name: invoice.buyer.name,
-      vat: invoice.buyer.vat,
-      tax_id: invoice.buyer.tax_id,
-      email: invoice.buyer.contact?.email,
-    },
+    seller: invoice.seller,
+    buyer: invoice.buyer,
     articles: invoice.lines.map((line) => ({
       name: line.item_information.name,
       reference: line.item_information.sellers_item_identification,
@@ -152,36 +172,46 @@ export function convertEN16931ToInternal(
     }
 
     // Parse VAT rate
-    const vatRate = line.vat_information.invoiced_item_vat_rate || 0;
+    const vatFullCode = getVatCode(
+      line.vat_information.invoiced_item_vat_rate || "0",
+      line.vat_information.invoiced_item_vat_category_code
+    );
 
     // Calculate discount from allowances/charges
-    const discount = new InvoiceDiscount();
-    if (line.allowances_charges && line.allowances_charges.length > 0) {
-      const allowance = line.allowances_charges.find(
-        (ac) => ac.kind === "allowance"
-      );
-      if (allowance) {
-        if (allowance.percentage) {
-          discount.mode = "percentage";
-          discount.value = allowance.percentage;
-        } else {
-          discount.mode = "amount";
-          discount.value = allowance.amount;
-        }
+    const discount = {} as InvoiceDiscount;
+    let totalAllowanceAmount = 0;
+    let totalChargeAmount = 0;
+
+    if (line.allowances && line.allowances.length > 0) {
+      for (const allowance of line.allowances) {
+        totalAllowanceAmount += parseFloat(allowance.amount || "0");
       }
     }
 
-    const invoiceLine = new InvoiceLine();
+    if (line.charges && line.charges.length > 0) {
+      for (const charge of line.charges) {
+        totalChargeAmount += parseFloat(charge.amount || "0");
+      }
+    }
+
+    const netDiscountAmount = totalAllowanceAmount - totalChargeAmount;
+
+    if (netDiscountAmount > 0) {
+      discount.mode = "amount";
+      discount.value = netDiscountAmount;
+    }
+
+    const invoiceLine = {} as InvoiceLine;
     invoiceLine.article = article.id;
     invoiceLine.type = article.type || "product";
     invoiceLine.name = line.item_information.name;
     invoiceLine.reference =
       line.item_information.sellers_item_identification || "";
     invoiceLine.description = line.item_information.description || "";
-    invoiceLine.unit = line.invoiced_quantity_unit_code;
-    invoiceLine.quantity = line.invoiced_quantity;
-    invoiceLine.unit_price = line.price_details.item_net_price;
-    invoiceLine.tva = vatRate.toString();
+    invoiceLine.unit = line.invoiced_quantity_code;
+    invoiceLine.quantity = parseFloat(line.invoiced_quantity);
+    invoiceLine.unit_price = parseFloat(line.price_details.item_net_price);
+    invoiceLine.tva = vatFullCode || "S:20";
     invoiceLine.discount = discount;
     invoiceLine.subscription = "";
     invoiceLine.quantity_ready = 0;
@@ -193,23 +223,33 @@ export function convertEN16931ToInternal(
   });
 
   // Calculate document-level discount
-  const documentDiscount = new InvoiceDiscount();
+  const documentDiscount = {} as InvoiceDiscount;
+  let totalDocAllowanceAmount = 0;
+  let totalDocChargeAmount = 0;
+
   if (
-    en16931Invoice.allowances_charges &&
-    en16931Invoice.allowances_charges.length > 0
+    en16931Invoice.document_level_allowances &&
+    en16931Invoice.document_level_allowances.length > 0
   ) {
-    const allowance = en16931Invoice.allowances_charges.find(
-      (ac) => ac.kind === "allowance"
-    );
-    if (allowance) {
-      if (allowance.percentage) {
-        documentDiscount.mode = "percentage";
-        documentDiscount.value = allowance.percentage;
-      } else {
-        documentDiscount.mode = "amount";
-        documentDiscount.value = allowance.amount;
-      }
+    for (const allowance of en16931Invoice.document_level_allowances) {
+      totalDocAllowanceAmount += parseFloat(allowance.amount || "0");
     }
+  }
+
+  if (
+    en16931Invoice.document_level_charges &&
+    en16931Invoice.document_level_charges.length > 0
+  ) {
+    for (const charge of en16931Invoice.document_level_charges) {
+      totalDocChargeAmount += parseFloat(charge.amount || "0");
+    }
+  }
+
+  const netDocDiscountAmount = totalDocAllowanceAmount - totalDocChargeAmount;
+
+  if (netDocDiscountAmount > 0) {
+    documentDiscount.mode = "amount";
+    documentDiscount.value = netDocDiscountAmount;
   }
 
   // Parse payment instructions
@@ -246,7 +286,7 @@ export function convertEN16931ToInternal(
   }
 
   // Build the internal invoice
-  const invoice = new Invoices();
+  const invoice = {} as Invoices;
   invoice.client_id = ctx.client_id;
   invoice.type = type;
   invoice.state = "draft"; // New invoices start as draft
@@ -283,12 +323,11 @@ export function convertEN16931ToInternal(
     }
     if (en16931Invoice.delivery_information.postal_address) {
       const addr = en16931Invoice.delivery_information.postal_address;
-      invoice.delivery_address.address_line_1 = addr.street_name || "";
-      invoice.delivery_address.address_line_2 =
-        addr.additional_street_name || "";
-      invoice.delivery_address.city = addr.city_name || "";
-      invoice.delivery_address.zip = addr.postal_zone || "";
-      invoice.delivery_address.country = addr.country || "";
+      invoice.delivery_address.address_line_1 = addr.address_line1 || "";
+      invoice.delivery_address.address_line_2 = addr.address_line2 || "";
+      invoice.delivery_address.city = addr.city || "";
+      invoice.delivery_address.zip = addr.post_code || "";
+      invoice.delivery_address.country = addr.country_code || "";
     }
   }
 
@@ -297,8 +336,8 @@ export function convertEN16931ToInternal(
   invoice.payment_information = payment_information;
 
   // Notes from invoice notes
-  if (en16931Invoice.invoice_note && en16931Invoice.invoice_note.length > 0) {
-    invoice.notes = en16931Invoice.invoice_note.map((n) => n.note).join("\n\n");
+  if (en16931Invoice.notes && en16931Invoice.notes.length > 0) {
+    invoice.notes = en16931Invoice.notes.map((n) => n.note).join("\n\n");
   }
 
   return invoice;
@@ -314,7 +353,7 @@ export async function getResolvedEntities(
     ContactsDefinition.name,
     {
       client_id: ctx.client_id,
-      id: document.client,
+      id: document.client || document.supplier,
     }
   );
   const articles = await search<Articles>(
@@ -347,6 +386,143 @@ export async function getResolvedEntities(
 }
 
 /**
+ * Parse electronic address identifier from format "scheme:value"
+ * @param identifier - The identifier string (e.g., "0225:315143296_3173")
+ * @returns Object with scheme and value, or undefined if invalid
+ */
+function parseElectronicAddress(
+  identifier?: string
+): { scheme: string; value: string } | undefined {
+  if (!identifier || !identifier.includes(":")) {
+    return undefined;
+  }
+  const [scheme, value] = identifier.split(":", 2);
+  if (!scheme || !value) {
+    return undefined;
+  }
+  return { scheme: scheme.trim(), value: value.trim() };
+}
+
+/**
+ * Build EN16931 postal address from internal Address entity
+ */
+function buildPostalAddress(address?: Address): EN16931PostalAddress {
+  return {
+    address_line1: address?.address_line_1 || "N/A",
+    address_line2: address?.address_line_2 || "",
+    city: address?.city || "N/A",
+    post_code: address?.zip || "00000",
+    country_code: address?.country || "FR",
+  };
+}
+
+/**
+ * Build EN16931 seller information from Client or Contact entity
+ */
+function buildEN16931Seller(
+  entity: Clients | Contacts,
+  _isCompany: boolean
+): EN16931Seller {
+  let name: string;
+  let vat_identifier: string | undefined;
+  let siren: string | undefined;
+  let address: Address | undefined;
+  let eInvoiceIdentifier: string | undefined;
+
+  if ("company" in entity) {
+    // It's a Clients entity
+    name = entity.company?.legal_name || entity.company?.name || "N/A";
+    vat_identifier = entity.company?.tax_number;
+    siren = entity.company?.registration_number;
+    address = entity.address;
+    eInvoiceIdentifier = undefined; // Clients don't have e_invoices_identifier yet
+  } else {
+    // It's a Contacts entity
+    name = getContactName(entity) || entity.business_registered_id || entity.id;
+    vat_identifier = entity.business_tax_id;
+    siren = entity.business_registered_id;
+    address = entity.address;
+    eInvoiceIdentifier = entity.e_invoices_identifier;
+  }
+
+  // Parse electronic address
+  const electronicAddress = parseElectronicAddress(eInvoiceIdentifier);
+
+  return {
+    name,
+    vat_identifier,
+    postal_address: buildPostalAddress(address),
+    identifiers: [
+      {
+        value: siren || "000000000",
+        scheme: "0225", // SIRENE scheme
+      },
+    ],
+    legal_registration_identifier: {
+      value: siren || "000000000",
+      scheme: "0002", // SIREN scheme
+    },
+    electronic_address: electronicAddress || {
+      value: siren || "000000000",
+      scheme: "0225",
+    },
+  };
+}
+
+/**
+ * Build EN16931 buyer information from Client or Contact entity
+ */
+function buildEN16931Buyer(
+  entity: Clients | Contacts,
+  _isCompany: boolean
+): EN16931Buyer {
+  let name: string;
+  let vat_identifier: string | undefined;
+  let siren: string | undefined;
+  let address: Address | undefined;
+  let eInvoiceIdentifier: string | undefined;
+
+  if ("company" in entity) {
+    // It's a Clients entity
+    name = entity.company?.name || entity.company?.legal_name || "My Company";
+    vat_identifier = entity.company?.tax_number;
+    siren = entity.company?.registration_number;
+    address = entity.address;
+    eInvoiceIdentifier = undefined; // Clients don't have e_invoices_identifier yet
+  } else {
+    // It's a Contacts entity
+    name = getContactName(entity) || entity.business_registered_id || entity.id;
+    vat_identifier = entity.business_tax_id;
+    siren = entity.business_registered_id;
+    address = entity.address;
+    eInvoiceIdentifier = entity.e_invoices_identifier;
+  }
+
+  // Parse electronic address
+  const electronicAddress = parseElectronicAddress(eInvoiceIdentifier);
+
+  return {
+    name,
+    vat_identifier,
+    postal_address: buildPostalAddress(address),
+    identifiers: [
+      {
+        value: siren || "000000000",
+        scheme: "0225", // SIRENE scheme
+      },
+    ],
+    legal_registration_identifier: {
+      value: siren || "000000000",
+      scheme: "0002", // SIREN scheme
+    },
+    electronic_address: electronicAddress || {
+      value: siren || "000000000",
+      scheme: "0225",
+    },
+  };
+}
+
+/**
  * Convert internal Invoices format to EN16931 invoice
  *
  * @param invoice - The internal invoice to convert
@@ -370,6 +546,15 @@ export function convertInternalToEN16931(
   // Get the appropriate contact
   const partnerContact =
     direction === "in" ? resolvedEntities.supplier : resolvedEntities.client;
+
+  // Apply format overrides from client/company defaults
+  invoice = getInvoiceWithFormatsOverrides(
+    invoice,
+    company,
+    ...([resolvedEntities.supplier, resolvedEntities.client].filter(
+      Boolean
+    ) as Contacts[]) // Apply overrides from both supplier and client if available
+  );
 
   if (!partnerContact) {
     throw new Error(
@@ -398,33 +583,20 @@ export function convertInternalToEN16931(
     }
 
     // Parse VAT rate
-    const vatRate = parseFloat(line.tva) || 0;
+    const vatRate = (getTvaValue(line.tva) || 0) * 100;
 
     // Get unit code (convert from internal label to standard code if needed)
     const unitCode = getUnitCode(line.unit) || line.unit || "C62"; // C62 = unit
 
     // Determine VAT category code and exemption reason
     // line.tva could be a rate like "20%" or a label like "Hors UE"
-    const vatCategoryKey = getVatCategory(line.tva);
+    const vatCategoryKey = getVatCode(line.tva);
     let vatCategoryCode = "S"; // Standard rate
-    let exemptionReasonCode: string | undefined = undefined;
-    let exemptionReason: string | undefined = undefined;
 
     if (vatCategoryKey) {
       // Split the key format "category:reason" or "category:rate"
       const parts = vatCategoryKey.split(":");
       vatCategoryCode = parts[0];
-      if (parts.length > 1 && parts[0] !== "S") {
-        // If it's not a standard rate, check for exemption reason
-        exemptionReasonCode = parts[1];
-        // Try to find the full exemption reason text
-        const fullKey = vatCategoryKey;
-        const reasonKey = getVatExemptionReason(line.tva);
-        if (reasonKey) {
-          exemptionReasonCode = reasonKey.split(":")[1];
-          exemptionReason = line.tva; // Keep the original label as reason text
-        }
-      }
     } else {
       // Fallback: determine based on rate
       if (vatRate === 0) {
@@ -439,40 +611,48 @@ export function convertInternalToEN16931(
 
     // Apply line discount
     const allowances: any[] = [];
-    if (line.discount.mode && line.discount.value > 0) {
+    const charges: any[] = [];
+    if (line.discount && line.discount.mode && line.discount.value > 0) {
       const discountAmount =
         line.discount.mode === "percentage"
           ? (lineNetAmount * line.discount.value) / 100
           : line.discount.value;
 
-      allowances.push({
-        amount: discountAmount,
-        kind: "allowance",
-        percentage:
-          line.discount.mode === "percentage" ? line.discount.value : undefined,
-        base_amount: lineNetAmount,
-      });
-
-      lineNetAmount -= discountAmount;
+      // If discount is positive, create allowance; if negative, create charge
+      if (discountAmount > 0) {
+        allowances.push({
+          amount: discountAmount,
+          percentage:
+            line.discount.mode === "percentage"
+              ? line.discount.value
+              : undefined,
+          base_amount: lineNetAmount,
+          reason_code: "42", // Other services
+        });
+        lineNetAmount -= discountAmount;
+      } else {
+        const chargeAmount = Math.abs(discountAmount);
+        charges.push({
+          amount: chargeAmount,
+          percentage:
+            line.discount.mode === "percentage"
+              ? line.discount.value
+              : undefined,
+          base_amount: lineNetAmount,
+          reason_code: "42", // Other services
+        });
+        lineNetAmount += chargeAmount; // Charges increase the net amount
+      }
     }
 
     return {
-      line_number: (index + 1).toString(),
-      invoiced_quantity: line.quantity,
-      invoiced_quantity_unit_code: unitCode,
-      net_amount: lineNetAmount,
-      vat_information: {
-        invoiced_item_vat_category_code: vatCategoryCode,
-        invoiced_item_vat_rate: vatRate,
-        vat_exemption_reason_code: exemptionReasonCode,
-        vat_exemption_reason: exemptionReason,
-      },
-      allowances_charges: allowances.length > 0 ? allowances : undefined,
-      price_details: {
-        item_net_price: line.unit_price,
-        base_quantity: 1,
-        base_quantity_unit_code: unitCode,
-      },
+      identifier: (index + 1).toString(),
+
+      invoiced_quantity: `${line.quantity}`,
+      invoiced_quantity_code: unitCode,
+
+      net_amount: `${lineNetAmount}`,
+
       item_information: {
         name: line.name,
         description: line.description || undefined,
@@ -480,208 +660,112 @@ export function convertInternalToEN16931(
         buyers_item_identification:
           article.supplier_reference || article.internal_reference || undefined,
       },
-    };
+
+      allowances: allowances.length > 0 ? allowances : undefined,
+      charges: charges.length > 0 ? charges : undefined,
+
+      price_details: {
+        item_net_price: `${line.unit_price}`,
+        base_quantity: "1",
+        base_quantity_unit_code: unitCode,
+      },
+
+      vat_information: {
+        invoiced_item_vat_category_code: vatCategoryCode,
+        invoiced_item_vat_rate: `${vatRate}`,
+      },
+    } as EN16931Invoice["lines"][0];
   });
 
   // Calculate totals
   const sumOfLineNetAmounts = lines.reduce(
-    (sum, line) => sum + line.net_amount,
+    (sum, line) => sum + parseFloat(line.net_amount),
     0
   );
 
-  // Apply document-level discount
+  // Use precomputed allowances breakdown
+  let documentAllowances: any[] = [];
+  let documentCharges: any[] = [];
   let documentAllowanceAmount = 0;
-  const documentAllowances: any[] = [];
-  if (invoice.discount?.mode && invoice.discount.value > 0) {
-    documentAllowanceAmount =
-      invoice.discount.mode === "percentage"
-        ? (sumOfLineNetAmounts * invoice.discount.value) / 100
-        : invoice.discount.value;
+  const documentChargeAmount = 0;
 
-    documentAllowances.push({
-      amount: documentAllowanceAmount,
-      kind: "allowance",
-      percentage:
-        invoice.discount.mode === "percentage"
-          ? invoice.discount.value
-          : undefined,
-      base_amount: sumOfLineNetAmounts,
-    });
-  }
+  if (invoice.total?.allowances_breakdown) {
+    for (const allowance of invoice.total.allowances_breakdown) {
+      const vatCategoryKey = getVatCode(allowance.tva);
+      let vatCategoryCode = "S"; // Standard rate
+      if (vatCategoryKey) {
+        const parts = vatCategoryKey.split(":");
+        vatCategoryCode = parts[0];
+      }
+      const vatRate = getTvaValue(allowance.tva) * 100;
 
-  const totalWithoutVat = sumOfLineNetAmounts - documentAllowanceAmount;
-
-  // Calculate VAT breakdown - group by category code + exemption reason code
-  interface VatBreakdownKey {
-    categoryCode: string;
-    exemptionReasonCode?: string;
-    exemptionReason?: string;
-    rate: number;
-  }
-
-  const vatBreakdownMap = new Map<
-    string,
-    {
-      key: VatBreakdownKey;
-      taxableAmount: number;
-      vatAmount: number;
+      documentAllowances.push({
+        amount: allowance.amount.toString(),
+        base_amount: allowance.base_amount.toString(),
+        reason_code: "42", // Other services
+        vat_category_code: vatCategoryCode,
+        vat_rate: vatRate.toString(),
+      });
+      documentAllowanceAmount += allowance.amount;
     }
-  >();
+  }
+  documentAllowances = documentAllowances.filter(
+    (a) => parseFloat(a.amount) > 0
+  );
+  documentCharges = documentCharges.filter((c) => parseFloat(c.amount) > 0);
 
-  const discountRatio = totalWithoutVat / sumOfLineNetAmounts;
+  // Use precomputed VAT breakdown
+  const vatBreakDown: EN16931VatBreakDown[] = [];
+  if (invoice.total?.vat_breakdown) {
+    for (const vb of invoice.total.vat_breakdown) {
+      const vatCategoryKey = getVatCode(vb.tva);
+      let vatCategoryCode = "S"; // Standard rate
+      if (vatCategoryKey) {
+        const parts = vatCategoryKey.split(":");
+        vatCategoryCode = parts[0];
+      }
+      const vatRate = getTvaValue(vb.tva) * 100;
 
-  lines.forEach((line) => {
-    const vatInfo = line.vat_information;
-    const vatRate = vatInfo.invoiced_item_vat_rate || 0;
-    const categoryCode = vatInfo.invoiced_item_vat_category_code;
-    const exemptionReasonCode = vatInfo.vat_exemption_reason_code;
-    const exemptionReason = vatInfo.vat_exemption_reason;
-
-    // Create unique key for grouping
-    const groupKey = `${categoryCode}:${
-      exemptionReasonCode || "none"
-    }:${vatRate}`;
-
-    const adjustedTaxableAmount = line.net_amount * discountRatio;
-    const vatAmount = (adjustedTaxableAmount * vatRate) / 100;
-
-    const current = vatBreakdownMap.get(groupKey);
-    if (current) {
-      current.taxableAmount += adjustedTaxableAmount;
-      current.vatAmount += vatAmount;
-    } else {
-      vatBreakdownMap.set(groupKey, {
-        key: {
-          categoryCode,
-          exemptionReasonCode,
-          exemptionReason,
-          rate: vatRate,
-        },
-        taxableAmount: adjustedTaxableAmount,
-        vatAmount,
+      vatBreakDown.push({
+        vat_category_taxable_amount: vb.taxable_amount.toString(),
+        vat_category_tax_amount: vb.tax_amount.toString(),
+        vat_category_code: vatCategoryCode,
+        vat_category_rate: vatRate.toString(),
       });
     }
-  });
+  }
 
-  const vatBreakDown = Array.from(vatBreakdownMap.values()).map((entry) => {
-    const breakdown: any = {
-      vat_category_taxable_amount: entry.taxableAmount,
-      vat_category_tax_amount: entry.vatAmount,
-      vat_category_code: entry.key.categoryCode,
-      vat_category_rate: entry.key.rate,
-    };
+  // Calculate totals from precomputed
+  const totalWithoutVat = invoice.total?.vat_breakdown
+    ? invoice.total.vat_breakdown.reduce(
+        (sum, vb) => sum + vb.taxable_amount,
+        0
+      )
+    : sumOfLineNetAmounts - documentAllowanceAmount + documentChargeAmount;
 
-    if (entry.key.exemptionReasonCode) {
-      breakdown.vat_exemption_reason_code = entry.key.exemptionReasonCode;
-    }
-    if (entry.key.exemptionReason) {
-      breakdown.vat_exemption_reason = entry.key.exemptionReason;
-    }
-
-    return breakdown;
-  });
-
-  const totalVat = Array.from(vatBreakdownMap.values()).reduce(
-    (sum, entry) => sum + entry.vatAmount,
-    0
-  );
-  const totalWithVat = totalWithoutVat + totalVat;
+  const totalVat = invoice.total?.vat_breakdown
+    ? invoice.total.vat_breakdown.reduce((sum, vb) => sum + vb.tax_amount, 0)
+    : 0;
 
   // Add global VAT codes if there's only one breakdown entry
   let globalVatCategoryCode: string | undefined = undefined;
   let globalVatExemptionReasonCode: string | undefined = undefined;
-  let globalVatExemptionReason: string | undefined = undefined;
 
   if (vatBreakDown.length === 1) {
     globalVatCategoryCode = vatBreakDown[0].vat_category_code;
     globalVatExemptionReasonCode = vatBreakDown[0].vat_exemption_reason_code;
-    globalVatExemptionReason = vatBreakDown[0].vat_exemption_reason;
   }
 
   // Build seller and buyer based on direction
-  // Use company address if available, fallback to invoice delivery address
-  const myCompanyAddress = {
-    street_name:
-      company?.address?.address_line_1 ||
-      invoice.delivery_address?.address_line_1 ||
-      "N/A",
-    additional_street_name:
-      company?.address?.address_line_2 ||
-      invoice.delivery_address?.address_line_2 ||
-      "",
-    city_name:
-      company?.address?.city || invoice.delivery_address?.city || "N/A",
-    postal_zone:
-      company?.address?.zip || invoice.delivery_address?.zip || "00000",
-    country:
-      company?.address?.country || invoice.delivery_address?.country || "FR",
-  };
-
-  const partnerAddress = {
-    street_name: partnerContact.address?.address_line_1 || "N/A",
-    additional_street_name: partnerContact.address?.address_line_2 || "",
-    city_name: partnerContact.address?.city || "N/A",
-    postal_zone: partnerContact.address?.zip || "00000",
-    country: partnerContact.address?.country || "FR",
-  };
-
-  const seller =
+  const seller: EN16931Seller =
     direction === "out"
-      ? {
-          name: company?.company?.legal_name || company?.company?.name,
-          vat: company?.company?.tax_number,
-          postal_address: myCompanyAddress,
-        }
-      : {
-          name:
-            getContactName(partnerContact) ||
-            partnerContact.business_registered_id ||
-            partnerContact.id,
-          vat: partnerContact.business_tax_id,
-          postal_address: partnerAddress,
-          /*
-          "identifiers": [
-            {
-              "value": "000000001",
-              "scheme": "0225"
-            }
-          ],
-          "legal_registration_identifier": {
-            "value": "000000001",
-            "scheme": "0002"
-          },
-          "vat_identifier": "FR15000000001",
-          "electronic_address": {
-            "value": "315143296_3173",
-            "scheme": "0225"
-          },
-          */
-          contact: partnerContact.email
-            ? { email: partnerContact.email }
-            : undefined,
-        };
+      ? buildEN16931Seller(company, true)
+      : buildEN16931Seller(partnerContact, true);
 
-  const buyer =
+  const buyer: EN16931Buyer =
     direction === "in"
-      ? {
-          name:
-            company?.company?.name ||
-            company?.company?.legal_name ||
-            "My Company",
-          vat: company?.company?.tax_number,
-          postal_address: myCompanyAddress,
-        }
-      : {
-          name:
-            getContactName(partnerContact) ||
-            partnerContact.business_registered_id ||
-            partnerContact.id,
-          vat: partnerContact.business_tax_id,
-          postal_address: partnerAddress,
-          contact: partnerContact.email
-            ? { email: partnerContact.email }
-            : undefined,
-        };
+      ? buildEN16931Buyer(company, true)
+      : buildEN16931Buyer(partnerContact, true);
 
   // Payment instructions
   const paymentDetails = invoice.payment_information.mode
@@ -693,9 +777,11 @@ export function convertInternalToEN16931(
           : invoice.payment_information.mode.includes("credit_card")
           ? "48"
           : "30",
-        payment_terms: invoice.payment_information.delay
-          ? `Payment within ${invoice.payment_information.delay} days`
-          : undefined,
+        payment_terms:
+          invoice.payment_information.delay &&
+          invoice.payment_information.delay_type === "direct"
+            ? `Payment within ${invoice.payment_information.delay} days`
+            : undefined,
         credit_transfer: invoice.payment_information.bank_iban
           ? [
               {
@@ -709,24 +795,81 @@ export function convertInternalToEN16931(
       }
     : undefined;
 
+  // Build standardized notes (PMT, PMD, AAB) from payment information
+  const invoiceNotes: Array<{ note: string; subject_code?: string }> = [];
+
+  // PMT - Recovery fees (Indemnité forfaitaire pour frais de recouvrement)
+  const recoveryFee = invoice.payment_information.recovery_fee?.trim();
+  if (recoveryFee) {
+    invoiceNotes.push({
+      note: `L'indemnité forfaitaire pour frais de recouvrement est de ${recoveryFee}.`,
+      subject_code: "PMT",
+    });
+  } else {
+    invoiceNotes.push({
+      note: "L'indemnité forfaitaire légale pour frais de recouvrement est de 40 €.",
+      subject_code: "PMT",
+    });
+  }
+
+  // PMD - Late payment penalties (Pénalités de retard)
+  const latePenalty = invoice.payment_information.late_penalty?.trim();
+  if (latePenalty) {
+    invoiceNotes.push({
+      note: `À défaut de règlement à la date d'échéance, une pénalité de ${latePenalty} sera applicable immédiatement.`,
+      subject_code: "PMD",
+    });
+  } else {
+    invoiceNotes.push({
+      note: "À défaut de règlement à la date d'échéance, une pénalité égale au taux BCE majoré de 10 points sera applicable immédiatement.",
+      subject_code: "PMD",
+    });
+  }
+
+  // AAB - Early payment discount (Escompte pour paiement anticipé)
+  // TODO: Add early payment discount field to Payment model if needed
+  invoiceNotes.push({
+    note: "Aucun escompte pour paiement anticipé.",
+    subject_code: "AAB",
+  });
+
+  // Add general notes if they exist
+  if (invoice.notes) {
+    invoiceNotes.push({ note: invoice.notes });
+  }
+
   // Build EN16931 invoice
   const en16931Invoice: EN16931Invoice = {
+    process_control: {
+      business_process_type: "M1",
+      specification_identifier: "urn:cen.eu:en16931:2017",
+    },
     number: invoice.reference || invoice.name,
     issue_date: new Date(invoice.emit_date).toISOString().split("T")[0],
-    payment_due_date: invoice.payment_information.delay
-      ? new Date(
-          invoice.emit_date.getTime() +
-            invoice.payment_information.delay * 24 * 60 * 60 * 1000
-        )
+    payment_due_date: invoice.payment_information.computed_date
+      ? new Date(invoice.payment_information.computed_date)
           .toISOString()
           .split("T")[0]
       : undefined,
     type_code: typeCode,
     currency_code: invoice.currency || "EUR",
     buyer_reference: invoice.alt_reference || undefined,
-    invoice_note: invoice.notes ? [{ note: invoice.notes }] : undefined,
+    notes: invoiceNotes.length > 0 ? invoiceNotes : undefined,
     vat_category_code: globalVatCategoryCode,
     vat_exemption_reason_code: globalVatExemptionReasonCode,
+    invoicing_period:
+      invoice.from_subscription?.from &&
+      invoice.from_subscription?.to &&
+      invoice.from_subscription?.frequency
+        ? {
+            start_date: new Date(invoice.from_subscription.from)
+              .toISOString()
+              .split("T")[0],
+            end_date: new Date(invoice.from_subscription.to)
+              .toISOString()
+              .split("T")[0],
+          }
+        : undefined,
     seller,
     buyer,
     delivery_information: invoice.delivery_date
@@ -736,29 +879,39 @@ export function convertInternalToEN16931(
             .split("T")[0],
           postal_address: invoice.delivery_address.address_line_1
             ? {
-                street_name: invoice.delivery_address.address_line_1,
-                additional_street_name: invoice.delivery_address.address_line_2,
-                city_name: invoice.delivery_address.city,
-                postal_zone: invoice.delivery_address.zip,
-                country: invoice.delivery_address.country,
+                address_line1: invoice.delivery_address.address_line_1,
+                address_line2: invoice.delivery_address.address_line_2,
+                city: invoice.delivery_address.city,
+                post_code: invoice.delivery_address.zip,
+                country_code: invoice.delivery_address.country,
               }
             : undefined,
         }
       : undefined,
     payment_details: paymentDetails,
-    allowances_charges:
+    document_level_allowances:
       documentAllowances.length > 0 ? documentAllowances : undefined,
+    document_level_charges:
+      documentCharges.length > 0 ? documentCharges : undefined,
     totals: {
-      sum_of_invoice_net_amounts: sumOfLineNetAmounts,
-      sum_of_allowances_on_document_level:
-        documentAllowanceAmount > 0 ? documentAllowanceAmount : undefined,
-      invoice_total_amount_without_vat: totalWithoutVat,
-      invoice_total_vat_amount: totalVat,
-      invoice_total_amount_with_vat: totalWithVat,
-      amount_due_for_payment: totalWithVat,
-      tax_exclusive_amount: totalWithoutVat,
-      tax_amount: totalVat,
-      tax_inclusive_amount: totalWithVat,
+      sum_invoice_lines_amount: `${sumOfLineNetAmounts}`,
+      sum_allowances_amount:
+        documentAllowanceAmount > 0 ? `${documentAllowanceAmount}` : undefined,
+      sum_charges_amount:
+        documentChargeAmount > 0 ? `${documentChargeAmount}` : undefined,
+      total_without_vat: `${totalWithoutVat}`,
+      total_vat_amount:
+        totalVat > 0
+          ? {
+              value: `${totalVat}`,
+            }
+          : undefined,
+      total_with_vat: invoice.total?.total_with_taxes
+        ? `${invoice.total.total_with_taxes}`
+        : `${totalWithoutVat + totalVat}`,
+      amount_due_for_payment: invoice.total?.total_with_taxes
+        ? `${invoice.total.total_with_taxes}`
+        : `${totalWithoutVat + totalVat}`,
     },
     vat_break_down: vatBreakDown,
     lines,

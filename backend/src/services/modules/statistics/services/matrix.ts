@@ -4,8 +4,7 @@ import { Context } from "#src/types";
 import _ from "lodash";
 import { ArticlesDefinition } from "../../articles/entities/articles";
 import Invoices, { InvoicesDefinition } from "../../invoices/entities/invoices";
-import { applyOffset } from "../../invoices/triggers/recurring-generate-invoice";
-import { getTimezoneOffset } from "../../invoices/utils";
+import { getTimezoneOffset, applyOffset } from "@shared/invoices";
 
 /**
  * This function will generate invoices custom statistics for 2d tables

@@ -93,7 +93,7 @@ export const InvoiceLineInput = (props: {
   readonly?: boolean;
 }) => {
   const formContext = useContext(FormContextContext);
-  const { tvaOptions, maps } = useInvoiceMaps();
+  const { tvaOptions } = useInvoiceMaps();
 
   const value = props.ctrl?.value || props.value || ({} as InvoiceLine);
   const onChange = props.ctrl?.onChange || props.onChange;

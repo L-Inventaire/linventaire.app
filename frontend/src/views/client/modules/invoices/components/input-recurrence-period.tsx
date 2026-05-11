@@ -7,7 +7,7 @@ import { Text } from "@radix-ui/themes";
 import { FormInput } from "@components/form/fields";
 import { Checkbox } from "@atoms/input/input-checkbox";
 import { useEffect, useState } from "react";
-import { applyOffset } from "@features/invoices/utils";
+import { applyOffset } from "@shared/invoices";
 import _ from "lodash";
 
 export const InvoiceRecurrencePeriodInput = ({
@@ -22,12 +22,12 @@ export const InvoiceRecurrencePeriodInput = ({
   btnKey?: string;
 }) => {
   const frequencies = _.uniq(
-    invoice.content?.filter((a) => a.subscription).map((a) => a.subscription)
+    invoice.content?.filter((a) => a.subscription).map((a) => a.subscription),
   );
   const minFrequency =
     _.minBy(frequencies, (a) => {
       const t = new Date();
-      applyOffset(t, a!, 1);
+      applyOffset(t, a!, Intl.DateTimeFormat().resolvedOptions().timeZone, 1);
       return t.getTime();
     }) || "monthly";
   const expectedToDate = invoice.from_subscription?.from
@@ -41,7 +41,8 @@ export const InvoiceRecurrencePeriodInput = ({
         : invoice.from_subscription?.frequency) ||
         minFrequency ||
         "monthly",
-      1
+      Intl.DateTimeFormat().resolvedOptions().timeZone,
+      1,
     );
     expectedToDate.setDate(expectedToDate.getDate() - 1);
   }
@@ -58,7 +59,12 @@ export const InvoiceRecurrencePeriodInput = ({
     if (!useCustomDate) {
       if (!invoice.from_subscription?.from) {
         const to = new Date();
-        applyOffset(to, minFrequency, 1);
+        applyOffset(
+          to,
+          minFrequency,
+          Intl.DateTimeFormat().resolvedOptions().timeZone,
+          1,
+        );
         ctrl("from_subscription").onChange({
           from: Date.now(),
           to: to.getTime(),
@@ -89,7 +95,7 @@ export const InvoiceRecurrencePeriodInput = ({
                 Fin de la période le{" "}
                 {format(
                   new Date(invoice.from_subscription?.to || Date.now()),
-                  "dd/MM/yyyy"
+                  "dd/MM/yyyy",
                 )}
               </div>
             )}
@@ -114,12 +120,12 @@ export const InvoiceRecurrencePeriodInput = ({
         Période du{" "}
         {format(
           new Date(invoice.from_subscription?.from || Date.now()),
-          "dd/MM/yyyy"
+          "dd/MM/yyyy",
         )}{" "}
         au{" "}
         {format(
           new Date(invoice.from_subscription?.to || Date.now()),
-          "dd/MM/yyyy"
+          "dd/MM/yyyy",
         )}
       </Text>
     </InputButton>

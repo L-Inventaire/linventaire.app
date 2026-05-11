@@ -65,7 +65,7 @@ export const InvoiceInvoiceModalContent = ({
   const invoicedArticlesLines =
     invoices?.data?.list?.reduce(
       (acc, a) => acc.concat(a.content || []),
-      [] as InvoiceLine[]
+      [] as InvoiceLine[],
     ) || [];
   const invoicedArticlesMap = {} as Record<string, number>;
   for (const line of invoicedArticlesLines) {
@@ -79,7 +79,7 @@ export const InvoiceInvoiceModalContent = ({
       const invoicedQuantity = invoicedArticlesMap[a.article || ""] || 0;
       const quantity = Math.min(
         a.quantity_delivered || a.quantity || 0,
-        Math.max(0, (a.quantity || 0) - invoicedQuantity)
+        Math.max(0, (a.quantity || 0) - invoicedQuantity),
       );
       invoicedArticlesMap[a.article || ""] -= quantity || 0;
       return {
@@ -87,7 +87,7 @@ export const InvoiceInvoiceModalContent = ({
         quantity_on_quote: a.quantity || 0,
         quantity_remaining_max: Math.max(
           0,
-          (a.quantity || 0) - invoicedQuantity
+          (a.quantity || 0) - invoicedQuantity,
         ),
         quantity,
       };
@@ -126,7 +126,7 @@ export const InvoiceInvoiceModalContent = ({
       (a) =>
         a.quantity &&
         a.quantity > (a.quantity_delivered || 0) &&
-        ["service", "product", "consumable"].includes(a.type)
+        ["service", "product", "consumable"].includes(a.type),
     );
 
   return (
@@ -142,22 +142,22 @@ export const InvoiceInvoiceModalContent = ({
         onValueChange={(mode) => {
           setSelection(
             mode === "complete"
-              ? (defaultContent || []).map((a) => ({
+              ? ((defaultContent || []).map((a) => ({
                   ...a,
                   quantity: a.quantity_remaining_max,
-                }))
+                })) as any[])
               : mode === "down_payment"
-              ? [
-                  {
-                    type: "correction",
-                    name: "Acompte",
-                    quantity: 1,
-                    quantity_on_quote: 0,
-                    quantity_remaining_max: 1,
-                    unit_price: 0,
-                  },
-                ]
-              : defaultContent || []
+                ? [
+                    {
+                      type: "correction",
+                      name: "Acompte",
+                      quantity: 1,
+                      quantity_on_quote: 0,
+                      quantity_remaining_max: 1,
+                      unit_price: 0,
+                    } as any,
+                  ]
+                : (defaultContent as any[]) || [],
           );
         }}
       >
@@ -195,8 +195,8 @@ export const InvoiceInvoiceModalContent = ({
                                   ? defaultContent?.[i]?.quantity
                                   : 0 || 0,
                               }
-                            : s
-                        )
+                            : s,
+                        ),
                       )
                     }
                   />
@@ -207,7 +207,7 @@ export const InvoiceInvoiceModalContent = ({
                   size="md"
                   className={twMerge(
                     "w-24 shrink-0",
-                    !item.quantity && "opacity-50"
+                    !item.quantity && "opacity-50",
                   )}
                   max={defaultContent?.[index]?.quantity_remaining_max}
                   min={0}
@@ -221,11 +221,11 @@ export const InvoiceInvoiceModalContent = ({
                               quantity: Math.min(
                                 defaultContent?.[index]
                                   ?.quantity_remaining_max || 0,
-                                Math.max(0, +e.target.value)
+                                Math.max(0, +e.target.value),
                               ),
                             }
-                          : s
-                      )
+                          : s,
+                      ),
                     )
                   }
                 />
@@ -271,7 +271,7 @@ export const InvoiceInvoiceModalContent = ({
                     `?q=from_rel_quote:"${quote?.id}"`,
                   {
                     event,
-                  }
+                  },
                 );
                 onClose();
               }}
@@ -311,18 +311,18 @@ export const InvoiceInvoiceModalContent = ({
                 <div>
                   <Strong>
                     {formatAmount(
-                      partialInvoice.data?.partial_invoice?.total?.total || 0
+                      partialInvoice.data?.partial_invoice?.total?.total || 0,
                     )}{" "}
                     HT sur cette facture.
                   </Strong>
                   <br />
                   {formatAmount(
-                    partialInvoice.data?.invoiced?.total?.total || 0
+                    partialInvoice.data?.invoiced?.total?.total || 0,
                   )}{" "}
                   HT déjà facturé.
                   <br />
                   {formatAmount(
-                    partialInvoice.data?.remaining?.total?.total || 0
+                    partialInvoice.data?.remaining?.total?.total || 0,
                   )}{" "}
                   HT restera à facturer.
                   {!!partialInvoice.data?.remaining_credit_note && (
@@ -331,7 +331,7 @@ export const InvoiceInvoiceModalContent = ({
                       <Text color="orange">
                         {formatAmount(
                           partialInvoice.data?.remaining_credit_note?.total
-                            ?.total || 0
+                            ?.total || 0,
                         )}{" "}
                         trop perçu (avoir à créer).
                       </Text>
@@ -350,7 +350,7 @@ export const InvoiceInvoiceModalContent = ({
                         quote,
                         "id",
                         "emit_date",
-                        "reference_preferred_value"
+                        "reference_preferred_value",
                       ),
                       from_rel_quote: [quote?.id],
                       type: "invoices",
@@ -358,10 +358,10 @@ export const InvoiceInvoiceModalContent = ({
                       content:
                         partialInvoice.data?.partial_invoice?.content?.filter(
                           (a) =>
-                            a.type === "correction" || (a.quantity || 0) > 0
+                            a.type === "correction" || (a.quantity || 0) > 0,
                         ),
                       discount: partialInvoice.data?.partial_invoice?.discount,
-                    } as Partial<Invoices>)
+                    } as Partial<Invoices>),
                   );
                   onClose();
                 }}

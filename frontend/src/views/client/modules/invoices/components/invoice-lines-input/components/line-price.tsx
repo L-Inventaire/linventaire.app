@@ -45,7 +45,7 @@ export const InvoiceLinePriceInput = (props: {
               onChange!({
                 ...value,
                 unit_price: getCorrectPrice(props!.article!, props!.invoice),
-                tva: props?.article?.tva,
+                tva: props?.article?.tva || "S:20",
               });
             }}
           >

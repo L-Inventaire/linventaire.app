@@ -37,6 +37,8 @@ export default class Contacts extends RestEntity {
   business_registered_name = "string";
   business_registered_id = "string";
   business_tax_id = "string";
+  e_invoices_identifier = "string";
+  e_invoices_active = false;
 
   person_first_name = "string";
   person_last_name = "string";
@@ -102,6 +104,8 @@ export const ContactsDefinition: RestTableDefinition = {
     business_registered_name: "TEXT",
     business_registered_id: "TEXT",
     business_tax_id: "VARCHAR(64)",
+    e_invoices_identifier: "TEXT",
+    e_invoices_active: "BOOLEAN",
     person_first_name: "TEXT",
     person_last_name: "TEXT",
     language: "VARCHAR(64)",

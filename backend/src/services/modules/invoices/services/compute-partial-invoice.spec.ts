@@ -1,7 +1,7 @@
 import { describe, expect, test } from "@jest/globals";
 import { computePartialInvoice } from "./compute-partial-invoice";
 import Invoices, { InvoiceLine } from "../entities/invoices";
-import { computePricesFromInvoice } from "../utils";
+import { computePricesFromInvoice } from "@shared/invoices";
 import _ from "lodash";
 
 describe("Compute partial invoices", () => {
@@ -210,9 +210,9 @@ describe("Compute partial invoices", () => {
     expect(result.partial_invoice.content[0].unit_price).toBe(100);
     expect(result.partial_invoice.content[1].unit_price).toBe(-200);
     expect(result.partial_invoice.discount.value).toBe(0);
-    expect(result.partial_invoice.total.total_with_taxes).toBe(0);
-    expect(result.remaining_credit_note.type).toBe("credit_notes");
-    expect(result.remaining_credit_note.total.total_with_taxes).toBe(13000);
+    expect(result.partial_invoice?.total?.total_with_taxes).toBe(0);
+    expect(result.remaining_credit_note?.type).toBe("credit_notes");
+    expect(result.remaining_credit_note?.total?.total_with_taxes).toBe(13000);
   });
 
   test("Check bad partial invoices and selected items", async () => {

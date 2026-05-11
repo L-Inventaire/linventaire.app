@@ -5,7 +5,7 @@ import { Info } from "@atoms/text";
 import { FormContextContext } from "@components/form/formcontext";
 import { InputButton } from "@components/input-button";
 import { FilesInput } from "@components/input-rest/files";
-import { Invoices } from "@features/invoices/types/types";
+import { InvoiceLine, Invoices } from "@features/invoices/types/types";
 import { formatAmount } from "@features/utils/format/strings";
 import {
   PaperClipIcon,
@@ -48,7 +48,7 @@ export const InvoiceLinesInput = ({
           unit: "",
           unit_price: 0,
           quantity: 1,
-        },
+        } as InvoiceLine,
       ],
     });
   };
@@ -57,7 +57,7 @@ export const InvoiceLinesInput = ({
     <>
       <div
         className={twMerge(
-          "relative flex w-full items-center opacity-100 mb-3 transition-all group/invoice-line"
+          "relative flex w-full items-center opacity-100 mb-3 transition-all group/invoice-line",
         )}
       >
         <RadixCard
@@ -78,7 +78,7 @@ export const InvoiceLinesInput = ({
               </Box>
               <Box
                 className={twMerge(
-                  "text-right w-1/6 shrink-0 border-l dark:border-slate-700"
+                  "text-right w-1/6 shrink-0 border-l dark:border-slate-700",
                 )}
               >
                 <Heading size={"2"} className="py-1 px-2.5">
@@ -87,7 +87,7 @@ export const InvoiceLinesInput = ({
               </Box>
               <Box
                 className={twMerge(
-                  "text-right w-1/6 shrink-0 border-l dark:border-slate-700"
+                  "text-right w-1/6 shrink-0 border-l dark:border-slate-700",
                 )}
               >
                 <Heading size={"2"} className="py-1 px-2.5">
@@ -96,7 +96,7 @@ export const InvoiceLinesInput = ({
               </Box>
               <Box
                 className={twMerge(
-                  "text-right w-1/5 shrink-0 border-l dark:border-slate-700"
+                  "text-right w-1/5 shrink-0 border-l dark:border-slate-700",
                 )}
               >
                 <Heading size={"2"} className="py-1 px-2.5">
@@ -139,7 +139,7 @@ export const InvoiceLinesInput = ({
                     content: [
                       item,
                       ...(value.content || []).filter(
-                        (a) => a._id !== item._id
+                        (a) => a._id !== item._id,
                       ),
                     ],
                   })
@@ -153,7 +153,7 @@ export const InvoiceLinesInput = ({
                   onChange({
                     ...value,
                     content: value.content?.map((a) =>
-                      a._id === line._id ? line : a
+                      a._id === line._id ? line : a,
                     ),
                   }),
                 value: line,
@@ -184,7 +184,7 @@ export const InvoiceLinesInput = ({
                       // Swap with previous item
                       const content = _.cloneDeep(value.content || []);
                       const index = content.findIndex(
-                        (a) => a._id === line._id
+                        (a) => a._id === line._id,
                       );
                       if (index === 0) return;
                       const item = content[index];
@@ -203,7 +203,7 @@ export const InvoiceLinesInput = ({
                       // Swap with next item
                       const content = _.cloneDeep(value.content || []);
                       const index = content.findIndex(
-                        (a) => a._id === line._id
+                        (a) => a._id === line._id,
                       );
                       if (index === content.length - 1) return;
                       const item = content[index];
@@ -221,7 +221,7 @@ export const InvoiceLinesInput = ({
                 if (item._id === line._id) return;
                 // Place item after line
                 const content = _.cloneDeep(value.content || []).filter(
-                  (a) => a._id !== item._id
+                  (a) => a._id !== item._id,
                 );
                 const index = content.findIndex((a) => a._id === line._id);
                 content.splice(index + 1, 0, item);
@@ -269,7 +269,7 @@ export const InvoiceLinesInput = ({
             <div
               className={twMerge(
                 "space-x-2 text-right",
-                !readonly || value.discount?.value ? "mb-4" : "mb-0"
+                !readonly || value.discount?.value ? "mb-4" : "mb-0",
               )}
             >
               {!props.hideAttachments && !readonly && (
@@ -298,7 +298,11 @@ export const InvoiceLinesInput = ({
                         value={value?.discount}
                       />
                     )}
-                    value={value?.discount}
+                    value={
+                      (value?.discount?.value || 0) > 0
+                        ? value?.discount
+                        : undefined
+                    }
                   >
                     {"- "}
                     {(value?.discount?.value || 0) > 0 ? (

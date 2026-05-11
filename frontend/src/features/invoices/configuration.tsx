@@ -9,7 +9,6 @@ import {
   CtrlkAction,
   registerCtrlKRestEntity,
 } from "@features/ctrlk";
-import { useInvoiceMaps } from "@features/invoices/hooks/use-invoice-maps";
 import { getRoute, ROUTES } from "@features/routes";
 import { formatAmount } from "@features/utils/format/strings";
 import { RestFieldsNames } from "@features/utils/rest/configuration";
@@ -21,6 +20,11 @@ import {
 } from "@heroicons/react/16/solid";
 import { Column } from "@molecules/table/table";
 import { Badge } from "@radix-ui/themes";
+import {
+  computePricesFromInvoice,
+  isDeliveryLate,
+  isPaymentLate,
+} from "@shared/invoices";
 import { frequencyOptions } from "@views/client/modules/articles/components/article-details";
 import { ContactRestDocument } from "@views/client/modules/contacts/components/contact-input-rest-card";
 import { InvoicesDocumentBar } from "@views/client/modules/invoices/components/document-bar";
@@ -31,11 +35,6 @@ import { InvoiceStatus } from "@views/client/modules/invoices/components/invoice
 import { InvoicesDetailsPage } from "@views/client/modules/invoices/components/invoices-details";
 import { TagPaymentCompletion } from "@views/client/modules/invoices/components/tag-payment-completion";
 import { InvoicesEditPage } from "@views/client/modules/invoices/edit";
-import {
-  computePricesFromInvoice,
-  isDeliveryLate,
-  isPaymentLate,
-} from "@views/client/modules/invoices/utils";
 import { InvoicesViewPage } from "@views/client/modules/invoices/view";
 import { format } from "date-fns";
 import _ from "lodash";
@@ -47,7 +46,6 @@ import { Invoices } from "./types/types";
 
 export const useInvoiceDefaultModel: () => Partial<Invoices> = () => {
   const { client } = useCurrentClient();
-  const { maps } = useInvoiceMaps();
 
   return {
     type: "quotes",
@@ -224,6 +222,13 @@ export const InvoicesColumns: Column<Invoices>[] = [
               </div>
             );
           })}
+          {!!invoice.content?.find((a) => a.subscription) &&
+            invoice.subscription?.end_type === "none" && (
+              <Badge className="ml-2" variant="outline" color="green" size="1">
+                <ArrowPathIcon className="h-3 w-3 inline-block mr-1 -mt-0.5" />
+                Tacite reconduction
+              </Badge>
+            )}
         </Base>
       ) : (
         <Base className="text-right whitespace-nowrap">

@@ -40,6 +40,7 @@ export default defineConfig({
       "@config": path.resolve(__dirname, "./src/config"),
       "@features": path.resolve(__dirname, "./src/features"),
       "@assets": path.resolve(__dirname, "./src/assets"),
+      "@shared": path.resolve(__dirname, "../shared/src"),
     },
   },
   define: {

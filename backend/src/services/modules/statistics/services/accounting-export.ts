@@ -5,9 +5,9 @@ import _ from "lodash";
 import Articles, { ArticlesDefinition } from "../../articles/entities/articles";
 import Contacts, { ContactsDefinition } from "../../contacts/entities/contacts";
 import Invoices, { InvoicesDefinition } from "../../invoices/entities/invoices";
-import { getTimezoneOffset } from "../../invoices/utils";
 import { Tags, TagsDefinition } from "../../tags/entities/tags";
 import { getContactName } from "#src/services/utils";
+import { getTimezoneOffset } from "@shared/invoices";
 
 export type AccountingExportLine = {
   // Invoice information

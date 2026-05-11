@@ -123,19 +123,64 @@ export const getVatExemptionReason = (value: string): string | null => {
   }
   return (
     Object.keys(vatCategoryCodeToExemptionReason).find(
-      (key) => vatCategoryCodeToExemptionReason[key] === value
+      (key) => vatCategoryCodeToExemptionReason[key] === value,
     ) || null
   );
 };
 
-export const getVatCategory = (value: string): string | null => {
+export const getVatCode = (value: string, category?: string): string | null => {
   if (standardCodeToVatCategory[value]) {
     return value;
   }
-  return (
+  const candidate =
     Object.keys(standardCodeToVatCategory).find(
-      (key) => standardCodeToVatCategory[key] === value
-    ) || null
+      (key) => standardCodeToVatCategory[key] === value,
+    ) || null;
+  if (candidate) return candidate;
+
+  try {
+    const rate = parseFloat(value);
+    if (rate === 0) {
+      return (
+        Object.keys(standardCodeToVatCategory).find(
+          (key) => key.indexOf((category || "O") + ":") === 0,
+        ) || "O:VATEX-EU-O"
+      );
+    } else {
+      return (
+        Object.keys(standardCodeToVatCategory).find(
+          (key) => key.indexOf("S:" + Math.floor(rate)) === 0,
+        ) || null
+      );
+    }
+  } catch (e) {
+    return null;
+  }
+};
+
+export const getVatCategoryOnly = (value: string): string | null => {
+  if (standardCodeToVatCategory[value]) {
+    return value?.split(":")[0] || null; // Extract category code (e.g. "S" from "S:20")
+  }
+  return (
+    (
+      Object.keys(standardCodeToVatCategory).find(
+        (key) => standardCodeToVatCategory[key] === value,
+      ) || null
+    )?.split(":")[0] || null
+  );
+};
+
+export const getVatExemptionOnly = (value: string): string | null => {
+  if (standardCodeToVatCategory[value]) {
+    return value.split(":")[1]; // Extract exemption code (e.g. "E" from "E:VATEX-FR-CGI261-4-1")
+  }
+  return (
+    (
+      Object.keys(standardCodeToVatCategory).find(
+        (key) => standardCodeToVatCategory[key] === value,
+      ) || null
+    )?.split(":")[1] || null
   );
 };
 
@@ -145,7 +190,7 @@ export const getUnitCode = (value: string): string | null => {
   }
   return (
     Object.keys(standardCodeToUnit).find(
-      (key) => standardCodeToUnit[key] === value
+      (key) => standardCodeToUnit[key] === value,
     ) || null
   );
 };

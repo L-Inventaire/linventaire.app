@@ -18,6 +18,7 @@ import { Column } from "@molecules/table/table";
 import { ContactsDetailsPage } from "@views/client/modules/contacts/components/contact-details";
 import { Contacts, getContactName } from "./types/types";
 import { setDefaultRestActions } from "../utils/rest/utils";
+import { twMerge } from "tailwind-merge";
 
 export const useContactDefaultModel: () => Partial<Contacts> = () => ({
   type: "company",
@@ -40,10 +41,10 @@ export const ContactsColumns: Column<Contacts>[] = [
             contact.is_supplier && contact.is_client
               ? "Fournisseur et client"
               : contact.is_supplier
-              ? "Fournisseur"
-              : contact.is_client
-              ? "Client"
-              : "Aucun"
+                ? "Fournisseur"
+                : contact.is_client
+                  ? "Client"
+                  : "Aucun"
           }
           icon={(p) =>
             contact.is_supplier && contact.is_client ? (
@@ -63,10 +64,10 @@ export const ContactsColumns: Column<Contacts>[] = [
           {contact.is_supplier && contact.is_client
             ? "Tous"
             : contact.is_supplier
-            ? "Fourn."
-            : contact.is_client
-            ? "Client"
-            : "Aucun"}
+              ? "Fourn."
+              : contact.is_client
+                ? "Client"
+                : "Aucun"}
         </Button>
       </div>
     ),
@@ -77,15 +78,22 @@ export const ContactsColumns: Column<Contacts>[] = [
       <div className="flex space-x-2 items-center">
         <Button
           size="sm"
+          className="overflow-hidden relative"
           theme="outlined"
           data-tooltip={contact.type === "person" ? "Personne" : "Entreprise"}
-          icon={(p) =>
-            contact.type === "person" ? (
-              <UserIcon {...p} />
-            ) : (
-              <BuildingOfficeIcon {...p} />
-            )
-          }
+          icon={(p) => (
+            <>
+              {contact.type === "person" ? (
+                <UserIcon {...p} />
+              ) : (
+                <BuildingOfficeIcon {...p} />
+              )}
+              <ContactReadiness
+                contact={contact}
+                className="absolute right-[2px] bottom-[2px]"
+              />
+            </>
+          )}
         />
         <span>
           {getContactName(contact)}{" "}
@@ -157,7 +165,7 @@ export const ContactsFieldsNames = () => ({
   type: "Type d'entité",
   business_name: "Nom de l'entreprise",
   business_registered_name: "Nom enregistré",
-  business_registered_id: "Numéro d'identification",
+  business_registered_id: "Numéro d'identification (SIREN / SIRET)",
   business_tax_id: "Numéro de TVA",
   person_first_name: "Prénom",
   person_last_name: "Nom",
@@ -184,3 +192,41 @@ export const ContactsFieldsNames = () => ({
   documents: false,
   ...RestFieldsNames(),
 });
+
+export const isContactReady = (contact: Contacts) => {
+  return (
+    // Active an OK
+    contact.e_invoices_active ||
+    // Not a client / not a supplier
+    !(contact.is_supplier || contact.is_client) ||
+    // Not in France
+    (contact.address.country && contact.address.country !== "FR")
+  );
+};
+
+export const ContactReadiness = ({
+  contact,
+  className,
+}: {
+  contact: Contacts;
+  className?: string;
+}) => {
+  return (
+    <>
+      {isContactReady(contact) ? (
+        <></>
+      ) : contact.business_registered_id ? (
+        <div
+          className={twMerge(
+            "w-1.5 h-1.5 bg-yellow-500 rounded-full",
+            className,
+          )}
+        />
+      ) : (
+        <div
+          className={twMerge("w-1.5 h-1.5 bg-red-500 rounded-full", className)}
+        />
+      )}
+    </>
+  );
+};

@@ -23,7 +23,7 @@ import {
   standardCodeToVatCategory,
   standardCodeToVatValue,
   vatCategoryCodeToExemptionReason,
-} from "./types/maps";
+} from "@shared/consts";
 import { convertInternalToEN16931 } from "../e-invoices/services";
 import { getResolvedEntities } from "../e-invoices/services/invoice-converter";
 
@@ -85,6 +85,7 @@ export const registerRoutes = (router: Router) => {
           _index: number;
           quantity: number;
         }[],
+        facturx: req.query.facturx === "1",
       });
       res.setHeader("Content-Type", "application/pdf");
       if (req.query.download)

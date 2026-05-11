@@ -28,7 +28,11 @@ export const useClients = () => {
 
   useEffect(() => {
     // URL client not found in clients list, redirect to root
-    if (clients.length && !clients.find((c) => c.client.id === clientId)) {
+    if (
+      clientId &&
+      clients.length &&
+      !clients.find((c) => c.client.id === clientId)
+    ) {
       document.location = "/";
     }
   }, [clients.length]);

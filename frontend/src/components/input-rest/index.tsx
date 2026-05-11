@@ -28,6 +28,7 @@ export type RestDocumentProps<T> = {
   placeholder?: string;
   entity: string;
   filter?: Partial<T>;
+  query?: string;
   queryFn?: (ids: string[]) => Promise<{ total: number; list: T[] }>;
   render?: (value: T, valuesList?: T[]) => ReactNode | JSX.Element;
   renderEmpty?: () => ReactNode | JSX.Element;
@@ -53,7 +54,7 @@ export type RestDocumentProps<T> = {
 );
 
 export const RestDocumentsInput = <T extends RestEntity>(
-  props: RestDocumentProps<T>
+  props: RestDocumentProps<T>,
 ) => {
   const formContext = useContext(FormContextContext);
   const select = useCtrlKAsSelect();
@@ -117,7 +118,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
           getRoute(CtrlKRestEntities?.[props.entity]?.viewRoute || "", {
             id: valuesList?.[0]?.id,
           }),
-          { event: e }
+          { event: e },
         );
         return;
       }
@@ -134,18 +135,19 @@ export const RestDocumentsInput = <T extends RestEntity>(
                 const onChange = props.onChange || props.ctrl?.onChange;
                 onChange?.(
                   (items || []).map((a) => a.id),
-                  items || []
+                  items || [],
                 );
               }
             },
             props.max || 1,
-            valuesList || []
+            valuesList || [],
+            { query: props.query },
           )
         : value
-        ? edit(props.entity, _.isArray(value) ? value[0] : value || "")
-        : null;
+          ? edit(props.entity, _.isArray(value) ? value[0] : value || "")
+          : null;
     },
-    [valuesList, props.filter, props.entity, props.max, value]
+    [valuesList, props.filter, props.entity, props.max, value],
   );
 
   if (props.noWrapper) {
@@ -176,7 +178,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
           "inline-block relative",
           !disabled &&
             "hover:bg-slate-500 hover:bg-opacity-15 bg-opacity-0 transition-all cursor-pointer",
-          props.className
+          props.className,
         )}
         data-tooltip={props["data-tooltip"]}
       >
@@ -184,7 +186,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
         <div
           className={twMerge(
             "-space-x-2 inline-block",
-            (props.max || 1) > 1 && !disabled && "mr-1"
+            (props.max || 1) > 1 && !disabled && "mr-1",
           )}
         >
           {(valuesList || []).map((value, i) => (
@@ -227,7 +229,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
           "dark:hover:bg-slate-800 hover:bg-gray-100 dark:hover:border-slate-700 dark:active:bg-slate-700 active:bg-gray-200",
         disabled && !value && "opacity-50 border-transparent shadow-none",
         disabled && "shadow-none",
-        props.className
+        props.className,
       )}
       data-tooltip={props["data-tooltip"]}
     >
@@ -240,7 +242,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
           size === "sm" && "py-0 px-1 space-x-1",
           size === "md" && "py-0.5 px-1.5 space-x-2",
           size === "lg" && "py-1 px-1.5 space-x-1",
-          size === "xl" && "p-2 space-x-2"
+          size === "xl" && "p-2 space-x-2",
         )}
       >
         {icon &&
@@ -254,7 +256,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
                 <Info
                   className={twMerge(
                     "block w-full transition-all",
-                    !value && size !== "xl" ? "h-0 opacity-0" : "h-4"
+                    !value && size !== "xl" ? "h-0 opacity-0" : "h-4",
                   )}
                 >
                   {props.label}
@@ -262,7 +264,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
                 <Base
                   className={twMerge(
                     "block w-full transition-all opacity-75",
-                    value ? "h-0 opacity-0" : "min-h-5"
+                    value ? "h-0 opacity-0" : "min-h-5",
                   )}
                 >
                   {props.placeholder || props.label || props.entity}
@@ -277,7 +279,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
                           data-tooltip="Prévisualiser / éditer"
                           className={twMerge(
                             "w-0 ml-0.5 overflow-hidden",
-                            value && "w-5 ml-px transition-all delay-200"
+                            value && "w-5 ml-px transition-all delay-200",
                           )}
                           theme="invisible"
                           size="xs"
@@ -287,7 +289,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
                             e.stopPropagation();
                             edit(
                               props.entity,
-                              _.isArray(value) ? value[0] : value || ""
+                              _.isArray(value) ? value[0] : value || "",
                             );
                           }}
                         />
@@ -297,7 +299,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
                         data-tooltip="Supprimer"
                         className={twMerge(
                           "bg-opacity-0 bg-red-500 text-red-500 dark:text-red-500 w-0 ml-0.5 overflow-hidden",
-                          value && "w-5 ml-px transition-all delay-200"
+                          value && "w-5 ml-px transition-all delay-200",
                         )}
                         theme="invisible"
                         size="xs"
@@ -328,7 +330,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
                 className={twMerge(
                   "leading-5 block",
                   ["xs", "sm", "md"].includes(size) &&
-                    "line-clamp-1 text-ellipsis"
+                    "line-clamp-1 text-ellipsis",
                 )}
               >
                 {props.render
@@ -341,7 +343,7 @@ export const RestDocumentsInput = <T extends RestEntity>(
                 className={twMerge(
                   "leading-5 block",
                   ["xs", "sm", "md"].includes(size) &&
-                    "line-clamp-1 text-ellipsis"
+                    "line-clamp-1 text-ellipsis",
                 )}
               >
                 {props.renderEmpty?.()}

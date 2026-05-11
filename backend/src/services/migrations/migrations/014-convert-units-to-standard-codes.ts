@@ -5,7 +5,7 @@ import Articles, {
 import Invoices, {
   InvoicesDefinition,
 } from "#src/services/modules/invoices/entities/invoices";
-import { getUnitCode } from "#src/services/modules/invoices/types/maps";
+import { getUnitCode } from "@shared/consts";
 import { Context } from "#src/types";
 
 export const convertUnitsToStandardCodes = async (ctx: Context) => {

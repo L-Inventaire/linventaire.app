@@ -5069,7 +5069,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:>=10.0.0":
+"@types/node@npm:*, @types/node@npm:>=10.0.0, @types/node@npm:^25.6.0":
   version: 25.6.0
   resolution: "@types/node@npm:25.6.0"
   dependencies:
@@ -5134,6 +5134,15 @@ __metadata:
   version: 1.2.7
   resolution: "@types/range-parser@npm:1.2.7"
   checksum: 95640233b689dfbd85b8c6ee268812a732cf36d5affead89e806fe30da9a430767af8ef2cd661024fd97e19d61f3dec75af2df5e80ec3bea000019ab7028629a
+  languageName: node
+  linkType: hard
+
+"@types/react@npm:^19.2.14":
+  version: 19.2.14
+  resolution: "@types/react@npm:19.2.14"
+  dependencies:
+    csstype: ^3.2.2
+  checksum: ddd330292abf2dc2cfa65188e1c5f67cc6e90f8d8ffb088f753a38db9d123f942c23d324a6b7e8027ff04f22b395492150f54b9b520b6cbec1e8841e669f2c19
   languageName: node
   linkType: hard
 
@@ -5686,8 +5695,10 @@ __metadata:
     "@types/joi": ^17.2.3
     "@types/luxon": ^3.4.2
     "@types/multer": ^1.4.11
+    "@types/node": ^25.6.0
     "@types/node-cache": ^4.2.5
     "@types/pg": ^8.10.7
+    "@types/react": ^19.2.14
     "@types/redlock": ^4.0.4
     "@types/twig": ^1.12.9
     "@typescript-eslint/eslint-plugin": ^5.38.1
@@ -5739,6 +5750,7 @@ __metadata:
     ts-node: ^10.9.2
     ts-node-dev: ^2.0.0
     ts-patch: ^3.2.1
+    tsconfig-paths: ^4.2.0
     twig: ^1.16.0
     typescript: 5.5
     typescript-transform-paths: ^3.5.1
@@ -7205,6 +7217,13 @@ __metadata:
     shebang-command: ^2.0.0
     which: ^2.0.1
   checksum: 8d306efacaf6f3f60e0224c287664093fa9185680b2d195852ba9a863f85d02dcc737094c6e512175f8ee0161f9b87c73c6826034c2422e39de7d6569cf4503b
+  languageName: node
+  linkType: hard
+
+"csstype@npm:^3.2.2":
+  version: 3.2.3
+  resolution: "csstype@npm:3.2.3"
+  checksum: cb882521b3398958a1ce6ca98c011aec0bde1c77ecaf8a1dd4db3b112a189939beae3b1308243b2fe50fc27eb3edeb0f73a5a4d91d928765dc6d5ecc7bda92ee
   languageName: node
   linkType: hard
 
@@ -10395,7 +10414,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"json5@npm:^2.2.3":
+"json5@npm:^2.2.2, json5@npm:^2.2.3":
   version: 2.2.3
   resolution: "json5@npm:2.2.3"
   bin:
@@ -14057,6 +14076,17 @@ __metadata:
     ts-patch: bin/ts-patch.js
     tspc: bin/tspc.js
   checksum: b9c85e338406ae75a306d0e12d9968ee3819922f996cecc5d7176842d2e5cb5f194bd651a85098b0a5b6c432fb29f0305e57003d4920ff0a5dfa5b111b9d3e7c
+  languageName: node
+  linkType: hard
+
+"tsconfig-paths@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "tsconfig-paths@npm:4.2.0"
+  dependencies:
+    json5: ^2.2.2
+    minimist: ^1.2.6
+    strip-bom: ^3.0.0
+  checksum: 28c5f7bbbcabc9dabd4117e8fdc61483f6872a1c6b02a4b1c4d68c5b79d06896c3cc9547610c4c3ba64658531caa2de13ead1ea1bf321c7b53e969c4752b98c7
   languageName: node
   linkType: hard
 

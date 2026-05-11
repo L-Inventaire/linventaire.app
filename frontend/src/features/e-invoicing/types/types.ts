@@ -1,4 +1,4 @@
-import { EN16931Invoice } from "./en16931-types";
+import { EN16931Invoice } from "@shared/en16931-types";
 import { RestEntity } from "@/features/utils/rest/types/types";
 
 export interface EInvoicingConfig {

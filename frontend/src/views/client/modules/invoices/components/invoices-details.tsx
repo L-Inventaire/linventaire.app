@@ -19,12 +19,11 @@ import { useContact, useContacts } from "@features/contacts/hooks/use-contacts";
 import { Contacts } from "@features/contacts/types/types";
 import { useViewWithCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { InvoicesFieldsNames } from "@features/invoices/configuration";
+import { useEInvoicesReady } from "@features/invoices/hooks/use-e-invoices-ready";
 import { useInvoice, useInvoices } from "@features/invoices/hooks/use-invoices";
-import { useInvoiceMaps } from "@features/invoices/hooks/use-invoice-maps";
 import { Invoices } from "@features/invoices/types/types";
 import {
   getDocumentName,
-  getInvoiceNextDate,
   getInvoiceWithOverrides,
 } from "@features/invoices/utils";
 import { ROUTES } from "@features/routes";
@@ -38,6 +37,7 @@ import { getTextFromHtml } from "@features/utils/format/strings";
 import { useEffectChange } from "@features/utils/hooks/use-changed-effect";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import {
+  ArrowPathIcon,
   ExclamationCircleIcon,
   PlayCircleIcon,
 } from "@heroicons/react/16/solid";
@@ -49,14 +49,18 @@ import {
 import { EditorInput } from "@molecules/editor-input";
 import { Table } from "@molecules/table";
 import { Timeline } from "@molecules/timeline";
-import { Callout, Code, Heading, Text, Tooltip } from "@radix-ui/themes";
+import { Badge, Callout, Code, Heading, Text, Tooltip } from "@radix-ui/themes";
+import {
+  computePaymentDelayDate,
+  computePricesFromInvoice,
+  getInvoiceNextDate,
+} from "@shared/invoices";
 import { PageColumns } from "@views/client/_layout/page";
 import { format as formatdfns } from "date-fns";
 import _ from "lodash";
 import { DateTime } from "luxon";
 import { Fragment, useEffect } from "react";
 import { ContactRestDocument } from "../../contacts/components/contact-input-rest-card";
-import { computePaymentDelayDate, computePricesFromInvoice } from "../utils";
 import { getBestDeliveryAddress, InputDelivery } from "./input-delivery";
 import { InvoiceInputFormat } from "./input-format";
 import { InvoicePaymentInput } from "./input-payment";
@@ -79,7 +83,6 @@ export const InvoicesDetailsPage = ({
   id: string;
 }) => {
   const { client: clientUser } = useClients();
-  const { maps } = useInvoiceMaps();
   const client = clientUser!.client!;
 
   const { isPending, ctrl, draft, setDraft } = useReadDraftRest<Invoices>(
@@ -92,6 +95,7 @@ export const InvoicesDetailsPage = ({
     draft.client || draft.supplier,
   );
   const { contact: invoiceContact } = useContact(draft.contact);
+  const { isReady: eInvoicesReady, missingReason } = useEInvoicesReady(draft);
   const edit = useViewWithCtrlK();
 
   const { invoice: originQuote } = useInvoice(draft.from_rel_quote?.[0] || "");
@@ -147,7 +151,7 @@ export const InvoicesDetailsPage = ({
         if (draft.type && !draft.reference && draft.emit_date) {
           draft.reference = getReference(draft);
         }
-        draft.total = computePricesFromInvoice(draft, maps?.vat_values);
+        draft.total = computePricesFromInvoice(draft);
         draft.content = (draft.content || []).map((a) => ({
           ...a,
           _id: a._id || _.uniqueId(),
@@ -358,6 +362,18 @@ export const InvoicesDetailsPage = ({
                 type={draft.type}
                 onChange={(value) => setDraft({ ...draft, state: value })}
               />
+              {!!draft.content?.find((a) => a.subscription) &&
+                draft.subscription?.end_type === "none" && (
+                  <Badge
+                    className="ml-2"
+                    variant="outline"
+                    color="green"
+                    size="2"
+                  >
+                    <ArrowPathIcon className="h-3 w-3 inline-block mr-1 -mt-0.5" />
+                    Tacite reconduction
+                  </Badge>
+                )}
               <div className="grow" />
               {draft.type === "invoices" && (
                 <TagPaymentCompletion invoice={draft} />
@@ -445,7 +461,7 @@ export const InvoicesDetailsPage = ({
                             {Math.abs(
                               Math.floor(
                                 computePaymentDelayDate(draft)
-                                  .diff(DateTime.now())
+                                  .diff(DateTime.now() as any)
                                   .as("days"),
                               ),
                             )}{" "}
@@ -593,6 +609,13 @@ export const InvoicesDetailsPage = ({
                   )}
                 </PageColumns>
               </div>
+
+              {hasClientOrSupplier && !eInvoicesReady && missingReason && (
+                <Callout.Root color="red" className="mb-4">
+                  <Callout.Text>{missingReason}</Callout.Text>
+                </Callout.Root>
+              )}
+
               {hasClientOrSupplier && (
                 <>
                   <Section className="mb-2">

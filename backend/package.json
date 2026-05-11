@@ -1,12 +1,12 @@
 {
   "name": "application",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn -- src/index.ts",
+    "dev": "ts-node-dev --respawn --require tsconfig-paths/register src/index.ts",
     "dev:test": "TZ=UTC JEST=1 jest --watchAll ",
-    "build": "tspc && cp -R ./assets ./dist/ && yarn sentry:sourcemaps",
+    "build": "cd ../shared && npx tsc --build && cd ../backend && tspc && cp -R ./assets ./dist/ && (yarn sentry:sourcemaps || true)",
     "start": "tsc && cp -R ./assets ./dist/ && node --prof ./dist/src/index.js",
     "serve": "node --inspect ./dist/src/index.js",
     "test": "tsc && rm -R dist/tests && TZ=UTC JEST=1 CREATE_SERVER=1 NODE_ENV=tests jest --runInBand --watchAll=false --forceExit --coverage ./",
@@ -29,6 +29,7 @@
     ],
     "moduleNameMapper": {
       "^#src/(.*)$": "<rootDir>/src/$1",
+      "^@shared/(.*)$": "<rootDir>/../shared/dist/$1",
       "@react-pdf/renderer": "<rootDir>/tests/__mocks__/@react-pdf/renderer.ts"
     }
   },
@@ -37,6 +38,7 @@
     "@babel/preset-env": "^7.20.2",
     "@babel/preset-typescript": "^7.21.0",
     "@types/express": "^4.17.1",
+    "@types/node": "^25.6.0",
     "@typescript-eslint/eslint-plugin": "^5.38.1",
     "@typescript-eslint/parser": "^5.38.1",
     "babel-jest": "29.7.0",
@@ -45,6 +47,7 @@
     "json-schema-to-typescript": "^13.1.1",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "5.5"
   },
   "imports": {
@@ -67,6 +70,7 @@
     "@types/multer": "^1.4.11",
     "@types/node-cache": "^4.2.5",
     "@types/pg": "^8.10.7",
+    "@types/react": "^19.2.14",
     "@types/redlock": "^4.0.4",
     "@types/twig": "^1.12.9",
     "amqp-connection-manager": "^4.1.14",

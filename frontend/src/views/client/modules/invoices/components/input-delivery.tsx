@@ -8,11 +8,11 @@ import { Invoices } from "@features/invoices/types/types";
 import { AddressLength, formatAddress } from "@features/utils/format/address";
 import { TruckIcon } from "@heroicons/react/20/solid";
 import { format } from "date-fns";
-import { computeDeliveryDelayDate, isDeliveryLate } from "../utils";
+import { computeDeliveryDelayDate, isDeliveryLate } from "@shared/invoices";
 
 export const getBestDeliveryAddress = (
   client: Contacts,
-  contact?: Contacts
+  contact?: Contacts,
 ): Invoices["delivery_address"] => {
   /**
    * En priorité celle du contact, puis celle du client sinon, enfin celle par défaut du client si rien ne match
@@ -75,7 +75,7 @@ export const InputDelivery = ({
                 }
                 if (e === "delivery_date") {
                   ctrl("delivery_date").onChange(
-                    Date.now() + 1000 * 60 * 60 * 24 * 7
+                    Date.now() + 1000 * 60 * 60 * 24 * 7,
                   );
                   ctrl("delivery_delay").onChange(undefined);
                 }
@@ -106,9 +106,9 @@ export const InputDelivery = ({
                     e
                       ? (getBestDeliveryAddress(
                           client,
-                          contact || undefined
+                          contact || undefined,
                         ) as Invoices["delivery_address"])
-                      : null
+                      : null,
                   )
                 }
               />
@@ -145,7 +145,7 @@ export const InputDelivery = ({
             {formatAddress(
               invoice.delivery_address,
               AddressLength.part1,
-              "Aucune adresse de livraison"
+              "Aucune adresse de livraison",
             )}
           </Info>
           <Info>

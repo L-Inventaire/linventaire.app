@@ -1,5 +1,7 @@
 import { Address, Payment } from "@features/clients/types/clients";
 import { RestEntity } from "@features/utils/rest/types/types";
+import { EN16931Invoice } from "@shared/en16931-types";
+import * as Shared from "@shared/types";
 
 export type InvoicesType =
   | "quotes"
@@ -98,6 +100,8 @@ export type Invoices = RestEntity & {
     to: number; // Invoiced period end
   };
 
+  en16931?: EN16931Invoice;
+
   cache?: {
     partner_names: string; // Cached names of the partner (client or supplier) for quick access
     from_rel_quote_ref: string; // Cached reference of the quote from which this invoice was generated
@@ -142,35 +146,11 @@ export type InvoiceSubscription = {
   renew_as: "draft" | "sent" | "closed";
 };
 
-export type InvoiceLine = {
+export interface InvoiceLine extends Shared.InvoiceLine {
   _id?: string;
+}
 
-  article?: string; // Nullable
-
-  type: "product" | "service" | "consumable" | "separation" | "correction"; // product, service, consumable, separation
-  name?: string;
-  description?: string;
-
-  reference?: string;
-  unit?: string;
-  quantity?: number;
-  unit_price?: number;
-  tva?: string;
-  discount?: InvoiceDiscount;
-  subscription?: "" | "daily" | "weekly" | "monthly" | "yearly" | string; // Monthly or yearly subscription
-  subscription_duration?: number; // Number of months or years
-
-  quantity_ready?: number; //Quantity received or sent to determine if the line is ready to be invoices
-  quantity_delivered?: number; //Quantity delivered or received to determine if the line is ready to be invoices
-
-  optional?: boolean;
-  optional_checked?: boolean; // Checked by the client or by the agent (like a default checked option)
-};
-
-export type InvoiceDiscount = {
-  mode: "percentage" | "amount" | null;
-  value: number;
-};
+export type InvoiceDiscount = Shared.InvoiceDiscount;
 
 export type InvoiceFormat = {
   heading: string;

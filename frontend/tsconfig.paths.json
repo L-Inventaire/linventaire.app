@@ -10,7 +10,8 @@
       "@store/*": ["store/*"],
       "@config/*": ["config/*"],
       "@features/*": ["features/*"],
-      "@assets/*": ["assets/*"]
+      "@assets/*": ["assets/*"],
+      "@shared/*": ["../../shared/src/*"]
     }
   }
 }
