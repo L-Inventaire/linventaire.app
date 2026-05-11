@@ -38,7 +38,7 @@ export const formatIBAN = (iban: string) => {
   );
 };
 
-export const formatQuantity = (quantity?: number, unit = "unité") => {
+export const formatQuantity = (quantity?: number, unit = "EA") => {
   return unit !== "HUR"
     ? quantity || 0
     : prettyPrintTime(timeDecimalToBase60(quantity || 0));

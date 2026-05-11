@@ -11,7 +11,8 @@ export const supportedUnits = {
 // This function is also in frontend and should be kept in sync
 export const convertUnit = (value: number, from: string, to: string) => {
   if (from === to) return value;
-  if (from === "unit" || to === "unit") return value;
+  if (from === "unit" || to === "unit" || from === "EA" || to === "EA")
+    return value;
 
   // Time related
   const factors: any = {

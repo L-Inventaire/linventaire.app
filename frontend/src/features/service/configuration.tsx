@@ -117,11 +117,11 @@ export const ServiceItemsColumns: Column<ServiceItems>[] = [
         className={twMerge(
           "whitespace-nowrap",
           item.quantity_spent > item.quantity_expected &&
-            "bg-red-100 text-red-800"
+            "bg-red-100 text-red-800",
         )}
       >
-        {formatQuantity(item.quantity_spent, "h")} /{" "}
-        {formatQuantity(item.quantity_expected, "h")}
+        {formatQuantity(item.quantity_spent, "HUR")} /{" "}
+        {formatQuantity(item.quantity_expected, "HUR")}
       </Badge>
     ),
   },
@@ -174,8 +174,8 @@ export const ServiceTimesColumns: Column<ServiceTimes>[] = [
     render: (item) => {
       return (
         <>
-          {formatQuantity(item.quantity, item.unit || "h")}{" "}
-          <Unit unit={item.unit || "h"} />
+          {formatQuantity(item.quantity, item.unit || "HUR")}{" "}
+          <Unit unit={item.unit || "HUR"} />
         </>
       );
     },

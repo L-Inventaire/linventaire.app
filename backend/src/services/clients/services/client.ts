@@ -209,7 +209,7 @@ export const createClient = async (ctx: Context, body: Partial<Clients>) => {
       id: new_article_id,
       client_id: client.id,
       name: Framework.I18n.t(ctx, "articles.default_service_items"),
-      unit: "h",
+      unit: "HUR",
       type: "service",
       is_deleted: false,
       created_at: new Date(),

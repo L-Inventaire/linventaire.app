@@ -73,7 +73,7 @@ export const ServiceItemsDetailsPage = ({
   });
 
   const [onCreateAddSpentTime, setOnCreateAddSpentTime] = useState<SpentTime[]>(
-    []
+    [],
   );
   const [markAsDone, setMarkAsDone] = useState<boolean>(false);
 
@@ -137,7 +137,7 @@ export const ServiceItemsDetailsPage = ({
             type="text"
             ctrl={ctrl("title")}
           />
-          {(!article?.unit || article?.unit === "h") && (
+          {(!article?.unit || article?.unit === "HUR") && (
             <InputTime
               size="lg"
               label={"Temps"}
@@ -213,7 +213,7 @@ export const ServiceItemsDetailsPage = ({
                         if (services.length && !draft.article) {
                           ctrl("article").onChange(services[0].article);
                           ctrl("quantity_expected").onChange(
-                            services[0].quantity
+                            services[0].quantity,
                           );
                         }
                       }) as any
@@ -255,7 +255,7 @@ export const ServiceItemsDetailsPage = ({
                       ...(ctrl("for_rel_quote").value &&
                       quote?.content?.map((a) => a.article)?.length &&
                       !["completed", "closed", "recurring"].includes(
-                        quote.state
+                        quote.state,
                       )
                         ? { id: quote?.content?.map((a) => a.article) }
                         : {}),
@@ -306,7 +306,7 @@ export const ServiceItemsDetailsPage = ({
               <div className="mt-12">
                 <Heading size="4">Temps déjà effectué</Heading>
                 <InlineSpentTimeInput
-                  unit={article?.unit ?? "h"}
+                  unit={article?.unit ?? "HUR"}
                   quantity={ctrl("quantity_expected").value}
                   value={onCreateAddSpentTime}
                   onChange={setOnCreateAddSpentTime}

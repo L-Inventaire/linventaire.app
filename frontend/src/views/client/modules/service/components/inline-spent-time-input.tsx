@@ -68,7 +68,7 @@ export const InlineSpentTimeInput = (props: {
               assigned: [user!.id],
               quantity: parseFloat(props.quantity || "0"),
               description: "",
-              unit: props.unit || "h",
+              unit: props.unit || "HUR",
             },
           ]);
         }}
@@ -101,7 +101,7 @@ const SpentTimeLine = (props: {
       />
       {!!props.unit && props.unit !== "HUR" && (
         <Input
-          label={"Temps passé en " + getUnitLabel(props.unit || "h", t)}
+          label={"Temps passé en " + getUnitLabel(props.unit || "HUR", t)}
           type="number"
           onChange={(e) =>
             props.onChange({
@@ -112,10 +112,10 @@ const SpentTimeLine = (props: {
           value={props.value.quantity || ""}
         />
       )}
-      {(!props.unit || props.unit === "h") && (
+      {(!props.unit || props.unit === "HUR") && (
         <InputTime
           size="sm"
-          label={"Temps passé en " + getUnitLabel(props.unit || "h", t)}
+          label={"Temps passé en " + getUnitLabel(props.unit || "HUR", t)}
           onChange={(_, number) => {
             const quantity = timeBase60ToDecimal(number);
 

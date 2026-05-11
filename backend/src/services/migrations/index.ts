@@ -20,6 +20,7 @@ import { fixNotificationsSearchables } from "./migrations/012-notifications-fix-
 import { rebuildArticlesSearchables } from "./migrations/013-articles-reindex-searchable";
 import { convertUnitsToStandardCodes } from "./migrations/014-convert-units-to-standard-codes";
 import { convertVatExemptionsToStandardCodes } from "./migrations/015-convert-vat-exemptions-to-standard-codes";
+import { convertVatToStandardCodes } from "./migrations/016-convert-vat-to-standard-codes";
 
 export default class Clients implements InternalApplicationService {
   version = 1;
@@ -75,6 +76,7 @@ export default class Clients implements InternalApplicationService {
       "014-convert-units-to-standard-codes": convertUnitsToStandardCodes,
       "015-convert-vat-exemptions-to-standard-codes":
         convertVatExemptionsToStandardCodes,
+      "016-convert-vat-to-standard-codes": convertVatToStandardCodes,
     } as {
       [key: string]: (ctx: Context) => Promise<void>;
     };

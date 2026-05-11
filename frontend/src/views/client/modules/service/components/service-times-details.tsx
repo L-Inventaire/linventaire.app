@@ -27,7 +27,7 @@ export const ServiceTimesDetailsPage = ({
   const { ctrl, draft, setDraft } = useReadDraftRest<ServiceTimes>(
     "service_times",
     id || "new",
-    readonly
+    readonly,
   );
 
   const { service_item } = useServiceItem(draft.service);
@@ -36,7 +36,7 @@ export const ServiceTimesDetailsPage = ({
 
   useEffect(() => {
     if (article?.unit) {
-      setDraft((d) => ({ ...d, unit: article.unit || "h" }));
+      setDraft((d) => ({ ...d, unit: article.unit || "HUR" }));
     }
   }, [article?.unit]);
 
@@ -73,7 +73,7 @@ export const ServiceTimesDetailsPage = ({
         <br />
 
         <InputTime
-          label={"Temps passé en " + getUnitLabel(article?.unit || "h", t)}
+          label={"Temps passé en " + getUnitLabel(article?.unit || "HUR", t)}
           value={timeDecimalToBase60(ctrl("quantity").value)}
           onChange={(_, number) => {
             const quantity = timeBase60ToDecimal(number);
