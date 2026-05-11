@@ -9,7 +9,7 @@
     "build": "cd ../shared && npx tsc --build && cd ../backend && tspc && cp -R ./assets ./dist/ && (yarn sentry:sourcemaps || true)",
     "start": "tsc && cp -R ./assets ./dist/ && node --prof ./dist/src/index.js",
     "serve": "node --inspect ./dist/src/index.js",
-    "test": "tsc && rm -R dist/tests && TZ=UTC JEST=1 CREATE_SERVER=1 NODE_ENV=tests jest --runInBand --watchAll=false --forceExit --coverage ./",
+    "test": "tsc && rm -Rf dist/tests && TZ=UTC JEST=1 CREATE_SERVER=1 NODE_ENV=tests jest --runInBand --watchAll=false --forceExit --coverage ./",
     "linter": "CI=true eslint 'src/**/*.{ts,ts}'",
     "sentry:sourcemaps": "sentry-cli sourcemaps inject --org linventaireapp --project linventaire-back ./dist && sentry-cli sourcemaps upload --org linventaireapp --project linventaire-back ./dist"
   },

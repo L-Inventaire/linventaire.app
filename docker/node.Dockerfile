@@ -9,6 +9,7 @@ WORKDIR /app
 COPY shared ./shared
 WORKDIR /app/shared
 RUN yarn install
+RUN yarn build
 
 # Copy and build backend
 WORKDIR /app/backend

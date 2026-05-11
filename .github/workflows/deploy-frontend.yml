@@ -30,6 +30,14 @@ jobs:
         with:
           node-version: "20" # Adjust Node.js version as needed
 
+      - name: Install shared dependencies with Yarn
+        working-directory: ./shared
+        run: yarn install
+
+      - name: Build shared library
+        working-directory: ./shared
+        run: yarn build
+
       - name: Install dependencies with Yarn
         working-directory: ./frontend
         run: yarn install

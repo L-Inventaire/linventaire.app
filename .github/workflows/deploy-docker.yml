@@ -52,9 +52,17 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Install shared dependencies
+        working-directory: ./shared
+        run: npm install
+
+      - name: Build shared library
+        working-directory: ./shared
+        run: npm run build
+
       - name: Build Docker image frontend
         run: |
-          docker build -t ghcr.io/l-inventaire/client/nginx:latest --build-arg SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} frontend
+          docker build -t ghcr.io/l-inventaire/client/nginx:latest --build-arg SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} . -f frontend/Dockerfile
           export FRONTEND_VERSION=$(node -p "require('./frontend/package.json').version")
           docker tag ghcr.io/l-inventaire/client/nginx:latest ghcr.io/l-inventaire/client/nginx:$FRONTEND_VERSION
 
