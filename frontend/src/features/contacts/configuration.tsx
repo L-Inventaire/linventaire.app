@@ -200,7 +200,7 @@ export const isContactReady = (contact: Contacts) => {
     // Not a client / not a supplier
     !(contact.is_supplier || contact.is_client) ||
     // Not in France
-    (contact.address.country && contact.address.country !== "FR")
+    (contact.address?.country && contact.address?.country !== "FR")
   );
 };
 
