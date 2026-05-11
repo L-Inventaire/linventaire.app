@@ -353,7 +353,7 @@ export async function getResolvedEntities(
     ContactsDefinition.name,
     {
       client_id: ctx.client_id,
-      id: document.client,
+      id: document.client || document.supplier,
     }
   );
   const articles = await search<Articles>(
@@ -684,8 +684,8 @@ export function convertInternalToEN16931(
   );
 
   // Use precomputed allowances breakdown
-  const documentAllowances: any[] = [];
-  const documentCharges: any[] = [];
+  let documentAllowances: any[] = [];
+  let documentCharges: any[] = [];
   let documentAllowanceAmount = 0;
   const documentChargeAmount = 0;
 
@@ -709,6 +709,10 @@ export function convertInternalToEN16931(
       documentAllowanceAmount += allowance.amount;
     }
   }
+  documentAllowances = documentAllowances.filter(
+    (a) => parseFloat(a.amount) > 0
+  );
+  documentCharges = documentCharges.filter((c) => parseFloat(c.amount) > 0);
 
   // Use precomputed VAT breakdown
   const vatBreakDown: EN16931VatBreakDown[] = [];
