@@ -3,7 +3,7 @@ const Env = {
   server:
     // "https://api.linventaire.app" ||
     document.location.origin.replace(/:[0-9]+$/, "") + ":3000",
-  version: "1.2.1",
+  version: "1.2.2",
 };
 
 export default Env;
