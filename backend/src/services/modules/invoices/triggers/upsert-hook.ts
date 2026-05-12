@@ -16,6 +16,7 @@ import Articles, { ArticlesDefinition } from "../../articles/entities/articles";
 import { convertInternalToEN16931 } from "../../e-invoices/services";
 import { getResolvedEntities } from "../../e-invoices/services/invoice-converter";
 import Services from "#src/services/index";
+import { EN16931Invoice } from "@shared/en16931-types";
 
 /** Make sure autocomputed data are autocomputed **/
 export const setUpsertHook = () =>
@@ -199,25 +200,32 @@ export const setUpsertHook = () =>
       const config = await Services.EInvoices.getConfig(ctx);
       if (config && config.connection_status === "connected") {
         // Test conversion to en16931, and if field changed, then validate it with superPDP
-        const en16931 = convertInternalToEN16931(
-          updated,
-          await getResolvedEntities(ctx, updated)
-        );
+        let en16931: EN16931Invoice | null = null;
+        try {
+          en16931 = convertInternalToEN16931(
+            updated,
+            await getResolvedEntities(ctx, updated)
+          );
+        } catch (e) {
+          console.error("Error converting to EN16931 format:", e);
+        }
         if (!_.isEqual(entity.en16931, en16931)) {
           updated.en16931 = null;
-          const client = await Services.EInvoices.getClient(ctx);
-          try {
-            const { valid } = await client.validateInvoice(en16931);
-            if (valid) {
-              updated.en16931 = en16931;
-            } else {
-              console.log(
-                "EN16931 validation failed, not saving en16931 field"
-              );
+          if (en16931) {
+            const client = await Services.EInvoices.getClient(ctx);
+            try {
+              const { valid } = await client.validateInvoice(en16931);
+              if (valid) {
+                updated.en16931 = en16931;
+              } else {
+                console.log(
+                  "EN16931 validation failed, not saving en16931 field"
+                );
+              }
+            } catch (error) {
+              console.error("Error validating EN16931 with SuperPDP:", error);
+              // Don't save if validation fails due to error
             }
-          } catch (error) {
-            console.error("Error validating EN16931 with SuperPDP:", error);
-            // Don't save if validation fails due to error
           }
         }
       }
