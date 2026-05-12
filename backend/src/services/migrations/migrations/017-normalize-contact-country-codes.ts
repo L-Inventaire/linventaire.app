@@ -29,7 +29,7 @@ export const normalizeContactCountryCodes = async (ctx: Context) => {
   let offset = 0;
   let totalProcessed = 0;
   let totalUpdated = 0;
-  let invalidCountries = new Set<string>();
+  const invalidCountries = new Set<string>();
 
   do {
     contactItems = await db.select<Contacts>(
