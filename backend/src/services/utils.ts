@@ -13,7 +13,7 @@ export function secureExpress() {
   const app = express();
   app.use(
     cors({
-      origin: /(localhost:[0-9]+|.+\.linventaire\.app)$/,
+      origin: /(localhost:[0-9]+|.+\.linventaire\.app|linventaire\.app)$/,
       credentials: true,
       maxAge: 86400,
     })

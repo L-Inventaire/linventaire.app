@@ -35,6 +35,13 @@ export default (router: Router) => {
     const email = req.query.email as string;
     const external_id = req.query.external_id as string;
 
+    if (!email || !external_id) {
+      return res.status(400).json({
+        success: false,
+        error: "Missing email or external_id",
+      });
+    }
+
     await create(
       { ...ctx, id: "-", role: "SYSTEM" },
       DataAnalysisDefinition.name,
