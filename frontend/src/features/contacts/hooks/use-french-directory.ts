@@ -155,7 +155,7 @@ export const useFrenchDirectorySearchManual = () => {
   };
 
   return {
-    companies: result.data,
+    companies: result.data || [],
     has_more: result.has_more,
     isPending,
     error,

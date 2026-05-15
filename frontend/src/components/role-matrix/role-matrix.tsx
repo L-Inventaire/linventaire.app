@@ -25,6 +25,11 @@ const MODULES = [
     description: "Gérer les clients et fournisseurs",
   },
   {
+    key: "COMMENTS",
+    name: "Commentaires",
+    description: "Consulter et créer des commentaires",
+  },
+  {
     key: "ARTICLES",
     name: "Articles",
     description: "Gérer le catalogue produits/services",
@@ -104,7 +109,7 @@ const PRESETS = {
           "INVOICES",
           "SUPPLIER_INVOICES",
           "SUPPLIER_QUOTES",
-        ].includes(m.key)
+        ].includes(m.key),
     )
       .flatMap((m) => [`${m.key}_WRITE` as Role])
       .concat([
@@ -157,7 +162,7 @@ export const RoleMatrix = ({
   const updatePermission = (
     moduleKey: string,
     level: "read" | "write" | "manage",
-    enabled: boolean
+    enabled: boolean,
   ) => {
     let newRoles = [...value];
 
@@ -166,7 +171,7 @@ export const RoleMatrix = ({
       (role) =>
         !role.startsWith(`${moduleKey}_READ`) &&
         !role.startsWith(`${moduleKey}_WRITE`) &&
-        !role.startsWith(`${moduleKey}_MANAGE`)
+        !role.startsWith(`${moduleKey}_MANAGE`),
     );
 
     if (enabled) {

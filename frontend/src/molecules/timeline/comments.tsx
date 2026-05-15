@@ -105,10 +105,12 @@ export const CommentCreate = ({
   entity,
   item,
   refresh,
+  disabled = false,
 }: {
   entity: string;
   item: string;
   refresh: () => void;
+  disabled?: boolean;
 }) => {
   const { save } = useDraftRest<Comments>("comments", "new", async () => {});
 
@@ -119,7 +121,7 @@ export const CommentCreate = ({
   return (
     <Card className="space-y-2" variant="surface">
       <EditorInput
-        disabled={false}
+        disabled={disabled}
         value={comment}
         onChange={setComment}
         className="border-none bg-transparent dark:bg-transparent p-0"
@@ -144,7 +146,7 @@ export const CommentCreate = ({
             loading={loading}
             variant="solid"
             radius="full"
-            disabled={loading || !comment}
+            disabled={disabled || loading || !comment}
             onClick={async () => {
               setLoading(true);
               try {

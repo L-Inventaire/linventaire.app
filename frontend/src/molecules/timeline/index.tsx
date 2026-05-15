@@ -28,26 +28,42 @@ import { AnimatePresence, motion } from "motion/react";
 import { ReactNode } from "react";
 import { CommentCreate } from "./comments";
 import { getEventLine, prepareHistory } from "./timeline";
+import { useHasAccess } from "@/features/access";
 
-export const Timeline = ({
-  entity,
-  id,
-  viewRoute,
-  translations,
-}: {
+type TimelineProps = {
   entity: string;
   id: string;
   viewRoute?: string;
   translations?: {
     [key: string]: { label: string; values?: { [key: string]: string } };
   };
-}) => {
+};
+
+export const Timeline = (props: TimelineProps) => {
+  const hasAccess = useHasAccess();
+
+  if (!hasAccess("COMMENTS_READ")) {
+    return <></>;
+  }
+
+  return <TimelineContent {...props} />;
+};
+
+export const TimelineContent = ({
+  entity,
+  id,
+  viewRoute,
+  translations,
+}: TimelineProps) => {
   const isRevision = (id || "").includes("~");
   const revision = (id || "").split("~")[1];
   const navigate = useNavigateAlt();
 
   const { user } = useAuth();
   const { thread, update } = useThread(entity, id);
+
+  const hasAccess = useHasAccess();
+  const canSendComments = hasAccess("COMMENTS_WRITE");
 
   const { data, fetchNextPage, hasNextPage, refresh } = useRestHistory<
     RestEntity & {
@@ -168,7 +184,12 @@ export const Timeline = ({
             </div>
             {!current.is_deleted && (
               <div className="mt-6">
-                <CommentCreate entity={entity} item={id} refresh={refresh} />
+                <CommentCreate
+                  entity={entity}
+                  item={id}
+                  refresh={refresh}
+                  disabled={!canSendComments}
+                />
               </div>
             )}
           </motion.div>
