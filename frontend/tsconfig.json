@@ -16,6 +16,6 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
-  "include": ["src", "../shared/src/en16931-types.ts"],
+  "include": ["src", "../shared/src"],
   "extends": "./tsconfig.paths.json"
 }

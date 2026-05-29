@@ -231,29 +231,18 @@ export const generatePdf = async (
   );
 
   if (document.type === "invoices" || document.type === "credit_notes") {
-    // Get SuperPDP client (automatically decrypts credentials)
-    const superpdpClient = await Services.EInvoices.getClient(ctx);
     if (
-      options.facturx ||
-      (eInvoicingConfig &&
-        eInvoicingConfig.connection_status === "connected" &&
-        eInvoicingConfig.send_enabled === true)
-    ) {
-      pdfWithAttachments = Buffer.from(
-        await generateFacturXPdf(
-          ctx,
-          pdfWithAttachments, // The base PDF to embed invoice data into
-          document,
-          superpdpClient, // SuperPDP client for Factur-X conversion
-          options.as // Pass the "as" option to handle different invoice types
-        )
-      );
-    } else if (
       eInvoicingConfig &&
       eInvoicingConfig.connection_status === "connected"
     ) {
-      // Disabled but we'll run it anyway to get warnings and sentry errors
-      try {
+      // Get SuperPDP client (automatically decrypts credentials)
+      const superpdpClient = await Services.EInvoices.getClient(ctx);
+      if (
+        options.facturx ||
+        (eInvoicingConfig &&
+          eInvoicingConfig.connection_status === "connected" &&
+          eInvoicingConfig.send_enabled === true)
+      ) {
         pdfWithAttachments = Buffer.from(
           await generateFacturXPdf(
             ctx,
@@ -263,18 +252,34 @@ export const generatePdf = async (
             options.as // Pass the "as" option to handle different invoice types
           )
         );
-      } catch (e: any) {
-        console.error(
-          "Factur-X generation failed, but e-invoicing is disabled, so we'll ignore this error",
-          e
-        );
-        captureException(e, {
-          tags: {
-            module: "invoices",
-            action: "generate_pdf",
-            reason: "facturx_generation_failed",
-          },
-        });
+      } else if (
+        eInvoicingConfig &&
+        eInvoicingConfig.connection_status === "connected"
+      ) {
+        // Disabled but we'll run it anyway to get warnings and sentry errors
+        try {
+          pdfWithAttachments = Buffer.from(
+            await generateFacturXPdf(
+              ctx,
+              pdfWithAttachments, // The base PDF to embed invoice data into
+              document,
+              superpdpClient, // SuperPDP client for Factur-X conversion
+              options.as // Pass the "as" option to handle different invoice types
+            )
+          );
+        } catch (e: any) {
+          console.error(
+            "Factur-X generation failed, but e-invoicing is disabled, so we'll ignore this error",
+            e
+          );
+          captureException(e, {
+            tags: {
+              module: "invoices",
+              action: "generate_pdf",
+              reason: "facturx_generation_failed",
+            },
+          });
+        }
       }
     }
   }
