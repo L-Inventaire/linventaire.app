@@ -10,6 +10,7 @@ import {
   RestEntityColumnsDefinition,
 } from "../../../rest/entities/entity";
 import { flattenKeys } from "../../../utils";
+import { expandNumericPrefixes } from "../../../rest/services/rest";
 
 export default class Articles extends RestEntity {
   assigned = ["type:users"];
@@ -84,11 +85,13 @@ export const ArticlesDefinition: RestTableDefinition = {
     searchable: (entity: Articles) => {
       return [
         Object.values(flattenKeys(_.pick(entity, ["name"]))).join(" "),
-        Object.values(flattenKeys(_.pick(entity, ["internal_reference"]))).join(
-          " "
+        expandNumericPrefixes(
+          Object.values(
+            flattenKeys(_.pick(entity, ["internal_reference"]))
+          ).join(" ")
         ),
         Object.values(entity.suppliers_details || [])
-          .map((a) => a.reference)
+          .map((a) => expandNumericPrefixes(a.reference))
           .join(" "),
         Object.values(flattenKeys(_.pick(entity, ["notes"]))).join(" "),
       ];

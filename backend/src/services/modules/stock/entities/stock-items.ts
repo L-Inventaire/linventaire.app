@@ -10,6 +10,7 @@ import {
   RestEntityColumnsDefinition,
 } from "../../../rest/entities/entity";
 import { flattenKeys } from "../../../utils";
+import { expandNumericPrefixes } from "../../../rest/services/rest";
 
 /**
  * Stock:
@@ -72,7 +73,9 @@ export const StockItemsDefinition: RestTableDefinition = {
     label: (entity: StockItems) => entity.serial_number,
     searchable: (entity: StockItems) => {
       return [
-        ...Object.values(flattenKeys(_.pick(entity, ["serial_number"]))),
+        ...Object.values(flattenKeys(_.pick(entity, ["serial_number"]))).map(
+          expandNumericPrefixes
+        ),
         (entity.serial_number || "").split("").reverse().join(""),
         entity.cache?.article_name || "",
         entity.cache?.client_name || "",
