@@ -448,6 +448,19 @@ const orderSearchResults = (items: RestEntity[], query: string) => {
   );
 };
 
+// For a reference string, generates all prefixes of each numeric segment (min length 3),
+// so that partial searches like "TSU-001" match "TSU-001001-R".
+export const expandNumericPrefixes = (str: string): string => {
+  const MIN_PREFIX_LENGTH = 3;
+  const extra: string[] = [];
+  for (const segment of str.match(/\d+/g) || []) {
+    for (let len = MIN_PREFIX_LENGTH; len < segment.length; len++) {
+      extra.push(segment.slice(0, len));
+    }
+  }
+  return extra.length > 0 ? str + " " + extra.join(" ") : str;
+};
+
 // string: single priority, string[]: multiple priority with first: highest
 export const expandSearchable = (searchable: string | string[]) => {
   if (_.isArray(searchable)) {
