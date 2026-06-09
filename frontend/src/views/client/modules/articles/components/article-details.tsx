@@ -54,7 +54,7 @@ export const ArticlesDetailsPage = ({
       | "supplier_invoices" = "invoices",
   ) => {
     // Parser regex [^"]* can't handle inner quotes; stripping them is safe because the map resolves to the article ID.
-    const safeName = draft.name.replace(/"/g, "");
+    const safeName = draft.name.replace(/"/g, " ");
     const query = [
       `q=${encodeURIComponent(`articles.all:"${safeName}"`)}`,
       `map=${encodeURIComponent(
