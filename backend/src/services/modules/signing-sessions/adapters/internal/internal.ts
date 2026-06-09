@@ -343,6 +343,7 @@ export default class InternalAdapter implements DocumentSignerInterface {
 
     // Retrieve client SMTP config from the signing session initiator
     let smtp: SmtpOptions | undefined;
+    let client: Clients | null = null;
     try {
       const signingSession = await db.selectOne<SigningSessions>(
         {} as Context,
@@ -350,7 +351,7 @@ export default class InternalAdapter implements DocumentSignerInterface {
         { id: session.signing_session_id }
       );
       if (signingSession?.client_id) {
-        const client = await db.selectOne<Clients>(
+        client = await db.selectOne<Clients>(
           {} as Context,
           ClientsDefinition.name,
           { id: signingSession.client_id }
@@ -381,6 +382,7 @@ export default class InternalAdapter implements DocumentSignerInterface {
         message,
         {
           subject,
+          from: client?.company?.name || client?.company?.legal_name,
         },
         smtp
       );
