@@ -1,13 +1,19 @@
 import { id } from "#src/platform/db/utils";
 import Framework from "#src/platform/index";
+import { SmtpOptions } from "#src/platform/push-email/api";
 import { Context } from "#src/types";
 import config from "config";
 import crypto from "crypto";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import Clients, { ClientsDefinition } from "../../../../clients/entities/clients";
 import {
   ESignSessions,
   ESignSessionsDefinition,
 } from "../../entities/e-sign-session";
+import {
+  SigningSessions,
+  SigningSessionsDefinition,
+} from "../../entities/signing-session";
 import { AddFieldProps, DocumentSignerInterface } from "../../interface";
 import {
   CreateDocumentToSign,
@@ -335,6 +341,27 @@ export default class InternalAdapter implements DocumentSignerInterface {
       } as Partial<ESignSessions>
     );
 
+    // Retrieve client SMTP config from the signing session initiator
+    let smtp: SmtpOptions | undefined;
+    let client: Clients | null = null;
+    try {
+      const signingSession = await db.selectOne<SigningSessions>(
+        {} as Context,
+        SigningSessionsDefinition.name,
+        { id: session.signing_session_id }
+      );
+      if (signingSession?.client_id) {
+        client = await db.selectOne<Clients>(
+          {} as Context,
+          ClientsDefinition.name,
+          { id: signingSession.client_id }
+        );
+        smtp = client?.smtp;
+      }
+    } catch (e) {
+      console.error("Failed to retrieve client SMTP config, using default:", e);
+    }
+
     // Send email with code
     try {
       const subject = Framework.I18n.t(
@@ -350,12 +377,14 @@ export default class InternalAdapter implements DocumentSignerInterface {
       );
 
       await Framework.PushEMail.push(
-        {} as any,
+        ctx,
         session.recipient_email,
         message,
         {
           subject,
-        }
+          from: client?.company?.name || client?.company?.legal_name,
+        },
+        smtp
       );
     } catch (error: any) {
       console.error("Failed to send verification email:", error);
