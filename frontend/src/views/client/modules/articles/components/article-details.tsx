@@ -53,10 +53,12 @@ export const ArticlesDetailsPage = ({
       | "supplier_quotes"
       | "supplier_invoices" = "invoices",
   ) => {
+    // Parser regex [^"]* can't handle inner quotes; stripping them is safe because the map resolves to the article ID.
+    const safeName = draft.name.replace(/"/g, "");
     const query = [
-      `q=${encodeURIComponent(`articles.all:"${draft.name}"`)}`,
+      `q=${encodeURIComponent(`articles.all:"${safeName}"`)}`,
       `map=${encodeURIComponent(
-        JSON.stringify({ [`articles.all:${draft.name}`]: draft.id }),
+        JSON.stringify({ [`articles.all:${safeName}`]: draft.id }),
       )}`,
     ].join("&");
     return getRoute(ROUTES.Invoices, { type }) + "?" + query;
