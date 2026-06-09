@@ -22,14 +22,14 @@ import { Contacts } from "@features/contacts/types/types";
 import { ROUTES, getRoute } from "@features/routes";
 import { paymentOptions } from "@features/utils/constants";
 import { debounce } from "@features/utils/debounce";
-import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
+import { DraftContext, useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { EditorInput } from "@molecules/editor-input";
 import { Timeline } from "@molecules/timeline";
 import { Heading } from "@radix-ui/themes";
 import { PageColumns } from "@views/client/_layout/page";
 import _ from "lodash";
 import { SirenAutoSuggestions } from "./siren-auto-suggestions";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { InvoiceInputFormat } from "../../invoices/components/input-format";
 import { InvoicePaymentInput } from "../../invoices/components/input-payment";
@@ -47,6 +47,7 @@ export const ContactsDetailsPage = ({
 }) => {
   const { client } = useClients();
   const [searchParams] = useSearchParams();
+  const { onSwitchToEdit: contextSwitchToEdit } = useContext(DraftContext);
 
   // Initialize skipSearch: false for new company contacts, true for existing or person contacts
   const getInitialSkipSearch = () => {
@@ -57,6 +58,24 @@ export const ContactsDetailsPage = ({
   };
 
   const [skipSearch, setSkipSearch] = useState(getInitialSkipSearch());
+
+  // Flag to open the search panel as soon as readonly switches to false (modal mode)
+  const pendingOpenSearch = useRef(false);
+  useEffect(() => {
+    if (!readonly && pendingOpenSearch.current) {
+      pendingOpenSearch.current = false;
+      setSkipSearch(false);
+    }
+  }, [readonly]);
+
+  // In modal: switch to edit mode + schedule search panel opening
+  // In full page: undefined → Link falls back to "to=" navigation
+  const onSwitchToEditAndSearch = contextSwitchToEdit
+    ? () => {
+        pendingOpenSearch.current = true;
+        contextSwitchToEdit();
+      }
+    : undefined;
 
   const {
     isPending,
@@ -302,6 +321,7 @@ export const ContactsDetailsPage = ({
                             address={contact.address}
                             onSelectCompany={handleSelectCompany}
                             onOpenFullSearch={handleBackToSearch}
+                            onSwitchToEdit={onSwitchToEditAndSearch}
                             readonly={readonly}
                             contactId={id}
                           />
@@ -311,8 +331,8 @@ export const ContactsDetailsPage = ({
                             actif renseigné.{" "}
                             Vous pouvez{" "}
                             <Link
-                              to={readonly ? getRoute(ROUTES.ContactsEdit, { id }) + "?openSearch=true" : undefined}
-                              onClick={readonly ? undefined : handleBackToSearch}
+                              to={!onSwitchToEditAndSearch && readonly ? getRoute(ROUTES.ContactsEdit, { id }) + "?openSearch=true" : undefined}
+                              onClick={onSwitchToEditAndSearch ?? (readonly ? undefined : handleBackToSearch)}
                               className="text-amber-900 underline font-medium"
                             >
                               rechercher dans l'annuaire
@@ -325,8 +345,8 @@ export const ContactsDetailsPage = ({
                     {contact.business_registered_id && (
                       <div className="text-sm">
                         <Link
-                          to={readonly ? getRoute(ROUTES.ContactsEdit, { id }) + "?openSearch=true" : undefined}
-                          onClick={readonly ? undefined : handleBackToSearch}
+                          to={!onSwitchToEditAndSearch && readonly ? getRoute(ROUTES.ContactsEdit, { id }) + "?openSearch=true" : undefined}
+                          onClick={onSwitchToEditAndSearch ?? (readonly ? undefined : handleBackToSearch)}
                         >
                           ← Rechercher dans l'annuaire de la facturation
                           électronique

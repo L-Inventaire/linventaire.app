@@ -8,16 +8,17 @@ import {
 } from "@components/search-bar/utils/utils";
 import { CtrlKRestEntities } from "@features/ctrlk";
 import { CtrlKAtom } from "@features/ctrlk/store";
-import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
+import { DraftContext, useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { useRestSchema } from "@features/utils/rest/hooks/use-rest";
 import { RestEntity } from "@features/utils/rest/types/types";
 import _ from "lodash";
-import { useCallback } from "react";
+import { useCallback, useContext } from "react";
 import Scrollbars from "react-custom-scrollbars";
 import { useRecoilState } from "recoil";
 
 export const ModalEditor = (props: { stateId: string }) => {
   const [states, setStates] = useRecoilState(CtrlKAtom);
+  const outerDraftContext = useContext(DraftContext);
 
   const state = states.find((s) => s.id === props.stateId);
   const setState = (newState: any) => {
@@ -165,14 +166,16 @@ export const ModalEditor = (props: { stateId: string }) => {
       </div>
       <Scrollbars>
         <div className="p-4">
-          {CtrlKRestEntities[currentState.options?.entity || ""]
-            ?.renderEditor &&
-            CtrlKRestEntities[
-              currentState.options?.entity || ""
-            ]?.renderEditor?.({
-              id: currentState.options?.id || "",
-              readonly: currentState.options?.readonly,
-            })}
+          <DraftContext.Provider value={{ ...outerDraftContext, onSwitchToEdit: () => onChangeMode("write") }}>
+            {CtrlKRestEntities[currentState.options?.entity || ""]
+              ?.renderEditor &&
+              CtrlKRestEntities[
+                currentState.options?.entity || ""
+              ]?.renderEditor?.({
+                id: currentState.options?.id || "",
+                readonly: currentState.options?.readonly,
+              })}
+          </DraftContext.Provider>
         </div>
       </Scrollbars>
       {!!footer && (
