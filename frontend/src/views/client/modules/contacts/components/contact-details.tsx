@@ -30,7 +30,7 @@ import { PageColumns } from "@views/client/_layout/page";
 import _ from "lodash";
 import { SirenAutoSuggestions } from "./siren-auto-suggestions";
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { InvoiceInputFormat } from "../../invoices/components/input-format";
 import { InvoicePaymentInput } from "../../invoices/components/input-payment";
 import { ContactAccountingAccount } from "./contact-accounting-account";
@@ -46,7 +46,6 @@ export const ContactsDetailsPage = ({
   id: string;
 }) => {
   const { client } = useClients();
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   // Initialize skipSearch: false for new company contacts, true for existing or person contacts
@@ -312,10 +311,8 @@ export const ContactsDetailsPage = ({
                             actif renseigné.{" "}
                             Vous pouvez{" "}
                             <Link
-                              onClick={readonly
-                                ? () => navigate(getRoute(ROUTES.ContactsEdit, { id }) + "?openSearch=true")
-                                : handleBackToSearch
-                              }
+                              to={readonly ? getRoute(ROUTES.ContactsEdit, { id }) + "?openSearch=true" : undefined}
+                              onClick={readonly ? undefined : handleBackToSearch}
                               className="text-amber-900 underline font-medium"
                             >
                               rechercher dans l'annuaire
@@ -327,10 +324,10 @@ export const ContactsDetailsPage = ({
                     )}
                     {contact.business_registered_id && (
                       <div className="text-sm">
-                        <Link onClick={readonly
-                          ? () => navigate(getRoute(ROUTES.ContactsEdit, { id }) + "?openSearch=true")
-                          : handleBackToSearch
-                        }>
+                        <Link
+                          to={readonly ? getRoute(ROUTES.ContactsEdit, { id }) + "?openSearch=true" : undefined}
+                          onClick={readonly ? undefined : handleBackToSearch}
+                        >
                           ← Rechercher dans l'annuaire de la facturation
                           électronique
                         </Link>
