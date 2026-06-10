@@ -303,22 +303,35 @@ export const getAccountingExport = async (
         (!line.optional || line.optional_checked)
     );
 
+    const invoiceBase = {
+      invoice_id: invoice.id,
+      invoice_reference: invoice.reference || "",
+      invoice_emit_date: new Date(invoice.emit_date).toISOString().split("T")[0],
+      invoice_type: invoice.type,
+      invoice_state: invoice.state,
+      invoice_total_ht: invoice.total?.total || 0,
+      invoice_total_ttc: invoice.total?.total_with_taxes || 0,
+      quote_id: quoteId,
+      quote_reference: quoteReference,
+      contact_id: companyContactId || "",
+      contact_name: companyContactName,
+      person_contact_id: personContactId,
+      person_contact_name: personContactName,
+    };
+
     lines.forEach((line, index) => {
       const article = line.article ? articlesMap[line.article] : null;
 
-      // Get accounting info based on invoice type (sell for client invoices, buy for supplier invoices)
       const accountingInfo = article?.accounting
         ? isSupplier
           ? article.accounting.buy
           : article.accounting.sell
         : null;
 
-      // Calculate line totals
       const quantity = line.quantity || 0;
       const unitPrice = line.unit_price || 0;
       let lineTotal = quantity * unitPrice;
 
-      // Apply line discount if any
       if (line.discount) {
         if (line.discount.mode === "percentage") {
           lineTotal = lineTotal * (1 - (line.discount.value || 0) / 100);
@@ -327,42 +340,17 @@ export const getAccountingExport = async (
         }
       }
 
-      // Calculate TVA
       const tvaRate = parseFloat(line.tva || "0") || 0;
       const tvaAmount = lineTotal * (tvaRate / 100);
       const lineTotalTTC = lineTotal + tvaAmount;
 
-      // Get tags from article and convert IDs to names
       const tagNames = (article?.tags || [])
         .map((tagId) => tagsMap[tagId]?.name)
         .filter(Boolean)
         .join("; ");
 
       exportLines.push({
-        // Invoice information
-        invoice_id: invoice.id,
-        invoice_reference: invoice.reference || "",
-        invoice_emit_date: new Date(invoice.emit_date)
-          .toISOString()
-          .split("T")[0],
-        invoice_type: invoice.type,
-        invoice_state: invoice.state,
-        invoice_total_ht: invoice.total?.total || 0,
-        invoice_total_ttc: invoice.total?.total_with_taxes || 0,
-
-        // Quote/Order information
-        quote_id: quoteId,
-        quote_reference: quoteReference,
-
-        // Contact information (company)
-        contact_id: companyContactId || "",
-        contact_name: companyContactName,
-
-        // Person contact information
-        person_contact_id: personContactId,
-        person_contact_name: personContactName,
-
-        // Line information
+        ...invoiceBase,
         line_index: index + 1,
         line_article_id: line.article || "",
         line_article_name: line.name || article?.name || "",
@@ -384,13 +372,9 @@ export const getAccountingExport = async (
         line_total_ttc: parseFloat((lineTotalTTC || 0) as any).toFixed(
           2
         ) as unknown as number,
-
-        // Accounting information - empty if no category/article
         accounting_number: accountingInfo?.standard_identifier || "",
         accounting_name: accountingInfo?.name || "",
         accounting_standard: accountingInfo?.standard || "",
-
-        // Tags
         tags: tagNames,
       });
     });
@@ -411,30 +395,7 @@ export const getAccountingExport = async (
         const discountTtc = discountHt + tvaAmount;
 
         exportLines.push({
-          // Invoice information
-          invoice_id: invoice.id,
-          invoice_reference: invoice.reference || "",
-          invoice_emit_date: new Date(invoice.emit_date)
-            .toISOString()
-            .split("T")[0],
-          invoice_type: invoice.type,
-          invoice_state: invoice.state,
-          invoice_total_ht: invoice.total?.total || 0,
-          invoice_total_ttc: invoice.total?.total_with_taxes || 0,
-
-          // Quote/Order information
-          quote_id: quoteId,
-          quote_reference: quoteReference,
-
-          // Contact information (company)
-          contact_id: companyContactId || "",
-          contact_name: companyContactName,
-
-          // Person contact information
-          person_contact_id: personContactId,
-          person_contact_name: personContactName,
-
-          // Line information
+          ...invoiceBase,
           line_index: lines.length + allowanceIndex + 1,
           line_article_id: "",
           line_article_name: "Remise globale",
@@ -455,13 +416,9 @@ export const getAccountingExport = async (
           line_total_ttc: parseFloat((discountTtc || 0) as any).toFixed(
             2
           ) as unknown as number,
-
-          // Accounting information - empty for global discount line
           accounting_number: "",
           accounting_name: "",
           accounting_standard: "",
-
-          // Tags
           tags: "",
         });
       });
