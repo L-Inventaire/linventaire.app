@@ -1,4 +1,4 @@
-import { createContext } from "react";
+import { createContext, useMemo, useRef } from "react";
 
 export type DocumentMode = "read" | "write";
 
@@ -12,3 +12,14 @@ export const DocumentContext = createContext<DocumentContextType>({
   changeMode: () => {},
   _registerChangeMode: () => () => {},
 });
+
+export const useDocumentContextRef = (): DocumentContextType => {
+  const changeModeRef = useRef<(mode: DocumentMode) => void>(() => {});
+  return useMemo(() => ({
+    changeMode: (mode) => changeModeRef.current(mode),
+    _registerChangeMode: (fn) => {
+      changeModeRef.current = fn;
+      return () => { changeModeRef.current = () => {}; };
+    },
+  }), []);
+};

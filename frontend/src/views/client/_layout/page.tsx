@@ -2,12 +2,12 @@ import { Button } from "@atoms/button/button";
 import { InputOutlinedDefaultBorders } from "@atoms/styles/inputs";
 import { Section } from "@atoms/text";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
-import { DocumentContext } from "@features/utils/document-context";
+import { DocumentContext, useDocumentContextRef } from "@features/utils/document-context";
 import { ScrollArea, ScrollAreaProps } from "@radix-ui/themes";
 import { LayoutTitleAtom } from "@views/client/_layout/header";
 import { ErrorBoundary } from "@views/error-boundary";
 import _ from "lodash";
-import React, { ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
@@ -32,14 +32,7 @@ export const Page = (
   const setTitle = useSetRecoilState(LayoutTitleAtom);
   const location = useParams();
 
-  const changeModeRef = useRef<(mode: "read" | "write") => void>(() => {});
-  const documentContext = useMemo(() => ({
-    changeMode: (mode: "read" | "write") => changeModeRef.current(mode),
-    _registerChangeMode: (fn: (mode: "read" | "write") => void) => {
-      changeModeRef.current = fn;
-      return () => { changeModeRef.current = () => {}; };
-    },
-  }), []);
+  const documentContext = useDocumentContextRef();
 
   useEffect(() => {
     setTitle(props.title || []);

@@ -8,26 +8,19 @@ import {
 } from "@components/search-bar/utils/utils";
 import { CtrlKRestEntities } from "@features/ctrlk";
 import { CtrlKAtom } from "@features/ctrlk/store";
-import { DocumentContext } from "@features/utils/document-context";
+import { DocumentContext, useDocumentContextRef } from "@features/utils/document-context";
 import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { useRestSchema } from "@features/utils/rest/hooks/use-rest";
 import { RestEntity } from "@features/utils/rest/types/types";
 import _ from "lodash";
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback } from "react";
 import Scrollbars from "react-custom-scrollbars";
 import { useRecoilState } from "recoil";
 
 export const ModalEditor = (props: { stateId: string }) => {
   const [states, setStates] = useRecoilState(CtrlKAtom);
 
-  const changeModeRef = useRef<(mode: "read" | "write") => void>(() => {});
-  const documentContext = useMemo(() => ({
-    changeMode: (mode: "read" | "write") => changeModeRef.current(mode),
-    _registerChangeMode: (fn: (mode: "read" | "write") => void) => {
-      changeModeRef.current = fn;
-      return () => { changeModeRef.current = () => {}; };
-    },
-  }), []);
+  const documentContext = useDocumentContextRef();
 
   const state = states.find((s) => s.id === props.stateId);
   const setState = (newState: any) => {
