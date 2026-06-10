@@ -15,7 +15,7 @@ import { ArrowPathIcon } from "@heroicons/react/20/solid";
 import { Button } from "@radix-ui/themes";
 import { format } from "date-fns";
 import _ from "lodash";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { atom, useRecoilState } from "recoil";
 import { frequencyOptions } from "../../articles/components/article-details";
@@ -63,14 +63,12 @@ export const InvoiceRecurrenceInput = ({
     }
     return true;
   };
-  const isYearlyFamily = (frequency: string) =>
-    frequency.split("_").pop() === "yearly";
-  const presentCategories = _.uniq(
-    subscriptions.map((f) => (isYearlyFamily(f) ? "yearly" : "monthly")),
-  );
-  const anyNonTacit = presentCategories.some((c) =>
-    c === "yearly" ? !resolveTacit("tacit_yearly") : !resolveTacit("tacit_monthly"),
-  );
+  const categoryOf = (frequency: string) =>
+    frequency.split("_").pop() === "yearly" ? "yearly" : "monthly";
+  const isNonTacit = (category: string) =>
+    category === "yearly"
+      ? !resolveTacit("tacit_yearly")
+      : !resolveTacit("tacit_monthly");
 
   const getAllDates = (max = 100) => {
     let hasMore = false;
@@ -153,11 +151,6 @@ export const InvoiceRecurrenceInput = ({
     if (!invoice.subscription?.renew_in_advance) {
       ctrl("subscription.renew_in_advance").onChange("30");
     }
-    if (!invoice.subscription?.end_type) {
-      // Non-tacit periods cannot run indefinitely: default them to a 1 year delay
-      ctrl("subscription.end_type").onChange(anyNonTacit ? "delay" : "none");
-      if (anyNonTacit) ctrl("subscription.end_delay").onChange("1y");
-    }
     if (!invoice.subscription?.renew_as) {
       ctrl("subscription.renew_as").onChange("draft");
     }
@@ -166,20 +159,39 @@ export const InvoiceRecurrenceInput = ({
     }
   }, [invoice.id]);
 
-  // When the relevant period is not in tacit renewal, a subscription cannot run
-  // indefinitely: automatically switch the end from "none" (tacit) to a 1 year
-  // delay as soon as a recurring article of that period is added.
+  // Non-tacit periods cannot renew indefinitely: switch the end from "none"
+  // (tacit) to a 1 year delay, but ONLY when a recurring article of a non-tacit
+  // period is added. The user keeps full control of the end afterwards.
+  const prevSubscriptionsRef = useRef<string[] | null>(null);
   useEffect(() => {
-    if (!anyNonTacit) return;
-    if (
-      !invoice.subscription?.end_type ||
-      invoice.subscription?.end_type === "none"
-    ) {
+    const previous = prevSubscriptionsRef.current;
+    prevSubscriptionsRef.current = subscriptions;
+
+    const switchToDelay = () => {
       ctrl("subscription.end_type").onChange("delay");
       ctrl("subscription.end_delay").onChange("1y");
+    };
+
+    if (previous === null) {
+      // First evaluation: only initialize a brand new configuration (no end yet)
+      if (!invoice.subscription?.end_type) {
+        if (subscriptions.some((f) => isNonTacit(categoryOf(f)))) {
+          switchToDelay();
+        } else {
+          ctrl("subscription.end_type").onChange("none");
+        }
+      }
+      return;
     }
+
+    // A recurring article of a non-tacit period was just added
+    const previousCategories = new Set(previous.map(categoryOf));
+    const addedNonTacit = subscriptions.some(
+      (f) => isNonTacit(categoryOf(f)) && !previousCategories.has(categoryOf(f)),
+    );
+    if (addedNonTacit) switchToDelay();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [anyNonTacit, invoice.subscription?.end_type]);
+  }, [JSON.stringify(subscriptions)]);
 
   if (!hasSubscription) return null;
 
