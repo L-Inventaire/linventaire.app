@@ -3,10 +3,7 @@ import { Base, Info, Section } from "@atoms/text";
 import { FormInput } from "@components/form/fields";
 import { FormControllerFuncType } from "@components/form/formcontext";
 import { InputButton } from "@components/input-button";
-import {
-  getNextReviewDate,
-  getPrevReviewDate,
-} from "@features/invoices/utils";
+import { getNextReviewDate, getPrevReviewDate } from "@shared/invoices";
 import { Invoices, ReviewReminder } from "@features/invoices/types/types";
 import {
   CheckCircleIcon,

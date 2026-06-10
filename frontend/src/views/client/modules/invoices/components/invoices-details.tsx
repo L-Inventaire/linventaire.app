@@ -662,17 +662,19 @@ export const InvoicesDetailsPage = ({
                           </div>
                         )}
 
-                      {draft.type === "quotes" && draft.state !== "closed" && (
-                        <div className="mt-8">
-                          <Section className="mb-2">Vérification</Section>
-                          <InvoiceReviewInput
-                            btnKey="invoice-review"
-                            invoice={draft}
-                            ctrl={ctrl}
-                            readonly={readonly}
-                          />
-                        </div>
-                      )}
+                      {draft.type === "quotes" &&
+                        draft.state === "recurring" &&
+                        !!draft.content?.find((a) => a.subscription) && (
+                          <div className="mt-8">
+                            <Section className="mb-2">Vérification</Section>
+                            <InvoiceReviewInput
+                              btnKey="invoice-review"
+                              invoice={draft}
+                              ctrl={ctrl}
+                              readonly={readonly}
+                            />
+                          </div>
+                        )}
 
                       {hasFromSubscription(draft) && (
                         <div className="mt-8">
