@@ -114,6 +114,7 @@ export const RecurrenceInput = ({
   invoice,
   onlyEnding,
   baseConfiguration,
+  tacitSettings,
   client,
   contact,
   ...props
@@ -125,6 +126,8 @@ export const RecurrenceInput = ({
   contact?: Contacts;
   readonly?: boolean;
   baseConfiguration?: boolean;
+  // Tacit renewal defaults are only editable from the client settings page
+  tacitSettings?: boolean;
 }) => {
   const { client: me } = useClients();
 
@@ -284,7 +287,7 @@ export const RecurrenceInput = ({
           </Info>
         </div>
 
-        {baseConfiguration && (
+        {tacitSettings && (
           <div className="space-y-2 pt-2">
             <Heading size="2" className="pb-0">
               Reconduction tacite par défaut
