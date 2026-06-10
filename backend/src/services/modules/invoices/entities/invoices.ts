@@ -5,6 +5,7 @@ import {
   InvoiceDiscount,
   InvoiceLine,
   InvoiceReminder,
+  InvoiceReview,
   InvoiceTotal,
   PaymentComputed,
   Recipient,
@@ -103,6 +104,10 @@ export default class Invoices extends RestEntity {
   subscription_started_at?: Date | null = new Date(); // Automatically generated from the content
   subscription_ends_at?: Date | null = new Date(); // Automatically generated from the content
 
+  // "To review" reminder, only for quotes (e.g. renew a subscription with the supplier)
+  review = new InvoiceReview();
+  next_review_date?: Date | null = new Date(); // Computed from review, used to flag a quote as "to review" once passed
+
   attachments = ["type:files"]; // Visible by the client
 
   en16931?: EN16931Invoice | null = {} as EN16931Invoice; // Automatically generated from the content, nullable if the invoice cannot be converted to EN16931 for some reason (missing information, etc.)
@@ -123,6 +128,7 @@ export {
   InvoiceDiscount,
   InvoiceLine,
   InvoiceReminder,
+  InvoiceReview,
   InvoiceTotal,
   PaymentComputed,
   Recipient,

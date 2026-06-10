@@ -66,6 +66,7 @@ import { InvoiceInputFormat } from "./input-format";
 import { InvoicePaymentInput } from "./input-payment";
 import { InvoiceRecurrenceInput } from "./input-recurrence";
 import { InvoiceRecurrencePeriodInput } from "./input-recurrence-period";
+import { InvoiceReviewInput } from "./input-review";
 import { InvoiceReminderInput } from "./input-reminder";
 import { InvoiceDesignationInput } from "./invoice-designation-input";
 import { InvoiceLinesInput } from "./invoice-lines-input";
@@ -660,6 +661,18 @@ export const InvoicesDetailsPage = ({
                             />
                           </div>
                         )}
+
+                      {draft.type === "quotes" && draft.state !== "closed" && (
+                        <div className="mt-8">
+                          <Section className="mb-2">Vérification</Section>
+                          <InvoiceReviewInput
+                            btnKey="invoice-review"
+                            invoice={draft}
+                            ctrl={ctrl}
+                            readonly={readonly}
+                          />
+                        </div>
+                      )}
 
                       {hasFromSubscription(draft) && (
                         <div className="mt-8">

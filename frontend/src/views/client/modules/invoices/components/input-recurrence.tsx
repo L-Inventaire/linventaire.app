@@ -6,9 +6,11 @@ import {
 } from "@components/form/formcontext";
 import { InputButton } from "@components/input-button";
 import { optionsDelays, RecurrenceInput } from "@components/recurring-input";
+import { useClients } from "@features/clients/state/use-clients";
 import { Contacts } from "@features/contacts/types/types";
 import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
+import { getInvoiceWithOverrides } from "@features/invoices/utils";
 import { applyOffset } from "@shared/invoices";
 import { ArrowPathIcon } from "@heroicons/react/20/solid";
 import { Button } from "@radix-ui/themes";
@@ -36,15 +38,45 @@ export const InvoiceRecurrenceInput = ({
   contact?: Contacts;
   noResetToDefault?: boolean;
 }) => {
+  const { client: me } = useClients();
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const hasSubscription = !!invoice.content?.find((a) => a.subscription);
   const subscriptions = _.uniq(
     invoice.content?.map((a) => a.subscription),
   ).filter(Boolean) as string[];
   const minimalFrequency = _.minBy(subscriptions, (a) => {
     const t = new Date();
-    applyOffset(t, a, Intl.DateTimeFormat().resolvedOptions().timeZone, 1);
+    applyOffset(t, a, tz, 1);
     return t.getTime();
   });
+
+  // Tacit renewal defaults coming from the client/contact configuration
+  const defaultConfig = getInvoiceWithOverrides(
+    {} as Invoices,
+    ...([client, contact, me?.client].filter(
+      (a) => a !== undefined && !!a,
+    ) as any[]),
+  );
+  const isYearlyFamily = (frequency: string) =>
+    frequency.split("_").pop() === "yearly";
+  // The contract end is based on the longest period present in the quote
+  const longestFrequency = _.maxBy(subscriptions, (a) => {
+    const t = new Date();
+    try {
+      applyOffset(t, a, tz, 1);
+    } catch {
+      return 0;
+    }
+    return t.getTime();
+  });
+  const presentCategories = _.uniq(
+    subscriptions.map((f) => (isYearlyFamily(f) ? "yearly" : "monthly")),
+  );
+  const anyNonTacit = presentCategories.some((c) =>
+    c === "yearly"
+      ? defaultConfig.subscription?.tacit_yearly === false
+      : defaultConfig.subscription?.tacit_monthly === false,
+  );
 
   const getAllDates = (max = 100) => {
     let hasMore = false;
@@ -128,7 +160,20 @@ export const InvoiceRecurrenceInput = ({
       ctrl("subscription.renew_in_advance").onChange("30");
     }
     if (!invoice.subscription?.end_type) {
-      ctrl("subscription.end_type").onChange("none");
+      // When the relevant period is not in tacit renewal, automatically set an
+      // end date using the longest period present in the quote.
+      if (anyNonTacit && longestFrequency) {
+        const end = new Date(invoice.emit_date || Date.now());
+        try {
+          applyOffset(end, longestFrequency, tz, 1);
+          ctrl("subscription.end_type").onChange("date");
+          ctrl("subscription.end").onChange(end.getTime());
+        } catch {
+          ctrl("subscription.end_type").onChange("none");
+        }
+      } else {
+        ctrl("subscription.end_type").onChange("none");
+      }
     }
     if (!invoice.subscription?.renew_as) {
       ctrl("subscription.renew_as").onChange("draft");

@@ -36,7 +36,12 @@ export const InvoicesSettingsPage = () => {
   >({});
 
   useEffect(() => {
-    setRecurring({ ...client?.recurring });
+    setRecurring({
+      ...client?.recurring,
+      // Tacit renewal is the historical default, keep it checked when unset
+      tacit_monthly: client?.recurring?.tacit_monthly ?? true,
+      tacit_yearly: client?.recurring?.tacit_yearly ?? true,
+    });
     setPayment({ ...client?.payment });
     setInvoices({ ...client?.invoices });
     setInvoicesCounters({ ...client?.invoices_counters });

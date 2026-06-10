@@ -283,6 +283,30 @@ export const RecurrenceInput = ({
             ou bien définitivement clôturé.
           </Info>
         </div>
+
+        {baseConfiguration && (
+          <div className="space-y-2 pt-2">
+            <Heading size="2" className="pb-0">
+              Reconduction tacite par défaut
+            </Heading>
+            <Info className="block">
+              Lorsque la reconduction tacite est désactivée, une date de fin est
+              automatiquement définie sur les nouveaux abonnements. En cas de
+              mélange de périodicités, la plus longue période est utilisée pour
+              déterminer la fin du contrat.
+            </Info>
+            <FormInput
+              type="boolean"
+              placeholder="Abonnements mensuels en reconduction tacite"
+              ctrl={ctrl("tacit_monthly")}
+            />
+            <FormInput
+              type="boolean"
+              placeholder="Abonnements annuels en reconduction tacite"
+              ctrl={ctrl("tacit_yearly")}
+            />
+          </div>
+        )}
       </div>
     </>
   );

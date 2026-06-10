@@ -139,6 +139,24 @@ const InvoicesPageContent = () => {
             label: "Abonnements",
             filter: buildQueryFromMap({ state: "recurring" }),
           },
+          review: {
+            label: "À Vérifier",
+            filter: [
+              {
+                key: "next_review_date",
+                values: [{ value: 1, op: "gte" }],
+              },
+              {
+                key: "next_review_date",
+                values: [
+                  {
+                    value: new Date().getTime(),
+                    op: "lte",
+                  },
+                ],
+              },
+            ] as RestSearchQuery[],
+          },
           completed: {
             label: "À facturer",
             filter: buildQueryFromMap({ state: "completed" }),
@@ -301,6 +319,10 @@ const InvoicesPageContent = () => {
     key: "recurringInvoices",
     query: [...invoiceFilters.query, ...(tabs.recurring?.filter || [])],
   });
+  const reviewCount = useRestCount("invoices", {
+    key: "reviewInvoices",
+    query: [...invoiceFilters.query, ...(tabs.review?.filter || [])],
+  });
   const completedCount = useRestCount("invoices", {
     key: "completedInvoices",
     query: [...invoiceFilters.query, ...(tabs.completed?.filter || [])],
@@ -314,6 +336,7 @@ const InvoicesPageContent = () => {
     sent: sentCount.data || 0,
     purchase_order: inProgressCount.data || 0,
     recurring: recurringCount.data || 0,
+    review: reviewCount.data || 0,
     completed: completedCount.data || 0,
     late: lateCount.data || 0,
   };
@@ -489,16 +512,34 @@ const InvoicesPageContent = () => {
             value={activeTab}
           >
             <Tabs.List className="flex space-x-2 -mx-3 -mb-px items-center">
-              {Object.entries(tabs).map(([key, label]) => (
-                <Tabs.Trigger key={key} value={key}>
-                  {label.label}
-                  {!!(counters as any)?.[key] && (
-                    <Badge className="ml-2">
-                      {formatNumber((counters as any)?.[key] || 0)}
-                    </Badge>
-                  )}
-                </Tabs.Trigger>
-              ))}
+              {Object.entries(tabs).map(([key, label]) => {
+                // "Abonnements" and "À Vérifier" are grouped together under a
+                // common, slightly darker background to show they go together.
+                if (key === "review") return null;
+                const trigger = (k: string, l: string) => (
+                  <Tabs.Trigger key={k} value={k}>
+                    {l}
+                    {!!(counters as any)?.[k] && (
+                      <Badge className="ml-2">
+                        {formatNumber((counters as any)?.[k] || 0)}
+                      </Badge>
+                    )}
+                  </Tabs.Trigger>
+                );
+                if (key === "recurring") {
+                  return (
+                    <div
+                      key="subscription-group"
+                      className="flex items-center self-stretch space-x-2 px-1 rounded-t-md bg-slate-100 dark:bg-slate-700"
+                    >
+                      {trigger("recurring", (tabs as any).recurring.label)}
+                      {(tabs as any).review &&
+                        trigger("review", (tabs as any).review.label)}
+                    </div>
+                  );
+                }
+                return trigger(key, label.label);
+              })}
               <div className="grow" />
               <Info className="pr-3">
                 {formatNumber(invoices?.data?.total || 0)} documents trouvés

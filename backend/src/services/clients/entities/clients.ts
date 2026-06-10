@@ -64,6 +64,12 @@ export class InvoiceSubscription {
   end = new Date();
   end_delay = "1y"; // "1y" | "2y" | "3y"
   renew_as: "draft" | "sent" | "closed" = "draft"; // "draft" | "sent" | "closed"
+
+  // Default tacit renewal settings (used to automatically set an end date on new subscriptions)
+  // When tacit is true, the subscription has no end date and renews indefinitely (default behavior).
+  // When false, an end date is automatically set (the longest period of the quote is used).
+  tacit_monthly = true;
+  tacit_yearly = true;
 }
 
 export class Payment {
