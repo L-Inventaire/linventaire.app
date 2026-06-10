@@ -8,17 +8,26 @@ import {
 } from "@components/search-bar/utils/utils";
 import { CtrlKRestEntities } from "@features/ctrlk";
 import { CtrlKAtom } from "@features/ctrlk/store";
-import { DraftContext, useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
+import { DocumentContext } from "@features/utils/document-context";
+import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { useRestSchema } from "@features/utils/rest/hooks/use-rest";
 import { RestEntity } from "@features/utils/rest/types/types";
 import _ from "lodash";
-import { useCallback, useContext } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import Scrollbars from "react-custom-scrollbars";
 import { useRecoilState } from "recoil";
 
 export const ModalEditor = (props: { stateId: string }) => {
   const [states, setStates] = useRecoilState(CtrlKAtom);
-  const outerDraftContext = useContext(DraftContext);
+
+  const changeModeRef = useRef<(mode: "read" | "write") => void>(() => {});
+  const documentContext = useMemo(() => ({
+    changeMode: (mode: "read" | "write") => changeModeRef.current(mode),
+    _registerChangeMode: (fn: (mode: "read" | "write") => void) => {
+      changeModeRef.current = fn;
+      return () => { changeModeRef.current = () => {}; };
+    },
+  }), []);
 
   const state = states.find((s) => s.id === props.stateId);
   const setState = (newState: any) => {
@@ -140,6 +149,7 @@ export const ModalEditor = (props: { stateId: string }) => {
   });
 
   return (
+    <DocumentContext.Provider value={documentContext}>
     <div className="grow flex-col flex relative">
       <div className="border-b flex min-h-12 border-slate-100 dark:border-slate-700 shrink-0">
         {CtrlKRestEntities[
@@ -166,16 +176,14 @@ export const ModalEditor = (props: { stateId: string }) => {
       </div>
       <Scrollbars>
         <div className="p-4">
-          <DraftContext.Provider value={{ ...outerDraftContext, onSwitchToEdit: () => onChangeMode("write") }}>
-            {CtrlKRestEntities[currentState.options?.entity || ""]
-              ?.renderEditor &&
-              CtrlKRestEntities[
-                currentState.options?.entity || ""
-              ]?.renderEditor?.({
-                id: currentState.options?.id || "",
-                readonly: currentState.options?.readonly,
-              })}
-          </DraftContext.Provider>
+          {CtrlKRestEntities[currentState.options?.entity || ""]
+            ?.renderEditor &&
+            CtrlKRestEntities[
+              currentState.options?.entity || ""
+            ]?.renderEditor?.({
+              id: currentState.options?.id || "",
+              readonly: currentState.options?.readonly,
+            })}
         </div>
       </Scrollbars>
       {!!footer && (
@@ -184,5 +192,6 @@ export const ModalEditor = (props: { stateId: string }) => {
         </div>
       )}
     </div>
+    </DocumentContext.Provider>
   );
 };

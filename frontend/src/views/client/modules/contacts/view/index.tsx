@@ -7,8 +7,7 @@ import { getContactName } from "@features/contacts/types/types";
 import { useParamsOrContextId } from "@features/ctrlk";
 import { Invoices } from "@features/invoices/types/types";
 import { ROUTES, getRoute } from "@features/routes";
-import { PageWithDraftContext } from "@views/client/_layout/page";
-import { useNavigate } from "react-router-dom";
+import { Page } from "@views/client/_layout/page";
 import { ContactsDetailsPage } from "../components/contact-details";
 
 export const ContactsViewPage = (_props: { readonly?: boolean }) => {
@@ -16,11 +15,9 @@ export const ContactsViewPage = (_props: { readonly?: boolean }) => {
   const { contact, isPending, remove, restore, isPendingModification } =
     useContact(id || "");
   const hasAccess = useHasAccess();
-  const navigate = useNavigate();
 
   return (
-    <PageWithDraftContext
-      onSwitchToEdit={() => navigate(getRoute(ROUTES.ContactsEdit, { id: id || "" }) + "?openSearch=true")}
+    <Page
       loading={isPendingModification}
       title={[
         { label: "Contacts", to: getRoute(ROUTES.Contacts) },
@@ -77,6 +74,6 @@ export const ContactsViewPage = (_props: { readonly?: boolean }) => {
       }
     >
       <ContactsDetailsPage readonly={true} id={id || ""} />
-    </PageWithDraftContext>
+    </Page>
   );
 };

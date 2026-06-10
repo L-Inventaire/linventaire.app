@@ -23,6 +23,7 @@ import { ROUTES, getRoute } from "@features/routes";
 import { paymentOptions } from "@features/utils/constants";
 import { debounce } from "@features/utils/debounce";
 import { DraftContext, useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
+import { DocumentContext } from "@features/utils/document-context";
 import { EditorInput } from "@molecules/editor-input";
 import { Timeline } from "@molecules/timeline";
 import { Heading } from "@radix-ui/themes";
@@ -47,7 +48,8 @@ export const ContactsDetailsPage = ({
 }) => {
   const { client } = useClients();
   const [searchParams] = useSearchParams();
-  const { onSwitchToEdit: contextSwitchToEdit } = useContext(DraftContext);
+  const { isModal } = useContext(DraftContext);
+  const { changeMode } = useContext(DocumentContext);
 
   // Initialize skipSearch: false for new company contacts, true for existing or person contacts
   const getInitialSkipSearch = () => {
@@ -68,13 +70,12 @@ export const ContactsDetailsPage = ({
     }
   }, [readonly]);
 
-  // Only active when readonly: switch to edit mode + schedule search panel opening.
-  // In edit mode this is irrelevant (handleBackToSearch is used directly).
-  // In full page without context: undefined → Link falls back to "to=" navigation.
-  const onSwitchToEditAndSearch = contextSwitchToEdit && readonly
+  // In modal read mode: call DocumentContext.changeMode("write") + schedule search.
+  // In full page or edit mode: undefined → Links fall back to "to=" navigation.
+  const onSwitchToEditAndSearch = isModal && readonly
     ? () => {
         pendingOpenSearch.current = true;
-        contextSwitchToEdit();
+        changeMode("write");
       }
     : undefined;
 

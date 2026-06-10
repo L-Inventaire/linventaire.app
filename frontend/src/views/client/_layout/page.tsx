@@ -2,12 +2,12 @@ import { Button } from "@atoms/button/button";
 import { InputOutlinedDefaultBorders } from "@atoms/styles/inputs";
 import { Section } from "@atoms/text";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
-import { DraftContext } from "@features/utils/rest/hooks/use-draft-rest";
+import { DocumentContext } from "@features/utils/document-context";
 import { ScrollArea, ScrollAreaProps } from "@radix-ui/themes";
 import { LayoutTitleAtom } from "@views/client/_layout/header";
 import { ErrorBoundary } from "@views/error-boundary";
 import _ from "lodash";
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
@@ -32,6 +32,15 @@ export const Page = (
   const setTitle = useSetRecoilState(LayoutTitleAtom);
   const location = useParams();
 
+  const changeModeRef = useRef<(mode: "read" | "write") => void>(() => {});
+  const documentContext = useMemo(() => ({
+    changeMode: (mode: "read" | "write") => changeModeRef.current(mode),
+    _registerChangeMode: (fn: (mode: "read" | "write") => void) => {
+      changeModeRef.current = fn;
+      return () => { changeModeRef.current = () => {}; };
+    },
+  }), []);
+
   useEffect(() => {
     setTitle(props.title || []);
     // Set title on window
@@ -44,6 +53,7 @@ export const Page = (
   }, [props.loading]);
 
   return (
+    <DocumentContext.Provider value={documentContext}>
     <ErrorBoundary>
       <div
         className={twMerge(
@@ -85,24 +95,7 @@ export const Page = (
         )}
       </div>
     </ErrorBoundary>
-  );
-};
-
-/**
- * Page wrapper that provides DraftContext so nested components can call
- * onSwitchToEdit (e.g. "Rechercher dans l'annuaire" in read mode).
- * - View pages: pass onSwitchToEdit → navigates to edit URL and opens search
- * - Edit pages: omit onSwitchToEdit (already in edit mode)
- * - CtrlK modal: ModalEditor provides its own nested DraftContext instead
- */
-export const PageWithDraftContext = ({
-  onSwitchToEdit,
-  ...pageProps
-}: React.ComponentProps<typeof Page> & { onSwitchToEdit?: () => void }) => {
-  return (
-    <DraftContext.Provider value={{ key: "", isModal: false, onSwitchToEdit }}>
-      <Page {...pageProps} />
-    </DraftContext.Provider>
+    </DocumentContext.Provider>
   );
 };
 
