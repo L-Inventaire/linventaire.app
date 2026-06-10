@@ -68,9 +68,10 @@ export const ContactsDetailsPage = ({
     }
   }, [readonly]);
 
-  // In modal: switch to edit mode + schedule search panel opening
-  // In full page: undefined → Link falls back to "to=" navigation
-  const onSwitchToEditAndSearch = contextSwitchToEdit
+  // Only active when readonly: switch to edit mode + schedule search panel opening.
+  // In edit mode this is irrelevant (handleBackToSearch is used directly).
+  // In full page without context: undefined → Link falls back to "to=" navigation.
+  const onSwitchToEditAndSearch = contextSwitchToEdit && readonly
     ? () => {
         pendingOpenSearch.current = true;
         contextSwitchToEdit();

@@ -2,6 +2,7 @@ import { Button } from "@atoms/button/button";
 import { InputOutlinedDefaultBorders } from "@atoms/styles/inputs";
 import { Section } from "@atoms/text";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
+import { DraftContext } from "@features/utils/rest/hooks/use-draft-rest";
 import { ScrollArea, ScrollAreaProps } from "@radix-ui/themes";
 import { LayoutTitleAtom } from "@views/client/_layout/header";
 import { ErrorBoundary } from "@views/error-boundary";
@@ -84,6 +85,24 @@ export const Page = (
         )}
       </div>
     </ErrorBoundary>
+  );
+};
+
+/**
+ * Page wrapper that provides DraftContext so nested components can call
+ * onSwitchToEdit (e.g. "Rechercher dans l'annuaire" in read mode).
+ * - View pages: pass onSwitchToEdit → navigates to edit URL and opens search
+ * - Edit pages: omit onSwitchToEdit (already in edit mode)
+ * - CtrlK modal: ModalEditor provides its own nested DraftContext instead
+ */
+export const PageWithDraftContext = ({
+  onSwitchToEdit,
+  ...pageProps
+}: React.ComponentProps<typeof Page> & { onSwitchToEdit?: () => void }) => {
+  return (
+    <DraftContext.Provider value={{ key: "", isModal: false, onSwitchToEdit }}>
+      <Page {...pageProps} />
+    </DraftContext.Provider>
   );
 };
 

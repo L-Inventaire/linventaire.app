@@ -5,7 +5,7 @@ import { Contacts } from "@features/contacts/types/types";
 import { useParamsOrContextId } from "@features/ctrlk";
 import { ROUTES, getRoute } from "@features/routes";
 import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
-import { Page } from "@views/client/_layout/page";
+import { PageWithDraftContext } from "@views/client/_layout/page";
 import _ from "lodash";
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
@@ -31,7 +31,7 @@ export const ContactsEditPage = (_props: { readonly?: boolean }) => {
     );
 
   return (
-    <Page
+    <PageWithDraftContext
       loading={isPendingModification}
       title={[
         { label: "Contacts", to: getRoute(ROUTES.Contacts) },
@@ -55,6 +55,6 @@ export const ContactsEditPage = (_props: { readonly?: boolean }) => {
       ) : (
         <ContactsDetailsPage readonly={false} id={id} />
       )}
-    </Page>
+    </PageWithDraftContext>
   );
 };
