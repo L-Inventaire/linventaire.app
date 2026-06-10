@@ -1,25 +1,25 @@
 import { createContext, useMemo, useRef } from "react";
 
 export type DocumentMode = "read" | "write";
+export type DocumentModeState = Record<string, any>;
 
 export type DocumentContextType = {
-  changeMode: (mode: DocumentMode) => void;
-  /** Internal — called by DocumentBar to register the mode-switch handler. Returns cleanup. */
-  _registerChangeMode: (fn: (mode: DocumentMode) => void) => () => void;
+  changeMode: (mode: DocumentMode, state?: DocumentModeState) => void;
+  subscribe: (fn: (mode: DocumentMode, state?: DocumentModeState) => void) => () => void;
 };
 
 export const DocumentContext = createContext<DocumentContextType>({
   changeMode: () => {},
-  _registerChangeMode: () => () => {},
+  subscribe: () => () => {},
 });
 
 export const useDocumentContextRef = (): DocumentContextType => {
-  const changeModeRef = useRef<(mode: DocumentMode) => void>(() => {});
+  const handlersRef = useRef(new Set<(mode: DocumentMode, state?: DocumentModeState) => void>());
   return useMemo(() => ({
-    changeMode: (mode) => changeModeRef.current(mode),
-    _registerChangeMode: (fn) => {
-      changeModeRef.current = fn;
-      return () => { changeModeRef.current = () => {}; };
+    changeMode: (mode, state) => handlersRef.current.forEach(fn => fn(mode, state)),
+    subscribe: (fn) => {
+      handlersRef.current.add(fn);
+      return () => { handlersRef.current.delete(fn); };
     },
   }), []);
 };

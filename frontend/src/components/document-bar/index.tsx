@@ -84,16 +84,17 @@ export const DocumentBar = (props: DocumentBarProps) => {
 
   // Register the effective mode-change handler into DocumentContext so any
   // nested component can call changeMode("write") without knowing the context.
-  const { _registerChangeMode } = useContext(DocumentContext);
+  const { subscribe } = useContext(DocumentContext);
   const navigate = useNavigateAlt();
-  const effectiveChangeMode = useCallback((mode: "read" | "write") => {
+  const effectiveChangeMode = useCallback((mode: "read" | "write", state?: Record<string, any>) => {
     if (isModal) {
       onChangeMode?.(mode);
     } else if (mode === "write" && routes.editRoute && document?.id) {
-      navigate(getRoute(routes.editRoute, { id: document.id }));
+      const url = getRoute(routes.editRoute, { id: document.id });
+      navigate(state?.openSearch ? url + "?openSearch=true" : url);
     }
   }, [isModal, onChangeMode, routes.editRoute, document?.id, navigate]);
-  useEffect(() => _registerChangeMode(effectiveChangeMode), [effectiveChangeMode]);
+  useEffect(() => subscribe(effectiveChangeMode), [effectiveChangeMode]);
 
   // Enable among other things the navigation confirm prompt when editing a document
   useReadDraftRest(entity, document?.id || "", mode !== "write");
