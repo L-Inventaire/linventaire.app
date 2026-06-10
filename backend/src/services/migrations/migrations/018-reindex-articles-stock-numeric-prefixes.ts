@@ -14,7 +14,12 @@ export const reindexArticlesStockNumericPrefixes = async (ctx: Context) => {
   let items: Articles[] = [];
   let offset = 0;
   do {
-    items = await db.select<Articles>(ctx, ArticlesDefinition.name, {}, { offset, limit: 1000, index: "id" });
+    items = await db.select<Articles>(
+      ctx,
+      ArticlesDefinition.name,
+      {},
+      { offset, limit: 1000, index: "id" }
+    );
     for (const entity of items) {
       await db.update<Articles>(
         ctx,
@@ -22,7 +27,8 @@ export const reindexArticlesStockNumericPrefixes = async (ctx: Context) => {
         { id: entity.id, client_id: entity.client_id },
         {
           searchable: expandSearchable(
-            Framework.TriggersManager.getEntities()[ArticlesDefinition.name].rest.searchable(entity)
+            Framework.TriggersManager.getEntities()[ArticlesDefinition.name]
+              .rest!.searchable!(entity)
           ),
         },
         { triggers: false }
@@ -34,7 +40,12 @@ export const reindexArticlesStockNumericPrefixes = async (ctx: Context) => {
   let stockItems: StockItems[] = [];
   offset = 0;
   do {
-    stockItems = await db.select<StockItems>(ctx, StockItemsDefinition.name, {}, { offset, limit: 1000, index: "id" });
+    stockItems = await db.select<StockItems>(
+      ctx,
+      StockItemsDefinition.name,
+      {},
+      { offset, limit: 1000, index: "id" }
+    );
     for (const entity of stockItems) {
       await db.update<StockItems>(
         ctx,
@@ -42,7 +53,8 @@ export const reindexArticlesStockNumericPrefixes = async (ctx: Context) => {
         { id: entity.id, client_id: entity.client_id },
         {
           searchable: expandSearchable(
-            Framework.TriggersManager.getEntities()[StockItemsDefinition.name].rest.searchable(entity)
+            Framework.TriggersManager.getEntities()[StockItemsDefinition.name]
+              .rest!.searchable!(entity)
           ),
         },
         { triggers: false }
