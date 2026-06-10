@@ -56,13 +56,19 @@ const InvoicesPageContent = () => {
   // Filters shared between the subscriptions tabs and their counters
   const recurringFilter = buildQueryFromMap({ state: "recurring" });
   const reviewFilter: RestSearchQuery[] = [
+    ...buildQueryFromMap({ state: "recurring" }),
     {
       key: "next_review_date",
       values: [{ value: 1, op: "gte" }],
     },
     {
       key: "next_review_date",
-      values: [{ value: new Date().getTime(), op: "lte" }],
+      values: [
+        {
+          value: new Date(new Date().setHours(0, 0, 0, 1)).getTime(),
+          op: "lte",
+        },
+      ],
     },
   ];
   const closedSubscriptionsFilter: RestSearchQuery[] = [
@@ -86,102 +92,106 @@ const InvoicesPageContent = () => {
         },
       }
     : {
-    all: {
-      label:
-        type.includes("invoices") || type.includes("credit_notes")
-          ? "Comptabilisé"
-          : "Tous",
-      filter:
-        type.includes("invoices") || type.includes("credit_notes")
-          ? buildQueryFromMap({ state: "draft" }).map((a) => ({
-              ...a,
-              not: true,
-            }))
-          : [],
-    },
-    draft: {
-      label: "Brouillons",
-      filter: buildQueryFromMap({ state: "draft" }),
-    },
-    ...(!type.includes("invoices")
-      ? {
-          sent: {
-            label: type.join("").includes("supplier_")
-              ? type.includes("supplier_quotes")
-                ? "Commandé"
-                : "À payer"
-              : "Envoyés",
-            filter: buildQueryFromMap({
-              state: type.includes("supplier_quotes")
-                ? ["sent", "purchase_order"]
-                : "sent",
-            }),
-          },
-        }
-      : {}),
-    ...(type.includes("invoices")
-      ? {
-          sent: {
-            label: "Envoyés",
-            filter: [
-              ...buildQueryFromMap({
-                state: "sent",
-              }),
-              {
-                key: "payment_information.computed_date",
-                values: [
+        all: {
+          label:
+            type.includes("invoices") || type.includes("credit_notes")
+              ? "Comptabilisé"
+              : "Tous",
+          filter:
+            type.includes("invoices") || type.includes("credit_notes")
+              ? buildQueryFromMap({ state: "draft" }).map((a) => ({
+                  ...a,
+                  not: true,
+                }))
+              : [],
+        },
+        draft: {
+          label: "Brouillons",
+          filter: buildQueryFromMap({ state: "draft" }),
+        },
+        ...(!type.includes("invoices")
+          ? {
+              sent: {
+                label: type.join("").includes("supplier_")
+                  ? type.includes("supplier_quotes")
+                    ? "Commandé"
+                    : "À payer"
+                  : "Envoyés",
+                filter: buildQueryFromMap({
+                  state: type.includes("supplier_quotes")
+                    ? ["sent", "purchase_order"]
+                    : "sent",
+                }),
+              },
+            }
+          : {}),
+        ...(type.includes("invoices")
+          ? {
+              sent: {
+                label: "Envoyés",
+                filter: [
+                  ...buildQueryFromMap({
+                    state: "sent",
+                  }),
                   {
-                    value: new Date(new Date().setHours(0, 0, 0, 1)).getTime(),
-                    op: "gte",
-                  },
+                    key: "payment_information.computed_date",
+                    values: [
+                      {
+                        value: new Date(
+                          new Date().setHours(0, 0, 0, 1),
+                        ).getTime(),
+                        op: "gte",
+                      },
+                    ],
+                  } as RestSearchQuery,
                 ],
-              } as RestSearchQuery,
-            ],
-          },
-          late: {
-            label: "Impayés",
-            filter: [
-              ...buildQueryFromMap({
-                state: "sent",
-              }),
-              {
-                key: "payment_information.computed_date",
-                values: [
+              },
+              late: {
+                label: "Impayés",
+                filter: [
+                  ...buildQueryFromMap({
+                    state: "sent",
+                  }),
                   {
-                    value: new Date(new Date().setHours(0, 0, 0, 0)).getTime(),
-                    op: "lte",
-                  },
+                    key: "payment_information.computed_date",
+                    values: [
+                      {
+                        value: new Date(
+                          new Date().setHours(0, 0, 0, 0),
+                        ).getTime(),
+                        op: "lte",
+                      },
+                    ],
+                  } as RestSearchQuery,
                 ],
-              } as RestSearchQuery,
-            ],
-          },
-        }
-      : {}),
-    ...(type.includes("supplier_quotes")
-      ? {
-          completed: {
-            label: "À payer",
-            filter: buildQueryFromMap({ state: "completed" }),
-          },
-        }
-      : {}),
-    ...(type.includes("quotes")
-      ? {
-          purchase_order: {
-            label: "Acceptés",
-            filter: buildQueryFromMap({ state: "purchase_order" }),
-          },
-          completed: {
-            label: "À facturer",
-            filter: buildQueryFromMap({ state: "completed" }),
-          },
-        }
-      : {}),
-    closed: {
-      label: "Terminés",
-      filter: buildQueryFromMap({ state: ["closed"] }),
-    },
-  };
+              },
+            }
+          : {}),
+        ...(type.includes("supplier_quotes")
+          ? {
+              completed: {
+                label: "À payer",
+                filter: buildQueryFromMap({ state: "completed" }),
+              },
+            }
+          : {}),
+        ...(type.includes("quotes")
+          ? {
+              purchase_order: {
+                label: "Acceptés",
+                filter: buildQueryFromMap({ state: "purchase_order" }),
+              },
+              completed: {
+                label: "À facturer",
+                filter: buildQueryFromMap({ state: "completed" }),
+              },
+            }
+          : {}),
+        closed: {
+          label: "Terminés",
+          filter: buildQueryFromMap({ state: ["closed"] }),
+        },
+      };
   const [activeTab, setActiveTab] = useRouterState(
     "tab",
     isSubscriptions ? "active" : "all",
