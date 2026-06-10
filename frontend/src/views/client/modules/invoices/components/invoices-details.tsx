@@ -663,7 +663,9 @@ export const InvoicesDetailsPage = ({
                         )}
 
                       {draft.type === "quotes" &&
-                        draft.state === "recurring" &&
+                        ["draft", "sent", "purchase_order", "recurring"].includes(
+                          draft.state,
+                        ) &&
                         !!draft.content?.find((a) => a.subscription) && (
                           <div className="mt-8">
                             <Section className="mb-2">Vérification</Section>

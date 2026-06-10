@@ -241,10 +241,10 @@ export const setTriggerSetRecurrenceEndDate = () => {
         changes.subscription_ends_at = subscription_ends_at;
       }
 
-      // When the quote becomes recurring, set a default "to review" reminder:
-      // check once a year, at the start of the last month of the recurrence.
-      // The user keeps full control afterwards (we only set it once).
-      if (quote.state === "recurring" && !quote.review?.enabled) {
+      // When the quote becomes recurring, set a default "to review" reminder
+      // if none has been configured yet: check once a year, at the start of the
+      // last month of the recurrence. The user keeps full control afterwards.
+      if (quote.state === "recurring" && !quote.review?.reminders?.length) {
         const endReference = subscription_ends_at
           ? new Date(subscription_ends_at)
           : quote.subscription_started_at
