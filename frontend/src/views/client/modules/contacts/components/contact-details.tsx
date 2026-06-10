@@ -23,13 +23,15 @@ import { ROUTES } from "@features/routes";
 import { paymentOptions } from "@features/utils/constants";
 import { debounce } from "@features/utils/debounce";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
+import { DocumentContext } from "@features/utils/document-context";
 import { EditorInput } from "@molecules/editor-input";
 import { Timeline } from "@molecules/timeline";
 import { Heading } from "@radix-ui/themes";
 import { PageColumns } from "@views/client/_layout/page";
 import _ from "lodash";
 import { SirenAutoSuggestions } from "./siren-auto-suggestions";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { InvoiceInputFormat } from "../../invoices/components/input-format";
 import { InvoicePaymentInput } from "../../invoices/components/input-payment";
 import { ContactAccountingAccount } from "./contact-accounting-account";
@@ -45,15 +47,22 @@ export const ContactsDetailsPage = ({
   id: string;
 }) => {
   const { client } = useClients();
+  const [searchParams] = useSearchParams();
+  const { changeMode, subscribe } = useContext(DocumentContext);
 
   // Initialize skipSearch: false for new company contacts, true for existing or person contacts
   const getInitialSkipSearch = () => {
     if (readonly) return true;
+    if (searchParams.get("openSearch") === "true") return false; // Force open search from URL param
     if (!id || id === "new") return false; // Show search by default for new contacts
     return true; // Show form by default for existing contacts
   };
 
   const [skipSearch, setSkipSearch] = useState(getInitialSkipSearch());
+
+  useEffect(() => subscribe((_mode, state) => {
+    if (state?.openSearch) setSkipSearch(false);
+  }), [subscribe]);
 
   const {
     isPending,
@@ -226,7 +235,7 @@ export const ContactsDetailsPage = ({
               onSelectCompany={handleSelectCompany}
               onSkip={handleSkipSearch}
               initialSiren={contact.business_registered_id}
-              initialName={contact.business_registered_name}
+              initialName={contact.business_registered_name || contact.business_name}
             />
           ) : (
             <>
@@ -300,32 +309,28 @@ export const ContactsDetailsPage = ({
                             onSelectCompany={handleSelectCompany}
                             onOpenFullSearch={handleBackToSearch}
                             readonly={readonly}
-                            contactId={id}
                           />
                         ) : (
                           <div className="p-3 bg-amber-50 border border-amber-200 rounded-md text-amber-800 text-sm">
                             <strong>Attention :</strong> Aucun numéro SIREN
-                            actif renseigné.
-                            {!readonly && (
-                              <>
-                                {" "}
-                                Vous pouvez{" "}
-                                <Link
-                                  onClick={handleBackToSearch}
-                                  className="text-amber-900 underline font-medium"
-                                >
-                                  rechercher dans l'annuaire
-                                </Link>{" "}
-                                ou le renseigner manuellement.
-                              </>
-                            )}
+                            actif renseigné.{" "}
+                            Vous pouvez{" "}
+                            <Link
+                              onClick={readonly ? () => changeMode("write", { openSearch: true }) : handleBackToSearch}
+                              className="text-amber-900 underline font-medium"
+                            >
+                              rechercher dans l'annuaire
+                            </Link>
+                            {!readonly && " ou le renseigner manuellement."}
                           </div>
                         )}
                       </>
                     )}
-                    {!readonly && contact.business_registered_id && (
+                    {contact.business_registered_id && (
                       <div className="text-sm">
-                        <Link onClick={handleBackToSearch}>
+                        <Link
+                          onClick={readonly ? () => changeMode("write", { openSearch: true }) : handleBackToSearch}
+                        >
                           ← Rechercher dans l'annuaire de la facturation
                           électronique
                         </Link>

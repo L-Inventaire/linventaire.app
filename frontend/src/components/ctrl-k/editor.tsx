@@ -8,6 +8,7 @@ import {
 } from "@components/search-bar/utils/utils";
 import { CtrlKRestEntities } from "@features/ctrlk";
 import { CtrlKAtom } from "@features/ctrlk/store";
+import { DocumentContext, useDocumentContextRef } from "@features/utils/document-context";
 import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { useRestSchema } from "@features/utils/rest/hooks/use-rest";
 import { RestEntity } from "@features/utils/rest/types/types";
@@ -18,6 +19,8 @@ import { useRecoilState } from "recoil";
 
 export const ModalEditor = (props: { stateId: string }) => {
   const [states, setStates] = useRecoilState(CtrlKAtom);
+
+  const documentContext = useDocumentContextRef();
 
   const state = states.find((s) => s.id === props.stateId);
   const setState = (newState: any) => {
@@ -139,6 +142,7 @@ export const ModalEditor = (props: { stateId: string }) => {
   });
 
   return (
+    <DocumentContext.Provider value={documentContext}>
     <div className="grow flex-col flex relative">
       <div className="border-b flex min-h-12 border-slate-100 dark:border-slate-700 shrink-0">
         {CtrlKRestEntities[
@@ -181,5 +185,6 @@ export const ModalEditor = (props: { stateId: string }) => {
         </div>
       )}
     </div>
+    </DocumentContext.Provider>
   );
 };

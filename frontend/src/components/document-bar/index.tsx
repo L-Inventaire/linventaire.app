@@ -1,7 +1,11 @@
 import { Button } from "@atoms/button/button";
 import { XMarkIcon } from "@heroicons/react/16/solid";
 import { Separator } from "@radix-ui/themes";
+import { DocumentContext } from "@features/utils/document-context";
+import { getRoute } from "@features/routes";
+import { useNavigateAlt } from "@features/utils/navigate";
 import { useReadDraftRest } from "../../features/utils/rest/hooks/use-draft-rest";
+import { useCallback, useContext, useEffect } from "react";
 
 // Import our new components and utilities
 import { ActionButtons } from "./ActionButtons";
@@ -77,6 +81,20 @@ export const DocumentBar = (props: DocumentBarProps) => {
     ...routes,
     backRoute,
   });
+
+  // Register the effective mode-change handler into DocumentContext so any
+  // nested component can call changeMode("write") without knowing the context.
+  const { subscribe } = useContext(DocumentContext);
+  const navigate = useNavigateAlt();
+  const effectiveChangeMode = useCallback((mode: "read" | "write", state?: Record<string, any>) => {
+    if (isModal) {
+      onChangeMode?.(mode);
+    } else if (mode === "write" && routes.editRoute && document?.id) {
+      const url = getRoute(routes.editRoute, { id: document.id });
+      navigate(state?.openSearch ? url + "?openSearch=true" : url);
+    }
+  }, [isModal, onChangeMode, routes.editRoute, document?.id, navigate]);
+  useEffect(() => subscribe(effectiveChangeMode), [effectiveChangeMode]);
 
   // Enable among other things the navigation confirm prompt when editing a document
   useReadDraftRest(entity, document?.id || "", mode !== "write");

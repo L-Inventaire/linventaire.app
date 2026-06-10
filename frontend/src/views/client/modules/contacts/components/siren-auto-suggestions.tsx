@@ -9,11 +9,10 @@ import {
   FrenchDirectoryEntry,
 } from "@features/contacts/api-client/contacts-api-client";
 import { useFrenchDirectorySearchManual } from "@features/contacts/hooks/use-french-directory";
-import { ROUTES, getRoute } from "@features/routes";
+import { DocumentContext } from "@features/utils/document-context";
 import Fuse from "fuse.js";
 import { Building2 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 
 interface SirenAutoSuggestionsProps {
@@ -26,7 +25,6 @@ interface SirenAutoSuggestionsProps {
   ) => void;
   onOpenFullSearch: () => void;
   readonly?: boolean;
-  contactId: string;
 }
 
 export const SirenAutoSuggestions = ({
@@ -36,11 +34,10 @@ export const SirenAutoSuggestions = ({
   onSelectCompany,
   onOpenFullSearch,
   readonly = false,
-  contactId,
 }: SirenAutoSuggestionsProps) => {
   const { client: clientUser } = useClients();
   const client = clientUser?.client;
-  const navigate = useNavigate();
+  const { changeMode } = useContext(DocumentContext);
   const [selectedCompanyLoading, setSelectedCompanyLoading] = useState<
     string | null
   >(null);
@@ -147,7 +144,7 @@ export const SirenAutoSuggestions = ({
       <div className="p-3 bg-amber-50 border border-amber-200 rounded-md text-amber-800 text-sm">
         <strong>Attention :</strong> Aucun numéro SIREN actif renseigné.{" "}
         <Link
-          onClick={onOpenFullSearch}
+          onClick={readonly ? () => changeMode("write", { openSearch: true }) : onOpenFullSearch}
           className="text-amber-900 underline font-medium"
         >
           Rechercher dans l'annuaire
@@ -165,7 +162,12 @@ export const SirenAutoSuggestions = ({
     >
       {readonly && (
         <div className="absolute top-0 left-0 w-full h-full bg-black/10 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer rounded-md">
-          <Button size="xs">Passer en mode édition</Button>
+          <Button
+            size="xs"
+            onClick={() => changeMode("write")}
+          >
+            Passer en mode édition
+          </Button>
         </div>
       )}
       <div className="text-amber-800 text-sm">
@@ -179,7 +181,7 @@ export const SirenAutoSuggestions = ({
             key={company.number}
             onClick={() => {
               if (readonly) {
-                navigate(getRoute(ROUTES.ContactsEdit, { id: contactId }));
+                changeMode("write");
               } else {
                 handleSelectCompany(company);
               }
@@ -213,7 +215,7 @@ export const SirenAutoSuggestions = ({
       <div className="text-xs text-amber-700">
         Pas le bon résultat ?{" "}
         <Link
-          onClick={onOpenFullSearch}
+          onClick={readonly ? () => changeMode("write", { openSearch: true }) : onOpenFullSearch}
           className="text-amber-900 underline font-medium"
         >
           Rechercher dans l'annuaire complet

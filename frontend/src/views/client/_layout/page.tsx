@@ -2,6 +2,7 @@ import { Button } from "@atoms/button/button";
 import { InputOutlinedDefaultBorders } from "@atoms/styles/inputs";
 import { Section } from "@atoms/text";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
+import { DocumentContext, useDocumentContextRef } from "@features/utils/document-context";
 import { ScrollArea, ScrollAreaProps } from "@radix-ui/themes";
 import { LayoutTitleAtom } from "@views/client/_layout/header";
 import { ErrorBoundary } from "@views/error-boundary";
@@ -31,6 +32,8 @@ export const Page = (
   const setTitle = useSetRecoilState(LayoutTitleAtom);
   const location = useParams();
 
+  const documentContext = useDocumentContextRef();
+
   useEffect(() => {
     setTitle(props.title || []);
     // Set title on window
@@ -43,6 +46,7 @@ export const Page = (
   }, [props.loading]);
 
   return (
+    <DocumentContext.Provider value={documentContext}>
     <ErrorBoundary>
       <div
         className={twMerge(
@@ -84,6 +88,7 @@ export const Page = (
         )}
       </div>
     </ErrorBoundary>
+    </DocumentContext.Provider>
   );
 };
 
