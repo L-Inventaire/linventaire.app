@@ -76,8 +76,8 @@ export class InvoiceReminder {
 export class InvoiceReview {
   // "To review" reminder configuration for quotes (e.g. renew a subscription with the supplier)
   enabled = false;
-  frequencies: string[] = []; // Recurring review frequencies, e.g. "monthly", "yearly", "3_monthly"
-  dates: number[] = []; // Optional specific one-off review dates (ms timestamps)
+  frequencies: string[] = [""]; // Recurring review frequencies, e.g. "monthly", "yearly", "3_monthly"
+  dates: number[] = [0]; // Optional specific one-off review dates (ms timestamps)
   anchor = 0; // ms, base date from which the recurring review dates are computed
 }
 
