@@ -303,22 +303,35 @@ export const getAccountingExport = async (
         (!line.optional || line.optional_checked)
     );
 
+    const invoiceBase = {
+      invoice_id: invoice.id,
+      invoice_reference: invoice.reference || "",
+      invoice_emit_date: new Date(invoice.emit_date).toISOString().split("T")[0],
+      invoice_type: invoice.type,
+      invoice_state: invoice.state,
+      invoice_total_ht: invoice.total?.total || 0,
+      invoice_total_ttc: invoice.total?.total_with_taxes || 0,
+      quote_id: quoteId,
+      quote_reference: quoteReference,
+      contact_id: companyContactId || "",
+      contact_name: companyContactName,
+      person_contact_id: personContactId,
+      person_contact_name: personContactName,
+    };
+
     lines.forEach((line, index) => {
       const article = line.article ? articlesMap[line.article] : null;
 
-      // Get accounting info based on invoice type (sell for client invoices, buy for supplier invoices)
       const accountingInfo = article?.accounting
         ? isSupplier
           ? article.accounting.buy
           : article.accounting.sell
         : null;
 
-      // Calculate line totals
       const quantity = line.quantity || 0;
       const unitPrice = line.unit_price || 0;
       let lineTotal = quantity * unitPrice;
 
-      // Apply line discount if any
       if (line.discount) {
         if (line.discount.mode === "percentage") {
           lineTotal = lineTotal * (1 - (line.discount.value || 0) / 100);
@@ -327,42 +340,17 @@ export const getAccountingExport = async (
         }
       }
 
-      // Calculate TVA
       const tvaRate = parseFloat(line.tva || "0") || 0;
       const tvaAmount = lineTotal * (tvaRate / 100);
       const lineTotalTTC = lineTotal + tvaAmount;
 
-      // Get tags from article and convert IDs to names
       const tagNames = (article?.tags || [])
         .map((tagId) => tagsMap[tagId]?.name)
         .filter(Boolean)
         .join("; ");
 
       exportLines.push({
-        // Invoice information
-        invoice_id: invoice.id,
-        invoice_reference: invoice.reference || "",
-        invoice_emit_date: new Date(invoice.emit_date)
-          .toISOString()
-          .split("T")[0],
-        invoice_type: invoice.type,
-        invoice_state: invoice.state,
-        invoice_total_ht: invoice.total?.total || 0,
-        invoice_total_ttc: invoice.total?.total_with_taxes || 0,
-
-        // Quote/Order information
-        quote_id: quoteId,
-        quote_reference: quoteReference,
-
-        // Contact information (company)
-        contact_id: companyContactId || "",
-        contact_name: companyContactName,
-
-        // Person contact information
-        person_contact_id: personContactId,
-        person_contact_name: personContactName,
-
-        // Line information
+        ...invoiceBase,
         line_index: index + 1,
         line_article_id: line.article || "",
         line_article_name: line.name || article?.name || "",
@@ -384,16 +372,57 @@ export const getAccountingExport = async (
         line_total_ttc: parseFloat((lineTotalTTC || 0) as any).toFixed(
           2
         ) as unknown as number,
-
-        // Accounting information - empty if no category/article
         accounting_number: accountingInfo?.standard_identifier || "",
         accounting_name: accountingInfo?.name || "",
         accounting_standard: accountingInfo?.standard || "",
-
-        // Tags
         tags: tagNames,
       });
     });
+
+    // Add global discount as separate line(s) if present, split by TVA rate
+    const globalDiscount = invoice.discount;
+    const allowancesBreakdown = invoice.total?.allowances_breakdown;
+
+    if (
+      globalDiscount?.mode &&
+      globalDiscount.value &&
+      allowancesBreakdown?.length
+    ) {
+      allowancesBreakdown.forEach((allowance, allowanceIndex) => {
+        const discountHt = -allowance.amount;
+        const tvaRate = parseFloat(allowance.tva || "0") || 0;
+        const tvaAmount = discountHt * (tvaRate / 100);
+        const discountTtc = discountHt + tvaAmount;
+
+        exportLines.push({
+          ...invoiceBase,
+          line_index: lines.length + allowanceIndex + 1,
+          line_article_id: "",
+          line_article_name: "Remise globale",
+          line_article_reference: "",
+          line_description: "",
+          line_quantity: 1,
+          line_unit: "",
+          line_unit_price: parseFloat((discountHt || 0) as any).toFixed(
+            2
+          ) as unknown as number,
+          line_total_ht: parseFloat((discountHt || 0) as any).toFixed(
+            2
+          ) as unknown as number,
+          line_tva_rate: allowance.tva || "0",
+          line_tva_amount: parseFloat((tvaAmount || 0) as any).toFixed(
+            2
+          ) as unknown as number,
+          line_total_ttc: parseFloat((discountTtc || 0) as any).toFixed(
+            2
+          ) as unknown as number,
+          accounting_number: "",
+          accounting_name: "",
+          accounting_standard: "",
+          tags: "",
+        });
+      });
+    }
   }
 
   console.log("Accounting export stats:", {
