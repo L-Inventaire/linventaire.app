@@ -45,11 +45,47 @@ export const InvoicesPage = () => {
 };
 
 const InvoicesPageContent = () => {
-  const type: Invoices["type"][] = (useParams().type?.split("+") || [
-    "invoices",
-  ]) as any;
+  const rawType = useParams().type || "invoices";
+  // The "subscriptions" route reuses this page but only shows quotes, with its
+  // own set of tabs (Actives / À vérifier / Terminés).
+  const isSubscriptions = rawType === "subscriptions";
+  const type: Invoices["type"][] = (
+    isSubscriptions ? ["quotes"] : rawType.split("+")
+  ) as any;
 
-  const tabs = {
+  // Filters shared between the subscriptions tabs and their counters
+  const recurringFilter = buildQueryFromMap({ state: "recurring" });
+  const reviewFilter: RestSearchQuery[] = [
+    {
+      key: "next_review_date",
+      values: [{ value: 1, op: "gte" }],
+    },
+    {
+      key: "next_review_date",
+      values: [{ value: new Date().getTime(), op: "lte" }],
+    },
+  ];
+  const closedSubscriptionsFilter: RestSearchQuery[] = [
+    ...buildQueryFromMap({ state: "closed" }),
+    ...buildQueryFromMap({ has_subscription: true }),
+  ];
+
+  const tabs = isSubscriptions
+    ? {
+        active: {
+          label: "Actifs",
+          filter: recurringFilter,
+        },
+        review: {
+          label: "À vérifier",
+          filter: reviewFilter,
+        },
+        closed: {
+          label: "Terminés",
+          filter: closedSubscriptionsFilter,
+        },
+      }
+    : {
     all: {
       label:
         type.includes("invoices") || type.includes("credit_notes")
@@ -135,28 +171,6 @@ const InvoicesPageContent = () => {
             label: "Acceptés",
             filter: buildQueryFromMap({ state: "purchase_order" }),
           },
-          recurring: {
-            label: "Abonnements",
-            filter: buildQueryFromMap({ state: "recurring" }),
-          },
-          review: {
-            label: "À Vérifier",
-            filter: [
-              {
-                key: "next_review_date",
-                values: [{ value: 1, op: "gte" }],
-              },
-              {
-                key: "next_review_date",
-                values: [
-                  {
-                    value: new Date().getTime(),
-                    op: "lte",
-                  },
-                ],
-              },
-            ] as RestSearchQuery[],
-          },
           completed: {
             label: "À facturer",
             filter: buildQueryFromMap({ state: "completed" }),
@@ -168,7 +182,10 @@ const InvoicesPageContent = () => {
       filter: buildQueryFromMap({ state: ["closed"] }),
     },
   };
-  const [activeTab, setActiveTab] = useRouterState("tab", "all");
+  const [activeTab, setActiveTab] = useRouterState(
+    "tab",
+    isSubscriptions ? "active" : "all",
+  );
 
   const [options, setOptions] = useState<RestOptions<Invoices>>({
     index:
@@ -303,42 +320,48 @@ const InvoicesPageContent = () => {
   const hasAccess = useHasAccess();
 
   // Counters - Optimisés avec useRestCount
+  const t = tabs as any;
   const draftCount = useRestCount("invoices", {
     key: "draftInvoices",
-    query: [...tabs.draft.filter, ...invoiceFilters.query],
+    query: [...(t.draft?.filter || []), ...invoiceFilters.query],
   });
   const sentCount = useRestCount("invoices", {
     key: "sentInvoices",
-    query: [...tabs.sent!.filter, ...invoiceFilters.query],
+    query: [...(t.sent?.filter || []), ...invoiceFilters.query],
   });
   const inProgressCount = useRestCount("invoices", {
     key: "inProgressInvoices",
-    query: [...(tabs.purchase_order?.filter || []), ...invoiceFilters.query],
+    query: [...(t.purchase_order?.filter || []), ...invoiceFilters.query],
   });
   const recurringCount = useRestCount("invoices", {
     key: "recurringInvoices",
-    query: [...invoiceFilters.query, ...(tabs.recurring?.filter || [])],
+    query: [...invoiceFilters.query, ...recurringFilter],
   });
   const reviewCount = useRestCount("invoices", {
     key: "reviewInvoices",
-    query: [...invoiceFilters.query, ...(tabs.review?.filter || [])],
+    query: [...invoiceFilters.query, ...reviewFilter],
+  });
+  const closedSubscriptionsCount = useRestCount("invoices", {
+    key: "closedSubscriptions",
+    query: [...invoiceFilters.query, ...closedSubscriptionsFilter],
   });
   const completedCount = useRestCount("invoices", {
     key: "completedInvoices",
-    query: [...invoiceFilters.query, ...(tabs.completed?.filter || [])],
+    query: [...invoiceFilters.query, ...(t.completed?.filter || [])],
   });
   const lateCount = useRestCount("invoices", {
     key: "lateInvoices",
-    query: [...invoiceFilters.query, ...(tabs.late?.filter || [])],
+    query: [...invoiceFilters.query, ...(t.late?.filter || [])],
   });
   const counters = {
     draft: draftCount.data || 0,
     sent: sentCount.data || 0,
     purchase_order: inProgressCount.data || 0,
-    recurring: recurringCount.data || 0,
+    active: recurringCount.data || 0,
     review: reviewCount.data || 0,
     completed: completedCount.data || 0,
     late: lateCount.data || 0,
+    closed: isSubscriptions ? closedSubscriptionsCount.data || 0 : undefined,
   };
 
   const resetToFirstPage = useRef(() => {});
@@ -352,7 +375,13 @@ const InvoicesPageContent = () => {
 
   return (
     <Page
-      title={[{ label: getDocumentNamePlurial(type[0]) }]}
+      title={[
+        {
+          label: isSubscriptions
+            ? "Abonnements"
+            : getDocumentNamePlurial(type[0]),
+        },
+      ]}
       bar={
         <SearchBar
           schema={{
@@ -394,7 +423,7 @@ const InvoicesPageContent = () => {
             }
           }}
           suffix={
-            hasAccess("INVOICES_WRITE") ? (
+            isSubscriptions ? undefined : hasAccess("INVOICES_WRITE") ? (
               ["supplier_invoices", "supplier_credit_notes"].includes(
                 type[0],
               ) ? (
@@ -512,34 +541,16 @@ const InvoicesPageContent = () => {
             value={activeTab}
           >
             <Tabs.List className="flex space-x-2 -mx-3 -mb-px items-center">
-              {Object.entries(tabs).map(([key, label]) => {
-                // "Abonnements" and "À Vérifier" are grouped together under a
-                // common, slightly darker background to show they go together.
-                if (key === "review") return null;
-                const trigger = (k: string, l: string) => (
-                  <Tabs.Trigger key={k} value={k}>
-                    {l}
-                    {!!(counters as any)?.[k] && (
-                      <Badge className="ml-2">
-                        {formatNumber((counters as any)?.[k] || 0)}
-                      </Badge>
-                    )}
-                  </Tabs.Trigger>
-                );
-                if (key === "recurring") {
-                  return (
-                    <div
-                      key="subscription-group"
-                      className="flex items-center self-stretch space-x-2 px-1 rounded-t-md bg-slate-100 dark:bg-slate-700"
-                    >
-                      {trigger("recurring", (tabs as any).recurring.label)}
-                      {(tabs as any).review &&
-                        trigger("review", (tabs as any).review.label)}
-                    </div>
-                  );
-                }
-                return trigger(key, label.label);
-              })}
+              {Object.entries(tabs).map(([key, label]) => (
+                <Tabs.Trigger key={key} value={key}>
+                  {label.label}
+                  {!!(counters as any)?.[key] && (
+                    <Badge className="ml-2">
+                      {formatNumber((counters as any)?.[key] || 0)}
+                    </Badge>
+                  )}
+                </Tabs.Trigger>
+              ))}
               <div className="grow" />
               <Info className="pr-3">
                 {formatNumber(invoices?.data?.total || 0)} documents trouvés

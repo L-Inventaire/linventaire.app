@@ -1,6 +1,5 @@
 import { Clients } from "@features/clients/types/clients";
 import { Contacts } from "@features/contacts/types/types";
-import { applyOffset } from "@shared/invoices";
 import _ from "lodash";
 import {
   InvoiceFormat,
@@ -64,57 +63,66 @@ export const getInvoiceWithOverrides = (
   };
 };
 
-// Anchor date used to compute the recurring review dates of a quote
-export const getReviewAnchor = (invoice: Pick<Invoices, "review" | "emit_date">) =>
-  invoice.review?.anchor || invoice.emit_date || Date.now();
+// Resolve a reminder's day-of-month spec to an actual timestamp (noon, to avoid TZ edges)
+const resolveReviewDay = (year: number, month0: number, day: string): number => {
+  const daysInMonth = new Date(year, month0 + 1, 0).getDate();
+  let d: number;
+  if (day === "first") d = 1;
+  else if (day === "last") d = daysInMonth;
+  else if (day === "middle") d = 15;
+  else d = Math.min(Math.max(parseInt(day) || 1, 1), daysInMonth);
+  return new Date(year, month0, d, 12, 0, 0, 0).getTime();
+};
 
-// Compute all the review occurrences (recurring frequencies + one-off dates) up to a horizon
+// Compute all the review occurrences (from every reminder rule) within [startTs, endTs]
 export const getReviewOccurrences = (
   review: Partial<InvoiceReview> | undefined,
-  anchor: number,
-  horizon: number
+  startTs: number,
+  endTs: number
 ): number[] => {
-  if (!review) return [];
-  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const occurrences: number[] = [...(review.dates || [])].filter(Boolean);
-  const start = anchor || Date.now();
-  for (const frequency of review.frequencies || []) {
-    if (!frequency) continue;
-    try {
-      const date = new Date(start);
-      let guard = 0;
-      while (date.getTime() <= horizon && guard < 2000) {
-        if (date.getTime() >= start) occurrences.push(date.getTime());
-        applyOffset(date, frequency, tz, 1);
-        guard++;
+  if (!review?.reminders?.length) return [];
+  const occurrences: number[] = [];
+  const startYear = new Date(startTs).getFullYear();
+  const endYear = new Date(endTs).getFullYear();
+  for (const reminder of review.reminders) {
+    if (!reminder?.day || !reminder?.month) continue;
+    for (let year = startYear; year <= endYear; year++) {
+      if (reminder.month === "every") {
+        for (let m = 0; m < 12; m++) {
+          occurrences.push(resolveReviewDay(year, m, reminder.day));
+        }
+      } else {
+        const month0 = (parseInt(reminder.month) || 1) - 1;
+        occurrences.push(resolveReviewDay(year, month0, reminder.day));
       }
-    } catch {
-      // Invalid frequency, ignore it
     }
   }
-  return _.uniq(occurrences).sort((a, b) => a - b);
+  return _.uniq(occurrences)
+    .filter((t) => t >= startTs && t <= endTs)
+    .sort((a, b) => a - b);
 };
+
+const ONE_YEAR = 1000 * 60 * 60 * 24 * 366;
 
 // Next review date strictly after the given timestamp (null if none)
 export const getNextReviewDate = (
   review: Partial<InvoiceReview> | undefined,
-  anchor: number,
   fromTs: number
 ): number | null => {
-  const horizon = fromTs + 1000 * 60 * 60 * 24 * 366 * 20; // ~20 years
-  const occurrences = getReviewOccurrences(review, anchor, horizon);
+  const occurrences = getReviewOccurrences(review, fromTs, fromTs + ONE_YEAR * 5);
   return occurrences.find((t) => t > fromTs) ?? null;
 };
 
 // Last review date strictly before the given timestamp (null if none)
 export const getPrevReviewDate = (
   review: Partial<InvoiceReview> | undefined,
-  anchor: number,
   beforeTs: number
 ): number | null => {
-  const occurrences = getReviewOccurrences(review, anchor, beforeTs).filter(
-    (t) => t < beforeTs
-  );
+  const occurrences = getReviewOccurrences(
+    review,
+    beforeTs - ONE_YEAR * 5,
+    beforeTs
+  ).filter((t) => t < beforeTs);
   return occurrences.length ? occurrences[occurrences.length - 1] : null;
 };
 

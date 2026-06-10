@@ -13,6 +13,7 @@ import {
 } from "@heroicons/react/16/solid";
 import { DocumentIcon, PlusIcon } from "@heroicons/react/24/outline";
 import {
+  ArrowPathIcon,
   BriefcaseIcon,
   ChartBarIcon,
   CodeBracketIcon,
@@ -101,6 +102,17 @@ export const SideBar = () => {
               active={
                 location.pathname.indexOf(
                   getRoute(ROUTES.Invoices, { type: "quotes" }),
+                ) === 0
+              }
+              show={hasAccess("QUOTES_READ")}
+            />
+            <SideMenuItem
+              to={getRoute(ROUTES.Invoices, { type: "subscriptions" })}
+              label={t("menu.subscriptions")}
+              icon={(p) => <ArrowPathIcon {...p} />}
+              active={
+                location.pathname.indexOf(
+                  getRoute(ROUTES.Invoices, { type: "subscriptions" }),
                 ) === 0
               }
               show={hasAccess("QUOTES_READ")}

@@ -6,9 +6,8 @@ import { InputButton } from "@components/input-button";
 import {
   getNextReviewDate,
   getPrevReviewDate,
-  getReviewAnchor,
 } from "@features/invoices/utils";
-import { Invoices } from "@features/invoices/types/types";
+import { Invoices, ReviewReminder } from "@features/invoices/types/types";
 import {
   CheckCircleIcon,
   ClockIcon,
@@ -18,9 +17,49 @@ import {
 import { Badge } from "@radix-ui/themes";
 import { format } from "date-fns";
 import { useEffect } from "react";
-import { frequencyOptions } from "../../articles/components/article-details";
 
-const reviewFrequencyOptions = frequencyOptions.filter((a) => a.value);
+const SEPARATOR = { value: "__sep", label: "──────────", disabled: true };
+
+const monthNames = [
+  "Janvier",
+  "Février",
+  "Mars",
+  "Avril",
+  "Mai",
+  "Juin",
+  "Juillet",
+  "Août",
+  "Septembre",
+  "Octobre",
+  "Novembre",
+  "Décembre",
+];
+
+const dayOptions = [
+  { value: "first", label: "Premier du mois" },
+  { value: "middle", label: "Milieu du mois" },
+  { value: "last", label: "Fin du mois" },
+  SEPARATOR,
+  ...Array.from({ length: 31 }, (_, i) => ({
+    value: `${i + 1}`,
+    label: `Le ${i + 1}`,
+  })),
+];
+
+const monthOptions = [
+  { value: "every", label: "Tous les mois" },
+  SEPARATOR,
+  ...monthNames.map((m, i) => ({ value: `${i + 1}`, label: `${i + 1} - ${m}` })),
+];
+
+const reminderLabel = (reminder: ReviewReminder) => {
+  const day =
+    dayOptions.find((a) => a.value === reminder.day)?.label || reminder.day;
+  const month =
+    monthOptions.find((a) => a.value === reminder.month)?.label ||
+    reminder.month;
+  return `${day} · ${month}`;
+};
 
 export const InvoiceReviewInput = ({
   ctrl,
@@ -35,7 +74,7 @@ export const InvoiceReviewInput = ({
 }) => {
   const review = invoice.review;
   const enabled = !!review?.enabled;
-  const anchor = getReviewAnchor(invoice);
+  const reminders = review?.reminders || [];
   const nextReviewDate = invoice.next_review_date || null;
   const now = Date.now();
   const overdue = enabled && !!nextReviewDate && nextReviewDate <= now;
@@ -46,49 +85,35 @@ export const InvoiceReviewInput = ({
       if (nextReviewDate) ctrl("next_review_date").onChange(null);
       return;
     }
-    // Make sure we have a stable anchor to compute recurrences from
-    if (!review?.anchor) {
-      ctrl("review.anchor").onChange(invoice.emit_date || Date.now());
-      return;
-    }
-    const hasConfig =
-      (review?.frequencies?.length || 0) > 0 ||
-      (review?.dates?.length || 0) > 0;
-    if (!hasConfig) {
+    const validReminders = reminders.filter((r) => r?.day && r?.month);
+    if (!validReminders.length) {
       if (nextReviewDate) ctrl("next_review_date").onChange(null);
       return;
     }
     // Initialize/refresh the next review date when missing or still in the future
     if (!nextReviewDate || nextReviewDate > now) {
-      const next = getNextReviewDate(review, review.anchor, now);
+      const next = getNextReviewDate(review, now);
       if (next && next !== nextReviewDate) {
         ctrl("next_review_date").onChange(next);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    enabled,
-    review?.anchor,
-    JSON.stringify(review?.frequencies),
-    JSON.stringify(review?.dates),
-  ]);
+  }, [enabled, JSON.stringify(reminders)]);
 
   const onVerified = () => {
-    const next = getNextReviewDate(review, anchor, now);
-    ctrl("next_review_date").onChange(next);
+    ctrl("next_review_date").onChange(getNextReviewDate(review, now));
   };
 
   const onNotVerified = () => {
-    const prev =
-      getPrevReviewDate(review, anchor, now) ?? now - 1000 * 60 * 60 * 24;
-    ctrl("next_review_date").onChange(prev);
+    ctrl("next_review_date").onChange(
+      getPrevReviewDate(review, now) ?? now - 1000 * 60 * 60 * 24
+    );
   };
 
-  const dates = review?.dates || [];
-
-  const frequenciesLabel = (review?.frequencies || [])
-    .map((f) => reviewFrequencyOptions.find((a) => a.value === f)?.label || f)
-    .join(", ");
+  const updateReminder = (index: number, patch: Partial<ReviewReminder>) => {
+    const next = reminders.map((r, i) => (i === index ? { ...r, ...patch } : r));
+    ctrl("review.reminders").onChange(next);
+  };
 
   return (
     <InputButton
@@ -106,37 +131,34 @@ export const InvoiceReviewInput = ({
           {enabled && (
             <>
               <Info className="block">
-                Définissez une ou plusieurs dates récurrentes pour être alerté
-                lorsqu'il faut vérifier ce devis (par exemple pour renouveler un
-                abonnement auprès du fournisseur).
+                Ajoutez un ou plusieurs rappels pour être alerté lorsqu'il faut
+                vérifier ce devis (par exemple pour renouveler un abonnement
+                auprès du fournisseur).
               </Info>
-              <FormInput
-                type="multiselect"
-                label="Récurrences"
-                placeholder="Tous les mois, tous les ans..."
-                ctrl={ctrl("review.frequencies")}
-                options={reviewFrequencyOptions}
-              />
 
               <div className="space-y-2">
-                <Section className="pb-0">Dates précises</Section>
-                {dates.map((d, i) => (
+                {reminders.map((reminder, i) => (
                   <div key={i} className="flex items-center space-x-2">
                     <FormInput
-                      type="date"
-                      value={d}
-                      onChange={(v: any) => {
-                        const next = [...dates];
-                        next[i] = new Date(v).getTime();
-                        ctrl("review.dates").onChange(next);
-                      }}
+                      type="select"
+                      className="w-full"
+                      value={reminder.day}
+                      onChange={(v: string) => updateReminder(i, { day: v })}
+                      options={dayOptions}
+                    />
+                    <FormInput
+                      type="select"
+                      className="w-full"
+                      value={reminder.month}
+                      onChange={(v: string) => updateReminder(i, { month: v })}
+                      options={monthOptions}
                     />
                     <AtomButton
                       theme="outlined"
                       size="sm"
                       onClick={() =>
-                        ctrl("review.dates").onChange(
-                          dates.filter((_, j) => j !== i)
+                        ctrl("review.reminders").onChange(
+                          reminders.filter((_, j) => j !== i)
                         )
                       }
                       icon={(p) => <XMarkIcon {...p} />}
@@ -148,10 +170,13 @@ export const InvoiceReviewInput = ({
                   size="sm"
                   icon={(p) => <PlusIcon {...p} />}
                   onClick={() =>
-                    ctrl("review.dates").onChange([...dates, Date.now()])
+                    ctrl("review.reminders").onChange([
+                      ...reminders,
+                      { day: "first", month: "every" },
+                    ])
                   }
                 >
-                  Ajouter une date
+                  Ajouter un rappel
                 </AtomButton>
               </div>
 
@@ -196,7 +221,9 @@ export const InvoiceReviewInput = ({
       {enabled ? (
         <div className="space-y-0 w-max flex flex-col text-left">
           <Base>
-            {frequenciesLabel || "Vérification activée"}
+            {reminders.length
+              ? reminders.map(reminderLabel).join(" / ")
+              : "Vérification activée"}
             {overdue && (
               <Badge color="red" className="ml-2">
                 À vérifier

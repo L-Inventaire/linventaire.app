@@ -10,7 +10,6 @@ import { useClients } from "@features/clients/state/use-clients";
 import { Contacts } from "@features/contacts/types/types";
 import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
-import { getInvoiceWithOverrides } from "@features/invoices/utils";
 import { applyOffset } from "@shared/invoices";
 import { ArrowPathIcon } from "@heroicons/react/20/solid";
 import { Button } from "@radix-ui/themes";
@@ -50,32 +49,27 @@ export const InvoiceRecurrenceInput = ({
     return t.getTime();
   });
 
-  // Tacit renewal defaults coming from the client/contact configuration
-  const defaultConfig = getInvoiceWithOverrides(
-    {} as Invoices,
-    ...([client, contact, me?.client].filter(
-      (a) => a !== undefined && !!a,
-    ) as any[]),
-  );
+  // Tacit renewal defaults: resolved directly from the contact/client config
+  // (we do not use mergeObjects here as it coerces booleans like `false` to "").
+  // First explicit boolean wins; tacit renewal is the default when unset.
+  const resolveTacit = (key: "tacit_monthly" | "tacit_yearly") => {
+    for (const source of [
+      client?.recurring,
+      contact?.recurring,
+      me?.client?.recurring,
+    ]) {
+      const value = (source as any)?.[key];
+      if (typeof value === "boolean") return value;
+    }
+    return true;
+  };
   const isYearlyFamily = (frequency: string) =>
     frequency.split("_").pop() === "yearly";
-  // The contract end is based on the longest period present in the quote
-  const longestFrequency = _.maxBy(subscriptions, (a) => {
-    const t = new Date();
-    try {
-      applyOffset(t, a, tz, 1);
-    } catch {
-      return 0;
-    }
-    return t.getTime();
-  });
   const presentCategories = _.uniq(
     subscriptions.map((f) => (isYearlyFamily(f) ? "yearly" : "monthly")),
   );
   const anyNonTacit = presentCategories.some((c) =>
-    c === "yearly"
-      ? defaultConfig.subscription?.tacit_yearly === false
-      : defaultConfig.subscription?.tacit_monthly === false,
+    c === "yearly" ? !resolveTacit("tacit_yearly") : !resolveTacit("tacit_monthly"),
   );
 
   const getAllDates = (max = 100) => {
@@ -160,20 +154,9 @@ export const InvoiceRecurrenceInput = ({
       ctrl("subscription.renew_in_advance").onChange("30");
     }
     if (!invoice.subscription?.end_type) {
-      // When the relevant period is not in tacit renewal, automatically set an
-      // end date using the longest period present in the quote.
-      if (anyNonTacit && longestFrequency) {
-        const end = new Date(invoice.emit_date || Date.now());
-        try {
-          applyOffset(end, longestFrequency, tz, 1);
-          ctrl("subscription.end_type").onChange("date");
-          ctrl("subscription.end").onChange(end.getTime());
-        } catch {
-          ctrl("subscription.end_type").onChange("none");
-        }
-      } else {
-        ctrl("subscription.end_type").onChange("none");
-      }
+      // Non-tacit periods cannot run indefinitely: default them to a 1 year delay
+      ctrl("subscription.end_type").onChange(anyNonTacit ? "delay" : "none");
+      if (anyNonTacit) ctrl("subscription.end_delay").onChange("1y");
     }
     if (!invoice.subscription?.renew_as) {
       ctrl("subscription.renew_as").onChange("draft");
@@ -182,6 +165,21 @@ export const InvoiceRecurrenceInput = ({
       ctrl("subscription.invoice_date").onChange("first_day");
     }
   }, [invoice.id]);
+
+  // When the relevant period is not in tacit renewal, a subscription cannot run
+  // indefinitely: automatically switch the end from "none" (tacit) to a 1 year
+  // delay as soon as a recurring article of that period is added.
+  useEffect(() => {
+    if (!anyNonTacit) return;
+    if (
+      !invoice.subscription?.end_type ||
+      invoice.subscription?.end_type === "none"
+    ) {
+      ctrl("subscription.end_type").onChange("delay");
+      ctrl("subscription.end_delay").onChange("1y");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [anyNonTacit, invoice.subscription?.end_type]);
 
   if (!hasSubscription) return null;
 

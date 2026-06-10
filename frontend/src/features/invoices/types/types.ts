@@ -153,11 +153,17 @@ export type InvoiceSubscription = {
   tacit_yearly?: boolean;
 };
 
+// A reminder is a recurring rule: a day-of-month spec + a month spec.
+// day: "first" | "last" | "middle" | "1".."31"
+// month: "every" | "1".."12"
+export type ReviewReminder = {
+  day: string;
+  month: string;
+};
+
 export type InvoiceReview = {
   enabled: boolean;
-  frequencies: string[]; // Recurring review frequencies, e.g. "monthly", "yearly", "3_monthly"
-  dates: number[]; // Optional specific one-off review dates (ms timestamps)
-  anchor: number; // ms, base date from which recurring review dates are computed
+  reminders: ReviewReminder[];
 };
 
 export interface InvoiceLine extends Shared.InvoiceLine {
