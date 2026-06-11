@@ -5,7 +5,7 @@ import {
   FormContext,
   FormControllerFuncType,
 } from "@components/form/formcontext";
-import { InputButton } from "@components/input-button";
+import { InputButton, InputButtonIsOpenAtom } from "@components/input-button";
 import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import {
   InvoiceReview,
@@ -21,7 +21,8 @@ import {
 import { Badge, Text } from "@radix-ui/themes";
 import { getNextReviewDate, getPrevReviewDate } from "@shared/invoices";
 import { format } from "date-fns";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRecoilValue } from "recoil";
 
 const SEPARATOR = { value: "__sep", label: "──────────", disabled: true };
 
@@ -57,19 +58,12 @@ const monthOptions = [
   ...monthNames.map((m, i) => ({ value: `${i + 1}`, label: `${m}` })),
 ];
 
-const reminderLabel = (reminder: ReviewReminder) => {
-  const day =
-    dayOptions.find((a) => a.value === reminder.day)?.label || reminder.day;
-  const month =
-    monthOptions.find((a) => a.value === reminder.month)?.label ||
-    reminder.month;
-  return `${day} · ${month}`;
-};
-
 type ReviewChange = (review: InvoiceReview, nextReviewDate: number | null) => void;
 
+const emptyReview: InvoiceReview = { enabled: false, reminders: [] };
+
 // The editor panel (shown inside the popover), driven by a value + onChange so
-// it can be wired either to the form draft (edit) or to a mutation (read mode).
+// it can edit a local working copy committed only on close.
 const ReviewEditor = ({
   review,
   nextReviewDate,
@@ -213,21 +207,49 @@ const ReviewEditor = ({
   );
 };
 
-// Compact, single-line clickable trigger (rendered next to "Émis le ...")
+// Compact, single-line clickable trigger (rendered next to "Émis le ...").
+// Changes are kept in a local working copy and committed only when the popover
+// is closed (so read mode does not hit the backend on every keystroke).
 const ReviewButton = ({
   review,
   nextReviewDate,
   onChange,
   btnKey,
+  hideEmpty,
 }: {
   review?: InvoiceReview;
   nextReviewDate: number | null;
   onChange: ReviewChange;
-  btnKey?: string;
+  btnKey: string;
+  hideEmpty?: boolean;
 }) => {
+  const open = useRecoilValue(InputButtonIsOpenAtom(btnKey));
+  const [working, setWorking] = useState<{
+    review: InvoiceReview;
+    next: number | null;
+  }>({ review: review || emptyReview, next: nextReviewDate });
+  const prevOpen = useRef(open);
+
+  useEffect(() => {
+    if (!prevOpen.current && open) {
+      // Just opened: seed the working copy from the latest value
+      setWorking({ review: review || emptyReview, next: nextReviewDate });
+    } else if (prevOpen.current && !open) {
+      // Just closed: commit the working copy if it changed
+      const changed =
+        JSON.stringify([working.review, working.next]) !==
+        JSON.stringify([review || emptyReview, nextReviewDate]);
+      if (changed) onChange(working.review, working.next);
+    }
+    prevOpen.current = open;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
   const enabled = !!review?.enabled;
-  const reminders = review?.reminders || [];
   const overdue = enabled && !!nextReviewDate && nextReviewDate <= Date.now();
+  const hasPlanned = enabled && !!nextReviewDate;
+
+  if (!overdue && !hasPlanned && hideEmpty) return null;
 
   return (
     <InputButton
@@ -238,9 +260,9 @@ const ReviewButton = ({
       value={"true"}
       content={() => (
         <ReviewEditor
-          review={review}
-          nextReviewDate={nextReviewDate}
-          onChange={onChange}
+          review={working.review}
+          nextReviewDate={working.next}
+          onChange={(r, n) => setWorking({ review: r, next: n })}
         />
       )}
     >
@@ -248,16 +270,16 @@ const ReviewButton = ({
         <Badge color="red">À vérifier</Badge>
       ) : (
         <Text size="2" className="opacity-75" weight="medium">
-          {enabled && reminders.length
-            ? reminders.map(reminderLabel).join(" / ")
-            : "Aucune vérification"}
+          {hasPlanned
+            ? "Vérification le " + format(nextReviewDate!, "dd/MM/yyyy")
+            : "Pas de vérification planifiée"}
         </Text>
       )}
     </InputButton>
   );
 };
 
-// Edit mode: bound to the form draft, saved with the rest of the document
+// Edit mode: committed to the form draft (saved with the rest of the document)
 const InvoiceReviewEditable = ({
   ctrl,
   invoice,
@@ -265,53 +287,27 @@ const InvoiceReviewEditable = ({
 }: {
   ctrl: FormControllerFuncType<Pick<Invoices, "review" | "next_review_date">>;
   invoice: Invoices;
-  btnKey?: string;
-}) => {
-  const review = invoice.review;
-  const enabled = !!review?.enabled;
-  const reminders = review?.reminders || [];
-  const nextReviewDate = invoice.next_review_date || null;
-  const now = Date.now();
+  btnKey: string;
+}) => (
+  <ReviewButton
+    review={invoice.review}
+    nextReviewDate={invoice.next_review_date || null}
+    btnKey={btnKey}
+    onChange={(r, n) => {
+      ctrl("review").onChange(r);
+      ctrl("next_review_date").onChange(n);
+    }}
+  />
+);
 
-  // Keep the next review date in sync with the configuration
-  useEffect(() => {
-    if (!enabled) {
-      if (nextReviewDate) ctrl("next_review_date").onChange(null);
-      return;
-    }
-    const validReminders = reminders.filter((r) => r?.day && r?.month);
-    if (!validReminders.length) {
-      if (nextReviewDate) ctrl("next_review_date").onChange(null);
-      return;
-    }
-    if (!nextReviewDate || nextReviewDate > now) {
-      const next = getNextReviewDate(review, now);
-      if (next && next !== nextReviewDate) ctrl("next_review_date").onChange(next);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled, JSON.stringify(reminders)]);
-
-  return (
-    <ReviewButton
-      review={review}
-      nextReviewDate={nextReviewDate}
-      btnKey={btnKey}
-      onChange={(r, n) => {
-        ctrl("review").onChange(r);
-        ctrl("next_review_date").onChange(n);
-      }}
-    />
-  );
-};
-
-// Read mode: clickable too, persists immediately via a mutation so the user can
-// quickly mark a quote as verified from the document view.
+// Read mode: clickable too; persists via a mutation on close so a quote can be
+// marked as verified without entering edit mode.
 const InvoiceReviewReadonly = ({
   invoice,
   btnKey,
 }: {
   invoice: Invoices;
-  btnKey?: string;
+  btnKey: string;
 }) => {
   const { invoice: fresh, update } = useInvoice(invoice.id);
   const source = fresh || invoice;
@@ -321,6 +317,7 @@ const InvoiceReviewReadonly = ({
         review={source.review}
         nextReviewDate={source.next_review_date || null}
         btnKey={btnKey}
+        hideEmpty
         onChange={(review, next_review_date) =>
           update.mutateAsync({ id: invoice.id, review, next_review_date })
         }
@@ -340,6 +337,7 @@ export const InvoiceReviewInput = ({
   readonly?: boolean;
   btnKey?: string;
 }) => {
-  if (readonly) return <InvoiceReviewReadonly invoice={invoice} btnKey={btnKey} />;
-  return <InvoiceReviewEditable ctrl={ctrl} invoice={invoice} btnKey={btnKey} />;
+  const key = btnKey || "invoice-review";
+  if (readonly) return <InvoiceReviewReadonly invoice={invoice} btnKey={key} />;
+  return <InvoiceReviewEditable ctrl={ctrl} invoice={invoice} btnKey={key} />;
 };

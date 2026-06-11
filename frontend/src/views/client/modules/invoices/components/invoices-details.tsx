@@ -417,7 +417,7 @@ export const InvoicesDetailsPage = ({
                     )}
                 </InputButton>
 
-                <div className={readonly ? "flex space-x-1" : "flex space-x-1"}>
+                <div className="flex space-x-1 items-center">
                   {(!readonly || ctrl("emit_date").value) && (
                     <InputButton
                       theme="invisible"
