@@ -1,0 +1,60 @@
+name: CI
+
+# Run the backend linter and test suite on every pull request so regressions
+# are caught before merging (the deploy workflows only run on push to main).
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    name: Backend lint & tests
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: linventaire
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Remove root ESLint config
+        working-directory: ./
+        run: rm -f .eslintrc.json
+
+      - name: Install shared dependencies
+        working-directory: ./shared
+        run: npm install
+
+      - name: Build shared library
+        working-directory: ./shared
+        run: npm run build
+
+      - name: Install dependencies
+        working-directory: ./backend
+        run: npm install
+
+      - name: Run linter
+        working-directory: ./backend
+        run: npm run linter
+
+      - name: Run tests
+        working-directory: ./backend
+        run: npm run test
