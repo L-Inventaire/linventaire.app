@@ -503,6 +503,18 @@ export const InvoicesDetailsPage = ({
                       </Text>
                     </InputButton>
                   )}
+                  {draft.type === "quotes" &&
+                    ["draft", "sent", "purchase_order", "recurring"].includes(
+                      draft.state,
+                    ) &&
+                    !!draft.content?.find((a) => a.subscription) && (
+                      <InvoiceReviewInput
+                        btnKey="invoice-review"
+                        invoice={draft}
+                        ctrl={ctrl}
+                        readonly={readonly}
+                      />
+                    )}
                 </div>
               </Section>
               <InvoiceDesignationInput
@@ -658,25 +670,6 @@ export const InvoicesDetailsPage = ({
                               client={invoiceCounterParty || undefined}
                               contact={invoiceContact || undefined}
                               noResetToDefault={true}
-                            />
-                          </div>
-                        )}
-
-                      {draft.type === "quotes" &&
-                        [
-                          "draft",
-                          "sent",
-                          "purchase_order",
-                          "recurring",
-                        ].includes(draft.state) &&
-                        !!draft.content?.find((a) => a.subscription) && (
-                          <div className="mt-8">
-                            <Section className="mb-2">Vérification</Section>
-                            <InvoiceReviewInput
-                              btnKey="invoice-review"
-                              invoice={draft}
-                              ctrl={ctrl}
-                              readonly={readonly}
                             />
                           </div>
                         )}
