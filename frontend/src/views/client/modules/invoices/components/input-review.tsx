@@ -1,11 +1,11 @@
 import { Button as AtomButton } from "@atoms/button/button";
+import { Modal, ModalContent } from "@atoms/modal/modal";
 import { Base, Info, Section } from "@atoms/text";
 import { FormInput } from "@components/form/fields";
 import {
   FormContext,
   FormControllerFuncType,
 } from "@components/form/formcontext";
-import { InputButton, InputButtonIsOpenAtom } from "@components/input-button";
 import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import {
   InvoiceReview,
@@ -21,8 +21,7 @@ import {
 import { Badge, Text } from "@radix-ui/themes";
 import { getNextReviewDate, getPrevReviewDate } from "@shared/invoices";
 import { format } from "date-fns";
-import { useEffect, useRef, useState } from "react";
-import { useRecoilValue } from "recoil";
+import { useState } from "react";
 
 const SEPARATOR = { value: "__sep", label: "──────────", disabled: true };
 
@@ -62,14 +61,14 @@ type ReviewChange = (review: InvoiceReview, nextReviewDate: number | null) => vo
 
 const emptyReview: InvoiceReview = { enabled: false, reminders: [] };
 
-// The editor panel (shown inside the popover), driven by a value + onChange so
-// it can edit a local working copy committed only on close.
+// The editor panel (shown inside the modal), driven by a value + onChange so it
+// edits a local working copy that is committed only when "Enregistrer" is used.
 const ReviewEditor = ({
   review,
   nextReviewDate,
   onChange,
 }: {
-  review?: InvoiceReview;
+  review: InvoiceReview;
   nextReviewDate: number | null;
   onChange: ReviewChange;
 }) => {
@@ -208,42 +207,24 @@ const ReviewEditor = ({
 };
 
 // Compact, single-line clickable trigger (rendered next to "Émis le ...").
-// Changes are kept in a local working copy and committed only when the popover
-// is closed (so read mode does not hit the backend on every keystroke).
+// Edits are kept in a local working copy and committed only via "Enregistrer"
+// (closing with the cross or outside the modal discards the changes).
 const ReviewButton = ({
   review,
   nextReviewDate,
   onChange,
-  btnKey,
   hideEmpty,
 }: {
   review?: InvoiceReview;
   nextReviewDate: number | null;
   onChange: ReviewChange;
-  btnKey: string;
   hideEmpty?: boolean;
 }) => {
-  const open = useRecoilValue(InputButtonIsOpenAtom(btnKey));
+  const [open, setOpen] = useState(false);
   const [working, setWorking] = useState<{
     review: InvoiceReview;
     next: number | null;
   }>({ review: review || emptyReview, next: nextReviewDate });
-  const prevOpen = useRef(open);
-
-  useEffect(() => {
-    if (!prevOpen.current && open) {
-      // Just opened: seed the working copy from the latest value
-      setWorking({ review: review || emptyReview, next: nextReviewDate });
-    } else if (prevOpen.current && !open) {
-      // Just closed: commit the working copy if it changed
-      const changed =
-        JSON.stringify([working.review, working.next]) !==
-        JSON.stringify([review || emptyReview, nextReviewDate]);
-      if (changed) onChange(working.review, working.next);
-    }
-    prevOpen.current = open;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
 
   const enabled = !!review?.enabled;
   const overdue = enabled && !!nextReviewDate && nextReviewDate <= Date.now();
@@ -251,31 +232,53 @@ const ReviewButton = ({
 
   if (!overdue && !hasPlanned && hideEmpty) return null;
 
+  const openModal = () => {
+    setWorking({ review: review || emptyReview, next: nextReviewDate });
+    setOpen(true);
+  };
+
   return (
-    <InputButton
-      theme="invisible"
-      className="m-0"
-      btnKey={btnKey}
-      placeholder="Vérification"
-      value={"true"}
-      content={() => (
-        <ReviewEditor
-          review={working.review}
-          nextReviewDate={working.next}
-          onChange={(r, n) => setWorking({ review: r, next: n })}
-        />
-      )}
-    >
-      {overdue ? (
-        <Badge color="red">À vérifier</Badge>
-      ) : (
-        <Text size="2" className="opacity-75" weight="medium">
-          {hasPlanned
-            ? "Vérification le " + format(nextReviewDate!, "dd/MM/yyyy")
-            : "Pas de vérification planifiée"}
-        </Text>
-      )}
-    </InputButton>
+    <>
+      <AtomButton
+        theme="invisible"
+        className="m-0 h-max whitespace-normal py-[5.5px] cursor-pointer text-black dark:text-white"
+        onClick={openModal}
+      >
+        {overdue ? (
+          <Badge color="red">À vérifier</Badge>
+        ) : (
+          <Text size="2" className="opacity-75" weight="medium">
+            {hasPlanned
+              ? "Vérification le " + format(nextReviewDate!, "dd/MM/yyyy")
+              : "Pas de vérification planifiée"}
+          </Text>
+        )}
+      </AtomButton>
+      <Modal open={open} closable onClose={() => setOpen(false)}>
+        <ModalContent title="Vérification">
+          <FormContext readonly={false} disabled={false}>
+            <ReviewEditor
+              review={working.review}
+              nextReviewDate={working.next}
+              onChange={(r, n) => setWorking({ review: r, next: n })}
+            />
+          </FormContext>
+          <div className="flex justify-end mt-4">
+            <AtomButton
+              theme="primary"
+              size="md"
+              shortcut={["enter"]}
+              onClick={() => {
+                onChange(working.review, working.next);
+                setOpen(false);
+              }}
+            >
+              Enregistrer
+            </AtomButton>
+          </div>
+        </ModalContent>
+      </Modal>
+    </>
   );
 };
 
@@ -283,16 +286,13 @@ const ReviewButton = ({
 const InvoiceReviewEditable = ({
   ctrl,
   invoice,
-  btnKey,
 }: {
   ctrl: FormControllerFuncType<Pick<Invoices, "review" | "next_review_date">>;
   invoice: Invoices;
-  btnKey: string;
 }) => (
   <ReviewButton
     review={invoice.review}
     nextReviewDate={invoice.next_review_date || null}
-    btnKey={btnKey}
     onChange={(r, n) => {
       ctrl("review").onChange(r);
       ctrl("next_review_date").onChange(n);
@@ -300,29 +300,20 @@ const InvoiceReviewEditable = ({
   />
 );
 
-// Read mode: clickable too; persists via a mutation on close so a quote can be
-// marked as verified without entering edit mode.
-const InvoiceReviewReadonly = ({
-  invoice,
-  btnKey,
-}: {
-  invoice: Invoices;
-  btnKey: string;
-}) => {
+// Read mode: clickable too; persists via a mutation when "Enregistrer" is used,
+// so a quote can be marked as verified without entering edit mode.
+const InvoiceReviewReadonly = ({ invoice }: { invoice: Invoices }) => {
   const { invoice: fresh, update } = useInvoice(invoice.id);
   const source = fresh || invoice;
   return (
-    <FormContext readonly={false} disabled={false}>
-      <ReviewButton
-        review={source.review}
-        nextReviewDate={source.next_review_date || null}
-        btnKey={btnKey}
-        hideEmpty
-        onChange={(review, next_review_date) =>
-          update.mutateAsync({ id: invoice.id, review, next_review_date })
-        }
-      />
-    </FormContext>
+    <ReviewButton
+      review={source.review}
+      nextReviewDate={source.next_review_date || null}
+      hideEmpty
+      onChange={(review, next_review_date) =>
+        update.mutateAsync({ id: invoice.id, review, next_review_date })
+      }
+    />
   );
 };
 
@@ -330,14 +321,12 @@ export const InvoiceReviewInput = ({
   ctrl,
   invoice,
   readonly,
-  btnKey,
 }: {
   ctrl: FormControllerFuncType<Pick<Invoices, "review" | "next_review_date">>;
   invoice: Invoices;
   readonly?: boolean;
   btnKey?: string;
 }) => {
-  const key = btnKey || "invoice-review";
-  if (readonly) return <InvoiceReviewReadonly invoice={invoice} btnKey={key} />;
-  return <InvoiceReviewEditable ctrl={ctrl} invoice={invoice} btnKey={key} />;
+  if (readonly) return <InvoiceReviewReadonly invoice={invoice} />;
+  return <InvoiceReviewEditable ctrl={ctrl} invoice={invoice} />;
 };
