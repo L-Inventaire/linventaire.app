@@ -684,6 +684,7 @@ export const InvoicesDetailsPage = ({
                             invoice={draft}
                             ctrl={ctrl}
                             readonly={readonly}
+                            sourceQuote={originQuote || undefined}
                           />
                         </div>
                       )}

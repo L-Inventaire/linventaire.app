@@ -36,6 +36,10 @@ export type EventMetadatas =
   | {
       event_type: "invoice_back_to_draft";
       reason: string;
+    }
+  | {
+      event_type: "subscription_billing_day_updated";
+      from_invoice: string;
     };
 
 export default class Comments extends RestEntity {
