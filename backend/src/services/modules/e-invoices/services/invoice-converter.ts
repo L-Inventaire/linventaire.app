@@ -574,8 +574,14 @@ export function convertInternalToEN16931(
     typeCode = 325; // Proforma invoice / quote
   }
 
-  // Convert invoice lines
-  const lines = invoice.content.map((line, index) => {
+  // Convert invoice lines.
+  // EN16931 forbids negative item net prices (BR-27), so a line that only
+  // carries a rebate (negative net amount, e.g. a "remise" line) is emitted as
+  // a document-level allowance instead of a negative-priced invoice line.
+  const lines: EN16931Invoice["lines"] = [];
+  const negativeLineAllowances: any[] = [];
+
+  invoice.content.forEach((line) => {
     const article = resolvedEntities.articles.get(line.article);
 
     if (!article) {
@@ -608,6 +614,20 @@ export function convertInternalToEN16931(
 
     // Calculate net amount (quantity * unit_price before discount)
     let lineNetAmount = line.quantity * line.unit_price;
+
+    // A line with a negative net amount represents a rebate. EN16931 does not
+    // allow negative item net prices (BR-27), so convert it to a document-level
+    // allowance carrying the line's VAT category and rate.
+    if (lineNetAmount < 0) {
+      negativeLineAllowances.push({
+        amount: `${Math.abs(lineNetAmount)}`,
+        reason: line.name || undefined,
+        reason_code: "95", // Discount
+        vat_category_code: vatCategoryCode,
+        vat_rate: `${vatRate}`,
+      });
+      return;
+    }
 
     // Apply line discount
     const allowances: any[] = [];
@@ -645,8 +665,8 @@ export function convertInternalToEN16931(
       }
     }
 
-    return {
-      identifier: (index + 1).toString(),
+    lines.push({
+      identifier: `${lines.length + 1}`,
 
       invoiced_quantity: `${line.quantity}`,
       invoiced_quantity_code: unitCode,
@@ -674,7 +694,7 @@ export function convertInternalToEN16931(
         invoiced_item_vat_category_code: vatCategoryCode,
         invoiced_item_vat_rate: `${vatRate}`,
       },
-    } as EN16931Invoice["lines"][0];
+    } as EN16931Invoice["lines"][0]);
   });
 
   // Calculate totals
@@ -709,6 +729,14 @@ export function convertInternalToEN16931(
       documentAllowanceAmount += allowance.amount;
     }
   }
+
+  // Fold rebate lines (negative net amounts) into the document-level allowances
+  // so that BT-106/BT-107/BT-109 stay consistent (BR-CO-13).
+  for (const allowance of negativeLineAllowances) {
+    documentAllowances.push(allowance);
+    documentAllowanceAmount += parseFloat(allowance.amount);
+  }
+
   documentAllowances = documentAllowances.filter(
     (a) => parseFloat(a.amount) > 0
   );
