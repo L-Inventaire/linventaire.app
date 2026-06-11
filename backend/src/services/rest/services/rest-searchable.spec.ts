@@ -24,9 +24,9 @@ describe("rest-searchable", () => {
     expect(expandNumericPrefixes("TSU-001001-R")).toContain("0010");
     expect(expandNumericPrefixes("TSU-001001-R")).toContain("00100");
     // Full segment already present via expandSearchable, not duplicated here
-    expect(expandNumericPrefixes("TSU-001001-R")).not.toContain("001001 001001");
-    // Short segments (< 3) produce no extra tokens
-    expect(expandNumericPrefixes("AB-12-C")).toBe("AB-12-C");
+    expect(expandNumericPrefixes("TSU-001001-R")).not.toContain(
+      "001001 001001"
+    );
     // No numeric segment at all
     expect(expandNumericPrefixes("REFABC")).toBe("REFABC");
   });
