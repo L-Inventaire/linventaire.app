@@ -46,7 +46,7 @@ const dayOptions = [
 const monthOptions = [
   { value: "every", label: "Tous les mois" },
   SEPARATOR,
-  ...monthNames.map((m, i) => ({ value: `${i + 1}`, label: `${i + 1} - ${m}` })),
+  ...monthNames.map((m, i) => ({ value: `${i + 1}`, label: `${m}` })),
 ];
 
 const reminderLabel = (reminder: ReviewReminder) => {
@@ -103,12 +103,14 @@ export const InvoiceReviewInput = ({
 
   const onNotVerified = () => {
     ctrl("next_review_date").onChange(
-      getPrevReviewDate(review, now) ?? now - 1000 * 60 * 60 * 24
+      getPrevReviewDate(review, now) ?? now - 1000 * 60 * 60 * 24,
     );
   };
 
   const updateReminder = (index: number, patch: Partial<ReviewReminder>) => {
-    const next = reminders.map((r, i) => (i === index ? { ...r, ...patch } : r));
+    const next = reminders.map((r, i) =>
+      i === index ? { ...r, ...patch } : r,
+    );
     ctrl("review.reminders").onChange(next);
   };
 
@@ -155,7 +157,7 @@ export const InvoiceReviewInput = ({
                       size="sm"
                       onClick={() =>
                         ctrl("review.reminders").onChange(
-                          reminders.filter((_, j) => j !== i)
+                          reminders.filter((_, j) => j !== i),
                         )
                       }
                       icon={(p) => <XMarkIcon {...p} />}
@@ -177,38 +179,40 @@ export const InvoiceReviewInput = ({
                 </AtomButton>
               </div>
 
-              <div className="space-y-1">
-                <Section className="pb-0">Prochaine vérification</Section>
-                <Base className="block">
-                  {nextReviewDate ? format(nextReviewDate, "eee PP") : "—"}
-                  {overdue && (
-                    <Badge color="red" className="ml-2">
-                      À vérifier
-                    </Badge>
-                  )}
-                </Base>
-                <div className="flex pt-2">
-                  {overdue || !nextReviewDate ? (
-                    <AtomButton
-                      theme="primary"
-                      size="sm"
-                      icon={(p) => <CheckCircleIcon {...p} />}
-                      onClick={onVerified}
-                    >
-                      Vérifié
-                    </AtomButton>
-                  ) : (
-                    <AtomButton
-                      theme="outlined"
-                      size="sm"
-                      icon={(p) => <ClockIcon {...p} />}
-                      onClick={onNotVerified}
-                    >
-                      Pas encore vérifié
-                    </AtomButton>
-                  )}
+              {!!reminders?.length && (
+                <div className="space-y-1">
+                  <Section className="pb-0">Prochaine vérification</Section>
+                  <Base className="block">
+                    {nextReviewDate ? format(nextReviewDate, "eee PP") : "—"}
+                    {overdue && (
+                      <Badge color="red" className="ml-2">
+                        À vérifier
+                      </Badge>
+                    )}
+                  </Base>
+                  <div className="flex pt-2">
+                    {overdue || !nextReviewDate ? (
+                      <AtomButton
+                        theme="primary"
+                        size="sm"
+                        icon={(p) => <CheckCircleIcon {...p} />}
+                        onClick={onVerified}
+                      >
+                        Marquer vérifié
+                      </AtomButton>
+                    ) : (
+                      <AtomButton
+                        theme="outlined"
+                        size="sm"
+                        icon={(p) => <ClockIcon {...p} />}
+                        onClick={onNotVerified}
+                      >
+                        Marquer comme à vérifier
+                      </AtomButton>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
             </>
           )}
         </div>

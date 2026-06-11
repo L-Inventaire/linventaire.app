@@ -79,7 +79,12 @@ export class InvoiceReview {
   // Each reminder is a recurring rule: a day-of-month spec + a month spec.
   // day: "first" | "last" | "middle" | "1".."31"
   // month: "every" | "1".."12"
-  reminders: { day: string; month: string }[] = [];
+  reminders: { day: string; month: string }[] = [
+    {
+      day: "first",
+      month: "every",
+    },
+  ];
 }
 
 export class InvoiceLine {
