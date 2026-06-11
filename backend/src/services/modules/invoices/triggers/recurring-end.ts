@@ -3,7 +3,7 @@ import Clients, {
 } from "#src/services/clients/entities/clients";
 import { Context } from "#src/types";
 import { captureException } from "@sentry/node";
-import { getInvoiceNextDate } from "@shared/invoices";
+import { getInvoiceNextDate, getNextReviewDate } from "@shared/invoices";
 import { default as Framework } from "../../../../platform";
 import { generateEmailMessageToRecipient } from "../../signing-sessions/services/utils";
 import Invoices, { InvoicesDefinition } from "../entities/invoices";
@@ -236,14 +236,37 @@ export const setTriggerSetRecurrenceEndDate = () => {
         subscription_ends_at = end_date;
       }
 
+      const changes: Partial<Invoices> = {};
       if (subscription_ends_at !== quote.subscription_ends_at) {
+        changes.subscription_ends_at = subscription_ends_at;
+      }
+
+      // When the quote becomes recurring, set a default "to review" reminder
+      // if none has been configured yet: check once a year, at the start of the
+      // last month of the recurrence. The user keeps full control afterwards.
+      if (quote.state === "recurring" && !quote.review?.reminders?.length) {
+        const endReference = subscription_ends_at
+          ? new Date(subscription_ends_at)
+          : quote.subscription_started_at
+            ? new Date(quote.subscription_started_at)
+            : new Date();
+        const review = {
+          enabled: true,
+          reminders: [
+            { day: "first", month: String(endReference.getMonth() + 1) },
+          ],
+        };
+        const next = getNextReviewDate(review, Date.now());
+        changes.review = review;
+        changes.next_review_date = next ? new Date(next) : null;
+      }
+
+      if (Object.keys(changes).length) {
         await db.update<Invoices>(
           ctx,
           InvoicesDefinition.name,
           { id: quote.id },
-          {
-            subscription_ends_at,
-          }
+          changes
         );
       }
     },

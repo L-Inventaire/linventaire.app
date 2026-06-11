@@ -114,6 +114,7 @@ export const RecurrenceInput = ({
   invoice,
   onlyEnding,
   baseConfiguration,
+  tacitSettings,
   client,
   contact,
   ...props
@@ -125,6 +126,8 @@ export const RecurrenceInput = ({
   contact?: Contacts;
   readonly?: boolean;
   baseConfiguration?: boolean;
+  // Tacit renewal defaults are only editable from the client settings page
+  tacitSettings?: boolean;
 }) => {
   const { client: me } = useClients();
 
@@ -283,6 +286,30 @@ export const RecurrenceInput = ({
             ou bien définitivement clôturé.
           </Info>
         </div>
+
+        {tacitSettings && (
+          <div className="space-y-2 pt-2">
+            <Heading size="2" className="pb-0">
+              Reconduction tacite par défaut
+            </Heading>
+            <Info className="block">
+              Lorsque la reconduction tacite est désactivée, une date de fin est
+              automatiquement définie sur les nouveaux abonnements. En cas de
+              mélange de périodicités, la plus longue période est utilisée pour
+              déterminer la fin du contrat.
+            </Info>
+            <FormInput
+              type="boolean"
+              placeholder="Abonnements mensuels en reconduction tacite"
+              ctrl={ctrl("tacit_monthly")}
+            />
+            <FormInput
+              type="boolean"
+              placeholder="Abonnements annuels en reconduction tacite"
+              ctrl={ctrl("tacit_yearly")}
+            />
+          </div>
+        )}
       </div>
     </>
   );

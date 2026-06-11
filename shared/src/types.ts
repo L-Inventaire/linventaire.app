@@ -73,6 +73,20 @@ export class InvoiceReminder {
   repetition = 0; // Number of weeks of repetitions
 }
 
+export class InvoiceReview {
+  // "To review" reminder configuration for quotes (e.g. renew a subscription with the supplier)
+  enabled = false;
+  // Each reminder is a recurring rule: a day-of-month spec + a month spec.
+  // day: "first" | "last" | "middle" | "1".."31"
+  // month: "every" | "1".."12"
+  reminders: { day: string; month: string }[] = [
+    {
+      day: "first",
+      month: "every",
+    },
+  ];
+}
+
 export class InvoiceLine {
   article = "type:articles"; // Nullable
 

@@ -6,6 +6,7 @@ import {
 } from "@components/form/formcontext";
 import { InputButton } from "@components/input-button";
 import { optionsDelays, RecurrenceInput } from "@components/recurring-input";
+import { useClients } from "@features/clients/state/use-clients";
 import { Contacts } from "@features/contacts/types/types";
 import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
@@ -14,7 +15,7 @@ import { ArrowPathIcon } from "@heroicons/react/20/solid";
 import { Button } from "@radix-ui/themes";
 import { format } from "date-fns";
 import _ from "lodash";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { atom, useRecoilState } from "recoil";
 import { frequencyOptions } from "../../articles/components/article-details";
@@ -36,15 +37,38 @@ export const InvoiceRecurrenceInput = ({
   contact?: Contacts;
   noResetToDefault?: boolean;
 }) => {
+  const { client: me } = useClients();
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const hasSubscription = !!invoice.content?.find((a) => a.subscription);
   const subscriptions = _.uniq(
     invoice.content?.map((a) => a.subscription),
   ).filter(Boolean) as string[];
   const minimalFrequency = _.minBy(subscriptions, (a) => {
     const t = new Date();
-    applyOffset(t, a, Intl.DateTimeFormat().resolvedOptions().timeZone, 1);
+    applyOffset(t, a, tz, 1);
     return t.getTime();
   });
+
+  // Tacit renewal defaults: resolved directly from the contact/client config
+  // (we do not use mergeObjects here as it coerces booleans like `false` to "").
+  // First explicit boolean wins; tacit renewal is the default when unset.
+  const resolveTacit = (key: "tacit_monthly" | "tacit_yearly") => {
+    for (const source of [
+      client?.recurring,
+      contact?.recurring,
+      me?.client?.recurring,
+    ]) {
+      const value = (source as any)?.[key];
+      if (typeof value === "boolean") return value;
+    }
+    return true;
+  };
+  const categoryOf = (frequency: string) =>
+    frequency.split("_").pop() === "yearly" ? "yearly" : "monthly";
+  const isNonTacit = (category: string) =>
+    category === "yearly"
+      ? !resolveTacit("tacit_yearly")
+      : !resolveTacit("tacit_monthly");
 
   const getAllDates = (max = 100) => {
     let hasMore = false;
@@ -127,9 +151,6 @@ export const InvoiceRecurrenceInput = ({
     if (!invoice.subscription?.renew_in_advance) {
       ctrl("subscription.renew_in_advance").onChange("30");
     }
-    if (!invoice.subscription?.end_type) {
-      ctrl("subscription.end_type").onChange("none");
-    }
     if (!invoice.subscription?.renew_as) {
       ctrl("subscription.renew_as").onChange("draft");
     }
@@ -137,6 +158,40 @@ export const InvoiceRecurrenceInput = ({
       ctrl("subscription.invoice_date").onChange("first_day");
     }
   }, [invoice.id]);
+
+  // Non-tacit periods cannot renew indefinitely: switch the end from "none"
+  // (tacit) to a 1 year delay, but ONLY when a recurring article of a non-tacit
+  // period is added. The user keeps full control of the end afterwards.
+  const prevSubscriptionsRef = useRef<string[] | null>(null);
+  useEffect(() => {
+    const previous = prevSubscriptionsRef.current;
+    prevSubscriptionsRef.current = subscriptions;
+
+    const switchToDelay = () => {
+      ctrl("subscription.end_type").onChange("delay");
+      ctrl("subscription.end_delay").onChange("1y");
+    };
+
+    if (previous === null) {
+      // First evaluation: only initialize a brand new configuration (no end yet)
+      if (!invoice.subscription?.end_type) {
+        if (subscriptions.some((f) => isNonTacit(categoryOf(f)))) {
+          switchToDelay();
+        } else {
+          ctrl("subscription.end_type").onChange("none");
+        }
+      }
+      return;
+    }
+
+    // A recurring article of a non-tacit period was just added
+    const previousCategories = new Set(previous.map(categoryOf));
+    const addedNonTacit = subscriptions.some(
+      (f) => isNonTacit(categoryOf(f)) && !previousCategories.has(categoryOf(f)),
+    );
+    if (addedNonTacit) switchToDelay();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(subscriptions)]);
 
   if (!hasSubscription) return null;
 

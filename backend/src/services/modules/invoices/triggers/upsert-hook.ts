@@ -145,6 +145,14 @@ export const setUpsertHook = () =>
         (a) => a.subscription
       );
 
+      // The "to review" reminder date only applies to quotes with review enabled.
+      // Otherwise we clear it so the quote does not show up in the "to review" tab.
+      if (updated.type !== "quotes") {
+        updated.next_review_date = null;
+      } else if (updated.review && !updated.review.enabled) {
+        updated.next_review_date = null;
+      }
+
       if (!updated.emit_date) {
         updated.emit_date = new Date();
       }

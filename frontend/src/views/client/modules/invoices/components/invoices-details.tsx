@@ -66,6 +66,7 @@ import { InvoiceInputFormat } from "./input-format";
 import { InvoicePaymentInput } from "./input-payment";
 import { InvoiceRecurrenceInput } from "./input-recurrence";
 import { InvoiceRecurrencePeriodInput } from "./input-recurrence-period";
+import { InvoiceReviewInput } from "./input-review";
 import { InvoiceReminderInput } from "./input-reminder";
 import { InvoiceDesignationInput } from "./invoice-designation-input";
 import { InvoiceLinesInput } from "./invoice-lines-input";
@@ -416,7 +417,7 @@ export const InvoicesDetailsPage = ({
                     )}
                 </InputButton>
 
-                <div className={readonly ? "flex space-x-1" : "flex space-x-1"}>
+                <div className="flex space-x-1 items-center">
                   {(!readonly || ctrl("emit_date").value) && (
                     <InputButton
                       theme="invisible"
@@ -502,6 +503,18 @@ export const InvoicesDetailsPage = ({
                       </Text>
                     </InputButton>
                   )}
+                  {draft.type === "quotes" &&
+                    ["draft", "sent", "purchase_order", "recurring"].includes(
+                      draft.state,
+                    ) &&
+                    !!draft.content?.find((a) => a.subscription) && (
+                      <InvoiceReviewInput
+                        btnKey="invoice-review"
+                        invoice={draft}
+                        ctrl={ctrl}
+                        readonly={readonly}
+                      />
+                    )}
                 </div>
               </Section>
               <InvoiceDesignationInput
