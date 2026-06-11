@@ -60,6 +60,22 @@ export class InvoicesApiClient {
     return res.json();
   }
 
+  // Realign the billing day of the source recurring quote linked to this
+  // invoice on the given period start (timestamp in ms).
+  static async syncSubscriptionDay(
+    invoice: Pick<Invoices, "id" | "client_id">,
+    from: number
+  ) {
+    const res = await fetchServer(
+      `/api/invoices/v1/${invoice.client_id}/invoice/${invoice.id}/sync-subscription-day`,
+      {
+        method: "POST",
+        body: JSON.stringify({ from }),
+      }
+    );
+    return res.json();
+  }
+
   static async getPartialInvoice(
     invoice: Pick<Invoices, "id" | "client_id">,
     selection: Partial<InvoiceLine>[] = []

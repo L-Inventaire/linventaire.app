@@ -6,20 +6,31 @@ import { format } from "date-fns";
 import { Text } from "@radix-ui/themes";
 import { FormInput } from "@components/form/fields";
 import { Checkbox } from "@atoms/input/input-checkbox";
+import { Info } from "@atoms/text";
 import { useEffect, useState } from "react";
 import { applyOffset } from "@shared/invoices";
+import { atomFamily, useRecoilState } from "recoil";
 import _ from "lodash";
+
+// Holds, per invoice, whether the user asked to realign the billing day of the
+// source subscription when saving. Read by the edit page on save.
+export const SyncSubscriptionDayAtom = atomFamily<boolean, string>({
+  key: "SyncSubscriptionDayAtom",
+  default: false,
+});
 
 export const InvoiceRecurrencePeriodInput = ({
   ctrl,
   invoice,
   readonly,
   btnKey,
+  sourceQuote,
 }: {
   ctrl: FormControllerFuncType<Invoices>;
   invoice: Invoices;
   readonly?: boolean;
   btnKey?: string;
+  sourceQuote?: Invoices;
 }) => {
   const frequencies = _.uniq(
     invoice.content?.filter((a) => a.subscription).map((a) => a.subscription),
@@ -54,6 +65,34 @@ export const InvoiceRecurrencePeriodInput = ({
       new Date(invoice.from_subscription?.to).toISOString().split("T")[0];
 
   const [useCustomDate, setUseCustomDate] = useState(!!isCustomDate);
+
+  // When this invoice is linked to a still-active recurring quote, we let the
+  // user realign the subscription's billing day on the period start they just
+  // set. We only offer it when the day actually differs from the current one.
+  const fromDate = invoice.from_subscription?.from
+    ? new Date(invoice.from_subscription.from)
+    : null;
+  const subscriptionAnchor = sourceQuote?.subscription_started_at
+    ? new Date(sourceQuote.subscription_started_at)
+    : null;
+  const canSyncSubscriptionDay =
+    !readonly &&
+    !!invoice.from_rel_quote?.length &&
+    sourceQuote?.state === "recurring" &&
+    !!fromDate &&
+    !!subscriptionAnchor &&
+    fromDate.getDate() !== subscriptionAnchor.getDate();
+
+  const [syncSubscriptionDay, setSyncSubscriptionDay] = useRecoilState(
+    SyncSubscriptionDayAtom(invoice.id || "new"),
+  );
+
+  // Drop the intent if the period gets reverted to the existing billing day.
+  useEffect(() => {
+    if (!canSyncSubscriptionDay && syncSubscriptionDay) {
+      setSyncSubscriptionDay(false);
+    }
+  }, [canSyncSubscriptionDay]);
 
   useEffect(() => {
     if (!useCustomDate) {
@@ -112,6 +151,20 @@ export const InvoiceRecurrencePeriodInput = ({
               onChange={setUseCustomDate}
             />
           </div>
+          {canSyncSubscriptionDay && (
+            <div className="space-y-1 border-t border-slate-100 dark:border-slate-700 pt-3">
+              <Checkbox
+                label="Mettre à jour le jour de facturation de l'abonnement source"
+                value={syncSubscriptionDay}
+                onChange={setSyncSubscriptionDay}
+              />
+              <Info className="block">
+                Les prochaines factures de cet abonnement seront générées à
+                partir du {format(new Date(fromDate || Date.now()), "dd")} du
+                mois.
+              </Info>
+            </div>
+          )}
         </div>
       )}
       value={"true"}
