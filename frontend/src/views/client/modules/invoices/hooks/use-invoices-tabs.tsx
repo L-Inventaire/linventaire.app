@@ -42,7 +42,10 @@ export const useQuotesTabs = (): InvoicesTabsResult => {
   const base = buildQueryFromMap({ type: types });
   const tabs: InvoiceTabs = {
     all: { label: "Tous", filter: [] },
-    draft: { label: "Brouillons", filter: buildQueryFromMap({ state: "draft" }) },
+    draft: {
+      label: "Brouillons",
+      filter: buildQueryFromMap({ state: "draft" }),
+    },
     sent: { label: "Envoyés", filter: buildQueryFromMap({ state: "sent" }) },
     purchase_order: {
       label: "Acceptés",
@@ -52,7 +55,10 @@ export const useQuotesTabs = (): InvoicesTabsResult => {
       label: "À facturer",
       filter: buildQueryFromMap({ state: "completed" }),
     },
-    closed: { label: "Terminés", filter: buildQueryFromMap({ state: ["closed"] }) },
+    closed: {
+      label: "Terminés",
+      filter: buildQueryFromMap({ state: ["closed"] }),
+    },
   };
   const counters = {
     draft: useCount("quotes-draft", [...base, ...tabs.draft.filter]),
@@ -61,7 +67,10 @@ export const useQuotesTabs = (): InvoicesTabsResult => {
       ...base,
       ...tabs.purchase_order.filter,
     ]),
-    completed: useCount("quotes-completed", [...base, ...tabs.completed.filter]),
+    completed: useCount("quotes-completed", [
+      ...base,
+      ...tabs.completed.filter,
+    ]),
   };
   return { types, title: "Devis", tabs, counters };
 };
@@ -99,7 +108,7 @@ export const useSubscriptionsTabs = (): InvoicesTabsResult => {
 };
 
 /** Factures et avoirs */
-export const useDocumentsTabs = (
+export const useGenericInvoicesTabs = (
   documentType: "invoices" | "credit_notes",
 ): InvoicesTabsResult => {
   const types: Invoices["type"][] = [documentType];
@@ -113,7 +122,10 @@ export const useDocumentsTabs = (
         not: true,
       })),
     },
-    draft: { label: "Brouillons", filter: buildQueryFromMap({ state: "draft" }) },
+    draft: {
+      label: "Brouillons",
+      filter: buildQueryFromMap({ state: "draft" }),
+    },
     sent: {
       label: "Envoyés",
       filter: isInvoices
@@ -150,7 +162,10 @@ export const useDocumentsTabs = (
           },
         }
       : {}),
-    closed: { label: "Terminés", filter: buildQueryFromMap({ state: ["closed"] }) },
+    closed: {
+      label: "Terminés",
+      filter: buildQueryFromMap({ state: ["closed"] }),
+    },
   };
   const draftCount = useCount(documentType + "-draft", [
     ...base,
@@ -178,7 +193,10 @@ export const useSupplierQuotesTabs = (): InvoicesTabsResult => {
   const base = buildQueryFromMap({ type: types });
   const tabs: InvoiceTabs = {
     all: { label: "Tous", filter: [] },
-    draft: { label: "Brouillons", filter: buildQueryFromMap({ state: "draft" }) },
+    draft: {
+      label: "Brouillons",
+      filter: buildQueryFromMap({ state: "draft" }),
+    },
     sent: {
       label: "Commandé",
       filter: buildQueryFromMap({ state: ["sent", "purchase_order"] }),
@@ -187,7 +205,10 @@ export const useSupplierQuotesTabs = (): InvoicesTabsResult => {
       label: "À payer",
       filter: buildQueryFromMap({ state: "completed" }),
     },
-    closed: { label: "Terminés", filter: buildQueryFromMap({ state: ["closed"] }) },
+    closed: {
+      label: "Terminés",
+      filter: buildQueryFromMap({ state: ["closed"] }),
+    },
   };
   const counters = {
     draft: useCount("supplier_quotes-draft", [...base, ...tabs.draft.filter]),
@@ -202,13 +223,22 @@ export const useSupplierQuotesTabs = (): InvoicesTabsResult => {
 
 /** Factures et avoirs fournisseur */
 export const useSupplierDocumentsTabs = (): InvoicesTabsResult => {
-  const types: Invoices["type"][] = ["supplier_invoices", "supplier_credit_notes"];
+  const types: Invoices["type"][] = [
+    "supplier_invoices",
+    "supplier_credit_notes",
+  ];
   const base = buildQueryFromMap({ type: types });
   const tabs: InvoiceTabs = {
     all: { label: "Tous", filter: [] },
-    draft: { label: "Brouillons", filter: buildQueryFromMap({ state: "draft" }) },
+    draft: {
+      label: "Brouillons",
+      filter: buildQueryFromMap({ state: "draft" }),
+    },
     sent: { label: "À payer", filter: buildQueryFromMap({ state: "sent" }) },
-    closed: { label: "Terminés", filter: buildQueryFromMap({ state: ["closed"] }) },
+    closed: {
+      label: "Terminés",
+      filter: buildQueryFromMap({ state: ["closed"] }),
+    },
   };
   const counters = {
     draft: useCount("supplier_invoices-draft", [...base, ...tabs.draft.filter]),

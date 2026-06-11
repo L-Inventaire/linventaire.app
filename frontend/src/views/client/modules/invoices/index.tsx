@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { InvoicesListView } from "./components/invoices-list-view";
 import {
   InvoicesTabsResult,
-  useDocumentsTabs,
+  useGenericInvoicesTabs,
   useQuotesTabs,
   useSubscriptionsTabs,
   useSupplierDocumentsTabs,
@@ -25,10 +25,10 @@ const InvoicesPageRouter = ({ type }: { type: string }) => {
   if (types.includes("quotes")) return <QuotesPage />;
   if (types.includes("supplier_quotes")) return <SupplierQuotesPage />;
   if (types.some((t) => t.startsWith("supplier_")))
-    return <SupplierDocumentsPage />;
+    return <SupplierGenericPage />;
   if (types.includes("credit_notes"))
-    return <DocumentsPage documentType="credit_notes" />;
-  return <DocumentsPage documentType="invoices" />;
+    return <GenericPage documentType="credit_notes" />;
+  return <GenericPage documentType="invoices" />;
 };
 
 // Common page shell: wires the active tab, the data hook and the common view
@@ -73,12 +73,12 @@ const SubscriptionsPage = () => {
   );
 };
 
-const DocumentsPage = ({
+const GenericPage = ({
   documentType,
 }: {
   documentType: "invoices" | "credit_notes";
 }) => {
-  const result = useDocumentsTabs(documentType);
+  const result = useGenericInvoicesTabs(documentType);
   return <InvoicesTabsPage result={result} defaultTab="all" />;
 };
 
@@ -87,7 +87,7 @@ const SupplierQuotesPage = () => {
   return <InvoicesTabsPage result={result} defaultTab="all" />;
 };
 
-const SupplierDocumentsPage = () => {
+const SupplierGenericPage = () => {
   const result = useSupplierDocumentsTabs();
   return <InvoicesTabsPage result={result} defaultTab="all" />;
 };
