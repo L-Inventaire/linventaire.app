@@ -13,6 +13,7 @@ import {
   PrinterIcon,
 } from "@heroicons/react/24/outline";
 import { useSetRecoilState } from "recoil";
+import toast from "react-hot-toast";
 import { getDuplicateDocumentData } from "./utils";
 
 interface ActionButtonsProps {
@@ -66,8 +67,12 @@ export const ActionButtons = ({
           {
             type: "danger" as const,
             label: "Supprimer",
-            onClick: () => {
-              onRemove?.();
+            onClick: async () => {
+              try {
+                await onRemove?.();
+              } catch {
+                toast.error("Impossible de supprimer le document");
+              }
             },
           },
         ]
