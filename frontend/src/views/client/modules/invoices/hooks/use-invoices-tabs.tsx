@@ -17,6 +17,25 @@ export type InvoicesTabsResult = {
 const useCount = (key: string, query: RestSearchQuery[]) =>
   useRestCount("invoices", { key, query }).data || 0;
 
+// Bounds for the "to review" date: set and already passed. The upper bound is
+// the start of the day (a stable value, not `Date.now()` which would change on
+// every render and trigger an infinite refetch loop).
+export const reviewDateBounds = (): RestSearchQuery[] => [
+  { key: "next_review_date", values: [{ value: 1, op: "gte" }] },
+  {
+    key: "next_review_date",
+    values: [
+      { value: new Date(new Date().setHours(0, 0, 0, 1)).getTime(), op: "lte" },
+    ],
+  },
+];
+
+// Query matching the active subscriptions that need to be reviewed
+export const subscriptionsToReviewQuery = (): RestSearchQuery[] => [
+  ...buildQueryFromMap({ type: "quotes", state: "recurring" }),
+  ...reviewDateBounds(),
+];
+
 /** Devis */
 export const useQuotesTabs = (): InvoicesTabsResult => {
   const types: Invoices["type"][] = ["quotes"];
@@ -57,16 +76,7 @@ export const useSubscriptionsTabs = (): InvoicesTabsResult => {
   // refetch loop.
   const reviewFilter: RestSearchQuery[] = [
     ...buildQueryFromMap({ state: "recurring" }),
-    { key: "next_review_date", values: [{ value: 1, op: "gte" }] },
-    {
-      key: "next_review_date",
-      values: [
-        {
-          value: new Date(new Date().setHours(0, 0, 0, 1)).getTime(),
-          op: "lte",
-        },
-      ],
-    },
+    ...reviewDateBounds(),
   ];
   const closedFilter: RestSearchQuery[] = [
     ...buildQueryFromMap({ state: "closed" }),

@@ -28,7 +28,9 @@ import {
   UsersIcon,
   ViewColumnsIcon,
 } from "@heroicons/react/24/solid";
+import { useRestCount } from "@features/utils/rest/hooks/use-rest";
 import { ScrollArea } from "@radix-ui/themes";
+import { subscriptionsToReviewQuery } from "@views/client/modules/invoices/hooks/use-invoices-tabs";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
 import { useRecoilValue } from "recoil";
@@ -43,6 +45,11 @@ export const SideBar = () => {
 
   const { counters, unreadNotifications } = useDashboard();
   const { config: eInvoicingConfig } = useEInvoicingConfig();
+
+  const subscriptionsToReview = useRestCount("invoices", {
+    key: "sidebarSubscriptionsToReview",
+    query: subscriptionsToReviewQuery(),
+  });
 
   return (
     <div
@@ -110,6 +117,7 @@ export const SideBar = () => {
               to={getRoute(ROUTES.Invoices, { type: "subscriptions" })}
               label={t("menu.subscriptions")}
               icon={(p) => <ArrowPathIcon {...p} />}
+              badge={subscriptionsToReview.data || undefined}
               active={
                 location.pathname.indexOf(
                   getRoute(ROUTES.Invoices, { type: "subscriptions" }),
