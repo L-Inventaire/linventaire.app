@@ -6,13 +6,16 @@ import { useInvoiceDefaultModel } from "@features/invoices/configuration";
 import { Invoices } from "@features/invoices/types/types";
 import { getDocumentNamePlurial } from "@features/invoices/utils";
 import { ROUTES, getRoute } from "@features/routes";
+import { InvoicesApiClient } from "@features/invoices/api-client/invoices-api-client";
 import { useDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { Page } from "@views/client/_layout/page";
 import _ from "lodash";
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useRecoilState } from "recoil";
 import { InvoicesDocumentBar } from "../components/document-bar";
 import { InvoicesDetailsPage } from "../components/invoices-details";
+import { SyncSubscriptionDayAtom } from "../components/input-recurrence-period";
 
 export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
   const { refresh } = useClients();
@@ -27,6 +30,10 @@ export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
 
   const defaultModel = useRef(useInvoiceDefaultModel()).current;
   const initialModel = getUrlModel<Invoices>();
+
+  const [syncSubscriptionDay, setSyncSubscriptionDay] = useRecoilState(
+    SyncSubscriptionDayAtom(id || "new"),
+  );
 
   const { isInitiating, save, draft, isPendingModification } =
     useDraftRest<Invoices>(
@@ -65,6 +72,22 @@ export const InvoicesEditPage = (_props: { readonly?: boolean }) => {
           onSave={async () => {
             const invoice = await save();
             if (invoice?.id) {
+              if (
+                syncSubscriptionDay &&
+                invoice.from_rel_quote?.length &&
+                invoice.from_subscription?.from
+              ) {
+                try {
+                  await InvoicesApiClient.syncSubscriptionDay(
+                    invoice,
+                    invoice.from_subscription.from
+                  );
+                } catch (e) {
+                  console.error(e);
+                } finally {
+                  setSyncSubscriptionDay(false);
+                }
+              }
               console.log("NAVIGATE TO VIEW");
               navigate(getRoute(ROUTES.InvoicesView, { id: invoice.id }));
             }

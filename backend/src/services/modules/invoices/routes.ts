@@ -160,6 +160,87 @@ export const registerRoutes = (router: Router) => {
     }
   );
 
+  // Realign the billing day of the source recurring quote(s) based on a
+  // generated invoice's period start. Used when a user edits the billing period
+  // of a generated (or manual) invoice and wants the future invoices of the
+  // subscription to follow the new day (e.g. bringing periods back to the 1st of
+  // the month instead of the day the first invoice happened to be sent).
+  router.post(
+    "/:clientId/invoice/:id/sync-subscription-day",
+    checkRole("USER"),
+    async (req, res) => {
+      const ctx = Ctx.get(req)!.context;
+      const db = await Framework.Db.getService();
+
+      const invoice = await db.selectOne<Invoices>(
+        ctx,
+        InvoicesDefinition.name,
+        {
+          id: req.params.id,
+          client_id: ctx.client_id,
+        }
+      );
+      if (!invoice) return res.status(404).json({ error: "Not found" });
+
+      const from = req.body?.from ?? invoice.from_subscription?.from;
+      if (!from || !invoice.from_rel_quote?.length) {
+        return res
+          .status(400)
+          .json({ error: "Invoice is not linked to a subscription period" });
+      }
+
+      // The period boundaries of generated invoices are anchored on the source
+      // quote's subscription_started_at (applyOffset preserves the day-of-month,
+      // weekday or month/day depending on the frequency). Realigning that anchor
+      // on the chosen period start is therefore enough to shift the billing day.
+      const newStartedAt = new Date(from);
+      const updated: string[] = [];
+
+      for (const quoteId of invoice.from_rel_quote) {
+        const quote = await db.selectOne<Invoices>(
+          ctx,
+          InvoicesDefinition.name,
+          {
+            id: quoteId,
+            client_id: ctx.client_id,
+          }
+        );
+        if (!quote || quote.type !== "quotes" || quote.state !== "recurring") {
+          continue;
+        }
+
+        await db.update<Invoices>(
+          ctx,
+          InvoicesDefinition.name,
+          { id: quote.id, client_id: quote.client_id },
+          {
+            subscription_started_at: newStartedAt,
+            // Force the next cron run to recompute the upcoming periods from the
+            // new anchor (already-invoiced periods are skipped by the dedup).
+            subscription_next_invoice_date: newStartedAt,
+          }
+        );
+
+        await Services.Comments.createEvent(ctx, {
+          client_id: quote.client_id,
+          item_entity: "invoices",
+          item_id: quote.id,
+          content: `Le jour de facturation de l'abonnement a été aligné sur le ${
+            newStartedAt.toISOString().split("T")[0]
+          } depuis la facture ${invoice.reference || invoice.id}.`,
+          metadata: {
+            event_type: "subscription_billing_day_updated",
+            from_invoice: invoice.id,
+          },
+        });
+
+        updated.push(quote.id);
+      }
+
+      return res.json({ ok: true, updated });
+    }
+  );
+
   router.post(
     "/:clientId/furnish-invoices",
     checkRole("USER"),

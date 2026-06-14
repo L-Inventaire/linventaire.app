@@ -574,8 +574,14 @@ export function convertInternalToEN16931(
     typeCode = 325; // Proforma invoice / quote
   }
 
-  // Convert invoice lines
-  const lines = invoice.content.map((line, index) => {
+  // Convert invoice lines.
+  // EN16931 forbids negative item net prices (BR-27), so a line that only
+  // carries a rebate (negative net amount, e.g. a "remise" line) is emitted as
+  // a document-level allowance instead of a negative-priced invoice line.
+  const lines: EN16931Invoice["lines"] = [];
+  const negativeLineAllowances: any[] = [];
+
+  invoice.content.forEach((line) => {
     const article = resolvedEntities.articles.get(line.article);
 
     if (!article) {
@@ -608,6 +614,20 @@ export function convertInternalToEN16931(
 
     // Calculate net amount (quantity * unit_price before discount)
     let lineNetAmount = line.quantity * line.unit_price;
+
+    // A line with a negative net amount represents a rebate. EN16931 does not
+    // allow negative item net prices (BR-27), so convert it to a document-level
+    // allowance carrying the line's VAT category and rate.
+    if (lineNetAmount < 0) {
+      negativeLineAllowances.push({
+        amount: `${Math.abs(lineNetAmount)}`,
+        reason: line.name || undefined,
+        reason_code: "95", // Discount
+        vat_category_code: vatCategoryCode,
+        vat_rate: `${vatRate}`,
+      });
+      return;
+    }
 
     // Apply line discount
     const allowances: any[] = [];
@@ -645,8 +665,8 @@ export function convertInternalToEN16931(
       }
     }
 
-    return {
-      identifier: (index + 1).toString(),
+    lines.push({
+      identifier: `${lines.length + 1}`,
 
       invoiced_quantity: `${line.quantity}`,
       invoiced_quantity_code: unitCode,
@@ -674,7 +694,7 @@ export function convertInternalToEN16931(
         invoiced_item_vat_category_code: vatCategoryCode,
         invoiced_item_vat_rate: `${vatRate}`,
       },
-    } as EN16931Invoice["lines"][0];
+    } as EN16931Invoice["lines"][0]);
   });
 
   // Calculate totals
@@ -709,6 +729,14 @@ export function convertInternalToEN16931(
       documentAllowanceAmount += allowance.amount;
     }
   }
+
+  // Fold rebate lines (negative net amounts) into the document-level allowances
+  // so that BT-106/BT-107/BT-109 stay consistent (BR-CO-13).
+  for (const allowance of negativeLineAllowances) {
+    documentAllowances.push(allowance);
+    documentAllowanceAmount += parseFloat(allowance.amount);
+  }
+
   documentAllowances = documentAllowances.filter(
     (a) => parseFloat(a.amount) > 0
   );
@@ -735,17 +763,74 @@ export function convertInternalToEN16931(
     }
   }
 
-  // Calculate totals from precomputed
-  const totalWithoutVat = invoice.total?.vat_breakdown
-    ? invoice.total.vat_breakdown.reduce(
-        (sum, vb) => sum + vb.taxable_amount,
-        0
-      )
-    : sumOfLineNetAmounts - documentAllowanceAmount + documentChargeAmount;
+  // Fallback: if the precomputed VAT breakdown is missing or empty (e.g. legacy
+  // or stale totals), derive it from the invoice lines and document-level
+  // allowances/charges. Without this, the generated document has no VAT
+  // breakdown group and Factur-X validation fails with BR-CO-18 (BG-23).
+  if (vatBreakDown.length === 0 && lines.length > 0) {
+    const derived: { [key: string]: EN16931VatBreakDown } = {};
 
-  const totalVat = invoice.total?.vat_breakdown
-    ? invoice.total.vat_breakdown.reduce((sum, vb) => sum + vb.tax_amount, 0)
-    : 0;
+    const addToGroup = (
+      categoryCode: string,
+      rate: number,
+      taxableDelta: number
+    ) => {
+      const key = `${categoryCode}:${rate}`;
+      if (!derived[key]) {
+        derived[key] = {
+          vat_category_taxable_amount: "0",
+          vat_category_tax_amount: "0",
+          vat_category_code: categoryCode,
+          vat_category_rate: rate.toString(),
+        };
+      }
+      const taxable =
+        parseFloat(derived[key].vat_category_taxable_amount) + taxableDelta;
+      derived[key].vat_category_taxable_amount = taxable.toFixed(2);
+      derived[key].vat_category_tax_amount = (taxable * (rate / 100)).toFixed(2);
+    };
+
+    for (const line of lines) {
+      addToGroup(
+        line.vat_information.invoiced_item_vat_category_code,
+        parseFloat(line.vat_information.invoiced_item_vat_rate),
+        parseFloat(line.net_amount)
+      );
+    }
+
+    for (const allowance of documentAllowances) {
+      addToGroup(
+        allowance.vat_category_code,
+        parseFloat(allowance.vat_rate),
+        -parseFloat(allowance.amount)
+      );
+    }
+
+    for (const charge of documentCharges) {
+      addToGroup(
+        charge.vat_category_code,
+        parseFloat(charge.vat_rate),
+        parseFloat(charge.amount)
+      );
+    }
+
+    vatBreakDown.push(...Object.values(derived));
+  }
+
+  // Calculate totals from the final VAT breakdown (precomputed or derived) so
+  // the document totals stay consistent with the breakdown groups.
+  const totalWithoutVat =
+    vatBreakDown.length > 0
+      ? vatBreakDown.reduce(
+          (sum, vb) => sum + parseFloat(vb.vat_category_taxable_amount),
+          0
+        )
+      : sumOfLineNetAmounts - documentAllowanceAmount + documentChargeAmount;
+
+  const totalVat = vatBreakDown.reduce(
+    (sum, vb) => sum + parseFloat(vb.vat_category_tax_amount),
+    0
+  );
 
   // Add global VAT codes if there's only one breakdown entry
   let globalVatCategoryCode: string | undefined = undefined;
