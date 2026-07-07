@@ -26,6 +26,10 @@ export class SigningSessions extends RestEntity {
   signing_url = "string";
   reason = "string";
   recipient_token = "string";
+  // Secret token embedded in the email signing link. When the recipient opens
+  // the link from their mailbox, presenting this token proves control of that
+  // mailbox and pre-validates the session, so the email OTP step is skipped.
+  access_token = "string";
   expired = false;
 }
 
@@ -44,6 +48,7 @@ export const SigningSessionsDefinition: RestTableDefinition = {
     document_url: "TEXT",
     signing_url: "TEXT",
     recipient_token: "VARCHAR(64)",
+    access_token: "VARCHAR(128)",
     expired: "BOOLEAN",
   },
   pk: ["invoice_id", "recipient_email", "id"],

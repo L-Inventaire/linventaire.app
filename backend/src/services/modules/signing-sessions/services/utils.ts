@@ -73,6 +73,15 @@ export const generateEmailMessageToRecipient = async (
     buttonHref = config
       .get<string>("signature.webhook.to_sign")
       .replace(":signing-session", signingSession?.id);
+
+    // Append the secret access token so that opening the link pre-validates the
+    // signing session (proof of mailbox ownership) and lets the signer skip the
+    // email verification code, which some recipients never receive.
+    if (signingSession.access_token) {
+      buttonHref +=
+        (buttonHref.includes("?") ? "&" : "?") +
+        `token=${encodeURIComponent(signingSession.access_token)}`;
+    }
   }
 
   if (signingSession && action === "signed") {

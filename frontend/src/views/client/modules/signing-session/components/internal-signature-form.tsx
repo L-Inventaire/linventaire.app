@@ -19,6 +19,9 @@ interface InternalSignatureFormProps {
   options: (InvoiceLine & { _index: number })[];
   onOptionChange: (optionId: string, value: boolean) => void;
   onSigned: () => void;
+  // Secret token from the email link. When set, the session is pre-validated and
+  // the signer signs directly without entering an email verification code.
+  signToken?: string;
 }
 
 type Step = "form" | "otp" | "success";
@@ -28,6 +31,7 @@ export const InternalSignatureForm = ({
   options,
   onOptionChange,
   onSigned,
+  signToken,
 }: InternalSignatureFormProps) => {
   const [step, setStep] = useState<Step>("form");
   const [email, setEmail] = useState(signingSession.recipient_email || "");
@@ -67,7 +71,44 @@ export const InternalSignatureForm = ({
     }
   }, [step, resendTimer]);
 
-  // Request OTP and move to verification step
+  // Call verify-and-sign with either the email link token or the email OTP code.
+  const signDocument = async (
+    signatureBase64: string,
+    auth: { code?: string; accessToken?: string },
+  ) => {
+    if (signingSession.state === "signed") {
+      toast.error("Ce document a déjà été signé");
+      return;
+    }
+
+    const response = await fetchServer(
+      `/api/signing-sessions/v1/${signingSession.id}/verify-and-sign`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          ...auth,
+          signatureBase64,
+          options,
+          reference: altReference,
+          metadata: {
+            userAgent: navigator.userAgent,
+          },
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || "Code invalide");
+    }
+
+    setStep("success");
+    toast.success("Document signé avec succès !");
+    onSigned();
+  };
+
+  // Submit the form: sign directly when pre-validated by the email link token,
+  // otherwise request an email verification code (OTP) and move to that step.
   const handleSubmitForm = async () => {
     if (!hasReadDocument) {
       toast.error("Veuillez confirmer avoir lu le document");
@@ -85,7 +126,19 @@ export const InternalSignatureForm = ({
       const signatureBase64 = sigCanvas.current!.toDataURL();
       setSignatureData(signatureBase64);
 
-      // Call the backend to send the verification code
+      // Pre-validated through the email link: sign directly, no code needed.
+      if (signToken) {
+        try {
+          await signDocument(signatureBase64, { accessToken: signToken });
+          return;
+        } catch (tokenError) {
+          // The link token was rejected (tampered/stale). Rather than leaving the
+          // signer stuck, fall back to the email verification code flow below.
+          console.error("Token sign failed, falling back to OTP:", tokenError);
+        }
+      }
+
+      // Otherwise, ask the backend to send the verification code.
       const response = await fetchServer(
         `/api/signing-sessions/v1/${signingSession.id}/request-verification`,
         {
@@ -103,8 +156,12 @@ export const InternalSignatureForm = ({
       setCanResend(false);
       toast.success("Un code de vérification a été envoyé à votre email");
     } catch (error: any) {
-      toast.error("Erreur lors de l'envoi du code de vérification");
-      console.error("Request verification error:", error);
+      toast.error(
+        signToken
+          ? error.message || "Erreur lors de la signature"
+          : "Erreur lors de l'envoi du code de vérification",
+      );
+      console.error("Submit signature error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -122,39 +179,9 @@ export const InternalSignatureForm = ({
       return;
     }
 
-    // Check if already signed
-    if (signingSession.state === "signed") {
-      toast.error("Ce document a déjà été signé");
-      return;
-    }
-
     setOtpLoading(true);
     try {
-      // Verify code and sign in one call
-      const response = await fetchServer(
-        `/api/signing-sessions/v1/${signingSession.id}/verify-and-sign`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            code,
-            signatureBase64: signatureData,
-            options,
-            reference: altReference,
-            metadata: {
-              userAgent: navigator.userAgent,
-            },
-          }),
-        },
-      );
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Code invalide");
-      }
-
-      setStep("success");
-      toast.success("Document signé avec succès !");
-      onSigned();
+      await signDocument(signatureData, { code });
     } catch (error: any) {
       toast.error(
         error.message || "Code invalide ou erreur lors de la signature",
@@ -359,9 +386,11 @@ export const InternalSignatureForm = ({
                   disabled
                   className="w-full"
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  Un code de vérification sera envoyé à cette adresse
-                </p>
+                {!signToken && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Un code de vérification sera envoyé à cette adresse
+                  </p>
+                )}
               </div>
 
               {/* Signature canvas */}
@@ -423,7 +452,11 @@ export const InternalSignatureForm = ({
                 disabled={isLoading || !hasReadDocument || !hasSignature}
                 icon={(p) => <CheckIcon {...p} />}
               >
-                {isLoading ? "Envoi en cours..." : "Signer le document"}
+                {isLoading
+                  ? signToken
+                    ? "Signature en cours..."
+                    : "Envoi en cours..."
+                  : "Signer le document"}
               </Button>
             </div>
           </>
@@ -486,9 +519,11 @@ export const InternalSignatureForm = ({
               disabled
               className="w-full"
             />
-            <p className="text-xs text-gray-500 mt-1">
-              Un code de vérification sera envoyé à cette adresse
-            </p>
+            {!signToken && (
+              <p className="text-xs text-gray-500 mt-1">
+                Un code de vérification sera envoyé à cette adresse
+              </p>
+            )}
           </div>
 
           {/* Signature canvas */}
@@ -550,7 +585,11 @@ export const InternalSignatureForm = ({
             disabled={isLoading || !hasReadDocument || !hasSignature}
             icon={(p) => <CheckIcon {...p} />}
           >
-            {isLoading ? "Envoi en cours..." : "Signer le document"}
+            {isLoading
+              ? signToken
+                ? "Signature en cours..."
+                : "Envoi en cours..."
+              : "Signer le document"}
           </Button>
         </div>
       </div>
