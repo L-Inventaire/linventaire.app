@@ -260,7 +260,7 @@ export default (router: Router) => {
     const ctx = Ctx.get(req)!.context;
     const db = await platform.Db.getService();
 
-    let signingSession = await db.selectOne<SigningSessions>(
+    const signingSession = await db.selectOne<SigningSessions>(
       ctx,
       SigningSessionsDefinition.name,
       { id: req.params.id },
