@@ -2,6 +2,7 @@ import platform from "#src/platform/index";
 import Services from "#src/services/index";
 import { Ctx } from "#src/services/utils";
 import config from "config";
+import crypto from "crypto";
 import { Router } from "express";
 import { checkRole } from "../../common";
 import Invoices, {
@@ -279,7 +280,7 @@ export default (router: Router) => {
     }
 
     if (signingSession.state === "sent" || signingSession.state === "signed") {
-      return res.json(signingSession);
+      return res.json(cleanSigningSession(signingSession));
     }
 
     const invoice = signingSession.invoice_snapshot as unknown as Invoices;
@@ -354,7 +355,7 @@ export default (router: Router) => {
     // Save optional lines selected by the signer
     await saveInvoiceOptions(ctx, invoice, options, altReference);
 
-    res.json(signingSession);
+    res.json(cleanSigningSession(signingSession));
   });
 
   router.post("/:id/view", async (req, res) => {
@@ -382,7 +383,7 @@ export default (router: Router) => {
       signingSession.state === "signed" ||
       signingSession.state === "cancelled"
     ) {
-      return res.json(signingSession);
+      return res.json(cleanSigningSession(signingSession));
     }
 
     updateSigningSession(ctx, {
@@ -421,7 +422,7 @@ export default (router: Router) => {
       signingSession.state === "signed" ||
       signingSession.state === "cancelled"
     ) {
-      return res.json(signingSession);
+      return res.json(cleanSigningSession(signingSession));
     }
 
     // TODO we should check if any recipients have signed !!!
@@ -442,7 +443,7 @@ export default (router: Router) => {
     // Create timeline event
     await createSigningTimelineEvent(ctx, invoice, signingSession);
 
-    res.json(signingSession);
+    res.json(cleanSigningSession(signingSession));
   });
 
   router.post("/:id/cancel", async (req, res) => {
@@ -469,13 +470,13 @@ export default (router: Router) => {
       signingSession.state === "signed" ||
       signingSession.state === "cancelled"
     ) {
-      return res.json(signingSession);
+      return res.json(cleanSigningSession(signingSession));
     }
 
     const invoice = signingSession.invoice_snapshot as unknown as Invoices;
 
     if (!(invoice?.type === "quotes" || invoice?.type === "credit_notes")) {
-      return res.json(signingSession);
+      return res.json(cleanSigningSession(signingSession));
     }
 
     await cancelSigningSessions(ctx, invoice);
@@ -533,7 +534,7 @@ export default (router: Router) => {
       reactions: [],
     });
 
-    res.json(signingSession);
+    res.json(cleanSigningSession(signingSession));
   });
 
   router.get("/:id/download", async (req, res) => {
@@ -644,42 +645,12 @@ export default (router: Router) => {
       >;
 
       // Get or create the e_sign_session
-      let eSignSession = await adapter.getSigningSessionBySigningSessionId(
-        signingSession.id
+      const { eSignSession } = await ensureESignSession(
+        ctx,
+        signingSession,
+        adapter,
+        invoice
       );
-
-      if (!eSignSession) {
-        // Create the e_sign_session if it doesn't exist yet
-        const documentToSign = await adapter.addDocumentToSign({
-          signingSessionId: signingSession.id,
-          title: invoice.reference,
-          reference: signingSession.id,
-          recipients: [
-            {
-              name: "Signer",
-              email: signingSession.recipient_email,
-            },
-          ],
-          subject: "",
-          message: "",
-          redirectUrl: config
-            .get<string>("signature.webhook.signed")
-            .replace(":signing-session", signingSession.id),
-        });
-
-        // Update signing session with external_id and token
-        signingSession = await updateSigningSession(ctx, {
-          ...signingSession,
-          external_id: documentToSign.id,
-          recipient_token: documentToSign.recipients[0].token,
-          state: "sent",
-        });
-
-        // Get the newly created e_sign_session
-        eSignSession = await adapter.getSigningSessionBySigningSessionId(
-          signingSession.id
-        );
-      }
 
       if (!eSignSession) {
         return res
@@ -709,13 +680,20 @@ export default (router: Router) => {
       return res.status(400).json({ error: "Internal signing not enabled" });
     }
 
-    const { code, signatureBase64, options, metadata, reference } = req.body;
+    const { code, accessToken, signatureBase64, options, metadata, reference } =
+      req.body;
 
-    if (!code || !signatureBase64) {
-      return res.status(400).json({ error: "Code and signature required" });
+    if (!signatureBase64) {
+      return res.status(400).json({ error: "Signature required" });
     }
 
-    const signingSession = await db.selectOne<SigningSessions>(
+    if (!code && !accessToken) {
+      return res
+        .status(400)
+        .json({ error: "Verification code or access token required" });
+    }
+
+    let signingSession = await db.selectOne<SigningSessions>(
       ctx,
       SigningSessionsDefinition.name,
       { id: req.params.id },
@@ -734,26 +712,52 @@ export default (router: Router) => {
       return res.status(400).json({ error: "Document already signed" });
     }
 
+    const invoice = signingSession.invoice_snapshot as unknown as Invoices;
+
+    if (!invoice) {
+      return res.status(400).json({ error: "Invoice not found" });
+    }
+
+    if (invoice.type === "invoices") {
+      return res.status(400).json({ error: "Cannot sign invoice" });
+    }
+
     try {
       const adapter = Services.SignatureSessions.documentSigner as InstanceType<
         typeof InternalAdapter
       >;
 
-      // Get the e_sign_session
-      const eSignSession = await adapter.getSigningSessionBySigningSessionId(
-        signingSession.id
+      // Get or lazily create the e_sign_session (a signer who pre-validates via
+      // the email link may never have gone through the request-verification step)
+      const ensured = await ensureESignSession(
+        ctx,
+        signingSession,
+        adapter,
+        invoice
       );
+      signingSession = ensured.signingSession;
+      const eSignSession = ensured.eSignSession;
       if (!eSignSession) {
         return res.status(404).json({ error: "Internal session not found" });
       }
 
-      // Verify the code
-      const isValid = await adapter.verifyCode(eSignSession.token, code);
-      if (!isValid) {
-        return res.status(400).json({ error: "Code invalide ou expiré" });
-      }
+      // Two ways to prove identity:
+      //  - a valid access token from the email link pre-validates the session
+      //    (proof of mailbox ownership) and skips the email code entirely;
+      //  - otherwise fall back to the email verification code (OTP).
+      const hasValidAccessToken = isValidAccessToken(
+        signingSession.access_token,
+        accessToken
+      );
 
-      const invoice = signingSession.invoice_snapshot as unknown as Invoices;
+      if (hasValidAccessToken) {
+        await adapter.markVerified(eSignSession.token);
+      } else {
+        const isValid = await adapter.verifyCode(eSignSession.token, code);
+        if (!isValid) {
+          return res.status(400).json({ error: "Code invalide ou expiré" });
+        }
+      }
 
       // Save optional lines selected by the signer BEFORE generating PDF
       await saveInvoiceOptions(ctx, invoice, options, reference);
@@ -831,5 +835,72 @@ const cleanSigningSession = (session: SigningSessions) => {
     (session.invoice_snapshot as unknown as Invoices).name = "";
   }
 
+  // Never expose the secret access token through the public API: the legitimate
+  // recipient already holds it in their email link, and returning it here would
+  // let anyone who merely knows the session id bypass the verification step.
+  if (session.access_token) {
+    session.access_token = "";
+  }
+
   return session;
+};
+
+/**
+ * Constant-time comparison of the access token carried in the email link
+ * against the one stored on the signing session.
+ */
+const isValidAccessToken = (stored?: string, provided?: string): boolean => {
+  if (!stored || !provided) return false;
+  const storedBuffer = Buffer.from(stored);
+  const providedBuffer = Buffer.from(provided);
+  if (storedBuffer.length !== providedBuffer.length) return false;
+  return crypto.timingSafeEqual(storedBuffer, providedBuffer);
+};
+
+/**
+ * Ensures the internal e_sign_session backing this signing session exists,
+ * lazily creating it (and persisting external_id / recipient_token) if needed.
+ * Returns the resolved e_sign_session and the possibly-updated signing session.
+ */
+const ensureESignSession = async (
+  ctx: any,
+  signingSession: SigningSessions,
+  adapter: InstanceType<typeof InternalAdapter>,
+  invoice: Invoices
+) => {
+  let eSignSession = await adapter.getSigningSessionBySigningSessionId(
+    signingSession.id
+  );
+
+  if (!eSignSession) {
+    const documentToSign = await adapter.addDocumentToSign({
+      signingSessionId: signingSession.id,
+      title: invoice.reference,
+      reference: signingSession.id,
+      recipients: [
+        {
+          name: "Signer",
+          email: signingSession.recipient_email,
+        },
+      ],
+      subject: "",
+      message: "",
+      redirectUrl: config
+        .get<string>("signature.webhook.signed")
+        .replace(":signing-session", signingSession.id),
+    });
+
+    signingSession = await updateSigningSession(ctx, {
+      ...signingSession,
+      external_id: documentToSign.id,
+      recipient_token: documentToSign.recipients[0].token,
+      state: "sent",
+    });
+
+    eSignSession = await adapter.getSigningSessionBySigningSessionId(
+      signingSession.id
+    );
+  }
+
+  return { eSignSession, signingSession };
 };

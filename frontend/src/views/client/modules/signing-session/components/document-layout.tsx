@@ -40,6 +40,7 @@ interface DocumentLayoutProps {
   actions: ReactNode;
   imageWhenNoDocument?: boolean;
   onSigned?: () => void;
+  signToken?: string;
 }
 
 // Error display when session has an error
@@ -210,6 +211,7 @@ export const DocumentLayout = ({
   actions,
   imageWhenNoDocument = false,
   onSigned,
+  signToken,
 }: DocumentLayoutProps) => {
   if (isLoading || !signingSession) {
     return <DocumentLoading />;
@@ -290,6 +292,7 @@ export const DocumentLayout = ({
                 options={options}
                 onOptionChange={handleOptionChange}
                 onSigned={onSigned || (() => {})}
+                signToken={signToken}
               />
             </div>
           </div>
@@ -355,6 +358,7 @@ export const DocumentLayout = ({
                     options={options}
                     onOptionChange={handleOptionChange}
                     onSigned={onSigned || (() => {})}
+                    signToken={signToken}
                   />
                 ) : (
                   <div className="p-4 flex flex-col h-full">

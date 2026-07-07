@@ -9,7 +9,7 @@ import { CheckIcon, XCircleIcon } from "@heroicons/react/16/solid";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { DocumentLayout } from "./components/document-layout";
 import { useMobile } from "./hooks/use-mobile";
 import Env from "@/config/environment";
@@ -18,6 +18,10 @@ export const SigningSessionPage = () => {
   const navigate = useNavigate();
 
   const { session: sessionID } = useParams();
+  // Secret token carried in the email signing link. When present it pre-validates
+  // the session so the signer can sign without receiving an email code (OTP).
+  const [searchParams] = useSearchParams();
+  const signToken = searchParams.get("token") ?? undefined;
   const {
     signingSession,
     viewSigningSession,
@@ -236,6 +240,7 @@ export const SigningSessionPage = () => {
       onOptionChange={handleOptionChange}
       actions={<ActionButtons isMobile={isMobile} />}
       onSigned={handleInternalSigned}
+      signToken={signToken}
     />
   );
 };
