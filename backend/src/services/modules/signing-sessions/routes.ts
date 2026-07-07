@@ -260,7 +260,7 @@ export default (router: Router) => {
     const ctx = Ctx.get(req)!.context;
     const db = await platform.Db.getService();
 
-    const signingSession = await db.selectOne<SigningSessions>(
+    let signingSession = await db.selectOne<SigningSessions>(
       ctx,
       SigningSessionsDefinition.name,
       { id: req.params.id },
@@ -598,7 +598,7 @@ export default (router: Router) => {
       return res.status(400).json({ error: "Email is required" });
     }
 
-    let signingSession = await db.selectOne<SigningSessions>(
+    const signingSession = await db.selectOne<SigningSessions>(
       ctx,
       SigningSessionsDefinition.name,
       { id: req.params.id },
