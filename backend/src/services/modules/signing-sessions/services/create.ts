@@ -1,5 +1,6 @@
 import { id } from "#src/platform/db/utils";
 import { create } from "#src/services/rest/services/rest";
+import crypto from "crypto";
 import platform from "../../../../platform";
 import Invoices from "../../invoices/entities/invoices";
 import {
@@ -28,6 +29,10 @@ export const createSigningSession = async (
     state: "created",
     document_url: null,
     signing_url: null,
+    // High-entropy secret carried in the email signing link. Knowing it proves
+    // the recipient opened the link from their own mailbox, which lets us
+    // pre-validate the session and skip the email verification code.
+    access_token: crypto.randomBytes(32).toString("hex"),
   };
 
   const createdSigningSession = await create<SigningSessions>(

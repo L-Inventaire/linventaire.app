@@ -392,6 +392,35 @@ export default class InternalAdapter implements DocumentSignerInterface {
     }
   }
 
+  /**
+   * Marks the e-sign session as verified without an email code. Used when the
+   * signer proves mailbox ownership by opening the secret link from their email.
+   * The expiry is refreshed so the pre-validated link keeps working and can be
+   * reused as many times as needed until the document is actually signed.
+   */
+  async markVerified(token: string): Promise<void> {
+    const db = await Framework.Db.getService();
+    const session = await db.selectOne<ESignSessions>(
+      {} as Context,
+      ESignSessionsDefinition.name,
+      { token }
+    );
+
+    if (!session) {
+      throw new Error("Invalid token");
+    }
+
+    await db.update<ESignSessions>(
+      {} as Context,
+      ESignSessionsDefinition.name,
+      { token },
+      {
+        is_verified: true,
+        expires_at: Date.now() + 30 * 24 * 60 * 60 * 1000,
+      } as Partial<ESignSessions>
+    );
+  }
+
   async verifyCode(token: string, code: string): Promise<boolean> {
     const db = await Framework.Db.getService();
     const session = await this.getSigningSessionByToken(token);
