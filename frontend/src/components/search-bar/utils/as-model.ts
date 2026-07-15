@@ -79,15 +79,22 @@ export const withSearchAsModel = <T>(
     localStorage.setItem("url_model", JSON.stringify(model));
   }
 
-  return (
+  const base =
     parts[0] +
     "?" +
     (parts[1] ? parts[1] + "&" : "") +
     "mid=" +
-    (model as any)?._cache_model_id +
-    "&model=" +
-    encodeURIComponent(JSON.stringify(model))
-  );
+    (model as any)?._cache_model_id;
+
+  const withModelUrl =
+    base + "&model=" + encodeURIComponent(JSON.stringify(model));
+
+  // Only embed the full model in the URL when it stays short enough. Large
+  // models (e.g. a grouped invoice with many lines) would otherwise blow past
+  // the server's URL length limit and trigger a 414. In that case we drop the
+  // `model` param and rely on the localStorage copy, looked up by `mid`.
+  const MAX_URL_LENGTH = 2000;
+  return !model || withModelUrl.length <= MAX_URL_LENGTH ? withModelUrl : base;
 };
 
 export const withModel = <T>(route: string, model?: Partial<T>) => {
@@ -97,18 +104,27 @@ export const withModel = <T>(route: string, model?: Partial<T>) => {
 export const getUrlModel = <T>() => {
   const val = new URLSearchParams(window.location.search).get("model");
   const mid = new URLSearchParams(window.location.search).get("mid");
-  if (!val) return {} as T;
-  try {
-    return JSON.parse(val || "{}") as T;
-  } catch (e: any) {
-    console.error(e);
+
+  // Prefer the model embedded in the URL when present and valid.
+  if (val) {
     try {
-      // If we have a cache model, we can use it
-      const tmp = JSON.parse(localStorage.getItem("url_model") || "{}") as T;
-      if ((tmp as any)?._cache_model_id === mid) return tmp;
+      return JSON.parse(val) as T;
     } catch (e: any) {
       console.error(e);
     }
   }
+
+  // Otherwise fall back to the localStorage copy, matched by `mid`. This is the
+  // case when the model was too large to embed in the URL (see withSearchAsModel).
+  if (mid) {
+    try {
+      const tmp = JSON.parse(localStorage.getItem("url_model") || "{}") as T;
+      // `_cache_model_id` is a number, `mid` a string from the URL: compare as strings.
+      if (String((tmp as any)?._cache_model_id) === String(mid)) return tmp;
+    } catch (e: any) {
+      console.error(e);
+    }
+  }
+
   return {} as T;
 };
