@@ -56,7 +56,7 @@ export default class PushEMail implements PlatformService {
       attachments?: EmailAttachment[];
     } = {},
     smtp?: SmtpOptions
-  ) {
+  ): Promise<boolean> {
     const language = platform.I18n.getLanguage(context);
     options.subject = options.subject || "New notification from L'Inventaire";
     let built = { html: "", text: "" };
@@ -73,7 +73,7 @@ export default class PushEMail implements PlatformService {
     } catch (e: any) {
       platform.LoggerDb.get("push-email").error(context, e);
       captureException(e);
-      return;
+      return false;
     }
 
     // Demo whitelisting system
@@ -141,8 +141,10 @@ export default class PushEMail implements PlatformService {
           "Email sent successfully via default adapter"
         );
       }
+      return true;
     } catch (err) {
       this.logger.error(context, "Failed to send email", err);
+      return false;
     }
   }
 }

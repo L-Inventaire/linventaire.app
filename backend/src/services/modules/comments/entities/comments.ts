@@ -31,7 +31,9 @@ export type EventMetadatas =
     }
   | {
       event_type: "smtp_failed";
-      emails: string[];
+      emails: string[]; // Recipients that were rejected by the mail server
+      partial?: boolean; // true when some recipients did receive the email
+      sent_emails?: string[]; // Recipients that received the email (partial send)
     }
   | {
       event_type: "invoice_back_to_draft";

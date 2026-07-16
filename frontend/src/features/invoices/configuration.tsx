@@ -16,10 +16,11 @@ import { getRestApiClient } from "@features/utils/rest/hooks/use-rest";
 import {
   ArrowPathIcon,
   CheckIcon,
+  ExclamationCircleIcon,
   RectangleStackIcon,
 } from "@heroicons/react/16/solid";
 import { Column } from "@molecules/table/table";
-import { Badge } from "@radix-ui/themes";
+import { Badge, Tooltip } from "@radix-ui/themes";
 import {
   computePricesFromInvoice,
   isDeliveryLate,
@@ -248,12 +249,31 @@ export const InvoicesColumns: Column<Invoices>[] = [
     headClassName: "justify-end",
     orderBy: "state_order",
     render: (invoice) => (
-      <InvoiceStatus
-        size="sm"
-        readonly
-        value={invoice.state}
-        type={invoice.type}
-      />
+      <div className="flex flex-row items-center space-x-1">
+        {!!invoice.state_details?.email_status && (
+          <Tooltip
+            content={
+              invoice.state_details.email_status === "partial"
+                ? "Le document n'a pas pu être envoyé à certains destinataires : " +
+                  (invoice.state_details.email_failed_recipients || []).join(
+                    ", ",
+                  )
+                : "Le document n'a pas pu être envoyé : " +
+                  (invoice.state_details.email_failed_recipients || []).join(
+                    ", ",
+                  )
+            }
+          >
+            <ExclamationCircleIcon className="h-4 w-4 shrink-0 text-red-500" />
+          </Tooltip>
+        )}
+        <InvoiceStatus
+          size="sm"
+          readonly
+          value={invoice.state}
+          type={invoice.type}
+        />
+      </div>
     ),
   },
 ];

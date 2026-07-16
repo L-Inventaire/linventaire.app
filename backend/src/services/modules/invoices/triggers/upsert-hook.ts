@@ -71,6 +71,20 @@ export const setUpsertHook = () =>
         updated.state = "draft";
       }
 
+      // state_details carries information tied to the CURRENT state (e.g. an
+      // email send problem). As soon as the state changes we reset it so the
+      // flag does not stick around on a state it no longer applies to.
+      if (
+        prev &&
+        prev.state !== updated.state &&
+        updated.state_details?.email_status
+      ) {
+        updated.state_details = {
+          email_status: "",
+          email_failed_recipients: [],
+        };
+      }
+
       updated.recipients = updated.recipients || [];
 
       // Fix content lines, make sure they have all required fields and no invisible fields still set after changing type for example

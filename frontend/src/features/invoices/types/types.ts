@@ -30,6 +30,13 @@ export type Invoices = RestEntity & {
   // Invoices and Credit Notes: “draft”, “sent”, "closed"
   state: InvoicesState;
 
+  // Extra details tied to the current state (e.g. an email send problem).
+  // Reset by the backend whenever the state changes.
+  state_details?: {
+    email_status: "" | "partial" | "failed";
+    email_failed_recipients: string[];
+  } | null;
+
   // For credit notes or supplier credit note: invoices refunded by this credit note
   from_rel_invoice: string[]; // Nullable
   // For invoices or supplier invoice: quotes completed and transformed into this invoice

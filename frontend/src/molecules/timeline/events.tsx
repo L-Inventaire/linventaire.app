@@ -55,6 +55,30 @@ export const Event = ({ id }: { id: string }) => {
     );
   }
 
+  if (metadata?.event_type === "smtp_failed") {
+    const failed = metadata.emails || [];
+    message = (
+      <Trans
+        t={t}
+        i18nKey={
+          metadata.partial
+            ? "timelines.events.smtp_failed.content_partial"
+            : "timelines.events.smtp_failed.content"
+        }
+        components={[
+          <>
+            {failed.map((email, index) => (
+              <span key={email}>
+                {index > 0 ? ", " : ""}
+                <Link href={"mailto:" + email}>{email}</Link>
+              </span>
+            ))}
+          </>,
+        ]}
+      />
+    );
+  }
+
   if (metadata?.event_type === "quote_signed") {
     message = (
       <Trans

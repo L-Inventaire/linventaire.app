@@ -21,6 +21,7 @@ import StockItems, {
 import Invoices from "../entities/invoices";
 import { computePricesFromInvoice } from "@shared/invoices";
 import { getPdf } from "./generate-pdf-components";
+import { recordEmailSendResult } from "./email-send-result";
 import { captureException } from "@sentry/node";
 
 export type PositionPdf = {
@@ -317,6 +318,8 @@ export const sendPdf = async (
   });
 
   // send emails
+  const sentEmails: string[] = [];
+  const failedEmails: string[] = [];
   for (const recipient of recipients) {
     const { message, subject, htmlLogo } =
       await generateEmailMessageToRecipient(
@@ -328,7 +331,7 @@ export const sendPdf = async (
           as: options.as,
         }
       );
-    await Framework.PushEMail.push(
+    const sent = await Framework.PushEMail.push(
       ctx,
       recipient,
       message,
@@ -340,7 +343,17 @@ export const sendPdf = async (
       },
       client.smtp
     );
+
+    if (sent) {
+      sentEmails.push(recipient);
+    } else {
+      failedEmails.push(recipient);
+    }
   }
+
+  // Record the outcome (timeline event + notification + document flag) so a
+  // failed send does not go unnoticed.
+  await recordEmailSendResult(ctx, document, sentEmails, failedEmails);
 };
 
 function stream2buffer(stream: NodeJS.ReadableStream): Promise<Buffer> {

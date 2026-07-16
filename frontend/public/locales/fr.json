@@ -295,6 +295,9 @@
     },
     "quote_refused": {
       "title": "Devis refusé par {{email}} pour la raison {{reason}}."
+    },
+    "smtp_failed": {
+      "title": "Échec de l'envoi du document."
     }
   },
   "timelines": {
@@ -310,7 +313,11 @@
         "content": "Devis <0>signé</0> par <1>{{email}}</1>. <2>Voir le document signé.</2>",
         "content_viewers": ", et aux signataires "
       },
-      "quote_refused": "Devis refusé par {{email}} pour la raison '{{reason}}'."
+      "quote_refused": "Devis refusé par {{email}} pour la raison '{{reason}}'.",
+      "smtp_failed": {
+        "content": "Échec de l'envoi du document à <0/>. Le mail n'a pas pu être délivré.",
+        "content_partial": "Le document n'a pas pu être envoyé à <0/>. Les autres destinataires l'ont bien reçu."
+      }
     }
   },
   "atoms": {
