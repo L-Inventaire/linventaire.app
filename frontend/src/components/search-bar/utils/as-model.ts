@@ -47,6 +47,54 @@ export const withSearchAsModelObj = <T>(
   return model;
 };
 
+const URL_MODEL_PREFIX = "url_model_";
+
+// Guarantees a unique id even when several models are generated within the same
+// millisecond (e.g. multiple `to=` links rendered in one pass).
+let modelIdCounter = 0;
+const nextModelId = () => Date.now() * 1000 + modelIdCounter++;
+
+// Keep the localStorage from growing without bound while never dropping the
+// entry the active page still needs (the one matching `keepMid`, or the one
+// referenced by the current URL). Also clears the legacy single-slot key.
+const cleanupUrlModels = (keepMid: number) => {
+  try {
+    localStorage.removeItem("url_model");
+
+    const keys: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(URL_MODEL_PREFIX)) keys.push(k);
+    }
+
+    const MAX_ENTRIES = 20;
+    if (keys.length <= MAX_ENTRIES) return;
+
+    const currentMid = new URLSearchParams(window.location.search).get("mid");
+    const protectedKeys = new Set([
+      URL_MODEL_PREFIX + keepMid,
+      currentMid ? URL_MODEL_PREFIX + currentMid : "",
+    ]);
+
+    // Oldest first (numeric suffix is a timestamp-based id).
+    keys.sort(
+      (a, b) =>
+        Number(a.slice(URL_MODEL_PREFIX.length)) -
+        Number(b.slice(URL_MODEL_PREFIX.length)),
+    );
+
+    let toRemove = keys.length - MAX_ENTRIES;
+    for (const k of keys) {
+      if (toRemove <= 0) break;
+      if (protectedKeys.has(k)) continue;
+      localStorage.removeItem(k);
+      toRemove--;
+    }
+  } catch (e: any) {
+    console.error(e);
+  }
+};
+
 /**
  * Will convert search filters to a model in url to start the new object
  * @param route
@@ -75,8 +123,18 @@ export const withSearchAsModel = <T>(
 
   if (model) {
     // _cache_model_id serve in case url is too long
-    (model as any)._cache_model_id = Date.now();
-    localStorage.setItem("url_model", JSON.stringify(model));
+    const mid = nextModelId();
+    (model as any)._cache_model_id = mid;
+    try {
+      // Store under a per-id key. `withSearchAsModel` is evaluated inside `to=`
+      // props during render (e.g. the sidebar "new" buttons), so a single shared
+      // key would get clobbered by any other component rendering on the same
+      // page before `getUrlModel` reads it. A per-id key isolates each model.
+      localStorage.setItem(URL_MODEL_PREFIX + mid, JSON.stringify(model));
+      cleanupUrlModels(mid);
+    } catch (e: any) {
+      console.error(e);
+    }
   }
 
   const base =
@@ -114,13 +172,13 @@ export const getUrlModel = <T>() => {
     }
   }
 
-  // Otherwise fall back to the localStorage copy, matched by `mid`. This is the
-  // case when the model was too large to embed in the URL (see withSearchAsModel).
+  // Otherwise fall back to the localStorage copy, looked up by its per-id key.
+  // This is the case when the model was too large to embed in the URL (see
+  // withSearchAsModel).
   if (mid) {
     try {
-      const tmp = JSON.parse(localStorage.getItem("url_model") || "{}") as T;
-      // `_cache_model_id` is a number, `mid` a string from the URL: compare as strings.
-      if (String((tmp as any)?._cache_model_id) === String(mid)) return tmp;
+      const raw = localStorage.getItem(URL_MODEL_PREFIX + mid);
+      if (raw) return JSON.parse(raw) as T;
     } catch (e: any) {
       console.error(e);
     }
