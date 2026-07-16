@@ -6,6 +6,7 @@ import {
   InvoiceLine,
   InvoiceReminder,
   InvoiceReview,
+  InvoiceStateDetails,
   InvoiceTotal,
   PaymentComputed,
   Recipient,
@@ -48,6 +49,10 @@ export default class Invoices extends RestEntity {
     | "recurring"
     | "completed"
     | "closed" = "draft";
+
+  // Extra details about the current state (e.g. email send problems). This is
+  // reset automatically whenever the state changes (see the upsert-hook).
+  state_details?: InvoiceStateDetails | null = new InvoiceStateDetails();
 
   // For credit notes or supplier credit note: invoices refunded by this credit note
   from_rel_invoice = ["type:invoices"]; // Nullable
@@ -129,6 +134,7 @@ export {
   InvoiceLine,
   InvoiceReminder,
   InvoiceReview,
+  InvoiceStateDetails,
   InvoiceTotal,
   PaymentComputed,
   Recipient,

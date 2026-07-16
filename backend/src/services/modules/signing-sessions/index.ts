@@ -138,6 +138,8 @@ export default class SigningSessionService
     if (!invoice) throw new Error("Invoice not found");
 
     const resultingSigningSessions: SigningSessions[] = [];
+    const sentEmails: string[] = [];
+    const failedEmails: string[] = [];
 
     for (const recipient of recipients) {
       if (!recipient) throw new Error("Recipient is wrong");
@@ -177,7 +179,7 @@ export default class SigningSessionService
         id: invoice.client_id,
       });
 
-      await platform.PushEMail.push(
+      const sent = await platform.PushEMail.push(
         ctx,
         recipient.email,
         message,
@@ -189,6 +191,12 @@ export default class SigningSessionService
         },
         client.smtp
       );
+
+      if (sent) {
+        sentEmails.push(recipient.email);
+      } else {
+        failedEmails.push(recipient.email);
+      }
     }
 
     // If we are sending the invoice again, we must expire other sessions
@@ -196,6 +204,10 @@ export default class SigningSessionService
       await expireOtherSigningSessions(ctx, resultingSigningSessions);
     }
 
-    return resultingSigningSessions;
+    return {
+      signingSessions: resultingSigningSessions,
+      sentEmails,
+      failedEmails,
+    };
   }
 }

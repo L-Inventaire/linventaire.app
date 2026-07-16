@@ -20,6 +20,21 @@ export class InvoicesBase {
   };
 }
 
+export class InvoiceStateDetails {
+  // Extra details attached to the CURRENT state of the document.
+  // Reset automatically whenever the document state changes (see the invoices
+  // upsert-hook). Kept generic on purpose so it can carry other per-state
+  // details in the future.
+
+  // Email delivery status of the last send attempt done in the current state:
+  //   ""        -> nothing to report
+  //   "partial" -> at least one recipient received the email, some were rejected
+  //   "failed"  -> every recipient was rejected
+  email_status: "" | "partial" | "failed" = "";
+  // Recipients rejected by the mail server on the last send attempt.
+  email_failed_recipients = ["string"];
+}
+
 export class FromSubscription {
   // When invoice was generated from a subscription, details goes there
   frequency: "daily" | "weekly" | "monthly" | "yearly" | string = "monthly";

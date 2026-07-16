@@ -8,6 +8,7 @@ import { checkRole } from "../../common";
 import Invoices, {
   InvoiceLine,
   InvoicesDefinition,
+  Recipient,
 } from "../invoices/entities/invoices";
 
 import Clients, {
@@ -15,6 +16,7 @@ import Clients, {
 } from "#src/services/clients/entities/clients";
 import _ from "lodash";
 import { generatePdf } from "../invoices/services/generate-pdf";
+import { recordEmailSendResult } from "../invoices/services/email-send-result";
 import InternalAdapter from "./adapters/internal/internal";
 import {
   SigningSessions,
@@ -186,7 +188,7 @@ export default (router: Router) => {
       const ctx = Ctx.get(req)!.context;
       if (!req.body.recipients) throw new Error("Recipients are required");
 
-      const newSigningSessions =
+      const { signingSessions, sentEmails, failedEmails } =
         await Services.SignatureSessions.createSigningSessions(
           ctx,
           req.params.id,
@@ -207,25 +209,38 @@ export default (router: Router) => {
         throw new Error("Invoice not found");
       }
 
-      // Insérer l'événement dans la timeline
-      await Services.Comments.createEvent(ctx, {
-        client_id: invoice.client_id,
-        item_entity: "invoices",
-        item_id: invoice.id,
-        type: "event",
-        content: `Sent to ${req.body.recipients
-          .map((rec) => rec.email)
-          .join(", ")}`,
-        metadata: {
-          event_type:
-            invoice?.type === "quotes" ? "quote_sent" : "invoice_sent",
-          recipients: req.body.recipients,
-        },
-        documents: [],
-        reactions: [],
-      });
+      // Recipients that actually received the document (keep their signer/viewer
+      // role so the timeline keeps rendering them like before).
+      const sentRecipients = (req.body.recipients as Recipient[]).filter((rec) =>
+        sentEmails.includes(rec.email)
+      );
 
-      res.json(newSigningSessions);
+      // Insérer l'événement "envoyé" dans la timeline pour les destinataires
+      // qui ont bien reçu le document.
+      if (sentRecipients.length > 0) {
+        await Services.Comments.createEvent(ctx, {
+          client_id: invoice.client_id,
+          item_entity: "invoices",
+          item_id: invoice.id,
+          type: "event",
+          content: `Sent to ${sentRecipients
+            .map((rec) => rec.email)
+            .join(", ")}`,
+          metadata: {
+            event_type:
+              invoice?.type === "quotes" ? "quote_sent" : "invoice_sent",
+            recipients: sentRecipients,
+          },
+          documents: [],
+          reactions: [],
+        });
+      }
+
+      // Enregistrer le problème d'envoi (timeline + notification + tag sur le
+      // document) en différenciant l'échec total de l'envoi partiel.
+      await recordEmailSendResult(ctx, invoice, sentEmails, failedEmails);
+
+      res.json(signingSessions);
     }
   );
 
