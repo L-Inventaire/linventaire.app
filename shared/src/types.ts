@@ -27,10 +27,15 @@ export class InvoiceStateDetails {
   // details in the future.
 
   // Email delivery status of the last send attempt done in the current state:
-  //   ""        -> nothing to report
-  //   "partial" -> at least one recipient received the email, some were rejected
-  //   "failed"  -> every recipient was rejected
-  email_status: "" | "partial" | "failed" = "";
+  //   ""         -> nothing sent yet (no indicator)
+  //   "sent"     -> sent, delivery not yet confirmed (blue)
+  //   "received" -> confirmed delivered to the recipient's mailbox — a mail
+  //                 client fetched the tracking pixel, or the recipient opened
+  //                 the signing link (green). Not "opened by a human": Apple
+  //                 Mail Privacy Protection pre-fetches delivered messages.
+  //   "partial"  -> at least one recipient received the email, some were rejected (red)
+  //   "failed"   -> every recipient was rejected (red)
+  email_status: "" | "sent" | "received" | "partial" | "failed" = "";
   // Recipients rejected by the mail server on the last send attempt.
   email_failed_recipients = ["string"];
 }

@@ -13,18 +13,64 @@ import Invoices, { InvoicesDefinition } from "../entities/invoices";
 export const EMAIL_SEND_RESULT_CHECK_DELAY_MS = 30_000;
 
 /**
+ * Optimistically flags a document as "sent" (blue indicator) right after an
+ * email is dispatched — before we know whether it was delivered. Never
+ * downgrades a "received" confirmation that may already be set.
+ */
+export const markEmailSent = async (ctx: Context, invoice: Invoices) => {
+  if (invoice.state_details?.email_status === "received") return;
+
+  const db = await Framework.Db.getService();
+  await db.update<Invoices>(
+    ctx,
+    InvoicesDefinition.name,
+    { id: invoice.id, client_id: invoice.client_id },
+    { state_details: { email_status: "sent", email_failed_recipients: [] } }
+  );
+};
+
+/**
+ * Flags a document as "received" (green indicator): a mail client fetched the
+ * tracking pixel, or the recipient opened the signing link. Both prove the
+ * message reached the recipient's mailbox (Apple MPP only pre-fetches delivered
+ * messages) — not that a human opened it.
+ *
+ * Resolves the document by id (called from public/untenanted endpoints) and
+ * never overrides a confirmed send failure, which stays actionable.
+ */
+export const markEmailReceived = async (ctx: Context, invoiceId: string) => {
+  const db = await Framework.Db.getService();
+
+  const invoice = await db.selectOne<Invoices>(
+    { ...ctx, role: "SYSTEM" },
+    InvoicesDefinition.name,
+    { id: invoiceId }
+  );
+  if (!invoice) return;
+
+  const status = invoice.state_details?.email_status;
+  if (status === "received" || status === "failed" || status === "partial") {
+    return;
+  }
+
+  await db.update<Invoices>(
+    { ...ctx, client_id: invoice.client_id, role: "SYSTEM" },
+    InvoicesDefinition.name,
+    { id: invoice.id, client_id: invoice.client_id },
+    { state_details: { email_status: "received", email_failed_recipients: [] } }
+  );
+};
+
+/**
  * Records the outcome of an email send attempt for a document.
  *
- * When at least one recipient was rejected by the mail server it:
- *  - adds an event to the document timeline (and, through `createEvent`, a
- *    notification for the subscribed users), differentiating a TOTAL failure
- *    (no recipient received the document) from a PARTIAL send (some recipients
- *    got it, some were rejected);
- *  - flags the document with a "problème d'envoi" detail on `state_details` so a
- *    tag can be shown on the document itself.
- *
- * When every recipient received the document it clears any previous
- * send-problem flag (the send finally went through).
+ * Success is handled elsewhere — optimistically by `markEmailSent` at send
+ * time, then confirmed by `markEmailReceived` (tracking pixel / signing view) —
+ * so this function only has to flag a CONFIRMED rejection: it adds a timeline
+ * event (and, through `createEvent`, a notification for subscribed users),
+ * differentiating a TOTAL failure (no recipient received the document) from a
+ * PARTIAL send, and flags the document via `state_details` so the red indicator
+ * can be shown.
  */
 export const recordEmailSendResult = async (
   ctx: Context,
@@ -32,21 +78,9 @@ export const recordEmailSendResult = async (
   sentEmails: string[],
   failedEmails: string[]
 ) => {
+  if (failedEmails.length === 0) return;
+
   const db = await Framework.Db.getService();
-
-  if (failedEmails.length === 0) {
-    // Everything went through: clear a previous send-problem flag if any.
-    if (invoice.state_details?.email_status) {
-      await db.update<Invoices>(
-        ctx,
-        InvoicesDefinition.name,
-        { id: invoice.id, client_id: invoice.client_id },
-        { state_details: { email_status: "", email_failed_recipients: [] } }
-      );
-    }
-    return;
-  }
-
   const partial = sentEmails.length > 0;
 
   // Timeline event + notification (createEvent fans out to notifyUsers because

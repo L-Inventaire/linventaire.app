@@ -122,6 +122,17 @@ export const generateEmailMessageToRecipient = async (
     },
   });
 
+  // Open-tracking pixel: a fetch flags the document as "received" (green). Only
+  // on the initial send, and only when we have a document id to attribute it to.
+  if (action === "sent" && invoice.id) {
+    const pixelUrl = `${config
+      .get<string>("server.domain")
+      .replace(/\/$/, "")}/api/signing-sessions/v1/track/${
+      invoice.id
+    }/pixel.gif`;
+    message += `<img src="${pixelUrl}" width="1" height="1" alt="" style="border:0;width:1px;height:1px;max-height:1px;max-width:1px;overflow:hidden" />`;
+  }
+
   return { message, subject, htmlLogo };
 };
 

@@ -18,6 +18,7 @@ import { Clients } from "@features/clients/types/clients";
 import { useContact, useContacts } from "@features/contacts/hooks/use-contacts";
 import { Contacts } from "@features/contacts/types/types";
 import { useViewWithCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
+import { EmailStatusBadge } from "@features/invoices/components/email-status-icon";
 import { InvoicesFieldsNames } from "@features/invoices/configuration";
 import { useEInvoicesReady } from "@features/invoices/hooks/use-e-invoices-ready";
 import { useInvoice, useInvoices } from "@features/invoices/hooks/use-invoices";
@@ -375,33 +376,7 @@ export const InvoicesDetailsPage = ({
                     Tacite reconduction
                   </Badge>
                 )}
-              {!!draft.state_details?.email_status && (
-                <Tooltip
-                  content={
-                    draft.state_details.email_status === "partial"
-                      ? "Le document n'a pas pu être envoyé à certains destinataires : " +
-                        (
-                          draft.state_details.email_failed_recipients || []
-                        ).join(", ")
-                      : "Le document n'a pas pu être envoyé : " +
-                        (
-                          draft.state_details.email_failed_recipients || []
-                        ).join(", ")
-                  }
-                >
-                  <Badge
-                    className="ml-2"
-                    variant="soft"
-                    color="red"
-                    size="2"
-                  >
-                    <ExclamationCircleIcon className="h-3 w-3 inline-block mr-1 -mt-0.5" />
-                    {draft.state_details.email_status === "partial"
-                      ? "Envoi partiel"
-                      : "Problème d'envoi"}
-                  </Badge>
-                </Tooltip>
-              )}
+              <EmailStatusBadge stateDetails={draft.state_details} />
               <div className="grow" />
               {draft.type === "invoices" && (
                 <TagPaymentCompletion invoice={draft} />
