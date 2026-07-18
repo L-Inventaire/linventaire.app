@@ -5,6 +5,7 @@ import { PlatformService } from "../types";
 import PushEMailFile from "./adapters/file";
 import PushEMailSES from "./adapters/ses";
 import {
+  EmailSendResult,
   EmailSendResultCallback,
   PushEMailInterfaceAdapterInterface,
   SmtpOptions,
@@ -130,28 +131,31 @@ export default class PushEMail implements PlatformService {
         attachments: options.attachments,
       };
       if (smtp?.enabled) {
-        try {
-          this.logger.info(context, "Using custom SMTP configuration");
-          await this.smtpService.push(body, smtp, onResult);
-          this.logger.info(context, "Email sent successfully via SMTP");
-        } catch (e: any) {
-          captureException(e);
-          this.logger.error(context, "SMTP send failed", e);
-          this.logger.info(context, "Falling back to default adapter");
-          // The fallback adapter reports the real outcome via onResult.
-          await this.service.push(body, undefined, onResult);
-          this.logger.info(
-            context,
-            "Email sent successfully via fallback adapter"
-          );
+        this.logger.info(context, "Using custom SMTP configuration");
+
+        // Try the custom SMTP first. It reports its outcome synchronously
+        // through the callback, flagging `retryable` when the SMTP itself is
+        // unusable (transport/config problem) rather than a specific recipient
+        // being rejected.
+        let smtpResult: EmailSendResult | undefined;
+        await this.smtpService.push(body, smtp, (r) => (smtpResult = r));
+
+        if (smtpResult && !smtpResult.retryable) {
+          // Definitive outcome: delivered, or specific recipients rejected
+          // while the transport worked. Don't fall back — forward it as-is.
+          onResult?.(smtpResult);
+          return smtpResult.success;
         }
-      } else {
+
+        // The custom SMTP is unusable: fall back to the default adapter, which
+        // reports the real outcome via onResult.
+        this.logger.info(context, "Falling back to default adapter");
         await this.service.push(body, undefined, onResult);
-        this.logger.info(
-          context,
-          "Email sent successfully via default adapter"
-        );
+        return true;
       }
+
+      await this.service.push(body, undefined, onResult);
+      this.logger.info(context, "Email sent successfully via default adapter");
       return true;
     } catch (err) {
       this.logger.error(context, "Failed to send email", err);

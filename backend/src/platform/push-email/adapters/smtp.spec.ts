@@ -59,7 +59,7 @@ describe("PushEMailSmtp.push", () => {
     expect(onResult).toHaveBeenCalledWith({ success: true });
   });
 
-  test("reports a partial failure (no fallback) when some recipients are accepted and some rejected", async () => {
+  test("reports a definitive (non-retryable) failure when some recipients are accepted and some rejected", async () => {
     sendMail.mockResolvedValue({
       accepted: ["a@b.com"],
       rejected: ["bad@nope.com"],
@@ -68,7 +68,6 @@ describe("PushEMailSmtp.push", () => {
     const onResult = jest.fn();
 
     const adapter = await build();
-    // Resolves (no rethrow): the transport works, only one mailbox is bad.
     await expect(
       adapter.push(emailMulti, smtp, onResult)
     ).resolves.toBeUndefined();
@@ -76,10 +75,12 @@ describe("PushEMailSmtp.push", () => {
     expect(onResult).toHaveBeenCalledTimes(1);
     const result = onResult.mock.calls[0][0] as any;
     expect(result.success).toBe(false);
+    // Transport works, so no fallback: the failure is not retryable.
+    expect(result.retryable).toBeFalsy();
     expect(result.error).toContain("bad@nope.com");
   });
 
-  test("throws (so the caller falls back) when no recipient is accepted", async () => {
+  test("reports a retryable failure (→ fallback) when no recipient is accepted", async () => {
     sendMail.mockResolvedValue({
       accepted: [],
       rejected: ["a@b.com"],
@@ -88,12 +89,14 @@ describe("PushEMailSmtp.push", () => {
     const onResult = jest.fn();
 
     const adapter = await build();
-    // Can't tell a bad mailbox from a misconfigured SMTP → fall back.
-    await expect(adapter.push(email, smtp, onResult)).rejects.toBeTruthy();
-    expect(onResult).not.toHaveBeenCalled();
+    // Can't tell a bad mailbox from a misconfigured SMTP → retryable.
+    await expect(adapter.push(email, smtp, onResult)).resolves.toBeUndefined();
+    const result = onResult.mock.calls[0][0] as any;
+    expect(result.success).toBe(false);
+    expect(result.retryable).toBe(true);
   });
 
-  test("rethrows an envelope/recipient error so the caller can fall back", async () => {
+  test("reports a retryable failure on an envelope/recipient error", async () => {
     sendMail.mockRejectedValue({
       code: "EENVELOPE",
       responseCode: 550,
@@ -103,13 +106,13 @@ describe("PushEMailSmtp.push", () => {
     const onResult = jest.fn();
 
     const adapter = await build();
-    await expect(adapter.push(email, smtp, onResult)).rejects.toMatchObject({
-      code: "EENVELOPE",
-    });
-    expect(onResult).not.toHaveBeenCalled();
+    await expect(adapter.push(email, smtp, onResult)).resolves.toBeUndefined();
+    const result = onResult.mock.calls[0][0] as any;
+    expect(result.success).toBe(false);
+    expect(result.retryable).toBe(true);
   });
 
-  test("rethrows a connection/transport error so the caller can fall back", async () => {
+  test("reports a retryable failure on a connection/transport error", async () => {
     sendMail.mockRejectedValue({
       code: "ECONNECTION",
       message: "connect ECONNREFUSED",
@@ -117,11 +120,9 @@ describe("PushEMailSmtp.push", () => {
     const onResult = jest.fn();
 
     const adapter = await build();
-    await expect(adapter.push(email, smtp, onResult)).rejects.toMatchObject({
-      code: "ECONNECTION",
-    });
-
-    // No definitive failure reported: the fallback adapter will report instead.
-    expect(onResult).not.toHaveBeenCalled();
+    await expect(adapter.push(email, smtp, onResult)).resolves.toBeUndefined();
+    const result = onResult.mock.calls[0][0] as any;
+    expect(result.success).toBe(false);
+    expect(result.retryable).toBe(true);
   });
 });

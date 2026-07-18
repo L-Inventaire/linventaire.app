@@ -93,25 +93,24 @@ export default class PushEMailSmtp
       const rejected = info?.rejected ?? [];
       const accepted = info?.accepted ?? [];
 
-      if (accepted.length === 0) {
-        // Nobody accepted the message. We can't tell a genuinely bad mailbox
-        // apart from a misconfigured custom SMTP (relay/sender denied, auth),
-        // so treat it as a transport failure and let the caller fall back to
-        // the default adapter — a misconfigured SMTP must not block delivery.
-        throw new Error(
-          `SMTP delivery failed via ${smtp.host}: ${rejectedDetail(
-            rejected,
-            info?.response
-          )}`
+      if (rejected.length === 0) {
+        this.logger.info(
+          null,
+          `SMTP email sent successfully via ${smtp.host}${
+            info?.response ? ` (${info.response})` : ""
+          }`
         );
+        onResult?.({ success: true });
+        return;
       }
 
-      if (rejected.length > 0) {
+      const detail = rejectedDetail(rejected, info?.response);
+
+      if (accepted.length > 0) {
         // Partial: the transport clearly works (some recipients were
         // accepted), so the rejected ones are genuinely bad recipients. Report
-        // them without falling back — a different provider won't fix a bad
-        // mailbox, and the good recipients already received the document.
-        const detail = rejectedDetail(rejected, info?.response);
+        // a definitive (non-retryable) failure — a different provider won't fix
+        // a bad mailbox, and the good recipients already received the document.
         this.logger.error(
           null,
           `SMTP recipient(s) rejected via ${smtp.host}: ${detail}`
@@ -120,19 +119,20 @@ export default class PushEMailSmtp
         return;
       }
 
-      this.logger.info(
-        null,
-        `SMTP email sent successfully via ${smtp.host}${
-          info?.response ? ` (${info.response})` : ""
-        }`
-      );
-      onResult?.({ success: true });
+      // Nobody accepted: could be bad mailboxes OR a misconfigured custom SMTP
+      // (relay/sender denied). Ambiguous → retryable, so PushEMail falls back
+      // to the default adapter (a misconfigured SMTP must not block delivery).
+      this.logger.error(null, `SMTP delivery failed via ${smtp.host}: ${detail}`);
+      onResult?.({ success: false, retryable: true, error: detail });
     } catch (error: any) {
+      // Connection / auth / relay failure: the SMTP itself is unusable, so this
+      // is retryable — PushEMail falls back to the default adapter.
       this.logger.error(null, `SMTP send failed via ${smtp.host}`, error);
-      // Any total failure (connection, auth, relay denied, or all recipients
-      // rejected) is rethrown so the caller can fall back to the default
-      // adapter, which then reports the real outcome.
-      throw error;
+      onResult?.({
+        success: false,
+        retryable: true,
+        error: error?.message || String(error),
+      });
     }
   }
 }
