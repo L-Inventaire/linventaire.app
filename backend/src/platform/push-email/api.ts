@@ -16,6 +16,27 @@ export type SmtpOptions = {
   };
 };
 
+/**
+ * Outcome of an email send attempt as reported by the underlying transport.
+ * `success` reflects whether the transport *accepted* the message for delivery
+ * (SMTP: the server accepted it; SES: SendRawEmail returned without error). It
+ * does NOT reflect an asynchronous bounce that may happen later — detecting
+ * those would require SNS/DSN feedback, which we deliberately don't wire here.
+ */
+export type EmailSendResult = {
+  success: boolean;
+  error?: string;
+  // Only meaningful for the primary (custom SMTP) attempt. `true` means the
+  // failure is a transport/configuration problem — nobody could be reached, so
+  // it's ambiguous whether the recipients or the SMTP setup are at fault — and
+  // PushEMail should fall back to the default adapter. A definitive result
+  // (delivered, or specific recipients rejected while others succeeded) is not
+  // retryable and must not trigger a fallback.
+  retryable?: boolean;
+};
+
+export type EmailSendResultCallback = (result: EmailSendResult) => void;
+
 export interface PushEMailInterfaceAdapterInterface extends PlatformService {
   push(
     email: {
@@ -28,6 +49,9 @@ export interface PushEMailInterfaceAdapterInterface extends PlatformService {
       attachments?: EmailAttachment[];
       from: string;
     },
-    smtp?: SmtpOptions
+    smtp?: SmtpOptions,
+    // Invoked once the transport knows the real outcome. For SES this happens
+    // asynchronously, after `push` has already resolved, hence the callback.
+    onResult?: EmailSendResultCallback
   ): Promise<void>;
 }

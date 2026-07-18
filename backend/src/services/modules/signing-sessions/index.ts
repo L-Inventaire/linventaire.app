@@ -2,6 +2,7 @@ import config from "config";
 import { Express, Router } from "express";
 import { default as Framework, default as platform } from "../../../platform";
 import { Logger } from "../../../platform/logger-db";
+import type { EmailSendResult } from "../../../platform/push-email/api";
 import { InternalApplicationService } from "../../types";
 import DocumensoAdapter from "./adapters/documenso/documenso";
 import InternalAdapter from "./adapters/internal/internal";
@@ -140,6 +141,9 @@ export default class SigningSessionService
     const resultingSigningSessions: SigningSessions[] = [];
     const sentEmails: string[] = [];
     const failedEmails: string[] = [];
+    // Filled in asynchronously by the mail transport (SES reports back after
+    // `push` has returned). A deferred check reads this to detect failures.
+    const deliveries: Record<string, EmailSendResult> = {};
 
     for (const recipient of recipients) {
       if (!recipient) throw new Error("Recipient is wrong");
@@ -189,7 +193,10 @@ export default class SigningSessionService
           attachments: [{ filename: name, content: pdf }],
           logo: htmlLogo,
         },
-        client.smtp
+        client.smtp,
+        (result) => {
+          deliveries[recipient.email] = result;
+        }
       );
 
       if (sent) {
@@ -208,6 +215,7 @@ export default class SigningSessionService
       signingSessions: resultingSigningSessions,
       sentEmails,
       failedEmails,
+      deliveries,
     };
   }
 }

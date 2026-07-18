@@ -1,6 +1,10 @@
 import nodemailer from "nodemailer";
 import { EmailAttachment } from "..";
-import { PushEMailInterfaceAdapterInterface, SmtpOptions } from "../api";
+import {
+  EmailSendResultCallback,
+  PushEMailInterfaceAdapterInterface,
+  SmtpOptions,
+} from "../api";
 import Framework from "../..";
 import { Logger } from "../../logger-db";
 
@@ -26,7 +30,8 @@ export default class PushEMailSmtp
       from: string;
       attachments?: EmailAttachment[];
     },
-    smtp: SmtpOptions
+    smtp: SmtpOptions,
+    onResult?: EmailSendResultCallback
   ) {
     this.logger.info(
       null,
@@ -75,11 +80,68 @@ export default class PushEMailSmtp
         },
       };
 
-      await transporter.sendMail(mailOptions);
-      this.logger.info(null, `SMTP email sent successfully via ${smtp.host}`);
+      // nodemailer returns per-recipient outcome: `accepted`/`rejected` are the
+      // recipients the destination server acknowledged or refused during the
+      // SMTP dialogue (RCPT TO), plus its final `response` line. It only throws
+      // when the message couldn't be delivered to ANY recipient.
+      const info = (await transporter.sendMail(mailOptions)) as {
+        accepted?: unknown[];
+        rejected?: unknown[];
+        response?: string;
+      };
+
+      const rejected = info?.rejected ?? [];
+      const accepted = info?.accepted ?? [];
+
+      if (rejected.length === 0) {
+        this.logger.info(
+          null,
+          `SMTP email sent successfully via ${smtp.host}${
+            info?.response ? ` (${info.response})` : ""
+          }`
+        );
+        onResult?.({ success: true });
+        return;
+      }
+
+      const detail = rejectedDetail(rejected, info?.response);
+
+      if (accepted.length > 0) {
+        // Partial: the transport clearly works (some recipients were
+        // accepted), so the rejected ones are genuinely bad recipients. Report
+        // a definitive (non-retryable) failure — a different provider won't fix
+        // a bad mailbox, and the good recipients already received the document.
+        this.logger.error(
+          null,
+          `SMTP recipient(s) rejected via ${smtp.host}: ${detail}`
+        );
+        onResult?.({ success: false, error: detail });
+        return;
+      }
+
+      // Nobody accepted: could be bad mailboxes OR a misconfigured custom SMTP
+      // (relay/sender denied). Ambiguous → retryable, so PushEMail falls back
+      // to the default adapter (a misconfigured SMTP must not block delivery).
+      this.logger.error(null, `SMTP delivery failed via ${smtp.host}: ${detail}`);
+      onResult?.({ success: false, retryable: true, error: detail });
     } catch (error: any) {
+      // Connection / auth / relay failure: the SMTP itself is unusable, so this
+      // is retryable — PushEMail falls back to the default adapter.
       this.logger.error(null, `SMTP send failed via ${smtp.host}`, error);
-      throw error;
+      onResult?.({
+        success: false,
+        retryable: true,
+        error: error?.message || String(error),
+      });
     }
   }
 }
+
+/** Human-readable reason for a recipient rejection, for logs and the timeline. */
+const rejectedDetail = (rejected: unknown, response?: string): string => {
+  const list = Array.isArray(rejected)
+    ? rejected.map((r) => (typeof r === "string" ? r : JSON.stringify(r)))
+    : [];
+  const who = list.length ? `rejected: ${list.join(", ")}` : "no recipient accepted";
+  return response ? `${who} (${response})` : who;
+};

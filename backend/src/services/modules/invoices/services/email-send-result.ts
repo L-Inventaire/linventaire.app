@@ -1,7 +1,16 @@
 import Framework from "#src/platform/index";
+import type { EmailSendResult } from "#src/platform/push-email/api";
 import Services from "#src/services/index";
 import { Context } from "#src/types";
 import Invoices, { InvoicesDefinition } from "../entities/invoices";
+
+/**
+ * How long we wait, after firing the emails, before checking their send state.
+ * The delay lets the transport report back (SES answers asynchronously). This
+ * is a best-effort, in-memory timer: if the server restarts before it fires,
+ * the check is simply lost — which we accept for simplicity.
+ */
+export const EMAIL_SEND_RESULT_CHECK_DELAY_MS = 30_000;
 
 /**
  * Records the outcome of an email send attempt for a document.
@@ -72,4 +81,45 @@ export const recordEmailSendResult = async (
       },
     }
   );
+};
+
+/**
+ * Schedules a deferred check of the email send outcome.
+ *
+ * The emails are fired without blocking the request; `deliveries` is a shared
+ * map that the transport fills in asynchronously (keyed by recipient email).
+ * After `delayMs` we look at what came back and record the outcome through
+ * `recordEmailSendResult` (timeline event + notification + document flag for
+ * the recipients that were rejected).
+ *
+ * Recipients with no reported result by the deadline are treated as sent — we
+ * only ever flag a *confirmed* rejection. The timer is unref'd so it never
+ * keeps the process alive on its own; if the server restarts first, the check
+ * is lost (accepted trade-off for keeping this simple).
+ */
+export const scheduleEmailSendResultCheck = (
+  ctx: Context,
+  invoice: Invoices,
+  recipients: { email: string }[],
+  deliveries: Record<string, EmailSendResult>,
+  delayMs: number = EMAIL_SEND_RESULT_CHECK_DELAY_MS
+) => {
+  const timer = setTimeout(async () => {
+    try {
+      const failedEmails = recipients
+        .map((r) => r.email)
+        .filter((email) => deliveries[email]?.success === false);
+      const sentEmails = recipients
+        .map((r) => r.email)
+        .filter((email) => !failedEmails.includes(email));
+
+      await recordEmailSendResult(ctx, invoice, sentEmails, failedEmails);
+    } catch (e) {
+      Framework.LoggerDb.get("email-send-result").error(ctx, e as any);
+    }
+  }, delayMs);
+
+  timer.unref?.();
+
+  return timer;
 };

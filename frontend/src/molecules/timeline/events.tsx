@@ -22,8 +22,11 @@ export const Event = ({ id }: { id: string }) => {
         i18nKey="timelines.events.invoice_sent.content"
         components={[
           <>
-            {metadata.recipients.map(({ email }) => (
-              <Link href={"mailto:" + email}>{email}</Link>
+            {metadata.recipients.map(({ email }, index) => (
+              <span key={email}>
+                {index > 0 ? ", " : ""}
+                <Link href={"mailto:" + email}>{email}</Link>
+              </span>
             ))}
           </>,
         ]}
@@ -40,14 +43,20 @@ export const Event = ({ id }: { id: string }) => {
         i18nKey="timelines.events.quote_sent.content"
         components={[
           <>
-            {signers.map(({ email }) => (
-              <Link href={"mailto:" + email}>{email}</Link>
+            {signers.map(({ email }, index) => (
+              <span key={email}>
+                {index > 0 ? ", " : ""}
+                <Link href={"mailto:" + email}>{email}</Link>
+              </span>
             ))}
           </>,
           <span className={viewers?.length ? "" : "hidden"}>
             {t("timelines.events.quote_sent.content_viewers")}{" "}
-            {viewers.map(({ email }) => (
-              <Link href={"mailto:" + email}>{email}</Link>
+            {viewers.map(({ email }, index) => (
+              <span key={email}>
+                {index > 0 ? ", " : ""}
+                <Link href={"mailto:" + email}>{email}</Link>
+              </span>
             ))}
           </span>,
         ]}
