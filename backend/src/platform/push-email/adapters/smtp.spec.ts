@@ -10,7 +10,7 @@ jest.mock("nodemailer", () => ({
 // Framework (../..) is only used for the logger here.
 jest.mock("../..", () => ({
   __esModule: true,
-  default: { LoggerDb: { get: () => ({ info() {}, error() {} }) } },
+  default: { LoggerDb: { get: () => ({ info: jest.fn(), error: jest.fn() }) } },
 }));
 
 import PushEMailSmtp from "./smtp";

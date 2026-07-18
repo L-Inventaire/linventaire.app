@@ -8,7 +8,7 @@ jest.mock("./build-email", () => ({
 
 jest.mock("@sentry/node", () => ({
   __esModule: true,
-  captureException: () => {},
+  captureException: jest.fn(),
 }));
 
 const cfg: Record<string, string> = {
@@ -26,7 +26,7 @@ jest.mock("..", () => ({
   __esModule: true,
   default: {
     I18n: { getLanguage: () => "fr", t: () => "" },
-    LoggerDb: { get: () => ({ info() {}, error() {} }) },
+    LoggerDb: { get: () => ({ info: jest.fn(), error: jest.fn() }) },
   },
 }));
 
@@ -52,7 +52,7 @@ const buildWith = (
   );
 
   const pe = new PushEMail();
-  (pe as any).logger = { info() {}, error() {} };
+  (pe as any).logger = { info: jest.fn(), error: jest.fn() };
   (pe as any).smtpService = { push: smtpPush };
   (pe as any).service = { push: defaultPush };
 
