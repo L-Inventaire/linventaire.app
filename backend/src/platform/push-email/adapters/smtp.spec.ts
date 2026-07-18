@@ -31,6 +31,11 @@ const email = {
   from: "me@example.com",
 };
 
+const emailMulti = {
+  ...email,
+  to: ["a@b.com", "bad@nope.com"],
+};
+
 const build = async () => {
   const adapter = new PushEMailSmtp();
   await adapter.init();
@@ -54,7 +59,27 @@ describe("PushEMailSmtp.push", () => {
     expect(onResult).toHaveBeenCalledWith({ success: true });
   });
 
-  test("reports failure (without throwing) when sendMail resolves with a rejected recipient", async () => {
+  test("reports a partial failure (no fallback) when some recipients are accepted and some rejected", async () => {
+    sendMail.mockResolvedValue({
+      accepted: ["a@b.com"],
+      rejected: ["bad@nope.com"],
+      response: "250 OK",
+    } as never);
+    const onResult = jest.fn();
+
+    const adapter = await build();
+    // Resolves (no rethrow): the transport works, only one mailbox is bad.
+    await expect(
+      adapter.push(emailMulti, smtp, onResult)
+    ).resolves.toBeUndefined();
+
+    expect(onResult).toHaveBeenCalledTimes(1);
+    const result = onResult.mock.calls[0][0] as any;
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("bad@nope.com");
+  });
+
+  test("throws (so the caller falls back) when no recipient is accepted", async () => {
     sendMail.mockResolvedValue({
       accepted: [],
       rejected: ["a@b.com"],
@@ -63,15 +88,12 @@ describe("PushEMailSmtp.push", () => {
     const onResult = jest.fn();
 
     const adapter = await build();
-    await expect(adapter.push(email, smtp, onResult)).resolves.toBeUndefined();
-
-    expect(onResult).toHaveBeenCalledTimes(1);
-    const result = onResult.mock.calls[0][0] as any;
-    expect(result.success).toBe(false);
-    expect(result.error).toContain("a@b.com");
+    // Can't tell a bad mailbox from a misconfigured SMTP → fall back.
+    await expect(adapter.push(email, smtp, onResult)).rejects.toBeTruthy();
+    expect(onResult).not.toHaveBeenCalled();
   });
 
-  test("reports failure (without rethrowing) when the send throws an envelope rejection", async () => {
+  test("rethrows an envelope/recipient error so the caller can fall back", async () => {
     sendMail.mockRejectedValue({
       code: "EENVELOPE",
       responseCode: 550,
@@ -81,11 +103,10 @@ describe("PushEMailSmtp.push", () => {
     const onResult = jest.fn();
 
     const adapter = await build();
-    // Must NOT rethrow: a bad mailbox won't be fixed by the fallback provider.
-    await expect(adapter.push(email, smtp, onResult)).resolves.toBeUndefined();
-
-    const result = onResult.mock.calls[0][0] as any;
-    expect(result.success).toBe(false);
+    await expect(adapter.push(email, smtp, onResult)).rejects.toMatchObject({
+      code: "EENVELOPE",
+    });
+    expect(onResult).not.toHaveBeenCalled();
   });
 
   test("rethrows a connection/transport error so the caller can fall back", async () => {

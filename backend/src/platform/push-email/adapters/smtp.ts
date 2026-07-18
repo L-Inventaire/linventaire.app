@@ -80,10 +80,10 @@ export default class PushEMailSmtp
         },
       };
 
-      // nodemailer returns per-recipient outcome: `accepted`/`rejected` list
-      // the recipients the destination server acknowledged or refused during
-      // the SMTP dialogue (RCPT TO), plus its final `response` line. It only
-      // throws when the message couldn't be delivered to ANY recipient.
+      // nodemailer returns per-recipient outcome: `accepted`/`rejected` are the
+      // recipients the destination server acknowledged or refused during the
+      // SMTP dialogue (RCPT TO), plus its final `response` line. It only throws
+      // when the message couldn't be delivered to ANY recipient.
       const info = (await transporter.sendMail(mailOptions)) as {
         accepted?: unknown[];
         rejected?: unknown[];
@@ -93,8 +93,24 @@ export default class PushEMailSmtp
       const rejected = info?.rejected ?? [];
       const accepted = info?.accepted ?? [];
 
-      if (rejected.length > 0 || accepted.length === 0) {
-        // The server accepted the connection but refused the recipient(s).
+      if (accepted.length === 0) {
+        // Nobody accepted the message. We can't tell a genuinely bad mailbox
+        // apart from a misconfigured custom SMTP (relay/sender denied, auth),
+        // so treat it as a transport failure and let the caller fall back to
+        // the default adapter — a misconfigured SMTP must not block delivery.
+        throw new Error(
+          `SMTP delivery failed via ${smtp.host}: ${rejectedDetail(
+            rejected,
+            info?.response
+          )}`
+        );
+      }
+
+      if (rejected.length > 0) {
+        // Partial: the transport clearly works (some recipients were
+        // accepted), so the rejected ones are genuinely bad recipients. Report
+        // them without falling back — a different provider won't fix a bad
+        // mailbox, and the good recipients already received the document.
         const detail = rejectedDetail(rejected, info?.response);
         this.logger.error(
           null,
@@ -112,49 +128,14 @@ export default class PushEMailSmtp
       );
       onResult?.({ success: true });
     } catch (error: any) {
-      // Distinguish a per-recipient rejection (permanent: bad mailbox / policy
-      // — a different provider wouldn't help) from a transport/connection error
-      // (the custom SMTP is unreachable → let the caller fall back).
-      if (isRecipientRejection(error)) {
-        const detail = rejectedDetail(
-          error?.rejected,
-          error?.response || error?.message
-        );
-        this.logger.error(
-          null,
-          `SMTP recipient(s) rejected via ${smtp.host}: ${detail}`
-        );
-        onResult?.({ success: false, error: detail });
-        return; // do NOT rethrow: no fallback for a bad recipient
-      }
-
       this.logger.error(null, `SMTP send failed via ${smtp.host}`, error);
-      // Transport/connection failure: rethrow so the caller can fall back to
-      // the default adapter (which then reports the real outcome).
+      // Any total failure (connection, auth, relay denied, or all recipients
+      // rejected) is rethrown so the caller can fall back to the default
+      // adapter, which then reports the real outcome.
       throw error;
     }
   }
 }
-
-/**
- * Whether a nodemailer error represents recipients being rejected by the
- * server (as opposed to a connection/auth/transport failure). nodemailer flags
- * envelope errors with `code: "EENVELOPE"` and/or a `rejected` list, and a 5xx
- * `responseCode` means a permanent SMTP-level refusal.
- */
-const isRecipientRejection = (error: any): boolean => {
-  if (!error) return false;
-  if (Array.isArray(error.rejected) && error.rejected.length > 0) return true;
-  if (error.code === "EENVELOPE") return true;
-  if (
-    typeof error.responseCode === "number" &&
-    error.responseCode >= 500 &&
-    error.responseCode < 600
-  ) {
-    return true;
-  }
-  return false;
-};
 
 /** Human-readable reason for a recipient rejection, for logs and the timeline. */
 const rejectedDetail = (rejected: unknown, response?: string): string => {
