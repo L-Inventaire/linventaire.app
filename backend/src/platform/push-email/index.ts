@@ -4,7 +4,11 @@ import { Context as Context } from "../../types";
 import { PlatformService } from "../types";
 import PushEMailFile from "./adapters/file";
 import PushEMailSES from "./adapters/ses";
-import { PushEMailInterfaceAdapterInterface, SmtpOptions } from "./api";
+import {
+  EmailSendResultCallback,
+  PushEMailInterfaceAdapterInterface,
+  SmtpOptions,
+} from "./api";
 import { buildHTML } from "./build-email";
 import Framework from "..";
 import PushEMailSmtp from "./adapters/smtp";
@@ -55,7 +59,12 @@ export default class PushEMail implements PlatformService {
       post_receipt?: string;
       attachments?: EmailAttachment[];
     } = {},
-    smtp?: SmtpOptions
+    smtp?: SmtpOptions,
+    // Optional: reports the transport's real send outcome. For SES this fires
+    // asynchronously, after this method has already returned its optimistic
+    // boolean, which is why callers that care about failures must rely on this
+    // callback (e.g. through a deferred check) rather than the return value.
+    onResult?: EmailSendResultCallback
   ): Promise<boolean> {
     const language = platform.I18n.getLanguage(context);
     options.subject = options.subject || "New notification from L'Inventaire";
@@ -73,6 +82,7 @@ export default class PushEMail implements PlatformService {
     } catch (e: any) {
       platform.LoggerDb.get("push-email").error(context, e);
       captureException(e);
+      onResult?.({ success: false, error: "Failed to render email" });
       return false;
     }
 
@@ -122,20 +132,21 @@ export default class PushEMail implements PlatformService {
       if (smtp?.enabled) {
         try {
           this.logger.info(context, "Using custom SMTP configuration");
-          await this.smtpService.push(body, smtp);
+          await this.smtpService.push(body, smtp, onResult);
           this.logger.info(context, "Email sent successfully via SMTP");
         } catch (e: any) {
           captureException(e);
           this.logger.error(context, "SMTP send failed", e);
           this.logger.info(context, "Falling back to default adapter");
-          await this.service.push(body);
+          // The fallback adapter reports the real outcome via onResult.
+          await this.service.push(body, undefined, onResult);
           this.logger.info(
             context,
             "Email sent successfully via fallback adapter"
           );
         }
       } else {
-        await this.service.push(body);
+        await this.service.push(body, undefined, onResult);
         this.logger.info(
           context,
           "Email sent successfully via default adapter"
@@ -144,6 +155,7 @@ export default class PushEMail implements PlatformService {
       return true;
     } catch (err) {
       this.logger.error(context, "Failed to send email", err);
+      onResult?.({ success: false, error: (err as any)?.message || String(err) });
       return false;
     }
   }

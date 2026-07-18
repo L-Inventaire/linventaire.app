@@ -1,6 +1,10 @@
 import nodemailer from "nodemailer";
 import { EmailAttachment } from "..";
-import { PushEMailInterfaceAdapterInterface, SmtpOptions } from "../api";
+import {
+  EmailSendResultCallback,
+  PushEMailInterfaceAdapterInterface,
+  SmtpOptions,
+} from "../api";
 import Framework from "../..";
 import { Logger } from "../../logger-db";
 
@@ -26,7 +30,8 @@ export default class PushEMailSmtp
       from: string;
       attachments?: EmailAttachment[];
     },
-    smtp: SmtpOptions
+    smtp: SmtpOptions,
+    onResult?: EmailSendResultCallback
   ) {
     this.logger.info(
       null,
@@ -77,8 +82,11 @@ export default class PushEMailSmtp
 
       await transporter.sendMail(mailOptions);
       this.logger.info(null, `SMTP email sent successfully via ${smtp.host}`);
+      onResult?.({ success: true });
     } catch (error: any) {
       this.logger.error(null, `SMTP send failed via ${smtp.host}`, error);
+      // Rethrow (without reporting a definitive failure): the caller may still
+      // fall back to the default adapter, which reports the real outcome.
       throw error;
     }
   }

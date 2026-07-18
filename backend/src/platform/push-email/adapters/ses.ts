@@ -1,6 +1,9 @@
 import config from "config";
 import { SES } from "@aws-sdk/client-ses";
-import { PushEMailInterfaceAdapterInterface } from "../api";
+import {
+  EmailSendResultCallback,
+  PushEMailInterfaceAdapterInterface,
+} from "../api";
 import { EmailAttachment } from "..";
 import Framework from "../..";
 import { Logger } from "../../logger-db";
@@ -52,9 +55,15 @@ export default class PushEMailSES
     };
     from: string;
     attachments?: EmailAttachment[];
-  }) {
+  },
+  _smtp?: unknown,
+  onResult?: EmailSendResultCallback) {
     this.logger.info(null, `Sending email via SES to ${email.to.join(", ")}`);
 
+    // Fire-and-forget: SES answers asynchronously, so we report the real
+    // outcome through `onResult` when the SendRawEmail callback fires rather
+    // than blocking the caller. Uses the same SendRawEmail call as before, so
+    // no additional AWS permission is required.
     this.transporter.sendMail(
       {
         from: email.from,
@@ -67,12 +76,14 @@ export default class PushEMailSES
       (err, info) => {
         if (err) {
           this.logger.error(null, "SES send failed", err);
+          onResult?.({ success: false, error: err?.message || String(err) });
         } else {
           this.logger.info(
             null,
             "SES email sent successfully",
             _.omit(info, "raw")
           );
+          onResult?.({ success: true });
         }
       }
     );

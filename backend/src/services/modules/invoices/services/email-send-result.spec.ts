@@ -14,7 +14,10 @@ jest.mock("#src/services/index", () => ({
   default: { Comments: { createEvent } },
 }));
 
-import { recordEmailSendResult } from "./email-send-result";
+import {
+  recordEmailSendResult,
+  scheduleEmailSendResultCheck,
+} from "./email-send-result";
 
 const ctx = { client_id: "cl-1", id: "us-1", role: "USER" } as any;
 const invoice = (extra: any = {}) =>
@@ -81,5 +84,52 @@ describe("recordEmailSendResult", () => {
 
     const payload = update.mock.calls[0][3] as any;
     expect(payload.state_details.email_status).toBe("partial");
+  });
+});
+
+describe("scheduleEmailSendResultCheck", () => {
+  beforeEach(() => {
+    update.mockReset();
+    createEvent.mockReset();
+    getService.mockClear();
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  test("after the delay, flags the recipients the transport rejected", async () => {
+    const recipients = [{ email: "a@b.com" }, { email: "c@d.com" }];
+    const deliveries = {
+      "a@b.com": { success: true },
+      "c@d.com": { success: false, error: "nope" },
+    };
+
+    scheduleEmailSendResultCheck(ctx, invoice(), recipients, deliveries, 1000);
+
+    // Nothing happens before the delay elapses.
+    expect(createEvent).not.toHaveBeenCalled();
+
+    await jest.advanceTimersByTimeAsync(1000);
+
+    expect(createEvent).toHaveBeenCalledTimes(1);
+    const event = createEvent.mock.calls[0][1] as any;
+    expect(event.metadata.event_type).toBe("smtp_failed");
+    expect(event.metadata.partial).toBe(true);
+    expect(event.metadata.emails).toEqual(["c@d.com"]);
+    expect(event.metadata.sent_emails).toEqual(["a@b.com"]);
+  });
+
+  test("treats recipients with no reported result as sent", async () => {
+    const recipients = [{ email: "a@b.com" }];
+    // The transport never reported back by the deadline.
+    const deliveries = {};
+
+    scheduleEmailSendResultCheck(ctx, invoice(), recipients, deliveries, 1000);
+    await jest.advanceTimersByTimeAsync(1000);
+
+    expect(createEvent).not.toHaveBeenCalled();
+    expect(update).not.toHaveBeenCalled();
   });
 });

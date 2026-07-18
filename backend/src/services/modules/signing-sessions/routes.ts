@@ -16,7 +16,7 @@ import Clients, {
 } from "#src/services/clients/entities/clients";
 import _ from "lodash";
 import { generatePdf } from "../invoices/services/generate-pdf";
-import { recordEmailSendResult } from "../invoices/services/email-send-result";
+import { scheduleEmailSendResultCheck } from "../invoices/services/email-send-result";
 import InternalAdapter from "./adapters/internal/internal";
 import {
   SigningSessions,
@@ -188,7 +188,7 @@ export default (router: Router) => {
       const ctx = Ctx.get(req)!.context;
       if (!req.body.recipients) throw new Error("Recipients are required");
 
-      const { signingSessions, sentEmails, failedEmails } =
+      const { signingSessions, sentEmails, deliveries } =
         await Services.SignatureSessions.createSigningSessions(
           ctx,
           req.params.id,
@@ -236,9 +236,17 @@ export default (router: Router) => {
         });
       }
 
-      // Enregistrer le problème d'envoi (timeline + notification + tag sur le
-      // document) en différenciant l'échec total de l'envoi partiel.
-      await recordEmailSendResult(ctx, invoice, sentEmails, failedEmails);
+      // Les emails sont partis sans bloquer la requête ; le transport remonte
+      // son résultat de façon asynchrone dans `deliveries`. On vérifie l'état
+      // d'envoi après un délai et on enregistre alors le problème éventuel
+      // (timeline + notification + tag sur le document), en différenciant
+      // l'échec total de l'envoi partiel.
+      scheduleEmailSendResultCheck(
+        ctx,
+        invoice,
+        req.body.recipients as Recipient[],
+        deliveries
+      );
 
       res.json(signingSessions);
     }
