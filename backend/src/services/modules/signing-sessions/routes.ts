@@ -16,7 +16,11 @@ import Clients, {
 } from "#src/services/clients/entities/clients";
 import _ from "lodash";
 import { generatePdf } from "../invoices/services/generate-pdf";
-import { scheduleEmailSendResultCheck } from "../invoices/services/email-send-result";
+import {
+  markEmailReceived,
+  markEmailSent,
+  scheduleEmailSendResultCheck,
+} from "../invoices/services/email-send-result";
 import InternalAdapter from "./adapters/internal/internal";
 import {
   SigningSessions,
@@ -236,6 +240,11 @@ export default (router: Router) => {
         });
       }
 
+      // Indicateur "envoyé" (bleu) tout de suite, de façon optimiste.
+      if (sentRecipients.length > 0) {
+        await markEmailSent(ctx, invoice);
+      }
+
       // Les emails sont partis sans bloquer la requête ; le transport remonte
       // son résultat de façon asynchrone dans `deliveries`. On vérifie l'état
       // d'envoi après un délai et on enregistre alors le problème éventuel
@@ -251,6 +260,35 @@ export default (router: Router) => {
       res.json(signingSessions);
     }
   );
+
+  // Public open-tracking pixel embedded in the sent email. When a mail client
+  // fetches it, the document is flagged "received" (green indicator). A hit
+  // proves the message reached the recipient's mailbox — not that a human
+  // opened it (Apple MPP pre-fetches). Always returns a 1x1 transparent GIF,
+  // even on error, so mail clients never show a broken image.
+  router.get("/track/:invoiceId/pixel.gif", async (req, res) => {
+    try {
+      const ctx = Ctx.get(req)!.context;
+      await markEmailReceived(ctx, req.params.invoiceId);
+    } catch (e: any) {
+      platform.LoggerDb.get("signing-sessions").error(
+        null,
+        "Tracking pixel failed",
+        e
+      );
+    }
+
+    // 1x1 transparent GIF.
+    const pixel = Buffer.from(
+      "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+      "base64"
+    );
+    res.set("Content-Type", "image/gif");
+    res.set("Content-Length", String(pixel.length));
+    res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
+    res.set("Pragma", "no-cache");
+    res.send(pixel);
+  });
 
   router.get("/:id", async (req, res) => {
     const db = await platform.Db.getService();

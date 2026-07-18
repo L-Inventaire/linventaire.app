@@ -1,12 +1,13 @@
 import { beforeEach, describe, expect, jest, test } from "@jest/globals";
 
 const update = jest.fn();
-const getService = jest.fn(async () => ({ update }));
+const selectOne = jest.fn();
+const getService = jest.fn(async () => ({ update, selectOne }));
 const createEvent = jest.fn();
 
 jest.mock("#src/platform/index", () => ({
   __esModule: true,
-  default: { Db: { getService } },
+  default: { Db: { getService }, LoggerDb: { get: () => ({ error: jest.fn() }) } },
 }));
 
 jest.mock("#src/services/index", () => ({
@@ -15,6 +16,8 @@ jest.mock("#src/services/index", () => ({
 }));
 
 import {
+  markEmailReceived,
+  markEmailSent,
   recordEmailSendResult,
   scheduleEmailSendResultCheck,
 } from "./email-send-result";
@@ -26,17 +29,18 @@ const invoice = (extra: any = {}) =>
 describe("recordEmailSendResult", () => {
   beforeEach(() => {
     update.mockReset();
+    selectOne.mockReset();
     createEvent.mockReset();
     getService.mockClear();
   });
 
-  test("does nothing when everything was sent and no previous flag", async () => {
+  test("does nothing when everything was sent", async () => {
     await recordEmailSendResult(ctx, invoice(), ["a@b.com"], []);
     expect(createEvent).not.toHaveBeenCalled();
     expect(update).not.toHaveBeenCalled();
   });
 
-  test("clears a previous flag once the send finally goes through", async () => {
+  test("does nothing on success even if a previous flag exists (handled elsewhere)", async () => {
     await recordEmailSendResult(
       ctx,
       invoice({ state_details: { email_status: "failed" } }),
@@ -44,10 +48,7 @@ describe("recordEmailSendResult", () => {
       []
     );
     expect(createEvent).not.toHaveBeenCalled();
-    expect(update).toHaveBeenCalledTimes(1);
-    const payload = update.mock.calls[0][3] as any;
-    expect(payload.state_details.email_status).toBe("");
-    expect(payload.state_details.email_failed_recipients).toEqual([]);
+    expect(update).not.toHaveBeenCalled();
   });
 
   test("records a TOTAL failure when every recipient was rejected", async () => {
@@ -130,6 +131,63 @@ describe("scheduleEmailSendResultCheck", () => {
     await jest.advanceTimersByTimeAsync(1000);
 
     expect(createEvent).not.toHaveBeenCalled();
+    expect(update).not.toHaveBeenCalled();
+  });
+});
+
+describe("markEmailSent", () => {
+  beforeEach(() => {
+    update.mockReset();
+    getService.mockClear();
+  });
+
+  test("flags the document as 'sent'", async () => {
+    await markEmailSent(ctx, invoice());
+    expect(update).toHaveBeenCalledTimes(1);
+    const payload = update.mock.calls[0][3] as any;
+    expect(payload.state_details.email_status).toBe("sent");
+  });
+
+  test("never downgrades a 'received' confirmation", async () => {
+    await markEmailSent(ctx, invoice({ state_details: { email_status: "received" } }));
+    expect(update).not.toHaveBeenCalled();
+  });
+});
+
+describe("markEmailReceived", () => {
+  beforeEach(() => {
+    update.mockReset();
+    selectOne.mockReset();
+    getService.mockClear();
+  });
+
+  test.each([[""], ["sent"]])(
+    "flags 'received' when current status is %p",
+    async (current) => {
+      selectOne.mockResolvedValue(
+        invoice({ state_details: { email_status: current } }) as never
+      );
+      await markEmailReceived(ctx, "inv-1");
+      expect(update).toHaveBeenCalledTimes(1);
+      const payload = update.mock.calls[0][3] as any;
+      expect(payload.state_details.email_status).toBe("received");
+    }
+  );
+
+  test.each([["failed"], ["partial"], ["received"]])(
+    "does not override a %p status",
+    async (current) => {
+      selectOne.mockResolvedValue(
+        invoice({ state_details: { email_status: current } }) as never
+      );
+      await markEmailReceived(ctx, "inv-1");
+      expect(update).not.toHaveBeenCalled();
+    }
+  );
+
+  test("does nothing when the document is not found", async () => {
+    selectOne.mockResolvedValue(null as never);
+    await markEmailReceived(ctx, "missing");
     expect(update).not.toHaveBeenCalled();
   });
 });

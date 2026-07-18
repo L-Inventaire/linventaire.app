@@ -7,6 +7,7 @@ import {
   SigningSessions,
   SigningSessionsDefinition,
 } from "../entities/signing-session";
+import { markEmailReceived } from "../../invoices/services/email-send-result";
 import { onSigningSessionCancelled } from "../triggers/on-cancelled";
 import { onSigningSessionSigned } from "../triggers/on-signed";
 
@@ -78,6 +79,16 @@ export const updateSigningSession = async (ctx, session: SigningSessions) => {
 
   if (updatedSession.state === "signed" && previousSession.state !== "signed") {
     await onSigningSessionSigned(ctx, updatedSession);
+  }
+
+  // Opening the signing link (viewed) or signing proves the recipient received
+  // the email → flag the document "received" (green). This is a first-party,
+  // reliable signal, unlike the tracking pixel.
+  if (
+    ["viewed", "signed"].includes(updatedSession.state) &&
+    !["viewed", "signed"].includes(previousSession.state)
+  ) {
+    await markEmailReceived(ctx, updatedSession.invoice_id);
   }
 
   return updatedSession;

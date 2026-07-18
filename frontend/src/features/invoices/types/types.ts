@@ -33,7 +33,7 @@ export type Invoices = RestEntity & {
   // Extra details tied to the current state (e.g. an email send problem).
   // Reset by the backend whenever the state changes.
   state_details?: {
-    email_status: "" | "partial" | "failed";
+    email_status: "" | "sent" | "received" | "partial" | "failed";
     email_failed_recipients: string[];
   } | null;
 
