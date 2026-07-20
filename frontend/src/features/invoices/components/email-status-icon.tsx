@@ -1,4 +1,4 @@
-import { Badge, Tooltip } from "@radix-ui/themes";
+import { Tooltip } from "@radix-ui/themes";
 import {
   CheckCircleIcon,
   ExclamationCircleIcon,
@@ -58,50 +58,67 @@ export const EmailStatusIcon = ({
   );
 };
 
+export type RecipientDeliveryStatus = "sent" | "received" | "failed";
+
 /**
- * Same tri-state as EmailStatusIcon, rendered as a labelled Radix Badge for
- * detail pages (where a bit of text alongside the icon reads better).
+ * Per-recipient delivery status, derived from the document's state_details:
+ *   - "failed"   -> this recipient was rejected by the mail server.
+ *   - "received" -> the document was confirmed delivered (tracking pixel fetched
+ *                   or signing link opened). This is a document-level signal, so
+ *                   it colours every non-failed recipient green once confirmed.
+ *   - "sent"     -> sent, delivery not yet confirmed (the default for a
+ *                   recipient we haven't heard back about).
  */
-export const EmailStatusBadge = ({
-  stateDetails,
-  className = "ml-2",
+export const recipientDeliveryStatus = (
+  email: string,
+  stateDetails?: Invoices["state_details"]
+): RecipientDeliveryStatus => {
+  if ((stateDetails?.email_failed_recipients || []).includes(email)) {
+    return "failed";
+  }
+  if (stateDetails?.email_status === "received") return "received";
+  return "sent";
+};
+
+const recipientDot: Record<
+  RecipientDeliveryStatus,
+  { color: string; tooltip: string }
+> = {
+  received: {
+    color: "bg-green-500",
+    tooltip: "Arrivé dans la boîte du destinataire",
+  },
+  sent: {
+    color: "bg-blue-500",
+    tooltip: "Envoyé — réception pas encore confirmée",
+  },
+  failed: {
+    color: "bg-red-500",
+    tooltip: "Le document n'a pas pu être envoyé à ce destinataire",
+  },
+};
+
+/**
+ * Small coloured dot shown next to a recipient in the timeline, echoing the
+ * document's email delivery status for that specific recipient.
+ */
+export const RecipientStatusDot = ({
+  status,
+  className = "",
 }: {
-  stateDetails?: Invoices["state_details"];
+  status: RecipientDeliveryStatus;
   className?: string;
 }) => {
-  const status = stateDetails?.email_status;
-  if (!status) return null;
-
-  const iconClassName = "h-3 w-3 inline-block mr-1 -mt-0.5";
-
-  if (status === "received") {
-    return (
-      <Tooltip content="Arrivé dans la boîte du destinataire">
-        <Badge className={className} variant="soft" color="green" size="2">
-          <CheckCircleIcon className={iconClassName} />
-          Reçu
-        </Badge>
-      </Tooltip>
-    );
-  }
-
-  if (status === "sent") {
-    return (
-      <Tooltip content="Envoyé — réception pas encore confirmée">
-        <Badge className={className} variant="soft" color="blue" size="2">
-          <PaperAirplaneIcon className={iconClassName} />
-          Envoyé
-        </Badge>
-      </Tooltip>
-    );
-  }
-
+  const { color, tooltip } = recipientDot[status];
   return (
-    <Tooltip content={failedTooltip(stateDetails, status)}>
-      <Badge className={className} variant="soft" color="red" size="2">
-        <ExclamationCircleIcon className={iconClassName} />
-        {status === "partial" ? "Envoi partiel" : "Problème d'envoi"}
-      </Badge>
+    <Tooltip content={tooltip}>
+      <span
+        className={
+          "inline-block h-2 w-2 rounded-full ml-1 align-middle " +
+          color +
+          (className ? " " + className : "")
+        }
+      />
     </Tooltip>
   );
 };
