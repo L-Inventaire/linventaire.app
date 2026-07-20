@@ -122,14 +122,20 @@ export const generateEmailMessageToRecipient = async (
     },
   });
 
-  // Open-tracking pixel: a fetch flags the document as "received" (green). Only
-  // on the initial send, and only when we have a document id to attribute it to.
+  // Open-tracking pixel: a fetch flags delivery as confirmed ("received",
+  // green). Only on the initial send, and only when we have a document id to
+  // attribute it to. The recipient's signing-session id is embedded so the hit
+  // is attributed to that specific recipient (per-recipient dot in the
+  // timeline). It is an opaque id, not the email — no address is leaked in the
+  // URL. A fetch reaches the recipient's mailbox but does not prove a human
+  // opened it (Apple MPP pre-fetches).
   if (action === "sent" && invoice.id) {
-    const pixelUrl = `${config
+    const base = `${config
       .get<string>("server.domain")
-      .replace(/\/$/, "")}/api/signing-sessions/v1/track/${
-      invoice.id
-    }/pixel.gif`;
+      .replace(/\/$/, "")}/api/signing-sessions/v1/track/${invoice.id}`;
+    const pixelUrl = signingSession?.id
+      ? `${base}/${signingSession.id}/pixel.gif`
+      : `${base}/pixel.gif`;
     message += `<img src="${pixelUrl}" width="1" height="1" alt="" style="border:0;width:1px;height:1px;max-height:1px;max-width:1px;overflow:hidden" />`;
   }
 

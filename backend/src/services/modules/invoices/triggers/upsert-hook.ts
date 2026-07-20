@@ -82,6 +82,7 @@ export const setUpsertHook = () =>
         updated.state_details = {
           email_status: "",
           email_failed_recipients: [],
+          email_received_recipients: [],
         };
       }
 

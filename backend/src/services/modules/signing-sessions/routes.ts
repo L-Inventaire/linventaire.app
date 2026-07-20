@@ -261,11 +261,53 @@ export default (router: Router) => {
     }
   );
 
-  // Public open-tracking pixel embedded in the sent email. When a mail client
-  // fetches it, the document is flagged "received" (green indicator). A hit
-  // proves the message reached the recipient's mailbox — not that a human
-  // opened it (Apple MPP pre-fetches). Always returns a 1x1 transparent GIF,
-  // even on error, so mail clients never show a broken image.
+  // Always answers with a 1x1 transparent GIF, even on error, so mail clients
+  // never show a broken image.
+  const sendTrackingPixel = (res: any) => {
+    const pixel = Buffer.from(
+      "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+      "base64"
+    );
+    res.set("Content-Type", "image/gif");
+    res.set("Content-Length", String(pixel.length));
+    res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
+    res.set("Pragma", "no-cache");
+    res.send(pixel);
+  };
+
+  // Public open-tracking pixel embedded in the sent email, attributed to a
+  // specific recipient via their signing-session id. When a mail client fetches
+  // it, that recipient is flagged as delivery-confirmed (green dot in the
+  // timeline). A hit proves the message reached the recipient's mailbox — not
+  // that a human opened it (Apple MPP pre-fetches).
+  router.get("/track/:invoiceId/:sessionId/pixel.gif", async (req, res) => {
+    try {
+      const ctx = Ctx.get(req)!.context;
+      const db = await platform.Db.getService();
+      const session = await db.selectOne<SigningSessions>(
+        { ...ctx, role: "SYSTEM" },
+        SigningSessionsDefinition.name,
+        { id: req.params.sessionId, invoice_id: req.params.invoiceId }
+      );
+      await markEmailReceived(
+        ctx,
+        req.params.invoiceId,
+        session?.recipient_email
+      );
+    } catch (e: any) {
+      platform.LoggerDb.get("signing-sessions").error(
+        null,
+        "Tracking pixel failed",
+        e
+      );
+    }
+
+    sendTrackingPixel(res);
+  });
+
+  // Backward-compatible document-level pixel (emails sent before per-recipient
+  // tracking carry this URL). Flags the document "received" without attributing
+  // it to a specific recipient.
   router.get("/track/:invoiceId/pixel.gif", async (req, res) => {
     try {
       const ctx = Ctx.get(req)!.context;
@@ -278,16 +320,7 @@ export default (router: Router) => {
       );
     }
 
-    // 1x1 transparent GIF.
-    const pixel = Buffer.from(
-      "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
-      "base64"
-    );
-    res.set("Content-Type", "image/gif");
-    res.set("Content-Length", String(pixel.length));
-    res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
-    res.set("Pragma", "no-cache");
-    res.send(pixel);
+    sendTrackingPixel(res);
   });
 
   router.get("/:id", async (req, res) => {

@@ -63,11 +63,14 @@ export type RecipientDeliveryStatus = "sent" | "received" | "failed";
 /**
  * Per-recipient delivery status, derived from the document's state_details:
  *   - "failed"   -> this recipient was rejected by the mail server.
- *   - "received" -> the document was confirmed delivered (tracking pixel fetched
- *                   or signing link opened). This is a document-level signal, so
- *                   it colours every non-failed recipient green once confirmed.
+ *   - "received" -> this recipient's delivery was confirmed — their tracking
+ *                   pixel was fetched, or they opened their signing link.
  *   - "sent"     -> sent, delivery not yet confirmed (the default for a
  *                   recipient we haven't heard back about).
+ *
+ * Falls back to the document-level "received" aggregate only for documents sent
+ * before per-recipient tracking existed (no email_received_recipients recorded),
+ * so their dots still turn green.
  */
 export const recipientDeliveryStatus = (
   email: string,
@@ -76,7 +79,11 @@ export const recipientDeliveryStatus = (
   if ((stateDetails?.email_failed_recipients || []).includes(email)) {
     return "failed";
   }
-  if (stateDetails?.email_status === "received") return "received";
+  const received = stateDetails?.email_received_recipients || [];
+  if (received.includes(email)) return "received";
+  if (received.length === 0 && stateDetails?.email_status === "received") {
+    return "received";
+  }
   return "sent";
 };
 
