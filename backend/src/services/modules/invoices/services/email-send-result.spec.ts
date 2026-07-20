@@ -175,7 +175,7 @@ describe("markEmailReceived", () => {
   );
 
   test.each([["failed"], ["partial"], ["received"]])(
-    "does not override a %p status",
+    "does not override a %p status (no recipient given)",
     async (current) => {
       selectOne.mockResolvedValue(
         invoice({ state_details: { email_status: current } }) as never
@@ -188,6 +188,67 @@ describe("markEmailReceived", () => {
   test("does nothing when the document is not found", async () => {
     selectOne.mockResolvedValue(null as never);
     await markEmailReceived(ctx, "missing");
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  test("records a specific recipient as delivery-confirmed", async () => {
+    selectOne.mockResolvedValue(
+      invoice({ state_details: { email_status: "sent" } }) as never
+    );
+    await markEmailReceived(ctx, "inv-1", "a@b.com");
+    expect(update).toHaveBeenCalledTimes(1);
+    const payload = update.mock.calls[0][3] as any;
+    expect(payload.state_details.email_status).toBe("received");
+    expect(payload.state_details.email_received_recipients).toEqual(["a@b.com"]);
+  });
+
+  test("adds a recipient without dropping the ones already confirmed", async () => {
+    selectOne.mockResolvedValue(
+      invoice({
+        state_details: {
+          email_status: "received",
+          email_received_recipients: ["a@b.com"],
+        },
+      }) as never
+    );
+    await markEmailReceived(ctx, "inv-1", "c@d.com");
+    expect(update).toHaveBeenCalledTimes(1);
+    const payload = update.mock.calls[0][3] as any;
+    expect(payload.state_details.email_received_recipients).toEqual([
+      "a@b.com",
+      "c@d.com",
+    ]);
+  });
+
+  test("records a recipient without downgrading a partial failure", async () => {
+    selectOne.mockResolvedValue(
+      invoice({
+        state_details: {
+          email_status: "partial",
+          email_failed_recipients: ["x@y.com"],
+        },
+      }) as never
+    );
+    await markEmailReceived(ctx, "inv-1", "a@b.com");
+    expect(update).toHaveBeenCalledTimes(1);
+    const payload = update.mock.calls[0][3] as any;
+    // Failure stays actionable...
+    expect(payload.state_details.email_status).toBe("partial");
+    expect(payload.state_details.email_failed_recipients).toEqual(["x@y.com"]);
+    // ...but the confirmed recipient is still recorded.
+    expect(payload.state_details.email_received_recipients).toEqual(["a@b.com"]);
+  });
+
+  test("does not write when the recipient is already recorded", async () => {
+    selectOne.mockResolvedValue(
+      invoice({
+        state_details: {
+          email_status: "received",
+          email_received_recipients: ["a@b.com"],
+        },
+      }) as never
+    );
+    await markEmailReceived(ctx, "inv-1", "a@b.com");
     expect(update).not.toHaveBeenCalled();
   });
 });

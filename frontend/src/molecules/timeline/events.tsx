@@ -5,6 +5,44 @@ import { Trans, useTranslation } from "react-i18next";
 import { ReactNode } from "react";
 import Link from "@atoms/link";
 import Env from "@config/environment";
+import { useRest } from "@features/utils/rest/hooks/use-rest";
+import { Invoices } from "@features/invoices/types/types";
+import {
+  RecipientStatusDot,
+  recipientDeliveryStatus,
+} from "@features/invoices/components/email-status-icon";
+
+/**
+ * Renders the recipient email list of a "sent" timeline event, each followed by
+ * a small coloured dot echoing that recipient's delivery status (blue sent /
+ * green received / red failed). The status is read from the parent invoice's
+ * state_details. We fetch with `limit: 1` so the query key matches the detail
+ * page's own load and this reads straight from the React Query cache (no extra
+ * request, no invalidation of the open document).
+ */
+const RecipientsWithStatus = ({
+  invoiceId,
+  recipients,
+}: {
+  invoiceId: string;
+  recipients: { email: string }[];
+}) => {
+  const { items } = useRest<Invoices>("invoices", { id: invoiceId, limit: 1 });
+  const invoice = items.data?.list?.[0];
+  return (
+    <>
+      {recipients.map(({ email }, index) => (
+        <span key={email}>
+          {index > 0 ? ", " : ""}
+          <Link href={"mailto:" + email}>{email}</Link>
+          <RecipientStatusDot
+            status={recipientDeliveryStatus(email, invoice?.state_details)}
+          />
+        </span>
+      ))}
+    </>
+  );
+};
 
 export const Event = ({ id }: { id: string }) => {
   const { comment } = useComment(id);
@@ -21,14 +59,10 @@ export const Event = ({ id }: { id: string }) => {
         t={t}
         i18nKey="timelines.events.invoice_sent.content"
         components={[
-          <>
-            {metadata.recipients.map(({ email }, index) => (
-              <span key={email}>
-                {index > 0 ? ", " : ""}
-                <Link href={"mailto:" + email}>{email}</Link>
-              </span>
-            ))}
-          </>,
+          <RecipientsWithStatus
+            invoiceId={comment.item_id}
+            recipients={metadata.recipients}
+          />,
         ]}
       />
     );
@@ -42,22 +76,16 @@ export const Event = ({ id }: { id: string }) => {
         t={t}
         i18nKey="timelines.events.quote_sent.content"
         components={[
-          <>
-            {signers.map(({ email }, index) => (
-              <span key={email}>
-                {index > 0 ? ", " : ""}
-                <Link href={"mailto:" + email}>{email}</Link>
-              </span>
-            ))}
-          </>,
+          <RecipientsWithStatus
+            invoiceId={comment.item_id}
+            recipients={signers}
+          />,
           <span className={viewers?.length ? "" : "hidden"}>
             {t("timelines.events.quote_sent.content_viewers")}{" "}
-            {viewers.map(({ email }, index) => (
-              <span key={email}>
-                {index > 0 ? ", " : ""}
-                <Link href={"mailto:" + email}>{email}</Link>
-              </span>
-            ))}
+            <RecipientsWithStatus
+              invoiceId={comment.item_id}
+              recipients={viewers}
+            />
           </span>,
         ]}
       />

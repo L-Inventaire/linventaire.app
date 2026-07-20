@@ -2,6 +2,7 @@ import Framework from "#src/platform/index";
 import type { EmailSendResult } from "#src/platform/push-email/api";
 import Services from "#src/services/index";
 import { Context } from "#src/types";
+import _ from "lodash";
 import Invoices, { InvoicesDefinition } from "../entities/invoices";
 
 /**
@@ -25,20 +26,37 @@ export const markEmailSent = async (ctx: Context, invoice: Invoices) => {
     ctx,
     InvoicesDefinition.name,
     { id: invoice.id, client_id: invoice.client_id },
-    { state_details: { email_status: "sent", email_failed_recipients: [] } }
+    {
+      state_details: {
+        email_status: "sent",
+        email_failed_recipients: [],
+        // A fresh send starts a new delivery-tracking round.
+        email_received_recipients: [],
+      },
+    }
   );
 };
 
 /**
- * Flags a document as "received" (green indicator): a mail client fetched the
+ * Flags delivery as confirmed ("received" — green): a mail client fetched the
  * tracking pixel, or the recipient opened the signing link. Both prove the
  * message reached the recipient's mailbox (Apple MPP only pre-fetches delivered
  * messages) — not that a human opened it.
  *
- * Resolves the document by id (called from public/untenanted endpoints) and
- * never overrides a confirmed send failure, which stays actionable.
+ * When `recipientEmail` is given, the confirmation is recorded for that specific
+ * recipient (added to `email_received_recipients`); this is what drives the
+ * per-recipient dots in the timeline. The document-level `email_status` is also
+ * bumped to "received" as a coarse aggregate for the compact list indicator,
+ * but a confirmed send failure ("failed"/"partial") is never downgraded — it
+ * stays actionable.
+ *
+ * Resolves the document by id (called from public/untenanted endpoints).
  */
-export const markEmailReceived = async (ctx: Context, invoiceId: string) => {
+export const markEmailReceived = async (
+  ctx: Context,
+  invoiceId: string,
+  recipientEmail?: string
+) => {
   const db = await Framework.Db.getService();
 
   const invoice = await db.selectOne<Invoices>(
@@ -48,8 +66,20 @@ export const markEmailReceived = async (ctx: Context, invoiceId: string) => {
   );
   if (!invoice) return;
 
-  const status = invoice.state_details?.email_status;
-  if (status === "received" || status === "failed" || status === "partial") {
+  const details = invoice.state_details;
+  const status = details?.email_status;
+
+  const previousReceived = details?.email_received_recipients || [];
+  const nextReceived = recipientEmail
+    ? _.uniq([...previousReceived, recipientEmail])
+    : previousReceived;
+
+  // Keep a confirmed failure actionable; otherwise reflect the confirmation.
+  const nextStatus =
+    status === "failed" || status === "partial" ? status : "received";
+
+  // Nothing changed (no new recipient, status already up to date): skip write.
+  if (nextStatus === status && nextReceived.length === previousReceived.length) {
     return;
   }
 
@@ -57,7 +87,13 @@ export const markEmailReceived = async (ctx: Context, invoiceId: string) => {
     { ...ctx, client_id: invoice.client_id, role: "SYSTEM" },
     InvoicesDefinition.name,
     { id: invoice.id, client_id: invoice.client_id },
-    { state_details: { email_status: "received", email_failed_recipients: [] } }
+    {
+      state_details: {
+        email_status: nextStatus,
+        email_failed_recipients: details?.email_failed_recipients || [],
+        email_received_recipients: nextReceived,
+      },
+    }
   );
 };
 
@@ -103,7 +139,9 @@ export const recordEmailSendResult = async (
     reactions: [],
   });
 
-  // Flag the document so a "problème d'envoi" tag can be displayed.
+  // Flag the document so a "problème d'envoi" tag can be displayed. Preserve any
+  // per-recipient delivery confirmations already recorded (state_details is
+  // replaced wholesale, not merged).
   await db.update<Invoices>(
     ctx,
     InvoicesDefinition.name,
@@ -112,6 +150,8 @@ export const recordEmailSendResult = async (
       state_details: {
         email_status: partial ? "partial" : "failed",
         email_failed_recipients: failedEmails,
+        email_received_recipients:
+          invoice.state_details?.email_received_recipients || [],
       },
     }
   );

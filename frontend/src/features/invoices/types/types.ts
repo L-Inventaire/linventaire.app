@@ -35,6 +35,7 @@ export type Invoices = RestEntity & {
   state_details?: {
     email_status: "" | "sent" | "received" | "partial" | "failed";
     email_failed_recipients: string[];
+    email_received_recipients?: string[];
   } | null;
 
   // For credit notes or supplier credit note: invoices refunded by this credit note

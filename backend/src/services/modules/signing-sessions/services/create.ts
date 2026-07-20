@@ -88,7 +88,11 @@ export const updateSigningSession = async (ctx, session: SigningSessions) => {
     ["viewed", "signed"].includes(updatedSession.state) &&
     !["viewed", "signed"].includes(previousSession.state)
   ) {
-    await markEmailReceived(ctx, updatedSession.invoice_id);
+    await markEmailReceived(
+      ctx,
+      updatedSession.invoice_id,
+      updatedSession.recipient_email
+    );
   }
 
   return updatedSession;

@@ -35,9 +35,17 @@ export class InvoiceStateDetails {
   //                 Mail Privacy Protection pre-fetches delivered messages.
   //   "partial"  -> at least one recipient received the email, some were rejected (red)
   //   "failed"   -> every recipient was rejected (red)
+  //
+  // NB: "received" here is a document-level aggregate (at least one recipient
+  // confirmed) kept for the compact list indicator. Per-recipient delivery is
+  // tracked in email_received_recipients / email_failed_recipients below.
   email_status: "" | "sent" | "received" | "partial" | "failed" = "";
   // Recipients rejected by the mail server on the last send attempt.
   email_failed_recipients = ["string"];
+  // Recipients whose delivery was confirmed on the last send attempt: their
+  // per-recipient tracking pixel was fetched, or they opened their signing
+  // link. Same caveat as "received" above (mailbox reached, not human-opened).
+  email_received_recipients = ["string"];
 }
 
 export class FromSubscription {
