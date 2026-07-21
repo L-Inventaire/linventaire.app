@@ -131,7 +131,7 @@ export const generateEmailMessageToRecipient = async (
   // opened it (Apple MPP pre-fetches).
   if (action === "sent" && invoice.id) {
     const base = `${config
-      .get<string>("server.domain")
+      .get<string>("server.api")
       .replace(/\/$/, "")}/api/signing-sessions/v1/track/${invoice.id}`;
     const pixelUrl = signingSession?.id
       ? `${base}/${signingSession.id}/pixel.gif`

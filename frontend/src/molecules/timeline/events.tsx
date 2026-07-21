@@ -34,10 +34,10 @@ const RecipientsWithStatus = ({
       {recipients.map(({ email }, index) => (
         <span key={email}>
           {index > 0 ? ", " : ""}
-          <Link href={"mailto:" + email}>{email}</Link>
           <RecipientStatusDot
             status={recipientDeliveryStatus(email, invoice?.state_details)}
           />
+          <Link href={"mailto:" + email}>{email}</Link>
         </span>
       ))}
     </>
@@ -154,7 +154,7 @@ export const Event = ({ id }: { id: string }) => {
             "timelines.events." + comment.metadata?.event_type,
             comment.content,
           ],
-          { replace: metadata }
+          { replace: metadata },
         )
       }
     />

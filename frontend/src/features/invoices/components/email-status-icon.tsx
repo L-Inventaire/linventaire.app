@@ -8,7 +8,7 @@ import { Invoices } from "../types/types";
 
 const failedTooltip = (
   stateDetails: Invoices["state_details"],
-  status: "partial" | "failed"
+  status: "partial" | "failed",
 ) => {
   const failed = stateDetails?.email_failed_recipients || [];
   return status === "partial"
@@ -74,7 +74,7 @@ export type RecipientDeliveryStatus = "sent" | "received" | "failed";
  */
 export const recipientDeliveryStatus = (
   email: string,
-  stateDetails?: Invoices["state_details"]
+  stateDetails?: Invoices["state_details"],
 ): RecipientDeliveryStatus => {
   if ((stateDetails?.email_failed_recipients || []).includes(email)) {
     return "failed";
@@ -97,7 +97,7 @@ const recipientDot: Record<
   },
   sent: {
     color: "bg-blue-500",
-    tooltip: "Envoyé — réception pas encore confirmée",
+    tooltip: "Envoyé",
   },
   failed: {
     color: "bg-red-500",
@@ -121,7 +121,7 @@ export const RecipientStatusDot = ({
     <Tooltip content={tooltip}>
       <span
         className={
-          "inline-block h-2 w-2 rounded-full ml-1 align-middle " +
+          "inline-block h-2 w-2 rounded-full mr-0.5 align-middle " +
           color +
           (className ? " " + className : "")
         }
