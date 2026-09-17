@@ -313,7 +313,9 @@ export const InvoiceLineInput = (props: {
                   >
                     <Text as="div" size="2" weight="bold">
                       {formatAmount(
-                        (value.quantity || 0) * (value.unit_price || 0),
+                        (
+                          (value.quantity || 0) * (value.unit_price || 0)
+                        ).toFixed(2),
                         props.invoice?.currency || "EUR",
                       )}
                     </Text>

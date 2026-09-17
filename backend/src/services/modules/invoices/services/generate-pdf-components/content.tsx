@@ -353,7 +353,8 @@ export const InvoiceContent = ({
                       <Text style={{ fontSize: 8, opacity: 0.5 }}>
                         {formatAmount(
                           item.unit_price * (1 + getTvaValue(item.tva)),
-                          document.currency
+                          document.currency,
+                          countDecimals(item.unit_price)
                         )}{" "}
                         {Framework.I18n.t(ctx, "invoices.content.ttc")}
                       </Text>
@@ -374,8 +375,9 @@ export const InvoiceContent = ({
               >
                 <Text>
                   {formatAmount(
-                    item.unit_price * item.quantity,
-                    document.currency
+                    item.unit_price * item.quantity || 0,
+                    document.currency,
+                    2
                   )}
                 </Text>
                 {!!item.discount?.value && (
@@ -401,7 +403,8 @@ export const InvoiceContent = ({
                     {formatAmount(
                       (item.unit_price * item.quantity - discountValue) *
                         (1 + getTvaValue(item.tva)),
-                      document.currency
+                      document.currency,
+                      2
                     )}
                     {" "}
                     {Framework.I18n.t(ctx, "invoices.content.ttc")}
@@ -427,4 +430,9 @@ export const getRowSize = <T,>(
     return value.length > max ? value.length : max;
   }, 0);
   return Math.min(max, Math.max(min, (maxLength / 8) * 10)) + "%";
+};
+
+const countDecimals = function (value: number) {
+  if (Math.floor(value) === value) return 0;
+  return value.toString().split(".")[1].length || 0;
 };

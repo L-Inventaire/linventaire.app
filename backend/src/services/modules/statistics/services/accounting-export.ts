@@ -306,7 +306,9 @@ export const getAccountingExport = async (
     const invoiceBase = {
       invoice_id: invoice.id,
       invoice_reference: invoice.reference || "",
-      invoice_emit_date: new Date(invoice.emit_date).toISOString().split("T")[0],
+      invoice_emit_date: new Date(invoice.emit_date)
+        .toISOString()
+        .split("T")[0],
       invoice_type: invoice.type,
       invoice_state: invoice.state,
       invoice_total_ht: invoice.total?.total || 0,
@@ -360,7 +362,7 @@ export const getAccountingExport = async (
         line_quantity: quantity,
         line_unit: line.unit || article?.unit || "",
         line_unit_price: parseFloat((unitPrice || 0) as any).toFixed(
-          2
+          5
         ) as unknown as number,
         line_total_ht: parseFloat((lineTotal || 0) as any).toFixed(
           2
@@ -404,7 +406,7 @@ export const getAccountingExport = async (
           line_quantity: 1,
           line_unit: "",
           line_unit_price: parseFloat((discountHt || 0) as any).toFixed(
-            2
+            5
           ) as unknown as number,
           line_total_ht: parseFloat((discountHt || 0) as any).toFixed(
             2

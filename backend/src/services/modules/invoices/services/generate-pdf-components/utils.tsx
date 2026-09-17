@@ -48,12 +48,16 @@ export const formatIBAN = (iban: string) => {
   );
 };
 
-export const formatAmount = (number: number, currency = "EUR") => {
+export const formatAmount = (
+  number: number,
+  currency = "EUR",
+  decimals = 5
+) => {
   return (parseFloat(number as any) || 0)
     .toLocaleString("fr-FR", {
       style: "currency",
       currency,
-      maximumFractionDigits: 5,
+      maximumFractionDigits: decimals || 5,
     })
     .replace(/(\u{202F})/gu, () => "\u00A0");
 };
