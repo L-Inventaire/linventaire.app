@@ -53,6 +53,7 @@ export const formatAmount = (number: number, currency = "EUR") => {
     .toLocaleString("fr-FR", {
       style: "currency",
       currency,
+      maximumFractionDigits: 5,
     })
     .replace(/(\u{202F})/gu, () => "\u00A0");
 };

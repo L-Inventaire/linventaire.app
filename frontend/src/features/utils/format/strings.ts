@@ -48,6 +48,7 @@ export const formatAmount = (number: number | string, currency = "EUR") => {
   return (parseFloat(number as any) || 0).toLocaleString("fr-FR", {
     style: "currency",
     currency,
+    maximumFractionDigits: 5,
   });
 };
 
