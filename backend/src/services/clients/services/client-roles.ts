@@ -45,30 +45,34 @@ export const getClients = async (ctx: Context, id?: string) => {
       active: true,
     });
 
+  // Load the related client rows in parallel rather than sequentially: this is
+  // on the hot path (loadPermissions runs on every authenticated request).
+  // Order is preserved (map returns in order); IP-blocked clients are still
+  // returned so the user understands why access is denied.
   const result: (ClientsUsers & { client?: Clients; ip_blocked?: boolean })[] =
-    [];
-  for (const client of clients) {
-    try {
-      client.client = await getClient(ctx, client.client_id);
-      result.push(client);
-    } catch (e: any) {
-      if (e?.code !== IP_NOT_ALLOWED) throw e;
-      // Keep the company in the list so the user understands why access is denied
-      const full = await getClient(
-        { ...ctx, role: "SYSTEM" },
-        client.client_id
-      );
-      result.push({
-        ...client,
-        ip_blocked: true,
-        client: {
-          id: full.id,
-          company: full.company,
-          preferences: _.pick(full.preferences, "logo"),
-        } as Clients,
-      });
-    }
-  }
+    await Promise.all(
+      clients.map(async (client) => {
+        try {
+          client.client = await getClient(ctx, client.client_id);
+          return client;
+        } catch (e: any) {
+          if (e?.code !== IP_NOT_ALLOWED) throw e;
+          const full = await getClient(
+            { ...ctx, role: "SYSTEM" },
+            client.client_id
+          );
+          return {
+            ...client,
+            ip_blocked: true,
+            client: {
+              id: full.id,
+              company: full.company,
+              preferences: _.pick(full.preferences, "logo"),
+            } as Clients,
+          };
+        }
+      })
+    );
 
   return result;
 };

@@ -3,12 +3,29 @@ import { v4 } from "uuid";
 import Redis from "../redis";
 import { PlatformService } from "../types";
 
-const locks: {
-  [key: string]: {
-    exp: number;
+// Handles returned to callers: maps an opaque lockId to the underlying Redis
+// key and the owner token, so release()/extend() can prove ownership. This map
+// is process-local, which is fine because a lockId is only ever known to the
+// process that acquired it; if that process dies, the lock expires via its TTL.
+const handles: {
+  [lockId: string]: {
     key: string;
+    token: string;
   };
 } = {};
+
+// In-memory fallback used only when Redis is disabled. NOT distributed: it only
+// serializes within a single process. A multi-instance deployment must enable
+// Redis for locks (e.g. cron de-duplication) to be effective across instances.
+const memoryLocks: {
+  [key: string]: {
+    token: string;
+    exp: number;
+  };
+} = {};
+
+const RELEASE_SCRIPT = `if redis.call("get", KEYS[1]) == ARGV[1] then return redis.call("del", KEYS[1]) else return 0 end`;
+const EXTEND_SCRIPT = `if redis.call("get", KEYS[1]) == ARGV[1] then return redis.call("pexpire", KEYS[1], ARGV[2]) else return 0 end`;
 
 export default class Lock implements PlatformService {
   private redis: Redis;
@@ -18,47 +35,105 @@ export default class Lock implements PlatformService {
     return this;
   }
 
-  public async acquire(ctx: Context, key: string, ttl = 5000) {
-    const now = Date.now();
-    const expiresAt = now + ttl;
+  private redisKey(key: string) {
+    return "lock:" + key;
+  }
 
-    if (await this.isLocked(ctx, key)) {
-      return null; // Lock is still active
-    }
-
+  /**
+   * Acquire a lock atomically. Returns an opaque lockId on success, or null if
+   * the lock is already held. `ttl` is in milliseconds.
+   */
+  public async acquire(_ctx: Context, key: string, ttl = 5000) {
+    const token = v4();
     const lockId = v4();
-    locks[lockId] = { exp: expiresAt, key: key };
-    await this.redis.set(ctx, key, expiresAt.toString()); // Set new expiration time
-    return lockId;
-  }
+    const client = this.redis.getClient();
 
-  public async isLocked(ctx: Context, key: string) {
-    const existingTimestamp = await this.redis.get(ctx, key);
-    if (existingTimestamp && parseInt(existingTimestamp) > Date.now()) {
-      return true;
+    if (client) {
+      // Atomic "set if not exists with expiry" — no check-then-set race.
+      const res = await client.set(
+        this.redisKey(key),
+        token,
+        "PX",
+        ttl,
+        "NX"
+      );
+      if (res !== "OK") return null;
+    } else {
+      const existing = memoryLocks[key];
+      if (existing && existing.exp > Date.now()) return null;
+      memoryLocks[key] = { token, exp: Date.now() + ttl };
     }
-    return false;
+
+    handles[lockId] = { key, token };
+    return lockId;
   }
 
-  public async extend(ctx: Context, lockId: string, ttl = 5000) {
-    const lock = locks[lockId];
-    if (!lock || lock.exp < Date.now()) return false;
+  public async isLocked(_ctx: Context, key: string) {
+    const client = this.redis.getClient();
+    if (client) {
+      return (await client.exists(this.redisKey(key))) === 1;
+    }
+    const existing = memoryLocks[key];
+    return !!existing && existing.exp > Date.now();
+  }
 
-    const now = Date.now();
-    const expiresAt = now + ttl;
-    locks[lockId].exp = expiresAt;
-    await this.redis.set(ctx, lock.key, expiresAt.toString());
+  /**
+   * Extend the TTL of a lock we still own. Returns the lockId on success or
+   * false if we no longer hold it. `ttl` is in milliseconds.
+   */
+  public async extend(_ctx: Context, lockId: string, ttl = 5000) {
+    const handle = handles[lockId];
+    if (!handle) return false;
+
+    const client = this.redis.getClient();
+    if (client) {
+      const ok = await client.eval(
+        EXTEND_SCRIPT,
+        1,
+        this.redisKey(handle.key),
+        handle.token,
+        String(ttl)
+      );
+      if (ok !== 1) {
+        delete handles[lockId];
+        return false;
+      }
+    } else {
+      const existing = memoryLocks[handle.key];
+      if (!existing || existing.token !== handle.token) {
+        delete handles[lockId];
+        return false;
+      }
+      existing.exp = Date.now() + ttl;
+    }
 
     return lockId;
   }
 
-  public async release(ctx: Context, lockId: string) {
-    const lock = locks[lockId];
-    if (!lock || lock.exp < Date.now()) return false;
+  /**
+   * Release a lock, but only if we still own it (compare-and-delete), so we
+   * never delete a lock another instance acquired after ours expired.
+   */
+  public async release(_ctx: Context, lockId: string) {
+    const handle = handles[lockId];
+    if (!handle) return false;
 
-    await this.redis.set(ctx, lock.key, "0");
-    delete locks[lockId];
+    const client = this.redis.getClient();
+    if (client) {
+      await client.eval(
+        RELEASE_SCRIPT,
+        1,
+        this.redisKey(handle.key),
+        handle.token
+      );
+    } else {
+      const existing = memoryLocks[handle.key];
+      if (existing && existing.token === handle.token) {
+        delete memoryLocks[handle.key];
+      }
+    }
 
+    delete handles[lockId];
     return true;
   }
 }

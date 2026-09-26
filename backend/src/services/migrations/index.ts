@@ -59,7 +59,42 @@ export default class Clients implements InternalApplicationService {
     }, 1000 * 60 * 15);
 
     const db = await Framework.Db.getService();
+    const ctx = createContext();
     await db.createTable(MigrationsDefinition);
+
+    // Serialize migrations across instances with a Postgres advisory lock so
+    // that multiple booting instances (e.g. several ECS tasks) never run
+    // migrations concurrently. We use a non-blocking try-lock polled at the
+    // application level rather than a blocking pg_advisory_lock, because the
+    // driver runs custom() on a single shared connection and a blocking wait
+    // there would stall every other query on that connection during startup.
+    const MIGRATIONS_LOCK_KEY = 918273645;
+    const acquireLock = async (): Promise<boolean> => {
+      const r = await db.custom<{ rows: { ok: boolean }[] }>(
+        ctx,
+        "SELECT pg_try_advisory_lock($1) AS ok",
+        [MIGRATIONS_LOCK_KEY]
+      );
+      return r?.rows?.[0]?.ok === true;
+    };
+
+    let locked = false;
+    for (let attempt = 0; attempt < 150 && !locked; attempt++) {
+      locked = await acquireLock();
+      if (!locked) {
+        this.logger.info(
+          ctx,
+          "[migration] Another instance holds the migrations lock, waiting..."
+        );
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      }
+    }
+    if (!locked) {
+      clearInterval(tooMuchTimeTimeout);
+      throw new Error(
+        "Could not acquire the migrations advisory lock after 5 minutes"
+      );
+    }
 
     const migrations = {
       "001-create-accounting-accounts": createAccountingAccounts,
@@ -90,34 +125,52 @@ export default class Clients implements InternalApplicationService {
     };
 
     const orderedMigrationsKeys = Object.keys(migrations).sort();
-    const ctx = createContext();
 
-    for (const k of orderedMigrationsKeys) {
-      // Check if the migration has already been run
-      const migration = await db.selectOne<any>(
-        ctx,
-        MigrationsDefinition.name,
-        { id: k }
-      );
-      if (!migration) {
+    try {
+      for (const k of orderedMigrationsKeys) {
+        // Check if the migration has already been run
+        const migration = await db.selectOne<any>(
+          ctx,
+          MigrationsDefinition.name,
+          { id: k }
+        );
+        if (migration) {
+          this.logger.info(ctx, `[migration] Migration ${k} already run`);
+          continue;
+        }
+
         migrating = k;
         this.logger.info(ctx, `[migration] Running migration ${k}`);
         try {
-          // Run the migration
-          await migrations[k](ctx);
-          // Save the migration as run
-          await db.insert(ctx, MigrationsDefinition.name, { id: k });
+          // Run the migration and record it as done atomically: if the
+          // migration throws, the transaction rolls back and the "done"
+          // marker is not persisted, so it can be retried on the next boot.
+          await db.transaction(ctx, async (tctx) => {
+            await migrations[k](tctx);
+            await db.insert(tctx, MigrationsDefinition.name, { id: k });
+          });
           this.logger.info(ctx, `[migration] Migration ${k} done`);
         } catch (e: any) {
           captureException(e);
           this.logger.error(ctx, `[migration] Migration ${k} failed: ${e}`);
+          // Stop the whole boot: continuing past a failed migration risks
+          // running the app against a half-migrated schema.
+          throw new Error(`Migration ${k} failed: ${e?.message || e}`);
         }
-      } else {
-        this.logger.info(ctx, `[migration] Migration ${k} already run`);
+      }
+    } finally {
+      clearInterval(tooMuchTimeTimeout);
+      try {
+        await db.custom(ctx, "SELECT pg_advisory_unlock($1)", [
+          MIGRATIONS_LOCK_KEY,
+        ]);
+      } catch (e: any) {
+        this.logger.error(
+          ctx,
+          `[migration] Failed to release migrations lock: ${e?.message || e}`
+        );
       }
     }
-
-    clearTimeout(tooMuchTimeTimeout);
 
     console.log(`${this.name}:v${this.version} initialized`);
     return this;
