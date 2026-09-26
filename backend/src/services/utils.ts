@@ -9,6 +9,16 @@ import { Context, createContext } from "../types";
 import Contacts from "./modules/contacts/entities/contacts";
 import { getUnitCode } from "@shared/consts";
 
+const getTrustProxy = () => {
+  const value = config.has("server.trust_proxy")
+    ? config.get<string | boolean | number>("server.trust_proxy")
+    : false;
+  if (value === "true") return true;
+  if (value === "false" || value === "") return false;
+  if (typeof value === "string" && /^\d+$/.test(value)) return parseInt(value);
+  return value;
+};
+
 export function secureExpress() {
   const app = express();
   app.use(
@@ -19,6 +29,8 @@ export function secureExpress() {
     })
   );
   app.disable("x-powered-by");
+  // Needed to get the real client IP (req.ip) behind nginx / load balancers
+  app.set("trust proxy", getTrustProxy());
   app.use((req, res, next) => {
     // If it's /import route, set higher limit
     if (req.path.endsWith("/import")) {

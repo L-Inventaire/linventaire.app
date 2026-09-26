@@ -11,6 +11,7 @@ import ClientsUsers from "../entities/clients-users";
 import Clients from "../entities/clients";
 import Services from "../../../services";
 import _ from "lodash";
+import { checkIpAccessOrThrow, IP_NOT_ALLOWED } from "./ip-restriction";
 
 export const getInvitations = async (ctx: Context) => {
   const user = await Services.Users.getUser(
@@ -44,11 +45,32 @@ export const getClients = async (ctx: Context, id?: string) => {
       active: true,
     });
 
+  const result: (ClientsUsers & { client?: Clients; ip_blocked?: boolean })[] =
+    [];
   for (const client of clients) {
-    client.client = await getClient(ctx, client.client_id);
+    try {
+      client.client = await getClient(ctx, client.client_id);
+      result.push(client);
+    } catch (e: any) {
+      if (e?.code !== IP_NOT_ALLOWED) throw e;
+      // Keep the company in the list so the user understands why access is denied
+      const full = await getClient(
+        { ...ctx, role: "SYSTEM" },
+        client.client_id
+      );
+      result.push({
+        ...client,
+        ip_blocked: true,
+        client: {
+          id: full.id,
+          company: full.company,
+          preferences: _.pick(full.preferences, "logo"),
+        } as Clients,
+      });
+    }
   }
 
-  return clients;
+  return result;
 };
 
 export const getRoles = async (ctx: Context, clientId: string) => {
@@ -83,6 +105,8 @@ export const checkRoles = async (
     userRoles = await getRoles(ctx, clientId);
     cache.set(ctx.id + "_" + clientId, userRoles);
   }
+  // Checked on every call (not cached with roles) as the IP can change between requests
+  await checkIpAccessOrThrow(ctx, clientId, userRoles);
   userRoles = impliedRoles(userRoles as any);
   const value = !roles.some((role) => !userRoles.includes(role));
 

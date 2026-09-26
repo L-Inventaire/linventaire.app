@@ -23,6 +23,7 @@ import _ from "lodash";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Page } from "../../_layout/page";
+import { IpRestrictionSettings } from "./ip-restriction";
 
 export const CompanyUsersPage = () => {
   const { user: me } = useAuth();
@@ -314,6 +315,10 @@ export const CompanyUsersPage = () => {
           ]}
           border
         />
+
+        {client?.roles?.list?.includes("CLIENT_MANAGE") && (
+          <IpRestrictionSettings />
+        )}
       </div>
     </Page>
   );
