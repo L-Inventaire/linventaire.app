@@ -1,7 +1,7 @@
 import { fetchServer } from "@features/utils/fetch-server";
 import {
+  AuthorizeResponse,
   EInvoicingConfig,
-  SaveConfigRequest,
   TestConnectionResponse,
   UpdateSettingsRequest,
 } from "../types/types";
@@ -25,17 +25,13 @@ export class EInvoicingApiClient {
   }
 
   /**
-   * Save e-invoicing configuration (create or update)
+   * Start the SuperPDP onboarding, returns the URL to redirect the user to
    */
-  static async saveConfig(
-    clientId: string,
-    data: SaveConfigRequest,
-  ): Promise<{ config: EInvoicingConfig }> {
+  static async authorize(clientId: string): Promise<AuthorizeResponse> {
     const response = await fetchServer(
-      `/api/e-invoices/v1/${clientId}/config`,
+      `/api/e-invoices/v1/${clientId}/superpdp/authorize`,
       {
         method: "POST",
-        body: JSON.stringify(data),
       },
     );
     return await response.json();

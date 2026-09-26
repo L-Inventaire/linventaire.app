@@ -15,6 +15,7 @@ const ENCRYPTED_FIELDS: (keyof EInvoicingConfig)[] = [
   "integration_client_secret_encrypted",
   "access_token_encrypted",
   "refresh_token_encrypted",
+  "oauth_code_verifier_encrypted",
 ];
 
 const tryDecrypt = (value: string, key: string): string | null => {

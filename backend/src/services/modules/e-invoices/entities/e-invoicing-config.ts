@@ -13,14 +13,22 @@ export class EInvoicingConfig extends RestEntity {
   // Platform provider
   pdp_provider: "superpdp" | string = "superpdp"; // Only SuperPDP for now
 
-  // Connection credentials (encrypted)
+  // Legacy manually entered credentials (client_credentials grant, encrypted)
   integration_client_id = "string";
   integration_client_secret_encrypted = "string"; // AES encrypted with db.encryption_key
 
-  // OAuth2 token management
+  // OAuth2 token management (authorization_code grant, on behalf of the company)
   access_token_encrypted = "string"; // AES encrypted
-  refresh_token_encrypted = "string"; // AES encrypted
+  refresh_token_encrypted = "string"; // AES encrypted, rotates on every refresh
   token_expires_at = 0;
+
+  // Pending authorization request (PKCE)
+  oauth_state = "string";
+  oauth_code_verifier_encrypted = "string"; // AES encrypted
+  oauth_started_at = 0;
+
+  // SuperPDP company verification (KYC/KYB), from /v1.beta/oauth2_sessions/me
+  company_verification_status = "string";
 
   // SuperPDP company info (cached from /v1.beta/companies/me)
   superpdp_company_id = 0;
@@ -32,8 +40,11 @@ export class EInvoicingConfig extends RestEntity {
   ];
 
   // Connection status
-  connection_status: "not_configured" | "connected" | "error" =
-    "not_configured";
+  connection_status:
+    | "not_configured"
+    | "pending_verification"
+    | "connected"
+    | "error" = "not_configured";
   last_connection_test = 0;
   last_error = "string";
 

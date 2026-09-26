@@ -2,11 +2,12 @@ import { ButtonConfirm } from "@/atoms/button/confirm";
 import { Button } from "@atoms/button/button";
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import { Info, Section } from "@atoms/text";
-import { FormInput } from "@components/form/fields";
 import { useHasAccess } from "@features/access";
 import { useEInvoicingConfig } from "@features/e-invoicing/hooks/use-e-invoicing-config";
 import { Heading, Switch } from "@radix-ui/themes";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import toast from "react-hot-toast";
+import { useSearchParams } from "react-router-dom";
 import { Page } from "../../_layout/page";
 
 export const EInvoicingPage = () => {
@@ -16,34 +17,32 @@ export const EInvoicingPage = () => {
   const {
     config,
     isLoading,
-    saveConfig,
+    authorize,
     testConnection,
     deleteConfig,
     updateSettings,
     syncData,
   } = useEInvoicingConfig();
 
-  const [clientId, setClientId] = useState("");
-  const [clientSecret, setClientSecret] = useState("");
-  const [showForm, setShowForm] = useState(true);
   const hasSyncedRef = useRef(false);
+  const [searchParams, setSearchParams] = useSearchParams();
 
+  // Back from SuperPDP's onboarding
   useEffect(() => {
-    if (config) {
-      setShowForm(false);
-      setClientId("");
-      setClientSecret("");
+    const result = searchParams.get("superpdp");
+    if (!result) return;
+    if (result === "success") {
+      toast.success("Compte SuperPDP connecté");
     } else {
-      setShowForm(true);
+      toast.error(
+        searchParams.get("message") || "Erreur lors de la connexion à SuperPDP"
+      );
     }
-  }, [config]);
+    setSearchParams({}, { replace: true });
+  }, [searchParams, setSearchParams]);
 
-  const handleSave = async () => {
-    await saveConfig.mutateAsync({
-      client_id: clientId,
-      client_secret: clientSecret,
-      pdp_provider: "superpdp",
-    });
+  const handleConnect = async () => {
+    await authorize.mutateAsync();
   };
 
   const handleTest = async () => {
@@ -52,7 +51,6 @@ export const EInvoicingPage = () => {
 
   const handleDelete = async () => {
     await deleteConfig.mutateAsync();
-    setShowForm(true);
   };
 
   const handleToggleSend = async (enabled: boolean) => {
@@ -68,6 +66,14 @@ export const EInvoicingPage = () => {
   };
 
   const isConfigured = config?.connection_status === "connected";
+  const isPendingVerification =
+    config?.connection_status === "pending_verification";
+  // Nothing configured yet, or an onboarding started but not completed
+  const showConnect =
+    !config ||
+    (config.connection_status === "not_configured" &&
+      !config.refresh_token_encrypted &&
+      !config.integration_client_secret_encrypted);
   const hasError = config?.connection_status === "error";
 
   // Debug logs
@@ -107,61 +113,78 @@ export const EInvoicingPage = () => {
           réception de factures via le réseau Peppol.
         </Info>
 
-        {/* Configuration Form (if not configured) */}
-        {showForm && !config && (
+        {/* Connect (if not configured) */}
+        {showConnect && !isLoading && (
           <div className="mt-6 space-y-4">
-            <Section>Configuration du connecteur</Section>
-
-            <FormInput
-              type="select"
-              label="Plateforme de dématérialisation"
-              value="superpdp"
-              disabled={true}
-              options={[{ value: "superpdp", label: "SuperPDP" }]}
-            />
-
-            <FormInput
-              type="text"
-              label="Client ID"
-              value={clientId}
-              onChange={(value) => setClientId(value)}
-              disabled={readonly}
-              autoComplete="off"
-              placeholder="Votre client ID SuperPDP"
-            />
-
-            <FormInput
-              type="password"
-              label="Client Secret"
-              value={clientSecret}
-              onChange={(value) => setClientSecret(value)}
-              disabled={readonly}
-              autoComplete="new-password"
-              placeholder="Votre client secret SuperPDP"
-            />
-
+            <Section>Connexion à une plateforme agréée</Section>
+            <Info>
+              L'inventaire utilise SuperPDP, plateforme agréée par
+              l'administration fiscale, pour envoyer et recevoir vos factures
+              électroniques. En cliquant sur le bouton ci-dessous, vous serez
+              redirigé vers SuperPDP pour créer ou relier votre compte et
+              vérifier votre entreprise, puis ramené ici automatiquement.
+            </Info>
             <div className="flex gap-2">
               <Button
                 theme="primary"
                 size="md"
-                onClick={handleSave}
-                loading={saveConfig.isPending}
-                disabled={!clientId || !clientSecret || readonly}
+                onClick={handleConnect}
+                loading={authorize.isPending}
+                disabled={readonly}
               >
-                Enregistrer la configuration
+                Se connecter avec SuperPDP
               </Button>
             </div>
           </div>
         )}
 
-        {/* Saved but not tested */}
-        {config && config.connection_status === "not_configured" && (
+        {/* Legacy configuration saved but not tested */}
+        {config &&
+          config.connection_status === "not_configured" &&
+          !showConnect && (
+            <div className="mt-6 space-y-4">
+              <Section>Configuration enregistrée</Section>
+              <Info>
+                La configuration a été enregistrée. Testez la connexion pour
+                l'activer.
+              </Info>
+              <div className="flex gap-2">
+                <Button
+                  theme="primary"
+                  size="md"
+                  onClick={handleTest}
+                  loading={testConnection.isPending}
+                >
+                  Tester la connexion
+                </Button>
+                <ButtonConfirm
+                  theme="danger"
+                  size="md"
+                  onClick={handleDelete}
+                  loading={deleteConfig.isPending}
+                >
+                  Retirer le connecteur
+                </ButtonConfirm>
+              </div>
+            </div>
+          )}
+
+        {/* Waiting for SuperPDP's company verification (KYC/KYB) */}
+        {isPendingVerification && config && (
           <div className="mt-6 space-y-4">
-            <Section>Configuration enregistrée</Section>
-            <Info>
-              La configuration a été enregistrée. Testez la connexion pour
-              l'activer.
-            </Info>
+            <Section>Vérification en cours</Section>
+            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded">
+              <p className="text-yellow-800 font-medium">
+                Votre compte SuperPDP est relié, la vérification de votre
+                entreprise est en cours.
+              </p>
+              <p className="text-yellow-700 text-sm mt-1">
+                SuperPDP doit valider votre entreprise avant de pouvoir envoyer
+                et recevoir des factures électroniques.
+                {config.company_verification_status &&
+                  ` Statut actuel : ${config.company_verification_status}.`}
+              </p>
+            </div>
             <div className="flex gap-2">
               <Button
                 theme="primary"
@@ -169,7 +192,16 @@ export const EInvoicingPage = () => {
                 onClick={handleTest}
                 loading={testConnection.isPending}
               >
-                Tester la connexion
+                Vérifier le statut
+              </Button>
+              <Button
+                theme="secondary"
+                size="md"
+                onClick={handleConnect}
+                loading={authorize.isPending}
+                disabled={readonly}
+              >
+                Reprendre l'inscription sur SuperPDP
               </Button>
               <ButtonConfirm
                 theme="danger"
@@ -203,6 +235,15 @@ export const EInvoicingPage = () => {
                 loading={testConnection.isPending}
               >
                 Tester à nouveau
+              </Button>
+              <Button
+                theme="secondary"
+                size="md"
+                onClick={handleConnect}
+                loading={authorize.isPending}
+                disabled={readonly}
+              >
+                Se reconnecter avec SuperPDP
               </Button>
               <ButtonConfirm
                 theme="danger"

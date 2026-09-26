@@ -10,10 +10,15 @@ export interface EInvoicingConfig {
   access_token_encrypted: string;
   refresh_token_encrypted: string;
   token_expires_at: string;
+  company_verification_status: string;
   superpdp_company_id: number;
   superpdp_company: SuperPDPCompany;
   superpdp_directory_entries: SuperPDPDirectoryEntry[];
-  connection_status: "not_configured" | "connected" | "error";
+  connection_status:
+    | "not_configured"
+    | "pending_verification"
+    | "connected"
+    | "error";
   last_connection_test: string;
   last_error: string;
   receive_enabled: boolean;
@@ -57,14 +62,13 @@ export interface SuperPDPDirectoryEntry {
 
 export interface TestConnectionResponse {
   success: boolean;
+  status?: EInvoicingConfig["connection_status"];
   company?: SuperPDPCompany;
   error?: string;
 }
 
-export interface SaveConfigRequest {
-  client_id: string;
-  client_secret: string;
-  pdp_provider?: "superpdp";
+export interface AuthorizeResponse {
+  url: string;
 }
 
 export interface UpdateSettingsRequest {
