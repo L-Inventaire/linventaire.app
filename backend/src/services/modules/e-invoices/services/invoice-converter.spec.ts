@@ -270,3 +270,51 @@ describe("convertInternalToEN16931 - negative rebate lines", () => {
     expect(result.vat_break_down.length).toBeGreaterThan(0);
   });
 });
+
+describe("convertInternalToEN16931 - EN16931 business rules", () => {
+  const decimals = (v?: string) => (v?.split(".")[1] || "").length;
+
+  test("amounts have at most 2 decimals (BR-DEC-20)", () => {
+    const result = convertInternalToEN16931(
+      buildInvoice({
+        vat_breakdown: [
+          // Floating point noise coming from the internal computation
+          { tva: "20", taxable_amount: 82.00000000000001, tax_amount: 16.400000000000002 },
+        ],
+      }),
+      buildResolvedEntities()
+    );
+
+    for (const vb of result.vat_break_down) {
+      expect(decimals(vb.vat_category_taxable_amount)).toBeLessThanOrEqual(2);
+      expect(decimals(vb.vat_category_tax_amount)).toBeLessThanOrEqual(2);
+    }
+    expect(decimals(result.totals.total_without_vat)).toBeLessThanOrEqual(2);
+    expect(decimals(result.totals.total_vat_amount?.value)).toBeLessThanOrEqual(2);
+  });
+
+  test("total with VAT = total without VAT + total VAT (BR-CO-15)", () => {
+    const result = convertInternalToEN16931(
+      buildInvoice({
+        // Internal total rounded differently from the VAT breakdown
+        total_with_taxes: 98.41,
+        vat_breakdown: [{ tva: "20", taxable_amount: 82, tax_amount: 16.4 }],
+      }),
+      buildResolvedEntities()
+    );
+
+    expect(result.totals.total_with_vat).toBe("98.4");
+    expect(result.totals.amount_due_for_payment).toBe("98.4");
+  });
+
+  test("seller SIREN is 9 digits even when a SIRET is stored (BR-FR-10)", () => {
+    const result = convertInternalToEN16931(
+      buildInvoice({
+        vat_breakdown: [{ tva: "20", taxable_amount: 82, tax_amount: 16.4 }],
+      }),
+      buildResolvedEntities()
+    );
+
+    expect(result.seller.legal_registration_identifier?.value).toBe("527830681");
+  });
+});
