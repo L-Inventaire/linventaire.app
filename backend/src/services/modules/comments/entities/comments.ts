@@ -40,6 +40,10 @@ export type EventMetadatas =
       reason: string;
     }
   | {
+      event_type: "e_invoice_failed";
+      error: string; // Why the e-invoice could not be transmitted
+    }
+  | {
       event_type: "subscription_billing_day_updated";
       from_invoice: string;
     };

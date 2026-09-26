@@ -8,6 +8,7 @@ import InvoicesType, { InvoicesDefinition } from "./entities/invoices";
 import { registerRoutes } from "./routes";
 import { setCheckIsCompleteTrigger } from "./triggers/on-complete";
 import { setOnCompletedCreateInvoicesTrigger } from "./triggers/on-completed-create-invoices";
+import { setOnSentEInvoiceTrigger } from "./triggers/on-sent-e-invoice";
 import { setOnPaymentDelayChanged } from "./triggers/on-payment-delay-changed";
 import { setOnPurchaseOrderTrigger } from "./triggers/on-purchase-order";
 import {
@@ -81,6 +82,7 @@ export default class Invoices implements InternalApplicationService {
     setOnPurchaseOrderTrigger();
     setOnPaymentDelayChanged();
     setOnCompletedCreateInvoicesTrigger();
+    setOnSentEInvoiceTrigger();
     setStatusTrigger();
 
     // Manage recurring quotes

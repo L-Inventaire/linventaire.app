@@ -3,6 +3,7 @@ import {
   FromSubscription,
   InvoicedComputed,
   InvoiceDiscount,
+  InvoiceEInvoiceDetails,
   InvoiceLine,
   InvoiceReminder,
   InvoiceReview,
@@ -53,6 +54,9 @@ export default class Invoices extends RestEntity {
   // Extra details about the current state (e.g. email send problems). This is
   // reset automatically whenever the state changes (see the upsert-hook).
   state_details?: InvoiceStateDetails | null = new InvoiceStateDetails();
+
+  // Transmission to the e-invoicing platform (see on-sent-e-invoice trigger)
+  e_invoice?: InvoiceEInvoiceDetails | null = new InvoiceEInvoiceDetails();
 
   // For credit notes or supplier credit note: invoices refunded by this credit note
   from_rel_invoice = ["type:invoices"]; // Nullable
@@ -131,6 +135,7 @@ export {
   FromSubscription,
   InvoicedComputed,
   InvoiceDiscount,
+  InvoiceEInvoiceDetails,
   InvoiceLine,
   InvoiceReminder,
   InvoiceReview,
