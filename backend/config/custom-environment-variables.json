@@ -60,7 +60,8 @@
     "server": {
         "port": "SERVER_PORT",
         "domain": "SERVER_DOMAIN",
-        "api": "SERVER_API"
+        "api": "SERVER_API",
+        "trust_proxy": "SERVER_TRUST_PROXY"
     },
     "e_invoicing": {
         "superpdp": {
@@ -68,6 +69,5 @@
             "client_secret": "SUPERPDP_CLIENT_SECRET",
             "redirect_uri": "SUPERPDP_REDIRECT_URI"
         }
-        "trust_proxy": "SERVER_TRUST_PROXY"
     }
 }
