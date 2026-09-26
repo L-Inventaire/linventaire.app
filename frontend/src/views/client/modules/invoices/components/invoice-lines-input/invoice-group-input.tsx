@@ -39,6 +39,7 @@ export const InvoiceGroupInput = (props: {
   lines: InvoiceLine[]; // Lines of the group
   onChange: (header: InvoiceLine) => void;
   onAddLine: () => void;
+  autoOpen?: boolean; // Open the group options on mount (newly created group)
   onDropLine: (line: InvoiceLine) => void; // A line is dropped in the empty group
   onRemove: (keepLines: boolean) => void;
   onDuplicate: () => void;
@@ -128,19 +129,49 @@ export const InvoiceGroupInput = (props: {
               className="m-0 max-w-full justify-start text-left"
               label="Groupe d'articles"
               placeholder="Nom du groupe"
+              autoFocus={props.autoOpen}
               value={value.name || "Groupe d'articles"}
               content={() => (
                 <InvoiceGroupOptionsInput value={value} onChange={onChange} />
               )}
-            >
-              <Text size="2" weight="bold" className="truncate">
-                {value.name || "Groupe d'articles"}
-              </Text>
-              {!!getTextFromHtml(value.description || "").trim() && (
-                <Text size="2" color="gray" className="ml-2 truncate">
-                  {getTextFromHtml(value.description || "")}
-                </Text>
+              footer={({ close }) => (
+                <div className="flex gap-2 mt-4">
+                  <Button
+                    theme="secondary"
+                    size="md"
+                    onClick={close}
+                    shortcut={["esc"]}
+                  >
+                    Fermer
+                  </Button>
+                  <Button
+                    size="md"
+                    icon={(p) => <PlusIcon {...p} />}
+                    onClick={() => {
+                      close();
+                      props.onAddLine();
+                    }}
+                  >
+                    Ajouter des articles
+                  </Button>
+                </div>
               )}
+            >
+              <div className="min-w-0">
+                <Text as="div" size="2" weight="bold" className="truncate">
+                  {value.name || "Groupe d'articles"}
+                </Text>
+                {!!getTextFromHtml(value.description || "").trim() && (
+                  <Text
+                    as="div"
+                    size="2"
+                    color="gray"
+                    className="font-normal line-clamp-2 whitespace-pre-line"
+                  >
+                    {getTextFromHtml(value.description || "")}
+                  </Text>
+                )}
+              </div>
             </InputButton>
           </div>
           {!readonly && (

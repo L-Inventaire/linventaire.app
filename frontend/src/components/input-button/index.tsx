@@ -25,6 +25,8 @@ export type InputButtonProps<T> = Omit<
   empty?: string;
   label?: string;
   content?: ({ close }: { close: () => void }) => ReactNode | JSX.Element;
+  // Replaces the default "Fermer" button at the bottom of the modal
+  footer?: ({ close }: { close: () => void }) => ReactNode | JSX.Element;
   autoFocus?: boolean;
 };
 
@@ -80,7 +82,8 @@ export const InputButton = <T,>(props: InputButtonProps<T>) => {
           "onClick",
           "label",
           "readonly",
-          "content"
+          "content",
+          "footer"
         )}
         onClick={() => {
           setOpen(true);
@@ -128,14 +131,16 @@ export const InputButton = <T,>(props: InputButtonProps<T>) => {
               />
             )}
             <div className="flex justify-end">
-              <Button
-                size="md"
-                className="mt-4"
-                onClick={() => setOpen(false)}
-                shortcut={["esc", "enter"]}
-              >
-                Fermer
-              </Button>
+              {props.footer?.({ close: () => setOpen(false) }) || (
+                <Button
+                  size="md"
+                  className="mt-4"
+                  onClick={() => setOpen(false)}
+                  shortcut={["esc", "enter"]}
+                >
+                  Fermer
+                </Button>
+              )}
             </div>
           </ModalContent>
         </Modal>

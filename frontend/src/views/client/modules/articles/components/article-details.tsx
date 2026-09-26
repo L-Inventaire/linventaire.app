@@ -49,6 +49,8 @@ export const ArticlesDetailsPage = ({
   );
   const { tvaOptions } = useInvoiceMaps();
   const marginMode = useMarginMode();
+  // Price, (margin), VAT and unit share the row equally
+  const priceColClass = "w-full lg:flex-1 lg:min-w-0";
 
   const getInvoicesLink = (
     type:
@@ -141,20 +143,31 @@ export const ArticlesDetailsPage = ({
 
               <PageColumns>
                 <FormInput
+                  className={priceColClass}
                   ctrl={ctrl("price")}
                   label="Prix"
                   type="formatted"
                   format="price"
                 />
-                {tvaOptions.length && (
+                {marginMode && (
+                  <MarginInput
+                    className={priceColClass}
+                    readonly={readonly}
+                    price={ctrl("price").value}
+                    cost={getArticleMaxCost(draft)}
+                    onPriceChange={(price) => ctrl("price").onChange(price)}
+                  />
+                )}
+                {!!tvaOptions.length && (
                   <FormInput
+                    className={priceColClass}
                     ctrl={ctrl("tva")}
                     label="TVA"
                     type="select"
                     options={tvaOptions}
                   />
                 )}
-                <div className="w-1/3">
+                <div className={priceColClass}>
                   <InputLabel
                     label="Unité"
                     input={
@@ -167,15 +180,6 @@ export const ArticlesDetailsPage = ({
                     }
                   />
                 </div>
-                {marginMode && (
-                  <MarginInput
-                    className="w-1/3"
-                    readonly={readonly}
-                    price={ctrl("price").value}
-                    cost={getArticleMaxCost(draft)}
-                    onPriceChange={(price) => ctrl("price").onChange(price)}
-                  />
-                )}
               </PageColumns>
 
               <PageColumns>

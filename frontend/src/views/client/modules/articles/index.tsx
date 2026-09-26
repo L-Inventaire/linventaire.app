@@ -6,9 +6,14 @@ import { useHasAccess } from "@features/access";
 import {
   ArticlesColumns,
   ArticlesFieldsNames,
+  getArticleMarginColumn,
 } from "@features/articles/configuration";
 import { useArticles } from "@features/articles/hooks/use-articles";
 import { Articles } from "@features/articles/types/types";
+import {
+  useMarginBase,
+  useMarginMode,
+} from "@features/clients/state/use-clients";
 import { getRoute, ROUTES } from "@features/routes";
 import { formatNumber } from "@features/utils/format/strings";
 import { useNavigateAlt } from "@features/utils/navigate";
@@ -19,7 +24,7 @@ import {
 } from "@features/utils/rest/hooks/use-rest";
 import { PlusIcon } from "@heroicons/react/20/solid";
 import { Page } from "@views/client/_layout/page";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
 import _ from "lodash";
@@ -39,6 +44,15 @@ export const ArticlesPage = () => {
   const navigate = useNavigateAlt();
   const hasAccess = useHasAccess();
   const exporter = useRestExporter("articles");
+  const marginMode = useMarginMode();
+  const marginBase = useMarginBase();
+  const columns = useMemo(
+    () =>
+      marginMode
+        ? [...ArticlesColumns, getArticleMarginColumn(marginBase)]
+        : ArticlesColumns,
+    [marginMode, marginBase]
+  );
 
   const resetToFirstPage = useRef<() => void>(() => {});
 
@@ -106,7 +120,7 @@ export const ArticlesPage = () => {
               index: "type,name",
             });
           }}
-          columns={ArticlesColumns}
+          columns={columns}
           onFetchExportData={exporter(options)}
         />
       </div>

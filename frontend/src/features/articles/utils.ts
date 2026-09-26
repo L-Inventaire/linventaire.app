@@ -89,5 +89,8 @@ export const getPriceFromMargin = (
   return Math.round(price * 100) / 100;
 };
 
+/** Margin in percent, at most one decimal and no trailing ",0" (50%, 12,5%) */
 export const formatMargin = (margin: number | null) =>
-  margin === null ? "" : margin.toFixed(1).replace(".", ",") + " %";
+  margin === null
+    ? ""
+    : (Math.round(margin * 10) / 10).toString().replace(".", ",") + "%";

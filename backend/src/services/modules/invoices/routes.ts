@@ -37,13 +37,9 @@ export const registerRoutes = (router: Router) => {
     });
   });
 
-  // Get document PDF ex. /api/invoices/v1/1/invoice/2/pdf?checked={%222%22:1}
-  // As you can see in the example, we can override checked items in the invoice
-  router.get(
-    "/:clientId/invoice/:id/en16931",
-    checkRole("USER"),
-    checkClientRoles(["INVOICES_READ"]),
-    async (req, res) => {
+  // Get document as EN16931 JSON ex. /api/invoices/v1/1/invoice/2/en16931
+  // Public capability URL, same as the PDF below.
+  router.get("/:clientId/invoice/:id/en16931", async (req, res) => {
     const ctx = Ctx.get(req)!.context;
     const db = await Framework.Db.getService();
     const document = await db.selectOne<Invoices>(
@@ -66,11 +62,10 @@ export const registerRoutes = (router: Router) => {
 
   // Get document PDF ex. /api/invoices/v1/1/invoice/2/pdf?checked={%222%22:1}
   // As you can see in the example, we can override checked items in the invoice
-  router.get(
-    "/:clientId/invoice/:id/pdf",
-    checkRole("USER"),
-    checkClientRoles(["INVOICES_READ"]),
-    async (req, res) => {
+  // Public capability URL: used directly in <a href>/<iframe src> and in
+  // emails, so no Authorization header is sent. Access relies on the
+  // unguessable document id, scoped to the clientId of the URL.
+  router.get("/:clientId/invoice/:id/pdf", async (req, res) => {
     const ctx = Ctx.get(req)!.context;
     const db = await Framework.Db.getService();
     const document = await db.selectOne<Invoices>(

@@ -173,9 +173,6 @@ export const InvoiceLineInput = (props: {
     isSellDocument(props.invoice) &&
     value.type !== "correction" &&
     !!lineCost;
-  const unitMargin = showMargin
-    ? getMarginFromPrice(value.unit_price || 0, lineCost, marginBase)
-    : null;
   const lineTotalHT =
     (value.quantity || 0) * (value.unit_price || 0) -
     (value.discount?.mode === "percentage"
@@ -341,16 +338,6 @@ export const InvoiceLineInput = (props: {
                         ? "TVA " + getTvaValue(value.tva || "0") * 100 + "%"
                         : tvaOptions.find((a) => a.value === value.tva)?.label}
                     </Text>
-                    {unitMargin !== null && (
-                      <Text
-                        as="div"
-                        color="gray"
-                        size="1"
-                        className="whitespace-nowrap"
-                      >
-                        Marge {formatMargin(unitMargin)}
-                      </Text>
-                    )}
                   </PriceInput>
                 </Box>
               )}
@@ -389,9 +376,15 @@ export const InvoiceLineInput = (props: {
                       props.invoice?.type || "",
                     ) &&
                       value.type !== "correction" && (
-                        <Tooltip content="Coût estimé (HT) maximum pour cette ligne">
+                        <Tooltip
+                          content={
+                            totalMargin === null
+                              ? "Coût estimé (HT) maximum pour cette ligne"
+                              : "Coût estimé (HT) maximum et marge de cette ligne"
+                          }
+                        >
                           <Text as="div" color="gray" size="2">
-                            Coût{" "}
+                            {totalMargin === null && "Coût "}
                             {_.last(
                               getCostEstimate(
                                 article || undefined,
@@ -399,11 +392,8 @@ export const InvoiceLineInput = (props: {
                                 value.quantity || 1,
                               ).split("-"),
                             ) || "non renseigné"}
-                            {totalMargin !== null && (
-                              <Text size="1">
-                                {" · "}Marge {formatMargin(totalMargin)}
-                              </Text>
-                            )}
+                            {totalMargin !== null &&
+                              `/Marge ${formatMargin(totalMargin)}`}
                           </Text>
                         </Tooltip>
                       )}

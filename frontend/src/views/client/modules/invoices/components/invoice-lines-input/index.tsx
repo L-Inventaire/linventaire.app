@@ -15,13 +15,14 @@ import {
 import { Box, Flex, Heading, Card as RadixCard } from "@radix-ui/themes";
 import { normalizeInvoiceGroups } from "@shared/invoices";
 import _ from "lodash";
-import { Fragment, useContext, useRef } from "react";
+import { Fragment, useContext, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { InvoiceDiscountInput } from "./components/discount-input";
 import { InvoiceTotalCard } from "./components/invoice-total-card";
 import {
   createEmptyLine,
   createGroupFromLine,
+  createGroupHeader,
   duplicateGroup,
   moveBlock,
   moveGroup,
@@ -61,6 +62,16 @@ export const InvoiceLinesInput = ({
     setContent(content.map((a) => (a._id === line._id ? line : a)));
 
   const addLine = () => setContent([...content, createEmptyLine()]);
+
+  // Group just created from a line: its options modal opens right away
+  const [newGroupId, setNewGroupId] = useState<string | null>(null);
+  const createGroup = (line: InvoiceLine) => {
+    const header = createGroupHeader();
+    const isEmpty = !line.article && !line.name && !line.unit_price;
+    // An empty line is replaced by the group header and keeps its _id
+    setNewGroupId(isEmpty ? line._id! : header._id!);
+    setContent(createGroupFromLine(content, line, header));
+  };
 
   // Move a line or a group (outside of any group) after the element "afterId"
   const moveAfter = (item: InvoiceLine, afterId: string | null) =>
@@ -190,6 +201,7 @@ export const InvoiceLinesInput = ({
                   value={block.line}
                   lines={block.lines}
                   readonly={readonly}
+                  autoOpen={newGroupId === block.line._id}
                   onChange={(header) => updateLine(header)}
                   onAddLine={() =>
                     setContent([
@@ -264,8 +276,7 @@ export const InvoiceLinesInput = ({
                 </InvoiceGroupInput>
               ) : (
                 renderLine(block.line, {
-                  onCreateGroup: () =>
-                    setContent(createGroupFromLine(content, block.line)),
+                  onCreateGroup: () => createGroup(block.line),
                   onMoveUp:
                     blockIndex === 0
                       ? undefined

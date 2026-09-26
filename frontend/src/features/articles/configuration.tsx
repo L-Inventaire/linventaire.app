@@ -16,7 +16,13 @@ import { getTvaValue } from "@views/client/modules/invoices/utils";
 import { Articles } from "./types/types";
 import { ArrowPathIcon } from "@heroicons/react/16/solid";
 import { Tag } from "@atoms/badge/tag";
-import { getCostEstimate } from "./utils";
+import {
+  formatMargin,
+  getArticleMaxCost,
+  getCostEstimate,
+  getMarginFromPrice,
+  MarginBase,
+} from "./utils";
 import { setDefaultRestActions } from "../utils/rest/utils";
 
 export const useArticleDefaultModel: () => Partial<Articles> = () => ({
@@ -110,6 +116,32 @@ export const ArticlesColumns: Column<Articles>[] = [
     ),
   },
 ];
+
+/** Margin column, shown when the client works with margins */
+export const getArticleMarginColumn = (base: MarginBase): Column<Articles> => ({
+  title: "Marge",
+  thClassName: "w-1",
+  cellClassName: "justify-end",
+  headClassName: "justify-end",
+  render: (article) => {
+    const margin = getMarginFromPrice(
+      article.price,
+      getArticleMaxCost(article),
+      base,
+    );
+    return margin === null ? (
+      ""
+    ) : (
+      <Base
+        className={
+          "whitespace-nowrap text-right " + (margin < 0 ? "text-red-500" : "")
+        }
+      >
+        {formatMargin(margin)}
+      </Base>
+    );
+  },
+});
 
 registerCtrlKRestEntity<Articles>("articles", {
   renderEditor: (props) => (

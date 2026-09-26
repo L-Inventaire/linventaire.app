@@ -189,8 +189,8 @@ export const duplicateGroup = (
 export const createGroupFromLine = (
   content: InvoiceLine[],
   line: InvoiceLine,
+  header: InvoiceLine = createGroupHeader(),
 ): InvoiceLine[] => {
-  const header = createGroupHeader();
   const isEmpty = !line.article && !line.name && !line.unit_price;
   const index = content.findIndex((a) => a._id === line._id);
   const list = [...content];
