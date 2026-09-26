@@ -3,6 +3,7 @@ import Clients from "#src/services/clients/entities/clients";
 import Contacts from "../../contacts/entities/contacts";
 import Articles from "../../articles/entities/articles";
 import Invoices from "../../invoices/entities/invoices";
+import { computePricesFromInvoice } from "@shared/invoices";
 import {
   convertInternalToEN16931,
   ResolvedEntities,
@@ -316,5 +317,39 @@ describe("convertInternalToEN16931 - EN16931 business rules", () => {
     );
 
     expect(result.seller.legal_registration_identifier?.value).toBe("527830681");
+  });
+});
+
+describe("convertInternalToEN16931 - same totals as the PDF", () => {
+  test("e-invoice totals equal computePricesFromInvoice totals", () => {
+    const invoice = buildInvoice({});
+    invoice.content = [
+      { article: "article-1", name: "A", quantity: 3, unit_price: 12.33333, tva: "20", discount: { mode: "percentage", value: 7.5 } },
+      { article: "", type: "separation", name: "Section", quantity: 0, unit_price: 0, tva: "", discount: { mode: "amount", value: 0 } },
+      { article: "article-1", name: "B", quantity: 7, unit_price: 1.005, tva: "5.5", discount: { mode: "amount", value: 0.37 } },
+      { article: "article-1", name: "C", quantity: 1, unit_price: 99, tva: "20", optional: true, optional_checked: false, discount: { mode: "amount", value: 0 } },
+      { article: "", type: "correction", name: "Remise", quantity: 1, unit_price: -2.1, tva: "20", discount: { mode: "amount", value: 0 } },
+    ] as any;
+    invoice.discount = { mode: "percentage", value: 3.33 } as any;
+    invoice.total = computePricesFromInvoice(invoice);
+
+    const result = convertInternalToEN16931(invoice, buildResolvedEntities());
+    const t = result.totals;
+
+    // Same totals as the PDF
+    expect(parseFloat(t.total_without_vat)).toBe(invoice.total!.total);
+    expect(parseFloat(t.total_vat_amount!.value)).toBe(invoice.total!.taxes);
+    expect(parseFloat(t.total_with_vat)).toBe(invoice.total!.total_with_taxes);
+
+    // EN16931 consistency
+    const lines = result.lines.reduce((s, l) => s + parseFloat(l.net_amount), 0);
+    const allowances = parseFloat(t.sum_allowances_amount || "0");
+    expect(Math.round((lines - allowances) * 100)).toBe(Math.round(parseFloat(t.total_without_vat) * 100)); // BR-CO-13
+    expect(Math.round(lines * 100)).toBe(Math.round(parseFloat(t.sum_invoice_lines_amount) * 100)); // BR-CO-10
+    for (const vb of result.vat_break_down) {
+      const expected = Math.round(parseFloat(vb.vat_category_taxable_amount) * parseFloat(vb.vat_category_rate));
+      expect(Math.round(parseFloat(vb.vat_category_tax_amount) * 100)).toBe(expected); // BR-CO-17
+    }
+    expect(result.lines).toHaveLength(2); // No separator, no unchecked option, rebate as allowance
   });
 });

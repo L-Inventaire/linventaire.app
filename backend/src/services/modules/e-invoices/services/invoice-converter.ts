@@ -11,7 +11,7 @@ import {
   EN16931Seller,
   EN16931VatBreakDown,
 } from "@shared/en16931-types";
-import { getTvaValue } from "@shared/invoices";
+import { getTvaValue, toCents } from "@shared/invoices";
 import _ from "lodash";
 import Articles, { ArticlesDefinition } from "../../articles/entities/articles";
 import Contacts, { ContactsDefinition } from "../../contacts/entities/contacts";
@@ -390,7 +390,7 @@ export async function getResolvedEntities(
  * floating point noise (e.g. 16.400000000000002).
  */
 function round2(value: number): number {
-  return Math.round((value + Number.EPSILON) * 100) / 100;
+  return toCents(value) / 100; // Same rounding as computePricesFromInvoice
 }
 
 /**
@@ -606,15 +606,23 @@ export function convertInternalToEN16931(
   const lines: EN16931Invoice["lines"] = [];
   const negativeLineAllowances: any[] = [];
 
-  invoice.content.forEach((line) => {
-    // Group headers and free text lines are purely visual, they are not billed
+  (invoice.content || []).forEach((line) => {
+    // Same lines as computePricesFromInvoice, otherwise totals would not
+    // match (BR-CO-10): group headers and free text lines are purely visual,
+    // unchecked options are not billed
     if (line.type === "group" || line.type === "separation") return;
+    if (line.optional && !line.optional_checked) return;
 
-    const article = resolvedEntities.articles.get(line.article);
-
-    if (!article) {
+    // Articles are optional (e.g. correction lines)
+    const article = line.article
+      ? resolvedEntities.articles.get(line.article)
+      : undefined;
+    if (line.article && !article) {
       throw new Error(`Article not found: ${line.article}`);
     }
+
+    // Same default as computePricesFromInvoice
+    line = { ...line, tva: line.tva || "O:VATEX-EU-O" };
 
     // Parse VAT rate
     const vatRate = round2((getTvaValue(line.tva) || 0) * 100);
@@ -641,7 +649,9 @@ export function convertInternalToEN16931(
     }
 
     // Calculate net amount (quantity * unit_price before discount)
-    let lineNetAmount = round2(line.quantity * line.unit_price);
+    // Rounded the same way as computePricesFromInvoice so totals match the PDF
+    const grossAmount = (line.quantity || 0) * (line.unit_price || 0);
+    let lineNetAmount = round2(grossAmount);
 
     // A line with a negative net amount represents a rebate. EN16931 does not
     // allow negative item net prices (BR-27), so convert it to a document-level
@@ -663,7 +673,7 @@ export function convertInternalToEN16931(
     if (line.discount && line.discount.mode && line.discount.value > 0) {
       const discountAmount = round2(
         line.discount.mode === "percentage"
-          ? (lineNetAmount * line.discount.value) / 100
+          ? (grossAmount * line.discount.value) / 100
           : line.discount.value
       );
 
@@ -707,7 +717,9 @@ export function convertInternalToEN16931(
         description: line.description || undefined,
         sellers_item_identification: line.reference || undefined,
         buyers_item_identification:
-          article.supplier_reference || article.internal_reference || undefined,
+          article?.supplier_reference ||
+          article?.internal_reference ||
+          undefined,
       },
 
       allowances: allowances.length > 0 ? allowances : undefined,
