@@ -1,7 +1,7 @@
 import { useCurrentClient } from "@features/clients/state/use-clients";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { EInvoicingApiClient } from "../api-client/e-invoicing-api-client";
-import { SaveConfigRequest, UpdateSettingsRequest } from "../types/types";
+import { UpdateSettingsRequest } from "../types/types";
 import toast from "react-hot-toast";
 
 export const useEInvoicingConfig = () => {
@@ -14,24 +14,30 @@ export const useEInvoicingConfig = () => {
     enabled: !!client?.id,
   });
 
-  const saveConfig = useMutation({
-    mutationFn: (data: SaveConfigRequest) =>
-      EInvoicingApiClient.saveConfig(client!.id, data),
-    onSuccess: () => {
-      toast.success("Configuration enregistrée");
-      queryClient.invalidateQueries({
-        queryKey: ["e-invoicing-config", client?.id],
-      });
+  const authorize = useMutation({
+    mutationFn: () => EInvoicingApiClient.authorize(client!.id),
+    onSuccess: (data) => {
+      if (data.url) {
+        // SuperPDP hosted onboarding, it redirects back to the settings page
+        window.location.href = data.url;
+      } else {
+        toast.error("Impossible de démarrer la connexion à SuperPDP");
+      }
     },
     onError: (error: any) => {
-      toast.error(error.message || "Erreur lors de l'enregistrement");
+      toast.error(error.message || "Erreur lors de la connexion à SuperPDP");
     },
   });
 
   const testConnection = useMutation({
     mutationFn: () => EInvoicingApiClient.testConnection(client!.id),
     onSuccess: (data) => {
-      if (data.success) {
+      if (data.success && data.status === "pending_verification") {
+        toast("Vérification de l'entreprise en cours chez SuperPDP");
+        queryClient.invalidateQueries({
+          queryKey: ["e-invoicing-config", client?.id],
+        });
+      } else if (data.success) {
         toast.success("Connexion réussie !");
         queryClient.invalidateQueries({
           queryKey: ["e-invoicing-config", client?.id],
@@ -92,7 +98,7 @@ export const useEInvoicingConfig = () => {
   return {
     config: config.data?.config || null,
     isLoading: config.isLoading,
-    saveConfig,
+    authorize,
     testConnection,
     deleteConfig,
     updateSettings,

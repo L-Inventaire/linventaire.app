@@ -1,12 +1,12 @@
 import { PlatformService } from "../types";
-import { SuperPDPClient } from "./adapters/superpdp/client";
+import { SuperPDPClient, SuperPDPConfig } from "./adapters/superpdp/client";
 
 export class EInvoicesService implements PlatformService {
   async init() {
     return this;
   }
 
-  getClient(configuration: { clientId: string; clientSecret: string }) {
+  getClient(configuration: SuperPDPConfig) {
     return new SuperPDPClient(configuration);
   }
 }

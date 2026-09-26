@@ -92,5 +92,12 @@
   "data-analysis": {
     "use": false,
     "typeform-url": "https://z58a6teesdf.typeform.com/to/BMruryMk"
+  },
+  "e_invoicing": {
+    "superpdp": {
+      "client_id": "",
+      "client_secret": "",
+      "redirect_uri": ""
+    }
   }
 }
