@@ -48,6 +48,19 @@ export class InvoiceStateDetails {
   email_received_recipients = ["string"];
 }
 
+export class InvoiceEInvoiceDetails {
+  // Transmission of the document to the e-invoicing platform (SuperPDP).
+  // Unlike state_details, this is NOT reset on state changes: an invoice is
+  // transmitted once, when it leaves the draft state.
+  //   ""         -> not transmitted (e-invoicing not connected, or draft)
+  //   "uploaded" -> accepted by SuperPDP, queued for transmission
+  //   "failed"   -> transmission failed (non blocking, see `error`)
+  status: "" | "uploaded" | "failed" = "";
+  superpdp_id = 0; // SuperPDP invoice id, used to follow its events
+  sent_at = 0; // Timestamp of the last transmission attempt
+  error = "string"; // Last error message, if any
+}
+
 export class FromSubscription {
   // When invoice was generated from a subscription, details goes there
   frequency: "daily" | "weekly" | "monthly" | "yearly" | string = "monthly";

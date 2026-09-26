@@ -743,6 +743,62 @@ export class SuperPDPClient {
   }
 
   /**
+   * Create (send) an invoice: SuperPDP queues it for asynchronous transmission.
+   * Success only means the payload is structurally valid, follow the invoice
+   * events to know if the transmission actually succeeded.
+   *
+   * @param facturXPdf - The Factur-X PDF to send
+   * @param externalId - Our own id for the invoice (max 36 chars)
+   */
+  async sendInvoice(
+    facturXPdf: Buffer,
+    externalId?: string
+  ): Promise<SuperPDPInvoice> {
+    if (!this.accessToken) {
+      await this.authenticate();
+    }
+
+    const params = new URLSearchParams();
+    if (externalId) params.append("external_id", externalId.slice(0, 36));
+
+    try {
+      const response = await this.client.post(
+        `/v1.beta/invoices?${params.toString()}`,
+        facturXPdf,
+        {
+          headers: {
+            "Content-Type": "application/pdf",
+            Authorization: `Bearer ${this.accessToken}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error: any) {
+      // If 401, try to re-authenticate
+      if (error.response?.status === 401) {
+        await this.authenticate();
+        const response = await this.client.post(
+          `/v1.beta/invoices?${params.toString()}`,
+          facturXPdf,
+          {
+            headers: {
+              "Content-Type": "application/pdf",
+              Authorization: `Bearer ${this.accessToken}`,
+            },
+          }
+        );
+        return response.data;
+      }
+
+      throw new Error(
+        `Failed to send invoice: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    }
+  }
+
+  /**
    * Validate an EN16931 invoice
    */
   async validateInvoice(
