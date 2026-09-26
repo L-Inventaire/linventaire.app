@@ -5,6 +5,8 @@ _Septembre 2026 · branche `claude/audit-vue-ensemble` · analyse statique en le
 Périmètre : `backend/` (~36 k lignes, 236 fichiers), `frontend/` (~56 k lignes, 434 fichiers), `shared/`, CI, Docker, dépendances.
 
 > **Sécurité :** plusieurs vulnérabilités **critiques** ont été identifiées (contournement de l'isolation multi-tenant, élévation de privilèges). Comme le dépôt est public, leur détail technique n'est **pas** reproduit ici ; il a été transmis séparément au mainteneur. Elles doivent être corrigées avant tout autre chantier.
+>
+> **Correctifs appliqués sur cette branche (bloc sécurité) :** injection SQL de la recherche REST (C1), rôles par défaut accordés aux non-membres (C2), envoi de facture cross-tenant (C3), routes factures/notifications/signatures sans contrôle d'appartenance (H1), captcha OTP jamais bloquant (H3), secrets par défaut dans `config/default.json` + garde au démarrage en production (H6), fuite de `process.env` dans le bundle frontend, et XSS via `?mime=` sur le téléchargement de fichiers (partie H2). Le passage des URLs de fichiers à des URLs signées reste un chantier séparé (voir §2).
 
 ---
 
