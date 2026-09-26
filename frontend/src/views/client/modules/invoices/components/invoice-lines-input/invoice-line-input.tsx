@@ -8,7 +8,16 @@ import {
 import { InputButton } from "@components/input-button";
 import { useArticle } from "@features/articles/hooks/use-articles";
 import { Articles } from "@features/articles/types/types";
-import { getCostEstimate } from "@features/articles/utils";
+import {
+  formatMargin,
+  getArticleMaxCost,
+  getCostEstimate,
+  getMarginFromPrice,
+} from "@features/articles/utils";
+import {
+  useMarginBase,
+  useMarginMode,
+} from "@features/clients/state/use-clients";
 import { InvoiceLine, Invoices } from "@features/invoices/types/types";
 import { getRoute, ROUTES } from "@features/routes";
 import { useInvoiceMaps } from "@features/invoices/hooks/use-invoice-maps";
@@ -66,6 +75,9 @@ import { InvoiceLineArticleInput } from "./components/line-article";
 import { InvoiceLinePriceInput } from "./components/line-price";
 import { InvoiceLineQuantityInput } from "./components/line-quantity";
 
+export const isSellDocument = (invoice?: Pick<Invoices, "type"> | null) =>
+  ["quotes", "invoices", "credit_notes"].includes(invoice?.type || "");
+
 export const getCorrectPrice = (
   article: Articles | null,
   invoice: Invoices,
@@ -90,6 +102,8 @@ export const InvoiceLineInput = (props: {
   onMoveUp?: () => void;
   onMoveDown?: () => void;
   onRemove?: () => void;
+  onCreateGroup?: () => void; // Create a group of articles from this line
+  hidePrices?: boolean; // Prices of this line are not displayed on the document (group option)
   readonly?: boolean;
 }) => {
   const formContext = useContext(FormContextContext);
@@ -105,7 +119,7 @@ export const InvoiceLineInput = (props: {
   const [{ dragging }, dragRef] = useDrag(
     () => ({
       canDrag: !readonly,
-      type: "invoice-line",
+      type: INVOICE_LINE_DND,
       item: value,
       collect: (monitor) => ({
         dragging: monitor.isDragging() ? true : false,
@@ -151,6 +165,35 @@ export const InvoiceLineInput = (props: {
     }
   }, [article?.id, props.invoice?.supplier]);
 
+  const marginMode = useMarginMode();
+  const marginBase = useMarginBase();
+  const lineCost = getArticleMaxCost(article);
+  const showMargin =
+    marginMode &&
+    isSellDocument(props.invoice) &&
+    value.type !== "correction" &&
+    !!lineCost;
+  const unitMargin = showMargin
+    ? getMarginFromPrice(value.unit_price || 0, lineCost, marginBase)
+    : null;
+  const lineTotalHT =
+    (value.quantity || 0) * (value.unit_price || 0) -
+    (value.discount?.mode === "percentage"
+      ? (value.quantity || 0) *
+        (value.unit_price || 0) *
+        ((parseFloat(value.discount.value as any) || 0) / 100)
+      : value.discount?.mode === "amount"
+        ? parseFloat(value.discount.value as any) || 0
+        : 0);
+  const totalMargin =
+    showMargin && value.quantity
+      ? getMarginFromPrice(
+          lineTotalHT / value.quantity,
+          lineCost,
+          marginBase,
+        )
+      : null;
+
   const hasRefSupplier =
     !!article?.supplier_reference ||
     getCostEstimate(article || undefined, false, 1, "");
@@ -194,6 +237,7 @@ export const InvoiceLineInput = (props: {
                   onChange={onChange}
                   ctrl={props.ctrl}
                   invoice={props.invoice}
+                  onCreateGroup={props.onCreateGroup}
                 />
               </Box>
               {!isSeparation && hasRefSupplier && (
@@ -265,7 +309,13 @@ export const InvoiceLineInput = (props: {
                     !value.optional_checked &&
                       value.optional &&
                       "border-dashed",
+                    props.hidePrices && "opacity-50",
                   )}
+                  title={
+                    props.hidePrices
+                      ? "Prix masqué sur le document (seul le total du groupe est affiché)"
+                      : undefined
+                  }
                 >
                   <PriceInput
                     readonly={readonly}
@@ -291,6 +341,16 @@ export const InvoiceLineInput = (props: {
                         ? "TVA " + getTvaValue(value.tva || "0") * 100 + "%"
                         : tvaOptions.find((a) => a.value === value.tva)?.label}
                     </Text>
+                    {unitMargin !== null && (
+                      <Text
+                        as="div"
+                        color="gray"
+                        size="1"
+                        className="whitespace-nowrap"
+                      >
+                        Marge {formatMargin(unitMargin)}
+                      </Text>
+                    )}
                   </PriceInput>
                 </Box>
               )}
@@ -301,7 +361,13 @@ export const InvoiceLineInput = (props: {
                     !value.optional_checked &&
                       value.optional &&
                       "border-dashed",
+                    props.hidePrices && "opacity-50",
                   )}
+                  title={
+                    props.hidePrices
+                      ? "Prix masqué sur le document (seul le total du groupe est affiché)"
+                      : undefined
+                  }
                 >
                   <PriceInput
                     readonly={readonly}
@@ -333,6 +399,11 @@ export const InvoiceLineInput = (props: {
                                 value.quantity || 1,
                               ).split("-"),
                             ) || "non renseigné"}
+                            {totalMargin !== null && (
+                              <Text size="1">
+                                {" · "}Marge {formatMargin(totalMargin)}
+                              </Text>
+                            )}
                           </Text>
                         </Tooltip>
                       )}
@@ -560,23 +631,35 @@ export const InvoiceLineInput = (props: {
   );
 };
 
+export const INVOICE_LINE_DND = "invoice-line";
+export const INVOICE_GROUP_DND = "invoice-group";
+
 export const DropInvoiceLine = (props: {
   onMove: (item: InvoiceLine) => void;
+  accept?: string[]; // Defaults to lines only
+  size?: "default" | "small"; // Small zones are used inside groups and around them
 }) => {
+  const accept = props.accept || [INVOICE_LINE_DND];
   const [{ isOver }, drop] = useDrop(
     () => ({
-      accept: "invoice-line",
-      drop: (value: InvoiceLine) => props.onMove(value),
+      accept,
+      drop: (value: InvoiceLine, monitor) => {
+        // Nested drop zones: only the deepest one handles the drop
+        if (monitor.didDrop()) return;
+        props.onMove(value);
+      },
       collect: (monitor) => ({
-        isOver: !!monitor.isOver(),
+        isOver: !!monitor.isOver({ shallow: true }),
       }),
     }),
-    [props.onMove],
+    [props.onMove, accept.join(",")],
   );
 
-  const { isDragging } = useDragLayer((monitor) => ({
+  const { isDragging, itemType } = useDragLayer((monitor) => ({
     isDragging: monitor.isDragging(),
+    itemType: monitor.getItemType(),
   }));
+  const accepts = isDragging && accept.includes(itemType as string);
 
   return (
     <div className={twMerge("relative w-full h-0")}>
@@ -584,8 +667,12 @@ export const DropInvoiceLine = (props: {
         ref={drop}
         className={twMerge(
           "absolute w-full h-px top-0 transition-all delay-400 z-10",
-          isDragging && "h-24 -top-14 -left-1/2 w-[200%]",
-          isOver && "h-24",
+          accepts &&
+            (props.size === "small"
+              ? "h-10 -top-6"
+              : "h-24 -top-14 -left-1/2 w-[200%]"),
+          isOver && (props.size === "small" ? "h-10" : "h-24"),
+          isDragging && !accepts && "pointer-events-none",
         )}
       ></div>
       <div
@@ -664,6 +751,7 @@ const HoverableArticle = ({
   onChange?: (v: InvoiceLine) => void;
   ctrl?: FormControllerType<InvoiceLine>;
   invoice?: Invoices;
+  onCreateGroup?: () => void;
 }) => {
   const isSeparation =
     value.type === "separation" || value.type === "correction";

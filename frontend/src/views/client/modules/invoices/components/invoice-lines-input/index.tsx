@@ -13,12 +13,30 @@ import {
   ReceiptPercentIcon,
 } from "@heroicons/react/20/solid";
 import { Box, Flex, Heading, Card as RadixCard } from "@radix-ui/themes";
+import { normalizeInvoiceGroups } from "@shared/invoices";
 import _ from "lodash";
 import { Fragment, useContext, useRef } from "react";
 import { twMerge } from "tailwind-merge";
 import { InvoiceDiscountInput } from "./components/discount-input";
 import { InvoiceTotalCard } from "./components/invoice-total-card";
-import { DropInvoiceLine, InvoiceLineInput } from "./invoice-line-input";
+import {
+  createEmptyLine,
+  createGroupFromLine,
+  duplicateGroup,
+  moveBlock,
+  moveGroup,
+  moveLine,
+  moveLineInGroup,
+  removeGroup,
+  toBlocks,
+} from "./groups";
+import { InvoiceGroupInput } from "./invoice-group-input";
+import {
+  DropInvoiceLine,
+  INVOICE_GROUP_DND,
+  INVOICE_LINE_DND,
+  InvoiceLineInput,
+} from "./invoice-line-input";
 
 export const InvoiceLinesInput = ({
   onChange,
@@ -35,23 +53,49 @@ export const InvoiceLinesInput = ({
   const readonly = props.readonly ?? formContext.readonly;
 
   const refTriggerUploadFile = useRef<() => void>(() => {});
-  const addLine = () => {
-    onChange({
-      ...value,
-      content: [
-        ...(value.content || []),
-        {
-          _id: _.uniqueId(),
-          type: "product",
-          name: "",
-          description: "",
-          unit: "",
-          unit_price: 0,
-          quantity: 1,
-        } as InvoiceLine,
-      ],
-    });
-  };
+  const content = value.content || [];
+  const blocks = toBlocks(content);
+  const setContent = (content: InvoiceLine[]) =>
+    onChange({ ...value, content: normalizeInvoiceGroups(content) });
+  const updateLine = (line: InvoiceLine) =>
+    setContent(content.map((a) => (a._id === line._id ? line : a)));
+
+  const addLine = () => setContent([...content, createEmptyLine()]);
+
+  // Move a line or a group (outside of any group) after the element "afterId"
+  const moveAfter = (item: InvoiceLine, afterId: string | null) =>
+    setContent(
+      item.type === "group"
+        ? moveGroup(content, item, afterId)
+        : moveLine(content, item, afterId, ""),
+    );
+
+  const renderLine = (
+    line: InvoiceLine,
+    options: {
+      hidePrices?: boolean;
+      onCreateGroup?: () => void;
+      onMoveUp?: () => void;
+      onMoveDown?: () => void;
+    },
+  ) => (
+    <InvoiceLineInput
+      invoice={value}
+      ctrl={{ onChange: updateLine, value: line }}
+      hidePrices={options.hidePrices}
+      onCreateGroup={options.onCreateGroup}
+      onRemove={() => setContent(content.filter((a) => a._id !== line._id))}
+      onDuplicate={() => {
+        // Add item just after the current one (in the same group)
+        const list = [...content];
+        const index = list.findIndex((a) => a._id === line._id);
+        list.splice(index + 1, 0, { ..._.cloneDeep(line), _id: _.uniqueId() });
+        setContent(list);
+      }}
+      onMoveUp={options.onMoveUp}
+      onMoveDown={options.onMoveDown}
+    />
+  );
 
   return (
     <>
@@ -129,110 +173,119 @@ export const InvoiceLinesInput = ({
       </Card>
 
       <div className="mb-2">
-        {value.content?.map((line, index) => (
-          <Fragment key={line._id}>
-            {index === 0 && (
+        {blocks.map((block, blockIndex) => {
+          const isGroup = block.line.type === "group";
+          const lastId = (_.last(block.lines) || block.line)._id!;
+          return (
+            <Fragment key={block.line._id}>
+              {blockIndex === 0 && (
+                <DropInvoiceLine
+                  accept={[INVOICE_LINE_DND, INVOICE_GROUP_DND]}
+                  onMove={(item) => moveAfter(item, null)}
+                />
+              )}
+              {isGroup ? (
+                <InvoiceGroupInput
+                  invoice={value}
+                  value={block.line}
+                  lines={block.lines}
+                  readonly={readonly}
+                  onChange={(header) => updateLine(header)}
+                  onAddLine={() =>
+                    setContent([
+                      ...content,
+                      createEmptyLine(block.line.group),
+                    ])
+                  }
+                  onDropLine={(item) =>
+                    setContent(
+                      moveLine(content, item, block.line._id!, block.line.group),
+                    )
+                  }
+                  onRemove={(keepLines) =>
+                    setContent(removeGroup(content, block.line, keepLines))
+                  }
+                  onDuplicate={() =>
+                    setContent(duplicateGroup(content, block.line))
+                  }
+                  onMoveUp={
+                    blockIndex === 0
+                      ? undefined
+                      : () => setContent(moveBlock(content, block.line._id!, -1))
+                  }
+                  onMoveDown={
+                    blockIndex === blocks.length - 1
+                      ? undefined
+                      : () => setContent(moveBlock(content, block.line._id!, 1))
+                  }
+                >
+                  <DropInvoiceLine
+                    size="small"
+                    onMove={(item) =>
+                      setContent(
+                        moveLine(
+                          content,
+                          item,
+                          block.line._id!,
+                          block.line.group,
+                        ),
+                      )
+                    }
+                  />
+                  {block.lines.map((line, index) => (
+                    <Fragment key={line._id}>
+                      {renderLine(line, {
+                        hidePrices: block.line.group_hide_prices,
+                        onMoveUp:
+                          index === 0
+                            ? undefined
+                            : () =>
+                                setContent(
+                                  moveLineInGroup(content, line._id!, -1),
+                                ),
+                        onMoveDown:
+                          index === block.lines.length - 1
+                            ? undefined
+                            : () =>
+                                setContent(
+                                  moveLineInGroup(content, line._id!, 1),
+                                ),
+                      })}
+                      <DropInvoiceLine
+                        size="small"
+                        onMove={(item) =>
+                          setContent(
+                            moveLine(content, item, line._id!, line.group),
+                          )
+                        }
+                      />
+                    </Fragment>
+                  ))}
+                </InvoiceGroupInput>
+              ) : (
+                renderLine(block.line, {
+                  onCreateGroup: () =>
+                    setContent(createGroupFromLine(content, block.line)),
+                  onMoveUp:
+                    blockIndex === 0
+                      ? undefined
+                      : () =>
+                          setContent(moveBlock(content, block.line._id!, -1)),
+                  onMoveDown:
+                    blockIndex === blocks.length - 1
+                      ? undefined
+                      : () =>
+                          setContent(moveBlock(content, block.line._id!, 1)),
+                })
+              )}
               <DropInvoiceLine
-                onMove={(item) =>
-                  onChange({
-                    ...value,
-                    content: [
-                      item,
-                      ...(value.content || []).filter(
-                        (a) => a._id !== item._id,
-                      ),
-                    ],
-                  })
-                }
+                accept={[INVOICE_LINE_DND, INVOICE_GROUP_DND]}
+                size={isGroup ? "small" : "default"}
+                onMove={(item) => moveAfter(item, lastId)}
               />
-            )}
-            <InvoiceLineInput
-              invoice={value}
-              ctrl={{
-                onChange: (line) =>
-                  onChange({
-                    ...value,
-                    content: value.content?.map((a) =>
-                      a._id === line._id ? line : a,
-                    ),
-                  }),
-                value: line,
-              }}
-              onRemove={() => {
-                onChange({
-                  ...value,
-                  content: value.content?.filter((a) => a._id !== line._id),
-                });
-              }}
-              onDuplicate={() => {
-                // Add item just after the current one
-                const content = _.cloneDeep(value.content || []);
-                const index = content.findIndex((a) => a._id === line._id);
-                content.splice(index + 1, 0, {
-                  ...line,
-                  _id: _.uniqueId(),
-                });
-                onChange({
-                  ...value,
-                  content,
-                });
-              }}
-              onMoveUp={
-                index === 0
-                  ? undefined
-                  : () => {
-                      // Swap with previous item
-                      const content = _.cloneDeep(value.content || []);
-                      const index = content.findIndex(
-                        (a) => a._id === line._id,
-                      );
-                      if (index === 0) return;
-                      const item = content[index];
-                      content[index] = content[index - 1];
-                      content[index - 1] = item;
-                      onChange({
-                        ...value,
-                        content,
-                      });
-                    }
-              }
-              onMoveDown={
-                index === (value.content || []).length - 1
-                  ? undefined
-                  : () => {
-                      // Swap with next item
-                      const content = _.cloneDeep(value.content || []);
-                      const index = content.findIndex(
-                        (a) => a._id === line._id,
-                      );
-                      if (index === content.length - 1) return;
-                      const item = content[index];
-                      content[index] = content[index + 1];
-                      content[index + 1] = item;
-                      onChange({
-                        ...value,
-                        content,
-                      });
-                    }
-              }
-            />
-            <DropInvoiceLine
-              onMove={(item) => {
-                if (item._id === line._id) return;
-                // Place item after line
-                const content = _.cloneDeep(value.content || []).filter(
-                  (a) => a._id !== item._id,
-                );
-                const index = content.findIndex((a) => a._id === line._id);
-                content.splice(index + 1, 0, item);
-                onChange({
-                  ...value,
-                  content,
-                });
-              }}
-            />
-          </Fragment>
-        ))}
+            </Fragment>
+          );
+        })}
       </div>
 
       {!props.hideAttachments && (

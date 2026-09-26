@@ -166,7 +166,12 @@
       "title": "General",
       "language": "Company language",
       "timezone": "Time zone",
-      "email_footer": "Line at the bottom of the email"
+      "email_footer": "Line at the bottom of the email",
+      "margin_mode": "Work with margins",
+      "margin_mode_help": "Show and edit the margin (based on the highest purchase price) on articles and quote/invoice lines.",
+      "margin_base": "Margin calculation",
+      "margin_base_cost": "On cost: (price − cost) / cost",
+      "margin_base_price": "On sell price: (price − cost) / price"
     },
     "payments": {
       "title": "Payments"

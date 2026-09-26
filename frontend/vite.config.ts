@@ -5,7 +5,7 @@ import { sentryVitePlugin } from "@sentry/vite-plugin";
 import tailwindcss from "@tailwindcss/vite";
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     sentryVitePlugin({
@@ -44,12 +44,16 @@ export default defineConfig({
     },
   },
   define: {
-    // Compatibilité avec les variables d'environnement React
-    "process.env": process.env,
+    // Only expose NODE_ENV to the bundle. Injecting the whole `process.env`
+    // here leaks build-time secrets (e.g. SENTRY_AUTH_TOKEN) into the client
+    // bundle. The app source does not read process.env directly; this only
+    // satisfies dependencies that branch on process.env.NODE_ENV.
+    "process.env.NODE_ENV": JSON.stringify(mode),
+    "process.env": "{}",
   },
   css: {
     postcss: {
       plugins: [require("tailwindcss")],
     },
   },
-});
+}));

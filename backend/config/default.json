@@ -35,7 +35,7 @@
   "db": {
     "type": "postgres",
     "database": "linventaire",
-    "encryption_key": "abcdef",
+    "encryption_key": "dev-only-insecure-encryption-key-change-me",
     "postgres": {
       "host": "localhost",
       "port": 5432,
@@ -61,17 +61,18 @@
     "url": "redis://localhost:6379"
   },
   "jwt": {
-    "secret": "hppuf6WkagQX98%5qjOQ~7e:Ncv-]QXNNB2UCVJk}Ftn>+cuG9O>~:3{2'bmxr%"
+    "secret": "dev-only-insecure-jwt-secret-change-me"
   },
   "signatures": {
-    "secret": "+:!o]wZY>l'{(VF8rIYUf4OVa-848>*J;E2l}^nD:>0e*{8Oa|QEPE=tE@(~Y2"
+    "secret": "dev-only-insecure-signatures-secret-change-me"
   },
   "server": {
     "allow_cors": true,
     "port": 3000,
     "helmet": false,
     "domain": "https://app.linventaire.app",
-    "api": "https://api.linventaire.app"
+    "api": "https://api.linventaire.app",
+    "trust_proxy": "loopback, linklocal, uniquelocal"
   },
   "analytics": {
     "amplitude": {
@@ -82,7 +83,7 @@
   "signature": {
     "adapter": "internal",
     "documenso": {
-      "key": "api_9bwf5iwx0nh2mhwv"
+      "key": ""
     },
     "webhook": {
       "to_sign": "https://app.linventaire.app/signing-session/:signing-session/view",

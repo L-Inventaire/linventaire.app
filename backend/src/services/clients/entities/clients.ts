@@ -29,6 +29,17 @@ export default class Clients {
   configuration = new Configuration();
   service_items = new ServiceItems();
   smtp: SmtpOptions = {} as any;
+  security = new Security();
+}
+
+export class Security {
+  // When enabled, only owners (CLIENT_MANAGE) can access the company from an IP outside allowed_ips
+  ip_restriction = new IpRestriction();
+}
+
+class IpRestriction {
+  enabled = false;
+  allowed_ips: string[] = ["string"]; // Single IPs or CIDR ranges (IPv4 / IPv6)
 }
 
 type Counter = {
@@ -106,6 +117,8 @@ export class Preferences {
   currency?: string = "string";
   timezone?: string = "string";
   email_footer?: string = "string";
+  margin_mode?: boolean = false;
+  margin_base?: "cost" | "price" = "cost";
 }
 
 class Configuration {
@@ -190,6 +203,7 @@ export const ClientsDefinition: TableDefinition = {
     company: "JSONB",
     service_items: "JSONB",
     smtp: "JSONB",
+    security: "JSONB",
   },
   pk: ["id"],
   auditable: true,
