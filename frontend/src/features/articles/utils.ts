@@ -46,3 +46,34 @@ export const getGainEstimate = (
     .reverse()
     .join("-");
 };
+
+/** Highest known purchase price (HT) of an article, or null if no cost is known */
+export const getArticleMaxCost = (article?: Articles | null): number | null => {
+  const prices = Object.values(article?.suppliers_details || {})
+    .map((a) => parseFloat(a?.price as any))
+    .filter((a) => !isNaN(a) && a > 0);
+  return prices.length ? Math.max(...prices) : null;
+};
+
+/** Margin in percent of the cost, rounded to one decimal */
+export const getMarginFromPrice = (
+  price: number | string,
+  cost: number | null
+): number | null => {
+  const p = parseFloat(price as any);
+  if (!cost || isNaN(p)) return null;
+  return Math.round(((p - cost) / cost) * 1000) / 10;
+};
+
+/** Price computed from a margin in percent of the cost, rounded to the cent */
+export const getPriceFromMargin = (
+  margin: number | string,
+  cost: number | null
+): number | null => {
+  const m = parseFloat(margin as any);
+  if (!cost || isNaN(m)) return null;
+  return Math.round(cost * (1 + m / 100) * 100) / 100;
+};
+
+export const formatMargin = (margin: number | null) =>
+  margin === null ? "" : margin.toFixed(1).replace(".", ",") + " %";

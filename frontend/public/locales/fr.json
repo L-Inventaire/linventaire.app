@@ -108,7 +108,9 @@
       "title": "Général",
       "language": "Langue de l'entreprise",
       "timezone": "Timezone",
-      "email_footer": "Ligne en bas de mail"
+      "email_footer": "Ligne en bas de mail",
+      "margin_mode": "Fonctionner en marge",
+      "margin_mode_help": "Affiche et permet de modifier la marge (en % du coût d'achat le plus élevé) sur les articles et les lignes de devis/factures."
     },
     "payments": {
       "title": "Paiements"

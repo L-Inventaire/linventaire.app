@@ -19,6 +19,12 @@ export const useCurrentClient = () => {
   };
 };
 
+/** "Fonctionner en marge" preference of the current client */
+export const useMarginMode = () => {
+  const { client } = useCurrentClient();
+  return !!client?.preferences?.margin_mode;
+};
+
 export const useClients = () => {
   const { user } = useAuth();
   const [clients, setClients] = useRecoilState(ClientsState);

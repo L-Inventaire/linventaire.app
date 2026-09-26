@@ -122,6 +122,19 @@ export const PreferencesPage = () => {
                 }
                 options={currencyOptions}
               />
+              <FormInput
+                type="boolean"
+                className="mb-1"
+                label={t("settings.preferences.margin_mode")}
+                disabled={readonly}
+                value={!!preferences?.margin_mode}
+                onChange={(e) =>
+                  setPreferences({ ...preferences, margin_mode: !!e })
+                }
+              />
+              <Info className="block mb-4">
+                {t("settings.preferences.margin_mode_help")}
+              </Info>
               {!readonly && (
                 <Button
                   theme="primary"
@@ -134,6 +147,7 @@ export const PreferencesPage = () => {
                         currency: preferences?.currency,
                         timezone: preferences?.timezone,
                         email_footer: preferences?.email_footer,
+                        margin_mode: !!preferences?.margin_mode,
                       },
                     })
                   }
