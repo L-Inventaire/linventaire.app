@@ -1,3 +1,4 @@
+import { Button } from "@atoms/button/button";
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import Link from "@atoms/link";
 import { RadioCard } from "@atoms/radio-card";
@@ -8,6 +9,7 @@ import { RestDocumentsInput } from "@components/input-rest";
 import { useArticle } from "@features/articles/hooks/use-articles";
 import { Articles } from "@features/articles/types/types";
 import { InvoiceLine, Invoices } from "@features/invoices/types/types";
+import { RectangleGroupIcon } from "@heroicons/react/20/solid";
 import { EditorInput } from "@molecules/editor-input";
 import { useState } from "react";
 import { getArticleIcon } from "../../../../articles/components/article-icon";
@@ -20,6 +22,7 @@ export const InvoiceLineArticleInput = (props: {
   onChange?: (v: InvoiceLine) => void;
   ctrl?: FormControllerType<InvoiceLine>;
   close?: () => void;
+  onCreateGroup?: () => void;
 }) => {
   const value = props.ctrl?.value || props.value || ({} as InvoiceLine);
   const onChange = props.ctrl?.onChange || props.onChange;
@@ -102,6 +105,28 @@ export const InvoiceLineArticleInput = (props: {
             }}
           />
         )}
+
+        {value.type !== "separation" &&
+          value.type !== "correction" &&
+          !!props.onCreateGroup && (
+            <div className="pt-2">
+              <Button
+                theme="outlined"
+                size="md"
+                className="w-full justify-center"
+                icon={(p) => <RectangleGroupIcon {...p} />}
+                onClick={() => {
+                  props.close?.();
+                  props.onCreateGroup?.();
+                }}
+              >
+                Créer un groupe d'articles
+              </Button>
+              <Info className="block mt-1">
+                Regroupez plusieurs articles dans un package avec un sous-total.
+              </Info>
+            </div>
+          )}
 
         {value.type === "separation" && (
           <>

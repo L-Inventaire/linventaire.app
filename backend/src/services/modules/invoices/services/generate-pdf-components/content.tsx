@@ -4,7 +4,11 @@ import Invoices from "../../entities/invoices";
 import { convertHtml, formatAmount, formatNumber } from "./utils";
 import Framework from "../../../../../platform";
 import { Context } from "../../../../../types";
-import { getTvaValue } from "@shared/invoices";
+import {
+  computeGroupTotal,
+  getGroupLines,
+  getTvaValue,
+} from "@shared/invoices";
 import { formatQuantity } from "#src/services/utils";
 import _ from "lodash";
 import { getUnitCode, getUnitLabel } from "@shared/consts";
@@ -78,6 +82,62 @@ export const InvoiceContent = ({
   );
 
   let itemIndex = 1;
+
+  // Groups of lines: numbering is "group.line" and each group ends with a subtotal
+  const groupHeaders = _.keyBy(
+    document.content.filter((a) => a.type === "group" && a.group),
+    (a) => a.group
+  );
+  const groupNumbers: { [group: string]: number } = {};
+  const groupCounters: { [group: string]: number } = {};
+  const groupBorder = { borderLeftWidth: 2, borderLeftColor: colors.primary };
+
+  const renderGroupSubtotal = (group: Invoices["content"][0], index: number) => {
+    const total = computeGroupTotal(getGroupLines(document.content, group.group));
+    return (
+      <View
+        key={`content-group-total-${index}`}
+        wrap={false}
+        style={{
+          flexDirection: "row",
+          borderBottomStyle: "solid",
+          borderBottomColor: colors.lightGray,
+          borderBottomWidth: 1,
+          marginBottom: 4,
+        }}
+      >
+        <View
+          style={{
+            ...styles.td,
+            ...groupBorder,
+            borderBottomWidth: 2,
+            borderBottomColor: colors.primary,
+            marginLeft: 0,
+            width: "5%",
+          }}
+        ></View>
+        <View style={{ ...styles.td, flexGrow: 1, alignItems: "flex-start" }}>
+          <Text style={{ fontWeight: "bold" }}>
+            {Framework.I18n.t(ctx, "invoices.content.group_subtotal")}{" "}
+            {group.name}
+          </Text>
+        </View>
+        {as !== "delivery_slip" && (
+          <View style={{ ...styles.td, width: totalRowSize }}>
+            <Text style={{ fontWeight: "bold" }}>
+              {formatAmount(total.total, document.currency, 2)}
+            </Text>
+            {total.total_with_taxes !== total.total && (
+              <Text style={{ fontSize: 8, opacity: 0.5 }}>
+                {formatAmount(total.total_with_taxes, document.currency, 2)}{" "}
+                {Framework.I18n.t(ctx, "invoices.content.ttc")}
+              </Text>
+            )}
+          </View>
+        )}
+      </View>
+    );
+  };
 
   const showInternalReferences =
     as === "delivery_slip" || (document.type === "quotes" && !as);
@@ -170,6 +230,69 @@ export const InvoiceContent = ({
       </View>
 
       {document.content.map((item, index) => {
+        if (item.type === "group") {
+          groupNumbers[item.group] = itemIndex++;
+          groupCounters[item.group] = 0;
+          const isEmpty = !getGroupLines(document.content, item.group).length;
+          return (
+            <React.Fragment key={`content-group-${index}`}>
+              <View
+                wrap={false}
+                style={{
+                  flexDirection: "row",
+                  marginTop: 8,
+                  borderBottomStyle: "solid",
+                  borderBottomColor: colors.lightGray,
+                  borderBottomWidth: 1,
+                }}
+              >
+                <View
+                  style={{
+                    ...styles.td,
+                    ...groupBorder,
+                    borderTopWidth: 2,
+                    borderTopColor: colors.primary,
+                    marginLeft: 0,
+                    width: "5%",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={{ fontWeight: "bold" }}>
+                    {groupNumbers[item.group]}
+                  </Text>
+                </View>
+                <View
+                  style={{ ...styles.td, flexGrow: 1, alignItems: "flex-start" }}
+                >
+                  <Text style={{ fontWeight: "bold", fontSize: 10 }}>
+                    {item.name}
+                  </Text>
+                  {!!item.description && !!item.description.trim() && (
+                    <View>
+                      {convertHtml(item.description, { color: colors.gray })}
+                    </View>
+                  )}
+                </View>
+              </View>
+              {isEmpty && renderGroupSubtotal(item, index)}
+            </React.Fragment>
+          );
+        }
+
+        const parentGroup =
+          item.group && groupHeaders[item.group] && _.has(groupNumbers, item.group)
+            ? groupHeaders[item.group]
+            : undefined;
+        const hidePrices = !!parentGroup?.group_hide_prices;
+        const isLastOfGroup =
+          !!parentGroup && document.content[index + 1]?.group !== item.group;
+        const lineNumber =
+          item.type === "separation"
+            ? ""
+            : parentGroup
+            ? `${groupNumbers[item.group]}.${++groupCounters[item.group]}`
+            : itemIndex++;
+
         const discountDisplay =
           item.discount.mode === "amount"
             ? formatAmount(item.discount.value, document.currency)
@@ -179,10 +302,12 @@ export const InvoiceContent = ({
             ? item.discount.value
             : (item.discount.value / 100) * (item.unit_price * item.quantity);
         return (
-          <View
+          <React.Fragment
             key={`content-${index}-${
               (item as any)._id || item.article || index
             }`}
+          >
+          <View
             style={{
               borderBottomStyle: "solid",
               borderBottomColor: colors.lightGray,
@@ -196,6 +321,7 @@ export const InvoiceContent = ({
                 <View
                   style={{
                     ...styles.td,
+                    ...(parentGroup ? groupBorder : {}),
                     marginLeft: 0,
                     width: "5%",
                   }}
@@ -207,12 +333,15 @@ export const InvoiceContent = ({
                 <View
                   style={{
                     ...styles.td,
+                    ...(parentGroup ? groupBorder : {}),
                     marginLeft: 0,
                     width: "5%",
                     alignItems: "center",
                   }}
                 >
-                  <Text style={{ fontWeight: "bold" }}>{itemIndex++}</Text>
+                  <Text style={{ fontWeight: parentGroup ? "normal" : "bold" }}>
+                    {lineNumber}
+                  </Text>
                   {item.optional && (
                     <View
                       id={"optional_item_" + index}
@@ -346,10 +475,12 @@ export const InvoiceContent = ({
                           : "none",
                     }}
                   >
-                    <Text>
-                      {formatAmount(item.unit_price, document.currency)}
-                    </Text>
-                    {!!getTvaValue(item.tva) && (
+                    {!hidePrices && (
+                      <Text>
+                        {formatAmount(item.unit_price, document.currency)}
+                      </Text>
+                    )}
+                    {!hidePrices && !!getTvaValue(item.tva) && (
                       <Text style={{ fontSize: 8, opacity: 0.5 }}>
                         {formatAmount(
                           item.unit_price * (1 + getTvaValue(item.tva)),
@@ -373,14 +504,16 @@ export const InvoiceContent = ({
                       : "none",
                 }}
               >
-                <Text>
-                  {formatAmount(
-                    item.unit_price * item.quantity || 0,
-                    document.currency,
-                    2
-                  )}
-                </Text>
-                {!!item.discount?.value && (
+                {!hidePrices && (
+                  <Text>
+                    {formatAmount(
+                      item.unit_price * item.quantity || 0,
+                      document.currency,
+                      2
+                    )}
+                  </Text>
+                )}
+                {!hidePrices && !!item.discount?.value && (
                   <>
                     <Text
                       style={{
@@ -398,7 +531,7 @@ export const InvoiceContent = ({
                     </Text>
                   </>
                 )}
-                {!!getTvaValue(item.tva) && (
+                {!hidePrices && !!getTvaValue(item.tva) && (
                   <Text style={{ fontSize: 8, opacity: 0.5 }}>
                     {formatAmount(
                       (item.unit_price * item.quantity - discountValue) *
@@ -413,6 +546,8 @@ export const InvoiceContent = ({
               </View>
             )}
           </View>
+          {isLastOfGroup && renderGroupSubtotal(parentGroup, index)}
+          </React.Fragment>
         );
       })}
     </View>

@@ -90,6 +90,8 @@ export const InvoiceLineInput = (props: {
   onMoveUp?: () => void;
   onMoveDown?: () => void;
   onRemove?: () => void;
+  onCreateGroup?: () => void; // Create a group of articles from this line
+  hidePrices?: boolean; // Prices of this line are not displayed on the document (group option)
   readonly?: boolean;
 }) => {
   const formContext = useContext(FormContextContext);
@@ -105,7 +107,7 @@ export const InvoiceLineInput = (props: {
   const [{ dragging }, dragRef] = useDrag(
     () => ({
       canDrag: !readonly,
-      type: "invoice-line",
+      type: INVOICE_LINE_DND,
       item: value,
       collect: (monitor) => ({
         dragging: monitor.isDragging() ? true : false,
@@ -194,6 +196,7 @@ export const InvoiceLineInput = (props: {
                   onChange={onChange}
                   ctrl={props.ctrl}
                   invoice={props.invoice}
+                  onCreateGroup={props.onCreateGroup}
                 />
               </Box>
               {!isSeparation && hasRefSupplier && (
@@ -265,7 +268,13 @@ export const InvoiceLineInput = (props: {
                     !value.optional_checked &&
                       value.optional &&
                       "border-dashed",
+                    props.hidePrices && "opacity-50",
                   )}
+                  title={
+                    props.hidePrices
+                      ? "Prix masqué sur le document (seul le total du groupe est affiché)"
+                      : undefined
+                  }
                 >
                   <PriceInput
                     readonly={readonly}
@@ -301,7 +310,13 @@ export const InvoiceLineInput = (props: {
                     !value.optional_checked &&
                       value.optional &&
                       "border-dashed",
+                    props.hidePrices && "opacity-50",
                   )}
+                  title={
+                    props.hidePrices
+                      ? "Prix masqué sur le document (seul le total du groupe est affiché)"
+                      : undefined
+                  }
                 >
                   <PriceInput
                     readonly={readonly}
@@ -560,23 +575,35 @@ export const InvoiceLineInput = (props: {
   );
 };
 
+export const INVOICE_LINE_DND = "invoice-line";
+export const INVOICE_GROUP_DND = "invoice-group";
+
 export const DropInvoiceLine = (props: {
   onMove: (item: InvoiceLine) => void;
+  accept?: string[]; // Defaults to lines only
+  size?: "default" | "small"; // Small zones are used inside groups and around them
 }) => {
+  const accept = props.accept || [INVOICE_LINE_DND];
   const [{ isOver }, drop] = useDrop(
     () => ({
-      accept: "invoice-line",
-      drop: (value: InvoiceLine) => props.onMove(value),
+      accept,
+      drop: (value: InvoiceLine, monitor) => {
+        // Nested drop zones: only the deepest one handles the drop
+        if (monitor.didDrop()) return;
+        props.onMove(value);
+      },
       collect: (monitor) => ({
-        isOver: !!monitor.isOver(),
+        isOver: !!monitor.isOver({ shallow: true }),
       }),
     }),
-    [props.onMove],
+    [props.onMove, accept.join(",")],
   );
 
-  const { isDragging } = useDragLayer((monitor) => ({
+  const { isDragging, itemType } = useDragLayer((monitor) => ({
     isDragging: monitor.isDragging(),
+    itemType: monitor.getItemType(),
   }));
+  const accepts = isDragging && accept.includes(itemType as string);
 
   return (
     <div className={twMerge("relative w-full h-0")}>
@@ -584,8 +611,12 @@ export const DropInvoiceLine = (props: {
         ref={drop}
         className={twMerge(
           "absolute w-full h-px top-0 transition-all delay-400 z-10",
-          isDragging && "h-24 -top-14 -left-1/2 w-[200%]",
-          isOver && "h-24",
+          accepts &&
+            (props.size === "small"
+              ? "h-10 -top-6"
+              : "h-24 -top-14 -left-1/2 w-[200%]"),
+          isOver && (props.size === "small" ? "h-10" : "h-24"),
+          isDragging && !accepts && "pointer-events-none",
         )}
       ></div>
       <div
@@ -664,6 +695,7 @@ const HoverableArticle = ({
   onChange?: (v: InvoiceLine) => void;
   ctrl?: FormControllerType<InvoiceLine>;
   invoice?: Invoices;
+  onCreateGroup?: () => void;
 }) => {
   const isSeparation =
     value.type === "separation" || value.type === "correction";
