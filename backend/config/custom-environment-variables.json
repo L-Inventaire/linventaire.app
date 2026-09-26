@@ -25,6 +25,7 @@
     },
     "db": {
         "database": "DB_DATABASE",
+        "encryption_key": "DB_ENCRYPTION_KEY",
         "postgres": {
             "host": "DB_POSTGRES_HOST",
             "port": "DB_POSTGRES_PORT",
@@ -53,8 +54,20 @@
     "jwt": {
         "secret": "JWT_SECRET"
     },
+    "signatures": {
+        "secret": "SIGNATURES_SECRET"
+    },
     "server": {
         "port": "SERVER_PORT",
-        "domain": "SERVER_DOMAIN"
+        "domain": "SERVER_DOMAIN",
+        "api": "SERVER_API",
+        "trust_proxy": "SERVER_TRUST_PROXY"
+    },
+    "e_invoicing": {
+        "superpdp": {
+            "client_id": "SUPERPDP_CLIENT_ID",
+            "client_secret": "SUPERPDP_CLIENT_SECRET",
+            "redirect_uri": "SUPERPDP_REDIRECT_URI"
+        }
     }
 }

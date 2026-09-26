@@ -48,6 +48,19 @@ export class InvoiceStateDetails {
   email_received_recipients = ["string"];
 }
 
+export class InvoiceEInvoiceDetails {
+  // Transmission of the document to the e-invoicing platform (SuperPDP).
+  // Unlike state_details, this is NOT reset on state changes: an invoice is
+  // transmitted once, when it leaves the draft state.
+  //   ""         -> not transmitted (e-invoicing not connected, or draft)
+  //   "uploaded" -> accepted by SuperPDP, queued for transmission
+  //   "failed"   -> transmission failed (non blocking, see `error`)
+  status: "" | "uploaded" | "failed" = "";
+  superpdp_id = 0; // SuperPDP invoice id, used to follow its events
+  sent_at = 0; // Timestamp of the last transmission attempt
+  error = "string"; // Last error message, if any
+}
+
 export class FromSubscription {
   // When invoice was generated from a subscription, details goes there
   frequency: "daily" | "weekly" | "monthly" | "yearly" | string = "monthly";
@@ -118,8 +131,13 @@ export class InvoiceReview {
 export class InvoiceLine {
   article = "type:articles"; // Nullable
 
-  type: "product" | "service" | "consumable" | "separation" | "correction" =
-    "product"; // product, service, consumable, separation
+  type:
+    | "product"
+    | "service"
+    | "consumable"
+    | "separation"
+    | "correction"
+    | "group" = "product"; // product, service, consumable, separation, group (header of a group of lines)
   name = "string";
   reference = "string";
   description = "string";
@@ -139,6 +157,11 @@ export class InvoiceLine {
 
   optional = false;
   optional_checked = false; // Checked by the client or by the agent (like a default checked option)
+
+  // Groups of lines ("packages"): a line of type "group" is the header of the group,
+  // lines belonging to it follow it directly and share the same group id.
+  group = "string"; // Id of the group (on the header) or of the parent group (on the lines)
+  group_hide_prices = false; // Only on the header: show only the group total, not the price of each line
 }
 
 export class InvoiceDiscount {

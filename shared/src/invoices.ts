@@ -1,7 +1,12 @@
 import _ from "lodash";
 import { DateTime } from "luxon";
 import { getVatCode, standardCodeToVatValue } from "./consts";
-import { InvoiceReview, InvoicesBase as Invoices, InvoiceTotal } from "./types";
+import {
+  InvoiceLine,
+  InvoiceReview,
+  InvoicesBase as Invoices,
+  InvoiceTotal,
+} from "./types";
 
 // ---------------------------------------------------------------------------
 // "To review" reminders (quotes): recurring rules made of a day-of-month spec
@@ -325,9 +330,6 @@ export const computePricesFromInvoice = (
   invoice: Pick<Invoices, "content" | "discount">,
   checkedIndexes?: { [key: number]: boolean },
 ): Invoices["total"] => {
-  let initial = 0;
-  let discount = 0;
-
   const content = [...(invoice.content || [])];
   for (let index = 0; index < content.length; index++) {
     const item = content[index];
@@ -349,12 +351,20 @@ export const computePricesFromInvoice = (
     };
   }
 
-  const vatBreakdown: {
-    [vat: string]: NonNullable<InvoiceTotal["vat_breakdown"]>[0];
-  } = {};
+  // All amounts are computed in cents following the EN16931 rules, so that the
+  // PDF, the app and the e-invoice (Factur-X) always show the same totals:
+  //  - each line net amount is rounded to 2 decimals (BT-131)
+  //  - the global discount is split per VAT rate, rounded (BT-92)
+  //  - the VAT is computed per VAT rate on the taxable amount (BR-CO-17)
+  //  - total with taxes = total without taxes + taxes (BR-CO-15)
+  let initialCents = 0;
+  let discountCents = 0;
+  const taxableCents: { [vat: string]: number } = {};
 
   content.forEach((item) => {
     if (!item.optional_checked) return;
+    // Group headers and free text lines: no amount, no VAT category
+    if (item.type === "group" || item.type === "separation") return;
 
     const itemsPrice =
       (parseFloat(item.unit_price as any) || 0) *
@@ -368,96 +378,86 @@ export const computePricesFromInvoice = (
       itemsDiscount = parseFloat(item.discount.value as any);
     }
 
-    const taxableAmount =
-      (itemsPrice - itemsDiscount) * getTvaValue(item.tva || "");
+    const itemsPriceCents = toCents(itemsPrice);
+    const itemsDiscountCents = toCents(itemsDiscount || 0);
 
-    initial += itemsPrice;
-    discount += itemsDiscount;
+    initialCents += itemsPriceCents;
+    discountCents += itemsDiscountCents;
 
     const tvaCode = item.tva || "O:VATEX-EU-O";
-    if (vatBreakdown[tvaCode]) {
-      vatBreakdown[tvaCode].taxable_amount += parseFloat(
-        (itemsPrice - itemsDiscount).toFixed(2),
-      );
-      vatBreakdown[tvaCode].tax_amount += parseFloat(taxableAmount.toFixed(2));
-    } else {
-      vatBreakdown[tvaCode] = {
-        tva: tvaCode,
-        taxable_amount: parseFloat((itemsPrice - itemsDiscount).toFixed(2)),
-        tax_amount: parseFloat(taxableAmount.toFixed(2)),
-      };
-    }
+    taxableCents[tvaCode] =
+      (taxableCents[tvaCode] || 0) + itemsPriceCents - itemsDiscountCents;
   });
 
-  let globalDiscount = 0;
+  const netCents = initialCents - discountCents;
+
+  let globalDiscountCents = 0;
   if (invoice.discount?.mode === "percentage") {
-    globalDiscount =
-      (initial - discount) * (parseFloat(invoice.discount.value as any) / 100);
-  } else if (invoice.discount?.mode === "amount") {
-    globalDiscount = parseFloat(invoice.discount.value as any);
-  }
-
-  // Apply discount proportionally to each VAT rate in breakdown
-  const documentWideAllowancesBreakdown: {
-    [vat: string]: NonNullable<InvoiceTotal["allowances_breakdown"]>[0];
-  } = {};
-  for (const vat in vatBreakdown) {
-    if (initial - discount === 0) break; // Avoid division by zero if total is 0 after discounts
-    const proportion = vatBreakdown[vat].taxable_amount / (initial - discount);
-    const discountAmount = globalDiscount * proportion;
-    const totalProportion = (initial - discount) * proportion;
-    vatBreakdown[vat].taxable_amount -= parseFloat(discountAmount.toFixed(2));
-    vatBreakdown[vat].tax_amount -= parseFloat(
-      (discountAmount * getTvaValue(vat)).toFixed(2),
+    globalDiscountCents = toCents(
+      (netCents / 100) * (parseFloat(invoice.discount.value as any) / 100),
     );
-
-    if (documentWideAllowancesBreakdown[vat]) {
-      documentWideAllowancesBreakdown[vat].base_amount += parseFloat(
-        totalProportion.toFixed(2),
-      );
-      documentWideAllowancesBreakdown[vat].amount += parseFloat(
-        discountAmount.toFixed(2),
-      );
-    } else {
-      documentWideAllowancesBreakdown[vat] = {
-        base_amount: parseFloat(totalProportion.toFixed(2)),
-        amount: parseFloat(discountAmount.toFixed(2)),
-        tva: vat,
-      };
-    }
+  } else if (invoice.discount?.mode === "amount") {
+    globalDiscountCents = toCents(
+      parseFloat(invoice.discount.value as any) || 0,
+    );
   }
 
-  const allTaxes = Object.values(vatBreakdown).reduce(
-    (sum, vat) => sum + vat.tax_amount,
-    0,
-  );
-  const total = initial - discount - globalDiscount;
-  const total_with_taxes = total + allTaxes;
-
-  if (isNaN(total_with_taxes)) {
-    console.log({
-      total_with_taxes,
-      total,
-      allTaxes,
-      initial,
-      discount,
-      globalDiscount,
-      vatBreakdown,
+  // Apply discount proportionally to each VAT rate in breakdown, the last rate
+  // takes the rounding remainder so the parts always sum to the discount.
+  const allowancesBreakdown: NonNullable<
+    InvoiceTotal["allowances_breakdown"]
+  > = [];
+  const vats = Object.keys(taxableCents);
+  if (netCents !== 0 && globalDiscountCents !== 0) {
+    let remaining = globalDiscountCents;
+    vats.forEach((vat, index) => {
+      const base = taxableCents[vat];
+      const amount =
+        index === vats.length - 1
+          ? remaining
+          : Math.round((globalDiscountCents * base) / netCents);
+      remaining -= amount;
+      taxableCents[vat] -= amount;
+      allowancesBreakdown.push({
+        base_amount: base / 100,
+        amount: amount / 100,
+        tva: vat,
+      });
     });
   }
 
+  const vatBreakdown: NonNullable<InvoiceTotal["vat_breakdown"]> = vats.map(
+    (vat) => ({
+      tva: vat,
+      taxable_amount: taxableCents[vat] / 100,
+      tax_amount:
+        toCents((taxableCents[vat] / 100) * getTvaValue(vat)) / 100,
+    }),
+  );
+
+  const totalCents = netCents - globalDiscountCents;
+  const taxesCents = vatBreakdown.reduce(
+    (sum, vat) => sum + toCents(vat.tax_amount),
+    0,
+  );
+
   return {
-    initial: parseFloat(initial.toFixed(2)),
-    discount: parseFloat((discount + globalDiscount).toFixed(2)),
-    total: parseFloat(total.toFixed(2)),
-    taxes: parseFloat(allTaxes.toFixed(2)),
-    total_with_taxes: parseFloat(total_with_taxes.toFixed(2)),
-    vat_breakdown: Object.keys(vatBreakdown).map((key) => vatBreakdown[key]),
-    allowances_breakdown: Object.keys(documentWideAllowancesBreakdown).map(
-      (key) => documentWideAllowancesBreakdown[key],
-    ),
+    initial: initialCents / 100,
+    discount: (discountCents + globalDiscountCents) / 100,
+    total: totalCents / 100,
+    taxes: taxesCents / 100,
+    total_with_taxes: (totalCents + taxesCents) / 100,
+    vat_breakdown: vatBreakdown,
+    allowances_breakdown: allowancesBreakdown,
   };
 };
+
+/**
+ * Convert an amount to cents, rounding half away from zero (commercial
+ * rounding) and ignoring floating point noise (1.005 -> 101).
+ */
+export const toCents = (value: number): number =>
+  Math.sign(value) * Math.round(Math.abs(value) * 100 + 1e-7);
 
 export const computeDeliveryDelayDate = (invoice: Invoices): DateTime => {
   const delayType = invoice?.delivery_date
@@ -501,4 +501,84 @@ export const isComplete = (invoice: Invoices): boolean => {
   return !invoice.content?.some(
     (item) => (item.quantity_delivered || 0) > (item.quantity || 0),
   );
+};
+
+// ---------------------------------------------------------------------------
+// Groups of lines ("packages"). A line of type "group" is the header of the
+// group, the lines of the group directly follow it and share its group id.
+// ---------------------------------------------------------------------------
+
+type GroupableLine = Pick<InvoiceLine, "type"> &
+  Partial<Pick<InvoiceLine, "group" | "group_hide_prices">>;
+
+export const isGroupHeader = (line?: GroupableLine | null): boolean =>
+  line?.type === "group";
+
+export const generateGroupId = (): string =>
+  "grp_" +
+  Date.now().toString(36) +
+  Math.random().toString(36).substring(2, 8);
+
+// Make sure the lines of each group directly follow their header (keeping their
+// relative order), and detach lines referencing a group that doesn't exist.
+export const normalizeInvoiceGroups = <T extends GroupableLine>(
+  content: T[],
+): T[] => {
+  const headers = new Set(
+    content.filter((a) => isGroupHeader(a) && a.group).map((a) => a.group),
+  );
+  const children = _.groupBy(
+    content.filter((a) => !isGroupHeader(a) && a.group && headers.has(a.group)),
+    (a) => a.group,
+  );
+  const result: T[] = [];
+  for (const line of content) {
+    if (isGroupHeader(line)) {
+      result.push(line);
+      if (line.group) result.push(...(children[line.group] || []));
+    } else if (!line.group || !headers.has(line.group)) {
+      result.push(line.group ? { ...line, group: "" } : line);
+    }
+  }
+  return result;
+};
+
+// Returns the lines belonging to the given group
+export const getGroupLines = <T extends GroupableLine>(
+  content: T[],
+  groupId: string,
+): T[] =>
+  groupId
+    ? content.filter((a) => !isGroupHeader(a) && a.group === groupId)
+    : [];
+
+// Total of a group (line discounts applied, unchecked options excluded)
+export const computeGroupTotal = (
+  lines: Pick<
+    InvoiceLine,
+    | "unit_price"
+    | "quantity"
+    | "discount"
+    | "tva"
+    | "optional"
+    | "optional_checked"
+  >[],
+): { total: number; total_with_taxes: number } => {
+  let total = 0;
+  let totalWithTaxes = 0;
+  for (const item of lines) {
+    if (item.optional && !item.optional_checked) continue;
+    const price =
+      (parseFloat(item.unit_price as any) || 0) *
+      (parseFloat(item.quantity as any) || 0);
+    let discount = 0;
+    if (item.discount?.mode === "percentage") {
+      discount = price * ((parseFloat(item.discount.value as any) || 0) / 100);
+    } else if (item.discount?.mode === "amount") {
+      discount = parseFloat(item.discount.value as any) || 0;
+    }
+    total += price - discount;
+    totalWithTaxes += (price - discount) * (1 + getTvaValue(item.tva || ""));
+  }
+  return { total, total_with_taxes: totalWithTaxes };
 };

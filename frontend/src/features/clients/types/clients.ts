@@ -10,6 +10,8 @@ export type ClientsUsers = {
   roles: { list: Role[] };
   client: Clients;
   active: boolean;
+  // Access denied because the user's IP is not in the company's allowlist
+  ip_blocked?: boolean;
 };
 
 export type ClientsUserWithUser = ClientsUsers & {
@@ -98,6 +100,15 @@ export type Clients = {
   service_items: ServiceItems;
 
   smtp: SmtpOptions;
+  security?: Security;
+};
+
+// Only visible to owners (CLIENT_MANAGE)
+export type Security = {
+  ip_restriction: {
+    enabled: boolean;
+    allowed_ips: string[]; // Single IPs or CIDR ranges
+  };
 };
 
 export type ServiceItems = {
@@ -177,6 +188,8 @@ type Preferences = {
   currency?: string;
   timezone?: string;
   email_footer?: string;
+  margin_mode?: boolean;
+  margin_base?: "cost" | "price";
 };
 
 type Configuration = {

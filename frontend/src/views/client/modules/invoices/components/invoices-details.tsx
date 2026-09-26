@@ -153,9 +153,11 @@ export const InvoicesDetailsPage = ({
           draft.reference = getReference(draft);
         }
         draft.total = computePricesFromInvoice(draft);
-        draft.content = (draft.content || []).map((a) => ({
+        // Deterministic fallback so a refetch (which resets the draft) keeps the
+        // same React keys and doesn't remount every line (visible flicker)
+        draft.content = (draft.content || []).map((a, i) => ({
           ...a,
-          _id: a._id || _.uniqueId(),
+          _id: a._id || "line_" + i,
         }));
         if (!draft.attachments?.length && !isSupplierRelated) {
           draft.attachments = [...(client.invoices.attachments || [])];

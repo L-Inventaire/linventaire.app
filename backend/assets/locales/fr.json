@@ -212,6 +212,7 @@
       "unit_price": "Prix u. HT",
       "total": "Total HT",
       "ttc": "TTC",
+      "group_subtotal": "Sous-total",
       "payment_method": {
         "bank_transfer": "Virement bancaire",
         "direct_debit": "Prélèvement",

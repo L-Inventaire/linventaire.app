@@ -8,7 +8,10 @@ import {
 import { Articles } from "@features/articles/types/types";
 import { InvoiceLine, Invoices } from "@features/invoices/types/types";
 import { useInvoiceMaps } from "@features/invoices/hooks/use-invoice-maps";
-import { getCorrectPrice } from "../invoice-line-input";
+import { useMarginMode } from "@features/clients/state/use-clients";
+import { getArticleMaxCost } from "@features/articles/utils";
+import { MarginInput } from "@views/client/modules/articles/components/margin-input";
+import { getCorrectPrice, isSellDocument } from "../invoice-line-input";
 
 export const InvoiceLinePriceInput = (props: {
   article?: Articles | null;
@@ -21,6 +24,10 @@ export const InvoiceLinePriceInput = (props: {
   const onChange = props.ctrl?.onChange || props.onChange;
   const { ctrl } = useFormController(value, (e) => onChange!(e(value)));
   const { tvaOptions } = useInvoiceMaps();
+  const showMargin =
+    useMarginMode() &&
+    isSellDocument(props.invoice) &&
+    value.type !== "correction";
 
   return (
     <div className="space-y-2">
@@ -32,6 +39,14 @@ export const InvoiceLinePriceInput = (props: {
         autoSelect
         autoFocus
       />
+      {showMargin && (
+        <MarginInput
+          price={value.unit_price}
+          cost={getArticleMaxCost(props.article)}
+          onPriceChange={(price) => onChange!({ ...value, unit_price: price })}
+          showHelp
+        />
+      )}
       <FormInput
         label="TVA"
         type="select"

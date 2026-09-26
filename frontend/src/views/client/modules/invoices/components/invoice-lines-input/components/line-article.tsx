@@ -1,3 +1,4 @@
+import { Button } from "@atoms/button/button";
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import Link from "@atoms/link";
 import { RadioCard } from "@atoms/radio-card";
@@ -20,6 +21,7 @@ export const InvoiceLineArticleInput = (props: {
   onChange?: (v: InvoiceLine) => void;
   ctrl?: FormControllerType<InvoiceLine>;
   close?: () => void;
+  onCreateGroup?: () => void;
 }) => {
   const value = props.ctrl?.value || props.value || ({} as InvoiceLine);
   const onChange = props.ctrl?.onChange || props.onChange;
@@ -102,6 +104,24 @@ export const InvoiceLineArticleInput = (props: {
             }}
           />
         )}
+
+        {value.type !== "separation" &&
+          value.type !== "correction" &&
+          !!props.onCreateGroup && (
+            <div className="pt-1">
+              <Button
+                theme="invisible"
+                size="sm"
+                className="m-0"
+                onClick={() => {
+                  props.close?.();
+                  props.onCreateGroup?.();
+                }}
+              >
+                Créer un groupe d'articles
+              </Button>
+            </div>
+          )}
 
         {value.type === "separation" && (
           <>

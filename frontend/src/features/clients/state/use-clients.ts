@@ -7,6 +7,7 @@ import { useParams } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { ClientsApiClient } from "../api-client/api-client";
 import { Clients, Role } from "../types/clients";
+import { MarginBase } from "@features/articles/utils";
 import { ClientInvitationsState, ClientsState } from "./store";
 
 export const useCurrentClient = () => {
@@ -17,6 +18,18 @@ export const useCurrentClient = () => {
     client: clients.find((c) => c.client.id === clientId)?.client,
     clientUser: clients.find((c) => c.client.id === clientId),
   };
+};
+
+/** "Fonctionner en marge" preference of the current client */
+export const useMarginMode = () => {
+  const { client } = useCurrentClient();
+  return !!client?.preferences?.margin_mode;
+};
+
+/** Margin computed on the cost (markup) or on the sell price */
+export const useMarginBase = (): MarginBase => {
+  const { client } = useCurrentClient();
+  return client?.preferences?.margin_base === "price" ? "price" : "cost";
 };
 
 export const useClients = () => {

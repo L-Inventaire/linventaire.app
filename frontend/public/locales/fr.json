@@ -108,7 +108,12 @@
       "title": "Général",
       "language": "Langue de l'entreprise",
       "timezone": "Timezone",
-      "email_footer": "Ligne en bas de mail"
+      "email_footer": "Ligne en bas de mail",
+      "margin_mode": "Fonctionner en marge",
+      "margin_mode_help": "Affiche et permet de modifier la marge (calculée à partir du prix d'achat le plus élevé) sur les articles et les lignes de devis/factures.",
+      "margin_base": "Calcul de la marge",
+      "margin_base_cost": "Sur le coût : (prix − coût) / coût",
+      "margin_base_price": "Sur le prix de vente : (prix − coût) / prix"
     },
     "payments": {
       "title": "Paiements"
@@ -298,6 +303,9 @@
     },
     "smtp_failed": {
       "title": "Échec de l'envoi du document."
+    },
+    "e_invoice_failed": {
+      "title": "Échec de la transmission de la facture électronique."
     }
   },
   "timelines": {
@@ -317,7 +325,8 @@
       "smtp_failed": {
         "content": "Échec de l'envoi du document à <0/>. Le mail n'a pas pu être délivré.",
         "content_partial": "Le document n'a pas pu être envoyé à <0/>. Les autres destinataires l'ont bien reçu."
-      }
+      },
+      "e_invoice_failed": "La facture électronique n'a pas pu être transmise : {{error}}"
     }
   },
   "atoms": {

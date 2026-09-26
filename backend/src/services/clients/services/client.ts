@@ -16,6 +16,10 @@ import Clients, {
 } from "../entities/clients";
 import { checkRoles, checkRolesOrThrow, getClients } from "./client-roles";
 import { setUser } from "./client-users";
+import {
+  invalidateClientSecurityCache,
+  sanitizeSecurity,
+} from "./ip-restriction";
 
 export const getClient = async (ctx: Context, id: string) => {
   if (!(await checkRoles(ctx, id, []))) throw NotFoundError("Client not found");
@@ -45,6 +49,7 @@ export const getClient = async (ctx: Context, id: string) => {
   // Here will go every sensitive information that should be hidden from the non managers
   if (!(await checkRoles(ctx, id, ["CLIENT_MANAGE"]))) {
     delete client.smtp;
+    delete client.security;
   }
 
   client.invoices_counters = getInvoiceCounters(client.invoices_counters);
@@ -168,6 +173,7 @@ export const createClient = async (ctx: Context, body: Partial<Clients>) => {
         default_article: "",
       },
       smtp: {} as any,
+      security: { ip_restriction: { enabled: false, allowed_ips: [] } },
       invoices_counters: getInvoiceCounters({}),
       recurring: {} as Clients["recurring"],
       address: {
@@ -286,6 +292,17 @@ export const updateClient = async (
       ...body.smtp,
     });
 
+    if (body.security !== undefined) {
+      client.security = sanitizeSecurity({
+        ...(client.security || {}),
+        ...body.security,
+        ip_restriction: {
+          ...(client.security?.ip_restriction || {}),
+          ...(body.security?.ip_restriction || {}),
+        },
+      } as Clients["security"]);
+    }
+
     client.preferences = Object.assign(client.preferences, {
       ...client.preferences,
       ..._.pick(
@@ -293,7 +310,9 @@ export const updateClient = async (
         "language",
         "currency",
         "timezone",
-        "email_footer"
+        "email_footer",
+        "margin_mode",
+        "margin_base"
       ),
     });
 
@@ -340,8 +359,11 @@ export const updateClient = async (
         service_items: client.service_items,
         smtp: client.smtp,
         recurring: client.recurring,
+        security: client.security,
       }
     );
+
+    invalidateClientSecurityCache(clientId);
 
     return client;
   });

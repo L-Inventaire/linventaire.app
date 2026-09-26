@@ -3,7 +3,10 @@ import Framework from "../../../../platform";
 import Invoices, { InvoicesDefinition } from "../entities/invoices";
 import { setArticlesTagsToInvoices } from "../services/db";
 import { numberOrNull } from "../utils";
-import { computePricesFromInvoice } from "@shared/invoices";
+import {
+  computePricesFromInvoice,
+  normalizeInvoiceGroups,
+} from "@shared/invoices";
 import Clients, {
   ClientsDefinition,
 } from "#src/services/clients/entities/clients";
@@ -125,8 +128,15 @@ export const setUpsertHook = () =>
           ? a.discount || { value: 0, mode: "amount" }
           : { value: 0, mode: "amount" };
 
+        a.group = a.group || "";
+        a.group_hide_prices =
+          a.type === "group" ? a.group_hide_prices || false : false;
+
         return a;
       });
+
+      // Keep the lines of a group right after their group header
+      updated.content = normalizeInvoiceGroups(updated.content);
 
       // Make sure content lines have a name
       for (const line of updated.content || []) {

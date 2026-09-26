@@ -3,6 +3,7 @@ import services from "./services";
 import * as Sentry from "@sentry/node";
 import { nodeProfilingIntegration } from "@sentry/profiling-node";
 import config from "config";
+import { assertSecureConfig } from "./config-guard";
 
 if (process.env.NODE_ENV === "production" || process.env.USE_SENTRY) {
   Sentry.init({
@@ -22,6 +23,7 @@ process.on("unhandledRejection", (reason, p) => {
 });
 
 export const start = async () => {
+  assertSecureConfig();
   await framework.init();
   await services.init();
 };

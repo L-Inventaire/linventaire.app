@@ -4,7 +4,7 @@ import { Ctx } from "#src/services/utils";
 import config from "config";
 import crypto from "crypto";
 import { Router } from "express";
-import { checkRole } from "../../common";
+import { checkClientRoles, checkRole } from "../../common";
 import Invoices, {
   InvoiceLine,
   InvoicesDefinition,
@@ -188,6 +188,7 @@ export default (router: Router) => {
   router.post(
     "/:clientId/send-invoice/:id",
     checkRole("USER"),
+    checkClientRoles(["INVOICES_WRITE"]),
     async (req, res) => {
       const ctx = Ctx.get(req)!.context;
       if (!req.body.recipients) throw new Error("Recipients are required");
@@ -206,6 +207,7 @@ export default (router: Router) => {
         InvoicesDefinition.name,
         {
           id: req.params.id,
+          client_id: ctx.client_id,
         }
       );
 

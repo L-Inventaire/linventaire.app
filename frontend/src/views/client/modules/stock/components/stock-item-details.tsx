@@ -549,7 +549,9 @@ export const QuoteLineSelector = ({
                   return {
                     value: (i + 1).toString(),
                     label:
-                      (c.type !== "separation" ? `${counter++} - ` : "") +
+                      (c.type !== "separation" && c.type !== "group"
+                        ? `${counter++} - `
+                        : "") +
                         c.name || "",
                     disabled: c.article !== article.id,
                   };

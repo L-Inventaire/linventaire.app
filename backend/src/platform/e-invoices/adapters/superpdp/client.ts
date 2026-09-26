@@ -1,10 +1,35 @@
 import axios, { AxiosInstance } from "axios";
+import crypto from "crypto";
 import { EN16931Invoice } from "@shared/en16931-types";
+
+export const SUPERPDP_BASE_URL = "https://api.superpdp.tech";
 
 export interface SuperPDPConfig {
   clientId: string;
   clientSecret: string;
   environment?: "sandbox" | "production";
+  /**
+   * When set, access tokens come from this provider (authorization_code flow,
+   * acting on behalf of a company) instead of the client_credentials grant.
+   * `staleToken` is the token that was just rejected (401), if any.
+   */
+  tokenProvider?: (staleToken?: string) => Promise<string>;
+}
+
+export interface SuperPDPTokenSet {
+  access_token: string;
+  refresh_token?: string;
+  expires_in?: number;
+  scope?: string;
+  token_type?: string;
+}
+
+export interface SuperPDPSession {
+  client_id: string;
+  // Anything other than "verified" means most routes answer 403
+  company_verification_status: string;
+  user_identity_verification_status?: string;
+  [key: string]: any;
 }
 
 export interface SuperPDPCompanyResponse {
@@ -79,7 +104,7 @@ export class SuperPDPClient {
 
   constructor(private config: SuperPDPConfig) {
     this.client = axios.create({
-      baseURL: "https://api.superpdp.tech",
+      baseURL: SUPERPDP_BASE_URL,
       headers: {
         "Content-Type": "application/json",
       },
@@ -87,9 +112,102 @@ export class SuperPDPClient {
   }
 
   /**
+   * PKCE verifier (43-128 url-safe chars) and its S256 challenge
+   */
+  static createPkcePair(): { verifier: string; challenge: string } {
+    const verifier = crypto.randomBytes(64).toString("base64url");
+    const challenge = crypto
+      .createHash("sha256")
+      .update(verifier)
+      .digest("base64url");
+    return { verifier, challenge };
+  }
+
+  /**
+   * URL of SuperPDP's hosted onboarding (account creation, KYC/KYB, consent).
+   * The user is redirected back to `redirectUri` with `code` and `state`.
+   */
+  static getAuthorizeUrl(options: {
+    clientId: string;
+    redirectUri: string;
+    codeChallenge: string;
+    state: string;
+    loginHint?: string;
+    companyNumber?: string; // SIREN
+  }): string {
+    const params = new URLSearchParams({
+      response_type: "code",
+      client_id: options.clientId,
+      redirect_uri: options.redirectUri,
+      code_challenge: options.codeChallenge,
+      code_challenge_method: "S256",
+      state: options.state,
+    });
+    if (options.loginHint) params.append("login_hint", options.loginHint);
+    if (options.companyNumber) {
+      params.append("superpdp_company_number", options.companyNumber);
+      params.append("superpdp_company_number_scheme", "fr_siren");
+    }
+    return `${SUPERPDP_BASE_URL}/oauth2/authorize?${params.toString()}`;
+  }
+
+  /**
+   * Exchange an authorization code (or a refresh token) for a token set.
+   * Refresh tokens rotate: always persist the returned one.
+   */
+  static async requestToken(
+    form:
+      | {
+          grant_type: "authorization_code";
+          code: string;
+          code_verifier: string;
+          redirect_uri: string;
+        }
+      | { grant_type: "refresh_token"; refresh_token: string },
+    app: { clientId: string; clientSecret: string }
+  ): Promise<SuperPDPTokenSet> {
+    try {
+      const params = new URLSearchParams({
+        ...form,
+        client_id: app.clientId,
+        client_secret: app.clientSecret,
+      });
+      const response = await axios.post(
+        `${SUPERPDP_BASE_URL}/oauth2/token`,
+        params.toString(),
+        {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            Accept: "application/json",
+          },
+        }
+      );
+      if (!response.data?.access_token) {
+        throw new Error("Token endpoint did not return an access_token");
+      }
+      return response.data;
+    } catch (error: any) {
+      const data = error.response?.data;
+      throw new Error(
+        `SuperPDP ${form.grant_type} failed: ${
+          data?.error_description ||
+          data?.error ||
+          data?.message ||
+          error.message
+        }`
+      );
+    }
+  }
+
+  /**
    * Authenticate and get access token
    */
   async authenticate(): Promise<string> {
+    if (this.config.tokenProvider) {
+      this.accessToken = await this.config.tokenProvider(this.accessToken);
+      return this.accessToken;
+    }
+
     try {
       const params = new URLSearchParams({
         grant_type: "client_credentials",
@@ -148,6 +266,38 @@ export class SuperPDPClient {
 
       throw new Error(
         `Failed to get company info: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    }
+  }
+
+  /**
+   * Get the OAuth2 session bound to the current access token.
+   * Use it to know if the company went through SuperPDP's verification.
+   */
+  async getSession(): Promise<SuperPDPSession> {
+    if (!this.accessToken) {
+      await this.authenticate();
+    }
+
+    const get = () =>
+      this.client.get("/v1.beta/oauth2_sessions/me", {
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+        },
+      });
+
+    try {
+      return (await get()).data;
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        await this.authenticate();
+        return (await get()).data;
+      }
+
+      throw new Error(
+        `Failed to get session: ${
           error.response?.data?.message || error.message
         }`
       );
@@ -586,6 +736,62 @@ export class SuperPDPClient {
     } catch (error: any) {
       throw new Error(
         `Failed to get French company by SIREN ${siren}: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    }
+  }
+
+  /**
+   * Create (send) an invoice: SuperPDP queues it for asynchronous transmission.
+   * Success only means the payload is structurally valid, follow the invoice
+   * events to know if the transmission actually succeeded.
+   *
+   * @param facturXPdf - The Factur-X PDF to send
+   * @param externalId - Our own id for the invoice (max 36 chars)
+   */
+  async sendInvoice(
+    facturXPdf: Buffer,
+    externalId?: string
+  ): Promise<SuperPDPInvoice> {
+    if (!this.accessToken) {
+      await this.authenticate();
+    }
+
+    const params = new URLSearchParams();
+    if (externalId) params.append("external_id", externalId.slice(0, 36));
+
+    try {
+      const response = await this.client.post(
+        `/v1.beta/invoices?${params.toString()}`,
+        facturXPdf,
+        {
+          headers: {
+            "Content-Type": "application/pdf",
+            Authorization: `Bearer ${this.accessToken}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error: any) {
+      // If 401, try to re-authenticate
+      if (error.response?.status === 401) {
+        await this.authenticate();
+        const response = await this.client.post(
+          `/v1.beta/invoices?${params.toString()}`,
+          facturXPdf,
+          {
+            headers: {
+              "Content-Type": "application/pdf",
+              Authorization: `Bearer ${this.accessToken}`,
+            },
+          }
+        );
+        return response.data;
+      }
+
+      throw new Error(
+        `Failed to send invoice: ${
           error.response?.data?.message || error.message
         }`
       );

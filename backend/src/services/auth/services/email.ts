@@ -19,7 +19,7 @@ export const requestEmailValidation = async (
   }
 
   //Verify there is a captcha validation if user isn't logged in
-  if (!platform.Captcha.verify(ctx, body.captcha_validation)) {
+  if (!(await platform.Captcha.verify(ctx, body.captcha_validation))) {
     throw BadRequestError("Captcha validation failed for unlogged user");
   }
 

@@ -18,6 +18,7 @@ import { Navigate, Outlet, Route, useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { twMerge } from "tailwind-merge";
 import { DevPage } from "./_dev";
+import { IpBlockedView } from "./no-client/ip-blocked";
 import { Header, ResponsiveMenuAtom } from "./_layout/header";
 import { SecondSideBar } from "./_layout/second-sidebar";
 import { SideBar } from "./_layout/sidebar";
@@ -217,6 +218,10 @@ export const Layout = () => {
     }
 
     return <></>;
+  }
+
+  if (client?.ip_blocked) {
+    return <IpBlockedView />;
   }
 
   if (!Object.keys(maps?.units || {})?.length) {
