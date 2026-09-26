@@ -26,7 +26,8 @@ import { createRateLimiter } from "./rate-limiter";
 import RestService from "./rest";
 import EventsService from "./system";
 import UsersService from "./users";
-import { Ctx, secureExpress, useCtx } from "./utils";
+import { Ctx, getRequestIp, secureExpress, useCtx } from "./utils";
+import { createContext } from "../types";
 import EInvoicesService from "./modules/e-invoices";
 
 export default class Services {
@@ -161,6 +162,20 @@ export default class Services {
     const server = http.createServer(Services.internalApp);
 
     console.log("Initializing socket server...");
+
+    // Only let users join the realtime room of clients they belong to
+    // (also enforces the client IP allowlist)
+    Framework.Socket.setClientRoomAuthorizer(({ userId, clientId, request }) =>
+      Services.Clients.checkUserRoles(
+        {
+          ...createContext(userId, "USER"),
+          client_id: clientId,
+          ip: getRequestIp(request, Services.internalApp.get("trust proxy fn")),
+        },
+        clientId,
+        ["ANY"]
+      )
+    );
 
     await Framework.Socket.create(server);
 

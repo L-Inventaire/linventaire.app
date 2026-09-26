@@ -4,17 +4,66 @@ import http from "http";
 import https from "https";
 import RedisClient from "ioredis";
 import jwt from "jsonwebtoken";
-import { Server } from "socket.io";
+import { Server, Socket as IOSocket } from "socket.io";
 import Framework from "..";
 import { Context, createContext } from "../../types";
 import { Logger } from "../logger-db";
 import { PlatformService } from "../types";
 import { getRedisConfiguration, isRedisEnabled } from "../redis";
 
+/**
+ * Decides whether a user may join the room of a client.
+ * Injected by the services layer (platform must not import services).
+ * Should resolve to false or throw when access is denied.
+ */
+export type ClientRoomAuthorizer = (params: {
+  userId: string;
+  clientId: string;
+  request: http.IncomingMessage;
+}) => Promise<boolean>;
+
+export const handleJoinClientRoom = async (
+  socket: Pick<IOSocket, "join" | "emit" | "request">,
+  userId: string,
+  event: any,
+  authorizer: ClientRoomAuthorizer | null,
+  logger?: Pick<Logger, "info">
+) => {
+  if (typeof event?.room !== "string" || !event.room) return;
+  const clientId = event.room.split("client/").pop();
+  const room = "client/" + clientId;
+
+  let allowed = false;
+  let reason = "forbidden";
+  try {
+    allowed =
+      !!clientId &&
+      !!authorizer &&
+      (await authorizer({ userId, clientId, request: socket.request }));
+  } catch (e: any) {
+    allowed = false;
+    reason = e?.code || "forbidden";
+  }
+
+  if (!allowed) {
+    logger?.info(null, `user ${userId} denied joining ${room}`);
+    socket.emit("join:error", { room, error: reason });
+    return;
+  }
+
+  socket.join(room);
+  socket.emit("join:success", { room });
+};
+
 export default class Socket implements PlatformService {
   private logger: Logger;
   private io: Server;
   private redisClient: RedisClient;
+  private clientRoomAuthorizer: ClientRoomAuthorizer | null = null;
+
+  setClientRoomAuthorizer(authorizer: ClientRoomAuthorizer) {
+    this.clientRoomAuthorizer = authorizer;
+  }
 
   async init() {
     this.logger = Framework.LoggerDb.get("socket");
@@ -68,13 +117,15 @@ export default class Socket implements PlatformService {
           socket.join("private/" + userId);
           socket.emit("join:success", { room: "private/" + userId });
 
-          socket.on("join", (event) => {
-            if (event.room) {
-              const room = event.room.split("client/").pop();
-              socket.join("client/" + room);
-              socket.emit("join:success", { room: "client/" + room });
-            }
-          });
+          socket.on("join", (event) =>
+            handleJoinClientRoom(
+              socket,
+              userId,
+              event,
+              this.clientRoomAuthorizer,
+              this.logger
+            )
+          );
         }
       );
     });

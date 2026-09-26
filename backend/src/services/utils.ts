@@ -2,6 +2,7 @@ import Framework from "#src/platform/index";
 import config from "config";
 import cors from "cors";
 import express, { Express, Request } from "express";
+import http from "http";
 import jwt from "jsonwebtoken";
 import seedrandom from "seedrandom";
 import { id } from "../platform/db/utils";
@@ -17,6 +18,30 @@ const getTrustProxy = () => {
   if (value === "false" || value === "") return false;
   if (typeof value === "string" && /^\d+$/.test(value)) return parseInt(value);
   return value;
+};
+
+/**
+ * Resolve the client IP of a raw http request (e.g. a socket.io handshake)
+ * the same way Express computes req.ip: walk X-Forwarded-For from the closest
+ * hop and stop at the first address that is not a trusted proxy.
+ */
+export const getRequestIp = (
+  request: Pick<http.IncomingMessage, "headers" | "socket">,
+  trust?: ((addr: string, i: number) => boolean) | null
+) => {
+  const forwarded = request.headers?.["x-forwarded-for"];
+  const addrs = [
+    request.socket?.remoteAddress || "",
+    ...(Array.isArray(forwarded) ? forwarded.join(",") : forwarded || "")
+      .split(",")
+      .map((a) => a.trim())
+      .filter(Boolean)
+      .reverse(),
+  ];
+  for (let i = 0; i < addrs.length - 1; i++) {
+    if (!trust?.(addrs[i], i)) return addrs[i];
+  }
+  return addrs[addrs.length - 1];
 };
 
 export function secureExpress() {
