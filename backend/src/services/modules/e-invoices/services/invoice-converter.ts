@@ -11,7 +11,7 @@ import {
   EN16931Seller,
   EN16931VatBreakDown,
 } from "@shared/en16931-types";
-import { getTvaValue } from "@shared/invoices";
+import { getTvaValue, toCents } from "@shared/invoices";
 import _ from "lodash";
 import Articles, { ArticlesDefinition } from "../../articles/entities/articles";
 import Contacts, { ContactsDefinition } from "../../contacts/entities/contacts";
@@ -386,6 +386,31 @@ export async function getResolvedEntities(
 }
 
 /**
+ * EN16931 only allows 2 decimals on amounts (BR-DEC-*). Rounds and removes
+ * floating point noise (e.g. 16.400000000000002).
+ */
+function round2(value: number): number {
+  return toCents(value) / 100; // Same rounding as computePricesFromInvoice
+}
+
+/**
+ * Format an amount with at most 2 decimals (BR-DEC-*)
+ */
+function amount(value: number): string {
+  return `${round2(value)}`;
+}
+
+/**
+ * The SIREN (BT-30, scheme 0002) must be exactly 9 digits (BR-FR-10) but we
+ * often store the SIRET (14 digits, SIREN + NIC): keep the SIREN part only.
+ */
+export function toSiren(registration?: string): string | undefined {
+  const digits = (registration || "").replace(/\s/g, "");
+  if (/^\d{14}$/.test(digits)) return digits.slice(0, 9);
+  return digits || undefined;
+}
+
+/**
  * Parse electronic address identifier from format "scheme:value"
  * @param identifier - The identifier string (e.g., "0225:315143296_3173")
  * @returns Object with scheme and value, or undefined if invalid
@@ -409,7 +434,7 @@ function parseElectronicAddress(
 function buildPostalAddress(address?: Address): EN16931PostalAddress {
   return {
     address_line1: address?.address_line_1 || "N/A",
-    address_line2: address?.address_line_2 || "",
+    address_line2: address?.address_line_2 || undefined,
     city: address?.city || "N/A",
     post_code: address?.zip || "00000",
     country_code: address?.country || "FR",
@@ -433,14 +458,14 @@ function buildEN16931Seller(
     // It's a Clients entity
     name = entity.company?.legal_name || entity.company?.name || "N/A";
     vat_identifier = entity.company?.tax_number;
-    siren = entity.company?.registration_number;
+    siren = toSiren(entity.company?.registration_number);
     address = entity.address;
     eInvoiceIdentifier = undefined; // Clients don't have e_invoices_identifier yet
   } else {
     // It's a Contacts entity
     name = getContactName(entity) || entity.business_registered_id || entity.id;
     vat_identifier = entity.business_tax_id;
-    siren = entity.business_registered_id;
+    siren = toSiren(entity.business_registered_id);
     address = entity.address;
     eInvoiceIdentifier = entity.e_invoices_identifier;
   }
@@ -486,14 +511,14 @@ function buildEN16931Buyer(
     // It's a Clients entity
     name = entity.company?.name || entity.company?.legal_name || "My Company";
     vat_identifier = entity.company?.tax_number;
-    siren = entity.company?.registration_number;
+    siren = toSiren(entity.company?.registration_number);
     address = entity.address;
     eInvoiceIdentifier = undefined; // Clients don't have e_invoices_identifier yet
   } else {
     // It's a Contacts entity
     name = getContactName(entity) || entity.business_registered_id || entity.id;
     vat_identifier = entity.business_tax_id;
-    siren = entity.business_registered_id;
+    siren = toSiren(entity.business_registered_id);
     address = entity.address;
     eInvoiceIdentifier = entity.e_invoices_identifier;
   }
@@ -581,18 +606,26 @@ export function convertInternalToEN16931(
   const lines: EN16931Invoice["lines"] = [];
   const negativeLineAllowances: any[] = [];
 
-  invoice.content.forEach((line) => {
-    // Group headers and free text lines are purely visual, they are not billed
+  (invoice.content || []).forEach((line) => {
+    // Same lines as computePricesFromInvoice, otherwise totals would not
+    // match (BR-CO-10): group headers and free text lines are purely visual,
+    // unchecked options are not billed
     if (line.type === "group" || line.type === "separation") return;
+    if (line.optional && !line.optional_checked) return;
 
-    const article = resolvedEntities.articles.get(line.article);
-
-    if (!article) {
+    // Articles are optional (e.g. correction lines)
+    const article = line.article
+      ? resolvedEntities.articles.get(line.article)
+      : undefined;
+    if (line.article && !article) {
       throw new Error(`Article not found: ${line.article}`);
     }
 
+    // Same default as computePricesFromInvoice
+    line = { ...line, tva: line.tva || "O:VATEX-EU-O" };
+
     // Parse VAT rate
-    const vatRate = (getTvaValue(line.tva) || 0) * 100;
+    const vatRate = round2((getTvaValue(line.tva) || 0) * 100);
 
     // Get unit code (convert from internal label to standard code if needed)
     const unitCode = getUnitCode(line.unit) || line.unit || "C62"; // C62 = unit
@@ -616,14 +649,16 @@ export function convertInternalToEN16931(
     }
 
     // Calculate net amount (quantity * unit_price before discount)
-    let lineNetAmount = line.quantity * line.unit_price;
+    // Rounded the same way as computePricesFromInvoice so totals match the PDF
+    const grossAmount = (line.quantity || 0) * (line.unit_price || 0);
+    let lineNetAmount = round2(grossAmount);
 
     // A line with a negative net amount represents a rebate. EN16931 does not
     // allow negative item net prices (BR-27), so convert it to a document-level
     // allowance carrying the line's VAT category and rate.
     if (lineNetAmount < 0) {
       negativeLineAllowances.push({
-        amount: `${Math.abs(lineNetAmount)}`,
+        amount: amount(Math.abs(lineNetAmount)),
         reason: line.name || undefined,
         reason_code: "95", // Discount
         vat_category_code: vatCategoryCode,
@@ -636,10 +671,11 @@ export function convertInternalToEN16931(
     const allowances: any[] = [];
     const charges: any[] = [];
     if (line.discount && line.discount.mode && line.discount.value > 0) {
-      const discountAmount =
+      const discountAmount = round2(
         line.discount.mode === "percentage"
-          ? (lineNetAmount * line.discount.value) / 100
-          : line.discount.value;
+          ? (grossAmount * line.discount.value) / 100
+          : line.discount.value
+      );
 
       // If discount is positive, create allowance; if negative, create charge
       if (discountAmount > 0) {
@@ -674,14 +710,16 @@ export function convertInternalToEN16931(
       invoiced_quantity: `${line.quantity}`,
       invoiced_quantity_code: unitCode,
 
-      net_amount: `${lineNetAmount}`,
+      net_amount: amount(lineNetAmount),
 
       item_information: {
         name: line.name,
         description: line.description || undefined,
         sellers_item_identification: line.reference || undefined,
         buyers_item_identification:
-          article.supplier_reference || article.internal_reference || undefined,
+          article?.supplier_reference ||
+          article?.internal_reference ||
+          undefined,
       },
 
       allowances: allowances.length > 0 ? allowances : undefined,
@@ -701,9 +739,8 @@ export function convertInternalToEN16931(
   });
 
   // Calculate totals
-  const sumOfLineNetAmounts = lines.reduce(
-    (sum, line) => sum + parseFloat(line.net_amount),
-    0
+  const sumOfLineNetAmounts = round2(
+    lines.reduce((sum, line) => sum + parseFloat(line.net_amount), 0)
   );
 
   // Use precomputed allowances breakdown
@@ -720,16 +757,16 @@ export function convertInternalToEN16931(
         const parts = vatCategoryKey.split(":");
         vatCategoryCode = parts[0];
       }
-      const vatRate = getTvaValue(allowance.tva) * 100;
+      const vatRate = round2(getTvaValue(allowance.tva) * 100);
 
       documentAllowances.push({
-        amount: allowance.amount.toString(),
-        base_amount: allowance.base_amount.toString(),
+        amount: amount(allowance.amount),
+        base_amount: amount(allowance.base_amount),
         reason_code: "42", // Other services
         vat_category_code: vatCategoryCode,
         vat_rate: vatRate.toString(),
       });
-      documentAllowanceAmount += allowance.amount;
+      documentAllowanceAmount += round2(allowance.amount);
     }
   }
 
@@ -755,11 +792,11 @@ export function convertInternalToEN16931(
         const parts = vatCategoryKey.split(":");
         vatCategoryCode = parts[0];
       }
-      const vatRate = getTvaValue(vb.tva) * 100;
+      const vatRate = round2(getTvaValue(vb.tva) * 100);
 
       vatBreakDown.push({
-        vat_category_taxable_amount: vb.taxable_amount.toString(),
-        vat_category_tax_amount: vb.tax_amount.toString(),
+        vat_category_taxable_amount: amount(vb.taxable_amount),
+        vat_category_tax_amount: amount(vb.tax_amount),
         vat_category_code: vatCategoryCode,
         vat_category_rate: vatRate.toString(),
       });
@@ -822,18 +859,26 @@ export function convertInternalToEN16931(
 
   // Calculate totals from the final VAT breakdown (precomputed or derived) so
   // the document totals stay consistent with the breakdown groups.
-  const totalWithoutVat =
+  documentAllowanceAmount = round2(documentAllowanceAmount);
+  const totalWithoutVat = round2(
     vatBreakDown.length > 0
       ? vatBreakDown.reduce(
           (sum, vb) => sum + parseFloat(vb.vat_category_taxable_amount),
           0
         )
-      : sumOfLineNetAmounts - documentAllowanceAmount + documentChargeAmount;
-
-  const totalVat = vatBreakDown.reduce(
-    (sum, vb) => sum + parseFloat(vb.vat_category_tax_amount),
-    0
+      : sumOfLineNetAmounts - documentAllowanceAmount + documentChargeAmount
   );
+
+  const totalVat = round2(
+    vatBreakDown.reduce(
+      (sum, vb) => sum + parseFloat(vb.vat_category_tax_amount),
+      0
+    )
+  );
+
+  // BR-CO-15: total with VAT MUST be total without VAT + total VAT, so we
+  // compute it here instead of using the internal total (rounded differently)
+  const totalWithVat = round2(totalWithoutVat + totalVat);
 
   // Add global VAT codes if there's only one breakdown entry
   let globalVatCategoryCode: string | undefined = undefined;
@@ -940,7 +985,7 @@ export function convertInternalToEN16931(
           .split("T")[0]
       : undefined,
     type_code: typeCode,
-    currency_code: invoice.currency || "EUR",
+    currency_code: (invoice.currency || "EUR").toUpperCase(),
     buyer_reference: invoice.alt_reference || undefined,
     notes: invoiceNotes.length > 0 ? invoiceNotes : undefined,
     vat_category_code: globalVatCategoryCode,
@@ -965,13 +1010,14 @@ export function convertInternalToEN16931(
           actual_delivery_date: new Date(invoice.delivery_date)
             .toISOString()
             .split("T")[0],
-          postal_address: invoice.delivery_address.address_line_1
+          postal_address: invoice.delivery_address?.address_line_1
             ? {
                 address_line1: invoice.delivery_address.address_line_1,
-                address_line2: invoice.delivery_address.address_line_2,
-                city: invoice.delivery_address.city,
-                post_code: invoice.delivery_address.zip,
-                country_code: invoice.delivery_address.country,
+                address_line2:
+                  invoice.delivery_address.address_line_2 || undefined,
+                city: invoice.delivery_address.city || undefined,
+                post_code: invoice.delivery_address.zip || undefined,
+                country_code: invoice.delivery_address.country || "FR",
               }
             : undefined,
         }
@@ -994,12 +1040,8 @@ export function convertInternalToEN16931(
               value: `${totalVat}`,
             }
           : undefined,
-      total_with_vat: invoice.total?.total_with_taxes
-        ? `${invoice.total.total_with_taxes}`
-        : `${totalWithoutVat + totalVat}`,
-      amount_due_for_payment: invoice.total?.total_with_taxes
-        ? `${invoice.total.total_with_taxes}`
-        : `${totalWithoutVat + totalVat}`,
+      total_with_vat: `${totalWithVat}`,
+      amount_due_for_payment: `${totalWithVat}`,
     },
     vat_break_down: vatBreakDown,
     lines,

@@ -28,6 +28,10 @@ export type EventMetadatas =
   | {
       event_type: "invoice_back_to_draft";
       reason: string;
+    }
+  | {
+      event_type: "e_invoice_failed";
+      error: string; // Why the e-invoice could not be transmitted
     };
 
 export type Comments = RestEntity & {

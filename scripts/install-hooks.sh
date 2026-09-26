@@ -16,3 +16,4 @@ chmod +x .git/hooks/pre-commit
 echo "✅ Git hooks installed successfully!"
 echo ""
 echo "The pre-commit hook will now check that all package.json versions match."
+echo "To bump the version everywhere: ./scripts/bump-version.sh [patch|minor|major|X.Y.Z]"
