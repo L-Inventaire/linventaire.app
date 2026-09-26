@@ -582,6 +582,9 @@ export function convertInternalToEN16931(
   const negativeLineAllowances: any[] = [];
 
   invoice.content.forEach((line) => {
+    // Group headers and free text lines are purely visual, they are not billed
+    if (line.type === "group" || line.type === "separation") return;
+
     const article = resolvedEntities.articles.get(line.article);
 
     if (!article) {

@@ -46,3 +46,48 @@ export const getGainEstimate = (
     .reverse()
     .join("-");
 };
+
+/** Highest known purchase price (HT) of an article, or null if no cost is known */
+export const getArticleMaxCost = (article?: Articles | null): number | null => {
+  const prices = Object.values(article?.suppliers_details || {})
+    .map((a) => parseFloat(a?.price as any))
+    .filter((a) => !isNaN(a) && a > 0);
+  return prices.length ? Math.max(...prices) : null;
+};
+
+/**
+ * How the margin percentage is computed:
+ * - "cost": markup on the cost, (price - cost) / cost
+ * - "price": margin on the sell price, (price - cost) / price
+ */
+export type MarginBase = "cost" | "price";
+
+/** Margin in percent, rounded to one decimal */
+export const getMarginFromPrice = (
+  price: number | string,
+  cost: number | null,
+  base: MarginBase = "cost"
+): number | null => {
+  const p = parseFloat(price as any);
+  if (!cost || isNaN(p)) return null;
+  const divider = base === "price" ? p : cost;
+  if (!divider) return null;
+  return Math.round(((p - cost) / divider) * 1000) / 10;
+};
+
+/** Price computed from a margin in percent, rounded to the cent */
+export const getPriceFromMargin = (
+  margin: number | string,
+  cost: number | null,
+  base: MarginBase = "cost"
+): number | null => {
+  const m = parseFloat(margin as any);
+  if (!cost || isNaN(m)) return null;
+  // A margin on the sell price can't reach 100%
+  if (base === "price" && m >= 100) return null;
+  const price = base === "price" ? cost / (1 - m / 100) : cost * (1 + m / 100);
+  return Math.round(price * 100) / 100;
+};
+
+export const formatMargin = (margin: number | null) =>
+  margin === null ? "" : margin.toFixed(1).replace(".", ",") + " %";

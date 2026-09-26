@@ -2,7 +2,7 @@ import platform from "#src/platform/index";
 import { Ctx } from "#src/services/utils";
 import { Router } from "express";
 import _ from "lodash";
-import { checkRole } from "../../common";
+import { checkClientRoles, checkRole } from "../../common";
 import {
   NotificationsPreferences,
   NotificationsPreferencesDefinition,
@@ -10,7 +10,11 @@ import {
 import { markAllNotificationsAsRead } from "./services/notify";
 
 export default (router: Router) => {
-  router.get("/:clientId/preferences", checkRole("USER"), async (req, res) => {
+  router.get(
+    "/:clientId/preferences",
+    checkRole("USER"),
+    checkClientRoles(["ANY"]),
+    async (req, res) => {
     // Ensure a notification preferences object exists for the user
     const db = await platform.Db.getService();
     const ctx = Ctx.get(req)!.context;
@@ -43,7 +47,11 @@ export default (router: Router) => {
     res.send(existing);
   });
 
-  router.post("/:clientId/preferences", checkRole("USER"), async (req, res) => {
+  router.post(
+    "/:clientId/preferences",
+    checkRole("USER"),
+    checkClientRoles(["ANY"]),
+    async (req, res) => {
     // Set a notification preferences object exists for the user
     const db = await platform.Db.getService();
     const ctx = Ctx.get(req)!.context;
@@ -72,7 +80,11 @@ export default (router: Router) => {
     res.send(updated);
   });
 
-  router.post("/:clientId/read_all", checkRole("USER"), async (req, res) => {
+  router.post(
+    "/:clientId/read_all",
+    checkRole("USER"),
+    checkClientRoles(["ANY"]),
+    async (req, res) => {
     const ctx = Ctx.get(req)!.context;
 
     // Mark all notifications as read for this user and client

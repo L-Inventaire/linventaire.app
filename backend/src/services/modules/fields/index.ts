@@ -1,4 +1,4 @@
-import { checkRole } from "#src/services/common";
+import { checkClientRoles, checkRole } from "#src/services/common";
 import { Ctx } from "#src/services/utils";
 import config from "config";
 import { Express, Router } from "express";
@@ -23,6 +23,7 @@ export default class Fields implements InternalApplicationService {
     router.post(
       "/:clientId/signatures",
       checkRole("USER"),
+      checkClientRoles(["ANY"]),
       async (req, res) => {
         try {
           const ctx = Ctx.get(req)!.context;
@@ -69,6 +70,7 @@ export default class Fields implements InternalApplicationService {
     router.post(
       "/:clientId/verify-signature",
       checkRole("USER"),
+      checkClientRoles(["ANY"]),
       async (req, res) => {
         try {
           const { clientId } = req.params;

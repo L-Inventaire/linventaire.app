@@ -132,7 +132,7 @@ export default class SigningSessionService
     const invoice = await db.selectOne<Invoices>(
       ctx,
       InvoicesDefinition.name,
-      { id: invoiceID },
+      { id: invoiceID, client_id: ctx.client_id },
       {}
     );
 

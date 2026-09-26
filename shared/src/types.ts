@@ -118,8 +118,13 @@ export class InvoiceReview {
 export class InvoiceLine {
   article = "type:articles"; // Nullable
 
-  type: "product" | "service" | "consumable" | "separation" | "correction" =
-    "product"; // product, service, consumable, separation
+  type:
+    | "product"
+    | "service"
+    | "consumable"
+    | "separation"
+    | "correction"
+    | "group" = "product"; // product, service, consumable, separation, group (header of a group of lines)
   name = "string";
   reference = "string";
   description = "string";
@@ -139,6 +144,11 @@ export class InvoiceLine {
 
   optional = false;
   optional_checked = false; // Checked by the client or by the agent (like a default checked option)
+
+  // Groups of lines ("packages"): a line of type "group" is the header of the group,
+  // lines belonging to it follow it directly and share the same group id.
+  group = "string"; // Id of the group (on the header) or of the parent group (on the lines)
+  group_hide_prices = false; // Only on the header: show only the group total, not the price of each line
 }
 
 export class InvoiceDiscount {

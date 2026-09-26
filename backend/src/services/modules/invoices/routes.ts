@@ -5,7 +5,7 @@ import _, { max, min } from "lodash";
 import Framework from "../../../platform";
 import { search } from "../../../services/rest/services/rest";
 import { buildQueryFromMap } from "../../../services/rest/services/utils";
-import { checkRole } from "../../common";
+import { checkClientRoles, checkRole } from "../../common";
 import { Ctx } from "../../utils";
 import Articles, { ArticlesDefinition } from "../articles/entities/articles";
 import StockItems, {
@@ -39,7 +39,11 @@ export const registerRoutes = (router: Router) => {
 
   // Get document PDF ex. /api/invoices/v1/1/invoice/2/pdf?checked={%222%22:1}
   // As you can see in the example, we can override checked items in the invoice
-  router.get("/:clientId/invoice/:id/en16931", async (req, res) => {
+  router.get(
+    "/:clientId/invoice/:id/en16931",
+    checkRole("USER"),
+    checkClientRoles(["INVOICES_READ"]),
+    async (req, res) => {
     const ctx = Ctx.get(req)!.context;
     const db = await Framework.Db.getService();
     const document = await db.selectOne<Invoices>(
@@ -62,7 +66,11 @@ export const registerRoutes = (router: Router) => {
 
   // Get document PDF ex. /api/invoices/v1/1/invoice/2/pdf?checked={%222%22:1}
   // As you can see in the example, we can override checked items in the invoice
-  router.get("/:clientId/invoice/:id/pdf", async (req, res) => {
+  router.get(
+    "/:clientId/invoice/:id/pdf",
+    checkRole("USER"),
+    checkClientRoles(["INVOICES_READ"]),
+    async (req, res) => {
     const ctx = Ctx.get(req)!.context;
     const db = await Framework.Db.getService();
     const document = await db.selectOne<Invoices>(
@@ -100,6 +108,7 @@ export const registerRoutes = (router: Router) => {
   router.post(
     "/:clientId/invoice/:id/send",
     checkRole("USER"),
+    checkClientRoles(["INVOICES_WRITE"]),
     async (req, res) => {
       const ctx = Ctx.get(req)!.context;
       const db = await Framework.Db.getService();
@@ -127,6 +136,7 @@ export const registerRoutes = (router: Router) => {
   router.post(
     "/:clientId/invoice/:id/partial",
     checkRole("USER"),
+    checkClientRoles(["INVOICES_READ"]),
     async (req, res) => {
       const ctx = Ctx.get(req)!.context;
       const db = await Framework.Db.getService();
@@ -168,6 +178,7 @@ export const registerRoutes = (router: Router) => {
   router.post(
     "/:clientId/invoice/:id/sync-subscription-day",
     checkRole("USER"),
+    checkClientRoles(["INVOICES_WRITE"]),
     async (req, res) => {
       const ctx = Ctx.get(req)!.context;
       const db = await Framework.Db.getService();
@@ -244,6 +255,7 @@ export const registerRoutes = (router: Router) => {
   router.post(
     "/:clientId/furnish-invoices",
     checkRole("USER"),
+    checkClientRoles(["INVOICES_WRITE"]),
     async (req, res) => {
       const ctx = Ctx.get(req)!.context;
       const db = await Framework.Db.getService();
@@ -255,6 +267,7 @@ export const registerRoutes = (router: Router) => {
 
       const quotes = await db.select<Invoices>(ctx, InvoicesDefinition.name, {
         id: quotesIDs,
+        client_id: ctx.client_id,
       });
 
       const result = await furnishInvoices(ctx, {
@@ -268,6 +281,7 @@ export const registerRoutes = (router: Router) => {
   router.post(
     "/:clientId/action-furnish-invoices",
     checkRole("USER"),
+    checkClientRoles(["INVOICES_WRITE"]),
     async (req, res) => {
       const ctx = Ctx.get(req)!.context;
       const db = await Framework.Db.getService();
@@ -279,6 +293,7 @@ export const registerRoutes = (router: Router) => {
 
       const quotes = await db.select<Invoices>(ctx, InvoicesDefinition.name, {
         id: quotesIDs,
+        client_id: ctx.client_id,
       });
 
       const furnishInvoicesData = await furnishInvoices(ctx, {

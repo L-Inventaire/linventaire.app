@@ -122,6 +122,44 @@ export const PreferencesPage = () => {
                 }
                 options={currencyOptions}
               />
+              <FormInput
+                type="boolean"
+                className="mb-1"
+                label={t("settings.preferences.margin_mode")}
+                disabled={readonly}
+                value={!!preferences?.margin_mode}
+                onChange={(e) =>
+                  setPreferences({ ...preferences, margin_mode: !!e })
+                }
+              />
+              <Info className="block mb-4">
+                {t("settings.preferences.margin_mode_help")}
+              </Info>
+              {!!preferences?.margin_mode && (
+                <FormInput
+                  type="select"
+                  className="mb-4"
+                  label={t("settings.preferences.margin_base")}
+                  disabled={readonly}
+                  value={preferences?.margin_base || "cost"}
+                  onChange={(e) =>
+                    setPreferences({
+                      ...preferences,
+                      margin_base: e === "price" ? "price" : "cost",
+                    })
+                  }
+                  options={[
+                    {
+                      value: "cost",
+                      label: t("settings.preferences.margin_base_cost"),
+                    },
+                    {
+                      value: "price",
+                      label: t("settings.preferences.margin_base_price"),
+                    },
+                  ]}
+                />
+              )}
               {!readonly && (
                 <Button
                   theme="primary"
@@ -134,6 +172,8 @@ export const PreferencesPage = () => {
                         currency: preferences?.currency,
                         timezone: preferences?.timezone,
                         email_footer: preferences?.email_footer,
+                        margin_mode: !!preferences?.margin_mode,
+                        margin_base: preferences?.margin_base || "cost",
                       },
                     })
                   }

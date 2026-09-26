@@ -1,7 +1,12 @@
 import _ from "lodash";
 import { DateTime } from "luxon";
 import { getVatCode, standardCodeToVatValue } from "./consts";
-import { InvoiceReview, InvoicesBase as Invoices, InvoiceTotal } from "./types";
+import {
+  InvoiceLine,
+  InvoiceReview,
+  InvoicesBase as Invoices,
+  InvoiceTotal,
+} from "./types";
 
 // ---------------------------------------------------------------------------
 // "To review" reminders (quotes): recurring rules made of a day-of-month spec
@@ -501,4 +506,84 @@ export const isComplete = (invoice: Invoices): boolean => {
   return !invoice.content?.some(
     (item) => (item.quantity_delivered || 0) > (item.quantity || 0),
   );
+};
+
+// ---------------------------------------------------------------------------
+// Groups of lines ("packages"). A line of type "group" is the header of the
+// group, the lines of the group directly follow it and share its group id.
+// ---------------------------------------------------------------------------
+
+type GroupableLine = Pick<InvoiceLine, "type"> &
+  Partial<Pick<InvoiceLine, "group" | "group_hide_prices">>;
+
+export const isGroupHeader = (line?: GroupableLine | null): boolean =>
+  line?.type === "group";
+
+export const generateGroupId = (): string =>
+  "grp_" +
+  Date.now().toString(36) +
+  Math.random().toString(36).substring(2, 8);
+
+// Make sure the lines of each group directly follow their header (keeping their
+// relative order), and detach lines referencing a group that doesn't exist.
+export const normalizeInvoiceGroups = <T extends GroupableLine>(
+  content: T[],
+): T[] => {
+  const headers = new Set(
+    content.filter((a) => isGroupHeader(a) && a.group).map((a) => a.group),
+  );
+  const children = _.groupBy(
+    content.filter((a) => !isGroupHeader(a) && a.group && headers.has(a.group)),
+    (a) => a.group,
+  );
+  const result: T[] = [];
+  for (const line of content) {
+    if (isGroupHeader(line)) {
+      result.push(line);
+      if (line.group) result.push(...(children[line.group] || []));
+    } else if (!line.group || !headers.has(line.group)) {
+      result.push(line.group ? { ...line, group: "" } : line);
+    }
+  }
+  return result;
+};
+
+// Returns the lines belonging to the given group
+export const getGroupLines = <T extends GroupableLine>(
+  content: T[],
+  groupId: string,
+): T[] =>
+  groupId
+    ? content.filter((a) => !isGroupHeader(a) && a.group === groupId)
+    : [];
+
+// Total of a group (line discounts applied, unchecked options excluded)
+export const computeGroupTotal = (
+  lines: Pick<
+    InvoiceLine,
+    | "unit_price"
+    | "quantity"
+    | "discount"
+    | "tva"
+    | "optional"
+    | "optional_checked"
+  >[],
+): { total: number; total_with_taxes: number } => {
+  let total = 0;
+  let totalWithTaxes = 0;
+  for (const item of lines) {
+    if (item.optional && !item.optional_checked) continue;
+    const price =
+      (parseFloat(item.unit_price as any) || 0) *
+      (parseFloat(item.quantity as any) || 0);
+    let discount = 0;
+    if (item.discount?.mode === "percentage") {
+      discount = price * ((parseFloat(item.discount.value as any) || 0) / 100);
+    } else if (item.discount?.mode === "amount") {
+      discount = parseFloat(item.discount.value as any) || 0;
+    }
+    total += price - discount;
+    totalWithTaxes += (price - discount) * (1 + getTvaValue(item.tva || ""));
+  }
+  return { total, total_with_taxes: totalWithTaxes };
 };

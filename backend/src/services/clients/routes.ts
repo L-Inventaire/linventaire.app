@@ -8,6 +8,7 @@ import {
   updateClient,
 } from "./services/client";
 import { getClients, getInvitations } from "./services/client-roles";
+import { normalizeIp } from "./services/ip-restriction";
 import {
   acceptInvitation,
   getUsers,
@@ -18,6 +19,12 @@ import {
 export default (router: Router) => {
   router.get("/status", (req, res) => {
     res.json("ok");
+  });
+
+  // Used by owners to know which IP to allow
+  router.get("/my-ip", checkRole("USER"), async (req, res) => {
+    const ctx = Ctx.get(req)!.context;
+    res.json({ ip: normalizeIp(ctx.ip) });
   });
 
   router.get("/clients", checkRole("USER"), async (req, res) => {
