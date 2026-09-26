@@ -630,7 +630,29 @@ export default class DbPostgres implements DbAdapterInterface {
     ctx: Context,
     executor: (ctx: Context) => Promise<T>
   ): Promise<T> {
+    const isNested = !!ctx.db_tnx;
     const tnx = ctx.db_tnx || { id: v4(), client: await this.pool.connect() };
+
+    if (isNested) {
+      // Nested transaction: reusing BEGIN/COMMIT on the same connection would
+      // prematurely commit the outer transaction (a second BEGIN is a no-op in
+      // Postgres, and the inner COMMIT ends the whole transaction). Use a
+      // SAVEPOINT instead so a failure here only rolls back this inner scope
+      // and success does not commit the outer work. The outer call owns the
+      // connection and its final COMMIT/ROLLBACK, so we never release it here.
+      const savepoint = "sp_" + v4().replace(/-/g, "");
+      await tnx.client.query(`SAVEPOINT ${savepoint}`);
+      try {
+        const res = await executor({ ...ctx, db_tnx: tnx });
+        await tnx.client.query(`RELEASE SAVEPOINT ${savepoint}`);
+        return res;
+      } catch (e: any) {
+        await tnx.client.query(`ROLLBACK TO SAVEPOINT ${savepoint}`);
+        this.logger.info(ctx, "ROLLBACK TO SAVEPOINT " + e.message);
+        throw e;
+      }
+    }
+
     try {
       await tnx.client.query("BEGIN");
       const res = await executor({ ...ctx, db_tnx: tnx });
@@ -641,7 +663,7 @@ export default class DbPostgres implements DbAdapterInterface {
       this.logger.info(ctx, "ROLLBACK transaction " + e.message);
       throw e;
     } finally {
-      if (!ctx.db_tnx) tnx.client.release();
+      tnx.client.release();
     }
   }
 
