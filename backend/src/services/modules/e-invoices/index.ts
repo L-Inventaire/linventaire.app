@@ -315,8 +315,15 @@ export default class EInvoicesService implements InternalApplicationService {
   /**
    * Fetch the verification status, company info and directory entries from
    * SuperPDP and store them on the config.
+   *
+   * @param options.markError - flag the connection as errored on failure
+   * (stops the cron). Disable it for background syncs so a transient
+   * SuperPDP failure does not stop sending / receiving invoices.
    */
-  async refreshConnection(ctx: Context): Promise<EInvoicingConfig | null> {
+  async refreshConnection(
+    ctx: Context,
+    options: { markError?: boolean } = { markError: true }
+  ): Promise<EInvoicingConfig | null> {
     const db = await Framework.Db.getService();
     const config = await this.getConfig(ctx);
     if (!config) throw new Error("No configuration found");
@@ -372,6 +379,7 @@ export default class EInvoicesService implements InternalApplicationService {
         }
       );
     } catch (error: any) {
+      if (!options.markError) throw error;
       await db.update<EInvoicingConfig>(
         ctx,
         EInvoicingConfigDefinition.name,

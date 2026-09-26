@@ -254,11 +254,15 @@ export default (router: Router) => {
             .json({ error: "Configuration is not connected" });
         }
 
-        const updated = await Services.EInvoices.refreshConnection(ctx);
-        if (updated?.connection_status === "error") {
+        let updated: EInvoicingConfig | null;
+        try {
+          updated = await Services.EInvoices.refreshConnection(ctx, {
+            markError: false,
+          });
+        } catch (error: any) {
           return res
             .status(500)
-            .json({ error: `Failed to sync: ${updated.last_error}` });
+            .json({ error: `Failed to sync: ${error.message}` });
         }
 
         res.json({ success: true, config: sanitizeConfig(updated) });
