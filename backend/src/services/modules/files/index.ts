@@ -48,17 +48,33 @@ export default class Files implements InternalApplicationService {
       }
     );
 
-    // /download?key=&mime=&name=client_id=
+    // /download/:key
+    // NOTE: these file endpoints are unauthenticated capability URLs: access
+    // relies on the unguessable UUIDv4 `key` (and the client_id path segment).
+    // They cannot require an Authorization header because the URLs are used
+    // directly in <img src> / <a href>. Moving to short-lived signed URLs is
+    // tracked as a follow-up. Below we at least remove the stored-XSS vector.
     router.get("/:clientId/download/:key", async (req, res) => {
       const ctx = Ctx.get(req)!.context;
-      const file = req.query as unknown as FilesType;
-      res.setHeader("Content-Type", file.mime);
+
+      // Security: never trust the mime/name coming from the query string
+      // (they would let an attacker force an executable Content-Type and get
+      // stored XSS on the API domain via ?preview=1). Read the authoritative
+      // metadata from the file row instead.
+      const fileRow = await db.selectOne<FilesType>(ctx, FilesDefinition.name, {
+        key: req.params.key as string,
+        client_id: req.params.clientId,
+      });
+      if (!fileRow) return res.status(404).json({ error: "Not found" });
+
+      res.setHeader("Content-Type", fileRow.mime || "application/octet-stream");
+      res.setHeader("X-Content-Type-Options", "nosniff");
       if (req.query?.preview) {
         res.setHeader("Content-Disposition", `inline`);
       } else {
         res.setHeader(
           "Content-Disposition",
-          `attachment; filename="${(file.name || "")
+          `attachment; filename="${(fileRow.name || "")
             .normalize()
             .replace(/[^.\-A-Za-z0-9]+/gm, "_")}"`
         );
@@ -73,10 +89,11 @@ export default class Files implements InternalApplicationService {
       );
     });
 
-    // /thumbnail?key=client_id=
+    // /thumbnails/:key
     router.get("/:clientId/thumbnails/:key", async (req, res) => {
       const ctx = Ctx.get(req)!.context;
       res.setHeader("Content-Type", "image/png");
+      res.setHeader("X-Content-Type-Options", "nosniff");
       res.setHeader("Content-Disposition", `inline`);
       const thb = await thumbnail(ctx, {
         key: req.params.key as string,
