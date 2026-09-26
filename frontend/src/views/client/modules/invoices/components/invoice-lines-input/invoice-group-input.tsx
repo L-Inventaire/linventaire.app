@@ -242,11 +242,11 @@ export const InvoiceGroupInput = (props: {
         {/* Bottom of the "C": subtotal */}
         <div className="flex items-center justify-end px-3 py-1 border-t rounded-bl-lg bg-slate-50 dark:bg-slate-900 dark:border-slate-700">
           <div className="text-right">
-            <Text as="div" size="2" weight="bold">
-              Sous-total HT {formatAmount(total.total.toFixed(2), currency)}
+            <Text as="div" size="2">
+              {formatAmount(total.total.toFixed(2), currency)} HT
             </Text>
             {total.total_with_taxes !== total.total && (
-              <Text as="div" size="1" color="gray">
+              <Text as="div" size="2" weight="bold">
                 {formatAmount(total.total_with_taxes.toFixed(2), currency)} TTC
               </Text>
             )}
