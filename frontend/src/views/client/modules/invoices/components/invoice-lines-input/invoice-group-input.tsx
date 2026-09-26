@@ -1,7 +1,7 @@
 import { Button } from "@atoms/button/button";
 import { DropDownAtom } from "@atoms/dropdown";
 import { InputLabel } from "@atoms/input/input-decoration-label";
-import { RadioCard } from "@atoms/radio-card";
+import { Checkbox } from "@atoms/input/input-checkbox";
 import { Info } from "@atoms/text";
 import { FormInput } from "@components/form/fields";
 import { FormContextContext } from "@components/form/formcontext";
@@ -24,13 +24,14 @@ import {
   TrashIcon,
 } from "@heroicons/react/20/solid";
 import { EditorInput } from "@molecules/editor-input";
-import { Badge, Text } from "@radix-ui/themes";
+import { Text } from "@radix-ui/themes";
 import { computeGroupTotal } from "@shared/invoices";
 import _ from "lodash";
 import { ReactNode, useContext, useEffect, useRef, useState } from "react";
 import { useDrag, useDragLayer, useDrop } from "react-dnd";
 import { useSetRecoilState } from "recoil";
 import { twMerge } from "tailwind-merge";
+import { setGroupHidePricesPreference } from "./groups";
 import { INVOICE_GROUP_DND, INVOICE_LINE_DND } from "./invoice-line-input";
 
 export const InvoiceGroupInput = (props: {
@@ -99,24 +100,19 @@ export const InvoiceGroupInput = (props: {
         (deleted || dragging) && "max-h-0 opacity-0 !m-0 overflow-hidden",
       )}
     >
-      <div
-        className={twMerge(
-          "rounded-lg bg-slate-100 dark:bg-slate-800",
-          props.value.group_hide_prices && "bg-blue-50 dark:bg-blue-950",
-        )}
-      >
+      <div className="border border-r-0 rounded-l-lg dark:border-slate-700">
         {/* Top of the "C": name of the group and options */}
         <div
           ref={dragRef}
           className={twMerge(
-            "relative flex items-center gap-2 pl-2 pr-2 py-1.5",
+            "relative flex items-center gap-2 px-2 py-1 border-b rounded-tl-lg bg-slate-50 dark:bg-slate-900 dark:border-slate-700",
             !readonly && "cursor-grab",
           )}
         >
           {!readonly && (
             <div
               className={twMerge(
-                "absolute w-5 h-5 flex items-center justify-start opacity-0 group-hover/invoice-group:opacity-100 -left-6",
+                "absolute w-5 h-5 flex items-center justify-start opacity-0 group-hover/invoice-group:opacity-100 -left-5",
                 otherDragging && !dragging && "opacity-0",
               )}
             >
@@ -149,14 +145,6 @@ export const InvoiceGroupInput = (props: {
               )}
             </InputButton>
           </div>
-          <Badge
-            color={value.group_hide_prices ? "blue" : "gray"}
-            className="shrink-0"
-          >
-            {value.group_hide_prices
-              ? "Prix du groupe uniquement"
-              : "Prix par article"}
-          </Badge>
           {!readonly && (
             <Button
               theme="invisible"
@@ -174,14 +162,16 @@ export const InvoiceGroupInput = (props: {
                     },
                     {
                       label: value.group_hide_prices
-                        ? "Afficher le prix par article"
-                        : "Afficher uniquement le prix du groupe",
+                        ? "Afficher le prix des lignes"
+                        : "Masquer le prix des lignes",
                       icon: (p) => <CurrencyEuroIcon {...p} />,
-                      onClick: () =>
+                      onClick: () => {
+                        setGroupHidePricesPreference(!value.group_hide_prices);
                         onChange({
                           ...value,
                           group_hide_prices: !value.group_hide_prices,
-                        }),
+                        });
+                      },
                     },
                     { type: "divider" },
                     {
@@ -219,7 +209,7 @@ export const InvoiceGroupInput = (props: {
         </div>
 
         {/* Center of the "C": lines of the group */}
-        <div className="ml-3 pl-5 pt-3 pb-px bg-white dark:bg-slate-900 rounded-l-md min-h-12">
+        <div className="pl-3 pt-3">
           {!props.lines.length && (
             <div
               ref={dropRef}
@@ -234,23 +224,23 @@ export const InvoiceGroupInput = (props: {
             </div>
           )}
           {props.children}
-        </div>
-
-        {/* Bottom of the "C": subtotal */}
-        <div className="flex items-center gap-2 pl-3 pr-3 py-1.5">
-          <div className="grow">
-            {!readonly && (
+          {!readonly && (
+            <div className="text-right mb-3">
               <Button
-                theme="invisible"
-                size="xs"
+                theme="outlined"
+                size="sm"
                 className="m-0"
                 icon={(p) => <PlusIcon {...p} />}
                 onClick={props.onAddLine}
               >
                 Ajouter une ligne au groupe
               </Button>
-            )}
-          </div>
+            </div>
+          )}
+        </div>
+
+        {/* Bottom of the "C": subtotal */}
+        <div className="flex items-center justify-end px-3 py-1 border-t rounded-bl-lg bg-slate-50 dark:bg-slate-900 dark:border-slate-700">
           <div className="text-right">
             <Text as="div" size="2" weight="bold">
               Sous-total HT {formatAmount(total.total.toFixed(2), currency)}
@@ -294,24 +284,14 @@ const InvoiceGroupOptionsInput = ({
           />
         }
       />
-      <InputLabel
-        label="Affichage des prix sur le document"
-        input={
-          <div className="space-y-2">
-            <RadioCard
-              title="Afficher le prix par article"
-              text="Chaque ligne affiche son prix, le sous-total du groupe est affiché en bas."
-              value={!value.group_hide_prices}
-              onClick={() => onChange({ ...value, group_hide_prices: false })}
-            />
-            <RadioCard
-              title="Afficher uniquement le prix du groupe"
-              text="Les lignes sont listées sans prix, seul le total du groupe est affiché."
-              value={!!value.group_hide_prices}
-              onClick={() => onChange({ ...value, group_hide_prices: true })}
-            />
-          </div>
-        }
+      <Checkbox
+        size="sm"
+        label="Masquer le prix des lignes (seul le total du groupe est affiché)"
+        value={!!value.group_hide_prices}
+        onChange={(group_hide_prices) => {
+          setGroupHidePricesPreference(group_hide_prices);
+          onChange({ ...value, group_hide_prices });
+        }}
       />
     </div>
   );

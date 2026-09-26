@@ -35,12 +35,31 @@ export const toBlocks = (content: InvoiceLine[]): InvoiceContentBlock[] => {
 export const fromBlocks = (blocks: InvoiceContentBlock[]): InvoiceLine[] =>
   blocks.flatMap((b) => [b.line, ...b.lines]);
 
+// Last choice of "hide the prices of the lines", reused for new groups
+const HIDE_PRICES_PREFERENCE_KEY = "invoice_group_hide_prices";
+
+export const getGroupHidePricesPreference = (): boolean => {
+  try {
+    return localStorage.getItem(HIDE_PRICES_PREFERENCE_KEY) === "true";
+  } catch {
+    return false;
+  }
+};
+
+export const setGroupHidePricesPreference = (hidePrices: boolean) => {
+  try {
+    localStorage.setItem(HIDE_PRICES_PREFERENCE_KEY, hidePrices ? "true" : "");
+  } catch {
+    // Ignore storage errors (private mode...)
+  }
+};
+
 export const createGroupHeader = (name = "Nouveau groupe"): InvoiceLine =>
   ({
     _id: _.uniqueId(),
     type: "group",
     group: generateGroupId(),
-    group_hide_prices: false,
+    group_hide_prices: getGroupHidePricesPreference(),
     name,
     description: "",
     article: "",

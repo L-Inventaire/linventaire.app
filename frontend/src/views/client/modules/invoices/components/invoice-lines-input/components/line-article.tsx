@@ -109,11 +109,11 @@ export const InvoiceLineArticleInput = (props: {
         {value.type !== "separation" &&
           value.type !== "correction" &&
           !!props.onCreateGroup && (
-            <div className="pt-2">
+            <div className="pt-1">
               <Button
-                theme="outlined"
-                size="md"
-                className="w-full justify-center"
+                theme="invisible"
+                size="sm"
+                className="m-0"
                 icon={(p) => <RectangleGroupIcon {...p} />}
                 onClick={() => {
                   props.close?.();
@@ -122,9 +122,6 @@ export const InvoiceLineArticleInput = (props: {
               >
                 Créer un groupe d'articles
               </Button>
-              <Info className="block mt-1">
-                Regroupez plusieurs articles dans un package avec un sous-total.
-              </Info>
             </div>
           )}
 

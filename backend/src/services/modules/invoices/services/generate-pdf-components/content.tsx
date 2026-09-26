@@ -90,7 +90,7 @@ export const InvoiceContent = ({
   );
   const groupNumbers: { [group: string]: number } = {};
   const groupCounters: { [group: string]: number } = {};
-  const groupBorder = { borderLeftWidth: 2, borderLeftColor: colors.primary };
+  const groupNumberCell = { alignItems: "flex-start" as const, paddingLeft: 6 };
 
   const renderGroupSubtotal = (group: Invoices["content"][0], index: number) => {
     const total = computeGroupTotal(getGroupLines(document.content, group.group));
@@ -106,20 +106,9 @@ export const InvoiceContent = ({
           marginBottom: 4,
         }}
       >
-        <View
-          style={{
-            ...styles.td,
-            ...groupBorder,
-            borderBottomWidth: 2,
-            borderBottomColor: colors.primary,
-            marginLeft: 0,
-            width: "5%",
-          }}
-        ></View>
-        <View style={{ ...styles.td, flexGrow: 1, alignItems: "flex-start" }}>
+        <View style={{ ...styles.td, flexGrow: 1 }}>
           <Text style={{ fontWeight: "bold" }}>
-            {Framework.I18n.t(ctx, "invoices.content.group_subtotal")}{" "}
-            {group.name}
+            {Framework.I18n.t(ctx, "invoices.content.group_subtotal")}
           </Text>
         </View>
         {as !== "delivery_slip" && (
@@ -249,12 +238,9 @@ export const InvoiceContent = ({
                 <View
                   style={{
                     ...styles.td,
-                    ...groupBorder,
-                    borderTopWidth: 2,
-                    borderTopColor: colors.primary,
+                    ...groupNumberCell,
                     marginLeft: 0,
                     width: "5%",
-                    alignItems: "center",
                   }}
                 >
                   <Text style={{ fontWeight: "bold" }}>
@@ -321,7 +307,7 @@ export const InvoiceContent = ({
                 <View
                   style={{
                     ...styles.td,
-                    ...(parentGroup ? groupBorder : {}),
+                    ...(parentGroup ? groupNumberCell : {}),
                     marginLeft: 0,
                     width: "5%",
                   }}
@@ -333,10 +319,10 @@ export const InvoiceContent = ({
                 <View
                   style={{
                     ...styles.td,
-                    ...(parentGroup ? groupBorder : {}),
                     marginLeft: 0,
                     width: "5%",
                     alignItems: "center",
+                    ...(parentGroup ? groupNumberCell : {}),
                   }}
                 >
                   <Text style={{ fontWeight: parentGroup ? "normal" : "bold" }}>
