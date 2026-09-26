@@ -169,9 +169,13 @@ export const search = async <T>(
     options.deleted = true;
   }
 
+  // Security: the search endpoint runs with an elevated (SYSTEM) role to allow
+  // internal "where" clauses, so we must never forward client-supplied raw SQL
+  // here. Only structured RestSearchQuery[] arrays are allowed to carry
+  // conditions (handled below via generateWhereClause); a plain object is
+  // reduced to safe equality filters with sql/where/values stripped out.
   let conditions: any = {
-    ..._.omit(query, "where"),
-    ..._.omit(query, "sql"),
+    ...(_.isArray(query) ? {} : _.omit(query, ["where", "sql", "values"])),
     client_id: ctx.client_id,
   };
 

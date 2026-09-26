@@ -108,6 +108,15 @@ export const checkRolesOrThrow = async (
 };
 
 export const impliedRoles = (roles: Role[]) => {
+  // Security: a user with no roles on a client (typically a non-member, since
+  // getRoles returns [] when there is no active membership) must not inherit
+  // any default role. Granting the "everyone" defaults below to an empty input
+  // would let any authenticated user read/write files, tags and fields of any
+  // tenant. Members always carry at least one explicit role.
+  if (!roles || roles.length === 0) {
+    return [];
+  }
+
   const impliedRolesTree = {
     CLIENT_MANAGE: [],
   };

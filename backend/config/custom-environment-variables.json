@@ -25,6 +25,7 @@
     },
     "db": {
         "database": "DB_DATABASE",
+        "encryption_key": "DB_ENCRYPTION_KEY",
         "postgres": {
             "host": "DB_POSTGRES_HOST",
             "port": "DB_POSTGRES_PORT",
@@ -52,6 +53,9 @@
     },
     "jwt": {
         "secret": "JWT_SECRET"
+    },
+    "signatures": {
+        "secret": "SIGNATURES_SECRET"
     },
     "server": {
         "port": "SERVER_PORT",
