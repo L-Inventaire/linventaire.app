@@ -491,7 +491,7 @@ export const InvoiceContent = ({
                 }}
               >
                 {!hidePrices && (
-                  <Text>
+                  <Text style={{ fontWeight: parentGroup ? "normal" : "bold" }}>
                     {formatAmount(
                       item.unit_price * item.quantity || 0,
                       document.currency,

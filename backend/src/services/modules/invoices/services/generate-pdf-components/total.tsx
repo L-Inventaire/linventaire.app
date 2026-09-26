@@ -72,7 +72,11 @@ export const InvoiceTotal = ({
         list={[
           {
             label: Framework.I18n.t(ctx, "invoices.total.initial"),
-            value: formatAmount(invoiceTotal.initial || 0, document.currency),
+            value: (
+              <Text style={{ fontWeight: "bold" }}>
+                {formatAmount(invoiceTotal.initial || 0, document.currency)}
+              </Text>
+            ),
           },
           ...(invoiceTotal.discount
             ? [
