@@ -20,7 +20,6 @@ import {
   EllipsisVerticalIcon,
   PencilIcon,
   PlusIcon,
-  RectangleGroupIcon,
   TrashIcon,
 } from "@heroicons/react/20/solid";
 import { EditorInput } from "@molecules/editor-input";
@@ -100,12 +99,12 @@ export const InvoiceGroupInput = (props: {
         (deleted || dragging) && "max-h-0 opacity-0 !m-0 overflow-hidden",
       )}
     >
-      <div className="border border-r-0 rounded-l-lg dark:border-slate-700">
+      <div>
         {/* Top of the "C": name of the group and options */}
         <div
           ref={dragRef}
           className={twMerge(
-            "relative flex items-center gap-2 px-2 py-1 border-b rounded-tl-lg bg-slate-50 dark:bg-slate-900 dark:border-slate-700",
+            "relative flex items-center gap-2 px-2 py-1 border rounded-lg rounded-bl-none bg-slate-50 dark:bg-slate-900 dark:border-slate-700",
             !readonly && "cursor-grab",
           )}
         >
@@ -127,7 +126,6 @@ export const InvoiceGroupInput = (props: {
               readonly={readonly}
               size="sm"
               className="m-0 max-w-full justify-start text-left"
-              icon={(p) => <RectangleGroupIcon {...p} />}
               label="Groupe d'articles"
               placeholder="Nom du groupe"
               value={value.name || "Groupe d'articles"}
@@ -209,7 +207,7 @@ export const InvoiceGroupInput = (props: {
         </div>
 
         {/* Center of the "C": lines of the group */}
-        <div className="pl-3 pt-3">
+        <div className="flow-root pl-3 pt-3 border-l dark:border-slate-700">
           {!props.lines.length && (
             <div
               ref={dropRef}
@@ -240,7 +238,7 @@ export const InvoiceGroupInput = (props: {
         </div>
 
         {/* Bottom of the "C": subtotal */}
-        <div className="flex items-center justify-end px-3 py-1 border-t rounded-bl-lg bg-slate-50 dark:bg-slate-900 dark:border-slate-700">
+        <div className="flex items-center justify-end px-3 py-1 border rounded-lg rounded-tl-none bg-slate-50 dark:bg-slate-900 dark:border-slate-700">
           <div className="text-right">
             <Text as="div" size="2">
               {formatAmount(total.total.toFixed(2), currency)} HT

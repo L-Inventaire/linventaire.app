@@ -9,7 +9,6 @@ import { RestDocumentsInput } from "@components/input-rest";
 import { useArticle } from "@features/articles/hooks/use-articles";
 import { Articles } from "@features/articles/types/types";
 import { InvoiceLine, Invoices } from "@features/invoices/types/types";
-import { RectangleGroupIcon } from "@heroicons/react/20/solid";
 import { EditorInput } from "@molecules/editor-input";
 import { useState } from "react";
 import { getArticleIcon } from "../../../../articles/components/article-icon";
@@ -114,7 +113,6 @@ export const InvoiceLineArticleInput = (props: {
                 theme="invisible"
                 size="sm"
                 className="m-0"
-                icon={(p) => <RectangleGroupIcon {...p} />}
                 onClick={() => {
                   props.close?.();
                   props.onCreateGroup?.();
