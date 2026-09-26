@@ -70,9 +70,11 @@ export default class Clients implements InternalApplicationService {
     // there would stall every other query on that connection during startup.
     const MIGRATIONS_LOCK_KEY = 918273645;
     const acquireLock = async (): Promise<boolean> => {
-      const r = await db.custom(ctx, "SELECT pg_try_advisory_lock($1) AS ok", [
-        MIGRATIONS_LOCK_KEY,
-      ]);
+      const r = await db.custom<{ rows: { ok: boolean }[] }>(
+        ctx,
+        "SELECT pg_try_advisory_lock($1) AS ok",
+        [MIGRATIONS_LOCK_KEY]
+      );
       return r?.rows?.[0]?.ok === true;
     };
 
