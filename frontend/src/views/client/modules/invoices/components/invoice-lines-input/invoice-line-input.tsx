@@ -8,7 +8,16 @@ import {
 import { InputButton } from "@components/input-button";
 import { useArticle } from "@features/articles/hooks/use-articles";
 import { Articles } from "@features/articles/types/types";
-import { getCostEstimate } from "@features/articles/utils";
+import {
+  formatMargin,
+  getArticleMaxCost,
+  getCostEstimate,
+  getMarginFromPrice,
+} from "@features/articles/utils";
+import {
+  useMarginBase,
+  useMarginMode,
+} from "@features/clients/state/use-clients";
 import { InvoiceLine, Invoices } from "@features/invoices/types/types";
 import { getRoute, ROUTES } from "@features/routes";
 import { useInvoiceMaps } from "@features/invoices/hooks/use-invoice-maps";
@@ -65,6 +74,9 @@ import { InvoiceDiscountInput } from "./components/discount-input";
 import { InvoiceLineArticleInput } from "./components/line-article";
 import { InvoiceLinePriceInput } from "./components/line-price";
 import { InvoiceLineQuantityInput } from "./components/line-quantity";
+
+export const isSellDocument = (invoice?: Pick<Invoices, "type"> | null) =>
+  ["quotes", "invoices", "credit_notes"].includes(invoice?.type || "");
 
 export const getCorrectPrice = (
   article: Articles | null,
@@ -150,6 +162,35 @@ export const InvoiceLineInput = (props: {
       }
     }
   }, [article?.id, props.invoice?.supplier]);
+
+  const marginMode = useMarginMode();
+  const marginBase = useMarginBase();
+  const lineCost = getArticleMaxCost(article);
+  const showMargin =
+    marginMode &&
+    isSellDocument(props.invoice) &&
+    value.type !== "correction" &&
+    !!lineCost;
+  const unitMargin = showMargin
+    ? getMarginFromPrice(value.unit_price || 0, lineCost, marginBase)
+    : null;
+  const lineTotalHT =
+    (value.quantity || 0) * (value.unit_price || 0) -
+    (value.discount?.mode === "percentage"
+      ? (value.quantity || 0) *
+        (value.unit_price || 0) *
+        ((parseFloat(value.discount.value as any) || 0) / 100)
+      : value.discount?.mode === "amount"
+        ? parseFloat(value.discount.value as any) || 0
+        : 0);
+  const totalMargin =
+    showMargin && value.quantity
+      ? getMarginFromPrice(
+          lineTotalHT / value.quantity,
+          lineCost,
+          marginBase,
+        )
+      : null;
 
   const hasRefSupplier =
     !!article?.supplier_reference ||
@@ -291,6 +332,16 @@ export const InvoiceLineInput = (props: {
                         ? "TVA " + getTvaValue(value.tva || "0") * 100 + "%"
                         : tvaOptions.find((a) => a.value === value.tva)?.label}
                     </Text>
+                    {unitMargin !== null && (
+                      <Text
+                        as="div"
+                        color="gray"
+                        size="1"
+                        className="whitespace-nowrap"
+                      >
+                        Marge {formatMargin(unitMargin)}
+                      </Text>
+                    )}
                   </PriceInput>
                 </Box>
               )}
@@ -333,6 +384,11 @@ export const InvoiceLineInput = (props: {
                                 value.quantity || 1,
                               ).split("-"),
                             ) || "non renseigné"}
+                            {totalMargin !== null && (
+                              <Text size="1">
+                                {" · "}Marge {formatMargin(totalMargin)}
+                              </Text>
+                            )}
                           </Text>
                         </Tooltip>
                       )}

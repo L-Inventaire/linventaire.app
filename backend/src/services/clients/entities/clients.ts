@@ -106,6 +106,8 @@ export class Preferences {
   currency?: string = "string";
   timezone?: string = "string";
   email_footer?: string = "string";
+  margin_mode?: boolean = false;
+  margin_base?: "cost" | "price" = "cost";
 }
 
 class Configuration {

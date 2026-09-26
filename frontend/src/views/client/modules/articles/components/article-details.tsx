@@ -19,6 +19,9 @@ import { ArticlesFieldsNames } from "@features/articles/configuration";
 import { useHasAccess } from "@features/access";
 import { AccountingAccountInput } from "@components/accounting-account-input";
 import Link from "@atoms/link";
+import { useMarginMode } from "@features/clients/state/use-clients";
+import { getArticleMaxCost } from "@features/articles/utils";
+import { MarginInput } from "./margin-input";
 
 export const frequencyOptions = [
   { value: "", label: "Pas de renouvellement", per_label: "en une fois" },
@@ -45,6 +48,7 @@ export const ArticlesDetailsPage = ({
     readonly,
   );
   const { tvaOptions } = useInvoiceMaps();
+  const marginMode = useMarginMode();
 
   const getInvoicesLink = (
     type:
@@ -163,6 +167,15 @@ export const ArticlesDetailsPage = ({
                     }
                   />
                 </div>
+                {marginMode && (
+                  <MarginInput
+                    className="w-1/3"
+                    readonly={readonly}
+                    price={ctrl("price").value}
+                    cost={getArticleMaxCost(draft)}
+                    onPriceChange={(price) => ctrl("price").onChange(price)}
+                  />
+                )}
               </PageColumns>
 
               <PageColumns>
