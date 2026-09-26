@@ -4,10 +4,12 @@ import {
   getMarginFromPrice,
   getPriceFromMargin,
 } from "@features/articles/utils";
+import { useMarginBase } from "@features/clients/state/use-clients";
 import { formatAmount } from "@features/utils/format/strings";
 
 /**
- * Margin input (in % of the cost) linked to a price:
+ * Margin input (in %, on the cost or the sell price depending on the
+ * client preferences) linked to a price:
  * changing the margin updates the price and vice versa.
  */
 export const MarginInput = ({
@@ -25,7 +27,8 @@ export const MarginInput = ({
   className?: string;
   showHelp?: boolean;
 }) => {
-  const margin = getMarginFromPrice(price, cost);
+  const base = useMarginBase();
+  const margin = getMarginFromPrice(price, cost, base);
   return (
     <div className={className}>
       <FormInput
@@ -37,7 +40,7 @@ export const MarginInput = ({
         placeholder={!cost ? "Coût inconnu" : "Marge"}
         value={margin === null ? "" : margin.toString()}
         onChange={(v) => {
-          const newPrice = getPriceFromMargin(v, cost);
+          const newPrice = getPriceFromMargin(v, cost, base);
           if (newPrice !== null) onPriceChange(newPrice);
         }}
       />
@@ -45,7 +48,9 @@ export const MarginInput = ({
         <Info className="block mt-1">
           {!cost
             ? "Aucun coût connu pour cet article : définissez un prix d'achat fournisseur pour calculer la marge."
-            : `Marge calculée sur le prix d'achat le plus élevé (${formatAmount(
+            : `Marge calculée ${
+                base === "price" ? "sur le prix de vente" : "sur le coût"
+              }, à partir du prix d'achat le plus élevé (${formatAmount(
                 cost,
               )} HT).`}
         </Info>

@@ -55,24 +55,38 @@ export const getArticleMaxCost = (article?: Articles | null): number | null => {
   return prices.length ? Math.max(...prices) : null;
 };
 
-/** Margin in percent of the cost, rounded to one decimal */
+/**
+ * How the margin percentage is computed:
+ * - "cost": markup on the cost, (price - cost) / cost
+ * - "price": margin on the sell price, (price - cost) / price
+ */
+export type MarginBase = "cost" | "price";
+
+/** Margin in percent, rounded to one decimal */
 export const getMarginFromPrice = (
   price: number | string,
-  cost: number | null
+  cost: number | null,
+  base: MarginBase = "cost"
 ): number | null => {
   const p = parseFloat(price as any);
   if (!cost || isNaN(p)) return null;
-  return Math.round(((p - cost) / cost) * 1000) / 10;
+  const divider = base === "price" ? p : cost;
+  if (!divider) return null;
+  return Math.round(((p - cost) / divider) * 1000) / 10;
 };
 
-/** Price computed from a margin in percent of the cost, rounded to the cent */
+/** Price computed from a margin in percent, rounded to the cent */
 export const getPriceFromMargin = (
   margin: number | string,
-  cost: number | null
+  cost: number | null,
+  base: MarginBase = "cost"
 ): number | null => {
   const m = parseFloat(margin as any);
   if (!cost || isNaN(m)) return null;
-  return Math.round(cost * (1 + m / 100) * 100) / 100;
+  // A margin on the sell price can't reach 100%
+  if (base === "price" && m >= 100) return null;
+  const price = base === "price" ? cost / (1 - m / 100) : cost * (1 + m / 100);
+  return Math.round(price * 100) / 100;
 };
 
 export const formatMargin = (margin: number | null) =>

@@ -110,7 +110,10 @@
       "timezone": "Timezone",
       "email_footer": "Ligne en bas de mail",
       "margin_mode": "Fonctionner en marge",
-      "margin_mode_help": "Affiche et permet de modifier la marge (en % du coût d'achat le plus élevé) sur les articles et les lignes de devis/factures."
+      "margin_mode_help": "Affiche et permet de modifier la marge (calculée à partir du prix d'achat le plus élevé) sur les articles et les lignes de devis/factures.",
+      "margin_base": "Calcul de la marge",
+      "margin_base_cost": "Sur le coût : (prix − coût) / coût",
+      "margin_base_price": "Sur le prix de vente : (prix − coût) / prix"
     },
     "payments": {
       "title": "Paiements"

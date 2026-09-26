@@ -178,6 +178,7 @@ type Preferences = {
   timezone?: string;
   email_footer?: string;
   margin_mode?: boolean;
+  margin_base?: "cost" | "price";
 };
 
 type Configuration = {

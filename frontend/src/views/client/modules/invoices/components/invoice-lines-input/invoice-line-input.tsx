@@ -14,7 +14,10 @@ import {
   getCostEstimate,
   getMarginFromPrice,
 } from "@features/articles/utils";
-import { useMarginMode } from "@features/clients/state/use-clients";
+import {
+  useMarginBase,
+  useMarginMode,
+} from "@features/clients/state/use-clients";
 import { InvoiceLine, Invoices } from "@features/invoices/types/types";
 import { getRoute, ROUTES } from "@features/routes";
 import { useInvoiceMaps } from "@features/invoices/hooks/use-invoice-maps";
@@ -161,6 +164,7 @@ export const InvoiceLineInput = (props: {
   }, [article?.id, props.invoice?.supplier]);
 
   const marginMode = useMarginMode();
+  const marginBase = useMarginBase();
   const lineCost = getArticleMaxCost(article);
   const showMargin =
     marginMode &&
@@ -168,7 +172,7 @@ export const InvoiceLineInput = (props: {
     value.type !== "correction" &&
     !!lineCost;
   const unitMargin = showMargin
-    ? getMarginFromPrice(value.unit_price || 0, lineCost)
+    ? getMarginFromPrice(value.unit_price || 0, lineCost, marginBase)
     : null;
   const lineTotalHT =
     (value.quantity || 0) * (value.unit_price || 0) -
@@ -181,7 +185,11 @@ export const InvoiceLineInput = (props: {
         : 0);
   const totalMargin =
     showMargin && value.quantity
-      ? getMarginFromPrice(lineTotalHT / value.quantity, lineCost)
+      ? getMarginFromPrice(
+          lineTotalHT / value.quantity,
+          lineCost,
+          marginBase,
+        )
       : null;
 
   const hasRefSupplier =

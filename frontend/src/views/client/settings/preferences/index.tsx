@@ -135,6 +135,31 @@ export const PreferencesPage = () => {
               <Info className="block mb-4">
                 {t("settings.preferences.margin_mode_help")}
               </Info>
+              {!!preferences?.margin_mode && (
+                <FormInput
+                  type="select"
+                  className="mb-4"
+                  label={t("settings.preferences.margin_base")}
+                  disabled={readonly}
+                  value={preferences?.margin_base || "cost"}
+                  onChange={(e) =>
+                    setPreferences({
+                      ...preferences,
+                      margin_base: e === "price" ? "price" : "cost",
+                    })
+                  }
+                  options={[
+                    {
+                      value: "cost",
+                      label: t("settings.preferences.margin_base_cost"),
+                    },
+                    {
+                      value: "price",
+                      label: t("settings.preferences.margin_base_price"),
+                    },
+                  ]}
+                />
+              )}
               {!readonly && (
                 <Button
                   theme="primary"
@@ -148,6 +173,7 @@ export const PreferencesPage = () => {
                         timezone: preferences?.timezone,
                         email_footer: preferences?.email_footer,
                         margin_mode: !!preferences?.margin_mode,
+                        margin_base: preferences?.margin_base || "cost",
                       },
                     })
                   }

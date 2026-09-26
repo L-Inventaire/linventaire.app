@@ -294,7 +294,8 @@ export const updateClient = async (
         "currency",
         "timezone",
         "email_footer",
-        "margin_mode"
+        "margin_mode",
+        "margin_base"
       ),
     });
 
