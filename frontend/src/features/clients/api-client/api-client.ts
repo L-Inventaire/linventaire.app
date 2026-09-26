@@ -12,6 +12,12 @@ export class ClientsApiClient {
     return data as ClientsUsers[];
   };
 
+  static getMyIp = async () => {
+    const response = await fetchServer(`/api/clients/v1/my-ip`);
+    const data = await response.json();
+    return (data?.ip || "") as string;
+  };
+
   static getInvitations = async () => {
     const response = await fetchServer(`/api/clients/v1/invitations`);
     const data = await response.json();
