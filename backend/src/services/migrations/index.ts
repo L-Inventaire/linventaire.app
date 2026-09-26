@@ -24,6 +24,7 @@ import { convertVatToStandardCodes } from "./migrations/016-convert-vat-to-stand
 import { normalizeContactCountryCodes } from "./migrations/017-normalize-contact-country-codes";
 import { reindexArticlesStockNumericPrefixes } from "./migrations/018-reindex-articles-stock-numeric-prefixes";
 import { setSubscriptionsReview } from "./migrations/019-set-subscriptions-review";
+import { reencryptEInvoicingCredentials } from "./migrations/020-reencrypt-einvoicing-credentials";
 
 export default class Clients implements InternalApplicationService {
   version = 1;
@@ -83,6 +84,7 @@ export default class Clients implements InternalApplicationService {
       "017-normalize-contact-country-codes": normalizeContactCountryCodes,
       "018-reindex-articles-stock-numeric-prefixes": reindexArticlesStockNumericPrefixes,
       "019-set-subscriptions-review": setSubscriptionsReview,
+      "020-reencrypt-einvoicing-credentials": reencryptEInvoicingCredentials,
     } as {
       [key: string]: (ctx: Context) => Promise<void>;
     };
