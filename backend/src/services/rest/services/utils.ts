@@ -50,8 +50,25 @@ export const generateWhereClause = (
   const values: any[] = [];
   let counter = 1;
 
+  // Security: `query.key` (the column name and its JSON path segments) is
+  // interpolated directly into the SQL string below (both as `columnName` and,
+  // in a few array branches, raw as `query.key`). Only the *values* are bound
+  // as parameters. A key containing a quote (e.g. `fields.x' OR '1'='1`) would
+  // therefore break out of the JSON-path string literal and inject SQL. We
+  // strictly allowlist keys to identifier segments (word chars, optional [0]
+  // index, dot-separated) and skip anything else.
+  const SAFE_KEY = /^[A-Za-z0-9_]+(\[0\])?(\.[A-Za-z0-9_]+(\[0\])?)*$/;
+
   queries.forEach((query) => {
     if (query.key === "query") return; // Done later on
+
+    if (typeof query.key !== "string" || !SAFE_KEY.test(query.key)) {
+      console.warn(
+        "[rest] Ignoring search filter with unsafe key:",
+        JSON.stringify(query.key)
+      );
+      return;
+    }
 
     const columnType =
       columnDefinitions[(query.key?.split(".")?.[0] || "").replace("[0]", "")];
