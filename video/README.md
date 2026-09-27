@@ -24,8 +24,8 @@ npm run render   # génère out/presentation.mp4
 ## Voix off
 
 - `voice/script.json` : les répliques de chaque scène, avec l'image de l'animation (`at`) sur laquelle chacune doit tomber.
-- `voice/SCRIPT.md` : le même script, prêt à coller dans ElevenLabs (un fichier par scène).
-- Déposer les fichiers dans `public/voice/<scène>.mp3`, puis `node voice/timings.mjs` : mesure la durée de chaque
+- `voice/SCRIPT-full.txt` : toute la voix off en un seul texte (pauses incluses), à générer en un fichier `public/voice/full.mp3` (+ `full.json` pour les timestamps ElevenLabs) ; `voice/SCRIPT.md` : le même, scène par scène.
+- `node voice/timings.mjs` découpe `full.mp3` par scène (timestamps ou pauses), puis mesure la durée de chaque
   fichier et le début de chaque réplique (timestamps ElevenLabs si `<scène>.json` est fourni, sinon détection des
   pauses), et écrit `src/voice-timings.json`.
 - Au rendu, chaque scène est allongée à la durée de sa voix et son animation est recalée pour que chaque étape

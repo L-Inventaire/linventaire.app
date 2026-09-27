@@ -1,96 +1,27 @@
-# Voix off : script
-
-**Le plus simple : tout en un seul fichier.** Coller `voice/SCRIPT-full.txt` dans ElevenLabs (pauses déjà incluses : 0,7 s entre répliques, 1,5 s entre scènes) et déposer le résultat sous `video/public/voice/full.mp3`.
-Avec l'API `with-timestamps`, déposer aussi la réponse JSON sous `full.json` : le découpage et le calage utilisent alors les timestamps exacts. Sinon, ils se font sur les pauses.
-
-Autre possibilité : un fichier par scène (`<scène>.mp3`, et `<scène>.json` pour les timestamps), avec les blocs ci-dessous.
-
-Ensuite : `node voice/timings.mjs` puis `npm run render`.
-
-Réglages conseillés : modèle `eleven_multilingual_v2`, voix française chaleureuse et posée, stabilité ~50 %.
-
-## `intro.mp3`
-
-```
 Des devis sur un tableur, des factures dans un autre logiciel, un stock qu'on suit de tête... Ça vous parle ? <break time="0.7s" /> Avec L'inventaire, tout est enfin au même endroit.
-```
-
-## `features.mp3`
-
-```
+<break time="1.5s" />
 Vos devis et vos factures, vos abonnements, vos clients, votre stock, vos interventions, votre comptabilité... et même la facture électronique. <break time="0.7s" /> Un seul outil, pensé pour vous simplifier la vie au quotidien.
-```
-
-## `how.mp3`
-
-```
+<break time="1.5s" />
 Et le plus simple, c'est encore de vous montrer comment ça marche.
-```
-
-## `positioning.mp3`
-
-```
+<break time="1.5s" />
 Chez L'inventaire, tout part du devis. <break time="0.7s" /> C'est lui qui organise vos opérations : vos clients, vos produits, vos interventions et vos achats. <break time="0.7s" /> Et c'est lui qui génère toute la partie financière : factures, avoirs, abonnements et paiements.
-```
-
-## `quote.mp3`
-
-```
+<break time="1.5s" />
 Prenons un exemple : vous équipez une boulangerie en caisses enregistreuses. <break time="0.7s" /> Vous créez le devis, et vous y déposez vos articles : deux caisses tactiles, deux tiroirs-caisses, six heures d'installation, et un contrat de maintenance mensuel.
-```
-
-## `send.mp3`
-
-```
+<break time="1.5s" />
 Un clic, et le devis part par email, avec la signature électronique intégrée.
-```
-
-## `sign.mp3`
-
-```
+<break time="1.5s" />
 Votre client l'accepte et le signe en ligne, depuis son téléphone ou son ordinateur. <break time="0.7s" /> Le devis passe automatiquement en « accepté ».
-```
-
-## `fulfil.mp3`
-
-```
+<break time="1.5s" />
 Place à la réalisation : les caisses sont réservées en stock, et la commande fournisseur est créée. <break time="0.7s" /> Une fois l'installation faite, le devis est prêt à être facturé.
-```
-
-## `invoice.mp3`
-
-```
+<break time="1.5s" />
 Facturez alors en un clic : en totalité, en partie, ou sous forme d'acompte. <break time="0.7s" /> Les lignes sont reprises automatiquement. Rien à ressaisir.
-```
-
-## `subscription.mp3`
-
-```
+<break time="1.5s" />
 Quant à la maintenance mensuelle, elle devient un abonnement : une facture est générée automatiquement, chaque mois.
-```
-
-## `payment.mp3`
-
-```
+<break time="1.5s" />
 Votre client règle sa facture ? Enregistrez le paiement. <break time="0.7s" /> La facture est soldée, et votre trésorerie est à jour.
-```
-
-## `recap.mp3`
-
-```
+<break time="1.5s" />
 Et voilà, c'est aussi simple que ça ! <break time="0.7s" /> Un seul document, du premier contact jusqu'au paiement.
-```
-
-## `dashboard.mp3`
-
-```
+<break time="1.5s" />
 Et au quotidien, votre tableau de bord vous donne en temps réel votre chiffre d'affaires, vos charges et votre résultat... <break time="0.7s" /> ...mais aussi les devis signés, les factures en retard, et tout ce qui demande votre attention.
-```
-
-## `outro.mp3`
-
-```
+<break time="1.5s" />
 L'inventaire. Simplifiez votre gestion, du devis au paiement.
-```
-
-_2003 caractères au total, soit environ 2.2 min de voix._

@@ -7,10 +7,10 @@ const { scenes } = JSON.parse(fs.readFileSync(path.join(dir, "script.json"), "ut
 const out = [
   "# Voix off : script",
   "",
-  "Un fichier audio **par scène**, à déposer dans `video/public/voice/` sous le nom indiqué (mp3 ou wav).",
-  'Quand une scène a plusieurs répliques, laisser une **pause d\'environ 0,6 s** entre elles : c\'est ce qui permet de caler chaque réplique sur l\'animation. Avec ElevenLabs, garder les `<break time="0.7s" />`.',
+  "**Le plus simple : tout en un seul fichier.** Coller `voice/SCRIPT-full.txt` dans ElevenLabs (pauses déjà incluses : 0,7 s entre répliques, 1,5 s entre scènes) et déposer le résultat sous `video/public/voice/full.mp3`.",
+  "Avec l'API `with-timestamps`, déposer aussi la réponse JSON sous `full.json` : le découpage et le calage utilisent alors les timestamps exacts. Sinon, ils se font sur les pauses.",
   "",
-  "Si ElevenLabs fournit les timestamps (API `with-timestamps`), déposer aussi la réponse JSON sous `<scène>.json` : ils seront utilisés tels quels.",
+  "Autre possibilité : un fichier par scène (`<scène>.mp3`, et `<scène>.json` pour les timestamps), avec les blocs ci-dessous.",
   "",
   "Ensuite : `node voice/timings.mjs` puis `npm run render`.",
   "",
@@ -24,3 +24,9 @@ for (const [name, lines] of Object.entries(scenes)) {
 }
 out.push(`_${total} caractères au total, soit environ ${(total / 15 / 60).toFixed(1)} min de voix._`);
 fs.writeFileSync(path.join(dir, "SCRIPT.md"), out.join("\n") + "\n");
+
+// Whole narration in one go: short pauses between lines, longer ones between scenes
+const full = Object.values(scenes)
+  .map((lines) => lines.map((l) => l.text).join(' <break time="0.7s" /> '))
+  .join('\n<break time="1.5s" />\n');
+fs.writeFileSync(path.join(dir, "SCRIPT-full.txt"), full + "\n");
