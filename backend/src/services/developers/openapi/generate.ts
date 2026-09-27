@@ -1,5 +1,11 @@
 import { TableDefinition } from "../../../platform/db/api";
 import { DocumentedEntity } from "./entities";
+import {
+  WEBHOOKS_DESCRIPTION,
+  webhooksEvents,
+  webhooksPaths,
+  webhooksSchemas,
+} from "./webhooks";
 
 /**
  * Generates the OpenAPI 3.1 document of the public api from the entities
@@ -352,7 +358,8 @@ const entityPaths = (entity: DocumentedEntity) => {
   };
 };
 
-const DESCRIPTION = `
+const DESCRIPTION =
+  `
 API de L'inventaire. Elle donne accès aux mêmes données que l'application, avec **les mêmes permissions que l'utilisateur** propriétaire de la clé.
 
 ## Authentification
@@ -402,7 +409,11 @@ Les routes \`/search\` et \`/count\` acceptent une liste de filtres :
 ## Limites
 
 Les requêtes sont limitées par adresse IP. Au-delà, l'API répond \`429 Too Many Requests\`.
-`.trim();
+
+L'historique de vos appels (statut, durée, contenus) est consultable pendant 30 jours dans **Paramètres → API et développeurs → Historique des appels**.
+`.trim() +
+  "\n\n" +
+  WEBHOOKS_DESCRIPTION;
 
 export const generateOpenApi = (options: {
   entities: DocumentedEntity[];
@@ -531,6 +542,14 @@ export const generateOpenApi = (options: {
     },
   };
 
+  Object.assign(schemas, webhooksSchemas(entities));
+  tags.push({
+    name: "Gestion des webhooks",
+    description:
+      "Être notifié des créations, modifications et suppressions de documents, voir [Webhooks](#description/webhooks).",
+  });
+  paths = { ...paths, ...webhooksPaths(errorResponses) };
+
   for (const entity of entities) {
     const name = schemaName(entity.definition.name);
     const { read, write } = entitySchemas(entity, metadata);
@@ -562,6 +581,7 @@ export const generateOpenApi = (options: {
     security: [{ BearerAuth: [] }, { ApiKeyAuth: [] }],
     tags,
     paths,
+    webhooks: webhooksEvents(entities),
     components: {
       securitySchemes: {
         BearerAuth: {

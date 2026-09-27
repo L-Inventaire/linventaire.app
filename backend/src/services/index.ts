@@ -12,6 +12,7 @@ import CommentsService from "./modules/comments";
 import ContactsService from "./modules/contacts";
 import CRM from "./modules/crm";
 import DevelopersService from "./developers";
+import { apiCallsLogger } from "./developers/services/api-calls";
 import DataAnalysisService from "./modules/data-analysis";
 import DataExportService from "./modules/data-export";
 import FieldsService from "./modules/fields";
@@ -96,6 +97,9 @@ export default class Services {
         return;
       }
     });
+
+    // History of the calls made with api keys
+    Services.internalApp.use(apiCallsLogger);
 
     Services.Auth = await new AuthService().init(Services.internalApp);
     Services.Users = await new UsersService().init(Services.internalApp);

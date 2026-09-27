@@ -88,6 +88,8 @@ The backend exposes a **generic REST API** (`/api/rest/v1`) that handles all ent
 - Only the sha256 of the key is stored (`api_keys` table, never exposed through REST).
 - Account-level routes (auth, MFA, invitations, API key management) use `denyApiKeys()`; `checkMfa()` always refuses API keys.
 - Documented entities live in `backend/src/services/developers/openapi/entities.ts`.
+- **API calls history:** `apiCallsLogger` middleware stores every API-key request in `api_calls` (status, duration, bodies truncated to 10 KB), purged after 30 days.
+- **Webhooks:** `webhooks` table (owned by a user, only documents the owner can READ are sent). A `*` trigger inserts rows into `webhook_deliveries` in the same transaction as the change; a worker (`processDueDeliveries`, rows claimed with `FOR UPDATE SKIP LOCKED`) POSTs them signed with HMAC SHA-256 (`X-Linventaire-Signature: t=...,v1=...`), with 8 attempts over ~24 h, and disables a webhook after 20 failed deliveries in a row. URLs pointing to private networks are refused (SSRF), except with `webhooks.allow_private_networks` (`WEBHOOKS_ALLOW_PRIVATE_NETWORKS=true`, for local development).
 
 ### Business Modules
 

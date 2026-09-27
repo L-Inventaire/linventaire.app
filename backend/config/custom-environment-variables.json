@@ -69,5 +69,8 @@
             "client_secret": "SUPERPDP_CLIENT_SECRET",
             "redirect_uri": "SUPERPDP_REDIRECT_URI"
         }
+    },
+    "webhooks": {
+        "allow_private_networks": "WEBHOOKS_ALLOW_PRIVATE_NETWORKS"
     }
 }
