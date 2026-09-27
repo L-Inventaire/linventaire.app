@@ -11,7 +11,7 @@ WORKDIR /app/shared
 RUN yarn install
 RUN yarn build
 
-# API documentation and user manual, built into the frontend build under /docs and /manuel
+# API documentation and user manual, built into the frontend build under /docs and /manuals
 COPY api-docs /app/api-docs
 COPY user-docs /app/user-docs
 

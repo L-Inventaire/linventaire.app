@@ -4,7 +4,7 @@ const Env = {
   // Public API documentation (built from /api-docs into the frontend build)
   apiDocs: "/docs/index.html",
   // User manual (built from /user-docs into the frontend build)
-  userDocs: "/manuel/index.html",
+  userDocs: "/manuals/index.html",
   version: "1.3.1",
 };
 

@@ -1,6 +1,6 @@
 import { defineConfig } from "vite";
 
-// Standalone build of the user manual, served under /manuel of the frontend
+// Standalone build of the user manual, served under /manuals of the frontend
 export default defineConfig({
   base: process.env.USER_DOCS_BASE || "/",
   build: {

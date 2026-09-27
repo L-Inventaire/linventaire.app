@@ -6,7 +6,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build && npm run build:docs && npm run build:manual",
     "build:docs": "cd ../api-docs && npm ci --no-audit --no-fund && API_DOCS_BASE=/docs/ npx vite build --outDir ../frontend/build/docs --emptyOutDir",
-    "build:manual": "cd ../user-docs && npm ci --no-audit --no-fund && USER_DOCS_BASE=/manuel/ npx vite build --outDir ../frontend/build/manuel --emptyOutDir",
+    "build:manual": "cd ../user-docs && npm ci --no-audit --no-fund && USER_DOCS_BASE=/manuals/ npx vite build --outDir ../frontend/build/manuals --emptyOutDir",
     "linter": "export CI=true && eslint src/ --max-warnings 0"
   },
   "dependencies": {

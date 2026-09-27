@@ -1,7 +1,7 @@
 {
   "name": "user-docs",
   "private": true,
-  "description": "User manual of L'inventaire (Scalar), served under /manuel of the frontend",
+  "description": "User manual of L'inventaire (Scalar), served under /manuals of the frontend",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

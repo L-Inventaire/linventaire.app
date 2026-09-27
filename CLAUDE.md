@@ -47,7 +47,7 @@ linventaire.app/
 ├── api-docs/              # Public API documentation (Scalar), served under /docs of the frontend
 │                          # (frontend `build:docs`); public/openapi.json is generated from the
 │                          # backend entities and committed: run `npm run openapi` after changing an entity
-├── user-docs/             # User manual in French (Scalar), served under /manuel of the frontend
+├── user-docs/             # User manual in French (Scalar), served under /manuals of the frontend
 │                          # (frontend `build:manual`); one Markdown file per chapter in content/
 ├── docker/                # Docker configurations
 ├── docker-compose.yml     # Development setup (node, nginx)
