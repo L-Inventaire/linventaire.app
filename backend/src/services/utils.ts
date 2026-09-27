@@ -224,8 +224,15 @@ export function flattenKeys(object: any, initialPathPrefix = "") {
 export const formatDateInTimezone = (
   date: number | string | Date,
   timezone: string
-) =>
-  DateTime.fromMillis(new Date(date).getTime(), { zone: timezone }).toISODate()!;
+): string => {
+  const ms = new Date(date).getTime();
+  if (isNaN(ms)) throw new RangeError(`Invalid date: ${date}`);
+  let result = DateTime.fromMillis(ms, { zone: timezone });
+  // Unknown timezone: fallback on the default one instead of returning null
+  if (!result.isValid)
+    result = DateTime.fromMillis(ms, { zone: "Europe/Paris" });
+  return result.toISODate()!;
+};
 
 export const getContactName = (contact: Partial<Contacts>) => {
   if (!contact) return "";
