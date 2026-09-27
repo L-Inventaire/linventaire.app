@@ -20,6 +20,38 @@ export const getMonthBounds = (month: string, timezone: string) => {
 };
 
 /**
+ * Split the invoice total (HT, after discounts) on its lines.
+ * Every counted line is kept, with or without article (down payments, down
+ * payment deductions, corrections...), so the sum of the lines is always the
+ * invoice total. Line discounts are applied on each line and the global
+ * discount is applied proportionally.
+ */
+export const getInvoiceLinesAmounts = (
+  invoice: Pick<Invoices, "content" | "total">
+): { article: string | null; amount: number }[] => {
+  const lines = (invoice.content || [])
+    .filter((a) => !a.optional || a.optional_checked)
+    .map((a) => {
+      const price =
+        (parseFloat(a.unit_price as any) || 0) *
+        (parseFloat(a.quantity as any) || 0);
+      let discount = 0;
+      if (a.discount?.mode === "percentage") {
+        discount = price * ((parseFloat(a.discount.value as any) || 0) / 100);
+      } else if (a.discount?.mode === "amount") {
+        discount = parseFloat(a.discount.value as any) || 0;
+      }
+      return { article: a.article || null, amount: price - discount };
+    });
+
+  // Apply the global discount proportionally so lines sum up to the total
+  const linesTotal = lines.reduce((acc, a) => acc + a.amount, 0);
+  const total = invoice.total?.total ?? linesTotal;
+  const ratio = linesTotal ? total / linesTotal : 1;
+  return lines.map((a) => ({ ...a, amount: a.amount * ratio }));
+};
+
+/**
  * This function will generate invoices custom statistics for 2d tables
  */
 export const getMatrix = async (
@@ -47,30 +79,9 @@ export const getMatrix = async (
     { limit: 5000 }
   );
 
-  const lines: { total: Invoices["total"]; article: string; amount: number }[] =
-    invoices.reduce((acc, invoice) => {
-      const lines = (invoice.content || [])
-        .filter(
-          (a) =>
-            a.article &&
-            ["product", "service", "consumable"].includes(a.type) &&
-            (!a.optional || a.optional_checked)
-        )
-        .map((a) => {
-          const amountWithDiscounts =
-            ((a.unit_price || 0) * (a.quantity || 0) * invoice.total.total) /
-            invoice.total.initial;
-          return {
-            article: a.article,
-            amount: (a.unit_price || 0) * (a.quantity || 0),
-            amount_with_discounts: amountWithDiscounts, // Will we use this value ? I don't know
-            total: invoice.total,
-          };
-        });
-      return [...acc, ...lines];
-    }, []);
+  const lines = invoices.flatMap(getInvoiceLinesAmounts);
 
-  const articlesIds = _.uniq(lines.map((a) => a.article));
+  const articlesIds = _.uniq(lines.map((a) => a.article).filter(Boolean));
   const articles = (
     await db.custom<{
       rows: {
@@ -88,9 +99,9 @@ export const getMatrix = async (
   // Get amount per tag
   const result: { [tag: string]: number } = {};
   for (const line of lines) {
-    const tags = tagsMap[line.article];
+    const tags = line.article ? tagsMap[line.article] : null;
     let tag = "multiple";
-    if (!tags) tag = "untagged";
+    if (!tags?.length) tag = "untagged";
     else if (tags.length === 1) tag = tags[0];
 
     if (!result[tag]) result[tag] = 0;
