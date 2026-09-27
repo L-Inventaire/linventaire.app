@@ -71,7 +71,9 @@ export default (router: Router) => {
     }
   );
 
-  // Api keys management must be done by the user itself, never with an api key
+  // Api keys management must be done by the user itself, never with an api key.
+  // Creating a key requires the API_ACCESS permission, listing and revoking don't
+  // so users who lost the permission can still clean up their keys.
   router.get(
     "/:clientId/api-keys",
     checkRole("USER"),
@@ -96,7 +98,7 @@ export default (router: Router) => {
     "/:clientId/api-keys",
     checkRole("USER"),
     denyApiKeys(),
-    checkClientRoles([]),
+    checkClientRoles(["API_ACCESS"]),
     async (req, res) => {
       const ctx = Ctx.get(req)!.context;
       res.json(await createApiKey(ctx, req.params.clientId, req.body));
@@ -125,13 +127,14 @@ export default (router: Router) => {
   );
 
   /**
-   * Webhooks: they can also be managed with an api key, so integrations can
-   * subscribe to changes by themselves. Company managers can manage every webhook.
+   * Webhooks (API_ACCESS permission required): they can also be managed with an
+   * api key, so integrations can subscribe to changes by themselves. Company
+   * managers can manage every webhook.
    */
   router.get(
     "/:clientId/webhooks",
     checkRole("USER"),
-    checkClientRoles([]),
+    checkClientRoles(["API_ACCESS"]),
     async (req, res) => {
       const ctx = Ctx.get(req)!.context;
       res.json(
@@ -145,7 +148,7 @@ export default (router: Router) => {
   router.post(
     "/:clientId/webhooks",
     checkRole("USER"),
-    checkClientRoles([]),
+    checkClientRoles(["API_ACCESS"]),
     async (req, res) => {
       const ctx = Ctx.get(req)!.context;
       res.json(await createWebhook(ctx, req.params.clientId, req.body || {}));
@@ -155,7 +158,7 @@ export default (router: Router) => {
   router.get(
     "/:clientId/webhooks/:id",
     checkRole("USER"),
-    checkClientRoles([]),
+    checkClientRoles(["API_ACCESS"]),
     async (req, res) => {
       const ctx = Ctx.get(req)!.context;
       const webhook = await getWebhook(
@@ -173,7 +176,7 @@ export default (router: Router) => {
   router.put(
     "/:clientId/webhooks/:id",
     checkRole("USER"),
-    checkClientRoles([]),
+    checkClientRoles(["API_ACCESS"]),
     async (req, res) => {
       const ctx = Ctx.get(req)!.context;
       res.json(
@@ -191,7 +194,7 @@ export default (router: Router) => {
   router.delete(
     "/:clientId/webhooks/:id",
     checkRole("USER"),
-    checkClientRoles([]),
+    checkClientRoles(["API_ACCESS"]),
     async (req, res) => {
       const ctx = Ctx.get(req)!.context;
       await deleteWebhook(ctx, req.params.clientId, req.params.id, {
@@ -205,7 +208,7 @@ export default (router: Router) => {
   router.post(
     "/:clientId/webhooks/:id/rotate-secret",
     checkRole("USER"),
-    checkClientRoles([]),
+    checkClientRoles(["API_ACCESS"]),
     async (req, res) => {
       const ctx = Ctx.get(req)!.context;
       res.json(
@@ -219,7 +222,7 @@ export default (router: Router) => {
   router.post(
     "/:clientId/webhooks/:id/test",
     checkRole("USER"),
-    checkClientRoles([]),
+    checkClientRoles(["API_ACCESS"]),
     async (req, res) => {
       const ctx = Ctx.get(req)!.context;
       const webhook = await getWebhook(
@@ -238,7 +241,7 @@ export default (router: Router) => {
   router.get(
     "/:clientId/webhooks/:id/deliveries",
     checkRole("USER"),
-    checkClientRoles([]),
+    checkClientRoles(["API_ACCESS"]),
     async (req, res) => {
       const ctx = Ctx.get(req)!.context;
       const webhook = await getWebhook(
@@ -262,7 +265,7 @@ export default (router: Router) => {
   router.get(
     "/:clientId/webhooks/:id/deliveries/:deliveryId",
     checkRole("USER"),
-    checkClientRoles([]),
+    checkClientRoles(["API_ACCESS"]),
     async (req, res) => {
       const ctx = Ctx.get(req)!.context;
       const webhook = await getWebhook(
@@ -287,7 +290,7 @@ export default (router: Router) => {
   router.post(
     "/:clientId/webhooks/:id/deliveries/:deliveryId/retry",
     checkRole("USER"),
-    checkClientRoles([]),
+    checkClientRoles(["API_ACCESS"]),
     async (req, res) => {
       const ctx = Ctx.get(req)!.context;
       const webhook = await getWebhook(

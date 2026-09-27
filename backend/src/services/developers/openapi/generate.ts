@@ -382,6 +382,12 @@ ou dans l'en-tête \`X-Api-Key: lin_xxxxxxxx\`.
 
 Certaines actions liées au compte (connexion, facteurs d'authentification, gestion des clés API, invitations) ne sont pas accessibles avec une clé API.
 
+## Permissions et restrictions
+
+- **Permission « Accès à l'API et aux webhooks »** (\`API_ACCESS\`) : elle est nécessaire pour créer des clés et des webhooks, et pour qu'ils fonctionnent. Un administrateur l'accorde depuis **Paramètres → Vos collaborateurs** ; les administrateurs de l'entreprise l'ont d'office. Si elle est retirée, les clés de l'utilisateur sont refusées (\`401\`) et ses webhooks ne reçoivent plus rien.
+- **Restriction par adresse IP** : si l'entreprise limite l'accès à certaines adresses IP, cette limite s'applique aussi aux appels faits avec une clé API (réponse \`403\` hors des adresses autorisées) et aux webhooks des utilisateurs concernés, qui ne sont plus envoyés. Comme dans l'application, les administrateurs ne sont pas restreints.
+- Une clé cesse de fonctionner si son propriétaire est retiré de l'entreprise ou désactivé.
+
 ## Identifiant d'entreprise
 
 Toutes les routes sont préfixées par l'identifiant de l'entreprise (\`clientId\`), visible dans **Paramètres → API et développeurs**.
@@ -546,7 +552,7 @@ export const generateOpenApi = (options: {
   tags.push({
     name: "Gestion des webhooks",
     description:
-      "Être notifié des créations, modifications et suppressions de documents, voir [Webhooks](#description/webhooks).",
+      "Être notifié des créations, modifications et suppressions de documents, voir [Webhooks](#description/webhooks).\n\nPermission requise : `API_ACCESS`.",
   });
   paths = { ...paths, ...webhooksPaths(errorResponses) };
 

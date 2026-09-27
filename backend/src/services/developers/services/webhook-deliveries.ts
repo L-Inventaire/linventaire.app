@@ -3,6 +3,7 @@ import _ from "lodash";
 import { default as Framework, default as platform } from "../../../platform";
 import { id } from "../../../platform/db/utils";
 import { Context, createContext, NotFoundError } from "../../../types";
+import { checkRoles } from "../../clients/services/client-roles";
 import { isTableAvailable } from "../../rest/services/utils";
 import WebhookDeliveries, {
   WebhookAttempt,
@@ -83,20 +84,20 @@ export const setWebhooksTrigger = () => {
   });
 };
 
+// The owner must still be allowed to use the API and to read the document
 const canOwnerRead = async (
   webhook: Webhooks,
   table: string,
   document: any
 ) => {
+  const ownerCtx = {
+    ...createContext(webhook.user_id, "USER"),
+    client_id: webhook.client_id,
+  };
   try {
-    return await isTableAvailable(
-      {
-        ...createContext(webhook.user_id, "USER"),
-        client_id: webhook.client_id,
-      },
-      table,
-      "READ",
-      document
+    return (
+      (await checkRoles(ownerCtx, webhook.client_id, ["API_ACCESS"])) &&
+      (await isTableAvailable(ownerCtx, table, "READ", document))
     );
   } catch (e) {
     // Includes owners who lost access or are blocked by an IP restriction

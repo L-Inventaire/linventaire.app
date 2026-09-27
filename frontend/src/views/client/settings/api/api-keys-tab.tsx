@@ -13,7 +13,12 @@ import { ApiKey, CreatedApiKey } from "@features/developers/types/types";
 import { Table } from "@molecules/table";
 import { Badge, Callout, Heading } from "@radix-ui/themes";
 import { useState } from "react";
-import { formatDate as date, useUserName } from "./utils";
+import {
+  formatDate as date,
+  SuspendedBadge,
+  useUserHasApiAccess,
+  useUserName,
+} from "./utils";
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -24,17 +29,25 @@ const expirations = [
   { label: "1 an", value: 365 },
 ];
 
-const keyStatus = (key: ApiKey) => {
+const keyStatus = (key: ApiKey, ownerHasApiAccess: boolean) => {
   if (key.revoked_at) return <Badge color="gray">Révoquée</Badge>;
   if (key.expires_at && key.expires_at < Date.now())
     return <Badge color="orange">Expirée</Badge>;
+  if (!ownerHasApiAccess) return <SuspendedBadge label="Suspendue" />;
   return <Badge color="green">Active</Badge>;
 };
 
 const isActive = (key: ApiKey) =>
   !key.revoked_at && (!key.expires_at || key.expires_at > Date.now());
 
-export const ApiKeysTab = ({ clientId }: { clientId: string }) => {
+export const ApiKeysTab = ({
+  clientId,
+  canUseApi,
+}: {
+  clientId: string;
+  // Without the API_ACCESS permission, users can only see and revoke their keys
+  canUseApi: boolean;
+}) => {
   const { user: me } = useAuth();
   const hasAccess = useHasAccess();
   const isManager = hasAccess("CLIENT_MANAGE");
@@ -44,6 +57,7 @@ export const ApiKeysTab = ({ clientId }: { clientId: string }) => {
     all: true,
   });
   const userName = useUserName(clientId);
+  const hasApiAccess = useUserHasApiAccess(clientId);
 
   const [name, setName] = useState("");
   const [expiration, setExpiration] = useState(0);
@@ -82,7 +96,7 @@ export const ApiKeysTab = ({ clientId }: { clientId: string }) => {
     },
     {
       title: "Statut",
-      render: (key: ApiKey) => keyStatus(key),
+      render: (key: ApiKey) => keyStatus(key, hasApiAccess(key.user_id)),
     },
     {
       title: "Actions",
@@ -127,54 +141,58 @@ export const ApiKeysTab = ({ clientId }: { clientId: string }) => {
         </ModalContent>
       </Modal>
 
-      <Heading size="4" className="mb-2">
-        Créer une clé API
-      </Heading>
-      <div className="flex flex-col md:flex-row md:items-end gap-2">
-        <InputLabel
-          className="grow"
-          label="Nom"
-          input={
-            <Input
-              placeholder="Ex. Synchronisation site e-commerce"
-              value={name}
-              disabled={creating}
-              onChange={(e) => setName(e.target.value)}
+      {canUseApi && (
+        <>
+          <Heading size="4" className="mb-2">
+            Créer une clé API
+          </Heading>
+          <div className="flex flex-col md:flex-row md:items-end gap-2">
+            <InputLabel
+              className="grow"
+              label="Nom"
+              input={
+                <Input
+                  placeholder="Ex. Synchronisation site e-commerce"
+                  value={name}
+                  disabled={creating}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              }
             />
-          }
-        />
-        <InputLabel
-          label="Expiration"
-          input={
-            <Select
-              value={expiration}
-              disabled={creating}
-              onChange={(e) => setExpiration(parseInt(e.target.value))}
+            <InputLabel
+              label="Expiration"
+              input={
+                <Select
+                  value={expiration}
+                  disabled={creating}
+                  onChange={(e) => setExpiration(parseInt(e.target.value))}
+                >
+                  {expirations.map((e) => (
+                    <option key={e.value} value={e.value}>
+                      {e.label}
+                    </option>
+                  ))}
+                </Select>
+              }
+            />
+            <Button
+              loading={creating}
+              disabled={!name.trim()}
+              onClick={async () => {
+                const key = await create({
+                  name: name.trim(),
+                  expires_at: expiration ? Date.now() + expiration * DAY : null,
+                });
+                setName("");
+                setExpiration(0);
+                setCreatedKey(key);
+              }}
             >
-              {expirations.map((e) => (
-                <option key={e.value} value={e.value}>
-                  {e.label}
-                </option>
-              ))}
-            </Select>
-          }
-        />
-        <Button
-          loading={creating}
-          disabled={!name.trim()}
-          onClick={async () => {
-            const key = await create({
-              name: name.trim(),
-              expires_at: expiration ? Date.now() + expiration * DAY : null,
-            });
-            setName("");
-            setExpiration(0);
-            setCreatedKey(key);
-          }}
-        >
-          Créer la clé
-        </Button>
-      </div>
+              Créer la clé
+            </Button>
+          </div>
+        </>
+      )}
 
       <Heading size="4" className="mt-8 mb-2">
         Vos clés API

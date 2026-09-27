@@ -86,6 +86,7 @@ The backend exposes a **generic REST API** (`/api/rest/v1`) that handles all ent
 - Users create API keys in **Settings → API et développeurs** (`backend/src/services/developers/`).
 - A key (`lin_...`, sent as `Authorization: Bearer` or `X-Api-Key`) authenticates as its owner with context role `API` (same permissions as the user) and `ctx.api_key = { id, client_id }`; it only works for the company it was created for (`checkApiKeyScopeOrThrow`).
 - Only the sha256 of the key is stored (`api_keys` table, never exposed through REST).
+- The owner needs the `API_ACCESS` permission (implied by `CLIENT_MANAGE`) to create keys and webhooks, and for them to work (checked on every authentication and delivery). The company IP restriction applies to API keys and webhooks too (not to `CLIENT_MANAGE` users).
 - Account-level routes (auth, MFA, invitations, API key management) use `denyApiKeys()`; `checkMfa()` always refuses API keys.
 - Documented entities live in `backend/src/services/developers/openapi/entities.ts`.
 - **API calls history:** `apiCallsLogger` middleware stores every API-key request in `api_calls` (status, duration, bodies truncated to 10 KB), purged after 30 days.

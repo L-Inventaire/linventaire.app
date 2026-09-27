@@ -1,5 +1,6 @@
 import { useClientUsers } from "@features/clients/state/use-client-users";
 import { formatTime } from "@features/utils/format/dates";
+import { Tooltip } from "@atoms/tooltip";
 import { Badge } from "@radix-ui/themes";
 
 export const formatDate = (value: number | null | undefined, fallback = "-") =>
@@ -12,6 +13,23 @@ export const useUserName = (clientId: string) => {
     return user?.full_name || user?.email || id;
   };
 };
+
+// Api keys and webhooks only work if their owner has the API_ACCESS permission
+export const useUserHasApiAccess = (clientId: string) => {
+  const { users } = useClientUsers(clientId);
+  return (id: string) => {
+    const roles = users.find((u) => u.user_id === id)?.roles?.list || [];
+    // Unknown until the users are loaded
+    if (!users.length) return true;
+    return roles.includes("CLIENT_MANAGE") || roles.includes("API_ACCESS");
+  };
+};
+
+export const SuspendedBadge = ({ label = "Suspendu" }: { label?: string }) => (
+  <Tooltip content="Le propriétaire n'a pas la permission « Accès à l'API et aux webhooks »">
+    <Badge color="orange">{label}</Badge>
+  </Tooltip>
+);
 
 export const HttpStatus = ({ status }: { status: number | null }) => {
   if (!status) return <Badge color="gray">-</Badge>;

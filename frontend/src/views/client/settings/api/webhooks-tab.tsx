@@ -30,11 +30,19 @@ import { Table } from "@molecules/table";
 import { Badge, Callout, Heading } from "@radix-ui/themes";
 import _ from "lodash";
 import { useState } from "react";
-import { CodeBlock, formatDate, HttpStatus, useUserName } from "./utils";
+import {
+  CodeBlock,
+  formatDate,
+  HttpStatus,
+  SuspendedBadge,
+  useUserHasApiAccess,
+  useUserName,
+} from "./utils";
 
 const PER_PAGE = 20;
 
-const webhookStatus = (webhook: Webhook) => {
+const webhookStatus = (webhook: Webhook, ownerHasApiAccess: boolean) => {
+  if (!ownerHasApiAccess) return <SuspendedBadge />;
   if (!webhook.enabled)
     return (
       <Badge color="gray" title={webhook.disabled_reason || ""}>
@@ -79,6 +87,7 @@ export const WebhooksTab = ({ clientId }: { clientId: string }) => {
   const hasAccess = useHasAccess();
   const isManager = hasAccess("CLIENT_MANAGE");
   const userName = useUserName(clientId);
+  const hasApiAccess = useUserHasApiAccess(clientId);
 
   const {
     webhooks,
@@ -210,7 +219,8 @@ export const WebhooksTab = ({ clientId }: { clientId: string }) => {
             },
             {
               title: "Statut",
-              render: (webhook) => webhookStatus(webhook),
+              render: (webhook) =>
+                webhookStatus(webhook, hasApiAccess(webhook.user_id)),
             },
             {
               title: "Actions",

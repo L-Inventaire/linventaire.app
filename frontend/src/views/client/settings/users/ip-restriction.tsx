@@ -47,7 +47,9 @@ export const IpRestrictionSettings = () => {
       </Heading>
       <Info className="block mb-4">
         Lorsque cette option est activée, les collaborateurs ne peuvent accéder
-        à l'entreprise que depuis les adresses IP autorisées. Les
+        à l'entreprise que depuis les adresses IP autorisées. Cela s'applique
+        aussi à leurs clés API (les appels depuis une autre adresse sont
+        refusés) et à leurs webhooks (qui ne sont plus envoyés). Les
         administrateurs ne sont jamais restreints.
         {myIp && (
           <>

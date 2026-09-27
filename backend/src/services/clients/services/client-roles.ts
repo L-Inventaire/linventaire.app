@@ -96,6 +96,10 @@ export const getRoles = async (ctx: Context, clientId: string) => {
 
 const cache = new NodeCache({ stdTTL: 60 });
 
+// Roles changes must apply right away (at least on this instance)
+export const invalidateRolesCache = (userId: string, clientId: string) =>
+  cache.del(userId + "_" + clientId);
+
 export const checkRoles = async (
   ctx: Context,
   clientId: string,

@@ -4,7 +4,12 @@ import { checkApiKeyScopeOrThrow } from "../common";
 import { DocumentedEntities } from "./openapi/entities";
 import { generateOpenApi } from "./openapi/generate";
 import { MAX_STORED_BODY, truncateBody } from "./services/api-calls";
-import { API_KEY_PREFIX, hashApiKey, isApiKey } from "./services/api-keys";
+import {
+  API_KEY_PREFIX,
+  hashApiKey,
+  hasApiAccess,
+  isApiKey,
+} from "./services/api-keys";
 import {
   getNextAttemptAt,
   MAX_ATTEMPTS,
@@ -29,6 +34,14 @@ describe("api keys", () => {
     expect(hashApiKey(key)).toBe(hashApiKey(key));
     expect(hashApiKey(key)).not.toContain("secret");
     expect(hashApiKey(key)).toHaveLength(64);
+  });
+
+  test("api keys require the API_ACCESS permission", () => {
+    expect(hasApiAccess(["API_ACCESS", "CONTACTS_READ"])).toBe(true);
+    // Company managers have every permission
+    expect(hasApiAccess(["CLIENT_MANAGE"])).toBe(true);
+    expect(hasApiAccess(["CONTACTS_MANAGE", "INVOICES_MANAGE"])).toBe(false);
+    expect(hasApiAccess([])).toBe(false);
   });
 
   test("api keys are restricted to their company", () => {

@@ -7,7 +7,13 @@ import Clients, { ClientsDefinition } from "../entities/clients";
 import ClientsUsers, {
   ClientsUsersDefinition,
 } from "../entities/clients-users";
-import { checkRoles, checkRolesOrThrow, getClients } from "./client-roles";
+import { invalidateApiKeysCache } from "../../developers/services/api-keys";
+import {
+  checkRoles,
+  checkRolesOrThrow,
+  getClients,
+  invalidateRolesCache,
+} from "./client-roles";
 import config from "config";
 
 export const getUsers = async (ctx: Context, clientId: string) => {
@@ -139,6 +145,8 @@ export const removeUser = async (
       updated_by: ctx.id,
     }
   );
+  invalidateRolesCache(userId, clientId);
+  invalidateApiKeysCache();
 };
 
 // Note: userId can be an id or an email
@@ -247,6 +255,9 @@ export const setUser = async (
       }
     );
   }
+
+  invalidateRolesCache(userId, clientId);
+  invalidateApiKeysCache();
 
   return (await getUsers(ctx, clientId)).find((u) => u.user_id === userId);
 };
