@@ -44,6 +44,9 @@ linventaire.app/
 │   │   ├── en16931-types.ts (e-invoicing standard)
 │   │   └── types.ts
 │   └── tsconfig.json
+├── api-docs/              # Public API documentation (Scalar), served under /docs of the frontend
+│                          # (frontend `build:docs`); public/openapi.json is generated from the
+│                          # backend entities and committed: run `npm run openapi` after changing an entity
 ├── docker/                # Docker configurations
 ├── docker-compose.yml     # Development setup (node, nginx)
 ├── docker-compose.prod.yml
@@ -77,6 +80,14 @@ The backend exposes a **generic REST API** (`/api/rest/v1`) that handles all ent
 - **React Query:** Server state (data fetching, caching, mutations)
 - **Recoil:** Client state (UI state, filters, user preferences)
 - **Composition:** Uses atomic design (atoms → molecules → components → features)
+
+### Public API (API keys)
+
+- Users create API keys in **Settings → API et développeurs** (`backend/src/services/developers/`).
+- A key (`lin_...`, sent as `Authorization: Bearer` or `X-Api-Key`) authenticates as its owner with context role `API` (same permissions as the user) and `ctx.api_key = { id, client_id }`; it only works for the company it was created for (`checkApiKeyScopeOrThrow`).
+- Only the sha256 of the key is stored (`api_keys` table, never exposed through REST).
+- Account-level routes (auth, MFA, invitations, API key management) use `denyApiKeys()`; `checkMfa()` always refuses API keys.
+- Documented entities live in `backend/src/services/developers/openapi/entities.ts`.
 
 ### Business Modules
 

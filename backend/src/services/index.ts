@@ -11,6 +11,7 @@ import ArticlesService from "./modules/articles";
 import CommentsService from "./modules/comments";
 import ContactsService from "./modules/contacts";
 import CRM from "./modules/crm";
+import DevelopersService from "./developers";
 import DataAnalysisService from "./modules/data-analysis";
 import DataExportService from "./modules/data-export";
 import FieldsService from "./modules/fields";
@@ -56,6 +57,7 @@ export default class Services {
   public static Migrations: MigrationsService;
   public static CRM: CRM;
   public static EInvoices: EInvoicesService;
+  public static Developers: DevelopersService;
 
   static async init() {
     console.log("Initializing application services...");
@@ -129,6 +131,9 @@ export default class Services {
       Services.internalApp
     );
     Services.EInvoices = await new EInvoicesService().init(
+      Services.internalApp
+    );
+    Services.Developers = await new DevelopersService().init(
       Services.internalApp
     );
 

@@ -19,6 +19,11 @@ export type Context = {
     exp: number;
   }[];
   created_at: number;
+  // Set when the request is authenticated with an API key (role "API")
+  api_key?: {
+    id: string;
+    client_id: string;
+  };
   lang?: string;
   ip?: string;
   db_tnx?: TransactionExecutor;

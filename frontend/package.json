@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && npm run build:docs",
+    "build:docs": "cd ../api-docs && npm ci --no-audit --no-fund && API_DOCS_BASE=/docs/ npx vite build --outDir ../frontend/build/docs --emptyOutDir",
     "linter": "export CI=true && eslint src/ --max-warnings 0"
   },
   "dependencies": {

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { checkMfa, checkRole } from "../common";
+import { checkMfa, checkRole, denyApiKeys } from "../common";
 import { Ctx } from "../utils";
 import { deleteMfa, getMfas, upsertMfa } from "./services/mfas";
 import { signup } from "./services/signup";
@@ -37,10 +37,15 @@ export default (router: Router) => {
     res.json(await signup(ctx, req.body));
   });
 
-  router.get("/users/mfa", checkRole("USER"), async (req, res) => {
-    const ctx = Ctx.get(req)!.context;
-    res.json(await getMfas(ctx));
-  });
+  router.get(
+    "/users/mfa",
+    checkRole("USER"),
+    denyApiKeys(),
+    async (req, res) => {
+      const ctx = Ctx.get(req)!.context;
+      res.json(await getMfas(ctx));
+    }
+  );
 
   router.post("/users/mfa", checkRole("USER"), checkMfa(), async (req, res) => {
     const ctx = Ctx.get(req)!.context;
@@ -72,8 +77,13 @@ export default (router: Router) => {
     res.end(img);
   });
 
-  router.post("/users/preferences", checkRole("USER"), async (req, res) => {
-    const ctx = Ctx.get(req)!.context;
-    res.json(await updatePreferences(ctx, req.body));
-  });
+  router.post(
+    "/users/preferences",
+    checkRole("USER"),
+    denyApiKeys(),
+    async (req, res) => {
+      const ctx = Ctx.get(req)!.context;
+      res.json(await updatePreferences(ctx, req.body));
+    }
+  );
 };

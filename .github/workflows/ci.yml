@@ -58,3 +58,45 @@ jobs:
       - name: Run tests
         working-directory: ./backend
         run: npm run test
+
+  api-docs:
+    runs-on: ubuntu-latest
+    name: API documentation build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install shared dependencies
+        working-directory: ./shared
+        run: npm install
+
+      - name: Build shared library
+        working-directory: ./shared
+        run: npm run build
+
+      # The OpenAPI document is generated from the backend entities
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: npm install
+
+      # api-docs/public/openapi.json is committed so the frontend build does not
+      # need the backend, make sure it matches the entities
+      - name: Check the OpenAPI document is up to date
+        working-directory: ./api-docs
+        run: |
+          npm run openapi
+          git diff --exit-code public/openapi.json || (echo "::error::api-docs/public/openapi.json is outdated, run 'npm run openapi' in api-docs and commit the result" && exit 1)
+
+      - name: Install dependencies
+        working-directory: ./api-docs
+        run: npm ci
+
+      - name: Build documentation
+        working-directory: ./api-docs
+        run: npm run build

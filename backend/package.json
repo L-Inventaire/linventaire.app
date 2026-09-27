@@ -11,6 +11,7 @@
     "serve": "node --inspect ./dist/src/index.js",
     "test": "tsc && rm -Rf dist/tests && TZ=UTC JEST=1 CREATE_SERVER=1 NODE_ENV=tests jest --runInBand --watchAll=false --forceExit --coverage ./",
     "linter": "CI=true eslint 'src/**/*.{ts,ts}'",
+    "openapi": "ts-node -r tsconfig-paths/register --transpile-only scripts/generate-openapi.ts",
     "sentry:sourcemaps": "sentry-cli sourcemaps inject --org linventaireapp --project linventaire-back ./dist && sentry-cli sourcemaps upload --org linventaireapp --project linventaire-back ./dist"
   },
   "keywords": [],

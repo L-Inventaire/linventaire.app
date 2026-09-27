@@ -9,6 +9,7 @@ import { id } from "../platform/db/utils";
 import { Context, createContext } from "../types";
 import Contacts from "./modules/contacts/entities/contacts";
 import { getUnitCode } from "@shared/consts";
+import { authenticateApiKey, isApiKey } from "./developers/services/api-keys";
 
 const getTrustProxy = () => {
   const value = config.has("server.trust_proxy")
@@ -98,7 +99,7 @@ export function useCtx(server: Express) {
     Ctx.bind(req);
     next();
   });
-  server.use((req, _, next) => {
+  server.use(async (req, res, next) => {
     //Create the default context
     const context: Context = {
       ...createContext("", "NOTHING"),
@@ -110,10 +111,35 @@ export function useCtx(server: Express) {
       req_id: id(),
     };
 
+    // Api keys can be sent either as "Authorization: Bearer lin_..." or "X-Api-Key: lin_..."
+    const bearer = req.headers.authorization?.split(" ")[1];
+    const headerApiKey = req.headers["x-api-key"];
+    const apiKey =
+      typeof headerApiKey === "string"
+        ? headerApiKey
+        : isApiKey(bearer)
+        ? bearer
+        : null;
+
     try {
-      if (req.headers.authorization !== undefined) {
+      if (apiKey) {
+        // The key acts as its owner, but only for the company it was created for
+        const key = await authenticateApiKey(apiKey);
+        if (!key) {
+          res.status(401).json({
+            error: "Unauthorized",
+            message: "Invalid, expired or revoked api key",
+            id: context.req_id,
+          });
+          return;
+        }
+        context.id = key.user_id;
+        context.role = "API";
+        context.mfa = [];
+        context.api_key = { id: key.id, client_id: key.client_id };
+      } else if (req.headers.authorization !== undefined) {
         const auth: Context = jwt.verify(
-          req.headers.authorization.split(" ")[1],
+          bearer,
           config.get<string>("jwt.secret")
         ) as Context;
         context.id = auth.id;
