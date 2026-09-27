@@ -1,7 +1,8 @@
 import { ArrowPathIcon, BriefcaseIcon, CheckIcon, CubeIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import { ArrowsRightLeftIcon, DocumentCheckIcon, PaperAirplaneIcon } from "@heroicons/react/24/outline";
+import { useSceneFrame, useSceneConfig } from "../timing";
 import React from "react";
-import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { interpolate } from "remotion";
 import { AppShell, Btn, DocBar, Footer, Modal } from "../ui/app";
 import { Cursor } from "../ui/cursor";
 import { DocView, LINES, LineState, TOTAL_HT, TOTAL_TTC } from "../ui/document";
@@ -17,8 +18,8 @@ const FOOT = { x: 1200, y: 762 };
 
 /* ------------------------------------------------------------------ 1 */
 export const StepQuote: React.FC = () => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const frame = useSceneFrame();
+  const { fps } = useSceneConfig();
   const picks = [55, 95, 135, 175];
   const lineStates = LINES.map((_, i) => ({ appear: pop(frame, fps, picks[i] + 4) }));
   const picker = pop(frame, fps, 30) * (1 - prog(frame, 205, 215));
@@ -136,8 +137,8 @@ export const StepQuote: React.FC = () => {
 
 /* ------------------------------------------------------------------ 2 */
 export const StepSend: React.FC = () => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const frame = useSceneFrame();
+  const { fps } = useSceneConfig();
   const modal = pop(frame, fps, 34) * (1 - prog(frame, 96, 104));
   const sent = frame >= 100;
   return (
@@ -222,8 +223,8 @@ export const StepSend: React.FC = () => {
 
 /* ------------------------------------------------------------------ 3 */
 export const StepSign: React.FC = () => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const frame = useSceneFrame();
+  const { fps } = useSceneConfig();
   const checked = frame >= 48;
   const signed = frame >= 86;
   const client = 1 - prog(frame, 120, 134);
@@ -425,8 +426,8 @@ export const StepSign: React.FC = () => {
 
 /* ------------------------------------------------------------------ 4 */
 export const StepFulfil: React.FC = () => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const frame = useSceneFrame();
+  const { fps } = useSceneConfig();
   const furnish = frame >= 30 && frame < 100;
   const fOpen = pop(frame, fps, 30);
   const reserved = prog(frame, 112, 140);
@@ -600,8 +601,8 @@ export const InvoiceView: React.FC<{
 );
 
 export const StepInvoice: React.FC = () => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const frame = useSceneFrame();
+  const { fps } = useSceneConfig();
   const modal = pop(frame, fps, 30) * (1 - prog(frame, 150, 158));
   const hover = frame >= 70 && frame < 90 ? 1 : frame >= 90 && frame < 110 ? 2 : undefined;
   const invoice = frame >= 156;
@@ -692,8 +693,8 @@ export const StepInvoice: React.FC = () => {
 
 /* ------------------------------------------------------------------ 6 */
 export const StepSubscription: React.FC = () => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const frame = useSceneFrame();
+  const { fps } = useSceneConfig();
   const months = ["octobre", "novembre", "décembre", "janvier"];
   return (
     <StepLayout
@@ -799,8 +800,8 @@ export const StepSubscription: React.FC = () => {
 
 /* ------------------------------------------------------------------ 7 */
 export const StepPayment: React.FC = () => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const frame = useSceneFrame();
+  const { fps } = useSceneConfig();
   const modal = pop(frame, fps, 30) * (1 - prog(frame, 112, 120));
   const paid = prog(frame, 122, 150);
   const done = frame >= 150;

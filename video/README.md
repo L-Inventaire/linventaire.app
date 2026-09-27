@@ -20,3 +20,13 @@ npm run render   # génère out/presentation.mp4
 - `src/scenes/dashboard.tsx` : le tableau de bord (données de démo)
 - `src/Root.tsx` : ordre et durée des scènes
 - `node stills.mjs quote:120 send:60` : rend des images clés dans `out/stills/` pour vérifier une scène
+
+## Voix off
+
+- `voice/script.json` : les répliques de chaque scène, avec l'image de l'animation (`at`) sur laquelle chacune doit tomber.
+- `voice/SCRIPT.md` : le même script, prêt à coller dans ElevenLabs (un fichier par scène).
+- Déposer les fichiers dans `public/voice/<scène>.mp3`, puis `node voice/timings.mjs` : mesure la durée de chaque
+  fichier et le début de chaque réplique (timestamps ElevenLabs si `<scène>.json` est fourni, sinon détection des
+  pauses), et écrit `src/voice-timings.json`.
+- Au rendu, chaque scène est allongée à la durée de sa voix et son animation est recalée pour que chaque étape
+  tombe sur sa réplique (`src/timing.tsx`). Sans fichier audio, la vidéo garde son rythme actuel.

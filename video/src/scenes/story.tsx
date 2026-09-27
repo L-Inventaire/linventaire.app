@@ -12,16 +12,17 @@ import {
   UsersIcon,
   WrenchScrewdriverIcon,
 } from "@heroicons/react/24/solid";
+import { useSceneFrame, useSceneConfig } from "../timing";
 import React from "react";
-import { AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Img, interpolate, staticFile } from "remotion";
 import { LogoMark } from "../ui/logo";
 import { bouncy, c, clamp, euros, font, pop, prog } from "../theme";
 import { LINES, TOTAL_TTC } from "../ui/document";
 import { ChainBar } from "./chain-layout";
 
 const useFade = () => {
-  const frame = useCurrentFrame();
-  const { durationInFrames } = useVideoConfig();
+  const frame = useSceneFrame();
+  const { durationInFrames } = useSceneConfig();
   return interpolate(frame, [0, 10, durationInFrames - 10, durationInFrames], [0, 1, 1, 0], clamp);
 };
 
@@ -40,8 +41,8 @@ const Page: React.FC<{ children: React.ReactNode; dark?: boolean }> = ({ childre
 
 /* Intro -------------------------------------------------------------- */
 export const Intro: React.FC = () => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const frame = useSceneFrame();
+  const { fps } = useSceneConfig();
   const m = bouncy(frame, fps, 0);
   const t = pop(frame, fps, 18);
   const tag = pop(frame, fps, 34);
@@ -130,8 +131,8 @@ const Wire: React.FC<{ from: [number, number]; to: [number, number]; p: number; 
 };
 
 export const Positioning: React.FC = () => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const frame = useSceneFrame();
+  const { fps } = useSceneConfig();
   const title = pop(frame, fps, 0);
   const center = bouncy(frame, fps, 20);
   // Left: the operations the quote organises. Right: the finance it generates.
@@ -249,8 +250,8 @@ export const Positioning: React.FC = () => {
 
 /* Recap ------------------------------------------------------------- */
 export const Recap: React.FC = () => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const frame = useSceneFrame();
+  const { fps } = useSceneConfig();
   const done = interpolate(frame, [10, 90], [0, 6], clamp);
   const t = pop(frame, fps, 95);
   return (
@@ -273,8 +274,8 @@ export const Recap: React.FC = () => {
 
 /* Features ---------------------------------------------------------- */
 export const Features: React.FC = () => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const frame = useSceneFrame();
+  const { fps } = useSceneConfig();
   const items = [
     { icon: DocumentCheckIcon, t: "Devis & factures", s: "Du devis au paiement, sans ressaisie" },
     { icon: ArrowPathIcon, t: "Abonnements", s: "Facturation récurrente automatique" },
@@ -343,8 +344,8 @@ export const Features: React.FC = () => {
 
 /* Outro ------------------------------------------------------------- */
 export const Outro: React.FC = () => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const frame = useSceneFrame();
+  const { fps } = useSceneConfig();
   const m = bouncy(frame, fps, 0);
   const t = pop(frame, fps, 14);
   return (
@@ -376,8 +377,8 @@ export const Outro: React.FC = () => {
 
 /* Section divider ---------------------------------------------------- */
 export const HowItWorks: React.FC = () => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const frame = useSceneFrame();
+  const { fps } = useSceneConfig();
   const t = pop(frame, fps, 4);
   const u = pop(frame, fps, 16);
   return (

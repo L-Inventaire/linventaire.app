@@ -1,11 +1,12 @@
+import { useSceneFrame } from "../timing";
 import React from "react";
-import { Easing, interpolate, useCurrentFrame } from "remotion";
+import { Easing, interpolate } from "remotion";
 
 export type CursorKey = { f: number; x: number; y: number; click?: boolean };
 
 // Mouse pointer following keyframes (in app coordinates) with click ripples
 export const Cursor: React.FC<{ keys: CursorKey[] }> = ({ keys }) => {
-  const frame = useCurrentFrame();
+  const frame = useSceneFrame();
   const fs = keys.map((k) => k.f);
   const opt = { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.bezier(0.5, 0, 0.2, 1) } as const;
   const x = keys.length > 1 ? interpolate(frame, fs, keys.map((k) => k.x), opt) : keys[0].x;

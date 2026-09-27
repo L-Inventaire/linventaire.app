@@ -1,5 +1,6 @@
 import React from "react";
 import { Composition, Series } from "remotion";
+import { planScene, TimedScene } from "./timing";
 import {
   StepFulfil,
   StepInvoice,
@@ -30,11 +31,16 @@ export const SCENES: [string, React.FC, number][] = [
   ["outro", Outro, 120],
 ];
 
+// Final plan of each scene: stretched to the voice-over when there is one
+const PLANS = SCENES.map(([name, Component, base]) => ({ name, Component, base, plan: planScene(name, base) }));
+
 const Film: React.FC = () => (
   <Series>
-    {SCENES.map(([name, Component, duration]) => (
-      <Series.Sequence key={name} name={name} durationInFrames={duration}>
-        <Component />
+    {PLANS.map(({ name, Component, base, plan }) => (
+      <Series.Sequence key={name} name={name} durationInFrames={plan.duration}>
+        <TimedScene plan={plan} base={base}>
+          <Component />
+        </TimedScene>
       </Series.Sequence>
     ))}
   </Series>
@@ -45,18 +51,22 @@ export const RemotionRoot: React.FC = () => (
     <Composition
       id="Presentation"
       component={Film}
-      durationInFrames={SCENES.reduce((sum, [, , d]) => sum + d, 0)}
+      durationInFrames={PLANS.reduce((sum, p) => sum + p.plan.duration, 0)}
       fps={30}
       width={1920}
       height={1080}
     />
     {/* Each scene alone, handy for iterating in the Studio */}
-    {SCENES.map(([name, Component, duration]) => (
+    {PLANS.map(({ name, Component, base, plan }) => (
       <Composition
         key={name}
         id={"scene-" + name}
-        component={Component}
-        durationInFrames={duration}
+        component={() => (
+          <TimedScene plan={plan} base={base}>
+            <Component />
+          </TimedScene>
+        )}
+        durationInFrames={plan.duration}
         fps={30}
         width={1920}
         height={1080}

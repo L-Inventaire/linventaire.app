@@ -8,8 +8,9 @@ import {
   PaperAirplaneIcon,
   ShoppingCartIcon,
 } from "@heroicons/react/24/solid";
+import { useSceneFrame } from "../timing";
 import React from "react";
-import { useCurrentFrame } from "remotion";
+
 import { AppShell } from "../ui/app";
 import { c, prog } from "../theme";
 import { Checklist, StepLayout } from "./chain-layout";
@@ -113,7 +114,7 @@ const NumberCard: React.FC<{
 );
 
 export const Dashboard: React.FC = () => {
-  const frame = useCurrentFrame();
+  const frame = useSceneFrame();
   const t = prog(frame, 20, 70);
   const draw1 = prog(frame, 40, 110);
   const draw2 = prog(frame, 70, 140);

@@ -10,8 +10,9 @@ import {
   PencilSquareIcon,
   TruckIcon,
 } from "@heroicons/react/24/solid";
+import { useSceneFrame, useSceneConfig } from "../timing";
 import React from "react";
-import { AbsoluteFill, Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Easing, interpolate } from "remotion";
 import { APP_H, APP_W } from "../ui/app";
 import { c, clamp, font, pop } from "../theme";
 
@@ -159,8 +160,8 @@ export const StepLayout: React.FC<{
   extra?: React.ReactNode;
   children: React.ReactNode;
 }> = ({ step, num, kicker, subscriptionOn = false, title, text, camera, extra, children }) => {
-  const frame = useCurrentFrame();
-  const { fps, durationInFrames } = useVideoConfig();
+  const frame = useSceneFrame();
+  const { fps, durationInFrames } = useSceneConfig();
   const fade = interpolate(frame, [0, 8, durationInFrames - 8, durationInFrames], [0, 1, 1, 0], clamp);
   const t1 = pop(frame, fps, 4);
   const t2 = pop(frame, fps, 12);
@@ -305,8 +306,8 @@ export const Callout: React.FC<{ x: number; y: number; appear: number; children:
 
 // Items ticked one after the other under the step explanation
 export const Checklist: React.FC<{ items: { at: number; label: string }[] }> = ({ items }) => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const frame = useSceneFrame();
+  const { fps } = useSceneConfig();
   return (
     <div style={{ marginTop: 34, display: "flex", flexDirection: "column", gap: 14 }}>
       {items.map((it) => {
