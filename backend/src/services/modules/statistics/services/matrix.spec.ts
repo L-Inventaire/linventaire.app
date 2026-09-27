@@ -56,9 +56,11 @@ describe("Statistics matrix", () => {
       ] as any,
       total: { total: 360 } as any, // 100 + 300 - 10% global discount
     });
-    expect(lines.map((a) => a.article)).toEqual(["a1", "a2"]);
-    expect(lines[0].amount).toBeCloseTo(90);
-    expect(lines[1].amount).toBeCloseTo(270);
+    // Global discount is not split on the lines but kept apart
+    expect(lines.map((a) => a.article)).toEqual(["a1", "a2", null]);
+    expect(lines[0].amount).toBeCloseTo(100);
+    expect(lines[1].amount).toBeCloseTo(300);
+    expect(lines[2].amount).toBeCloseTo(-40);
 
     // Group headers and text lines have no amount
     expect(

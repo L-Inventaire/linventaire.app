@@ -30,7 +30,8 @@ const rowTotal = (row: DashboardTags) =>
 const EXTRA_COLUMNS = [
   { id: "untagged", name: "Sans catégorie", color: "" },
   { id: "multiple", name: "Multiple catégories", color: "" },
-  // Lines without article: down payments, down payment deductions, corrections
+  // Lines without article (down payments, down payment deductions,
+  // corrections) and global discounts
   { id: "adjustments", name: "Acomptes / corrections", color: "" },
 ] as Tags[];
 

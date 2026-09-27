@@ -24,7 +24,8 @@ export const getMonthBounds = (month: string, timezone: string) => {
  * Every counted line is kept, with or without article (down payments, down
  * payment deductions, corrections...), so the sum of the lines is always the
  * invoice total. Group headers and text lines have no amount. Line discounts
- * are applied on each line and the global discount is applied proportionally.
+ * are applied on each line. The global discount is not split on the lines: it
+ * is returned as an extra line without article.
  */
 export const getInvoiceLinesAmounts = (
   invoice: Pick<Invoices, "content" | "total">
@@ -45,11 +46,14 @@ export const getInvoiceLinesAmounts = (
       return { article: a.article || null, amount: price - discount };
     });
 
-  // Apply the global discount proportionally so lines sum up to the total
+  // Global discount as a line without article so lines sum up to the total
   const linesTotal = lines.reduce((acc, a) => acc + a.amount, 0);
   const total = invoice.total?.total ?? linesTotal;
-  const ratio = linesTotal ? total / linesTotal : 1;
-  return lines.map((a) => ({ ...a, amount: a.amount * ratio }));
+  const globalDiscount = total - linesTotal;
+  if (Math.round(globalDiscount * 100) !== 0) {
+    lines.push({ article: null, amount: globalDiscount });
+  }
+  return lines;
 };
 
 /**
@@ -101,8 +105,8 @@ export const getMatrix = async (
   const cents: { [tag: string]: number } = {};
   for (const line of lines) {
     // Lines without a real article (down payments, down payment deductions,
-    // "correction" lines of partial invoices...) are counted apart as they
-    // can be negative
+    // "correction" lines of partial invoices, global discounts...) are counted
+    // apart as they can be negative
     if (!line.article || !_.has(tagsMap, line.article)) {
       cents.adjustments =
         (cents.adjustments || 0) + Math.round(line.amount * 100);
