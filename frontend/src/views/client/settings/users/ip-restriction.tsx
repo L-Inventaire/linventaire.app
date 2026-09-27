@@ -2,6 +2,7 @@ import { Button } from "@atoms/button/button";
 import { Checkbox } from "@atoms/input/input-checkbox";
 import { InputLabel } from "@atoms/input/input-decoration-label";
 import { Input } from "@atoms/input/input-text";
+import Link from "@atoms/link";
 import { Info } from "@atoms/text";
 import { ClientsApiClient } from "@features/clients/api-client/api-client";
 import { useClients } from "@features/clients/state/use-clients";
@@ -33,14 +34,14 @@ export const IpRestrictionSettings = () => {
 
   useEffect(() => {
     setEnabled(!!restriction?.enabled);
-    setAllowedIps((restriction?.allowed_ips || []).join("\n"));
+    setAllowedIps((restriction?.allowed_ips || []).join(", "));
   }, [restriction?.enabled, restriction?.allowed_ips?.join(",")]);
 
   const list = parseList(allowedIps);
   const invalid = list.filter((ip) => !IP_ENTRY.test(ip));
 
   return (
-    <div className="mt-8">
+    <div className="mt-8 mb-8">
       <Heading size="6" className="mb-2">
         Restriction d'accès par adresse IP
       </Heading>
@@ -63,42 +64,43 @@ export const IpRestrictionSettings = () => {
         disabled={loading}
       />
 
-      <InputLabel
-        className="mt-4 max-w-xl"
-        label="Adresses IP autorisées (une par ligne, plages CIDR acceptées)"
-        input={
-          <Input
-            multiline
-            placeholder={"203.0.113.10\n198.51.100.0/24\n2001:db8::/32"}
-            value={allowedIps}
-            disabled={loading}
-            onChange={(e) => setAllowedIps(e.target.value)}
+      {enabled && (
+        <>
+          <InputLabel
+            className="mt-4 max-w-xl"
+            label="Adresses IP autorisées (séparées par des virgules, plages CIDR acceptées)"
+            input={
+              <Input
+                placeholder="203.0.113.10, 198.51.100.0/24, 2001:db8::/32"
+                value={allowedIps}
+                disabled={loading}
+                onChange={(e) => setAllowedIps(e.target.value)}
+              />
+            }
           />
-        }
-      />
-      {!!invalid.length && (
-        <Info className="block mt-1 text-red-500">
-          Adresses invalides : {invalid.join(", ")}
-        </Info>
-      )}
-      {enabled && !list.length && (
-        <Info className="block mt-1 text-orange-500">
-          Aucune adresse autorisée : seuls les administrateurs pourront accéder
-          à l'entreprise.
-        </Info>
+          {myIp && !list.includes(myIp) && !loading && (
+            <Link
+              className="text-sm mt-1 inline-block"
+              onClick={() => setAllowedIps([...list, myIp].join(", "))}
+            >
+              Ajouter mon adresse IP ({myIp})
+            </Link>
+          )}
+          {!!invalid.length && (
+            <Info className="block mt-1 text-red-500">
+              Adresses invalides : {invalid.join(", ")}
+            </Info>
+          )}
+          {!list.length && (
+            <Info className="block mt-1 text-orange-500">
+              Aucune adresse autorisée : seuls les administrateurs pourront
+              accéder à l'entreprise.
+            </Info>
+          )}
+        </>
       )}
 
-      <div className="mt-4 space-x-2">
-        {myIp && !list.includes(myIp) && (
-          <Button
-            theme="outlined"
-            size="md"
-            disabled={loading}
-            onClick={() => setAllowedIps([...list, myIp].join("\n"))}
-          >
-            Ajouter mon adresse IP
-          </Button>
-        )}
+      <div className="mt-4">
         <Button
           size="md"
           loading={loading}
