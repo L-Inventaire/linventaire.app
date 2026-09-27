@@ -100,3 +100,28 @@ jobs:
       - name: Build documentation
         working-directory: ./api-docs
         run: npm run build
+
+  user-docs:
+    runs-on: ubuntu-latest
+    name: User manual build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        working-directory: ./user-docs
+        run: npm ci
+
+      - name: Type check
+        working-directory: ./user-docs
+        run: npx tsc
+
+      - name: Build manual
+        working-directory: ./user-docs
+        run: npm run build

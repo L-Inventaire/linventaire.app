@@ -7,6 +7,7 @@ on:
     paths:
         - frontend/**
         - api-docs/**
+        - user-docs/**
         - docker/**
         - .github/workflows/deploy-frontend.yml
 

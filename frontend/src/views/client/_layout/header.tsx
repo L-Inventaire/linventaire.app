@@ -24,6 +24,7 @@ import {
 import { Search } from "./search";
 import { DropDownAtom } from "@atoms/dropdown";
 import { useTheme } from "@features/utils/theme";
+import Env from "@config/environment";
 
 export const LayoutTitleAtom = atom<
   {
@@ -123,15 +124,12 @@ export const Header = () => {
           icon={(p) => <LifebuoyIcon {...p} />}
         />
         <Button
-          data-tooltip="Guides"
+          data-tooltip="Manuel d'utilisation"
           data-position="left"
           size="md"
           theme="invisible"
-          data-featurebase-link
           onClick={() => {
-            window
-              ?.open("https://linventaire.featurebase.app/fr/help", "_blank")
-              ?.focus();
+            window?.open(Env.userDocs, "_blank")?.focus();
           }}
           target="_blank"
           rel="noopener noreferrer"
