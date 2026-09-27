@@ -1,4 +1,2 @@
 node_modules
 build
-# Generated from the backend entities with `npm run openapi`
-public/openapi.json

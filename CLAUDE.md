@@ -44,8 +44,9 @@ linventaire.app/
 │   │   ├── en16931-types.ts (e-invoicing standard)
 │   │   └── types.ts
 │   └── tsconfig.json
-├── api-docs/              # Public API documentation (Scalar), separate static build
-│                          # openapi.json generated from backend entities (backend: `npm run openapi`)
+├── api-docs/              # Public API documentation (Scalar), served under /docs of the frontend
+│                          # (frontend `build:docs`); public/openapi.json is generated from the
+│                          # backend entities and committed: run `npm run openapi` after changing an entity
 ├── docker/                # Docker configurations
 ├── docker-compose.yml     # Development setup (node, nginx)
 ├── docker-compose.prod.yml

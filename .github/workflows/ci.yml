@@ -85,9 +85,17 @@ jobs:
         working-directory: ./backend
         run: npm install
 
+      # api-docs/public/openapi.json is committed so the frontend build does not
+      # need the backend, make sure it matches the entities
+      - name: Check the OpenAPI document is up to date
+        working-directory: ./api-docs
+        run: |
+          npm run openapi
+          git diff --exit-code public/openapi.json || (echo "::error::api-docs/public/openapi.json is outdated, run 'npm run openapi' in api-docs and commit the result" && exit 1)
+
       - name: Install dependencies
         working-directory: ./api-docs
-        run: npm install
+        run: npm ci
 
       - name: Build documentation
         working-directory: ./api-docs

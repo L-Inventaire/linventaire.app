@@ -1,8 +1,8 @@
 const Env = {
   reCaptchaSiteKey: "6Lf5LxopAAAAALXErlTeGxlWy_x6M8RlKlJzZ4RB",
   server: document.location.protocol + "//" + document.location.hostname,
-  // Public API documentation (built separately from /api-docs)
-  apiDocs: "https://developers.linventaire.app",
+  // Public API documentation (built from /api-docs into the frontend build)
+  apiDocs: "/docs/index.html",
   version: "1.3.0",
 };
 
