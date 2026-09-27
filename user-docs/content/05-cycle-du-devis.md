@@ -11,6 +11,8 @@ Ce chapitre suit un devis de sa création jusqu'au paiement de la facture. Les d
 | **Terminé** | Entièrement facturé, ou clôturé |
 | **Abonnement** | Devis récurrent en cours (voir [Abonnements](#description/abonnements)) |
 
+[![La liste des devis, classés par onglets](images/devis-liste.png)](images/devis-liste.png)
+
 ## Créer le devis
 
 1. Dans **Devis**, cliquez sur **Devis** (touche **C**), ou sur **Créer un devis** depuis la fiche d'un client.
@@ -21,6 +23,8 @@ Ce chapitre suit un devis de sa création jusqu'au paiement de la facture. Les d
    - **Acompte** : une ligne d'acompte.
 4. Ajustez chaque ligne : cliquez sur la quantité pour changer la **Quantité**, l'**Unité** ou la **Récurrence**, et sur le prix pour changer le **Prix unitaire HT** ou la **TVA**.
 5. Cliquez sur **Sauvegarder** (**Ctrl+S**).
+
+[![Un devis en cours de modification](images/devis-creation.png)](images/devis-creation.png)
 
 Pour enrichir le devis :
 
@@ -44,6 +48,8 @@ Depuis un devis en brouillon, cliquez sur **Envoyer** › **Envoyer par email...
 - pour chaque destinataire, son **Action** : **Signer** ou simplement **Voir** le devis (au moins un signataire est nécessaire) ;
 - le **Statut final** du devis après l'envoi (Envoyé en général).
 
+[![La fenêtre d'envoi d'un devis](images/devis-envoi.png)](images/devis-envoi.png)
+
 Cliquez sur **Envoyer à N destinataires**. Chaque destinataire reçoit un email avec le PDF en pièce jointe et un bouton **Signer le devis** (ou **Accéder au devis**). Le devis passe au statut **Envoyé**.
 
 Autres possibilités du menu **Envoyer** :
@@ -63,6 +69,8 @@ Le client ouvre le lien reçu par email, depuis son ordinateur ou son téléphon
 - **Accepter et signer** : le devis passe automatiquement au statut **Accepté**, et vous recevez un email avec le devis signé ;
 - **Refuser** : il indique la raison de son refus, qui apparaît dans l'activité du devis. Le devis revient en **Brouillon**, prêt à être retravaillé et renvoyé.
 
+[![Ce que voit le client : le devis en PDF et la signature en ligne](images/devis-signature.png)](images/devis-signature.png)
+
 Si la réponse du client vous parvient autrement (signature papier, accord par téléphone…), utilisez les boutons du devis envoyé :
 
 - **Devis accepté** : valide le devis (il ne pourra plus revenir en brouillon) ;
@@ -79,12 +87,16 @@ Une fois accepté, le contenu et le client du devis ne sont plus modifiables : i
 
 Un devis accepté doit être réalisé : produits fournis et livrés, services effectués. Sur chaque ligne, des indicateurs suivent l'avancement : **Reservé X %** et **Livré X %** pour les produits, **Executé X %** pour les services.
 
+[![Un devis accepté : chaque ligne indique ce qui est réservé, livré ou exécuté](images/devis-accepte.png)](images/devis-accepte.png)
+
 ### Fournir les produits
 
 Cliquez sur **Fournir les produits** (touche **F**). Pour chaque article, le tableau **Articles à fournir** indique ce qui est déjà commandé, réservé ou livré. Dans la colonne **Fournir**, choisissez d'où viennent les produits :
 
 - **Stock disponible** : les éléments en stock sont réservés pour ce devis ;
 - **Fournisseurs** : une commande est préparée chez le fournisseur choisi.
+
+[![Fournir les produits : pour chaque article, le stock à réserver ou la commande à passer](images/fournir-produits.png)](images/fournir-produits.png)
 
 Validez avec **Créer N commandes et réserver M éléments du stock**. Les commandes sont créées en brouillon et liées au devis : il reste à les envoyer au fournisseur (voir [Commandes et factures d'achat](#description/commandes-et-factures-dachat)). À la réception de la commande, les produits sont rattachés au devis.
 
@@ -111,6 +123,8 @@ Sur un devis accepté ou à facturer, cliquez sur **Facturer**. La fenêtre **Cr
 | **Facture partielle** | Choisissez la quantité à facturer ligne par ligne (les quantités livrées sont indiquées) |
 | **Acompte** | Saisissez le montant de l'acompte |
 
+[![La fenêtre Créer une facture](images/facturer.png)](images/facturer.png)
+
 Le résumé indique ce qui sera facturé, ce qui l'est déjà et ce qui restera à facturer. Cliquez sur **Créer la facture** : une facture en brouillon s'ouvre avec les lignes du devis, rien à ressaisir. Vérifiez-la, puis sauvegardez.
 
 Les acomptes déjà facturés sont automatiquement déduits des factures suivantes. Le devis passe au statut **Terminé** quand ses factures, une fois envoyées, couvrent la totalité du devis. Si une partie ne sera jamais facturée, utilisez **Clôturer le devis sans facturer** dans le menu **…**.
@@ -130,7 +144,11 @@ Quand le client paie :
 2. La fenêtre **Déclarer une opération** est pré-remplie avec le montant restant dû, la facture liée et les comptes. Ajustez la **Date**, le **Montant** (pour un paiement partiel) et la **Référence** (numéro de virement, de chèque…).
 3. Sauvegardez.
 
+[![Enregistrer un paiement : l'opération est pré-remplie avec le montant restant dû](images/paiement.png)](images/paiement.png)
+
 Les paiements sont listés dans la section **Paiements** de la facture, et un badge indique le pourcentage payé. Une fois payée à 100 %, la facture passe automatiquement au statut **Terminé**. En cas d'erreur, **Re-ouvrir la facture** la remet en attente de paiement.
+
+[![Une facture payée : statut Terminé et badge « 100 % »](images/facture-payee.png)](images/facture-payee.png)
 
 ### Les avoirs
 

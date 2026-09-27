@@ -13,6 +13,8 @@ Clients et fournisseurs sont des **contacts**, regroupés dans **Activité › C
 
 Pour une entreprise, les champs sont **Raison sociale**, **Nom commercial**, **SIRET / Numéro d'enregistrement** et **Numéro de TVA**. Pour un particulier, **Prénom** et **Nom**.
 
+[![Fiche d'un client : identité, coordonnées, compte comptable et relations](images/contact.png)](images/contact.png)
+
 > [!NOTE]
 > Pour les entreprises françaises, le SIREN est nécessaire à la facturation électronique. La fiche indique « Facturation électronique active » ou « inactive ». Dans la liste, un point rouge sur l'icône signale un SIREN manquant, un point jaune un SIREN renseigné mais sans facturation électronique active.
 

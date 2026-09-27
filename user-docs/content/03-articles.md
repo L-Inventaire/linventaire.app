@@ -19,6 +19,8 @@ Les articles forment votre catalogue : tout ce que vous pouvez mettre dans un de
 5. Dans **Prix de vente**, indiquez le **Prix** hors taxes, la **TVA** (20 % par défaut) et l'**Unité**.
 6. Cliquez sur **Sauvegarder**.
 
+[![Fiche d'un article : prix de vente, fournisseurs et prix d'achat](images/article.png)](images/article.png)
+
 > [!TIP]
 > Les prix, la TVA et la description de l'article sont des valeurs par défaut : vous pouvez les adapter ligne par ligne dans chaque devis.
 

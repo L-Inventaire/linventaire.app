@@ -8,6 +8,8 @@ Le module **Activité › Service** regroupe les tâches de votre équipe : inte
 
 Une tâche suit ces statuts : **Non planifié**, **À faire**, **En cours**, **En revue**, **Terminé** ou **Annulé**.
 
+[![La liste des tâches de service, avec le devis associé et le temps passé](images/service.png)](images/service.png)
+
 Pour créer une tâche, cliquez sur **Ajouter** et renseignez :
 
 - la **Description** (par exemple « Installation des caisses ») et le **Temps** prévu ;
@@ -25,6 +27,8 @@ Quand la tâche est **Terminée**, son temps passé complète la ligne correspon
 ## Le stock
 
 Le module **Activité › Stock** suit chaque élément physique : un numéro de série ou un lot, une quantité, un emplacement et un statut (**En stock**, **En transit**, **Livré**, **Épuisé**). Les onglets permettent de voir le stock disponible, réservé pour un devis, ou livré.
+
+[![Le stock : chaque élément avec son article, son devis associé, son emplacement et son statut](images/stock.png)](images/stock.png)
 
 ### Réceptionner du stock
 
@@ -62,6 +66,8 @@ Une commande est généralement créée depuis un devis client, avec **Fournir l
 
 La commande passe automatiquement au statut **Réceptionné** quand tous ses produits sont reçus.
 
+[![Une commande fournisseur au statut Commandé, prête à être réceptionnée](images/commande.png)](images/commande.png)
+
 ### Les factures d'achat
 
 Les factures de vos fournisseurs se trouvent dans **Achats › Factures d'achat**. Créez-les depuis la commande (**Enregistrer une facture**) pour reprendre ses lignes, ou directement. Ensuite :
@@ -88,6 +94,8 @@ Dans le devis, la section **Récurrence** définit :
 - l'**État des factures créées** : brouillon (à vérifier avant envoi) ou envoyé directement au client ;
 - la **Fin de la facturation** : sans fin (tacite reconduction), après 1, 2 ou 3 ans, ou à une date précise, et l'action à mener à la fin.
 
+[![La section Récurrence d'un devis avec une ligne mensuelle](images/abonnement.png)](images/abonnement.png)
+
 Les abonnements en cours se trouvent dans **Ventes › Abonnements**. Chacun indique sa date de démarrage et la date de la prochaine facture. Le bouton **Modifier l'abonnement** permet de changer ses lignes ou de l'annuler. Vous pouvez aussi programmer un rappel de vérification périodique (onglet **À vérifier**).
 
 ## Comptabilité et tableaux
@@ -111,6 +119,10 @@ La plupart des opérations se créent avec **Enregistrer un paiement** depuis un
 
 Le **Tableau de bord** résume l'exercice en cours : chiffre d'affaires, charges et résultat, leur évolution mois par mois comparée à l'année précédente, ainsi que les devis signés et envoyés, les factures payées et en retard, et les commandes en attente ou à payer.
 
+[![Le tableau de bord](images/tableau-de-bord.png)](images/tableau-de-bord.png)
+
 ## Le CRM
 
 **Activité › CRM** suit vos opportunités commerciales avant le devis, dans un tableau en colonnes : **Nouveau**, **Qualifié**, **Proposition** et **Terminé**. Créez une opportunité avec le bouton **+** d'une colonne, associez-lui jusqu'à trois clients, un vendeur et des personnes assignées, puis faites-la glisser d'une colonne à l'autre au fil de son avancement.
+
+[![Le CRM : les opportunités par étape](images/crm.png)](images/crm.png)

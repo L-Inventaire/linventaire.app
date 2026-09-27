@@ -1,0 +1,14 @@
+{
+  "name": "user-docs-screenshots",
+  "private": true,
+  "description": "Demo data and screenshots of the user manual",
+  "type": "module",
+  "scripts": {
+    "seed": "node seed.mjs",
+    "capture": "node capture.mjs"
+  },
+  "devDependencies": {
+    "@fontsource-variable/inter": "^5.2.8",
+    "playwright": "^1.56.1"
+  }
+}

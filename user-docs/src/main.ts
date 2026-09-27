@@ -50,7 +50,7 @@ createApiReference("#app", {
     }
     /* Readable line length */
     .introduction-section .section-column {
-      max-width: 820px;
+      max-width: 920px;
     }
     .introduction-section h3 {
       font-size: 1.05em;

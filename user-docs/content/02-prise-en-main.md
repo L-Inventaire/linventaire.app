@@ -30,6 +30,8 @@ Vous pouvez revenir dans le temps :
 
 ## Commenter et être notifié
 
+[![La section Activité d'un devis : historique des changements de statut et commentaire](images/activite.png)](images/activite.png)
+
 La section **Activité** sert aussi à échanger avec votre équipe, directement sur le document concerné :
 
 - **Commenter** : écrivez dans « Ajouter un commentaire... » puis cliquez sur **Envoyer**.
@@ -61,7 +63,11 @@ Le bouton en forme d'entonnoir (**Ctrl+Maj+F**) active les **filtres avancés** 
 | `date_d_emission:2026-01-01->2026-03-31` | Émis entre deux dates |
 | `champ:a,b` | Valeur « a » ou « b » |
 | `!champ:a` | Tout sauf la valeur « a » |
-| `champ:""` | Champ vide | Les filtres sont conservés dans l'adresse de la page : vous pouvez la garder en favori ou la partager. Le bouton **Exporter** en bas des listes télécharge les résultats.
+| `champ:""` | Champ vide |
+
+[![Les filtres avancés proposent les champs au fil de la frappe](images/recherche.png)](images/recherche.png)
+
+Les filtres sont conservés dans l'adresse de la page : vous pouvez la garder en favori ou la partager. Le bouton **Exporter** en bas des listes télécharge les résultats.
 
 ## Raccourcis clavier
 
