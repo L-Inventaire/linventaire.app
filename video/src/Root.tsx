@@ -9,11 +9,14 @@ import {
   StepSign,
   StepSubscription,
 } from "./scenes/steps";
-import { Features, Intro, Outro, Positioning, Recap } from "./scenes/story";
+import { Dashboard } from "./scenes/dashboard";
+import { Features, HowItWorks, Intro, Outro, Positioning, Recap } from "./scenes/story";
 
 // Durations in frames (30 fps)
 export const SCENES: [string, React.FC, number][] = [
   ["intro", Intro, 110],
+  ["features", Features, 170],
+  ["how", HowItWorks, 70],
   ["positioning", Positioning, 300],
   ["quote", StepQuote, 250],
   ["send", StepSend, 150],
@@ -23,7 +26,7 @@ export const SCENES: [string, React.FC, number][] = [
   ["subscription", StepSubscription, 180],
   ["payment", StepPayment, 200],
   ["recap", Recap, 200],
-  ["features", Features, 170],
+  ["dashboard", Dashboard, 270],
   ["outro", Outro, 120],
 ];
 

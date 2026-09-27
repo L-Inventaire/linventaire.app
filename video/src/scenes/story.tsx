@@ -6,6 +6,7 @@ import {
   CodeBracketIcon,
   CubeIcon,
   DocumentCheckIcon,
+  ReceiptRefundIcon,
   GlobeEuropeAfricaIcon,
   ShoppingCartIcon,
   UsersIcon,
@@ -133,20 +134,22 @@ export const Positioning: React.FC = () => {
   const { fps } = useVideoConfig();
   const title = pop(frame, fps, 0);
   const center = bouncy(frame, fps, 20);
+  // Left: the operations the quote organises. Right: the finance it generates.
   const ins = [
-    { icon: CubeIcon, label: "Produits", sub: "vendus depuis le stock", color: c.ink },
-    { icon: WrenchScrewdriverIcon, label: "Services", sub: "prestations, interventions", color: c.ink },
-    { icon: ArrowPathIcon, label: "Abonnements", sub: "mensuels, annuels…", color: c.blue },
+    { icon: UsersIcon, label: "Clients", sub: "fiche client et contacts", color: c.ink },
+    { icon: CubeIcon, label: "Produits", sub: "réservés ou livrés du stock", color: c.ink },
+    { icon: WrenchScrewdriverIcon, label: "Interventions", sub: "planifiées et suivies", color: c.ink },
+    { icon: ShoppingCartIcon, label: "Achats", sub: "commandes fournisseurs", color: c.ink },
   ];
   const outs = [
-    { icon: ShoppingCartIcon, label: "Stock & achats", sub: "approvisionnement", color: c.ink },
-    { icon: BriefcaseIcon, label: "Interventions", sub: "planning et suivi", color: c.ink },
-    { icon: DocumentCheckIcon, label: "Factures", sub: "totales, partielles, récurrentes", color: c.ink },
-    { icon: BanknotesIcon, label: "Paiements", sub: "suivi de trésorerie", color: c.green },
+    { icon: DocumentCheckIcon, label: "Factures", sub: "totales ou partielles", color: c.ink },
+    { icon: ReceiptRefundIcon, label: "Avoirs", sub: "remboursements", color: c.ink },
+    { icon: ArrowPathIcon, label: "Abonnements", sub: "factures récurrentes", color: c.blue },
+    { icon: BanknotesIcon, label: "Paiements", sub: "encaissements suivis", color: c.green },
   ];
   const CX = 960,
     CY = 610;
-  const inY = (i: number) => 360 + i * 150;
+  const inY = (i: number) => 300 + i * 132;
   const outY = (i: number) => 300 + i * 132;
   const flow = frame * 1.2;
   return (
@@ -154,17 +157,39 @@ export const Positioning: React.FC = () => {
       <div style={{ position: "absolute", top: 70, width: "100%", textAlign: "center", opacity: title, transform: `translateY(${(1 - title) * 20}px)` }}>
         <div style={{ fontSize: 76, fontWeight: 800, letterSpacing: -1.5 }}>Tout part du devis.</div>
         <div style={{ fontSize: 32, color: c.s500, marginTop: 12 }}>
-          On y dépose ce que l'on vend. Tout le reste s'enchaîne automatiquement.
+          Il organise vos opérations et génère toute la partie financière.
         </div>
       </div>
       <svg width={1920} height={1080} style={{ position: "absolute", inset: 0 }}>
         {ins.map((_, i) => (
-          <Wire key={i} from={[440, inY(i) + 48]} to={[CX - 190, CY]} p={prog(frame, 50 + i * 12, 80 + i * 12)} flow={flow} />
+          <Wire key={i} from={[CX - 190, CY]} to={[440, inY(i) + 48]} p={prog(frame, 50 + i * 12, 80 + i * 12)} flow={flow} />
         ))}
         {outs.map((_, i) => (
           <Wire key={i} from={[CX + 190, CY]} to={[1480, outY(i) + 48]} p={prog(frame, 130 + i * 14, 160 + i * 14)} flow={flow} />
         ))}
       </svg>
+      {[
+        { x: 80, label: "Opérations", at: 36 },
+        { x: 1480, label: "Finances", at: 140 },
+      ].map((h) => (
+        <div
+          key={h.label}
+          style={{
+            position: "absolute",
+            left: h.x,
+            top: 246,
+            width: 360,
+            fontSize: 22,
+            fontWeight: 700,
+            letterSpacing: 3,
+            textTransform: "uppercase",
+            color: c.s400,
+            opacity: pop(frame, fps, h.at),
+          }}
+        >
+          {h.label}
+        </div>
+      ))}
       {ins.map((n, i) => (
         <Node key={n.label} x={80} y={inY(i)} appear={pop(frame, fps, 40 + i * 12)} {...n} />
       ))}
@@ -236,9 +261,9 @@ export const Recap: React.FC = () => {
         </div>
         <ChainBar current={done >= 6 ? -1 : done} done={done} subscriptionOn={done > 4.5} />
         <div style={{ marginTop: 70, textAlign: "center", opacity: t, transform: `translateY(${(1 - t) * 20}px)` }}>
-          <div style={{ fontSize: 64, fontWeight: 800, letterSpacing: -1 }}>Un seul document pilote tout.</div>
+          <div style={{ fontSize: 64, fontWeight: 800, letterSpacing: -1 }}>Et voilà, c'est aussi simple que ça !</div>
           <div style={{ fontSize: 32, color: c.s500, marginTop: 14 }}>
-            Aucune ressaisie, aucun oubli de facturation, une vision claire de chaque affaire.
+            Un seul document, du premier contact au paiement : aucune ressaisie, aucun oubli de facturation.
           </div>
         </div>
       </AbsoluteFill>
@@ -251,32 +276,34 @@ export const Features: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const items = [
-    { icon: UsersIcon, t: "Contacts & CRM", s: "Clients, fournisseurs, pipeline commercial" },
-    { icon: CubeIcon, t: "Stock", s: "Numéros de série, emplacements, réceptions" },
+    { icon: DocumentCheckIcon, t: "Devis & factures", s: "Du devis au paiement, sans ressaisie" },
+    { icon: ArrowPathIcon, t: "Abonnements", s: "Facturation récurrente automatique" },
+    { icon: UsersIcon, t: "Contacts & CRM", s: "Clients, fournisseurs, pipeline" },
+    { icon: CubeIcon, t: "Stock", s: "Numéros de série, emplacements" },
     { icon: WrenchScrewdriverIcon, t: "Service", s: "Interventions et temps passé" },
-    { icon: ChartBarIcon, t: "Comptabilité", s: "Opérations, tableaux de bord, exports" },
-    { icon: GlobeEuropeAfricaIcon, t: "Facture électronique", s: "Envoi et réception via Peppol / PPF" },
+    { icon: ChartBarIcon, t: "Comptabilité", s: "Opérations, tableaux de bord" },
+    { icon: GlobeEuropeAfricaIcon, t: "Facture électronique", s: "Envoi et réception Peppol / PPF" },
     { icon: CodeBracketIcon, t: "API & webhooks", s: "Connectez vos outils" },
   ];
   const title = pop(frame, fps, 0);
   return (
     <Page>
       <div style={{ position: "absolute", top: 110, width: "100%", textAlign: "center", opacity: title }}>
-        <div style={{ fontSize: 70, fontWeight: 800, letterSpacing: -1 }}>Et autour du devis, tout votre ERP.</div>
+        <div style={{ fontSize: 70, fontWeight: 800, letterSpacing: -1 }}>Un ERP complet pour votre entreprise.</div>
       </div>
       <div
         style={{
           position: "absolute",
-          top: 340,
-          left: 160,
-          right: 160,
+          top: 300,
+          left: 110,
+          right: 110,
           display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          gap: 36,
+          gridTemplateColumns: "repeat(4, 1fr)",
+          gap: 28,
         }}
       >
         {items.map((it, i) => {
-          const a = pop(frame, fps, 14 + i * 7);
+          const a = pop(frame, fps, 14 + i * 6);
           const I = it.icon;
           return (
             <div
@@ -304,8 +331,8 @@ export const Features: React.FC = () => {
               >
                 <I style={{ width: 32, color: "white" }} />
               </div>
-              <div style={{ fontSize: 34, fontWeight: 800, marginTop: 22 }}>{it.t}</div>
-              <div style={{ fontSize: 24, color: c.s500, marginTop: 6 }}>{it.s}</div>
+              <div style={{ fontSize: 30, fontWeight: 800, marginTop: 22 }}>{it.t}</div>
+              <div style={{ fontSize: 22, color: c.s500, marginTop: 6 }}>{it.s}</div>
             </div>
           );
         })}
@@ -342,6 +369,25 @@ export const Outro: React.FC = () => {
         >
           linventaire.app
         </div>
+      </AbsoluteFill>
+    </Page>
+  );
+};
+
+/* Section divider ---------------------------------------------------- */
+export const HowItWorks: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const t = pop(frame, fps, 4);
+  const u = pop(frame, fps, 16);
+  return (
+    <Page dark>
+      <AbsoluteFill style={{ alignItems: "center", justifyContent: "center" }}>
+        <LogoMark size={70} color="white" />
+        <div style={{ fontSize: 96, fontWeight: 800, marginTop: 30, letterSpacing: -2, opacity: t, transform: `translateY(${(1 - t) * 24}px)` }}>
+          Comment ça marche&nbsp;?
+        </div>
+        <div style={{ height: 4, width: 220 * u, background: "white", marginTop: 30, borderRadius: 2 }} />
       </AbsoluteFill>
     </Page>
   );

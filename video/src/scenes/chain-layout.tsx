@@ -11,7 +11,7 @@ import {
   TruckIcon,
 } from "@heroicons/react/24/solid";
 import React from "react";
-import { AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { APP_H, APP_W } from "../ui/app";
 import { c, clamp, font, pop } from "../theme";
 
@@ -34,7 +34,7 @@ export const ChainBar: React.FC<{ current: number; done?: number; scale?: number
   const W = 1500;
   const gap = W / (STEPS.length - 1);
   return (
-    <div style={{ position: "relative", width: W, height: 120, transform: `scale(${scale})`, transformOrigin: "top center" }}>
+    <div style={{ position: "relative", width: W, height: 170, transform: `scale(${scale})`, transformOrigin: "top center" }}>
       <div style={{ position: "absolute", left: 0, right: 0, top: 31, height: 3, background: c.s100 }} />
       <div
         style={{
@@ -96,27 +96,52 @@ export const ChainBar: React.FC<{ current: number; done?: number; scale?: number
           </div>
         );
       })}
-      {subscriptionOn !== undefined && (
+      {/* Subscription: billing and payment loop back every period */}
+      <svg
+        width={gap + 40}
+        height={80}
+        style={{ position: "absolute", left: 4 * gap - 20, top: 96, overflow: "visible" }}
+      >
+        <defs>
+          <marker id="loopArrow" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="6" refY="6" orient="auto">
+            <path d="M0,1 L12,6 L0,11 z" fill={subscriptionOn ? c.blue : c.s300} />
+          </marker>
+        </defs>
+        <path
+          d={`M ${gap + 20} 6 C ${gap + 20} 62, 20 62, 20 10`}
+          fill="none"
+          stroke={subscriptionOn ? c.blue : c.s200}
+          strokeWidth={3}
+          strokeDasharray={subscriptionOn ? "none" : "6 6"}
+          markerEnd="url(#loopArrow)"
+        />
+      </svg>
+      <div
+        style={{
+          position: "absolute",
+          left: 4 * gap,
+          width: gap,
+          top: 132,
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
         <div
           style={{
-            position: "absolute",
-            left: 4 * gap + 42,
-            top: -2,
             display: "flex",
             alignItems: "center",
             gap: 6,
             fontSize: 16,
             fontWeight: 700,
-            padding: "4px 10px",
+            padding: "3px 10px",
             borderRadius: 20,
-            background: subscriptionOn ? c.blueBg : "white",
+            background: subscriptionOn ? c.blueBg : c.s25,
             color: subscriptionOn ? c.blueText : c.s400,
-            border: `2px solid ${subscriptionOn ? c.blue : c.s100}`,
           }}
         >
-          <ArrowPathIcon style={{ width: 16 }} /> Abonnement
+          <ArrowPathIcon style={{ width: 16 }} /> Abonnement : chaque mois
         </div>
-      )}
+      </div>
     </div>
   );
 };
@@ -124,47 +149,53 @@ export const ChainBar: React.FC<{ current: number; done?: number; scale?: number
 export type Camera = { f: number; z: number; x: number; y: number }[];
 
 export const StepLayout: React.FC<{
-  step: number;
-  num: number;
+  step?: number;
+  num?: number;
+  kicker?: string;
   subscriptionOn?: boolean;
   title: string;
   text: React.ReactNode;
   camera?: Camera;
   extra?: React.ReactNode;
   children: React.ReactNode;
-}> = ({ step, num, subscriptionOn = false, title, text, camera, extra, children }) => {
+}> = ({ step, num, kicker, subscriptionOn = false, title, text, camera, extra, children }) => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
   const fade = interpolate(frame, [0, 8, durationInFrames - 8, durationInFrames], [0, 1, 1, 0], clamp);
   const t1 = pop(frame, fps, 4);
   const t2 = pop(frame, fps, 12);
 
-  // Camera: zoom on a point of the app (in app coordinates)
-  let z = 1,
-    cx = APP_W / 2,
-    cy = APP_H / 2;
-  if (camera && camera.length) {
-    const fs = camera.map((k) => k.f);
-    const o = { ...clamp };
-    z = camera.length > 1 ? interpolate(frame, fs, camera.map((k) => k.z), o) : camera[0].z;
-    cx = camera.length > 1 ? interpolate(frame, fs, camera.map((k) => k.x), o) : camera[0].x;
-    cy = camera.length > 1 ? interpolate(frame, fs, camera.map((k) => k.y), o) : camera[0].y;
-  }
+  // Camera: each keyframe (zoom + focus point, app coordinates) is turned into
+  // the visible rectangle, clamped inside the app. Rectangles are then eased
+  // between keyframes: zoom and pan move together, never outside the app.
   const VIEW_W = 1240,
     VIEW_H = 775;
   const base = VIEW_W / APP_W;
-  const s = base * z;
-  // keep the focus point centered, but never show outside the app
-  let tx = VIEW_W / 2 - cx * s;
-  let ty = VIEW_H / 2 - cy * s;
-  tx = Math.min(0, Math.max(VIEW_W - APP_W * s, tx));
-  ty = Math.min(0, Math.max(VIEW_H - APP_H * s, ty));
+  const keys = camera && camera.length ? camera : [{ f: 0, z: 1, x: APP_W / 2, y: APP_H / 2 }];
+  const rects = keys.map((k) => {
+    const w = VIEW_W / (base * k.z);
+    const h = VIEW_H / (base * k.z);
+    return {
+      w,
+      x: Math.min(APP_W - w, Math.max(0, k.x - w / 2)),
+      y: Math.min(APP_H - h, Math.max(0, k.y - h / 2)),
+    };
+  });
+  const ease = { ...clamp, easing: Easing.bezier(0.45, 0, 0.25, 1) };
+  const fs = keys.map((k) => k.f);
+  const at = (vals: number[]) => (keys.length > 1 ? interpolate(frame, fs, vals, ease) : vals[0]);
+  const w = at(rects.map((r) => r.w));
+  const s = VIEW_W / w;
+  const tx = -at(rects.map((r) => r.x)) * s;
+  const ty = -at(rects.map((r) => r.y)) * s;
 
   return (
     <AbsoluteFill style={{ background: c.s25, fontFamily: font, color: c.ink }}>
-      <div style={{ position: "absolute", top: 44, left: 210, opacity: fade }}>
-        <ChainBar current={step} subscriptionOn={subscriptionOn} />
-      </div>
+      {step !== undefined && (
+        <div style={{ position: "absolute", top: 44, left: 210, opacity: fade }}>
+          <ChainBar current={step} subscriptionOn={subscriptionOn} />
+        </div>
+      )}
       <div
         style={{
           position: "absolute",
@@ -184,7 +215,7 @@ export const StepLayout: React.FC<{
             opacity: t1,
           }}
         >
-          Étape {num}
+          {kicker ?? `Étape ${num}`}
         </div>
         <div
           style={{
@@ -216,7 +247,7 @@ export const StepLayout: React.FC<{
         style={{
           position: "absolute",
           left: 600,
-          top: 232,
+          top: step === undefined ? 152 : 232,
           width: VIEW_W,
           height: VIEW_H,
           borderRadius: 14,
