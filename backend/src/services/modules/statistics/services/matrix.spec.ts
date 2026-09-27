@@ -59,5 +59,17 @@ describe("Statistics matrix", () => {
     expect(lines.map((a) => a.article)).toEqual(["a1", "a2"]);
     expect(lines[0].amount).toBeCloseTo(90);
     expect(lines[1].amount).toBeCloseTo(270);
+
+    // Group headers and text lines have no amount
+    expect(
+      getInvoiceLinesAmounts({
+        content: [
+          { type: "group", article: "", unit_price: 500, quantity: 1 },
+          { type: "service", article: "a1", unit_price: 100, quantity: 1 },
+          { type: "separation", article: "", unit_price: 0, quantity: 0 },
+        ] as any,
+        total: { total: 100 } as any,
+      })
+    ).toEqual([{ article: "a1", amount: 100 }]);
   });
 });

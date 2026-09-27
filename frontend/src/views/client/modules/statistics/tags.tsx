@@ -26,6 +26,14 @@ const sumAmounts = (values: (number | undefined)[]) =>
 const rowTotal = (row: DashboardTags) =>
   sumAmounts(Object.values(_.omit(row, "month")));
 
+// Columns computed by the backend in addition to the real tags
+const EXTRA_COLUMNS = [
+  { id: "untagged", name: "Sans catégorie", color: "" },
+  { id: "multiple", name: "Multiple catégories", color: "" },
+  // Lines without article: down payments, down payment deductions, corrections
+  { id: "adjustments", name: "Acomptes / corrections", color: "" },
+] as Tags[];
+
 export const TagsExportModal = ({
   year,
   onClose,
@@ -53,16 +61,7 @@ export const TagsExportModal = ({
     const tagsSorted = _.sortBy(tags.data?.list, "name").filter((tag) =>
       usedTags.includes(tag.id),
     );
-    tagsSorted.push({
-      id: "untagged",
-      name: "Sans catégorie",
-      color: "",
-    } as Tags);
-    tagsSorted.push({
-      id: "multiple",
-      name: "Multiple catégories",
-      color: "",
-    } as Tags);
+    tagsSorted.push(...EXTRA_COLUMNS);
 
     const data = res.data.map((monthly, index) => {
       const row: Record<string, string | number> = {
@@ -175,6 +174,8 @@ export const TagsPage = ({ year }: { year: number }) => {
   );
 
   const getLink = (tag?: Tags, month?: number) => {
+    // Invoices search can't filter on lines without article
+    if (tag?.id === "adjustments") return undefined;
     const q = [
       month !== undefined
         ? `emit_date:${format(new Date(year, month, 1), "yyyy-MM")}`
@@ -208,16 +209,7 @@ export const TagsPage = ({ year }: { year: number }) => {
     );
   }
 
-  tagsSorted.push({
-    id: "untagged",
-    name: "Sans catégorie",
-    color: "",
-  } as Tags);
-  tagsSorted.push({
-    id: "multiple",
-    name: "Multiple catégories",
-    color: "",
-  } as Tags);
+  tagsSorted.push(...EXTRA_COLUMNS);
 
   const total = tagsSorted.reduce(
     (acc, tag) => ({
@@ -252,7 +244,9 @@ export const TagsPage = ({ year }: { year: number }) => {
           title: (
             <Link
               noColor
-              className={twMerge("hover:underline cursor-pointer")}
+              className={twMerge(
+                getLink(a) && "hover:underline cursor-pointer",
+              )}
               href={getLink(a)}
             >
               {a.color ? (
@@ -271,7 +265,7 @@ export const TagsPage = ({ year }: { year: number }) => {
             <Link
               noColor
               className={twMerge(
-                "hover:underline cursor-pointer",
+                getLink(a) && "hover:underline cursor-pointer",
                 (row[a.id] || 0) > 0
                   ? ""
                   : (row[a.id] || 0) < 0

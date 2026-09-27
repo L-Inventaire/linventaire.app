@@ -23,14 +23,15 @@ export const getMonthBounds = (month: string, timezone: string) => {
  * Split the invoice total (HT, after discounts) on its lines.
  * Every counted line is kept, with or without article (down payments, down
  * payment deductions, corrections...), so the sum of the lines is always the
- * invoice total. Line discounts are applied on each line and the global
- * discount is applied proportionally.
+ * invoice total. Group headers and text lines have no amount. Line discounts
+ * are applied on each line and the global discount is applied proportionally.
  */
 export const getInvoiceLinesAmounts = (
   invoice: Pick<Invoices, "content" | "total">
 ): { article: string | null; amount: number }[] => {
   const lines = (invoice.content || [])
     .filter((a) => !a.optional || a.optional_checked)
+    .filter((a) => a.type !== "group" && a.type !== "separation")
     .map((a) => {
       const price =
         (parseFloat(a.unit_price as any) || 0) *
@@ -99,7 +100,16 @@ export const getMatrix = async (
   // Get amount per tag, summed in cents to avoid floating point drift
   const cents: { [tag: string]: number } = {};
   for (const line of lines) {
-    const tags = line.article ? tagsMap[line.article] : null;
+    // Lines without a real article (down payments, down payment deductions,
+    // "correction" lines of partial invoices...) are counted apart as they
+    // can be negative
+    if (!line.article || !_.has(tagsMap, line.article)) {
+      cents.adjustments =
+        (cents.adjustments || 0) + Math.round(line.amount * 100);
+      continue;
+    }
+
+    const tags = tagsMap[line.article];
     let tag = "multiple";
     if (!tags?.length) tag = "untagged";
     else if (tags.length === 1) tag = tags[0];
