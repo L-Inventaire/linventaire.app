@@ -58,3 +58,37 @@ jobs:
       - name: Run tests
         working-directory: ./backend
         run: npm run test
+
+  api-docs:
+    runs-on: ubuntu-latest
+    name: API documentation build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install shared dependencies
+        working-directory: ./shared
+        run: npm install
+
+      - name: Build shared library
+        working-directory: ./shared
+        run: npm run build
+
+      # The OpenAPI document is generated from the backend entities
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: npm install
+
+      - name: Install dependencies
+        working-directory: ./api-docs
+        run: npm install
+
+      - name: Build documentation
+        working-directory: ./api-docs
+        run: npm run build

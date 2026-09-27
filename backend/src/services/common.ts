@@ -40,11 +40,24 @@ export const checkRoleFromCtxOrThrow = (
   }
 };
 
+// Api keys are bound to a single company, they can't be used on another one
+export const checkApiKeyScopeOrThrow = (req: Express.Request, ctx: Context) => {
+  if (ctx?.role !== "API") return;
+  const clientId = req.params.clientId;
+  if (!ctx.api_key?.client_id) {
+    throw UnauthorizedError("Invalid api key");
+  }
+  if (clientId && clientId !== ctx.api_key.client_id) {
+    throw ForbiddenError("This api key can't be used for this company");
+  }
+};
+
 export const checkRoleAny =
   (roles: Context["role"][]) =>
   async (req: Express.Request, res: Express.Response, next: () => void) => {
     const ctx = Ctx.get(req)!.context;
     checkRoleFromCtxOrThrow(ctx, roles);
+    checkApiKeyScopeOrThrow(req, ctx);
     if (ctx.client_id && ctx.id) {
       await loadPermissions(req);
     }
@@ -95,6 +108,10 @@ export const checkMfa =
     if (!ctx) {
       throw UnauthorizedError("No context found");
     }
+    // Sensitive actions protected by MFA can't be done with an api key
+    if (ctx.role === "API") {
+      throw ForbiddenError("This action can't be done using an api key");
+    }
     if (ctx.mfa.length < 2) {
       const user = await Services.Users.getUser(ctx, { id: ctx.id });
       if (
@@ -103,7 +120,7 @@ export const checkMfa =
         options.min = 1;
       }
     }
-    if (ctx.mfa.length < (options.min || 2) && ctx.role !== "API") {
+    if (ctx.mfa.length < (options.min || 2)) {
       throw UnauthorizedError(
         "You need to use at least 2 authentication factors"
       );
@@ -113,6 +130,18 @@ export const checkMfa =
 
 export const checkRole = (role: Context["role"]) => checkRoleAny([role]);
 
+// Account level actions (authentication, api keys management, invitations...)
+// must be done by the user itself, not through an api key.
+export const denyApiKeys =
+  () =>
+  async (req: Express.Request, _res: Express.Response, next: () => void) => {
+    const ctx = Ctx.get(req)!.context;
+    if (ctx?.role === "API") {
+      throw ForbiddenError("This action can't be done using an api key");
+    }
+    next();
+  };
+
 export const checkClientRoles =
   (roles: Role[] | ((req: Express.Request) => Role[])) =>
   async (req: Express.Request, _res: Express.Response, next: () => void) => {
@@ -121,6 +150,7 @@ export const checkClientRoles =
       throw BadRequestError("Client ID is missing");
     }
     const ctx = Ctx.get(req)!.context;
+    checkApiKeyScopeOrThrow(req, ctx);
     if (
       !(await Services.Clients.checkUserRoles(
         ctx,

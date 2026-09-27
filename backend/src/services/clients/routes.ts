@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { checkClientRoles, checkRole } from "../common";
+import { checkClientRoles, checkRole, denyApiKeys } from "../common";
 import { Ctx } from "../utils";
 import {
   createClient,
@@ -29,17 +29,29 @@ export default (router: Router) => {
 
   router.get("/clients", checkRole("USER"), async (req, res) => {
     const ctx = Ctx.get(req)!.context;
-    res.json(await getClients(ctx));
+    const clients = await getClients(ctx);
+    // An api key only gives access to the company it was created for
+    res.json(
+      ctx.role === "API"
+        ? clients.filter((c) => c.client_id === ctx.api_key?.client_id)
+        : clients
+    );
   });
 
-  router.get("/invitations", checkRole("USER"), async (req, res) => {
-    const ctx = Ctx.get(req)!.context;
-    res.json(await getInvitations(ctx));
-  });
+  router.get(
+    "/invitations",
+    checkRole("USER"),
+    denyApiKeys(),
+    async (req, res) => {
+      const ctx = Ctx.get(req)!.context;
+      res.json(await getInvitations(ctx));
+    }
+  );
 
   router.post(
     "/invitations/:clientId/:action",
     checkRole("USER"),
+    denyApiKeys(),
     async (req, res) => {
       const ctx = Ctx.get(req)!.context;
       res.json(
@@ -52,10 +64,15 @@ export default (router: Router) => {
     }
   );
 
-  router.post("/clients", checkRole("USER"), async (req, res) => {
-    const ctx = Ctx.get(req)!.context;
-    res.json(await createClient(ctx, req.body));
-  });
+  router.post(
+    "/clients",
+    checkRole("USER"),
+    denyApiKeys(),
+    async (req, res) => {
+      const ctx = Ctx.get(req)!.context;
+      res.json(await createClient(ctx, req.body));
+    }
+  );
 
   router.get(
     "/clients/:clientId",

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { checkRole, checkRoleAny } from "../common";
+import { checkRole, checkRoleAny, denyApiKeys } from "../common";
 import { verifyAppValidationCode } from "./services/app";
 import {
   requestEmailValidation,
@@ -12,6 +12,9 @@ import { Ctx } from "../utils";
 import { BadRequestError } from "../../types";
 
 export default (router: Router) => {
+  // Api keys can't be used to get a session token or to manage authentication factors
+  router.use(denyApiKeys());
+
   router.get("/status", (req, res) => {
     try {
       //Fixme: check if the service is up
