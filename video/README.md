@@ -1,12 +1,21 @@
-# Vidéo d'onboarding (Remotion)
+# Vidéo de présentation (Remotion)
 
-Vidéo de ~50 s présentant linventaire.app (fonctionnalités, architecture, notions de base) et comment démarrer une nouvelle branche.
+Vidéo client (~1 min 18) qui présente le positionnement de L'inventaire : **tout part du devis**.
+On suit le devis D-2026-1 d'une boulangerie, de sa création jusqu'au paiement :
+devis → envoi → signature client → réalisation (stock, commandes, interventions) → facturation → abonnement → paiement.
+
+Les écrans sont reconstruits à l'identique de l'app (sidebar, pages devis/facture, modales, libellés réels),
+avec le logo officiel (`frontend/public/medias/logo*.svg`), la police Inter et les icônes Heroicons.
 
 ```bash
 cd video
 npm install
-npm run studio   # prévisualisation interactive
-npm run render   # génère out/onboarding.mp4
+npm run studio   # prévisualisation (composition "Presentation", ou une scène seule "scene-…")
+npm run render   # génère out/presentation.mp4
 ```
 
-Les scènes sont dans `src/scenes/index.tsx`, leur durée dans `src/Root.tsx`.
+- `src/ui/` : reconstruction de l'interface (shell, document devis/facture, curseur, logo)
+- `src/scenes/steps.tsx` : les étapes animées dans l'interface
+- `src/scenes/story.tsx` : intro, schéma « tout part du devis », récap, fonctionnalités, outro
+- `src/Root.tsx` : ordre et durée des scènes
+- `node stills.mjs quote:120 send:60` : rend des images clés dans `out/stills/` pour vérifier une scène
