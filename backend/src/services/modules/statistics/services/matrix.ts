@@ -4,7 +4,20 @@ import { Context } from "#src/types";
 import _ from "lodash";
 import { ArticlesDefinition } from "../../articles/entities/articles";
 import Invoices, { InvoicesDefinition } from "../../invoices/entities/invoices";
-import { getTimezoneOffset, applyOffset } from "@shared/invoices";
+import { DateTime } from "luxon";
+
+/**
+ * Returns [from, to[ timestamps (ms) of a month ("2025-01") in a timezone
+ */
+export const getMonthBounds = (month: string, timezone: string) => {
+  const start = DateTime.fromISO(month + "-01", { zone: timezone }).startOf(
+    "month"
+  );
+  return {
+    from: start.toMillis(),
+    to: start.plus({ months: 1 }).toMillis(),
+  };
+};
 
 /**
  * This function will generate invoices custom statistics for 2d tables
@@ -18,21 +31,18 @@ export const getMatrix = async (
   const client = await Services.Clients.getClient(ctx, clientId);
   const timezone = client?.preferences?.timezone || "Europe/Paris";
 
-  const { offsetms: fromOffset } = getTimezoneOffset(
-    timezone,
-    new Date(month + "-01").getTime()
-  );
-
-  const from = new Date(month + "-01").getTime() - fromOffset;
-  const to = new Date(from);
-  applyOffset(to, "monthly", timezone);
+  // Month bounds in the client timezone. Both bounds are computed separately so
+  // a DST change during the month doesn't shift the end bound (e.g. March in
+  // Europe/Paris would otherwise end on April 1st at 01:00 and include the
+  // invoices of April 1st).
+  const { from, to } = getMonthBounds(month, timezone);
   const invoices = await db.select<Invoices>(
     { ...ctx, role: "SYSTEM" },
     InvoicesDefinition.name,
     {
       where:
         "client_id=$1 and is_deleted=false and type='invoices' and state!='draft' and emit_date >= $2 and emit_date < $3",
-      values: [clientId, from, to.getTime()],
+      values: [clientId, from, to],
     },
     { limit: 5000 }
   );

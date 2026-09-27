@@ -9,9 +9,15 @@ import {
 import { useInvoices } from "@features/invoices/hooks/use-invoices";
 import { computePaymentDelayDate } from "@shared/invoices";
 import { Pagination } from "@molecules/table/table";
+import { format } from "date-fns";
 import { useRef, useState } from "react";
 import { buildQueryFromMap } from "../../../../../components/search-bar/utils/utils";
 import { getInvoiceStatusPrettyName } from "../utils";
+
+// Format a date (timestamp) in the user's timezone. Using toISOString() would
+// format it in UTC and shift dates stored at local midnight to the day before.
+const formatExportDate = (date: number | string | Date) =>
+  format(new Date(date), "yyyy-MM-dd");
 
 export type InvoiceTab = { label: string; filter: RestSearchQuery[] };
 export type InvoiceTabs = Record<string, InvoiceTab>;
@@ -80,7 +86,7 @@ export const useTabInvoices = ({
           reference: invoice.reference,
           type: getDocumentName(invoice.type),
           status: getInvoiceStatusPrettyName(invoice.state, invoice.type),
-          emit_date: new Date(invoice.emit_date).toISOString().slice(0, 10),
+          emit_date: formatExportDate(invoice.emit_date),
           name: invoice.name,
           content: (invoice.content || []).map((line) => line.name).join(", "),
           partner: invoice.cache?.partner_names || "",
@@ -102,13 +108,8 @@ export const useTabInvoices = ({
         // Due date calculation varies by document type
         typeSpecificFields.due_date =
           invoice.type === "quotes"
-            ? computePaymentDelayDate(invoice)
-                .toJSDate()
-                .toISOString()
-                .slice(0, 10)
-            : new Date(invoice.payment_information.computed_date)
-                .toISOString()
-                .slice(0, 10);
+            ? formatExportDate(computePaymentDelayDate(invoice).toJSDate())
+            : formatExportDate(invoice.payment_information.computed_date);
 
         // Payment methods for all types that have payment_information
         if (invoice.payment_information?.mode) {
@@ -129,19 +130,15 @@ export const useTabInvoices = ({
             invoice.from_subscription.frequency || "";
 
           if (invoice.from_subscription.from) {
-            typeSpecificFields.recurrence_period_from = new Date(
+            typeSpecificFields.recurrence_period_from = formatExportDate(
               invoice.from_subscription.from,
-            )
-              .toISOString()
-              .slice(0, 10);
+            );
           }
 
           if (invoice.from_subscription.to) {
-            typeSpecificFields.recurrence_period_to = new Date(
+            typeSpecificFields.recurrence_period_to = formatExportDate(
               invoice.from_subscription.to,
-            )
-              .toISOString()
-              .slice(0, 10);
+            );
           }
         }
 
