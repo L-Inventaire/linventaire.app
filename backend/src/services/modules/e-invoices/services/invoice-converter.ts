@@ -1,7 +1,10 @@
 import Clients, { Address } from "#src/services/clients/entities/clients";
 import Services from "#src/services/index";
 import { search } from "#src/services/rest/services/rest";
-import { getContactName } from "#src/services/utils";
+import {
+  formatDateInTimezone,
+  getContactName,
+} from "#src/services/utils";
 import { Context } from "#src/types";
 import { getUnitCode, getVatCode } from "@shared/consts";
 import {
@@ -971,6 +974,12 @@ export function convertInternalToEN16931(
     invoiceNotes.push({ note: invoice.notes });
   }
 
+  // Dates are stored as timestamps (usually local midnight), they must be
+  // formatted in the company timezone (same as the PDF)
+  const timezone = company?.preferences?.timezone || "Europe/Paris";
+  const formatDate = (date: number | string | Date) =>
+    formatDateInTimezone(date, timezone);
+
   // Build EN16931 invoice
   const en16931Invoice: EN16931Invoice = {
     process_control: {
@@ -978,11 +987,9 @@ export function convertInternalToEN16931(
       specification_identifier: "urn:cen.eu:en16931:2017",
     },
     number: invoice.reference || invoice.name,
-    issue_date: new Date(invoice.emit_date).toISOString().split("T")[0],
+    issue_date: formatDate(invoice.emit_date),
     payment_due_date: invoice.payment_information.computed_date
-      ? new Date(invoice.payment_information.computed_date)
-          .toISOString()
-          .split("T")[0]
+      ? formatDate(invoice.payment_information.computed_date)
       : undefined,
     type_code: typeCode,
     currency_code: (invoice.currency || "EUR").toUpperCase(),
@@ -995,21 +1002,15 @@ export function convertInternalToEN16931(
       invoice.from_subscription?.to &&
       invoice.from_subscription?.frequency
         ? {
-            start_date: new Date(invoice.from_subscription.from)
-              .toISOString()
-              .split("T")[0],
-            end_date: new Date(invoice.from_subscription.to)
-              .toISOString()
-              .split("T")[0],
+            start_date: formatDate(invoice.from_subscription.from),
+            end_date: formatDate(invoice.from_subscription.to),
           }
         : undefined,
     seller,
     buyer,
     delivery_information: invoice.delivery_date
       ? {
-          actual_delivery_date: new Date(invoice.delivery_date)
-            .toISOString()
-            .split("T")[0],
+          actual_delivery_date: formatDate(invoice.delivery_date),
           postal_address: invoice.delivery_address?.address_line_1
             ? {
                 address_line1: invoice.delivery_address.address_line_1,

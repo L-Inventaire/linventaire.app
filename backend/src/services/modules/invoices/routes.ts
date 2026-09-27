@@ -6,7 +6,7 @@ import Framework from "../../../platform";
 import { search } from "../../../services/rest/services/rest";
 import { buildQueryFromMap } from "../../../services/rest/services/utils";
 import { checkClientRoles, checkRole } from "../../common";
-import { Ctx } from "../../utils";
+import { Ctx, formatDateInTimezone } from "../../utils";
 import Articles, { ArticlesDefinition } from "../articles/entities/articles";
 import StockItems, {
   StockItemsDefinition,
@@ -202,6 +202,9 @@ export const registerRoutes = (router: Router) => {
       const newStartedAt = new Date(from);
       const updated: string[] = [];
 
+      const client = await Services.Clients.getClient(ctx, ctx.client_id);
+      const timezone = client?.preferences?.timezone || "Europe/Paris";
+
       for (const quoteId of invoice.from_rel_quote) {
         const quote = await db.selectOne<Invoices>(
           ctx,
@@ -231,9 +234,10 @@ export const registerRoutes = (router: Router) => {
           client_id: quote.client_id,
           item_entity: "invoices",
           item_id: quote.id,
-          content: `Le jour de facturation de l'abonnement a été aligné sur le ${
-            newStartedAt.toISOString().split("T")[0]
-          } depuis la facture ${invoice.reference || invoice.id}.`,
+          content: `Le jour de facturation de l'abonnement a été aligné sur le ${formatDateInTimezone(
+            newStartedAt,
+            timezone
+          )} depuis la facture ${invoice.reference || invoice.id}.`,
           metadata: {
             event_type: "subscription_billing_day_updated",
             from_invoice: invoice.id,

@@ -10,6 +10,7 @@ import { Context, createContext } from "../types";
 import Contacts from "./modules/contacts/entities/contacts";
 import { getUnitCode } from "@shared/consts";
 import { authenticateApiKey, isApiKey } from "./developers/services/api-keys";
+import { DateTime } from "luxon";
 
 const getTrustProxy = () => {
   const value = config.has("server.trust_proxy")
@@ -213,6 +214,25 @@ export function flattenKeys(object: any, initialPathPrefix = "") {
     )
     .reduce((acc, path) => ({ ...acc, ...path }));
 }
+
+/**
+ * Format a date (timestamp) as YYYY-MM-DD in the given timezone.
+ * Don't use toISOString() for this: it formats in UTC and dates stored at local
+ * midnight (e.g. 2026-03-01 00:00 Europe/Paris = 2026-02-28T23:00Z) would be
+ * shifted to the day before.
+ */
+export const formatDateInTimezone = (
+  date: number | string | Date,
+  timezone: string
+): string => {
+  const ms = new Date(date).getTime();
+  if (isNaN(ms)) throw new RangeError(`Invalid date: ${date}`);
+  let result = DateTime.fromMillis(ms, { zone: timezone });
+  // Unknown timezone: fallback on the default one instead of returning null
+  if (!result.isValid)
+    result = DateTime.fromMillis(ms, { zone: "Europe/Paris" });
+  return result.toISODate()!;
+};
 
 export const getContactName = (contact: Partial<Contacts>) => {
   if (!contact) return "";

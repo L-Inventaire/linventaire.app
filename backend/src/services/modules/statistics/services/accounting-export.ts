@@ -6,7 +6,7 @@ import Articles, { ArticlesDefinition } from "../../articles/entities/articles";
 import Contacts, { ContactsDefinition } from "../../contacts/entities/contacts";
 import Invoices, { InvoicesDefinition } from "../../invoices/entities/invoices";
 import { Tags, TagsDefinition } from "../../tags/entities/tags";
-import { getContactName } from "#src/services/utils";
+import { formatDateInTimezone, getContactName } from "#src/services/utils";
 import { getTimezoneOffset } from "@shared/invoices";
 
 export type AccountingExportLine = {
@@ -306,9 +306,7 @@ export const getAccountingExport = async (
     const invoiceBase = {
       invoice_id: invoice.id,
       invoice_reference: invoice.reference || "",
-      invoice_emit_date: new Date(invoice.emit_date)
-        .toISOString()
-        .split("T")[0],
+      invoice_emit_date: formatDateInTimezone(invoice.emit_date, timezone),
       invoice_type: invoice.type,
       invoice_state: invoice.state,
       invoice_total_ht: invoice.total?.total || 0,

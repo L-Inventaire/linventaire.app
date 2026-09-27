@@ -353,3 +353,39 @@ describe("convertInternalToEN16931 - same totals as the PDF", () => {
     expect(result.lines).toHaveLength(2); // No separator, no unchecked option, rebate as allowance
   });
 });
+
+describe("convertInternalToEN16931 dates", () => {
+  test("dates are formatted in the company timezone", () => {
+    const invoice = {
+      ...buildInvoice({
+        vat_breakdown: [{ tva: "20", taxable_amount: 82, tax_amount: 16.4 }],
+      }),
+      // 2026-03-01 00:00 in Europe/Paris
+      emit_date: new Date("2026-02-28T23:00:00.000Z").getTime(),
+      payment_information: {
+        mode: "",
+        // 2026-04-01 00:00 in Europe/Paris (summer time)
+        computed_date: new Date("2026-03-31T22:00:00.000Z").getTime(),
+      },
+      from_subscription: {
+        frequency: "monthly",
+        from: new Date("2026-02-28T23:00:00.000Z").getTime(),
+        to: new Date("2026-03-31T21:59:59.999Z").getTime(),
+      },
+      delivery_date: new Date("2026-02-28T23:00:00.000Z").getTime(),
+      delivery_address: {},
+    } as unknown as Invoices;
+
+    const result = convertInternalToEN16931(invoice, buildResolvedEntities());
+
+    expect(result.issue_date).toBe("2026-03-01");
+    expect(result.payment_due_date).toBe("2026-04-01");
+    expect(result.invoicing_period).toEqual({
+      start_date: "2026-03-01",
+      end_date: "2026-03-31",
+    });
+    expect(result.delivery_information?.actual_delivery_date).toBe(
+      "2026-03-01"
+    );
+  });
+});
