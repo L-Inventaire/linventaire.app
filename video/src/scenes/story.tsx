@@ -6,6 +6,9 @@ import {
   CodeBracketIcon,
   CubeIcon,
   DocumentCheckIcon,
+  DocumentTextIcon,
+  EnvelopeIcon,
+  TableCellsIcon,
   ReceiptRefundIcon,
   GlobeEuropeAfricaIcon,
   ShoppingCartIcon,
@@ -40,25 +43,68 @@ const Page: React.FC<{ children: React.ReactNode; dark?: boolean }> = ({ childre
 );
 
 /* Intro -------------------------------------------------------------- */
+// Scattered tools, then everything gathers into the logo
+const CHAOS = [
+  { icon: TableCellsIcon, label: "devis_2026_v3_final.xlsx", x: -560, y: -250, r: -6 },
+  { icon: DocumentTextIcon, label: "Factures : un autre logiciel", x: 330, y: -300, r: 5 },
+  { icon: CubeIcon, label: "Stock : suivi de tête", x: -620, y: 170, r: 4 },
+  { icon: EnvelopeIcon, label: "Relance client oubliée", x: 360, y: 230, r: -4 },
+  { icon: ArrowPathIcon, label: "Abonnements refacturés à la main", x: -170, y: 360, r: 2 },
+];
+const LOGO_AT = 74;
+
 export const Intro: React.FC = () => {
   const frame = useSceneFrame();
   const { fps } = useSceneConfig();
-  const m = bouncy(frame, fps, 0);
-  const t = pop(frame, fps, 18);
-  const tag = pop(frame, fps, 34);
+  const gather = prog(frame, 58, 76);
+  const m = bouncy(frame, fps, LOGO_AT);
+  const t = pop(frame, fps, LOGO_AT + 18);
+  const tag = pop(frame, fps, LOGO_AT + 34);
   return (
     <Page dark>
       <AbsoluteFill style={{ alignItems: "center", justifyContent: "center" }}>
-        {/* Official wordmark (frontend/public/medias/logo-text.svg): the mark pops, then the name is revealed */}
-        <div style={{ transform: `scale(${0.9 + 0.1 * m})` }}>
-          <Img
-            src={staticFile("logo-text.svg")}
-            style={{ height: 220, display: "block", clipPath: `inset(0 ${(1 - t) * 76}% 0 0)`, opacity: Math.min(1, m * 1.5) }}
-          />
-        </div>
-        <div style={{ fontSize: 42, color: c.s300, marginTop: 40, opacity: tag, transform: `translateY(${(1 - tag) * 16}px)` }}>
-          Le co-pilote ERP de votre entreprise
-        </div>
+        {CHAOS.map((it, i) => {
+          const a = bouncy(frame, fps, 6 + i * 9);
+          const I = it.icon;
+          const wobble = Math.sin((frame + i * 20) / 14) * 6;
+          return (
+            <div
+              key={it.label}
+              style={{
+                position: "absolute",
+                display: "flex",
+                alignItems: "center",
+                gap: 14,
+                background: "white",
+                color: c.ink,
+                borderRadius: 14,
+                padding: "16px 22px",
+                fontSize: 30,
+                fontWeight: 600,
+                boxShadow: "0 20px 50px rgba(0,0,0,0.4)",
+                opacity: Math.min(1, a) * (1 - gather),
+                transform: `translate(${it.x * (1 - gather)}px, ${(it.y + wobble) * (1 - gather)}px) rotate(${it.r * (1 - gather)}deg) scale(${a * (1 - 0.7 * gather)})`,
+              }}
+            >
+              <I style={{ width: 30, color: i === 3 ? c.red : c.s600 }} />
+              {it.label}
+            </div>
+          );
+        })}
+        {frame >= LOGO_AT - 2 && (
+          <>
+            {/* Official wordmark (frontend/public/medias/logo-text.svg): the mark pops, then the name is revealed */}
+            <div style={{ transform: `scale(${0.9 + 0.1 * m})` }}>
+              <Img
+                src={staticFile("logo-text.svg")}
+                style={{ height: 220, display: "block", clipPath: `inset(0 ${(1 - t) * 76}% 0 0)`, opacity: Math.min(1, m * 1.5) }}
+              />
+            </div>
+            <div style={{ fontSize: 42, color: c.s300, marginTop: 40, opacity: tag, transform: `translateY(${(1 - tag) * 16}px)` }}>
+              Le co-pilote ERP de votre entreprise
+            </div>
+          </>
+        )}
       </AbsoluteFill>
     </Page>
   );

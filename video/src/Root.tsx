@@ -15,7 +15,7 @@ import { Features, HowItWorks, Intro, Outro, Positioning, Recap } from "./scenes
 
 // Durations in frames (30 fps)
 export const SCENES: [string, React.FC, number][] = [
-  ["intro", Intro, 110],
+  ["intro", Intro, 190],
   ["features", Features, 170],
   ["how", HowItWorks, 70],
   ["positioning", Positioning, 300],

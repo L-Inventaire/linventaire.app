@@ -2,56 +2,132 @@
   "_doc": "Voice-over script. One audio file per scene (public/voice/<scene>.mp3). 'at' = frame of the animation (30 fps, before retiming) where the line should start. Leave a short pause (~0.6 s) between lines of a same scene so they can be detected.",
   "scenes": {
     "intro": [
-      { "at": 10, "text": "L'inventaire : le co-pilote ERP de votre entreprise." }
+      {
+        "at": 8,
+        "text": "Des devis sur un tableur, des factures dans un autre logiciel, un stock qu'on suit de tête... Ça vous parle ?"
+      },
+      {
+        "at": 74,
+        "text": "Avec L'inventaire, tout est enfin au même endroit."
+      }
     ],
     "features": [
-      { "at": 10, "text": "Devis, factures, abonnements, contacts, stock, interventions, comptabilité, facture électronique..." },
-      { "at": 90, "text": "Tout le quotidien de votre entreprise, réuni dans un seul outil." }
+      {
+        "at": 10,
+        "text": "Vos devis et vos factures, vos abonnements, vos clients, votre stock, vos interventions, votre comptabilité... et même la facture électronique."
+      },
+      {
+        "at": 90,
+        "text": "Un seul outil, pensé pour vous simplifier la vie au quotidien."
+      }
     ],
     "how": [
-      { "at": 8, "text": "Mais alors, comment ça marche ?" }
+      {
+        "at": 8,
+        "text": "Et le plus simple, c'est encore de vous montrer comment ça marche."
+      }
     ],
     "positioning": [
-      { "at": 8, "text": "Chez L'inventaire, tout part du devis." },
-      { "at": 36, "text": "C'est lui qui organise vos opérations : vos clients, vos produits, vos interventions et vos achats." },
-      { "at": 140, "text": "Et c'est lui qui génère toute la partie financière : factures, avoirs, abonnements et paiements." }
+      {
+        "at": 8,
+        "text": "Chez L'inventaire, tout part du devis."
+      },
+      {
+        "at": 36,
+        "text": "C'est lui qui organise vos opérations : vos clients, vos produits, vos interventions et vos achats."
+      },
+      {
+        "at": 140,
+        "text": "Et c'est lui qui génère toute la partie financière : factures, avoirs, abonnements et paiements."
+      }
     ],
     "quote": [
-      { "at": 8, "text": "Prenons un exemple : vous équipez une boulangerie en caisses enregistreuses." },
-      { "at": 45, "text": "Vous créez le devis, et vous y déposez vos articles : deux caisses tactiles, deux tiroirs-caisses, six heures d'installation, et un contrat de maintenance mensuel." }
+      {
+        "at": 8,
+        "text": "Prenons un exemple : vous équipez une boulangerie en caisses enregistreuses."
+      },
+      {
+        "at": 45,
+        "text": "Vous créez le devis, et vous y déposez vos articles : deux caisses tactiles, deux tiroirs-caisses, six heures d'installation, et un contrat de maintenance mensuel."
+      }
     ],
     "send": [
-      { "at": 14, "text": "Un clic, et le devis part par email, avec la signature électronique intégrée." }
+      {
+        "at": 14,
+        "text": "Un clic, et le devis part par email, avec la signature électronique intégrée."
+      }
     ],
     "sign": [
-      { "at": 8, "text": "Votre client l'accepte et le signe en ligne, depuis son téléphone ou son ordinateur." },
-      { "at": 124, "text": "Le devis passe automatiquement en « accepté »." }
+      {
+        "at": 8,
+        "text": "Votre client l'accepte et le signe en ligne, depuis son téléphone ou son ordinateur."
+      },
+      {
+        "at": 124,
+        "text": "Le devis passe automatiquement en « accepté »."
+      }
     ],
     "fulfil": [
-      { "at": 14, "text": "Place à la réalisation : les caisses sont réservées en stock, et la commande fournisseur est créée." },
-      { "at": 165, "text": "Une fois l'installation faite, le devis est prêt à être facturé." }
+      {
+        "at": 14,
+        "text": "Place à la réalisation : les caisses sont réservées en stock, et la commande fournisseur est créée."
+      },
+      {
+        "at": 165,
+        "text": "Une fois l'installation faite, le devis est prêt à être facturé."
+      }
     ],
     "invoice": [
-      { "at": 12, "text": "Facturez alors en un clic : en totalité, en partie, ou sous forme d'acompte." },
-      { "at": 150, "text": "Les lignes sont reprises automatiquement. Rien à ressaisir." }
+      {
+        "at": 12,
+        "text": "Facturez alors en un clic : en totalité, en partie, ou sous forme d'acompte."
+      },
+      {
+        "at": 150,
+        "text": "Les lignes sont reprises automatiquement. Rien à ressaisir."
+      }
     ],
     "subscription": [
-      { "at": 10, "text": "Quant à la maintenance mensuelle, elle devient un abonnement : une facture est générée automatiquement, chaque mois." }
+      {
+        "at": 10,
+        "text": "Quant à la maintenance mensuelle, elle devient un abonnement : une facture est générée automatiquement, chaque mois."
+      }
     ],
     "payment": [
-      { "at": 10, "text": "Votre client règle sa facture ? Enregistrez le paiement." },
-      { "at": 118, "text": "La facture est soldée, et votre trésorerie est à jour." }
+      {
+        "at": 10,
+        "text": "Votre client règle sa facture ? Enregistrez le paiement."
+      },
+      {
+        "at": 118,
+        "text": "La facture est soldée, et votre trésorerie est à jour."
+      }
     ],
     "recap": [
-      { "at": 60, "text": "Et voilà, c'est aussi simple que ça !" },
-      { "at": 120, "text": "Un seul document, du premier contact jusqu'au paiement." }
+      {
+        "at": 60,
+        "text": "Et voilà, c'est aussi simple que ça !"
+      },
+      {
+        "at": 120,
+        "text": "Un seul document, du premier contact jusqu'au paiement."
+      }
     ],
     "dashboard": [
-      { "at": 18, "text": "Et au quotidien, votre tableau de bord vous donne en temps réel votre chiffre d'affaires, vos charges et votre résultat..." },
-      { "at": 120, "text": "...mais aussi les devis signés, les factures en retard, et tout ce qui demande votre attention." }
+      {
+        "at": 18,
+        "text": "Et au quotidien, votre tableau de bord vous donne en temps réel votre chiffre d'affaires, vos charges et votre résultat..."
+      },
+      {
+        "at": 120,
+        "text": "...mais aussi les devis signés, les factures en retard, et tout ce qui demande votre attention."
+      }
     ],
     "outro": [
-      { "at": 10, "text": "L'inventaire. Simplifiez votre gestion, du devis au paiement." }
+      {
+        "at": 10,
+        "text": "L'inventaire. Simplifiez votre gestion, du devis au paiement."
+      }
     ]
   }
 }
