@@ -54,12 +54,19 @@ export const TableExportModal = (props: {
         compression: true,
       });
     } else if (exportType === "csv") {
-      const header = Object.keys(data[0]).join(",");
-      const csv = data.map((row) => {
-        return Object.values(row)
-          .map((e) => (typeof e === "object" ? JSON.stringify(e) : e))
-          .join(",");
-      });
+      // Rows can have different keys, use all of them in a stable order
+      const keys = _.uniq(data.flatMap((row) => Object.keys(row)));
+      const escape = (e: any) => {
+        const str =
+          e === null || e === undefined
+            ? ""
+            : typeof e === "object"
+              ? JSON.stringify(e)
+              : `${e}`;
+        return /[",\n\r]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
+      };
+      const header = keys.map(escape).join(",");
+      const csv = data.map((row) => keys.map((k) => escape(row[k])).join(","));
       const csvString = header + "\n" + csv.join("\n");
 
       const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
@@ -88,9 +95,9 @@ export const TableExportModal = (props: {
             disabled={loading}
           >
             <option value="100">100 items</option>
-            <option value="100">500 items</option>
+            <option value="500">500 items</option>
             <option value="1000">1 000 items</option>
-            <option value="1000">5 000 items</option>
+            <option value="5000">5 000 items</option>
             <option value="10000">10 000 items</option>
             <option value="10000000">All</option>
           </Select>

@@ -4,7 +4,52 @@ import { Context } from "#src/types";
 import _ from "lodash";
 import { ArticlesDefinition } from "../../articles/entities/articles";
 import Invoices, { InvoicesDefinition } from "../../invoices/entities/invoices";
-import { getTimezoneOffset, applyOffset } from "@shared/invoices";
+import { DateTime } from "luxon";
+
+/**
+ * Returns [from, to[ timestamps (ms) of a month ("2025-01") in a timezone
+ */
+export const getMonthBounds = (month: string, timezone: string) => {
+  const start = DateTime.fromISO(month + "-01", { zone: timezone }).startOf(
+    "month"
+  );
+  return {
+    from: start.toMillis(),
+    to: start.plus({ months: 1 }).toMillis(),
+  };
+};
+
+/**
+ * Split the invoice total (HT, after discounts) on its lines.
+ * Every counted line is kept, with or without article (down payments, down
+ * payment deductions, corrections...), so the sum of the lines is always the
+ * invoice total. Line discounts are applied on each line and the global
+ * discount is applied proportionally.
+ */
+export const getInvoiceLinesAmounts = (
+  invoice: Pick<Invoices, "content" | "total">
+): { article: string | null; amount: number }[] => {
+  const lines = (invoice.content || [])
+    .filter((a) => !a.optional || a.optional_checked)
+    .map((a) => {
+      const price =
+        (parseFloat(a.unit_price as any) || 0) *
+        (parseFloat(a.quantity as any) || 0);
+      let discount = 0;
+      if (a.discount?.mode === "percentage") {
+        discount = price * ((parseFloat(a.discount.value as any) || 0) / 100);
+      } else if (a.discount?.mode === "amount") {
+        discount = parseFloat(a.discount.value as any) || 0;
+      }
+      return { article: a.article || null, amount: price - discount };
+    });
+
+  // Apply the global discount proportionally so lines sum up to the total
+  const linesTotal = lines.reduce((acc, a) => acc + a.amount, 0);
+  const total = invoice.total?.total ?? linesTotal;
+  const ratio = linesTotal ? total / linesTotal : 1;
+  return lines.map((a) => ({ ...a, amount: a.amount * ratio }));
+};
 
 /**
  * This function will generate invoices custom statistics for 2d tables
@@ -18,49 +63,25 @@ export const getMatrix = async (
   const client = await Services.Clients.getClient(ctx, clientId);
   const timezone = client?.preferences?.timezone || "Europe/Paris";
 
-  const { offsetms: fromOffset } = getTimezoneOffset(
-    timezone,
-    new Date(month + "-01").getTime()
-  );
-
-  const from = new Date(month + "-01").getTime() - fromOffset;
-  const to = new Date(from);
-  applyOffset(to, "monthly", timezone);
+  // Month bounds in the client timezone. Both bounds are computed separately so
+  // a DST change during the month doesn't shift the end bound (e.g. March in
+  // Europe/Paris would otherwise end on April 1st at 01:00 and include the
+  // invoices of April 1st).
+  const { from, to } = getMonthBounds(month, timezone);
   const invoices = await db.select<Invoices>(
     { ...ctx, role: "SYSTEM" },
     InvoicesDefinition.name,
     {
       where:
         "client_id=$1 and is_deleted=false and type='invoices' and state!='draft' and emit_date >= $2 and emit_date < $3",
-      values: [clientId, from, to.getTime()],
+      values: [clientId, from, to],
     },
     { limit: 5000 }
   );
 
-  const lines: { total: Invoices["total"]; article: string; amount: number }[] =
-    invoices.reduce((acc, invoice) => {
-      const lines = (invoice.content || [])
-        .filter(
-          (a) =>
-            a.article &&
-            ["product", "service", "consumable"].includes(a.type) &&
-            (!a.optional || a.optional_checked)
-        )
-        .map((a) => {
-          const amountWithDiscounts =
-            ((a.unit_price || 0) * (a.quantity || 0) * invoice.total.total) /
-            invoice.total.initial;
-          return {
-            article: a.article,
-            amount: (a.unit_price || 0) * (a.quantity || 0),
-            amount_with_discounts: amountWithDiscounts, // Will we use this value ? I don't know
-            total: invoice.total,
-          };
-        });
-      return [...acc, ...lines];
-    }, []);
+  const lines = invoices.flatMap(getInvoiceLinesAmounts);
 
-  const articlesIds = _.uniq(lines.map((a) => a.article));
+  const articlesIds = _.uniq(lines.map((a) => a.article).filter(Boolean));
   const articles = (
     await db.custom<{
       rows: {
@@ -78,9 +99,9 @@ export const getMatrix = async (
   // Get amount per tag
   const result: { [tag: string]: number } = {};
   for (const line of lines) {
-    const tags = tagsMap[line.article];
+    const tags = line.article ? tagsMap[line.article] : null;
     let tag = "multiple";
-    if (!tags) tag = "untagged";
+    if (!tags?.length) tag = "untagged";
     else if (tags.length === 1) tag = tags[0];
 
     if (!result[tag]) result[tag] = 0;
