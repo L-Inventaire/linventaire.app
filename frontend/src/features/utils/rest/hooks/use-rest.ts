@@ -119,7 +119,12 @@ export const useRest = <T>(table: string, options?: RestOptions<T>) => {
   const queryClient = useQueryClient();
 
   // If main list, we'll save the query to a global storage for the document bar nav (prev / next buttons)
-  if (options?.key?.indexOf("main") === 0) {
+  // Only write when it changed: setQueryData notifies the observers of ["navbar", table] (the document bar nav
+  // reads it and passes it back here), so an unconditional write during render loops until React gives up
+  if (
+    options?.key?.indexOf("main") === 0 &&
+    !_.isEqual(queryClient.getQueryData(["navbar", table]), options)
+  ) {
     queryClient.setQueryData(["navbar", table], options);
   }
 
