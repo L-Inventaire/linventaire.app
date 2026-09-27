@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "L'inventaire API",
-    "version": "1.2.4",
+    "version": "1.3.0",
     "description": "API de L'inventaire. Elle donne accès aux mêmes données que l'application, avec **les mêmes permissions que l'utilisateur** propriétaire de la clé.\n\n## Authentification\n\nCréez une clé depuis **Paramètres → API et développeurs** dans l'application. Chaque clé :\n\n- agit au nom de l'utilisateur qui l'a créée, avec exactement ses permissions (si ses droits changent, ceux de la clé aussi) ;\n- n'est valable que pour l'entreprise dans laquelle elle a été créée ;\n- n'est affichée qu'une seule fois, conservez-la en lieu sûr ;\n- peut être révoquée à tout moment.\n\nEnvoyez la clé dans l'en-tête `Authorization` :\n\n```bash\ncurl https://api.linventaire.app/api/developers/v1/{clientId}/whoami \\\n  -H \"Authorization: Bearer lin_xxxxxxxx\"\n```\n\nou dans l'en-tête `X-Api-Key: lin_xxxxxxxx`.\n\nCertaines actions liées au compte (connexion, facteurs d'authentification, gestion des clés API, invitations) ne sont pas accessibles avec une clé API.\n\n## Identifiant d'entreprise\n\nToutes les routes sont préfixées par l'identifiant de l'entreprise (`clientId`), visible dans **Paramètres → API et développeurs**.\n\n## Recherche\n\nLes routes `/search` et `/count` acceptent une liste de filtres :\n\n```json\n{\n  \"query\": [\n    { \"key\": \"type\", \"values\": [{ \"op\": \"equals\", \"value\": \"invoices\" }] },\n    { \"key\": \"emit_date\", \"values\": [{ \"op\": \"range\", \"value\": [1735689600000, 1767225599000] }] },\n    { \"key\": \"query\", \"values\": [{ \"op\": \"equals\", \"value\": \"texte libre\" }] }\n  ],\n  \"options\": { \"limit\": 25, \"offset\": 0, \"index\": \"created_at\", \"asc\": false }\n}\n```\n\n- `key` : nom du champ (les champs imbriqués utilisent un point, ex. `business_address.country`). La clé spéciale `query` effectue une recherche plein texte.\n- `op` : `equals`, `regex`, `gte`, `lte` ou `range` (valeur `[min, max]`).\n- `not: true` inverse le filtre, `empty: true` recherche les valeurs vides.\n- `limit` est plafonné à 500. Les documents supprimés sont exclus sauf avec `options.deleted: true`.\n\n## Limites\n\nLes requêtes sont limitées par adresse IP. Au-delà, l'API répond `429 Too Many Requests`.",
     "contact": {
       "name": "L'inventaire",
@@ -6872,6 +6872,16 @@
               },
               "email_footer": {
                 "type": "string"
+              },
+              "margin_mode": {
+                "type": "boolean"
+              },
+              "margin_base": {
+                "type": "string",
+                "enum": [
+                  "cost",
+                  "price"
+                ]
               }
             }
           },
@@ -7315,6 +7325,16 @@
               },
               "email_footer": {
                 "type": "string"
+              },
+              "margin_mode": {
+                "type": "boolean"
+              },
+              "margin_base": {
+                "type": "string",
+                "enum": [
+                  "cost",
+                  "price"
+                ]
               }
             }
           },
@@ -7839,6 +7859,33 @@
             },
             "description": "Extra details about the current state (e.g. email send problems). This is reset automatically whenever the state changes (see the upsert-hook)."
           },
+          "e_invoice": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "",
+                  "failed",
+                  "uploaded"
+                ],
+                "description": "Transmission of the document to the e-invoicing platform (SuperPDP). Unlike state_details, this is NOT reset on state changes: an invoice is transmitted once, when it leaves the draft state. \"\"         -> not transmitted (e-invoicing not connected, or draft) \"uploaded\" -> accepted by SuperPDP, queued for transmission \"failed\"   -> transmission failed (non blocking, see `error`)"
+              },
+              "superpdp_id": {
+                "type": "number",
+                "description": "SuperPDP invoice id, used to follow its events"
+              },
+              "sent_at": {
+                "type": "number",
+                "description": "Timestamp of the last transmission attempt"
+              },
+              "error": {
+                "type": "string",
+                "description": "Last error message, if any"
+              }
+            },
+            "description": "Transmission to the e-invoicing platform (see on-sent-e-invoice trigger)"
+          },
           "from_rel_invoice": {
             "type": "array",
             "items": {
@@ -7950,9 +7997,10 @@
                     "service",
                     "consumable",
                     "separation",
-                    "correction"
+                    "correction",
+                    "group"
                   ],
-                  "description": "product, service, consumable, separation"
+                  "description": "product, service, consumable, separation, group (header of a group of lines)"
                 },
                 "name": {
                   "type": "string"
@@ -8010,6 +8058,14 @@
                 "optional_checked": {
                   "type": "boolean",
                   "description": "Checked by the client or by the agent (like a default checked option)"
+                },
+                "group": {
+                  "type": "string",
+                  "description": "Groups of lines (\"packages\"): a line of type \"group\" is the header of the group, lines belonging to it follow it directly and share the same group id. Id of the group (on the header) or of the parent group (on the lines)"
+                },
+                "group_hide_prices": {
+                  "type": "boolean",
+                  "description": "Only on the header: show only the group total, not the price of each line"
                 }
               }
             }
@@ -8567,6 +8623,33 @@
             },
             "description": "Extra details about the current state (e.g. email send problems). This is reset automatically whenever the state changes (see the upsert-hook)."
           },
+          "e_invoice": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "",
+                  "failed",
+                  "uploaded"
+                ],
+                "description": "Transmission of the document to the e-invoicing platform (SuperPDP). Unlike state_details, this is NOT reset on state changes: an invoice is transmitted once, when it leaves the draft state. \"\"         -> not transmitted (e-invoicing not connected, or draft) \"uploaded\" -> accepted by SuperPDP, queued for transmission \"failed\"   -> transmission failed (non blocking, see `error`)"
+              },
+              "superpdp_id": {
+                "type": "number",
+                "description": "SuperPDP invoice id, used to follow its events"
+              },
+              "sent_at": {
+                "type": "number",
+                "description": "Timestamp of the last transmission attempt"
+              },
+              "error": {
+                "type": "string",
+                "description": "Last error message, if any"
+              }
+            },
+            "description": "Transmission to the e-invoicing platform (see on-sent-e-invoice trigger)"
+          },
           "from_rel_invoice": {
             "type": "array",
             "items": {
@@ -8678,9 +8761,10 @@
                     "service",
                     "consumable",
                     "separation",
-                    "correction"
+                    "correction",
+                    "group"
                   ],
-                  "description": "product, service, consumable, separation"
+                  "description": "product, service, consumable, separation, group (header of a group of lines)"
                 },
                 "name": {
                   "type": "string"
@@ -8738,6 +8822,14 @@
                 "optional_checked": {
                   "type": "boolean",
                   "description": "Checked by the client or by the agent (like a default checked option)"
+                },
+                "group": {
+                  "type": "string",
+                  "description": "Groups of lines (\"packages\"): a line of type \"group\" is the header of the group, lines belonging to it follow it directly and share the same group id. Id of the group (on the header) or of the parent group (on the lines)"
+                },
+                "group_hide_prices": {
+                  "type": "boolean",
+                  "description": "Only on the header: show only the group total, not the price of each line"
                 }
               }
             }
