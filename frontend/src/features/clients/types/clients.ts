@@ -79,6 +79,7 @@ export const Roles = [
   "CRM_READ",
   "CRM_WRITE",
   "CRM_MANAGE",
+  "API_ACCESS", // Can create api keys and webhooks, required for them to work
 ] as const;
 
 export type Role = (typeof Roles)[number];

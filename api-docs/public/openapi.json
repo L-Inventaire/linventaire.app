@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "L'inventaire API",
-    "version": "1.3.0",
-    "description": "API de L'inventaire. Elle donne accès aux mêmes données que l'application, avec **les mêmes permissions que l'utilisateur** propriétaire de la clé.\n\n## Authentification\n\nCréez une clé depuis **Paramètres → API et développeurs** dans l'application. Chaque clé :\n\n- agit au nom de l'utilisateur qui l'a créée, avec exactement ses permissions (si ses droits changent, ceux de la clé aussi) ;\n- n'est valable que pour l'entreprise dans laquelle elle a été créée ;\n- n'est affichée qu'une seule fois, conservez-la en lieu sûr ;\n- peut être révoquée à tout moment.\n\nEnvoyez la clé dans l'en-tête `Authorization` :\n\n```bash\ncurl https://api.linventaire.app/api/developers/v1/{clientId}/whoami \\\n  -H \"Authorization: Bearer lin_xxxxxxxx\"\n```\n\nou dans l'en-tête `X-Api-Key: lin_xxxxxxxx`.\n\nCertaines actions liées au compte (connexion, facteurs d'authentification, gestion des clés API, invitations) ne sont pas accessibles avec une clé API.\n\n## Identifiant d'entreprise\n\nToutes les routes sont préfixées par l'identifiant de l'entreprise (`clientId`), visible dans **Paramètres → API et développeurs**.\n\n## Recherche\n\nLes routes `/search` et `/count` acceptent une liste de filtres :\n\n```json\n{\n  \"query\": [\n    { \"key\": \"type\", \"values\": [{ \"op\": \"equals\", \"value\": \"invoices\" }] },\n    { \"key\": \"emit_date\", \"values\": [{ \"op\": \"range\", \"value\": [1735689600000, 1767225599000] }] },\n    { \"key\": \"query\", \"values\": [{ \"op\": \"equals\", \"value\": \"texte libre\" }] }\n  ],\n  \"options\": { \"limit\": 25, \"offset\": 0, \"index\": \"created_at\", \"asc\": false }\n}\n```\n\n- `key` : nom du champ (les champs imbriqués utilisent un point, ex. `business_address.country`). La clé spéciale `query` effectue une recherche plein texte.\n- `op` : `equals`, `regex`, `gte`, `lte` ou `range` (valeur `[min, max]`).\n- `not: true` inverse le filtre, `empty: true` recherche les valeurs vides.\n- `limit` est plafonné à 500. Les documents supprimés sont exclus sauf avec `options.deleted: true`.\n\n## Limites\n\nLes requêtes sont limitées par adresse IP. Au-delà, l'API répond `429 Too Many Requests`.",
+    "version": "1.3.1",
+    "description": "API de L'inventaire. Elle donne accès aux mêmes données que l'application, avec **les mêmes permissions que l'utilisateur** propriétaire de la clé.\n\n## Authentification\n\nCréez une clé depuis **Paramètres → API et développeurs** dans l'application. Chaque clé :\n\n- agit au nom de l'utilisateur qui l'a créée, avec exactement ses permissions (si ses droits changent, ceux de la clé aussi) ;\n- n'est valable que pour l'entreprise dans laquelle elle a été créée ;\n- n'est affichée qu'une seule fois, conservez-la en lieu sûr ;\n- peut être révoquée à tout moment.\n\nEnvoyez la clé dans l'en-tête `Authorization` :\n\n```bash\ncurl https://api.linventaire.app/api/developers/v1/{clientId}/whoami \\\n  -H \"Authorization: Bearer lin_xxxxxxxx\"\n```\n\nou dans l'en-tête `X-Api-Key: lin_xxxxxxxx`.\n\nCertaines actions liées au compte (connexion, facteurs d'authentification, gestion des clés API, invitations) ne sont pas accessibles avec une clé API.\n\n## Permissions et restrictions\n\n- **Permission « Accès à l'API et aux webhooks »** (`API_ACCESS`) : elle est nécessaire pour créer des clés et des webhooks, et pour qu'ils fonctionnent. Un administrateur l'accorde depuis **Paramètres → Vos collaborateurs** ; les administrateurs de l'entreprise l'ont d'office. Si elle est retirée, les clés de l'utilisateur sont refusées (`401`) et ses webhooks ne reçoivent plus rien.\n- **Restriction par adresse IP** : si l'entreprise limite l'accès à certaines adresses IP, cette limite s'applique aussi aux appels faits avec une clé API (réponse `403` hors des adresses autorisées) et aux webhooks des utilisateurs concernés, qui ne sont plus envoyés. Comme dans l'application, les administrateurs ne sont pas restreints.\n- Une clé cesse de fonctionner si son propriétaire est retiré de l'entreprise ou désactivé.\n\n## Identifiant d'entreprise\n\nToutes les routes sont préfixées par l'identifiant de l'entreprise (`clientId`), visible dans **Paramètres → API et développeurs**.\n\n## Recherche\n\nLes routes `/search` et `/count` acceptent une liste de filtres :\n\n```json\n{\n  \"query\": [\n    { \"key\": \"type\", \"values\": [{ \"op\": \"equals\", \"value\": \"invoices\" }] },\n    { \"key\": \"emit_date\", \"values\": [{ \"op\": \"range\", \"value\": [1735689600000, 1767225599000] }] },\n    { \"key\": \"query\", \"values\": [{ \"op\": \"equals\", \"value\": \"texte libre\" }] }\n  ],\n  \"options\": { \"limit\": 25, \"offset\": 0, \"index\": \"created_at\", \"asc\": false }\n}\n```\n\n- `key` : nom du champ (les champs imbriqués utilisent un point, ex. `business_address.country`). La clé spéciale `query` effectue une recherche plein texte.\n- `op` : `equals`, `regex`, `gte`, `lte` ou `range` (valeur `[min, max]`).\n- `not: true` inverse le filtre, `empty: true` recherche les valeurs vides.\n- `limit` est plafonné à 500. Les documents supprimés sont exclus sauf avec `options.deleted: true`.\n\n## Limites\n\nLes requêtes sont limitées par adresse IP. Au-delà, l'API répond `429 Too Many Requests`.\n\nL'historique de vos appels (statut, durée, contenus) est consultable pendant 30 jours dans **Paramètres → API et développeurs → Historique des appels**.\n\n## Webhooks\n\nUn webhook appelle votre serveur (`POST`, corps JSON) à chaque création, modification ou suppression d'un document. Créez-les depuis **Paramètres → API et développeurs → Webhooks**, ou avec les routes `/webhooks` de cette API.\n\n- Seuls les documents que le créateur du webhook peut lire sont envoyés (mêmes permissions que l'utilisateur).\n- Événements : `{table}.created`, `{table}.updated` (avec `previous_data`) et `{table}.deleted`, plus `ping` pour les tests.\n- Répondez avec un statut `2xx` en moins de 10 secondes. Les redirections ne sont pas suivies.\n- En cas d'échec, l'envoi est retenté après 1 min, 5 min, 15 min, 1 h, 3 h, 6 h et 12 h (8 tentatives en tout). Après 20 envois en échec d'affilée, le webhook est désactivé.\n- Un même événement peut arriver plusieurs fois ou dans le désordre : utilisez `id` pour ignorer les doublons et `data.updated_at` pour ne garder que la version la plus récente.\n- L'historique des envois (réponse reçue, nombre de tentatives) est conservé 30 jours.\n\n### Vérifier la signature\n\nChaque envoi contient l'en-tête `X-Linventaire-Signature: t={timestamp},v1={signature}` où `signature` est le HMAC SHA-256, en hexadécimal, de `{timestamp}.{corps brut}` avec le secret du webhook (`whsec_...`, affiché à la création).\n\n```js\nimport crypto from \"crypto\";\n\n// rawBody : le corps de la requête tel que reçu, avant tout parsing JSON\nexport const isValidSignature = (header, rawBody, secret) => {\n  const { t, v1 } = Object.fromEntries(header.split(\",\").map((p) => p.split(\"=\")));\n  const expected = crypto\n    .createHmac(\"sha256\", secret)\n    .update(`${t}.${rawBody}`)\n    .digest(\"hex\");\n  const recent = Math.abs(Date.now() / 1000 - Number(t)) < 5 * 60;\n  return (\n    recent &&\n    v1?.length === expected.length &&\n    crypto.timingSafeEqual(Buffer.from(v1), Buffer.from(expected))\n  );\n};\n```\n\nLes en-têtes `X-Linventaire-Event` et `X-Linventaire-Delivery` contiennent le nom de l'événement et l'identifiant de l'envoi.",
     "contact": {
       "name": "L'inventaire",
       "url": "https://linventaire.app"
@@ -27,6 +27,10 @@
     {
       "name": "Général",
       "description": "Vérifier ses accès."
+    },
+    {
+      "name": "Gestion des webhooks",
+      "description": "Être notifié des créations, modifications et suppressions de documents, voir [Webhooks](#description/webhooks).\n\nPermission requise : `API_ACCESS`."
     },
     {
       "name": "Contacts",
@@ -106,6 +110,572 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/WhoAmI"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/developers/v1/{clientId}/webhooks": {
+      "get": {
+        "tags": [
+          "Gestion des webhooks"
+        ],
+        "operationId": "list_webhooks",
+        "summary": "Lister les webhooks",
+        "description": "Liste vos webhooks, ou ceux de toute l'entreprise avec `all=1`.\n\nLes utilisateurs ayant la permission `CLIENT_MANAGE` peuvent gérer tous les webhooks de l'entreprise, les autres uniquement les leurs.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ClientId"
+          },
+          {
+            "name": "all",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Webhooks.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Webhook"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Gestion des webhooks"
+        ],
+        "operationId": "create_webhook",
+        "summary": "Créer un webhook",
+        "description": "Crée un webhook. Le secret de signature n'est retourné qu'ici, conservez-le.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ClientId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Le webhook créé.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookWithSecret"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/developers/v1/{clientId}/webhooks/{webhookId}": {
+      "get": {
+        "tags": [
+          "Gestion des webhooks"
+        ],
+        "operationId": "get_webhook",
+        "summary": "Récupérer un webhook",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ClientId"
+          },
+          {
+            "name": "webhookId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Le webhook.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Webhook"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Gestion des webhooks"
+        ],
+        "operationId": "update_webhook",
+        "summary": "Modifier un webhook",
+        "description": "Seuls les champs envoyés sont modifiés. Réactiver un webhook (`enabled: true`) remet son compteur d'échecs à zéro.\n\nLes utilisateurs ayant la permission `CLIENT_MANAGE` peuvent gérer tous les webhooks de l'entreprise, les autres uniquement les leurs.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ClientId"
+          },
+          {
+            "name": "webhookId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Le webhook modifié.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Webhook"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Gestion des webhooks"
+        ],
+        "operationId": "delete_webhook",
+        "summary": "Supprimer un webhook",
+        "description": "Supprime le webhook et son historique d'envois.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ClientId"
+          },
+          {
+            "name": "webhookId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Suppression effectuée.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/developers/v1/{clientId}/webhooks/{webhookId}/rotate-secret": {
+      "post": {
+        "tags": [
+          "Gestion des webhooks"
+        ],
+        "operationId": "rotate_webhook_secret",
+        "summary": "Renouveler le secret",
+        "description": "L'ancien secret cesse immédiatement de fonctionner.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ClientId"
+          },
+          {
+            "name": "webhookId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Le webhook avec son nouveau secret.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookWithSecret"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/developers/v1/{clientId}/webhooks/{webhookId}/test": {
+      "post": {
+        "tags": [
+          "Gestion des webhooks"
+        ],
+        "operationId": "test_webhook",
+        "summary": "Tester un webhook",
+        "description": "Envoie immédiatement un événement `ping` et retourne le résultat de l'envoi.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ClientId"
+          },
+          {
+            "name": "webhookId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat de l'envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookDelivery"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/developers/v1/{clientId}/webhooks/{webhookId}/deliveries": {
+      "get": {
+        "tags": [
+          "Gestion des webhooks"
+        ],
+        "operationId": "list_webhook_deliveries",
+        "summary": "Historique des envois",
+        "description": "Envois des 30 derniers jours, du plus récent au plus ancien.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ClientId"
+          },
+          {
+            "name": "webhookId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "success",
+                "pending",
+                "failed"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Envois.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "total": {
+                      "type": "integer"
+                    },
+                    "list": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/WebhookDelivery"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/developers/v1/{clientId}/webhooks/{webhookId}/deliveries/{deliveryId}": {
+      "get": {
+        "tags": [
+          "Gestion des webhooks"
+        ],
+        "operationId": "get_webhook_delivery",
+        "summary": "Détail d'un envoi",
+        "description": "Contenu envoyé et réponse reçue à chaque tentative.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ClientId"
+          },
+          {
+            "name": "webhookId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "deliveryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "L'envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookDeliveryDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/developers/v1/{clientId}/webhooks/{webhookId}/deliveries/{deliveryId}/retry": {
+      "post": {
+        "tags": [
+          "Gestion des webhooks"
+        ],
+        "operationId": "retry_webhook_delivery",
+        "summary": "Renvoyer un envoi",
+        "description": "Renvoie immédiatement l'événement, quel que soit son statut.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ClientId"
+          },
+          {
+            "name": "webhookId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "deliveryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat de l'envoi.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookDeliveryDetails"
                 }
               }
             }
@@ -6163,6 +6733,1328 @@
       }
     }
   },
+  "webhooks": {
+    "ping": {
+      "post": {
+        "summary": "ping",
+        "description": "Envoyé par le bouton « Tester » ou la route `/test`.",
+        "parameters": [
+          {
+            "name": "X-Linventaire-Signature",
+            "in": "header",
+            "required": true,
+            "description": "`t={timestamp},v1={signature}`, voir « Vérifier la signature ».",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Event",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Delivery",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "event": {
+                    "type": "string",
+                    "const": "ping"
+                  },
+                  "client_id": {
+                    "type": "string"
+                  },
+                  "created_at": {
+                    "type": "integer"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "webhook_id": {
+                        "type": "string"
+                      },
+                      "message": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "2XX": {
+            "description": "Envoi reçu."
+          }
+        }
+      }
+    },
+    "contacts": {
+      "post": {
+        "summary": "contacts.*",
+        "description": "Contacts : `contacts.created`, `contacts.updated` ou `contacts.deleted`.",
+        "parameters": [
+          {
+            "name": "X-Linventaire-Signature",
+            "in": "header",
+            "required": true,
+            "description": "`t={timestamp},v1={signature}`, voir « Vérifier la signature ».",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Event",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Delivery",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Identifiant de l'envoi, à utiliser pour ignorer les doublons."
+                  },
+                  "event": {
+                    "type": "string",
+                    "enum": [
+                      "contacts.created",
+                      "contacts.updated",
+                      "contacts.deleted"
+                    ]
+                  },
+                  "entity": {
+                    "type": "string",
+                    "const": "contacts"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "created",
+                      "updated",
+                      "deleted"
+                    ]
+                  },
+                  "client_id": {
+                    "type": "string"
+                  },
+                  "created_at": {
+                    "type": "integer",
+                    "description": "Date de l'événement (timestamp en millisecondes)."
+                  },
+                  "data": {
+                    "$ref": "#/components/schemas/Contacts",
+                    "description": "Le document (sa dernière version connue pour `deleted`)."
+                  },
+                  "previous_data": {
+                    "$ref": "#/components/schemas/Contacts",
+                    "description": "Le document avant la modification, pour `updated` uniquement."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "2XX": {
+            "description": "Envoi reçu."
+          }
+        }
+      }
+    },
+    "articles": {
+      "post": {
+        "summary": "articles.*",
+        "description": "Articles : `articles.created`, `articles.updated` ou `articles.deleted`.",
+        "parameters": [
+          {
+            "name": "X-Linventaire-Signature",
+            "in": "header",
+            "required": true,
+            "description": "`t={timestamp},v1={signature}`, voir « Vérifier la signature ».",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Event",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Delivery",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Identifiant de l'envoi, à utiliser pour ignorer les doublons."
+                  },
+                  "event": {
+                    "type": "string",
+                    "enum": [
+                      "articles.created",
+                      "articles.updated",
+                      "articles.deleted"
+                    ]
+                  },
+                  "entity": {
+                    "type": "string",
+                    "const": "articles"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "created",
+                      "updated",
+                      "deleted"
+                    ]
+                  },
+                  "client_id": {
+                    "type": "string"
+                  },
+                  "created_at": {
+                    "type": "integer",
+                    "description": "Date de l'événement (timestamp en millisecondes)."
+                  },
+                  "data": {
+                    "$ref": "#/components/schemas/Articles",
+                    "description": "Le document (sa dernière version connue pour `deleted`)."
+                  },
+                  "previous_data": {
+                    "$ref": "#/components/schemas/Articles",
+                    "description": "Le document avant la modification, pour `updated` uniquement."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "2XX": {
+            "description": "Envoi reçu."
+          }
+        }
+      }
+    },
+    "invoices": {
+      "post": {
+        "summary": "invoices.*",
+        "description": "Documents (devis, factures, avoirs) : `invoices.created`, `invoices.updated` ou `invoices.deleted`.",
+        "parameters": [
+          {
+            "name": "X-Linventaire-Signature",
+            "in": "header",
+            "required": true,
+            "description": "`t={timestamp},v1={signature}`, voir « Vérifier la signature ».",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Event",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Delivery",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Identifiant de l'envoi, à utiliser pour ignorer les doublons."
+                  },
+                  "event": {
+                    "type": "string",
+                    "enum": [
+                      "invoices.created",
+                      "invoices.updated",
+                      "invoices.deleted"
+                    ]
+                  },
+                  "entity": {
+                    "type": "string",
+                    "const": "invoices"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "created",
+                      "updated",
+                      "deleted"
+                    ]
+                  },
+                  "client_id": {
+                    "type": "string"
+                  },
+                  "created_at": {
+                    "type": "integer",
+                    "description": "Date de l'événement (timestamp en millisecondes)."
+                  },
+                  "data": {
+                    "$ref": "#/components/schemas/Invoices",
+                    "description": "Le document (sa dernière version connue pour `deleted`)."
+                  },
+                  "previous_data": {
+                    "$ref": "#/components/schemas/Invoices",
+                    "description": "Le document avant la modification, pour `updated` uniquement."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "2XX": {
+            "description": "Envoi reçu."
+          }
+        }
+      }
+    },
+    "stock_items": {
+      "post": {
+        "summary": "stock_items.*",
+        "description": "Stock : `stock_items.created`, `stock_items.updated` ou `stock_items.deleted`.",
+        "parameters": [
+          {
+            "name": "X-Linventaire-Signature",
+            "in": "header",
+            "required": true,
+            "description": "`t={timestamp},v1={signature}`, voir « Vérifier la signature ».",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Event",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Delivery",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Identifiant de l'envoi, à utiliser pour ignorer les doublons."
+                  },
+                  "event": {
+                    "type": "string",
+                    "enum": [
+                      "stock_items.created",
+                      "stock_items.updated",
+                      "stock_items.deleted"
+                    ]
+                  },
+                  "entity": {
+                    "type": "string",
+                    "const": "stock_items"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "created",
+                      "updated",
+                      "deleted"
+                    ]
+                  },
+                  "client_id": {
+                    "type": "string"
+                  },
+                  "created_at": {
+                    "type": "integer",
+                    "description": "Date de l'événement (timestamp en millisecondes)."
+                  },
+                  "data": {
+                    "$ref": "#/components/schemas/StockItems",
+                    "description": "Le document (sa dernière version connue pour `deleted`)."
+                  },
+                  "previous_data": {
+                    "$ref": "#/components/schemas/StockItems",
+                    "description": "Le document avant la modification, pour `updated` uniquement."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "2XX": {
+            "description": "Envoi reçu."
+          }
+        }
+      }
+    },
+    "stock_locations": {
+      "post": {
+        "summary": "stock_locations.*",
+        "description": "Emplacements de stock : `stock_locations.created`, `stock_locations.updated` ou `stock_locations.deleted`.",
+        "parameters": [
+          {
+            "name": "X-Linventaire-Signature",
+            "in": "header",
+            "required": true,
+            "description": "`t={timestamp},v1={signature}`, voir « Vérifier la signature ».",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Event",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Delivery",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Identifiant de l'envoi, à utiliser pour ignorer les doublons."
+                  },
+                  "event": {
+                    "type": "string",
+                    "enum": [
+                      "stock_locations.created",
+                      "stock_locations.updated",
+                      "stock_locations.deleted"
+                    ]
+                  },
+                  "entity": {
+                    "type": "string",
+                    "const": "stock_locations"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "created",
+                      "updated",
+                      "deleted"
+                    ]
+                  },
+                  "client_id": {
+                    "type": "string"
+                  },
+                  "created_at": {
+                    "type": "integer",
+                    "description": "Date de l'événement (timestamp en millisecondes)."
+                  },
+                  "data": {
+                    "$ref": "#/components/schemas/StockLocations",
+                    "description": "Le document (sa dernière version connue pour `deleted`)."
+                  },
+                  "previous_data": {
+                    "$ref": "#/components/schemas/StockLocations",
+                    "description": "Le document avant la modification, pour `updated` uniquement."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "2XX": {
+            "description": "Envoi reçu."
+          }
+        }
+      }
+    },
+    "service_items": {
+      "post": {
+        "summary": "service_items.*",
+        "description": "Services (tâches) : `service_items.created`, `service_items.updated` ou `service_items.deleted`.",
+        "parameters": [
+          {
+            "name": "X-Linventaire-Signature",
+            "in": "header",
+            "required": true,
+            "description": "`t={timestamp},v1={signature}`, voir « Vérifier la signature ».",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Event",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Delivery",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Identifiant de l'envoi, à utiliser pour ignorer les doublons."
+                  },
+                  "event": {
+                    "type": "string",
+                    "enum": [
+                      "service_items.created",
+                      "service_items.updated",
+                      "service_items.deleted"
+                    ]
+                  },
+                  "entity": {
+                    "type": "string",
+                    "const": "service_items"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "created",
+                      "updated",
+                      "deleted"
+                    ]
+                  },
+                  "client_id": {
+                    "type": "string"
+                  },
+                  "created_at": {
+                    "type": "integer",
+                    "description": "Date de l'événement (timestamp en millisecondes)."
+                  },
+                  "data": {
+                    "$ref": "#/components/schemas/ServiceItems",
+                    "description": "Le document (sa dernière version connue pour `deleted`)."
+                  },
+                  "previous_data": {
+                    "$ref": "#/components/schemas/ServiceItems",
+                    "description": "Le document avant la modification, pour `updated` uniquement."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "2XX": {
+            "description": "Envoi reçu."
+          }
+        }
+      }
+    },
+    "service_times": {
+      "post": {
+        "summary": "service_times.*",
+        "description": "Temps passés : `service_times.created`, `service_times.updated` ou `service_times.deleted`.",
+        "parameters": [
+          {
+            "name": "X-Linventaire-Signature",
+            "in": "header",
+            "required": true,
+            "description": "`t={timestamp},v1={signature}`, voir « Vérifier la signature ».",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Event",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Delivery",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Identifiant de l'envoi, à utiliser pour ignorer les doublons."
+                  },
+                  "event": {
+                    "type": "string",
+                    "enum": [
+                      "service_times.created",
+                      "service_times.updated",
+                      "service_times.deleted"
+                    ]
+                  },
+                  "entity": {
+                    "type": "string",
+                    "const": "service_times"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "created",
+                      "updated",
+                      "deleted"
+                    ]
+                  },
+                  "client_id": {
+                    "type": "string"
+                  },
+                  "created_at": {
+                    "type": "integer",
+                    "description": "Date de l'événement (timestamp en millisecondes)."
+                  },
+                  "data": {
+                    "$ref": "#/components/schemas/ServiceTimes",
+                    "description": "Le document (sa dernière version connue pour `deleted`)."
+                  },
+                  "previous_data": {
+                    "$ref": "#/components/schemas/ServiceTimes",
+                    "description": "Le document avant la modification, pour `updated` uniquement."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "2XX": {
+            "description": "Envoi reçu."
+          }
+        }
+      }
+    },
+    "crm_items": {
+      "post": {
+        "summary": "crm_items.*",
+        "description": "CRM : `crm_items.created`, `crm_items.updated` ou `crm_items.deleted`.",
+        "parameters": [
+          {
+            "name": "X-Linventaire-Signature",
+            "in": "header",
+            "required": true,
+            "description": "`t={timestamp},v1={signature}`, voir « Vérifier la signature ».",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Event",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Delivery",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Identifiant de l'envoi, à utiliser pour ignorer les doublons."
+                  },
+                  "event": {
+                    "type": "string",
+                    "enum": [
+                      "crm_items.created",
+                      "crm_items.updated",
+                      "crm_items.deleted"
+                    ]
+                  },
+                  "entity": {
+                    "type": "string",
+                    "const": "crm_items"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "created",
+                      "updated",
+                      "deleted"
+                    ]
+                  },
+                  "client_id": {
+                    "type": "string"
+                  },
+                  "created_at": {
+                    "type": "integer",
+                    "description": "Date de l'événement (timestamp en millisecondes)."
+                  },
+                  "data": {
+                    "$ref": "#/components/schemas/CrmItems",
+                    "description": "Le document (sa dernière version connue pour `deleted`)."
+                  },
+                  "previous_data": {
+                    "$ref": "#/components/schemas/CrmItems",
+                    "description": "Le document avant la modification, pour `updated` uniquement."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "2XX": {
+            "description": "Envoi reçu."
+          }
+        }
+      }
+    },
+    "accounting_transactions": {
+      "post": {
+        "summary": "accounting_transactions.*",
+        "description": "Transactions comptables : `accounting_transactions.created`, `accounting_transactions.updated` ou `accounting_transactions.deleted`.",
+        "parameters": [
+          {
+            "name": "X-Linventaire-Signature",
+            "in": "header",
+            "required": true,
+            "description": "`t={timestamp},v1={signature}`, voir « Vérifier la signature ».",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Event",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Delivery",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Identifiant de l'envoi, à utiliser pour ignorer les doublons."
+                  },
+                  "event": {
+                    "type": "string",
+                    "enum": [
+                      "accounting_transactions.created",
+                      "accounting_transactions.updated",
+                      "accounting_transactions.deleted"
+                    ]
+                  },
+                  "entity": {
+                    "type": "string",
+                    "const": "accounting_transactions"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "created",
+                      "updated",
+                      "deleted"
+                    ]
+                  },
+                  "client_id": {
+                    "type": "string"
+                  },
+                  "created_at": {
+                    "type": "integer",
+                    "description": "Date de l'événement (timestamp en millisecondes)."
+                  },
+                  "data": {
+                    "$ref": "#/components/schemas/AccountingTransactions",
+                    "description": "Le document (sa dernière version connue pour `deleted`)."
+                  },
+                  "previous_data": {
+                    "$ref": "#/components/schemas/AccountingTransactions",
+                    "description": "Le document avant la modification, pour `updated` uniquement."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "2XX": {
+            "description": "Envoi reçu."
+          }
+        }
+      }
+    },
+    "accounting_accounts": {
+      "post": {
+        "summary": "accounting_accounts.*",
+        "description": "Comptes comptables : `accounting_accounts.created`, `accounting_accounts.updated` ou `accounting_accounts.deleted`.",
+        "parameters": [
+          {
+            "name": "X-Linventaire-Signature",
+            "in": "header",
+            "required": true,
+            "description": "`t={timestamp},v1={signature}`, voir « Vérifier la signature ».",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Event",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Delivery",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Identifiant de l'envoi, à utiliser pour ignorer les doublons."
+                  },
+                  "event": {
+                    "type": "string",
+                    "enum": [
+                      "accounting_accounts.created",
+                      "accounting_accounts.updated",
+                      "accounting_accounts.deleted"
+                    ]
+                  },
+                  "entity": {
+                    "type": "string",
+                    "const": "accounting_accounts"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "created",
+                      "updated",
+                      "deleted"
+                    ]
+                  },
+                  "client_id": {
+                    "type": "string"
+                  },
+                  "created_at": {
+                    "type": "integer",
+                    "description": "Date de l'événement (timestamp en millisecondes)."
+                  },
+                  "data": {
+                    "$ref": "#/components/schemas/AccountingAccounts",
+                    "description": "Le document (sa dernière version connue pour `deleted`)."
+                  },
+                  "previous_data": {
+                    "$ref": "#/components/schemas/AccountingAccounts",
+                    "description": "Le document avant la modification, pour `updated` uniquement."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "2XX": {
+            "description": "Envoi reçu."
+          }
+        }
+      }
+    },
+    "tags": {
+      "post": {
+        "summary": "tags.*",
+        "description": "Étiquettes : `tags.created`, `tags.updated` ou `tags.deleted`.",
+        "parameters": [
+          {
+            "name": "X-Linventaire-Signature",
+            "in": "header",
+            "required": true,
+            "description": "`t={timestamp},v1={signature}`, voir « Vérifier la signature ».",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Event",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Delivery",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Identifiant de l'envoi, à utiliser pour ignorer les doublons."
+                  },
+                  "event": {
+                    "type": "string",
+                    "enum": [
+                      "tags.created",
+                      "tags.updated",
+                      "tags.deleted"
+                    ]
+                  },
+                  "entity": {
+                    "type": "string",
+                    "const": "tags"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "created",
+                      "updated",
+                      "deleted"
+                    ]
+                  },
+                  "client_id": {
+                    "type": "string"
+                  },
+                  "created_at": {
+                    "type": "integer",
+                    "description": "Date de l'événement (timestamp en millisecondes)."
+                  },
+                  "data": {
+                    "$ref": "#/components/schemas/Tags",
+                    "description": "Le document (sa dernière version connue pour `deleted`)."
+                  },
+                  "previous_data": {
+                    "$ref": "#/components/schemas/Tags",
+                    "description": "Le document avant la modification, pour `updated` uniquement."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "2XX": {
+            "description": "Envoi reçu."
+          }
+        }
+      }
+    },
+    "fields": {
+      "post": {
+        "summary": "fields.*",
+        "description": "Champs personnalisés : `fields.created`, `fields.updated` ou `fields.deleted`.",
+        "parameters": [
+          {
+            "name": "X-Linventaire-Signature",
+            "in": "header",
+            "required": true,
+            "description": "`t={timestamp},v1={signature}`, voir « Vérifier la signature ».",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Event",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Delivery",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Identifiant de l'envoi, à utiliser pour ignorer les doublons."
+                  },
+                  "event": {
+                    "type": "string",
+                    "enum": [
+                      "fields.created",
+                      "fields.updated",
+                      "fields.deleted"
+                    ]
+                  },
+                  "entity": {
+                    "type": "string",
+                    "const": "fields"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "created",
+                      "updated",
+                      "deleted"
+                    ]
+                  },
+                  "client_id": {
+                    "type": "string"
+                  },
+                  "created_at": {
+                    "type": "integer",
+                    "description": "Date de l'événement (timestamp en millisecondes)."
+                  },
+                  "data": {
+                    "$ref": "#/components/schemas/Fields",
+                    "description": "Le document (sa dernière version connue pour `deleted`)."
+                  },
+                  "previous_data": {
+                    "$ref": "#/components/schemas/Fields",
+                    "description": "Le document avant la modification, pour `updated` uniquement."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "2XX": {
+            "description": "Envoi reçu."
+          }
+        }
+      }
+    },
+    "files": {
+      "post": {
+        "summary": "files.*",
+        "description": "Fichiers : `files.created`, `files.updated` ou `files.deleted`.",
+        "parameters": [
+          {
+            "name": "X-Linventaire-Signature",
+            "in": "header",
+            "required": true,
+            "description": "`t={timestamp},v1={signature}`, voir « Vérifier la signature ».",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Event",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Delivery",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Identifiant de l'envoi, à utiliser pour ignorer les doublons."
+                  },
+                  "event": {
+                    "type": "string",
+                    "enum": [
+                      "files.created",
+                      "files.updated",
+                      "files.deleted"
+                    ]
+                  },
+                  "entity": {
+                    "type": "string",
+                    "const": "files"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "created",
+                      "updated",
+                      "deleted"
+                    ]
+                  },
+                  "client_id": {
+                    "type": "string"
+                  },
+                  "created_at": {
+                    "type": "integer",
+                    "description": "Date de l'événement (timestamp en millisecondes)."
+                  },
+                  "data": {
+                    "$ref": "#/components/schemas/Files",
+                    "description": "Le document (sa dernière version connue pour `deleted`)."
+                  },
+                  "previous_data": {
+                    "$ref": "#/components/schemas/Files",
+                    "description": "Le document avant la modification, pour `updated` uniquement."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "2XX": {
+            "description": "Envoi reçu."
+          }
+        }
+      }
+    },
+    "comments": {
+      "post": {
+        "summary": "comments.*",
+        "description": "Commentaires : `comments.created`, `comments.updated` ou `comments.deleted`.",
+        "parameters": [
+          {
+            "name": "X-Linventaire-Signature",
+            "in": "header",
+            "required": true,
+            "description": "`t={timestamp},v1={signature}`, voir « Vérifier la signature ».",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Event",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Linventaire-Delivery",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Identifiant de l'envoi, à utiliser pour ignorer les doublons."
+                  },
+                  "event": {
+                    "type": "string",
+                    "enum": [
+                      "comments.created",
+                      "comments.updated",
+                      "comments.deleted"
+                    ]
+                  },
+                  "entity": {
+                    "type": "string",
+                    "const": "comments"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "created",
+                      "updated",
+                      "deleted"
+                    ]
+                  },
+                  "client_id": {
+                    "type": "string"
+                  },
+                  "created_at": {
+                    "type": "integer",
+                    "description": "Date de l'événement (timestamp en millisecondes)."
+                  },
+                  "data": {
+                    "$ref": "#/components/schemas/Comments",
+                    "description": "Le document (sa dernière version connue pour `deleted`)."
+                  },
+                  "previous_data": {
+                    "$ref": "#/components/schemas/Comments",
+                    "description": "Le document avant la modification, pour `updated` uniquement."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "2XX": {
+            "description": "Envoi reçu."
+          }
+        }
+      }
+    }
+  },
   "components": {
     "securitySchemes": {
       "BearerAuth": {
@@ -6405,6 +8297,373 @@
             ]
           }
         }
+      },
+      "WebhookInput": {
+        "type": "object",
+        "required": [
+          "name",
+          "url",
+          "entities"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Nom affiché dans l'application."
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Adresse appelée, en https. Les adresses privées ou internes sont refusées."
+          },
+          "entities": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "contacts",
+                "articles",
+                "invoices",
+                "stock_items",
+                "stock_locations",
+                "service_items",
+                "service_times",
+                "crm_items",
+                "accounting_transactions",
+                "accounting_accounts",
+                "tags",
+                "fields",
+                "files",
+                "comments"
+              ]
+            },
+            "description": "Tables écoutées."
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "created",
+                "updated",
+                "deleted"
+              ]
+            },
+            "description": "Actions écoutées, toutes par défaut."
+          },
+          "enabled": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      },
+      "WebhookUpdate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Nom affiché dans l'application."
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Adresse appelée, en https. Les adresses privées ou internes sont refusées."
+          },
+          "entities": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "contacts",
+                "articles",
+                "invoices",
+                "stock_items",
+                "stock_locations",
+                "service_items",
+                "service_times",
+                "crm_items",
+                "accounting_transactions",
+                "accounting_accounts",
+                "tags",
+                "fields",
+                "files",
+                "comments"
+              ]
+            },
+            "description": "Tables écoutées."
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "created",
+                "updated",
+                "deleted"
+              ]
+            },
+            "description": "Actions écoutées, toutes par défaut."
+          },
+          "enabled": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      },
+      "Webhook": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "client_id": {
+            "type": "string"
+          },
+          "user_id": {
+            "type": "string",
+            "description": "Créateur du webhook, seuls les documents qu'il peut lire sont envoyés."
+          },
+          "name": {
+            "type": "string",
+            "description": "Nom affiché dans l'application."
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Adresse appelée, en https. Les adresses privées ou internes sont refusées."
+          },
+          "entities": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "contacts",
+                "articles",
+                "invoices",
+                "stock_items",
+                "stock_locations",
+                "service_items",
+                "service_times",
+                "crm_items",
+                "accounting_transactions",
+                "accounting_accounts",
+                "tags",
+                "fields",
+                "files",
+                "comments"
+              ]
+            },
+            "description": "Tables écoutées."
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "created",
+                "updated",
+                "deleted"
+              ]
+            },
+            "description": "Actions écoutées, toutes par défaut."
+          },
+          "enabled": {
+            "type": "boolean",
+            "default": true
+          },
+          "disabled_reason": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Raison de la désactivation automatique."
+          },
+          "consecutive_failures": {
+            "type": "integer"
+          },
+          "last_delivery_at": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "last_delivery_status": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "success",
+              "failed",
+              null
+            ]
+          },
+          "created_at": {
+            "type": "integer"
+          },
+          "updated_at": {
+            "type": "integer"
+          }
+        }
+      },
+      "WebhookWithSecret": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Webhook"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "secret": {
+                "type": "string",
+                "description": "Secret de signature (`whsec_...`), retourné uniquement à la création et lors de son renouvellement."
+              }
+            }
+          }
+        ]
+      },
+      "WebhookAttempt": {
+        "type": "object",
+        "properties": {
+          "at": {
+            "type": "integer"
+          },
+          "status": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Statut HTTP reçu, null si la requête a échoué."
+          },
+          "duration_ms": {
+            "type": "integer"
+          },
+          "error": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "response_body": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Début de la réponse reçue (2 Ko)."
+          },
+          "manual": {
+            "type": "boolean",
+            "description": "Tentative relancée manuellement."
+          }
+        }
+      },
+      "WebhookDelivery": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "webhook_id": {
+            "type": "string"
+          },
+          "event": {
+            "type": "string",
+            "examples": [
+              "invoices.updated"
+            ]
+          },
+          "entity_table": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "entity_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "sending",
+              "success",
+              "failed"
+            ],
+            "description": "`pending` : en attente d'une nouvelle tentative, `failed` : abandonné après la dernière tentative."
+          },
+          "attempts": {
+            "type": "integer",
+            "description": "Nombre de tentatives."
+          },
+          "next_attempt_at": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "last_attempt_at": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "response_status": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "duration_ms": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "error": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created_at": {
+            "type": "integer"
+          },
+          "completed_at": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        }
+      },
+      "WebhookDeliveryDetails": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WebhookDelivery"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "payload": {
+                "type": "object",
+                "description": "Corps envoyé au webhook."
+              },
+              "attempts_log": {
+                "type": "object",
+                "properties": {
+                  "list": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/WebhookAttempt"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
       },
       "Contacts": {
         "type": "object",

@@ -125,11 +125,11 @@ export function useCtx(server: Express) {
     try {
       if (apiKey) {
         // The key acts as its owner, but only for the company it was created for
-        const key = await authenticateApiKey(apiKey);
+        const { key, error } = await authenticateApiKey(apiKey);
         if (!key) {
           res.status(401).json({
             error: "Unauthorized",
-            message: "Invalid, expired or revoked api key",
+            message: error,
             id: context.req_id,
           });
           return;

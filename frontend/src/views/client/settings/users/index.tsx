@@ -359,6 +359,11 @@ const roleSumary = (roles: Role[]) => {
 
   return (
     <>
+      {roles.includes("API_ACCESS") && (
+        <div>
+          <b>Accès à l'API et aux webhooks</b>
+        </div>
+      )}
       {["READ", "WRITE", "MANAGE"].map(
         (level) =>
           rolesByType[level] &&

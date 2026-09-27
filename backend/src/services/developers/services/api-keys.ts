@@ -12,7 +12,9 @@ import Services from "../..";
 import {
   ClientsUsersDefinition,
   default as ClientsUsers,
+  Role,
 } from "../../clients/entities/clients-users";
+import { impliedRoles } from "../../clients/services/client-roles";
 import ApiKeys, { ApiKeysDefinition, PublicApiKey } from "../entities/api-keys";
 
 // Every key starts with this prefix, it lets us distinguish api keys from JWT
@@ -27,6 +29,9 @@ const LAST_USED_REFRESH = 60 * 1000;
 const cache = new NodeCache({ stdTTL: CACHE_TTL });
 
 const MAX_KEYS_PER_USER = 50;
+
+// Called when a user's roles change, as keys depend on the API_ACCESS permission
+export const invalidateApiKeysCache = () => cache.flushAll();
 
 export const isApiKey = (value?: string | null): value is string =>
   typeof value === "string" && value.startsWith(API_KEY_PREFIX);
@@ -157,22 +162,40 @@ export const revokeApiKey = async (
   });
 };
 
+export const API_KEY_ERRORS = {
+  invalid: "Invalid, expired or revoked api key",
+  no_access: "The owner of this api key no longer has access to this company",
+  no_permission:
+    "The owner of this api key doesn't have the API access permission (API_ACCESS)",
+};
+
+type ApiKeyAuthentication =
+  | { key: ApiKeys; error?: undefined }
+  | { key?: undefined; error: string };
+
+// Api keys need their owner to have this permission (company managers have it)
+export const hasApiAccess = (roles: Role[]) =>
+  impliedRoles([...(roles || [])]).includes("API_ACCESS");
+
 /**
- * Resolve an api key to its owner. Returns null if the key is unknown, revoked,
- * expired, or if its owner lost access to the company (or the whole platform).
+ * Resolve an api key to its owner. Fails if the key is unknown, revoked or
+ * expired, if its owner lost access to the company (or the whole platform), or
+ * doesn't have the API_ACCESS permission anymore.
  */
 export const authenticateApiKey = async (
   key: string
-): Promise<ApiKeys | null> => {
-  if (!isApiKey(key)) return null;
+): Promise<ApiKeyAuthentication> => {
+  if (!isApiKey(key)) return { error: API_KEY_ERRORS.invalid };
   const hash = hashApiKey(key);
 
-  let apiKey = cache.get<ApiKeys | false>(hash);
-  if (apiKey === undefined) {
-    apiKey = (await loadAndValidateApiKey(hash)) || false;
-    cache.set(hash, apiKey);
+  let result = cache.get<ApiKeyAuthentication>(hash);
+  if (result === undefined) {
+    result = await loadAndValidateApiKey(hash);
+    cache.set(hash, result);
   }
-  if (!apiKey || !isActive(apiKey)) return null;
+  const apiKey = result.key;
+  if (!apiKey) return result;
+  if (!isActive(apiKey)) return { error: API_KEY_ERRORS.invalid };
 
   if (
     !apiKey.last_used_at ||
@@ -182,20 +205,26 @@ export const authenticateApiKey = async (
     touchApiKey(apiKey.id).catch((e) => console.error(e));
   }
 
-  return apiKey;
+  return { key: apiKey };
 };
 
-const loadAndValidateApiKey = async (hash: string) => {
+const loadAndValidateApiKey = async (
+  hash: string
+): Promise<ApiKeyAuthentication> => {
   const ctx = createContext("SYSTEM", "SYSTEM");
   const db = await platform.Db.getService();
 
   const apiKey = await db.selectOne<ApiKeys>(ctx, ApiKeysDefinition.name, {
     key_hash: hash,
   });
-  if (!apiKey || !isActive(normalize(apiKey))) return null;
+  if (!apiKey || !isActive(normalize(apiKey))) {
+    return { error: API_KEY_ERRORS.invalid };
+  }
 
   const user = await Services.Users.getUser(ctx, { id: apiKey.user_id });
-  if (!user || user.role === "DISABLED") return null;
+  if (!user || user.role === "DISABLED") {
+    return { error: API_KEY_ERRORS.no_access };
+  }
 
   const membership = await db.selectOne<ClientsUsers>(
     ctx,
@@ -206,9 +235,12 @@ const loadAndValidateApiKey = async (hash: string) => {
       active: true,
     }
   );
-  if (!membership) return null;
+  if (!membership) return { error: API_KEY_ERRORS.no_access };
+  if (!hasApiAccess(membership.roles?.list || [])) {
+    return { error: API_KEY_ERRORS.no_permission };
+  }
 
-  return normalize(apiKey);
+  return { key: normalize(apiKey) };
 };
 
 const touchApiKey = async (keyId: string) => {

@@ -100,5 +100,8 @@
       "client_secret": "",
       "redirect_uri": ""
     }
+  },
+  "webhooks": {
+    "allow_private_networks": false
   }
 }

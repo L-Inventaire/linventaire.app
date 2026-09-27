@@ -1,4 +1,5 @@
 import { Button } from "@atoms/button/button";
+import { Checkbox } from "@atoms/input/input-checkbox";
 import { BaseSmall, Info } from "@atoms/text";
 import { Role } from "@features/clients/types/clients";
 import { CheckIcon as CheckIconSolid } from "@heroicons/react/24/solid";
@@ -85,6 +86,9 @@ const MODULES = [
     description: "Gestion des utilisateurs et permissions",
   },
 ];
+
+// Permissions that are not part of the modules matrix
+const EXTRA_ROLES: Role[] = ["API_ACCESS"];
 
 const PRESETS = {
   admin: {
@@ -182,8 +186,11 @@ export const RoleMatrix = ({
     onChange(newRoles);
   };
 
+  // Permissions outside of the modules matrix, kept when applying a preset
+  const extraRoles = value.filter((role) => EXTRA_ROLES.includes(role));
+
   const applyPreset = (presetKey: keyof typeof PRESETS) => {
-    onChange(PRESETS[presetKey].roles);
+    onChange([...PRESETS[presetKey].roles, ...extraRoles]);
   };
 
   const clearAll = () => {
@@ -195,8 +202,10 @@ export const RoleMatrix = ({
     if (value.length === 0) return null;
 
     for (const [key, preset] of Object.entries(PRESETS)) {
-      const presetRoles = preset.roles.sort();
-      const currentRoles = value.sort();
+      const presetRoles = [...preset.roles].sort();
+      const currentRoles = value
+        .filter((role) => !EXTRA_ROLES.includes(role))
+        .sort();
 
       if (
         presetRoles.length === currentRoles.length &&
@@ -404,6 +413,25 @@ export const RoleMatrix = ({
           </Info>
         </div>
       )}
+
+      <div className="border rounded-lg px-4 py-3">
+        <Checkbox
+          label="Accès à l'API et aux webhooks"
+          value={value.includes("API_ACCESS")}
+          disabled={disabled}
+          onChange={(checked) =>
+            onChange(
+              checked
+                ? [...value, "API_ACCESS"]
+                : value.filter((role) => role !== "API_ACCESS"),
+            )
+          }
+        />
+        <BaseSmall className="text-gray-500 mt-1 block">
+          Permet de créer des clés API et des webhooks, qui agissent avec les
+          permissions ci-dessus. Les administrateurs y ont toujours accès.
+        </BaseSmall>
+      </div>
     </div>
   );
 };
