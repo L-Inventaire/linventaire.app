@@ -52,6 +52,9 @@ createApiReference("#app", {
     .introduction-section .section-column {
       max-width: 820px;
     }
+    .introduction-section h3 {
+      font-size: 1.05em;
+    }
     .introduction-section img {
       max-width: 100%;
       border-radius: 8px;
