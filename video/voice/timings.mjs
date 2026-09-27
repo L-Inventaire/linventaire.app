@@ -51,6 +51,69 @@ const probeOf = (text) =>
     .trim()
     .slice(0, 12);
 
+// --- Word timestamps (ElevenLabs speech-to-text export: { words: [{ type, text, start, end }] })
+const norm = (s) =>
+  s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9']+/g, " ")
+    .split(" ")
+    .map((w) => w.replace(/^(?:qu|[a-z])'/, "")) // d'installation -> installation
+    .filter(Boolean);
+const same = (a, b) => a === b || (a.length >= 4 && b.length >= 4 && (a.startsWith(b) || b.startsWith(a)));
+
+// Aligns the script on the transcript (longest common subsequence, tolerant to
+// small wording differences) and returns the start time of every line.
+const alignWords = (lines, words) => {
+  const script = lines.flatMap((l, li) => norm(spoken(l.text)).map((w) => ({ w, li })));
+  const heard = words
+    .filter((x) => x.type === "word")
+    .flatMap((x) => norm(x.text).map((w) => ({ w, start: x.start, end: x.end })));
+  const n = script.length,
+    m = heard.length;
+  const dp = Array.from({ length: n + 1 }, () => new Int32Array(m + 1));
+  for (let i = n - 1; i >= 0; i--)
+    for (let j = m - 1; j >= 0; j--)
+      dp[i][j] = same(script[i].w, heard[j].w) ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+  const match = new Array(n).fill(-1);
+  for (let i = 0, j = 0; i < n && j < m; ) {
+    if (same(script[i].w, heard[j].w) && dp[i][j] === dp[i + 1][j + 1] + 1) match[i++] = j++;
+    else if (dp[i + 1][j] >= dp[i][j + 1]) i++;
+    else j++;
+  }
+  const cues = lines.map((_, li) => {
+    const i = script.findIndex((s, k) => s.li === li && match[k] >= 0);
+    if (i < 0) throw new Error(`line ${li + 1} ("${lines[li].text.slice(0, 30)}") not found in the transcript`);
+    return heard[match[i]].start;
+  });
+  // extra sync points: a given word of a line lands on a given animation frame
+  const points = [];
+  lines.forEach((l, li) => {
+    points.push({ t: cues[li], at: l.at });
+    let from = script.findIndex((s) => s.li === li);
+    for (const mk of l.marks || []) {
+      const w = norm(mk.word)[0];
+      const k = script.findIndex((s, i) => i >= from && s.li === li && same(s.w, w));
+      if (k < 0 || match[k] < 0) {
+        console.warn(`  mark "${mk.word}" not found`);
+        continue;
+      }
+      points.push({ t: heard[match[k]].start, at: mk.at });
+      from = k + 1;
+    }
+  });
+  // when the voice is talking (merged word intervals), for the music ducking
+  const speech = [];
+  for (const h of heard) {
+    const prev = speech[speech.length - 1];
+    if (prev && h.start - prev[1] < 1.2) prev[1] = Math.max(prev[1], h.end);
+    else speech.push([h.start, h.end]);
+  }
+  const last = match.filter((j) => j >= 0).pop();
+  return { cues, points, speech, speechEnd: heard[last].end, matched: match.filter((j) => j >= 0).length / n };
+};
+
 const fromAlignment = (json, lines) => {
   const a = json.alignment || json.normalized_alignment || json;
   const chars = a.characters.join("");
@@ -104,7 +167,19 @@ if (fullFile) {
   const fullAlign = path.join(voiceDir, "full.json");
   let bounds; // start time of each scene
   let align = null;
-  if (fs.existsSync(fullAlign)) {
+  let fullWords = null;
+  if (fs.existsSync(fullAlign) && JSON.parse(fs.readFileSync(fullAlign, "utf8")).words) {
+    fullWords = JSON.parse(fs.readFileSync(fullAlign, "utf8")).words;
+    const all = names.flatMap((n) => script[n]);
+    const { cues } = alignWords(all, fullWords);
+    let k = 0;
+    bounds = names.map((n) => {
+      const b = { t: cues[k] };
+      k += script[n].length;
+      return b;
+    });
+    console.log("full narration: split with word timestamps");
+  } else if (fs.existsSync(fullAlign)) {
     const j = JSON.parse(fs.readFileSync(fullAlign, "utf8"));
     align = j.alignment || j.normalized_alignment || j;
     const chars = align.characters.join("");
@@ -132,6 +207,13 @@ if (fullFile) {
     const to = i + 1 < names.length ? Math.max(from + 0.1, bounds[i + 1].t - 0.25) : total;
     for (const e of ["mp3", "wav", "json"]) fs.rmSync(path.join(voiceDir, `${n}.${e}`), { force: true });
     cut(fullFile, from, to, path.join(voiceDir, `${n}.wav`));
+    if (fullWords) {
+      // per-scene word timestamps, shifted to the start of the cut
+      const sub = fullWords
+        .filter((w) => w.start >= from && w.start < to)
+        .map((w) => ({ ...w, start: w.start - from, end: w.end - from }));
+      fs.writeFileSync(path.join(voiceDir, `${n}.json`), JSON.stringify({ words: sub }));
+    }
     if (align) {
       // per-scene alignment, shifted to the start of the cut
       const end = i + 1 < names.length ? bounds[i + 1].idx : align.characters.length;
@@ -161,8 +243,14 @@ for (const [scene, lines] of Object.entries(script)) {
   let t = null,
     method = "";
   if (fs.existsSync(alignFile)) {
-    t = fromAlignment(JSON.parse(fs.readFileSync(alignFile, "utf8")), lines);
-    method = "alignment";
+    const j = JSON.parse(fs.readFileSync(alignFile, "utf8"));
+    if (j.words) {
+      t = alignWords(lines, j.words);
+      method = `word timestamps, ${Math.round(t.matched * 100)}% of the words matched`;
+    } else {
+      t = fromAlignment(j, lines);
+      method = "alignment";
+    }
   }
   if (!t && lines.length > 1) {
     t = fromSilences(file, dur, lines);
@@ -177,6 +265,8 @@ for (const [scene, lines] of Object.entries(script)) {
     duration: +dur.toFixed(3),
     speechEnd: +Math.min(dur, t.speechEnd).toFixed(3),
     cues: t.cues.map((c) => +c.toFixed(3)),
+    speech: (t.speech || [[t.cues[0], t.speechEnd]]).map(([a, b]) => [+a.toFixed(2), +b.toFixed(2)]),
+    points: (t.points || t.cues.map((c, i) => ({ t: c, at: lines[i].at }))).map((p) => ({ t: +p.t.toFixed(3), at: p.at })),
   };
   console.log(`- ${scene}: ${dur.toFixed(2)} s, lines at ${result[scene].cues.join(" / ")} s (${method})`);
 }

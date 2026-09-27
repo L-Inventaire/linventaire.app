@@ -1,6 +1,6 @@
 import React from "react";
 import { Composition, Series } from "remotion";
-import { planScene, TimedScene } from "./timing";
+import { Music, planScene, TimedScene } from "./timing";
 import {
   StepFulfil,
   StepInvoice,
@@ -34,7 +34,7 @@ export const SCENES: [string, React.FC, number][] = [
 // Final plan of each scene: stretched to the voice-over when there is one
 const PLANS = SCENES.map(([name, Component, base]) => ({ name, Component, base, plan: planScene(name, base) }));
 
-const Film: React.FC = () => (
+const Scenes: React.FC = () => (
   <Series>
     {PLANS.map(({ name, Component, base, plan }) => (
       <Series.Sequence key={name} name={name} durationInFrames={plan.duration}>
@@ -44,6 +44,13 @@ const Film: React.FC = () => (
       </Series.Sequence>
     ))}
   </Series>
+);
+
+const Film: React.FC = () => (
+  <>
+    <Scenes />
+    <Music src="music.mp3" musicSeconds={120.03} plans={PLANS} />
+  </>
 );
 
 export const RemotionRoot: React.FC = () => (

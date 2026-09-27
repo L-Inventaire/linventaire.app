@@ -1,5 +1,5 @@
 {
-  "_doc": "Voice-over script (ElevenLabs v3: [tags] in square brackets are audio tags, not spoken). One scene = one block; 'at' = frame of the animation (30 fps, before retiming) where the line should start.",
+  "_doc": "Voice-over script (ElevenLabs v3: [tags] in square brackets are audio tags, not spoken). One scene = one block; 'at' = frame of the animation (30 fps, before retiming) where the line should start. Optional 'marks': a word of the line (as spoken) and the animation frame it should land on.",
   "scenes": {
     "intro": [
       {
@@ -34,11 +34,47 @@
       },
       {
         "at": 36,
-        "text": "C'est lui qui organise vos opérations : vos clients, vos produits, vos interventions et vos achats."
+        "text": "C'est lui qui organise vos opérations : vos clients, vos produits, vos interventions et vos achats.",
+        "marks": [
+          {
+            "word": "clients",
+            "at": 40
+          },
+          {
+            "word": "produits",
+            "at": 52
+          },
+          {
+            "word": "interventions",
+            "at": 64
+          },
+          {
+            "word": "achats",
+            "at": 76
+          }
+        ]
       },
       {
         "at": 140,
-        "text": "Et c'est lui qui génère toute la partie financière : factures, avoirs, abonnements et paiements."
+        "text": "Et c'est lui qui génère toute la partie financière : factures, avoirs, abonnements et paiements.",
+        "marks": [
+          {
+            "word": "factures",
+            "at": 150
+          },
+          {
+            "word": "avoirs",
+            "at": 164
+          },
+          {
+            "word": "abonnements",
+            "at": 178
+          },
+          {
+            "word": "paiements",
+            "at": 192
+          }
+        ]
       }
     ],
     "quote": [
@@ -48,13 +84,41 @@
       },
       {
         "at": 45,
-        "text": "Vous créez le devis, et vous y déposez vos articles : deux caisses tactiles, deux tiroirs-caisses, six heures d'installation, et un contrat de maintenance mensuel."
+        "text": "Vous créez le devis, et vous y déposez vos articles : deux caisses tactiles, deux tiroirs-caisses, six heures d'installation, et un contrat de maintenance mensuel.",
+        "marks": [
+          {
+            "word": "caisses",
+            "at": 53
+          },
+          {
+            "word": "tiroirs",
+            "at": 93
+          },
+          {
+            "word": "installation",
+            "at": 133
+          },
+          {
+            "word": "maintenance",
+            "at": 173
+          }
+        ]
       }
     ],
     "send": [
       {
         "at": 14,
-        "text": "Un clic, [short pause] et le devis part par email, avec la signature électronique intégrée."
+        "text": "Un clic, [short pause] et le devis part par email, avec la signature électronique intégrée.",
+        "marks": [
+          {
+            "word": "clic",
+            "at": 24
+          },
+          {
+            "word": "email",
+            "at": 60
+          }
+        ]
       }
     ],
     "sign": [
@@ -70,7 +134,17 @@
     "fulfil": [
       {
         "at": 14,
-        "text": "Place à la réalisation : les caisses sont réservées en stock, et la commande fournisseur est créée."
+        "text": "Place à la réalisation : les caisses sont réservées en stock, et la commande fournisseur est créée.",
+        "marks": [
+          {
+            "word": "reservees",
+            "at": 118
+          },
+          {
+            "word": "commande",
+            "at": 140
+          }
+        ]
       },
       {
         "at": 165,
@@ -80,7 +154,21 @@
     "invoice": [
       {
         "at": 12,
-        "text": "Facturez alors en un clic : en totalité, en partie, ou sous forme d'acompte."
+        "text": "Facturez alors en un clic : en totalité, en partie, ou sous forme d'acompte.",
+        "marks": [
+          {
+            "word": "clic",
+            "at": 20
+          },
+          {
+            "word": "partie",
+            "at": 68
+          },
+          {
+            "word": "acompte",
+            "at": 88
+          }
+        ]
       },
       {
         "at": 150,
@@ -96,7 +184,13 @@
     "payment": [
       {
         "at": 10,
-        "text": "Votre client règle sa facture ? [short pause] Enregistrez le paiement."
+        "text": "Votre client règle sa facture ? [short pause] Enregistrez le paiement.",
+        "marks": [
+          {
+            "word": "enregistrez",
+            "at": 20
+          }
+        ]
       },
       {
         "at": 118,
@@ -116,11 +210,23 @@
     "dashboard": [
       {
         "at": 18,
-        "text": "Et au quotidien, votre tableau de bord vous donne en temps réel votre chiffre d'affaires, vos charges et votre résultat..."
+        "text": "Et au quotidien, votre tableau de bord vous donne en temps réel votre chiffre d'affaires, vos charges et votre résultat...",
+        "marks": [
+          {
+            "word": "chiffre",
+            "at": 60
+          }
+        ]
       },
       {
         "at": 120,
-        "text": "...mais aussi les devis signés, les factures en retard, et tout ce qui demande votre attention."
+        "text": "...mais aussi les devis signés, les factures en retard, et tout ce qui demande votre attention.",
+        "marks": [
+          {
+            "word": "devis",
+            "at": 150
+          }
+        ]
       }
     ],
     "outro": [
