@@ -38,6 +38,7 @@ export type RestOptions<T> = {
   ignoreEmptyFilters?: boolean;
   useRankOrderOnSearch?: boolean;
   count?: boolean; // Si true, ne retourne que le total
+  enabled?: boolean; // Si false, la requête n'est pas exécutée (useRestCount)
   queryFn?: () => Promise<{ total: number; list: T[] }>;
 };
 
@@ -326,6 +327,7 @@ export const useRestCount = <T>(table: string, options?: RestOptions<T>) => {
 
   const count = useQuery({
     queryKey,
+    enabled: options?.enabled !== false,
     staleTime: 1000 * 60 * 5, // 5 minutes
     queryFn: async () => {
       const invalidRequest =

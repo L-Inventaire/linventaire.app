@@ -1,6 +1,7 @@
 import { Button } from "@atoms/button/button";
 import { MenuItem, MenuSection } from "@atoms/dropdown/components";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
+import { buildQueryFromMap } from "@components/search-bar/utils/utils";
 import { useHasAccess } from "@features/access";
 import { registerRootNavigation } from "@features/ctrlk";
 import { ROUTES, getRoute } from "@features/routes";
@@ -49,6 +50,15 @@ export const SideBar = () => {
   const subscriptionsToReview = useRestCount("invoices", {
     key: "sidebarSubscriptionsToReview",
     query: subscriptionsToReviewQuery(),
+  });
+
+  const showReceivedEInvoices =
+    hasAccess("SUPPLIER_INVOICES_READ") &&
+    eInvoicingConfig?.receive_enabled === true;
+  const newReceivedEInvoices = useRestCount("received_e_invoices", {
+    key: "sidebarNewReceivedEInvoices",
+    query: buildQueryFromMap({ state: "new" }),
+    enabled: showReceivedEInvoices,
   });
 
   return (
@@ -184,10 +194,8 @@ export const SideBar = () => {
               to={getRoute(ROUTES.ReceivedEInvoices)}
               label={t("menu.received_e_invoices")}
               icon={(p) => <InboxStackIcon {...p} />}
-              show={
-                hasAccess("SUPPLIER_INVOICES_READ") &&
-                eInvoicingConfig?.receive_enabled === true
-              }
+              badge={newReceivedEInvoices.data || undefined}
+              show={showReceivedEInvoices}
             />
           </MenuSection>
 
