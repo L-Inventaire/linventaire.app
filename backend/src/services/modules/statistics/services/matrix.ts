@@ -96,17 +96,17 @@ export const getMatrix = async (
   ).rows;
   const tagsMap = _.fromPairs(articles.map((a) => [a.id, a.tags]));
 
-  // Get amount per tag
-  const result: { [tag: string]: number } = {};
+  // Get amount per tag, summed in cents to avoid floating point drift
+  const cents: { [tag: string]: number } = {};
   for (const line of lines) {
     const tags = line.article ? tagsMap[line.article] : null;
     let tag = "multiple";
     if (!tags?.length) tag = "untagged";
     else if (tags.length === 1) tag = tags[0];
 
-    if (!result[tag]) result[tag] = 0;
-    result[tag] += line.amount;
+    if (!cents[tag]) cents[tag] = 0;
+    cents[tag] += Math.round(line.amount * 100);
   }
 
-  return result;
+  return _.mapValues(cents, (value) => value / 100);
 };

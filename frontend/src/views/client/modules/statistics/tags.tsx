@@ -17,6 +17,14 @@ import _ from "lodash";
 import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import * as XLSX from "xlsx";
+import { fr } from "date-fns/locale";
+
+// Sum amounts in cents to avoid floating point drift (0.1 + 0.2 != 0.3)
+const sumAmounts = (values: (number | undefined)[]) =>
+  values.reduce<number>((acc, v) => acc + Math.round((v || 0) * 100), 0) / 100;
+
+const rowTotal = (row: DashboardTags) =>
+  sumAmounts(Object.values(_.omit(row, "month")));
 
 export const TagsExportModal = ({
   year,
@@ -57,53 +65,47 @@ export const TagsExportModal = ({
     } as Tags);
 
     const data = res.data.map((monthly, index) => {
-      const row: Record<string, any> = {
-        Mois: format(new Date(year, index, 1), "MMMM yyyy"),
+      const row: Record<string, string | number> = {
+        Mois: format(new Date(year, index, 1), "MMMM yyyy", { locale: fr }),
       };
       tagsSorted.forEach((tag) => {
-        row[tag.name] = monthly[tag.id] || 0;
+        row[tag.name] = sumAmounts([monthly[tag.id]]);
       });
-      row["Total"] = Object.values(_.omit(monthly, "month")).reduce(
-        (acc, a) => acc + (a || 0),
-        0,
-      );
+      row["Total"] = rowTotal(monthly);
       return row;
     });
 
     // Add total row
-    const totalRow: Record<string, any> = { Mois: "Total" };
+    const totalRow: Record<string, string | number> = { Mois: "Total" };
     tagsSorted.forEach((tag) => {
-      totalRow[tag.name] = res.data.reduce(
-        (acc, monthly) => acc + (monthly[tag.id] || 0),
-        0,
-      );
+      totalRow[tag.name] = sumAmounts(res.data.map((m) => m[tag.id]));
     });
-    totalRow["Total"] = res.data.reduce(
-      (acc, monthly) =>
-        acc +
-        Object.values(_.omit(monthly, "month")).reduce(
-          (a, b) => a + (b || 0),
-          0,
-        ),
-      0,
-    );
+    totalRow["Total"] = sumAmounts(res.data.map(rowTotal));
     data.push(totalRow);
 
     const fileName = `ca-${year}`;
 
     if (exportType === "xlsx") {
       const worksheet = XLSX.utils.json_to_sheet(data);
+      // Display amounts with 2 decimals (values stay numeric)
+      Object.values(worksheet).forEach((cell) => {
+        if (cell && typeof cell === "object" && cell.t === "n") {
+          cell.z = "#,##0.00";
+        }
+      });
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, fileName);
       XLSX.writeFile(workbook, `${fileName}.xlsx`, { compression: true });
     } else if (exportType === "csv") {
-      const header = Object.keys(data[0]).join(",");
-      const csv = data.map((row) =>
-        Object.values(row)
-          .map((e) => (typeof e === "object" ? JSON.stringify(e) : e))
-          .join(","),
-      );
-      const csvString = header + "\n" + csv.join("\n");
+      // French Excel format: ";" separator and "," decimal separator
+      const escape = (e: string | number) => {
+        const str =
+          typeof e === "number" ? e.toFixed(2).replace(".", ",") : String(e);
+        return /[;"\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
+      };
+      const header = Object.keys(data[0]).map(escape).join(";");
+      const csv = data.map((row) => Object.values(row).map(escape).join(";"));
+      const csvString = "﻿" + header + "\n" + csv.join("\n"); // BOM for UTF-8
       const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
       const link = document.createElement("a");
       const url = URL.createObjectURL(blob);
@@ -220,10 +222,7 @@ export const TagsPage = ({ year }: { year: number }) => {
   const total = tagsSorted.reduce(
     (acc, tag) => ({
       ...acc,
-      [tag.id]: Object.values(res.data).reduce(
-        (acc, monthly) => acc + (monthly[tag.id] || 0),
-        0,
-      ),
+      [tag.id]: sumAmounts(res.data.map((monthly) => monthly[tag.id])),
     }),
     { month: -1 } as DashboardTags,
   );
@@ -291,10 +290,7 @@ export const TagsPage = ({ year }: { year: number }) => {
           headClassName: "justify-end",
           cellClassName: "justify-end",
           render: (row: DashboardTags) => {
-            const total = Object.values(_.omit(row, "month")).reduce(
-              (acc, a) => acc + (a || 0),
-              0,
-            );
+            const total = rowTotal(row);
             return (
               <Link
                 noColor
