@@ -40,6 +40,17 @@ const silences = (file) => {
   return starts.map((s, i) => ({ start: s, end: ends[i] ?? Infinity }));
 };
 
+// Text as spoken: without [audio tags] nor leading dots
+const spoken = (text) => text.replace(/\[[^\]]*\]\s*/g, "").replace(/^[.\s]+/, "");
+// Start of a line to look for in the timestamps: spoken text before any inner tag
+const probeOf = (text) =>
+  text
+    .replace(/^(\s*\[[^\]]*\]\s*)+/, "")
+    .split("[")[0]
+    .replace(/^[.\s]+/, "")
+    .trim()
+    .slice(0, 12);
+
 const fromAlignment = (json, lines) => {
   const a = json.alignment || json.normalized_alignment || json;
   const chars = a.characters.join("");
@@ -47,7 +58,7 @@ const fromAlignment = (json, lines) => {
   const ends = a.character_end_times_seconds;
   let from = 0;
   const cues = lines.map((l) => {
-    const probe = l.text.replace(/^[.\s]+/, "").slice(0, 12);
+    const probe = probeOf(l.text);
     const idx = chars.indexOf(probe, from);
     const i = idx >= 0 ? idx : from;
     from = i + 1;
@@ -70,11 +81,11 @@ const fromSilences = (file, dur, lines) => {
 };
 
 const proportional = (dur, lines) => {
-  const total = lines.reduce((s, l) => s + l.text.length, 0);
+  const total = lines.reduce((s, l) => s + spoken(l.text).length, 0);
   let acc = 0;
   const cues = lines.map((l) => {
     const t = (acc / total) * dur;
-    acc += l.text.length;
+    acc += spoken(l.text).length;
     return t;
   });
   return { cues, speechEnd: dur };
@@ -99,7 +110,7 @@ if (fullFile) {
     const chars = align.characters.join("");
     let from = 0;
     bounds = names.map((n) => {
-      const probe = script[n][0].text.replace(/^[.\s]+/, "").slice(0, 12);
+      const probe = probeOf(script[n][0].text);
       const idx = chars.indexOf(probe, from);
       if (idx < 0) throw new Error(`"${probe}" not found in full.json alignment`);
       from = idx + 1;

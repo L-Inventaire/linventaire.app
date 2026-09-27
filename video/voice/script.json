@@ -1,36 +1,36 @@
 {
-  "_doc": "Voice-over script. One audio file per scene (public/voice/<scene>.mp3). 'at' = frame of the animation (30 fps, before retiming) where the line should start. Leave a short pause (~0.6 s) between lines of a same scene so they can be detected.",
+  "_doc": "Voice-over script (ElevenLabs v3: [tags] in square brackets are audio tags, not spoken). One scene = one block; 'at' = frame of the animation (30 fps, before retiming) where the line should start.",
   "scenes": {
     "intro": [
       {
         "at": 8,
-        "text": "Des devis sur un tableur, des factures dans un autre logiciel, un stock qu'on suit de tête... Ça vous parle ?"
+        "text": "[curious] Des devis sur un tableur, des factures dans un autre logiciel, un stock qu'on suit de tête... [short pause] Ça vous parle ?"
       },
       {
         "at": 74,
-        "text": "Avec L'inventaire, tout est enfin au même endroit."
+        "text": "[warmly] Avec L'inventaire, tout est enfin au même endroit."
       }
     ],
     "features": [
       {
         "at": 10,
-        "text": "Vos devis et vos factures, vos abonnements, vos clients, votre stock, vos interventions, votre comptabilité... et même la facture électronique."
+        "text": "[confident] Devis, factures, stock, clients, comptabilité... tout y est."
       },
       {
         "at": 90,
-        "text": "Un seul outil, pensé pour vous simplifier la vie au quotidien."
+        "text": "Un seul outil, pensé pour vous simplifier la vie."
       }
     ],
     "how": [
       {
         "at": 8,
-        "text": "Et le plus simple, c'est encore de vous montrer comment ça marche."
+        "text": "[smiles] Et le plus simple, c'est encore de vous montrer comment ça marche."
       }
     ],
     "positioning": [
       {
         "at": 8,
-        "text": "Chez L'inventaire, tout part du devis."
+        "text": "Chez L'inventaire, [short pause] tout part du devis."
       },
       {
         "at": 36,
@@ -54,7 +54,7 @@
     "send": [
       {
         "at": 14,
-        "text": "Un clic, et le devis part par email, avec la signature électronique intégrée."
+        "text": "Un clic, [short pause] et le devis part par email, avec la signature électronique intégrée."
       }
     ],
     "sign": [
@@ -96,7 +96,7 @@
     "payment": [
       {
         "at": 10,
-        "text": "Votre client règle sa facture ? Enregistrez le paiement."
+        "text": "Votre client règle sa facture ? [short pause] Enregistrez le paiement."
       },
       {
         "at": 118,
@@ -106,7 +106,7 @@
     "recap": [
       {
         "at": 60,
-        "text": "Et voilà, c'est aussi simple que ça !"
+        "text": "[excited] Et voilà, c'est aussi simple que ça !"
       },
       {
         "at": 120,
@@ -126,7 +126,7 @@
     "outro": [
       {
         "at": 10,
-        "text": "L'inventaire. Simplifiez votre gestion, du devis au paiement."
+        "text": "[warmly] L'inventaire. [short pause] Simplifiez votre gestion, du devis au paiement."
       }
     ]
   }
