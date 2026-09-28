@@ -297,6 +297,11 @@ export const InvoicesDetailsPage = ({
     // Closed documents cannot be modified
     draft.state === "closed";
 
+  // Only quotes and orders are accepted (invoices created from a quote may carry its date)
+  const showAcceptedDate =
+    (draft.type === "quotes" || draft.type === "supplier_quotes") &&
+    !!ctrl("wait_for_completion_since").value;
+
   return (
     <>
       <FormContext readonly={readonly} alwaysVisible>
@@ -473,7 +478,7 @@ export const InvoicesDetailsPage = ({
                         )}
                     </InputButton>
                   )}
-                  {!!ctrl("wait_for_completion_since").value && (
+                  {showAcceptedDate && (
                     <InputButton
                       theme="invisible"
                       className="m-0"

@@ -56,7 +56,8 @@ export default class I18n implements PlatformService {
     );
 
     for (const replacementKey of Object.keys(options?.replacements || {})) {
-      const val = options.replacements[replacementKey];
+      // A missing value (e.g. no email footer) must not be rendered as "undefined"
+      const val = options.replacements[replacementKey] ?? "";
       translation = translation.replace(
         new RegExp("{{" + replacementKey + "}}", "gm"),
         val

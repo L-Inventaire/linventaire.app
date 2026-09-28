@@ -9,6 +9,9 @@ import { twMerge } from "tailwind-merge";
 import DashboardCard from "./card";
 type AccountingCardProps = { year: number } & React.ComponentProps<"div">;
 
+// Expected amounts are extrapolated from the elapsed part of the year
+const roundCents = (value: number) => Math.round(value * 100) / 100;
+
 const AccountingCard = ({ year, ...props }: AccountingCardProps) => {
   const { all } = useDashboard(year);
   const { all: allLastYear } = useDashboard(year - 1);
@@ -74,7 +77,7 @@ const AccountingCard = ({ year, ...props }: AccountingCardProps) => {
               {formatAmount(gains ?? 0)}
             </Heading>
             <Info>
-              {formatAmount(gainsExpected ?? 0)} estimé à cloture
+              {formatAmount(roundCents(gainsExpected ?? 0))} estimé à cloture
               <br />
               {!!gainsExpected && (
                 <>
@@ -99,7 +102,7 @@ const AccountingCard = ({ year, ...props }: AccountingCardProps) => {
               {formatAmount(charges ?? 0)}
             </Heading>
             <Info>
-              {formatAmount(chargesExpected ?? 0)} estimé à cloture
+              {formatAmount(roundCents(chargesExpected ?? 0))} estimé à cloture
               <br />
               {!!chargesExpected && (
                 <>
@@ -124,7 +127,7 @@ const AccountingCard = ({ year, ...props }: AccountingCardProps) => {
               {formatAmount(revenue ?? 0)}
             </Heading>
             <Info>
-              {formatAmount(revenueExpected ?? 0)} estimé à cloture
+              {formatAmount(roundCents(revenueExpected ?? 0))} estimé à cloture
               <br />
               {!!revenueLastYear && (
                 <>

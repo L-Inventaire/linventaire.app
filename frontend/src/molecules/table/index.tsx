@@ -111,11 +111,12 @@ export function Table<T>({
   const [internalLoading, setLoading] = useState(false);
 
   useEffect(() => {
-    setPaginationState({
+    // Functional update: a copy of the state would overwrite the total received meanwhile
+    setPaginationState((paginationState) => ({
       ...paginationState,
       order: props.order?.order,
       orderBy: props.order?.orderBy,
-    });
+    }));
   }, [props.order]);
 
   const columns = props?.groupByClosable

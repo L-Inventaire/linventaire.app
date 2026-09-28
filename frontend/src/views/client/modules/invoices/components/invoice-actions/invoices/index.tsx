@@ -154,6 +154,7 @@ export const InvoicesActions = ({
                         "id",
                         "emit_date",
                         "reference_preferred_value",
+                        "wait_for_completion_since",
                       ),
                       from_rel_quote: [draft.id],
                       type: "supplier_quotes",
