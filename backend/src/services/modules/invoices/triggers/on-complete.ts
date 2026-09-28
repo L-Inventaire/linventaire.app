@@ -137,7 +137,11 @@ export const setCheckIsCompleteTrigger = () => {
             ...(oldEntity?.rel_invoices || []),
           ].filter(Boolean)
         )) {
-          await recomputeCompletionStatus(ctx, entity.client_id, id);
+          await recomputeCompletionStatus(
+            ctx,
+            (entity || oldEntity).client_id,
+            id
+          );
         }
       },
     }
