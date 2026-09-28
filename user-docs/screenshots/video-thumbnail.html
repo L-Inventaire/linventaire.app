@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- Thumbnail of the presentation video (images/video.png), rendered by capture.mjs -->
+    <style>
+      @font-face {
+        font-family: "Inter var";
+        font-weight: 100 900;
+        src: url(node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2) format("woff2");
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1280px;
+        height: 720px;
+        overflow: hidden;
+        font-family: "Inter var", sans-serif;
+      }
+      .bg {
+        position: absolute;
+        inset: 0;
+        background: url(../public/images/tableau-de-bord.png) left top / cover;
+        filter: blur(3px) saturate(0.9);
+        transform: scale(1.04);
+      }
+      .veil {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.86), rgba(15, 23, 42, 0.55));
+      }
+      .content {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        text-align: center;
+        gap: 28px;
+      }
+      .logo {
+        height: 64px;
+        border-radius: 10px;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25);
+      }
+      h1 {
+        margin: 0;
+        font-size: 56px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+      p {
+        margin: 0;
+        font-size: 26px;
+        opacity: 0.85;
+      }
+      .play {
+        width: 112px;
+        height: 112px;
+        border-radius: 50%;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+      }
+      .play::after {
+        content: "";
+        margin-left: 10px;
+        border-style: solid;
+        border-width: 26px 0 26px 42px;
+        border-color: transparent transparent transparent #0f172a;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg"></div>
+    <div class="veil"></div>
+    <div class="content">
+      <img class="logo" src="../../frontend/public/medias/logo-text.svg" alt="" />
+      <h1>Tout part du devis</h1>
+      <div class="play"></div>
+      <p>Découvrez L'inventaire en vidéo, du devis au paiement</p>
+    </div>
+  </body>
+</html>

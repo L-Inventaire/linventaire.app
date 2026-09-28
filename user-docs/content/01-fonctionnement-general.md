@@ -2,8 +2,9 @@
 
 Bienvenue dans le manuel d'utilisation de L'inventaire. Ce premier chapitre présente la logique de l'outil : une fois qu'elle est comprise, le reste devient naturel.
 
-> [!NOTE]
-> Une vidéo de présentation (moins de 2 minutes) qui suit un devis de sa création jusqu'au paiement sera bientôt disponible ici.
+La vidéo de présentation suit un devis de sa création jusqu'au paiement :
+
+[![Vidéo de présentation de L'inventaire : tout part du devis](images/video.png)](https://youtu.be/_qyO5BOaQrs)
 
 ## Tout part du devis
 

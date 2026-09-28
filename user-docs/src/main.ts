@@ -14,7 +14,35 @@ const chapters = import.meta.glob<string>("../content/*.md", {
 const description = Object.keys(chapters)
   .sort()
   .map((file) => chapters[file].trim())
-  .join("\n\n");
+  .join("\n\n")
+  // Absolute paths: relative ones break when the manual is not opened at
+  // /manuals/ exactly (/manuals, /manuals/index.html#...)
+  .replace(/\]\(images\//g, `](${import.meta.env.BASE_URL}images/`);
+
+// Scalar strips iframes from the Markdown: a thumbnail linking to a YouTube
+// video is replaced by the player when clicked (and stays a link otherwise)
+const youtubeId = (href: string) =>
+  href.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([\w-]{11})/)?.[1];
+document.addEventListener(
+  "click",
+  (event) => {
+    const link = (event.target as HTMLElement).closest?.("a");
+    const thumbnail = link?.querySelector("img");
+    const id = link && thumbnail && youtubeId(link.href);
+    if (!link || !id) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const player = document.createElement("iframe");
+    player.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`;
+    player.title = thumbnail.alt;
+    player.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+    player.allowFullscreen = true;
+    player.style.cssText =
+      "display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 8px;";
+    link.replaceWith(player);
+  },
+  true,
+);
 
 createApiReference("#app", {
   content: {

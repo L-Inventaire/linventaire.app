@@ -3,7 +3,7 @@
 The images of `../public/images/` are real screenshots of the app, taken with demo data: a company selling cash registers ("Caisses & Co") with its clients (a bakery, a café...), articles, a year of paid invoices and one quote in every state (draft, sent, accepted, to invoice, completed). Regenerate them when the UI changes.
 
 - `seed.mjs` creates the demo data through the API (and one SQL update, see the end of the file). Run it against an **empty** database.
-- `capture.mjs` opens the app with Playwright and takes the screenshots. Each screenshot is a named function in `shots`: add one there, then reference `images/<name>.png` in the Markdown.
+- `capture.mjs` opens the app with Playwright and takes the screenshots, plus the thumbnail of the presentation video (`video-thumbnail.html`, drawn over the dashboard screenshot). Each screenshot is a named function in `shots`: add one there, then reference `images/<name>.png` in the Markdown.
 
 ## Steps
 

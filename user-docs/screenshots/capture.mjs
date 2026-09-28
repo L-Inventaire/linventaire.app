@@ -228,6 +228,13 @@ const shots = {
     await p.waitForTimeout(1500);
     await shot("recherche", { h: 330 });
   },
+  async video() {
+    // Thumbnail of the presentation video, drawn over the dashboard screenshot
+    await size(1280, 720);
+    await p.goto(new URL("./video-thumbnail.html", import.meta.url).href);
+    await p.waitForTimeout(1000);
+    await shot("video", { page: true });
+  },
   async crm() {
     await size(1440, 900);
     await go("/crm");

@@ -26,9 +26,9 @@ Standard Markdown (GitHub flavour): lists, tables, bold, links, plus callouts:
 ```
 
 - **Links between sections**: `[Le stock](#description/le-stock)`. The anchor is the title in lowercase, spaces replaced by `-`, apostrophes and punctuation removed, **accents kept** (`## Services et temps passé` → `#description/services-et-temps-passé`, `## Commandes et factures d'achat` → `#description/commandes-et-factures-dachat`). Changing a title breaks the links to it.
-- **Images**: put them in `public/images/` and reference them with a relative path, wrapped in a link so that a click opens the full size image: `[![Le devis](images/devis.png)](images/devis.png)` (no leading `/`, the site is served under `/manuals/`).
+- **Images**: put them in `public/images/` and reference them as `images/...`, wrapped in a link so that a click opens the full size image: `[![Le devis](images/devis.png)](images/devis.png)`. `src/main.ts` turns `](images/` into absolute paths (`/manuals/images/...` in production), so write them exactly this way.
 - **Screenshots** of the app are generated from demo data by `screenshots/` (see its README): regenerate them when the UI changes rather than editing them by hand.
-- **Video**: raw HTML (`<video>`, `<iframe>`) is stripped by Scalar. Put the file in `public/videos/` (or host it on YouTube) and link to it, ideally with a thumbnail: `[![Voir la vidéo](images/video.png)](videos/presentation.mp4)`.
+- **Video**: raw HTML (`<video>`, `<iframe>`) is stripped by Scalar. Link a thumbnail to the YouTube video, `[![Présentation](images/video.png)](https://youtu.be/<id>)`: `src/main.ts` replaces it by the player when clicked. The thumbnail of the presentation video is rendered from `screenshots/video-thumbnail.html`.
 - Quote the UI labels exactly as they appear in the app, in **bold**, so that users can find them.
 
 ## Commands
