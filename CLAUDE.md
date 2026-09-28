@@ -94,6 +94,11 @@ The backend exposes a **generic REST API** (`/api/rest/v1`) that handles all ent
 - **API calls history:** `apiCallsLogger` middleware stores every API-key request in `api_calls` (status, duration, bodies truncated to 10 KB), purged after 30 days.
 - **Webhooks:** `webhooks` table (owned by a user, only documents the owner can READ are sent). A `*` trigger inserts rows into `webhook_deliveries` in the same transaction as the change; a worker (`processDueDeliveries`, rows claimed with `FOR UPDATE SKIP LOCKED`) POSTs them signed with HMAC SHA-256 (`X-Linventaire-Signature: t=...,v1=...`), with 8 attempts over ~24 h, and disables a webhook after 20 failed deliveries in a row. URLs pointing to private networks are refused (SSRF), except with `webhooks.allow_private_networks` (`WEBHOOKS_ALLOW_PRIVATE_NETWORKS=true`, for local development).
 
+### Platform administration
+
+- Users with `users.role = 'SYSADMIN'` (set in database, applied at next login) see **Administration de la plateforme** in the account menu (`/:client/admin/tenants`): all the companies and their activity.
+- Backend: `backend/src/services/admin/` (`/api/admin/v1/tenants`, `checkRole("SYSADMIN")` + `checkMfa()`). The activity is computed from `created_at` / `updated_at` of the main business tables (`ACTIVITY_TABLES`), not from `events` (never filled). Never select whole `clients` rows there (they contain SMTP secrets).
+
 ### Business Modules
 
 Core modules are isolated in `/backend/src/services/modules/`:

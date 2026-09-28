@@ -103,6 +103,10 @@ export const ROUTES = {
   SignedDocumentView: "/signing-session/:session/signed",
 
   DevPage: "/:client/dev",
+
+  // Platform administration (SYSADMIN only)
+  AdminTenants: "/:client/admin/tenants",
+  AdminTenantsView: "/:client/admin/tenants/:id",
 };
 
 export const entityRoutes: {
