@@ -1008,21 +1008,23 @@ export function convertInternalToEN16931(
         : undefined,
     seller,
     buyer,
-    delivery_information: invoice.delivery_date
-      ? {
-          actual_delivery_date: formatDate(invoice.delivery_date),
-          postal_address: invoice.delivery_address?.address_line_1
-            ? {
-                address_line1: invoice.delivery_address.address_line_1,
-                address_line2:
-                  invoice.delivery_address.address_line_2 || undefined,
-                city: invoice.delivery_address.city || undefined,
-                post_code: invoice.delivery_address.zip || undefined,
-                country_code: invoice.delivery_address.country || "FR",
-              }
-            : undefined,
-        }
-      : undefined,
+    // ApplicableHeaderTradeDelivery is always written in CII, so it must not
+    // be left empty (PEPPOL-EN16931-R008). Without an explicit delivery date,
+    // the delivery date is the issue date.
+    delivery_information: {
+      actual_delivery_date: formatDate(
+        invoice.delivery_date || invoice.emit_date
+      ),
+      postal_address: invoice.delivery_address?.address_line_1
+        ? {
+            address_line1: invoice.delivery_address.address_line_1,
+            address_line2: invoice.delivery_address.address_line_2 || undefined,
+            city: invoice.delivery_address.city || undefined,
+            post_code: invoice.delivery_address.zip || undefined,
+            country_code: invoice.delivery_address.country || "FR",
+          }
+        : undefined,
+    },
     payment_details: paymentDetails,
     document_level_allowances:
       documentAllowances.length > 0 ? documentAllowances : undefined,

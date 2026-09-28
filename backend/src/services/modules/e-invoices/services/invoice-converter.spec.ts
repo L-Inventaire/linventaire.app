@@ -389,3 +389,39 @@ describe("convertInternalToEN16931 dates", () => {
     );
   });
 });
+
+/**
+ * Regression test for "[PEPPOL-EN16931-R008]-Document MUST not contain empty
+ * elements" on ApplicableHeaderTradeDelivery when no delivery date is set.
+ */
+describe("convertInternalToEN16931 delivery information", () => {
+  test("falls back to the issue date when no delivery date is set", () => {
+    const invoice = {
+      ...buildInvoice({
+        vat_breakdown: [{ tva: "20", taxable_amount: 82, tax_amount: 16.4 }],
+      }),
+      delivery_date: null,
+    } as unknown as Invoices;
+
+    const result = convertInternalToEN16931(invoice, buildResolvedEntities());
+
+    expect(result.delivery_information?.actual_delivery_date).toBe(
+      "2025-06-30"
+    );
+  });
+
+  test("uses the explicit delivery date when set", () => {
+    const invoice = {
+      ...buildInvoice({
+        vat_breakdown: [{ tva: "20", taxable_amount: 82, tax_amount: 16.4 }],
+      }),
+      delivery_date: "2025-06-15",
+    } as unknown as Invoices;
+
+    const result = convertInternalToEN16931(invoice, buildResolvedEntities());
+
+    expect(result.delivery_information?.actual_delivery_date).toBe(
+      "2025-06-15"
+    );
+  });
+});
