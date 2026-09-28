@@ -14,6 +14,7 @@ import {
 import {
   EN16931TotalsMismatchError,
   generateFacturXPdf,
+  getEN16931InvoiceFromError,
 } from "../../e-invoices/services/facturx-generator";
 import { Files, FilesDefinition } from "../../files/entities/files";
 import { download } from "../../files/services/files";
@@ -246,54 +247,56 @@ export const generatePdf = async (
         document,
         options.checkedIndexes
       );
-      if (options.facturx || eInvoicingConfig.send_enabled === true) {
-        pdfWithAttachments = Buffer.from(
-          await generateFacturXPdf(
-            ctx,
-            pdfWithAttachments, // The base PDF to embed invoice data into
-            document,
-            superpdpClient, // SuperPDP client for Factur-X conversion
-            options.as, // Pass the "as" option to handle different invoice types
-            pdfTotals
-          )
+      // When sending is disabled, we only run a formatting test (conversion +
+      // totals check) to get warnings and sentry errors, the resulting
+      // Factur-X is NOT embedded in the PDF.
+      const embedFacturX =
+        options.facturx || eInvoicingConfig.send_enabled === true;
+      try {
+        const facturxPdf = await generateFacturXPdf(
+          ctx,
+          pdfWithAttachments, // The base PDF to embed invoice data into
+          document,
+          superpdpClient, // SuperPDP client for Factur-X conversion
+          options.as, // Pass the "as" option to handle different invoice types
+          pdfTotals
         );
-      } else {
-        // Sending is disabled: we only run a formatting test (conversion +
-        // totals check) to get warnings and sentry errors, the resulting
-        // Factur-X is NOT embedded in the PDF.
-        try {
-          await generateFacturXPdf(
-            ctx,
-            pdfWithAttachments,
-            document,
-            superpdpClient,
-            options.as,
-            pdfTotals
-          );
-        } catch (e: any) {
-          console.error(
-            "Factur-X formatting test failed, but e-invoicing sending is disabled, so we'll ignore this error",
-            e
-          );
-          captureException(e, {
-            tags: {
-              module: "invoices",
-              action: "generate_pdf",
-              reason:
-                e instanceof EN16931TotalsMismatchError
-                  ? "facturx_totals_mismatch"
-                  : "facturx_generation_failed",
-            },
-            extra: {
-              invoice_id: document.id,
-              invoice_reference: document.reference,
-              mismatches:
-                e instanceof EN16931TotalsMismatchError
-                  ? e.mismatches
-                  : undefined,
-            },
-          });
+        if (embedFacturX) {
+          pdfWithAttachments = Buffer.from(facturxPdf);
         }
+      } catch (e: any) {
+        const en16931Invoice = getEN16931InvoiceFromError(e);
+        captureException(e, {
+          tags: {
+            module: "invoices",
+            action: "generate_pdf",
+            reason:
+              e instanceof EN16931TotalsMismatchError
+                ? "facturx_totals_mismatch"
+                : "facturx_generation_failed",
+            send_enabled: embedFacturX ? "true" : "false",
+          },
+          extra: {
+            invoice_id: document.id,
+            invoice_reference: document.reference,
+            mismatches:
+              e instanceof EN16931TotalsMismatchError
+                ? e.mismatches
+                : undefined,
+            // Stringified: Sentry truncates objects deeper than 3 levels
+            en16931_invoice: en16931Invoice
+              ? JSON.stringify(en16931Invoice, null, 2)
+              : undefined,
+            invoice: JSON.stringify(document, null, 2),
+          },
+        });
+        if (embedFacturX) {
+          throw e;
+        }
+        console.error(
+          "Factur-X formatting test failed, but e-invoicing sending is disabled, so we'll ignore this error",
+          e
+        );
       }
     }
   }

@@ -1,14 +1,18 @@
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, jest, test } from "@jest/globals";
 import { computePricesFromInvoice } from "@shared/invoices";
 import { EN16931Invoice } from "@shared/en16931-types";
 import Clients from "#src/services/clients/entities/clients";
 import Articles from "../../articles/entities/articles";
 import Contacts from "../../contacts/entities/contacts";
 import Invoices from "../../invoices/entities/invoices";
+import { SuperPDPClient } from "../../../../platform/e-invoices/adapters/superpdp/client";
 import {
   assertEN16931TotalsMatchPdf,
   EN16931TotalsMismatchError,
+  generateFacturXPdf,
+  getEN16931InvoiceFromError,
 } from "./facturx-generator";
+import * as converter from "./invoice-converter";
 import {
   convertInternalToEN16931,
   ResolvedEntities,
@@ -221,5 +225,78 @@ describe("assertEN16931TotalsMatchPdf with the real converter", () => {
     expect(() =>
       assertEN16931TotalsMatchPdf(en16931, computePricesFromInvoice(invoice))
     ).toThrow(EN16931TotalsMismatchError);
+  });
+});
+
+describe("generateFacturXPdf errors", () => {
+  test("the EN16931 data is attached to the error for Sentry", async () => {
+    const client = {
+      business_name: "ACME",
+      address: {
+        address_line_1: "1 rue de la Paix",
+        city: "Paris",
+        zip: "75001",
+        country: "FR",
+      },
+      invoices: {},
+    } as unknown as Contacts;
+    const articles = new Map<string, Articles>();
+    articles.set("article-1", { id: "article-1", name: "A" } as Articles);
+    jest.spyOn(converter, "getResolvedEntities").mockResolvedValue({
+      self: {
+        company: {
+          name: "Proxima",
+          legal_name: "Proxima",
+          registration_number: "527830681",
+        },
+        address: {
+          address_line_1: "44 AVENUE DU LAC",
+          city: "FLOURENS",
+          zip: "31130",
+          country: "FR",
+        },
+        invoices: {},
+      } as unknown as Clients,
+      client,
+      supplier: client,
+      articles,
+    });
+
+    const invoice = {
+      type: "invoices",
+      reference: "FAC/2026/00003",
+      name: "FAC/2026/00003",
+      currency: "EUR",
+      emit_date: "2026-09-28",
+      payment_information: { mode: "" },
+      content: [
+        {
+          article: "article-1",
+          name: "Service",
+          quantity: 1,
+          unit_price: 100,
+          tva: "20",
+          discount: { mode: "amount", value: 0 },
+        },
+      ],
+    } as unknown as Invoices;
+    invoice.total = computePricesFromInvoice(invoice);
+
+    const superpdpClient = {
+      convertToFacturX: jest.fn(async () => {
+        throw new Error("Failed to convert to Factur-X: [BR-CO-15]");
+      }),
+    } as unknown as SuperPDPClient;
+
+    const error = await generateFacturXPdf(
+      { client_id: "c1" } as any,
+      Buffer.from(""),
+      invoice,
+      superpdpClient
+    ).catch((e) => e);
+
+    expect(error).toBeInstanceOf(Error);
+    expect(getEN16931InvoiceFromError(error)?.number).toBe("FAC/2026/00003");
+    expect(getEN16931InvoiceFromError(new Error("other"))).toBeUndefined();
   });
 });

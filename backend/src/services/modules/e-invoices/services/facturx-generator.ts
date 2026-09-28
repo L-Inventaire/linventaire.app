@@ -129,16 +129,33 @@ export async function generateFacturXPdf(
 
   console.log("EN16931 Invoice data:", JSON.stringify(en16931Invoice, null, 2));
 
-  // Never produce an e-invoice whose amounts differ from the PDF
-  assertEN16931TotalsMatchPdf(en16931Invoice, pdfTotals);
+  try {
+    // Never produce an e-invoice whose amounts differ from the PDF
+    assertEN16931TotalsMatchPdf(en16931Invoice, pdfTotals);
 
-  // Use SuperPDP API to embed EN16931 data into the PDF (creates Factur-X)
-  console.log("Converting to Factur-X using SuperPDP API...");
-  const facturxPdfBuffer = await superpdpClient.convertToFacturX(
-    pdfBuffer,
-    en16931Invoice
-  );
+    // Use SuperPDP API to embed EN16931 data into the PDF (creates Factur-X)
+    console.log("Converting to Factur-X using SuperPDP API...");
+    const facturxPdfBuffer = await superpdpClient.convertToFacturX(
+      pdfBuffer,
+      en16931Invoice
+    );
 
-  console.log("Successfully converted to Factur-X PDF");
-  return facturxPdfBuffer;
+    console.log("Successfully converted to Factur-X PDF");
+    return facturxPdfBuffer;
+  } catch (e: any) {
+    // Keep the EN16931 data with the error so it can be reported (Sentry)
+    if (e && typeof e === "object") {
+      e.en16931Invoice = en16931Invoice;
+    }
+    throw e;
+  }
+}
+
+/**
+ * Get the EN16931 data attached to an error thrown by generateFacturXPdf, if any
+ */
+export function getEN16931InvoiceFromError(
+  e: unknown
+): EN16931Invoice | undefined {
+  return (e as { en16931Invoice?: EN16931Invoice } | undefined)?.en16931Invoice;
 }
