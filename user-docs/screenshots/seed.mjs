@@ -164,7 +164,7 @@ const me = (await j("GET", "/api/users/v1/users/me")).id;
 const accounts = (await j("POST", R("accounting_accounts") + "/search", { options: { limit: 100 } })).list;
 const acc = (contact) => accounts.find((a) => a.contact === contact)?.id;
 const bank = accounts.find((a) => a.standard_identifier === "512").id;
-const clone = (q, extra) => { const { id, reference, state, created_at, updated_at, created_by, updated_by, revisions, display_name, searchable, searchable_generated, state_order, total, transactions, invoiced, articles, cache, next_reminder, reminder_count, ...rest } = q; return { ...rest, ...extra }; };
+const clone = (q, extra) => { const { id, reference, state, wait_for_completion_since, created_at, updated_at, created_by, updated_by, revisions, display_name, searchable, searchable_generated, state_order, total, transactions, invoiced, articles, cache, next_reminder, reminder_count, ...rest } = q; return { ...rest, ...extra }; };
 
 // Stock locations
 const wh = await post("stock_locations", { type: "warehouse", name: "Entrepôt Lyon" });
