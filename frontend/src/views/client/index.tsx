@@ -18,6 +18,8 @@ import { Navigate, Outlet, Route, useNavigate } from "react-router-dom";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { twMerge } from "tailwind-merge";
 import { DevPage } from "./_dev";
+import { AdminTenantsPage } from "./admin";
+import { AdminTenantPage } from "./admin/tenant";
 import { IpBlockedView } from "./no-client/ip-blocked";
 import { Header, ResponsiveMenuAtom } from "./_layout/header";
 import { SecondSideBar } from "./_layout/second-sidebar";
@@ -183,6 +185,9 @@ export const BackOfficeRoutes = () => {
         <Route path={ROUTES.CRMEdit} element={<CRMEditPage />} />
 
         <Route path={ROUTES.DevPage} element={<DevPage />} />
+
+        <Route path={ROUTES.AdminTenants} element={<AdminTenantsPage />} />
+        <Route path={ROUTES.AdminTenantsView} element={<AdminTenantPage />} />
       </Route>
     </>
   );

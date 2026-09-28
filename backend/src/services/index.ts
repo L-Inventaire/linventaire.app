@@ -3,6 +3,7 @@ import config from "config";
 import { Express } from "express";
 import http from "http";
 import Framework from "../platform/index";
+import AdminService from "./admin";
 import AuthService from "./auth";
 import ClientsService from "./clients";
 import MigrationsService from "./migrations";
@@ -59,6 +60,7 @@ export default class Services {
   public static CRM: CRM;
   public static EInvoices: EInvoicesService;
   public static Developers: DevelopersService;
+  public static Admin: AdminService;
 
   static async init() {
     console.log("Initializing application services...");
@@ -140,6 +142,7 @@ export default class Services {
     Services.Developers = await new DevelopersService().init(
       Services.internalApp
     );
+    Services.Admin = await new AdminService().init(Services.internalApp);
 
     // This will be done in parallel
     new MigrationsService().init(Services.internalApp);

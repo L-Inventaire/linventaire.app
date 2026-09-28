@@ -2,6 +2,7 @@ import Avatar from "@atoms/avatar/avatar";
 import { DropDownAtom } from "@atoms/dropdown";
 import Link from "@atoms/link";
 import { Base, Info } from "@atoms/text";
+import { useIsSysAdmin } from "@features/admin/hooks";
 import { useAuth } from "@features/auth/state/use-auth";
 import { useClients } from "@features/clients/state/use-clients";
 import { ROUTES, getRoute } from "@features/routes";
@@ -12,6 +13,7 @@ import { ChevronUpDownIcon } from "@heroicons/react/20/solid";
 export const Account = () => {
   const { user, logout } = useAuth();
   const { clients, client } = useClients();
+  const isSysAdmin = useIsSysAdmin();
   const setMenu = useSetRecoilState(DropDownAtom);
 
   return (
@@ -71,6 +73,17 @@ export const Account = () => {
               label: "Entreprises et invitations",
               to: getRoute(ROUTES.AccountClients),
             },
+            ...(isSysAdmin
+              ? [
+                  {
+                    type: "divider" as const,
+                  },
+                  {
+                    label: "Administration de la plateforme",
+                    to: getRoute(ROUTES.AdminTenants),
+                  },
+                ]
+              : []),
             {
               type: "divider",
             },
