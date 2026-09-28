@@ -11,7 +11,10 @@ import {
   EInvoicingConfig,
   EInvoicingConfigDefinition,
 } from "../../e-invoices/entities/e-invoicing-config";
-import { generateFacturXPdf } from "../../e-invoices/services/facturx-generator";
+import {
+  EN16931TotalsMismatchError,
+  generateFacturXPdf,
+} from "../../e-invoices/services/facturx-generator";
 import { Files, FilesDefinition } from "../../files/entities/files";
 import { download } from "../../files/services/files";
 import { generateEmailMessageToRecipient } from "../../signing-sessions/services/utils";
@@ -238,46 +241,56 @@ export const generatePdf = async (
     ) {
       // Get SuperPDP client (automatically decrypts credentials)
       const superpdpClient = await Services.EInvoices.getClient(ctx);
-      if (
-        options.facturx ||
-        (eInvoicingConfig &&
-          eInvoicingConfig.connection_status === "connected" &&
-          eInvoicingConfig.send_enabled === true)
-      ) {
+      // Same totals as the ones printed on the PDF (see generate-pdf-components/total.tsx)
+      const pdfTotals = computePricesFromInvoice(
+        document,
+        options.checkedIndexes
+      );
+      if (options.facturx || eInvoicingConfig.send_enabled === true) {
         pdfWithAttachments = Buffer.from(
           await generateFacturXPdf(
             ctx,
             pdfWithAttachments, // The base PDF to embed invoice data into
             document,
             superpdpClient, // SuperPDP client for Factur-X conversion
-            options.as // Pass the "as" option to handle different invoice types
+            options.as, // Pass the "as" option to handle different invoice types
+            pdfTotals
           )
         );
-      } else if (
-        eInvoicingConfig &&
-        eInvoicingConfig.connection_status === "connected"
-      ) {
-        // Disabled but we'll run it anyway to get warnings and sentry errors
+      } else {
+        // Sending is disabled: we only run a formatting test (conversion +
+        // totals check) to get warnings and sentry errors, the resulting
+        // Factur-X is NOT embedded in the PDF.
         try {
-          pdfWithAttachments = Buffer.from(
-            await generateFacturXPdf(
-              ctx,
-              pdfWithAttachments, // The base PDF to embed invoice data into
-              document,
-              superpdpClient, // SuperPDP client for Factur-X conversion
-              options.as // Pass the "as" option to handle different invoice types
-            )
+          await generateFacturXPdf(
+            ctx,
+            pdfWithAttachments,
+            document,
+            superpdpClient,
+            options.as,
+            pdfTotals
           );
         } catch (e: any) {
           console.error(
-            "Factur-X generation failed, but e-invoicing is disabled, so we'll ignore this error",
+            "Factur-X formatting test failed, but e-invoicing sending is disabled, so we'll ignore this error",
             e
           );
           captureException(e, {
             tags: {
               module: "invoices",
               action: "generate_pdf",
-              reason: "facturx_generation_failed",
+              reason:
+                e instanceof EN16931TotalsMismatchError
+                  ? "facturx_totals_mismatch"
+                  : "facturx_generation_failed",
+            },
+            extra: {
+              invoice_id: document.id,
+              invoice_reference: document.reference,
+              mismatches:
+                e instanceof EN16931TotalsMismatchError
+                  ? e.mismatches
+                  : undefined,
             },
           });
         }
