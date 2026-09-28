@@ -1,5 +1,6 @@
 import { Button } from "@atoms/button/button";
 import InputCopiable from "@atoms/input/input-copiable";
+import { InputLabel } from "@atoms/input/input-decoration-label";
 import { BaseSmall, Info } from "@atoms/text";
 import { Tooltip } from "@atoms/tooltip";
 import { useAdminTenant } from "@features/admin/hooks";
@@ -78,9 +79,11 @@ const AdminTenant = ({ id }: { id: string }) => {
             .filter(Boolean)
             .join(" · ")}
         </Info>
-        <div className="mt-3 max-w-sm">
-          <InputCopiable readOnly value={tenant.id} />
-        </div>
+        <InputLabel
+          className="mt-4 max-w-sm"
+          label="Identifiant de l'entreprise (clientId)"
+          input={<InputCopiable readOnly value={tenant.id} />}
+        />
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
@@ -109,7 +112,11 @@ const AdminTenant = ({ id }: { id: string }) => {
         />
         <StatTile
           label="Dernière activité"
-          value={<LastActivity value={tenant.activity.last_activity_at} />}
+          value={
+            <span className="text-lg">
+              <LastActivity value={tenant.activity.last_activity_at} />
+            </span>
+          }
         />
       </div>
 
