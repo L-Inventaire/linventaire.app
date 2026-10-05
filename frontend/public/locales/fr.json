@@ -410,6 +410,13 @@
       "closed": "Terminé",
       "completed": "Complété",
       "recurring": "Abonnement"
+    },
+    "crm_items.state": {
+      "new": "Nouveau",
+      "qualified": "Qualifié",
+      "proposal": "Proposition",
+      "won": "Terminé",
+      "lost": "Perdu"
     }
   }
 }

@@ -8,6 +8,7 @@ import { CRMDetails } from "@views/client/modules/crm/components/crm-details";
 import { CRMEditPage } from "@views/client/modules/crm/edit";
 import { CRMViewPage } from "@views/client/modules/crm/view";
 import { CRMItem } from "./types/types";
+import { RestFieldsNames } from "../utils/rest/configuration";
 import { setDefaultRestActions } from "../utils/rest/utils";
 
 export const useCRMDefaultModel: () => Partial<CRMItem> = () => ({
@@ -21,14 +22,27 @@ export const useCRMDefaultModel: () => Partial<CRMItem> = () => ({
 });
 
 export const CRMFieldsNames = () => ({
-  title: "Titre",
-  amount: "Montant",
-  contacts: "Contacts",
-  notes: "Notes",
-  state: "Status",
-  assigned: "Assignés",
-  tags: "Tags",
-  seller: "Vendeur",
+  ...RestFieldsNames(),
+  contacts: {
+    label: "Clients",
+    keywords: "clients contacts",
+  },
+  notes: {
+    label: "Description",
+    keywords: "description notes",
+  },
+  state: {
+    label: "Statut",
+    keywords: "statut état status",
+  },
+  seller: {
+    label: "Vendeur",
+    keywords: "vendeur commercial",
+  },
+  assigned: {
+    label: "Assignés",
+    keywords: "utilisateurs assignés",
+  },
 });
 
 export const CRMEditor = ({

@@ -5,10 +5,13 @@ import { RestDocumentsInput } from "@components/input-rest";
 import { TagsInput } from "@components/input-rest/tags";
 import { UsersInput } from "@components/input-rest/users";
 import { getContactName } from "@features/contacts/types/types";
+import { CRMFieldsNames } from "@features/crm/configuration";
 import { CRMItem } from "@features/crm/types/types";
+import { ROUTES } from "@features/routes";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import { UserIcon } from "@heroicons/react/24/solid";
 import { EditorInput } from "@molecules/editor-input";
+import { Timeline } from "@molecules/timeline";
 import { Heading } from "@radix-ui/themes";
 
 export const CRMDetails = ({
@@ -110,6 +113,17 @@ export const CRMDetails = ({
           </div>
         </div>
       </div>
+
+      {crmItem.id && readonly && (
+        <div className="mt-8">
+          <Timeline
+            entity="crm_items"
+            id={crmItem.id}
+            viewRoute={ROUTES.CRMView}
+            translations={CRMFieldsNames() as any}
+          />
+        </div>
+      )}
     </div>
   );
 };
