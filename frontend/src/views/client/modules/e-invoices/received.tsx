@@ -47,7 +47,10 @@ export const ReceivedEInvoicesPage = () => {
     limit: 20,
     offset: 0,
     query: [],
+    // Most recent first; created_at keeps the pagination stable between same-day invoices
+    index: "issue_date desc,created_at desc",
   });
+  const tableOrder = options.index?.split(",")?.[0] || "";
 
   const invoiceFilters = {
     ...options,
@@ -142,6 +145,13 @@ export const ReceivedEInvoicesPage = () => {
 
         <RestTable
           resetToFirstPage={(f) => (resetToFirstPage.current = f)}
+          order={{
+            orderBy: tableOrder.split(" ")[0],
+            order:
+              tableOrder.split(" ")[1]?.toLocaleLowerCase() === "asc"
+                ? "ASC"
+                : "DESC",
+          }}
           entity="received_e_invoices"
           onClick={({ id }, event) =>
             navigate(getRoute(ROUTES.ReceivedEInvoicesView, { id }), { event })
@@ -153,6 +163,16 @@ export const ReceivedEInvoicesPage = () => {
               ...options,
               limit: page.perPage,
               offset: (page.page - 1) * page.perPage,
+              ...(page.orderBy
+                ? {
+                    index:
+                      page.orderBy +
+                      ((page.order || "").toLowerCase() !== "desc"
+                        ? " asc"
+                        : " desc") +
+                      ",created_at desc",
+                  }
+                : {}),
               asc: true,
             });
           }}
