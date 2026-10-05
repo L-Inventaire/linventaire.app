@@ -20,6 +20,7 @@ import {
 } from "@heroicons/react/16/solid";
 import { Column } from "@molecules/table/table";
 import { Badge } from "@radix-ui/themes";
+import { EInvoiceStatusIcon } from "./components/e-invoice-status-icon";
 import { EmailStatusIcon } from "./components/email-status-icon";
 import {
   computePricesFromInvoice,
@@ -251,6 +252,7 @@ export const InvoicesColumns: Column<Invoices>[] = [
     render: (invoice) => (
       <div className="flex flex-row items-center space-x-1">
         <EmailStatusIcon stateDetails={invoice.state_details} />
+        <EInvoiceStatusIcon eInvoice={invoice.e_invoice} />
         <InvoiceStatus
           size="sm"
           readonly
