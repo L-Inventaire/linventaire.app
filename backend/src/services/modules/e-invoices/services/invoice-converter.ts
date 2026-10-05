@@ -974,6 +974,8 @@ export function convertInternalToEN16931(
     invoiceNotes.push({ note: invoice.notes });
   }
 
+  const currencyCode = (invoice.currency || "EUR").toUpperCase();
+
   // Dates are stored as timestamps (usually local midnight), they must be
   // formatted in the company timezone (same as the PDF)
   const timezone = company?.preferences?.timezone || "Europe/Paris";
@@ -992,7 +994,7 @@ export function convertInternalToEN16931(
       ? formatDate(invoice.payment_information.computed_date)
       : undefined,
     type_code: typeCode,
-    currency_code: (invoice.currency || "EUR").toUpperCase(),
+    currency_code: currencyCode,
     buyer_reference: invoice.alt_reference || undefined,
     notes: invoiceNotes.length > 0 ? invoiceNotes : undefined,
     vat_category_code: globalVatCategoryCode,
@@ -1037,10 +1039,14 @@ export function convertInternalToEN16931(
       sum_charges_amount:
         documentChargeAmount > 0 ? `${documentChargeAmount}` : undefined,
       total_without_vat: `${totalWithoutVat}`,
+      // BR-CO-15 only counts the VAT total whose currencyID is the invoice
+      // currency (BT-5): otherwise BT-112 must equal BT-109, which fails as
+      // soon as there is VAT
       total_vat_amount:
-        totalVat > 0
+        totalVat !== 0
           ? {
               value: `${totalVat}`,
+              currency_code: currencyCode,
             }
           : undefined,
       total_with_vat: `${totalWithVat}`,

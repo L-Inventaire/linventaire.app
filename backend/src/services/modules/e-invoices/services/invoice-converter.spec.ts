@@ -308,6 +308,25 @@ describe("convertInternalToEN16931 - EN16931 business rules", () => {
     expect(result.totals.amount_due_for_payment).toBe("98.4");
   });
 
+  test("total VAT is in the invoice currency (BR-CO-15)", () => {
+    const result = convertInternalToEN16931(
+      {
+        ...buildInvoice({
+          vat_breakdown: [{ tva: "20", taxable_amount: 82, tax_amount: 16.4 }],
+        }),
+        currency: "chf",
+      } as Invoices,
+      buildResolvedEntities()
+    );
+
+    // BR-CO-15 ignores a VAT total whose currencyID is not the invoice currency
+    expect(result.currency_code).toBe("CHF");
+    expect(result.totals.total_vat_amount).toEqual({
+      value: "16.4",
+      currency_code: "CHF",
+    });
+  });
+
   test("seller SIREN is 9 digits even when a SIRET is stored (BR-FR-10)", () => {
     const result = convertInternalToEN16931(
       buildInvoice({
