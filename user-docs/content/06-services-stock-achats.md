@@ -83,6 +83,8 @@ Si la réception des factures électroniques est activée (**Paramètres › Fac
 - **Créer** › **Créer une facture** ou **Créer une commande** : créer le document d'achat à partir de la facture reçue ;
 - **Rejeter** : si la facture n'est pas pour vous ou est erronée.
 
+La liste affiche d'abord les factures les plus récentes. Cliquez sur l'en-tête d'une colonne (date, numéro, fournisseur ou montants) pour la trier autrement, et cliquez à nouveau pour inverser l'ordre.
+
 ## Abonnements
 
 Un devis qui contient des lignes récurrentes (un contrat de maintenance mensuel, un abonnement annuel…) devient un **abonnement** : L'inventaire génère les factures à chaque période, sans intervention.
