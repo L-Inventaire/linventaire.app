@@ -189,8 +189,7 @@ export const ReceivedEInvoiceContent = ({
   const invoiceLines =
     invoice?.en_invoice?.lines?.map((line) => ({
       lineNumber: line.identifier,
-      reference:
-        line.item_information?.sellers_item_identification?.trim() || undefined,
+      reference: line.item_information?.seller_identifier?.trim() || undefined,
       name: line.item_information.name,
     })) || [];
 

@@ -196,10 +196,9 @@ export const ReceivedEInvoiceDetails = ({
                           {line.item_information.description}
                         </p>
                       )}
-                      {line.item_information.sellers_item_identification && (
+                      {line.item_information.seller_identifier && (
                         <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
-                          Réf:{" "}
-                          {line.item_information.sellers_item_identification}
+                          Réf: {line.item_information.seller_identifier}
                         </p>
                       )}
                     </div>
@@ -294,37 +293,34 @@ export const ReceivedEInvoiceDetails = ({
       )}
 
       {/* Payment Information */}
-      {enInvoice.payment_details && (
+      {(enInvoice.payment_terms || enInvoice.payment_instructions) && (
         <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
           <h3 className="text-lg font-semibold mb-4 text-slate-900 dark:text-slate-100">
             Informations de paiement
           </h3>
           <div className="space-y-2 text-sm">
-            {enInvoice.payment_details.payment_terms && (
+            {enInvoice.payment_terms && (
               <div>
                 <span className="text-slate-600 dark:text-slate-400">
                   Conditions:
                 </span>
-                <p className="font-medium">
-                  {enInvoice.payment_details.payment_terms}
-                </p>
+                <p className="font-medium">{enInvoice.payment_terms}</p>
               </div>
             )}
-            {enInvoice.payment_details.credit_transfer &&
-              enInvoice.payment_details.credit_transfer.length > 0 && (
-                <div>
-                  <span className="text-slate-600 dark:text-slate-400">
-                    Virement bancaire:
-                  </span>
-                  {enInvoice.payment_details.credit_transfer.map(
-                    (transfer, index) => (
-                      <p key={index} className="font-mono text-xs mt-1">
-                        {transfer.payment_account_identifier.value}
-                      </p>
-                    ),
-                  )}
-                </div>
-              )}
+            {!!enInvoice.payment_instructions?.credit_transfers?.length && (
+              <div>
+                <span className="text-slate-600 dark:text-slate-400">
+                  Virement bancaire:
+                </span>
+                {enInvoice.payment_instructions.credit_transfers.map(
+                  (transfer, index) => (
+                    <p key={index} className="font-mono text-xs mt-1">
+                      {transfer.payment_account_identifier.value}
+                    </p>
+                  ),
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}

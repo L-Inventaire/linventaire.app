@@ -4,7 +4,10 @@ import Contacts from "../../contacts/entities/contacts";
 import Articles from "../../articles/entities/articles";
 import Invoices from "../../invoices/entities/invoices";
 import { computePricesFromInvoice } from "@shared/invoices";
+import fs from "fs";
+import path from "path";
 import {
+  buildPaymentInstructions,
   convertInternalToEN16931,
   ResolvedEntities,
 } from "./invoice-converter";
@@ -403,7 +406,7 @@ describe("convertInternalToEN16931 dates", () => {
       start_date: "2026-03-01",
       end_date: "2026-03-31",
     });
-    expect(result.delivery_information?.actual_delivery_date).toBe(
+    expect(result.delivery_information?.delivery_date).toBe(
       "2026-03-01"
     );
   });
@@ -424,7 +427,7 @@ describe("convertInternalToEN16931 delivery information", () => {
 
     const result = convertInternalToEN16931(invoice, buildResolvedEntities());
 
-    expect(result.delivery_information?.actual_delivery_date).toBe(
+    expect(result.delivery_information?.delivery_date).toBe(
       "2025-06-30"
     );
   });
@@ -439,8 +442,157 @@ describe("convertInternalToEN16931 delivery information", () => {
 
     const result = convertInternalToEN16931(invoice, buildResolvedEntities());
 
-    expect(result.delivery_information?.actual_delivery_date).toBe(
+    expect(result.delivery_information?.delivery_date).toBe(
       "2025-06-15"
     );
+  });
+});
+
+/**
+ * SuperPDP silently ignores the keys it does not know: a misnamed field is
+ * simply missing from the generated Factur-X (e.g. the delivery date, which
+ * left ApplicableHeaderTradeDelivery empty: PEPPOL-EN16931-R008). Check the
+ * converter output against the SuperPDP specification (schema `en_invoice`).
+ */
+describe("convertInternalToEN16931 matches the SuperPDP specification", () => {
+  const spec = JSON.parse(
+    fs.readFileSync(
+      path.join(
+        __dirname,
+        "../../../../platform/e-invoices/adapters/superpdp/superpdp.json"
+      ),
+      "utf-8"
+    )
+  );
+  const schemas = spec.components.schemas;
+
+  const resolve = (schema: any): any => {
+    while (schema?.$ref) schema = schemas[schema.$ref.split("/").pop()];
+    return schema || {};
+  };
+
+  // Returns the list of the problems found (unknown keys, types...)
+  const check = (value: any, schema: any, at: string): string[] => {
+    schema = resolve(schema);
+    if (Array.isArray(value)) {
+      return value.flatMap((item, i) =>
+        check(item, schema.items, `${at}[${i}]`)
+      );
+    }
+    if (value && typeof value === "object") {
+      const properties = schema.properties || {};
+      return [
+        ...(schema.required || [])
+          .filter((key: string) => value[key] === undefined)
+          .map((key: string) => `${at}.${key} is required`),
+        ...Object.keys(value).flatMap((key) =>
+          properties[key]
+            ? check(value[key], properties[key], `${at}.${key}`)
+            : [`${at}.${key} is not in the specification`]
+        ),
+      ];
+    }
+    if (schema.type === "string" && typeof value !== "string") {
+      return [`${at} must be a string (got ${JSON.stringify(value)})`];
+    }
+    if (schema.type === "integer" && !Number.isInteger(value)) {
+      return [`${at} must be an integer (got ${JSON.stringify(value)})`];
+    }
+    if (schema.enum && !schema.enum.includes(value)) {
+      return [`${at} must be one of ${schema.enum.join(", ")}`];
+    }
+    return [];
+  };
+
+  test("every field of a complete invoice is known by SuperPDP", () => {
+    const invoice = buildInvoice({});
+    invoice.alt_reference = "PO-123";
+    invoice.notes = "Merci pour votre confiance";
+    invoice.content = [
+      { article: "article-1", name: "A", reference: "REF-A", quantity: 3, unit_price: 12.5, tva: "20", discount: { mode: "percentage", value: 10 } },
+      { article: "article-1", name: "B", quantity: 2, unit_price: 7, tva: "5.5", discount: { mode: "amount", value: 1 } },
+      { article: "", type: "correction", name: "Remise", quantity: 1, unit_price: -2, tva: "20", discount: { mode: "amount", value: 0 } },
+    ] as any;
+    invoice.discount = { mode: "percentage", value: 5 } as any;
+    invoice.total = computePricesFromInvoice(invoice);
+    invoice.payment_information = {
+      mode: ["bank_transfer"],
+      delay: 30,
+      delay_type: "direct",
+      bank_iban: "FR76 1313 5000 8008 0028 5950 618",
+      bank_bic: "CEPAFRPP313",
+      computed_date: new Date("2025-07-30T00:00:00.000Z").getTime(),
+    } as any;
+    invoice.delivery_date = "2025-06-15" as any;
+    invoice.delivery_address = {
+      address_line_1: "87 Rue Gaston Doumergue",
+      city: "Tournefeuille",
+      zip: "31170",
+      country: "",
+    } as any;
+    invoice.from_subscription = {
+      frequency: "yearly",
+      from: "2025-09-04T22:00:00.000Z",
+      to: 1788472800000,
+    } as any;
+
+    const entities = buildResolvedEntities();
+    entities.articles.set("article-1", {
+      id: "article-1",
+      name: "Service",
+      supplier_reference: "SUP-1",
+    } as unknown as Articles);
+
+    const result = JSON.parse(
+      JSON.stringify(convertInternalToEN16931(invoice, entities))
+    );
+
+    expect(check(result, { $ref: "#/components/schemas/en_invoice" }, "$")).toEqual([]);
+
+    // The fields that used to be misnamed are really sent
+    expect(result.delivery_information.delivery_date).toBe("2025-06-15");
+    expect(result.deliver_to_address).toMatchObject({
+      address_line1: "87 Rue Gaston Doumergue",
+      country_code: "FR",
+    });
+    expect(result.payment_terms).toBe("Paiement à 30 jours.");
+    expect(result.payment_instructions).toEqual({
+      payment_means_type_code: "30",
+      credit_transfers: [
+        {
+          payment_account_identifier: {
+            value: "FR7613135000800800285950618",
+            scheme: "IBAN",
+          },
+          payment_service_provider_identifier: "CEPAFRPP313",
+        },
+      ],
+    });
+    expect(result.lines[0].item_information.seller_identifier).toBe("REF-A");
+    expect(result.lines[0].item_information.buyer_identifier).toBe("SUP-1");
+    expect(result.lines[0].allowances[0]).toMatchObject({ percent: "10" });
+  });
+});
+
+describe("buildPaymentInstructions", () => {
+  test("a credit transfer needs an IBAN (BR-61)", () => {
+    expect(
+      buildPaymentInstructions({ mode: ["bank_transfer"], bank_iban: "" } as any)
+    ).toBeUndefined();
+  });
+
+  test("a direct debit is not sent (no mandate reference)", () => {
+    expect(
+      buildPaymentInstructions({
+        mode: ["direct_debit"],
+        bank_iban: "FR7613135000800800285950618",
+      } as any)
+    ).toBeUndefined();
+  });
+
+  test("other modes are sent without account", () => {
+    expect(
+      buildPaymentInstructions({ mode: ["direct_debit", "check"] } as any)
+    ).toEqual({ payment_means_type_code: "20" });
   });
 });

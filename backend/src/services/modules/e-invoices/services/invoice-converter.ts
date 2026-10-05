@@ -8,8 +8,11 @@ import {
 import { Context } from "#src/types";
 import { getUnitCode, getVatCode } from "@shared/consts";
 import {
+  EN16931AllowanceOrCharge,
   EN16931Buyer,
   EN16931Invoice,
+  EN16931InvoiceLineAllowanceOrCharge,
+  EN16931PaymentInstructions,
   EN16931PostalAddress,
   EN16931Seller,
   EN16931VatBreakDown,
@@ -104,12 +107,10 @@ export function extractReferencesFromEN16931(
     buyer: invoice.buyer,
     articles: invoice.lines.map((line) => ({
       name: line.item_information.name,
-      reference: line.item_information.sellers_item_identification,
+      reference: line.item_information.seller_identifier,
       description: line.item_information.description,
-      sellers_item_identification:
-        line.item_information.sellers_item_identification,
-      buyers_item_identification:
-        line.item_information.buyers_item_identification,
+      sellers_item_identification: line.item_information.seller_identifier,
+      buyers_item_identification: line.item_information.buyer_identifier,
     })),
   };
 }
@@ -162,8 +163,8 @@ export function convertEN16931ToInternal(
   // Convert invoice lines
   const content: InvoiceLine[] = en16931Invoice.lines.map((line) => {
     const articleKey =
-      line.item_information.sellers_item_identification ||
-      line.item_information.buyers_item_identification ||
+      line.item_information.seller_identifier ||
+      line.item_information.buyer_identifier ||
       line.item_information.name;
 
     const article = resolvedEntities.articles.get(articleKey);
@@ -208,8 +209,7 @@ export function convertEN16931ToInternal(
     invoiceLine.article = article.id;
     invoiceLine.type = article.type || "product";
     invoiceLine.name = line.item_information.name;
-    invoiceLine.reference =
-      line.item_information.sellers_item_identification || "";
+    invoiceLine.reference = line.item_information.seller_identifier || "";
     invoiceLine.description = line.item_information.description || "";
     invoiceLine.unit = line.invoiced_quantity_code;
     invoiceLine.quantity = parseFloat(line.invoiced_quantity);
@@ -239,11 +239,8 @@ export function convertEN16931ToInternal(
     }
   }
 
-  if (
-    en16931Invoice.document_level_charges &&
-    en16931Invoice.document_level_charges.length > 0
-  ) {
-    for (const charge of en16931Invoice.document_level_charges) {
+  if (en16931Invoice.charges && en16931Invoice.charges.length > 0) {
+    for (const charge of en16931Invoice.charges) {
       totalDocChargeAmount += parseFloat(charge.amount || "0");
     }
   }
@@ -258,19 +255,20 @@ export function convertEN16931ToInternal(
   // Parse payment instructions
   const payment_information: Invoices["payment_information"] =
     {} as Invoices["payment_information"];
-  if (en16931Invoice.payment_details) {
-    if (en16931Invoice.payment_details.payment_terms) {
-      // Try to extract payment delay from payment terms
-      const delayMatch =
-        en16931Invoice.payment_details.payment_terms.match(/(\d+)\s*days?/i);
-      if (delayMatch) {
-        payment_information.delay = parseInt(delayMatch[1], 10);
-      }
+  if (en16931Invoice.payment_terms) {
+    // Try to extract payment delay from payment terms
+    const delayMatch = en16931Invoice.payment_terms.match(
+      /(\d+)\s*(days?|jours?)/i
+    );
+    if (delayMatch) {
+      payment_information.delay = parseInt(delayMatch[1], 10);
     }
-
+  }
+  if (en16931Invoice.payment_instructions) {
     // Extract payment mode from payment_means_type_code
     // See UNTDID 4461 codes
-    const paymentCode = en16931Invoice.payment_details.payment_means_type_code;
+    const paymentCode =
+      en16931Invoice.payment_instructions.payment_means_type_code;
     if (paymentCode === "30" || paymentCode === "58") {
       payment_information.mode = ["bank_transfer"];
     } else if (paymentCode === "48") {
@@ -282,8 +280,8 @@ export function convertEN16931ToInternal(
     }
 
     // Extract IBAN if available
-    if (en16931Invoice.payment_details.credit_transfer?.[0]) {
-      const ct = en16931Invoice.payment_details.credit_transfer[0];
+    if (en16931Invoice.payment_instructions.credit_transfers?.[0]) {
+      const ct = en16931Invoice.payment_instructions.credit_transfers[0];
       payment_information.bank_iban = ct.payment_account_identifier.value;
     }
   }
@@ -318,20 +316,21 @@ export function convertEN16931ToInternal(
   }
 
   // Delivery information
-  if (en16931Invoice.delivery_information) {
-    if (en16931Invoice.delivery_information.actual_delivery_date) {
-      invoice.delivery_date = new Date(
-        en16931Invoice.delivery_information.actual_delivery_date
-      );
-    }
-    if (en16931Invoice.delivery_information.postal_address) {
-      const addr = en16931Invoice.delivery_information.postal_address;
-      invoice.delivery_address.address_line_1 = addr.address_line1 || "";
-      invoice.delivery_address.address_line_2 = addr.address_line2 || "";
-      invoice.delivery_address.city = addr.city || "";
-      invoice.delivery_address.zip = addr.post_code || "";
-      invoice.delivery_address.country = addr.country_code || "";
-    }
+  if (en16931Invoice.delivery_information?.delivery_date) {
+    invoice.delivery_date = new Date(
+      en16931Invoice.delivery_information.delivery_date
+    );
+  }
+  if (en16931Invoice.deliver_to_address) {
+    const addr = en16931Invoice.deliver_to_address;
+    invoice.delivery_address = {
+      ...invoice.delivery_address,
+      address_line_1: addr.address_line1 || "",
+      address_line_2: addr.address_line2 || "",
+      city: addr.city || "",
+      zip: addr.post_code || "",
+      country: addr.country_code || "",
+    } as Invoices["delivery_address"];
   }
 
   invoice.content = content;
@@ -551,6 +550,43 @@ function buildEN16931Buyer(
 }
 
 /**
+ * Build the EN16931 payment instructions (BG-16) from the payment information.
+ * Only what we can fill in completely is sent:
+ * - a credit transfer (30) needs the IBAN (BR-61),
+ * - a direct debit (49/59) needs a mandate reference we don't have
+ *   (PEPPOL-EN16931-R061), so it is not sent.
+ * A bank transfer with an IBAN is preferred, otherwise the first known mode.
+ */
+export function buildPaymentInstructions(
+  payment?: Invoices["payment_information"]
+): EN16931PaymentInstructions | undefined {
+  const modes: string[] = Array.isArray(payment?.mode) ? payment!.mode : [];
+  const iban = (payment?.bank_iban || "").replace(/\s/g, "");
+
+  if (modes.includes("bank_transfer") && iban) {
+    return {
+      payment_means_type_code: "30", // Credit transfer
+      credit_transfers: [
+        {
+          payment_account_identifier: { value: iban, scheme: "IBAN" },
+          payment_service_provider_identifier:
+            (payment?.bank_bic || "").replace(/\s/g, "") || undefined,
+        },
+      ],
+    };
+  }
+
+  // UNTDID 4461
+  const codes: { [mode: string]: string } = {
+    check: "20", // Cheque
+    cash: "10", // In cash
+    credit_card: "48", // Bank card
+  };
+  const code = modes.map((mode) => codes[mode]).find(Boolean);
+  return code ? { payment_means_type_code: code } : undefined;
+}
+
+/**
  * Convert internal Invoices format to EN16931 invoice
  *
  * @param invoice - The internal invoice to convert
@@ -607,7 +643,7 @@ export function convertInternalToEN16931(
   // carries a rebate (negative net amount, e.g. a "remise" line) is emitted as
   // a document-level allowance instead of a negative-priced invoice line.
   const lines: EN16931Invoice["lines"] = [];
-  const negativeLineAllowances: any[] = [];
+  const negativeLineAllowances: EN16931AllowanceOrCharge[] = [];
 
   (invoice.content || []).forEach((line) => {
     // Same lines as computePricesFromInvoice, otherwise totals would not
@@ -670,9 +706,8 @@ export function convertInternalToEN16931(
       return;
     }
 
-    // Apply line discount
-    const allowances: any[] = [];
-    const charges: any[] = [];
+    // Apply line discount (a positive discount value, so an allowance)
+    const allowances: EN16931InvoiceLineAllowanceOrCharge[] = [];
     if (line.discount && line.discount.mode && line.discount.value > 0) {
       const discountAmount = round2(
         line.discount.mode === "percentage"
@@ -680,30 +715,17 @@ export function convertInternalToEN16931(
           : line.discount.value
       );
 
-      // If discount is positive, create allowance; if negative, create charge
       if (discountAmount > 0) {
         allowances.push({
-          amount: discountAmount,
-          percentage:
+          amount: amount(discountAmount),
+          percent:
             line.discount.mode === "percentage"
-              ? line.discount.value
+              ? `${line.discount.value}`
               : undefined,
-          base_amount: lineNetAmount,
-          reason_code: "42", // Other services
+          base_amount: amount(lineNetAmount),
+          reason_code: "95", // Discount
         });
         lineNetAmount -= discountAmount;
-      } else {
-        const chargeAmount = Math.abs(discountAmount);
-        charges.push({
-          amount: chargeAmount,
-          percentage:
-            line.discount.mode === "percentage"
-              ? line.discount.value
-              : undefined,
-          base_amount: lineNetAmount,
-          reason_code: "42", // Other services
-        });
-        lineNetAmount += chargeAmount; // Charges increase the net amount
       }
     }
 
@@ -718,27 +740,26 @@ export function convertInternalToEN16931(
       item_information: {
         name: line.name,
         description: line.description || undefined,
-        sellers_item_identification: line.reference || undefined,
-        buyers_item_identification:
+        seller_identifier: line.reference || undefined,
+        buyer_identifier:
           article?.supplier_reference ||
           article?.internal_reference ||
           undefined,
       },
 
       allowances: allowances.length > 0 ? allowances : undefined,
-      charges: charges.length > 0 ? charges : undefined,
 
       price_details: {
         item_net_price: `${line.unit_price}`,
-        base_quantity: "1",
-        base_quantity_unit_code: unitCode,
+        item_price_base_quantity: "1",
+        quantity_unit_code: unitCode,
       },
 
       vat_information: {
         invoiced_item_vat_category_code: vatCategoryCode,
         invoiced_item_vat_rate: `${vatRate}`,
       },
-    } as EN16931Invoice["lines"][0]);
+    });
   });
 
   // Calculate totals
@@ -747,8 +768,8 @@ export function convertInternalToEN16931(
   );
 
   // Use precomputed allowances breakdown
-  let documentAllowances: any[] = [];
-  let documentCharges: any[] = [];
+  let documentAllowances: EN16931AllowanceOrCharge[] = [];
+  let documentCharges: EN16931AllowanceOrCharge[] = [];
   let documentAllowanceAmount = 0;
   const documentChargeAmount = 0;
 
@@ -765,7 +786,7 @@ export function convertInternalToEN16931(
       documentAllowances.push({
         amount: amount(allowance.amount),
         base_amount: amount(allowance.base_amount),
-        reason_code: "42", // Other services
+        reason_code: "95", // Discount
         vat_category_code: vatCategoryCode,
         vat_rate: vatRate.toString(),
       });
@@ -883,15 +904,6 @@ export function convertInternalToEN16931(
   // compute it here instead of using the internal total (rounded differently)
   const totalWithVat = round2(totalWithoutVat + totalVat);
 
-  // Add global VAT codes if there's only one breakdown entry
-  let globalVatCategoryCode: string | undefined = undefined;
-  let globalVatExemptionReasonCode: string | undefined = undefined;
-
-  if (vatBreakDown.length === 1) {
-    globalVatCategoryCode = vatBreakDown[0].vat_category_code;
-    globalVatExemptionReasonCode = vatBreakDown[0].vat_exemption_reason_code;
-  }
-
   // Build seller and buyer based on direction
   const seller: EN16931Seller =
     direction === "out"
@@ -903,33 +915,9 @@ export function convertInternalToEN16931(
       ? buildEN16931Buyer(company, true)
       : buildEN16931Buyer(partnerContact, true);
 
-  // Payment instructions
-  const paymentDetails = invoice.payment_information.mode
-    ? {
-        payment_means_type_code: invoice.payment_information.mode.includes(
-          "bank_transfer"
-        )
-          ? "30"
-          : invoice.payment_information.mode.includes("credit_card")
-          ? "48"
-          : "30",
-        payment_terms:
-          invoice.payment_information.delay &&
-          invoice.payment_information.delay_type === "direct"
-            ? `Payment within ${invoice.payment_information.delay} days`
-            : undefined,
-        credit_transfer: invoice.payment_information.bank_iban
-          ? [
-              {
-                payment_account_identifier: {
-                  value: invoice.payment_information.bank_iban,
-                  scheme: "IBAN",
-                },
-              },
-            ]
-          : undefined,
-      }
-    : undefined;
+  const paymentInstructions = buildPaymentInstructions(
+    invoice.payment_information
+  );
 
   // Build standardized notes (PMT, PMD, AAB) from payment information
   const invoiceNotes: Array<{ note: string; subject_code?: string }> = [];
@@ -997,8 +985,6 @@ export function convertInternalToEN16931(
     currency_code: currencyCode,
     buyer_reference: invoice.alt_reference || undefined,
     notes: invoiceNotes.length > 0 ? invoiceNotes : undefined,
-    vat_category_code: globalVatCategoryCode,
-    vat_exemption_reason_code: globalVatExemptionReasonCode,
     invoicing_period:
       invoice.from_subscription?.from &&
       invoice.from_subscription?.to &&
@@ -1014,24 +1000,30 @@ export function convertInternalToEN16931(
     // be left empty (PEPPOL-EN16931-R008). Without an explicit delivery date,
     // the delivery date is the issue date.
     delivery_information: {
-      actual_delivery_date: formatDate(
-        invoice.delivery_date || invoice.emit_date
-      ),
-      postal_address: invoice.delivery_address?.address_line_1
-        ? {
-            address_line1: invoice.delivery_address.address_line_1,
-            address_line2: invoice.delivery_address.address_line_2 || undefined,
-            city: invoice.delivery_address.city || undefined,
-            post_code: invoice.delivery_address.zip || undefined,
-            country_code: invoice.delivery_address.country || "FR",
-          }
+      delivery_date: formatDate(invoice.delivery_date || invoice.emit_date),
+      // Named deliver to party, so no empty name element is written
+      deliver_to_name: invoice.delivery_address?.address_line_1
+        ? buyer.name
         : undefined,
     },
-    payment_details: paymentDetails,
+    deliver_to_address: invoice.delivery_address?.address_line_1
+      ? {
+          address_line1: invoice.delivery_address.address_line_1,
+          address_line2: invoice.delivery_address.address_line_2 || undefined,
+          city: invoice.delivery_address.city || undefined,
+          post_code: invoice.delivery_address.zip || undefined,
+          country_code: invoice.delivery_address.country || "FR",
+        }
+      : undefined,
+    payment_terms:
+      invoice.payment_information.delay &&
+      invoice.payment_information.delay_type === "direct"
+        ? `Paiement à ${invoice.payment_information.delay} jours.`
+        : undefined,
+    payment_instructions: paymentInstructions,
     document_level_allowances:
       documentAllowances.length > 0 ? documentAllowances : undefined,
-    document_level_charges:
-      documentCharges.length > 0 ? documentCharges : undefined,
+    charges: documentCharges.length > 0 ? documentCharges : undefined,
     totals: {
       sum_invoice_lines_amount: `${sumOfLineNetAmounts}`,
       sum_allowances_amount:
