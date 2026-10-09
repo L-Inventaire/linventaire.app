@@ -128,13 +128,6 @@ export const InvoicesActions = ({
                 type: "divider",
               },
               {
-                label: "Retourner en brouillon",
-                onClick: () => _save({ state: "draft" }),
-              },
-              {
-                type: "divider",
-              },
-              {
                 label: "Envoyer de nouveau...",
                 onClick: () => openSendModal(true),
                 disabled: !canSend,

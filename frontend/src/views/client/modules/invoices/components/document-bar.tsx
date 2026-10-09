@@ -5,6 +5,7 @@ import { useHasAccess } from "@features/access";
 import { useClients } from "@features/clients/state/use-clients";
 import { useInvoice } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
+import { isLockedInvoice } from "@features/invoices/utils";
 import { ROUTES, getRoute } from "@features/routes";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import _ from "lodash";
@@ -26,6 +27,9 @@ export const InvoicesDocumentBar = ({
   onChangeMode?: (mode: "write" | "read") => void;
 }) => {
   const { invoice, isPending, remove, restore } = useInvoice(id || "");
+  // When viewing a previous version, the lock depends on the latest version
+  const isRevision = (id || "").includes("~");
+  const { invoice: latestInvoice } = useInvoice((id || "").split("~")[0]);
   const navigate = useNavigate();
   const { client: clientId } = useParams();
   const hasAccess = useHasAccess();
@@ -44,6 +48,11 @@ export const InvoicesDocumentBar = ({
         ? hasAccess("SUPPLIER_INVOICES_WRITE")
         : hasAccess("SUPPLIER_QUOTES_WRITE");
 
+    // Non draft invoices and credit notes can't be deleted nor restored to a previous version
+    const locked = isRevision
+      ? !latestInvoice || isLockedInvoice(latestInvoice)
+      : isLockedInvoice(invoice);
+
     return (
       <DocumentBar
         loading={isPending && !invoice}
@@ -57,10 +66,12 @@ export const InvoicesDocumentBar = ({
         onClose={onClose}
         onChangeMode={onChangeMode}
         onRemove={
-          invoice?.id ? async () => remove.mutateAsync(invoice?.id) : undefined
+          invoice?.id && !locked
+            ? async () => remove.mutateAsync(invoice?.id)
+            : undefined
         }
         onRestore={
-          invoice?.id && hasWriteType
+          invoice?.id && hasWriteType && !(isRevision && locked)
             ? async () => restore.mutateAsync(invoice?.id)
             : undefined
         }
@@ -171,7 +182,7 @@ const InvoicesDocumentBarEdition = ({
       backRoute={getRoute(ROUTES.Invoices, { type: draft.type })}
       viewRoute={ROUTES.InvoicesView}
       editRoute={ROUTES.InvoicesEdit}
-      onRemove={draft.id ? remove : undefined}
+      onRemove={draft.id && !isLockedInvoice(draft) ? remove : undefined}
       onRestore={draft.id ? restore : undefined}
     />
   );
