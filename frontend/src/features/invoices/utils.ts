@@ -32,6 +32,17 @@ export const getDocumentNamePlurial = (type: Invoices["type"]) => {
   );
 };
 
+/**
+ * Invoices and credit notes that left the draft state are definitive (e-invoicing):
+ * they can't go back to draft, be deleted or be restored to a previous version.
+ * Enforced by the backend (invoice-lock trigger).
+ */
+export const isLockedInvoice = (invoice?: Partial<Invoices> | null) =>
+  !!invoice &&
+  (invoice.type === "invoices" || invoice.type === "credit_notes") &&
+  !!invoice.state &&
+  invoice.state !== "draft";
+
 export const getInvoiceWithOverrides = (
   invoice: Invoices,
   ...overrides: (Clients | Contacts)[]

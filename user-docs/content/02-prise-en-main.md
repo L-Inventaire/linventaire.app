@@ -15,6 +15,8 @@ La barre en haut de chaque document propose aussi :
 
 > [!WARNING]
 > Pour protéger vos documents légaux, certains contenus se verrouillent : un devis accepté, une facture ou un avoir envoyé et un document terminé ne peuvent plus être modifiés sur le fond. Vous pouvez toujours les commenter, les étiqueter ou les assigner.
+>
+> Une facture ou un avoir qui n'est plus en brouillon (facturation électronique) ne peut plus repasser en brouillon, être supprimé ni être restauré à une version antérieure. Pour corriger une facture envoyée, créez un avoir.
 
 **Supprimer n'efface rien définitivement** : un document supprimé est masqué des listes et affiche le badge « Document supprimé » avec un bouton **Restaurer**. Pour retrouver les documents supprimés d'une liste, ajoutez le filtre « Est archivé ».
 
@@ -26,7 +28,7 @@ Vous pouvez revenir dans le temps :
 
 1. Survolez un évènement de l'activité et cliquez sur l'icône en forme d'œil (**Ouvrir cette version**).
 2. Le document s'affiche tel qu'il était à ce moment-là (« Vous consultez une version antérieure »).
-3. Cliquez sur **Restaurer cette version** pour la remettre en place, ou sur **Revenir à la dernière version**.
+3. Cliquez sur **Restaurer cette version** pour la remettre en place, ou sur **Revenir à la dernière version**. La restauration n'est pas proposée pour une facture ou un avoir qui n'est plus en brouillon.
 
 ## Commenter et être notifié
 

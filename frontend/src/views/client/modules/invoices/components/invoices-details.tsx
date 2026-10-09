@@ -38,6 +38,7 @@ import { useEffectChange } from "@features/utils/hooks/use-changed-effect";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import {
   ArrowPathIcon,
+  DocumentCheckIcon,
   ExclamationCircleIcon,
   PlayCircleIcon,
 } from "@heroicons/react/16/solid";
@@ -59,7 +60,7 @@ import { PageColumns } from "@views/client/_layout/page";
 import { format as formatdfns } from "date-fns";
 import _ from "lodash";
 import { DateTime } from "luxon";
-import { Fragment, useEffect } from "react";
+import { Fragment, useEffect, useRef } from "react";
 import { ContactRestDocument } from "../../contacts/components/contact-input-rest-card";
 import { getBestDeliveryAddress, InputDelivery } from "./input-delivery";
 import { InvoiceInputFormat } from "./input-format";
@@ -171,31 +172,69 @@ export const InvoicesDetailsPage = ({
       });
   }, [JSON.stringify(draft)]);
 
+  // The contact hooks keep the previous contact while the new one loads (and
+  // nothing while the client is empty): only use them once they match the draft
+  const loadedCounterParty =
+    invoiceCounterParty?.id &&
+    invoiceCounterParty.id === (draft.client || draft.supplier)
+      ? invoiceCounterParty
+      : null;
+  const loadedContact =
+    invoiceContact?.id && invoiceContact.id === draft.contact
+      ? invoiceContact
+      : null;
+  const hasDeliverableContent = !!draft.content?.some(
+    (a) => a.type === "product" || a.type === "consumable",
+  );
+
   /**
    * _ si un produit / consommable est ajouté, alors 1. la livraison doit être cochée toute seule
+   * _ si le client ou le contact change, l'adresse de livraison suit
    */
-  useEffectChange(() => {
-    // Differentiate loading and changing client
+  const deliverySource = useRef<{
+    document: string;
+    contacts: string;
+    deliverable: boolean;
+  } | null>(null);
+  useEffect(() => {
+    if (!loadedCounterParty || (draft.contact && !loadedContact)) return;
+    const previous = deliverySource.current;
+    const current = {
+      document: draft.id || "",
+      contacts: [loadedCounterParty.id, loadedContact?.id || ""].join(),
+      deliverable: hasDeliverableContent,
+    };
+    deliverySource.current = current;
+    // Loading a document: keep its delivery address
+    if (!previous || previous.document !== current.document) return;
+    if (
+      previous.contacts === current.contacts &&
+      (previous.deliverable || !current.deliverable)
+    )
+      return;
     setDraft((draft) => {
-      draft = _.cloneDeep(draft);
       if (
-        Object.values(draft.delivery_address || {}).filter(Boolean).length ||
-        draft.content?.some(
+        !Object.values(draft.delivery_address || {}).filter(Boolean).length &&
+        !draft.content?.some(
           (a) => a.type === "product" || a.type === "consumable",
         )
-      ) {
+      )
+        return draft;
+      draft = _.cloneDeep(draft);
+      if (!draft.delivery_delay && !draft.delivery_date)
         draft.delivery_delay = 30; // TODO ability to set the default somewhere in the app
-        draft.delivery_address = getBestDeliveryAddress(
-          invoiceCounterParty!,
-          invoiceContact || undefined,
-        );
-      }
+      draft.delivery_address = getBestDeliveryAddress(
+        loadedCounterParty,
+        loadedContact || undefined,
+      );
       return draft;
     });
   }, [
-    invoiceCounterParty?.id,
-    invoiceContact?.id,
-    draft.content?.some((a) => a.type === "product" || a.type === "consumable"),
+    loadedCounterParty?.id,
+    loadedContact?.id,
+    draft.contact,
+    draft.id,
+    hasDeliverableContent,
   ]);
 
   const { accounting_transactions } = useAccountingTransactions({
@@ -211,19 +250,23 @@ export const InvoicesDetailsPage = ({
     }),
   });
 
+  // Select the first contact of the client when none is selected (the contact
+  // is reset when the client changes)
   useEffectChange(() => {
-    if (!readonly) {
-      if (
-        ctrl("client").value &&
-        !ctrl("contact").value &&
-        (contacts?.data?.list?.length || 0) > 0
-      ) {
-        ctrl("contact").onChange(contacts?.data?.list[0].id);
-      } else {
-        ctrl("contact").onChange("");
-      }
-    }
-  }, [ctrl("client").value, JSON.stringify(contacts?.data?.list)]);
+    // The hook keeps the contacts of the previous client while loading
+    if (readonly || contacts.isPlaceholderData) return;
+    const firstContact = contacts?.data?.list?.[0]?.id;
+    if (firstContact)
+      setDraft((draft) =>
+        draft.client && !draft.contact
+          ? { ...draft, contact: firstContact }
+          : draft,
+      );
+  }, [
+    ctrl("client").value,
+    JSON.stringify(contacts?.data?.list),
+    contacts.isPlaceholderData,
+  ]);
 
   const activeConfiguration = getInvoiceWithOverrides(
     draft,
@@ -382,6 +425,24 @@ export const InvoicesDetailsPage = ({
                     Tacite reconduction
                   </Badge>
                 )}
+              {/* Transmitted to the e-invoicing platform, enforced or not */}
+              {draft.e_invoice?.status === "uploaded" && (
+                <Tooltip
+                  content={`Le ${formatDate(draft.e_invoice.sent_at)} (SuperPDP #${
+                    draft.e_invoice.superpdp_id
+                  })`}
+                >
+                  <Badge
+                    className="ml-2"
+                    variant="outline"
+                    color="green"
+                    size="2"
+                  >
+                    <DocumentCheckIcon className="h-3 w-3 inline-block mr-1 -mt-0.5" />
+                    Envoyé en facture électronique
+                  </Badge>
+                </Tooltip>
+              )}
               <div className="grow" />
               {draft.type === "invoices" && (
                 <TagPaymentCompletion invoice={draft} />

@@ -38,6 +38,10 @@ export type Invoices = RestEntity & {
     email_received_recipients?: string[];
   } | null;
 
+  // Transmission to the e-invoicing platform (SuperPDP). Not reset on state
+  // changes: an invoice is transmitted once, when it leaves the draft state.
+  e_invoice?: Shared.InvoiceEInvoiceDetails | null;
+
   // For credit notes or supplier credit note: invoices refunded by this credit note
   from_rel_invoice: string[]; // Nullable
   // For invoices or supplier invoice: quotes completed and transformed into this invoice

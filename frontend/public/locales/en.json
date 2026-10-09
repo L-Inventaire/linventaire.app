@@ -322,6 +322,13 @@
       "closed": "Closed",
       "completed": "Completed",
       "recurring": "Recurring"
+    },
+    "crm_items.state": {
+      "new": "New",
+      "qualified": "Qualified",
+      "proposal": "Proposal",
+      "won": "Won",
+      "lost": "Lost"
     }
   }
 }

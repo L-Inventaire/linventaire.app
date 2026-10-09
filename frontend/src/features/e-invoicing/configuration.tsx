@@ -47,6 +47,8 @@ const getStateColor = (state: ReceivedEInvoices["state"]) => {
 export const ReceivedEInvoicesColumns: Column<ReceivedEInvoices>[] = [
   {
     title: "Date",
+    id: "issue_date",
+    orderBy: "issue_date",
     render: (item) => (
       <Base className="whitespace-nowrap">
         {formatDate(new Date(item.issue_date))}
@@ -55,6 +57,8 @@ export const ReceivedEInvoicesColumns: Column<ReceivedEInvoices>[] = [
   },
   {
     title: "N° Facture",
+    id: "invoice_number",
+    orderBy: "invoice_number",
     render: (item) => (
       <SectionSmall className="whitespace-nowrap">
         {item.invoice_number}
@@ -63,6 +67,8 @@ export const ReceivedEInvoicesColumns: Column<ReceivedEInvoices>[] = [
   },
   {
     title: "Fournisseur",
+    id: "seller_name",
+    orderBy: "seller_name",
     render: (item) => (
       <div>
         <SectionSmall>{item.seller_name}</SectionSmall>
@@ -74,6 +80,8 @@ export const ReceivedEInvoicesColumns: Column<ReceivedEInvoices>[] = [
   },
   {
     title: "Montant HT",
+    id: "total_amount",
+    orderBy: "total_amount",
     thClassName: "w-1",
     cellClassName: "justify-end",
     headClassName: "justify-end",
@@ -85,6 +93,8 @@ export const ReceivedEInvoicesColumns: Column<ReceivedEInvoices>[] = [
   },
   {
     title: "TVA",
+    id: "total_tax_amount",
+    orderBy: "total_tax_amount",
     thClassName: "w-1",
     cellClassName: "justify-end",
     headClassName: "justify-end",
@@ -96,6 +106,8 @@ export const ReceivedEInvoicesColumns: Column<ReceivedEInvoices>[] = [
   },
   {
     title: "Montant TTC",
+    id: "total_amount_with_tax",
+    orderBy: "total_amount_with_tax",
     thClassName: "w-1",
     cellClassName: "justify-end",
     headClassName: "justify-end",

@@ -1,6 +1,9 @@
 /**
  * EN16931 Invoice Types
  * Based on SuperPDP API OpenAPI specification
+ * (backend/src/platform/e-invoices/adapters/superpdp/superpdp.json, schema
+ * `en_invoice`). SuperPDP silently ignores unknown keys: field names MUST match
+ * the specification (checked by invoice-converter.spec.ts).
  * European standard for electronic invoicing
  */
 
@@ -29,9 +32,10 @@ export interface EN16931Identifier {
 }
 
 export interface EN16931Contact {
-  name?: string;
-  telephone?: string;
-  email?: string;
+  contact_point?: string;
+  department_name?: string;
+  email_address?: string;
+  phone_number?: string;
 }
 
 export interface EN16931Seller {
@@ -210,7 +214,6 @@ export interface EN16931AllowanceOrCharge {
 export interface EN16931InvoicingPeriod {
   start_date?: string;
   end_date?: string;
-  description_code?: string;
 }
 
 export interface EN16931InvoiceNote {
@@ -219,8 +222,9 @@ export interface EN16931InvoiceNote {
 }
 
 export interface EN16931PrecedingInvoiceReference {
-  invoice_number: string;
-  issue_date?: string;
+  reference: string; // BT-25
+  issue_date?: string; // BT-26
+  preceding_invoice_type_code?: number;
 }
 
 export interface EN16931CreditTransfer {
@@ -241,23 +245,24 @@ export interface EN16931DirectDebit {
 export interface EN16931PaymentCardInformation {
   account_number: string;
   holder_name?: string;
+  network_id?: string;
 }
 
+// BG-16, the payment terms (BT-20) are at the invoice level
 export interface EN16931PaymentInstructions {
-  payment_means_type_code: string;
-  payment_terms?: string;
-  remittance_information?: string;
-  credit_transfer?: EN16931CreditTransfer[];
-  direct_debit?: EN16931DirectDebit;
-  payment_card_information?: EN16931PaymentCardInformation;
+  payment_means_type_code: string; // BT-81, UNTDID 4461
+  payment_means_text?: string; // BT-82
+  remittance_information?: string; // BT-83
+  credit_transfers?: EN16931CreditTransfer[]; // BG-17
+  direct_debit?: EN16931DirectDebit; // BG-19
+  payment_card_information?: EN16931PaymentCardInformation; // BG-18
 }
 
+// BG-13, the deliver to address (BG-15) is at the invoice level
 export interface EN16931DeliveryInformation {
-  actual_delivery_date?: string;
-  invoicing_period?: EN16931InvoicingPeriod;
-  delivery_location_identifier?: EN16931Identifier;
-  postal_address?: EN16931PostalAddress;
-  party_name?: string;
+  deliver_to_name?: string; // BT-70
+  delivery_date?: string; // BT-72
+  delivery_identifier?: EN16931Identifier[]; // BT-71
 }
 
 export interface EN16931ProcessControl {
@@ -273,22 +278,26 @@ export interface EN16931BinaryObject {
 
 export interface EN16931AdditionalSupportingDocument {
   key: string;
-  description?: string;
+  document_reference: string;
+  document_description?: string;
   external_document_location?: string;
   attached_document?: EN16931BinaryObject;
 }
 
 export interface EN16931PriceDetails {
-  item_net_price: string;
-  item_price_discount?: string;
-  item_gross_price?: string;
-  base_quantity?: string;
-  base_quantity_unit_code?: string;
+  item_net_price: string; // BT-146
+  item_price_discount?: string; // BT-147
+  item_gross_price?: string; // BT-148
+  item_price_base_quantity?: string; // BT-149
+  quantity_unit_code?: string; // BT-150
 }
 
 export interface EN16931ItemAttribute {
   name?: string;
   value: string;
+  code?: string;
+  quantity?: string;
+  quantity_unit?: string;
 }
 
 export interface EN16931ClassificationIdentifier {
@@ -298,19 +307,23 @@ export interface EN16931ClassificationIdentifier {
 }
 
 export interface EN16931ItemInformation {
-  name: string;
-  description?: string;
-  sellers_item_identification?: string;
-  buyers_item_identification?: string;
-  standard_item_identification?: string;
-  origin_country_code?: string;
-  item_classification_identifier?: EN16931ClassificationIdentifier[];
-  attributes?: EN16931ItemAttribute[];
+  name: string; // BT-153
+  description?: string; // BT-154
+  seller_identifier?: string; // BT-155
+  buyer_identifier?: string; // BT-156
+  standard_identifier_value?: string; // BT-157
+  standard_identifier_scheme?: string; // BT-157-1
+  country_of_origin?: string; // BT-159
+  classification_identifier?: EN16931ClassificationIdentifier[]; // BT-158
+  attributes?: EN16931ItemAttribute[]; // BG-32
 }
 
 export interface EN16931LineVatInformation {
   invoiced_item_vat_category_code: string;
   invoiced_item_vat_rate?: string;
+  exemption_reason?: string;
+  exemption_reason_code?: string;
+  due_date_code?: string;
 }
 
 export interface EN16931InvoiceLineAllowanceOrCharge {
@@ -322,7 +335,7 @@ export interface EN16931InvoiceLineAllowanceOrCharge {
 }
 
 export interface EN16931InvoiceLineNote {
-  line_note_id?: string;
+  subject_code?: string;
   note: string;
 }
 
@@ -394,15 +407,13 @@ export interface EN16931Invoice {
   notes?: EN16931InvoiceNote[];
   currency_code: string; // ISO 4217
   vat_accounting_currency_code?: string;
-  vat_category_code?: string;
-  vat_exemption_reason_code?: string;
 
   // References
   buyer_reference?: string;
   purchase_order_reference?: string;
   sales_order_reference?: string;
   contract_reference?: string;
-  preceding_invoice_reference?: EN16931PrecedingInvoiceReference[];
+  preceding_invoice_references?: EN16931PrecedingInvoiceReference[];
 
   // Periods
   invoicing_period?: EN16931InvoicingPeriod;
@@ -411,17 +422,23 @@ export interface EN16931Invoice {
   seller: EN16931Seller;
   buyer: EN16931Buyer;
   payee?: EN16931Payee;
-  tax_representative?: any; // seller_tax_representative_party
+  seller_tax_representative_party?: {
+    name: string;
+    vat_identifier: string;
+    postal_address: EN16931PostalAddress;
+  };
 
   // Delivery
   delivery_information?: EN16931DeliveryInformation;
+  deliver_to_address?: EN16931PostalAddress; // BG-15
 
   // Payment
-  payment_details?: EN16931PaymentInstructions;
+  payment_terms?: string; // BT-20
+  payment_instructions?: EN16931PaymentInstructions;
 
   // Allowances and charges
-  document_level_allowances?: EN16931AllowanceOrCharge[];
-  document_level_charges?: EN16931AllowanceOrCharge[];
+  document_level_allowances?: EN16931AllowanceOrCharge[]; // BG-20
+  charges?: EN16931AllowanceOrCharge[]; // BG-21
 
   // Totals
   totals: EN16931Totals;
@@ -438,9 +455,7 @@ export interface EN16931Invoice {
   // Project reference
   project_reference?: string;
 
-  // Tax point date
-  tax_point_date?: string;
-
-  // Value added tax point date code
-  value_added_tax_point_date_code?: string;
+  // VAT point date (BT-7) and code (BT-8)
+  vat_point_date?: string;
+  vat_point_date_code?: string;
 }

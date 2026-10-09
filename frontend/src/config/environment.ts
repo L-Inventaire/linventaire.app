@@ -7,7 +7,7 @@ const Env = {
   apiDocs: "http://localhost:3007",
   // User manual (in development: `npm run dev` in /user-docs)
   userDocs: "http://localhost:3008",
-  version: "1.3.1",
+  version: "1.3.2",
 };
 
 export default Env;

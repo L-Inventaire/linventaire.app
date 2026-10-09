@@ -33,8 +33,7 @@ export const ReceivedEInvoiceViewPage = () => {
   const areArticlesValid =
     receivedEInvoice?.en_invoice?.lines?.every((line) => {
       const article = articleMatches[line.identifier];
-      const reference =
-        line.item_information?.sellers_item_identification?.trim();
+      const reference = line.item_information?.seller_identifier?.trim();
 
       // If no article selected, it's valid (optional matching)
       if (!article) return true;
