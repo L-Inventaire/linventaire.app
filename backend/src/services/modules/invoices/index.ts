@@ -27,6 +27,7 @@ import {
 import { setUpsertHook } from "./triggers/upsert-hook";
 import { setNumetorationTrigger } from "./triggers/upsert-reference-number";
 import { setStatusTrigger } from "./triggers/on-complete-status-change";
+import { setInvoiceLockTrigger } from "./triggers/invoice-lock";
 
 export default class Invoices implements InternalApplicationService {
   version = 1;
@@ -76,6 +77,7 @@ export default class Invoices implements InternalApplicationService {
       }
     );
 
+    setInvoiceLockTrigger();
     setUpsertHook();
     setNumetorationTrigger();
     setCheckIsCompleteTrigger();
