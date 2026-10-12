@@ -6,8 +6,9 @@ import {
   Context,
   ForbiddenError,
 } from "../../../types";
+import platform from "../../../platform";
 import Services from "../../../services";
-import Users from "../../users/entities/users";
+import Users, { UsersDefinition } from "../../users/entities/users";
 import { AuthValidationJwtPayload } from "../types";
 
 const expirationByType = {
@@ -27,7 +28,11 @@ export const extendOrUpdateToken = async (
   let renewing = false;
 
   let user: Users | null = null;
-  if (ctx.id) {
+  if (!ctx.id) {
+    // Login: users are cached, but their role may have been changed directly
+    // in database (SYSADMIN, DISABLED), so read them fresh
+    await platform.Cache?.invalidate(ctx, UsersDefinition.name);
+  } else {
     renewing = true;
     user = await Services.Users.getUser(ctx, { id: ctx.id });
 
