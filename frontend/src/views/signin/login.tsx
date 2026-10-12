@@ -84,15 +84,11 @@ export const Login = () => {
       tryAgainTimeout = setTimeout(() => setAllowTryAgain(true), 10000);
     };
 
-    const grecaptcha = (window as any).grecaptcha?.enterprise;
-    if (grecaptcha) {
-      grecaptcha.ready(async () => {
-        const captchaValidation = await getCaptchaToken("emaillogin");
-        request(captchaValidation);
-      });
-    } else {
-      request("fake");
-    }
+    // Without reCAPTCHA (blocked, not reachable), let the server decide
+    const captchaValidation = await getCaptchaToken("emaillogin").catch(
+      () => "fake",
+    );
+    request(captchaValidation);
   };
 
   const submit = useCallback(async () => {

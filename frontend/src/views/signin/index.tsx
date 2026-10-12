@@ -4,6 +4,7 @@ import { useHasAccess } from "@features/access";
 import { useAuth } from "@features/auth/state/use-auth";
 import { useClients } from "@features/clients/state/use-clients";
 import { ROUTES, getRoute } from "@features/routes";
+import { loadReCaptcha } from "@features/utils/captcha";
 import { ReactNode, useCallback, useEffect } from "react";
 import { Route, useNavigate } from "react-router-dom";
 import { Login } from "./login";
@@ -87,15 +88,8 @@ const LoggedOutPage = (props: { children: ReactNode }) => {
     if (user?.id) {
       return;
     }
-    const script = document.createElement("script");
-    script.src =
-      "https://www.google.com/recaptcha/enterprise.js?render=6Lf5LxopAAAAALXErlTeGxlWy_x6M8RlKlJzZ4RB";
-    script.async = true;
-    script.defer = true;
-    document.body.appendChild(script);
-    return () => {
-      document.body.removeChild(script);
-    };
+    // Preload it for the login and signup forms
+    loadReCaptcha().catch(console.error);
   }, []);
 
   if (user?.id) {
