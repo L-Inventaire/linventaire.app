@@ -204,7 +204,12 @@ export default class DbPostgres implements DbAdapterInterface {
     }
 
     if (auditable) {
-      const historyColumnsSql = columns
+      // History rows are never searched (and saved without searchable): don't
+      // compute the full-text search vector at each insert
+      const historyColumns = columns.filter(
+        (col) => col.name !== "searchable_generated"
+      );
+      const historyColumnsSql = historyColumns
         .map((col) => `${col.name} ${col.type}`)
         .join(", ");
 
@@ -212,7 +217,13 @@ export default class DbPostgres implements DbAdapterInterface {
 
       await this.query(null, this.client, createHistoryTableSql);
 
-      for (const col of columns) {
+      await this.query(
+        null,
+        this.client,
+        `ALTER TABLE ${name}_history DROP COLUMN IF EXISTS searchable_generated`
+      );
+
+      for (const col of historyColumns) {
         try {
           await this.query(
             null,
