@@ -74,6 +74,7 @@ import { InvoiceLinesInput } from "./invoice-lines-input";
 import { CompletionTags } from "./invoice-lines-input/components/completion-tags";
 import { InvoiceRestDocument } from "./invoice-lines-input/invoice-input-rest-card";
 import { InvoiceStatus } from "./invoice-status";
+import { OutdatedClientCallout } from "./outdated-client-callout";
 import { RelatedInvoices } from "./related-invoices";
 import { TagPaymentCompletion } from "./tag-payment-completion";
 
@@ -87,7 +88,7 @@ export const InvoicesDetailsPage = ({
   const { client: clientUser } = useClients();
   const client = clientUser!.client!;
 
-  const { isPending, ctrl, draft, setDraft } = useReadDraftRest<Invoices>(
+  const { isPending, ctrl, draft, setDraft, save } = useReadDraftRest<Invoices>(
     "invoices",
     id || "new",
     readonly,
@@ -690,6 +691,19 @@ export const InvoicesDetailsPage = ({
                   )}
                 </PageColumns>
               </div>
+
+              {!isSupplierRelated && (
+                <OutdatedClientCallout
+                  invoice={draft}
+                  client={invoiceCounterParty}
+                  contact={invoiceContact}
+                  onUpdate={(changes) =>
+                    readonly
+                      ? save(changes)
+                      : setDraft((draft) => ({ ...draft, ...changes }))
+                  }
+                />
+              )}
 
               {hasClientOrSupplier && !eInvoicesReady && missingReason && (
                 <Callout.Root color="red" className="mb-4">
