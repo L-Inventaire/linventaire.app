@@ -692,18 +692,20 @@ export const InvoicesDetailsPage = ({
                 </PageColumns>
               </div>
 
-              {!isSupplierRelated && (
-                <OutdatedClientCallout
-                  invoice={draft}
-                  client={invoiceCounterParty}
-                  contact={invoiceContact}
-                  onUpdate={(changes) =>
-                    readonly
-                      ? save(changes)
-                      : setDraft((draft) => ({ ...draft, ...changes }))
-                  }
-                />
-              )}
+              {!isSupplierRelated &&
+                !!loadedCounterParty &&
+                (!draft.contact || !!loadedContact) && (
+                  <OutdatedClientCallout
+                    invoice={draft}
+                    client={loadedCounterParty}
+                    contact={loadedContact}
+                    onUpdate={(changes) =>
+                      readonly
+                        ? save(changes)
+                        : setDraft((draft) => ({ ...draft, ...changes }))
+                    }
+                  />
+                )}
 
               {hasClientOrSupplier && !eInvoicesReady && missingReason && (
                 <Callout.Root color="red" className="mb-4">
