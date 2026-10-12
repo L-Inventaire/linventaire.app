@@ -68,7 +68,7 @@ export const InvoiceActions = ({
 
   const draftWithOverrides = getInvoiceWithOverrides(
     draft,
-    ...([client, counterparty].filter((a) => a !== undefined && !!a) as any),
+    ...([counterparty, client].filter((a) => a !== undefined && !!a) as any),
   );
 
   /* Warnings:

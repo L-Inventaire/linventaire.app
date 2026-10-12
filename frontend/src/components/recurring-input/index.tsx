@@ -133,7 +133,7 @@ export const RecurrenceInput = ({
 
   const defaultConfig = getInvoiceWithOverrides(
     {} as Invoices,
-    ...([client, contact, me?.client].filter(
+    ...([contact, client, me?.client].filter(
       (a) => a !== undefined && !!a
     ) as any[])
   );

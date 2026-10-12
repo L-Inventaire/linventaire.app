@@ -23,6 +23,7 @@ import { useEInvoicesReady } from "@features/invoices/hooks/use-e-invoices-ready
 import { useInvoice, useInvoices } from "@features/invoices/hooks/use-invoices";
 import { Invoices } from "@features/invoices/types/types";
 import {
+  getContactsDocumentPreferences,
   getDocumentName,
   getInvoiceWithOverrides,
 } from "@features/invoices/utils";
@@ -237,6 +238,96 @@ export const InvoicesDetailsPage = ({
     hasDeliverableContent,
   ]);
 
+  /**
+   * The payment conditions, language and currency follow the client file
+   * (contact > client > company) when the client or the contact changes on a
+   * draft. A loaded document keeps its own values.
+   */
+  const preferencesSource = useRef<{
+    document: string;
+    client: string;
+    contact: string;
+    applied: boolean;
+  } | null>(null);
+  useEffect(() => {
+    if (readonly || draft.state !== "draft") return;
+    if ((draft.client || draft.supplier) && !loadedCounterParty) return;
+    if (draft.contact && !loadedContact) return;
+    const previous = preferencesSource.current;
+    const current = {
+      document: draft.id || "",
+      client: loadedCounterParty?.id || "",
+      contact: loadedContact?.id || "",
+      applied: true,
+    };
+    if (
+      previous &&
+      previous.document === current.document &&
+      previous.client === current.client &&
+      previous.contact === current.contact
+    )
+      return;
+    preferencesSource.current = current;
+    // Removing the client keeps the values
+    if (!loadedCounterParty) return;
+    const preferences = getContactsDocumentPreferences(
+      client,
+      loadedContact,
+      loadedCounterParty,
+    );
+
+    if (!previous || previous.document !== current.document) {
+      // Loading a document: keep its values, except on a new document (not
+      // made from another one) where they are still the company defaults
+      current.applied =
+        !draft.id &&
+        !draft.from_rel_quote?.length &&
+        !draft.from_rel_invoice?.length;
+      if (!current.applied) return;
+      setDraft((draft) => ({
+        ...draft,
+        ...(!isSupplierRelated &&
+        _.isEqual(draft.payment_information, client.payment)
+          ? { payment_information: preferences.payment_information }
+          : {}),
+        ...(draft.language === (client.preferences?.language || "fr")
+          ? { language: preferences.language }
+          : {}),
+        ...(draft.currency === (client.preferences?.currency || "EUR")
+          ? { currency: preferences.currency }
+          : {}),
+      }));
+      return;
+    }
+
+    // The first contact of the client is selected automatically when a loaded
+    // document has none: this doesn't change its values either
+    if (
+      previous.client === current.client &&
+      !previous.contact &&
+      !previous.applied
+    ) {
+      current.applied = false;
+      return;
+    }
+
+    setDraft((draft) => ({
+      ...draft,
+      ...(!isSupplierRelated
+        ? { payment_information: preferences.payment_information }
+        : {}),
+      language: preferences.language,
+      currency: preferences.currency,
+    }));
+  }, [
+    loadedCounterParty?.id,
+    loadedContact?.id,
+    draft.contact,
+    draft.id,
+    draft.state,
+    readonly,
+  ]);
+
   const { accounting_transactions } = useAccountingTransactions({
     query: buildQueryFromMap({
       rel_invoices: draft.id,
@@ -270,7 +361,7 @@ export const InvoicesDetailsPage = ({
 
   const activeConfiguration = getInvoiceWithOverrides(
     draft,
-    ...([draft.client, draft.contact, clientUser?.client].filter(
+    ...([loadedContact, loadedCounterParty, clientUser?.client].filter(
       (a) => a !== undefined && !!a,
     ) as any[]),
   );
@@ -294,6 +385,8 @@ export const InvoicesDetailsPage = ({
             invoice={draft}
             ctrl={ctrl}
             readonly={readonly}
+            client={loadedCounterParty || undefined}
+            contact={loadedContact || undefined}
             noResetToDefault={true}
           />
         ),

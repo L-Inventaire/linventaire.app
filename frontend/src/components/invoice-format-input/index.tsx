@@ -34,7 +34,7 @@ export const InvoiceFormatInput = (props: InvoiceFormatInputProps) => {
 
   const defaultConfig = getInvoiceWithOverrides(
     {} as Invoices,
-    ...([props.client, props.contact, me?.client].filter(
+    ...([props.contact, props.client, me?.client].filter(
       (a) => a !== undefined && !!a,
     ) as any[]),
   );

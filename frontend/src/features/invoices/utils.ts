@@ -1,5 +1,6 @@
 import { Clients } from "@features/clients/types/clients";
 import { Contacts } from "@features/contacts/types/types";
+import _ from "lodash";
 import { InvoiceFormat, Invoices, InvoiceSubscription } from "./types/types";
 
 export const getDocumentName = (type: Invoices["type"]) => {
@@ -65,6 +66,42 @@ export const getInvoiceWithOverrides = (
     subscription,
     payment_information,
     format,
+  };
+};
+
+/**
+ * Payment conditions, language and currency a document gets from its client
+ * (and contact) file, in that order: contact > client > company.
+ */
+export const getContactsDocumentPreferences = (
+  company: Clients,
+  ...contacts: (Contacts | null | undefined)[]
+): Pick<Invoices, "payment_information" | "language" | "currency"> => {
+  const files = contacts.filter(Boolean) as Contacts[];
+  // Empty values left by the contact form are not overrides
+  const payments = files.map((contact) =>
+    _.omitBy(
+      contact.payment || {},
+      (v) => v === null || v === undefined || v === "" || _.isEqual(v, []),
+    ),
+  ) as Invoices["payment_information"][];
+  return {
+    payment_information: mergeObjects(
+      ...payments,
+      company.payment || ({} as Invoices["payment_information"]),
+    ),
+    language:
+      files
+        .map((contact) => contact.language || contact.preferences?.language)
+        .find(Boolean) ||
+      company.preferences?.language ||
+      "fr",
+    currency:
+      files
+        .map((contact) => contact.currency || contact.preferences?.currency)
+        .find(Boolean) ||
+      company.preferences?.currency ||
+      "EUR",
   };
 };
 

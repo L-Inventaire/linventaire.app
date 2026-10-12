@@ -194,16 +194,56 @@ export const setUpsertHook = () =>
           { id: entity.client_id }
         );
 
+        // The client file (and contact) preferences override the company ones
+        const contacts = (
+          await Promise.all(
+            _.uniq(
+              [entity.contact, entity.client || entity.supplier].filter(Boolean)
+            ).map((id) =>
+              db.selectOne<Contacts>(ctx, ContactsDefinition.name, {
+                id,
+                client_id: entity.client_id,
+              })
+            )
+          )
+        ).filter(Boolean) as Contacts[];
+
         if (!updated.currency) {
-          updated.currency = client?.preferences.currency || "EUR";
+          updated.currency =
+            contacts
+              .map((c) => c.currency || c.preferences?.currency)
+              .find(Boolean) ||
+            client?.preferences.currency ||
+            "EUR";
         }
 
         if (!updated.language) {
-          updated.language = client?.preferences.language || "en";
+          updated.language =
+            contacts
+              .map((c) => c.language || c.preferences?.language)
+              .find(Boolean) ||
+            client?.preferences.language ||
+            "en";
         }
 
         if (!updated.payment_information) {
-          updated.payment_information = client?.payment;
+          const isSupplierRelated = updated.type?.startsWith("supplier_");
+          updated.payment_information = client?.payment
+            ? _.defaults(
+                {},
+                ...(isSupplierRelated ? [] : contacts).map((c) =>
+                  _.omitBy(
+                    c.payment || {},
+                    (v) =>
+                      v === null ||
+                      v === undefined ||
+                      v === "" ||
+                      _.isEqual(v, [])
+                  )
+                ),
+                client.payment
+              )
+            : client?.payment;
         }
 
         if (!updated.format) {
