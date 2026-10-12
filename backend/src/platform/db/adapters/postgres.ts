@@ -1,4 +1,5 @@
 import { RestEntity } from "#src/services/rest/entities/entity";
+import { captureException } from "@sentry/node";
 import { preHook } from "#src/services/rest/services/rest";
 import fs from "fs";
 import _ from "lodash";
@@ -235,9 +236,78 @@ export default class DbPostgres implements DbAdapterInterface {
           }
         }
       }
+
+      await this.createHistoryIndex(name, Object.keys(keyValueColumns));
     }
 
     this.logger.info(null, `Table ${name} has been set up or updated.`);
+  }
+
+  /**
+   * Index used to read the history of a document (timeline, past versions):
+   * WHERE client_id = $1 AND id = $2 ORDER BY operation_timestamp.
+   * History tables can be large: the index is built CONCURRENTLY (the table
+   * stays writable) on its own connection (other queries are not stalled).
+   * It is only an optimization: a failure is reported but doesn't stop boot.
+   */
+  private async createHistoryIndex(name: string, columns: string[]) {
+    const historyTable = `${name}_history`;
+    // Some tables (users) have no client_id
+    const keys = ["client_id", "id"].filter((c) => columns.includes(c));
+    const indexName = `${historyTable}_${keys.join("_")}_idx`.slice(0, 63);
+    const client = await this.pool.connect();
+    try {
+      // Only one instance builds it, the others skip it
+      const lock = await this.query(
+        null,
+        client,
+        "SELECT pg_try_advisory_lock(hashtext($1)) AS ok",
+        [indexName]
+      );
+      if (lock.rows[0]?.ok !== true) return;
+
+      try {
+        // An interrupted build leaves an invalid index that IF NOT EXISTS
+        // would keep forever
+        const invalid = await this.query(
+          null,
+          client,
+          `SELECT 1 FROM pg_index i JOIN pg_class c ON c.oid = i.indexrelid
+           WHERE c.relname = $1 AND NOT i.indisvalid`,
+          [indexName]
+        );
+        if (invalid.rowCount) {
+          await this.query(
+            null,
+            client,
+            `DROP INDEX CONCURRENTLY IF EXISTS ${indexName}`
+          );
+        }
+        await this.query(
+          null,
+          client,
+          `CREATE INDEX CONCURRENTLY IF NOT EXISTS ${indexName} ON ${historyTable} (${[
+            ...keys,
+            "operation_timestamp",
+          ].join(", ")})`
+        );
+      } finally {
+        await this.query(
+          null,
+          client,
+          "SELECT pg_advisory_unlock(hashtext($1))",
+          [indexName]
+        );
+      }
+    } catch (e: any) {
+      this.logger.error(
+        null,
+        `Couldn't create index ${indexName}. Reason: ${e.message}`
+      );
+      captureException(e);
+    } finally {
+      client.release();
+    }
   }
 
   async insert<Entity>(
