@@ -222,8 +222,10 @@ export const DocumentLayout = ({
   }
 
   // Check if internal signing mode
+  // (not for an expired session: its actions lead to the latest version)
   const isInternalMode =
     signingSession.linventaire_signature &&
+    !signingSession.expired &&
     signingSession.state !== "signed" &&
     signingSession.state !== "cancelled" &&
     signingSession.recipient_role === "signer";

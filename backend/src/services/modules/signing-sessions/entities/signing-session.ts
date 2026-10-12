@@ -31,6 +31,9 @@ export class SigningSessions extends RestEntity {
   // mailbox and pre-validates the session, so the email OTP step is skipped.
   access_token = "string";
   expired = false;
+  // Set when the sender explicitly invalidated the previous links on a new
+  // sending: the expired session then no longer leads to the latest version.
+  links_revoked = false;
 }
 
 export const SigningSessionsDefinition: RestTableDefinition = {
@@ -50,6 +53,7 @@ export const SigningSessionsDefinition: RestTableDefinition = {
     recipient_token: "VARCHAR(64)",
     access_token: "VARCHAR(128)",
     expired: "BOOLEAN",
+    links_revoked: "BOOLEAN",
   },
   pk: ["invoice_id", "recipient_email", "id"],
   indexes: [["invoice_id", "recipient_email", "external_id"]],

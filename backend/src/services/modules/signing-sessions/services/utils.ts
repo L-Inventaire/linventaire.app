@@ -144,7 +144,8 @@ export const generateEmailMessageToRecipient = async (
 
 export const expireOtherSigningSessions = async (
   ctx: Context,
-  signingSessions: SigningSessions[]
+  signingSessions: SigningSessions[],
+  options: { revokeLinks?: boolean } = {}
 ) => {
   console.log(
     "Expiring other signing sessions for invoice",
@@ -168,6 +169,8 @@ export const expireOtherSigningSessions = async (
     await updateSigningSession(ctx, {
       ...session,
       expired: true,
+      // Revoked links never lead to the latest version (see the /latest route)
+      ...(options.revokeLinks ? { links_revoked: true } : {}),
     });
   }
 };

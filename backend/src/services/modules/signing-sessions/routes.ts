@@ -2,7 +2,6 @@ import platform from "#src/platform/index";
 import Services from "#src/services/index";
 import { Ctx } from "#src/services/utils";
 import config from "config";
-import crypto from "crypto";
 import { Router } from "express";
 import { checkClientRoles, checkRole } from "../../common";
 import Invoices, {
@@ -27,6 +26,10 @@ import {
   SigningSessionsDefinition,
 } from "./entities/signing-session";
 import { updateSigningSession } from "./services/create";
+import {
+  findLatestSigningSession,
+  isValidAccessToken,
+} from "./services/latest";
 import { uploadDocumentToSigningSession } from "./services/upload";
 import {
   cancelSigningSessions,
@@ -198,7 +201,8 @@ export default (router: Router) => {
           ctx,
           req.params.id,
           req.body.recipients,
-          false
+          false,
+          { revokePreviousLinks: req.body.revoke_previous_links === true }
         );
 
       const db = await platform.Db.getService();
@@ -488,6 +492,50 @@ export default (router: Router) => {
     });
 
     res.json(cleanSigningSession(signingSession));
+  });
+
+  /**
+   * Leads an expired signing session to the up-to-date one of the same
+   * document (see findLatestSigningSession).
+   * POST /:id/latest
+   * Body: { token?: string }
+   */
+  router.post("/:id/latest", async (req, res) => {
+    const ctx = Ctx.get(req)!.context;
+    const db = await platform.Db.getService();
+
+    const signingSession = await db.selectOne<SigningSessions>(
+      ctx,
+      SigningSessionsDefinition.name,
+      { id: req.params.id },
+      {}
+    );
+
+    if (!signingSession) {
+      return res.status(404).json({ error: "Signing session not found" });
+    }
+
+    if (!signingSession.expired || signingSession.links_revoked) {
+      return res.json({ id: null });
+    }
+
+    const documentSessions = await db.select<SigningSessions>(
+      ctx,
+      SigningSessionsDefinition.name,
+      {
+        client_id: signingSession.client_id,
+        invoice_id: signingSession.invoice_id,
+      },
+      {}
+    );
+
+    res.json(
+      findLatestSigningSession(
+        signingSession,
+        documentSessions || [],
+        req.body?.token
+      )
+    );
   });
 
   router.post("/:id/confirm-signed", async (req, res) => {
@@ -939,18 +987,6 @@ const cleanSigningSession = (session: SigningSessions) => {
   }
 
   return session;
-};
-
-/**
- * Constant-time comparison of the access token carried in the email link
- * against the one stored on the signing session.
- */
-const isValidAccessToken = (stored?: string, provided?: string): boolean => {
-  if (!stored || !provided) return false;
-  const storedBuffer = Buffer.from(stored);
-  const providedBuffer = Buffer.from(provided);
-  if (storedBuffer.length !== providedBuffer.length) return false;
-  return crypto.timingSafeEqual(storedBuffer, providedBuffer);
 };
 
 /**

@@ -1,11 +1,14 @@
 import { Button } from "@atoms/button/button";
 import { Input } from "@atoms/input/input-text";
+import { Info } from "@atoms/text";
+import { SigningSessionsApiClient } from "@features/documents/api-client/api-client";
 import { useSigningSession } from "@features/documents/hooks";
 import { InvoicesApiClient } from "@features/invoices/api-client/invoices-api-client";
 import { InvoiceLine, Invoices } from "@features/invoices/types/types";
 import { getRoute, ROUTES } from "@features/routes";
 import { isErrorResponse } from "@features/utils/rest/types/types";
 import { CheckIcon, XCircleIcon } from "@heroicons/react/16/solid";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
@@ -46,6 +49,32 @@ export const SigningSessionPage = () => {
     signingSession && !isErrorResponse(signingSession)
       ? (signingSession.invoice_snapshot as unknown as Invoices)
       : null;
+
+  // An expired link (the document was sent again or signed) leads to the
+  // up-to-date version of the document
+  const isExpired =
+    !!signingSession &&
+    !isErrorResponse(signingSession) &&
+    signingSession.expired;
+  const { data: latestSession, isLoading: isLoadingLatestSession } = useQuery({
+    queryKey: ["signing-session-latest", sessionID, signToken],
+    queryFn: () =>
+      SigningSessionsApiClient.getLatestSigningSession(
+        sessionID ?? "",
+        signToken,
+      ),
+    enabled: isExpired,
+  });
+
+  const openLatestSession = () => {
+    if (!latestSession?.id) return;
+    navigate(
+      getRoute(ROUTES.SignDocumentView, { session: latestSession.id }) +
+        (latestSession.token
+          ? `?token=${encodeURIComponent(latestSession.token)}`
+          : ""),
+    );
+  };
 
   useEffect(() => {
     setOptions(
@@ -121,6 +150,21 @@ export const SigningSessionPage = () => {
 
     return (
       <div className={`flex ${isMobile ? "flex-col" : "flex-col"} gap-2`}>
+        {isExpired && latestSession?.id && (
+          <Button className={buttonClasses} onClick={openLatestSession}>
+            {latestSession.state === "signed"
+              ? "Voir la version signée"
+              : "Accéder à la version à jour"}
+          </Button>
+        )}
+
+        {isExpired && !isLoadingLatestSession && !latestSession?.id && (
+          <Info className="block">
+            Ce lien n'est plus valide. Contactez l'émetteur du document pour en
+            recevoir un nouveau.
+          </Info>
+        )}
+
         {signingSession?.state === "signed" && false && (
           <Button
             className={buttonClasses}

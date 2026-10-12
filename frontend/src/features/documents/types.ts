@@ -12,5 +12,12 @@ export type SigningSession = {
   document_url: string;
   signing_url: string;
   expired: boolean;
+  links_revoked?: boolean;
   linventaire_signature?: boolean;
+};
+
+export type LatestSigningSession = {
+  id: string | null;
+  state?: string;
+  token?: string;
 };

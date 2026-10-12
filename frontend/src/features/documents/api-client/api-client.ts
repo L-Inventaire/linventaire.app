@@ -1,5 +1,5 @@
 import { fetchServer } from "@features/utils/fetch-server";
-import { SigningSession } from "../types";
+import { LatestSigningSession, SigningSession } from "../types";
 import { StandardOrErrorResponse } from "@features/utils/rest/types/types";
 import { InvoiceLine } from "@features/invoices/types/types";
 
@@ -15,16 +15,36 @@ export class SigningSessionsApiClient {
     return data as SigningSession;
   };
 
+  static getLatestSigningSession = async (
+    id: string,
+    token?: string
+  ): Promise<LatestSigningSession> => {
+    const response = await fetchServer(
+      "/api/signing-sessions/v1/" + id + "/latest",
+      {
+        method: "POST",
+        body: JSON.stringify({ token }),
+      }
+    );
+
+    const data = await response.json();
+    return data as LatestSigningSession;
+  };
+
   static async sendInvoice(
     clientId: string,
     id: string,
-    recipients: { email: string; role: "signer" | "viewer" }[]
+    recipients: { email: string; role: "signer" | "viewer" }[],
+    options: { revokePreviousLinks?: boolean } = {}
   ) {
     const response = await fetchServer(
       `/api/signing-sessions/v1/${clientId}/send-invoice/${id}`,
       {
         method: "POST",
-        body: JSON.stringify({ recipients }),
+        body: JSON.stringify({
+          recipients,
+          revoke_previous_links: !!options.revokePreviousLinks,
+        }),
       }
     );
 

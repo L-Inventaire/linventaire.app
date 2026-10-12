@@ -126,7 +126,8 @@ export default class SigningSessionService
     ctx: Context,
     invoiceID: string,
     recipients: Recipient[],
-    reuseExistingSession = false
+    reuseExistingSession = false,
+    options: { revokePreviousLinks?: boolean } = {}
   ) {
     const db = await platform.Db.getService();
     const invoice = await db.selectOne<Invoices>(
@@ -206,9 +207,12 @@ export default class SigningSessionService
       }
     }
 
-    // If we are sending the invoice again, we must expire other sessions
+    // If we are sending the invoice again, we must expire other sessions. Unless
+    // the sender revokes them, their links still lead to the latest version.
     if (resultingSigningSessions.length > 0) {
-      await expireOtherSigningSessions(ctx, resultingSigningSessions);
+      await expireOtherSigningSessions(ctx, resultingSigningSessions, {
+        revokeLinks: options.revokePreviousLinks,
+      });
     }
 
     return {
