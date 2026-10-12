@@ -88,30 +88,27 @@ export const VerifyEmail = (props: {
     clearTimeout(verifyEmailTimeout);
     setHasTimeout(false);
     setIsLoading(true);
-    const grecaptcha = (window as any).grecaptcha.enterprise;
-    grecaptcha.ready(async () => {
-      try {
-        const captchaValidation = await getCaptchaToken("email");
+    try {
+      const captchaValidation = await getCaptchaToken("email");
 
-        const data = await AuthApiClient.requestEmailMFA(
-          email,
-          captchaValidation
-        );
-        if (data.success) {
-          setChallenge(data);
-          verifyEmailTimeout = setTimeout(() => {
-            setHasTimeout(true);
-          }, 15000);
-        } else {
-          throw new Error("An error occured");
-        }
-      } catch (err) {
-        console.error(err);
-        setHasError(true);
+      const data = await AuthApiClient.requestEmailMFA(
+        email,
+        captchaValidation
+      );
+      if (data.success) {
+        setChallenge(data);
+        verifyEmailTimeout = setTimeout(() => {
+          setHasTimeout(true);
+        }, 15000);
+      } else {
+        throw new Error("An error occured");
       }
+    } catch (err) {
+      console.error(err);
+      setHasError(true);
+    }
 
-      setIsLoading(false);
-    });
+    setIsLoading(false);
   };
 
   return (

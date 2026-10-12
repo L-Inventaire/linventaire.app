@@ -30,34 +30,32 @@ export const SignUp = () => {
 
   const submit = async () => {
     setLoading(true);
-    const grecaptcha = (window as any).grecaptcha.enterprise;
-    grecaptcha.ready(async () => {
-      const captchaValidation = await getCaptchaToken("signup");
+    // A missing token is refused by the server, with the error below
+    const captchaValidation = await getCaptchaToken("signup").catch(() => "");
 
-      if (emailValidation) {
-        try {
-          await CustomersApiClient.createAccount(
-            captchaValidation,
-            emailValidation,
-            undefined,
-            name,
-          );
-          if (imageBase64) {
-            await CustomersApiClient.setPreferences({
-              avatar: imageBase64,
-            });
-          }
-        } catch (e: any) {
-          console.error(e);
-          toast.error(t("signin.signup.error"));
-          navigate(ROUTES.Login);
-        } finally {
-          await login(emailValidation);
+    if (emailValidation) {
+      try {
+        await CustomersApiClient.createAccount(
+          captchaValidation,
+          emailValidation,
+          undefined,
+          name,
+        );
+        if (imageBase64) {
+          await CustomersApiClient.setPreferences({
+            avatar: imageBase64,
+          });
         }
+      } catch (e: any) {
+        console.error(e);
+        toast.error(t("signin.signup.error"));
+        navigate(ROUTES.Login);
+      } finally {
+        await login(emailValidation);
       }
+    }
 
-      setLoading(false);
-    });
+    setLoading(false);
   };
 
   return (

@@ -7,6 +7,14 @@ export type Logger = {
   warn: (context: null | Context, message: string, more?: any) => void;
 };
 
+const clearSensible = (o: string) => {
+  if (!o || typeof o !== "string") return o;
+  return o.replace(
+    /((password|key|secret|cvv|ccv|number|phone)[^"]*)":"[^"]+"/gim,
+    '$1":"***"'
+  );
+};
+
 export default class LoggerDb implements PlatformService {
   private logs: {
     timestamp: number;
@@ -86,32 +94,22 @@ export default class LoggerDb implements PlatformService {
       lastLog.message,
       JSON.stringify(lastLog.more) || ""
     );
-  }
 
-  async flush() {
-    const clearSensible = (o: string) => {
-      if (!o || typeof o !== "string") return o;
-      return o.replace(
-        /((password|key|secret|cvv|ccv|number|phone)[^"]*)":"[^"]+"/gim,
-        '$1":"***"'
-      );
-    };
-
-    //Clear logs from anything looking like a password
+    // Clear the log from anything looking like a password (once per log, not
+    // for every pending log at each new log)
     try {
-      this.logs = this.logs.map((log) => {
-        log.message = log.message
-          ? JSON.parse(clearSensible(JSON.stringify(log.message)))
-          : log.message;
-        log.more = log.more
-          ? JSON.parse(clearSensible(JSON.stringify(log.more)))
-          : log.more;
-        return log;
-      });
+      lastLog.message = lastLog.message
+        ? JSON.parse(clearSensible(JSON.stringify(lastLog.message)))
+        : lastLog.message;
+      lastLog.more = lastLog.more
+        ? JSON.parse(clearSensible(JSON.stringify(lastLog.more)))
+        : lastLog.more;
     } catch (e: any) {
       console.error(e);
     }
+  }
 
+  async flush() {
     clearTimeout(this.flushTimeout);
     if (this.logs.length > 0) {
       this.flushTimeout = setTimeout(() => {

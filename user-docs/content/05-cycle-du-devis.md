@@ -60,7 +60,7 @@ Autres possibilités du menu **Envoyer** :
 Dans l'activité du devis, une icône indique pour chaque destinataire si l'email est bien arrivé. Tant que le client n'a pas répondu, un rappel lui est envoyé automatiquement chaque semaine, 3 fois au maximum.
 
 > [!NOTE]
-> Besoin de modifier un devis déjà envoyé ? Menu **…** › **Retourner en brouillon**, faites vos modifications, puis **Envoyer de nouveau...**. Les liens de signature précédents expirent.
+> Besoin de modifier un devis déjà envoyé ? Menu **…** › **Retourner en brouillon**, faites vos modifications, puis **Envoyer de nouveau...**. Les liens de signature précédents expirent : un client qui ouvre un ancien lien voit un bouton **Accéder à la version à jour** (ou **Voir la version signée**). Cochez **Invalider les liens envoyés précédemment** dans la fenêtre d'envoi pour qu'ils ne mènent plus nulle part, par exemple si un email est parti à la mauvaise personne.
 
 ## Devis signé ou refusé
 

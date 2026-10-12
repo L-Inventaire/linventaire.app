@@ -72,30 +72,27 @@ export const VerifyPhone = (props: {
     clearTimeout(verifyPhoneTimeout);
     setHasTimeout(false);
     setIsLoading(true);
-    const grecaptcha = (window as any).grecaptcha.enterprise;
-    grecaptcha.ready(async () => {
-      try {
-        const captchaValidation = await getCaptchaToken("phone");
+    try {
+      const captchaValidation = await getCaptchaToken("phone");
 
-        const data = await AuthApiClient.requestPhoneMFA(
-          phone,
-          captchaValidation
-        );
-        if (data.success) {
-          setChallenge(data);
-          verifyPhoneTimeout = setTimeout(() => {
-            setHasTimeout(true);
-          }, 10000);
-        } else {
-          throw new Error("An error occured");
-        }
-      } catch (err) {
-        console.error(err);
-        setHasError(true);
+      const data = await AuthApiClient.requestPhoneMFA(
+        phone,
+        captchaValidation
+      );
+      if (data.success) {
+        setChallenge(data);
+        verifyPhoneTimeout = setTimeout(() => {
+          setHasTimeout(true);
+        }, 10000);
+      } else {
+        throw new Error("An error occured");
       }
+    } catch (err) {
+      console.error(err);
+      setHasError(true);
+    }
 
-      setIsLoading(false);
-    });
+    setIsLoading(false);
   };
 
   return (

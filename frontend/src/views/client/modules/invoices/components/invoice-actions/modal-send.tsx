@@ -48,6 +48,7 @@ export const InvoiceSendModalContent = ({
   const [newEmail, setNewEmail] = useState<string>("");
   const [finalState, setFinalState] = useState<"sent" | "draft">("sent");
   const [isSending, setIsSending] = useState(false);
+  const [revokePreviousLinks, setRevokePreviousLinks] = useState(false);
 
   const client = useContact(draft?.client);
   const contact = useContact(draft?.contact);
@@ -182,6 +183,18 @@ export const InvoiceSendModalContent = ({
         </Button>
       </div>
 
+      <div className="mt-4">
+        <Checkbox
+          label="Invalider les liens envoyés précédemment"
+          value={revokePreviousLinks}
+          onChange={setRevokePreviousLinks}
+        />
+        <Info className="block mt-1">
+          Sinon, les liens des envois précédents mènent à cette nouvelle
+          version (pour les mêmes destinataires).
+        </Info>
+      </div>
+
       <ModalHr />
 
       <div className="text-right mt-4 m-grid-1">
@@ -221,6 +234,7 @@ export const InvoiceSendModalContent = ({
                 clientId,
                 draft.id,
                 draft.recipients ?? [],
+                { revokePreviousLinks },
               );
 
               onClose();
