@@ -18,11 +18,12 @@ export type CacheConfig = {
 export default class CacheService implements PlatformService {
   private logger = Framework.LoggerDb.get("cache");
   private config: CacheConfig = {
+    // Not "users": roles are set directly in database (SYSADMIN, DISABLED)
+    // and must be read fresh at login
     cachedEntities: [
       "clients",
       "clients_users",
       "fields",
-      "users",
       "e_invoicing_config",
     ],
     defaultTTL: 2592000, // 30 jours (invalidation auto sur insert/update/delete)
@@ -31,7 +32,6 @@ export default class CacheService implements PlatformService {
       clients: 2592000, // 30 jours
       clients_users: 2592000,
       fields: 2592000,
-      users: 2592000,
       e_invoicing_config: 2592000,
     },
   };
