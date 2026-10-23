@@ -1,5 +1,5 @@
 # Stage 1: Build the server
-FROM node:20-alpine
+FROM node:24-alpine
 
 ARG SENTRY_AUTH_TOKEN
 
