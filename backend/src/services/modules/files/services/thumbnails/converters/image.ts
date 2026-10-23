@@ -1,4 +1,4 @@
-import sharp from "sharp";
+import sharp, { Metadata, OutputInfo } from "sharp";
 import { cleanFiles, getTmpFile } from "../service";
 
 export type ThumbnailResult = {
@@ -26,7 +26,7 @@ export async function generatePreview(
   const output: ThumbnailResult[] = [];
 
   for (const inputBuffer of inputs) {
-    let result: sharp.OutputInfo;
+    let result: OutputInfo;
     const outputPath = getTmpFile();
     try {
       const inputMetadata = await sharp(inputBuffer).metadata();
@@ -56,7 +56,7 @@ export async function generatePreview(
 }
 
 function computeNewFormat(
-  inputMetadata: sharp.Metadata,
+  inputMetadata: Metadata,
   options?: {
     width: number;
     height: number;
