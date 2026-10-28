@@ -119,3 +119,7 @@ export interface ReceivedEInvoices extends RestEntity {
   received_at: number;
   superpdp_created_at: number;
 }
+
+// Key of the invoice model (see withModel) holding the received e-invoice a
+// new supplier invoice is created from, to attach it once the invoice is saved
+export const RECEIVED_E_INVOICE_MODEL_KEY = "_received_e_invoice_id";

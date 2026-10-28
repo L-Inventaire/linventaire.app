@@ -5,7 +5,10 @@ import { useCurrentClient } from "@/features/clients/state/use-clients";
 import { Articles } from "@/features/articles/types/types";
 import { Contacts } from "@/features/contacts/types/types";
 import { useCtrlKAsSelect } from "@/features/ctrlk/use-ctrlk-as-select";
-import { ReceivedEInvoices } from "@/features/e-invoicing/types/types";
+import {
+  RECEIVED_E_INVOICE_MODEL_KEY,
+  ReceivedEInvoices,
+} from "@/features/e-invoicing/types/types";
 import { Invoices } from "@/features/invoices/types/types";
 import { fetchServer } from "@/features/utils/fetch-server";
 import { useRest } from "@/features/utils/rest/hooks/use-rest";
@@ -172,6 +175,8 @@ export const ReceivedEInvoiceActions = ({
         withModel<Invoices>(getRoute(ROUTES.InvoicesEdit, { id: "new" }), {
           ...data.invoice,
           ...(asQuote ? { type: "supplier_quotes" } : {}),
+          // Attaches this e-invoice to the supplier invoice once it is saved
+          [RECEIVED_E_INVOICE_MODEL_KEY]: id,
         }),
       );
     } catch (error: any) {
