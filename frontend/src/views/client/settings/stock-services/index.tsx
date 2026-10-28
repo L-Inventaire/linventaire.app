@@ -1,5 +1,5 @@
 import { Button } from "@atoms/button/button";
-import { Section } from "@atoms/text";
+import { Info, Section } from "@atoms/text";
 import { RestDocumentsInput } from "@components/input-rest";
 import { useHasAccess } from "@features/access";
 import { Articles } from "@features/articles/types/types";
@@ -62,7 +62,38 @@ export const StockAndServicesPreferences = () => {
                 value={serviceItems?.default_article}
                 onChange={(value) => {
                   setServiceItems({
+                    ...serviceItems,
                     default_article: value,
+                  });
+                }}
+                className="flex"
+                entity={"articles"}
+                size="lg"
+                icon={(p, article) =>
+                  getArticleIcon((article as Articles)?.type)(p)
+                }
+              />
+
+              <Section className="block mt-8 mb-2">Article par défaut</Section>
+              <Info className="block mb-4">
+                Utilisé pour les lignes des factures électroniques reçues qui ne
+                correspondent à aucun article. La ligne garde le libellé et le
+                prix de la facture et n'est pas liée au stock.
+              </Info>
+
+              {!client?.service_items?.unknown_article && (
+                <Callout.Root color="orange" className="mb-4">
+                  Aucun article par défaut n'a été défini
+                </Callout.Root>
+              )}
+
+              <RestDocumentsInput
+                disabled={readonly}
+                value={serviceItems?.unknown_article}
+                onChange={(value) => {
+                  setServiceItems({
+                    ...serviceItems,
+                    unknown_article: value,
                   });
                 }}
                 className="flex"

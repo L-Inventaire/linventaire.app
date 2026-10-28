@@ -171,6 +171,7 @@ export const createClient = async (ctx: Context, body: Partial<Clients>) => {
       } as InvoiceFormat,
       service_items: {
         default_article: "",
+        unknown_article: "",
       },
       smtp: {} as any,
       security: { ip_restriction: { enabled: false, allowed_ips: [] } },
@@ -240,7 +241,7 @@ export const createClient = async (ctx: Context, body: Partial<Clients>) => {
       ctx,
       ClientsDefinition.name,
       { id: client.id },
-      { service_items: { default_article: new_article_id } }
+      { service_items: { default_article: new_article_id, unknown_article: "" } }
     );
 
     return (await getClients(ctx)).find((c) => c.client_id === client.id);

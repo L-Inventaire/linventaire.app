@@ -23,7 +23,7 @@ const getStateLabel = (state: ReceivedEInvoices["state"]) => {
     case "new":
       return "Nouveau";
     case "rejected":
-      return "Rejeté";
+      return "Ignorée";
     case "attached":
       return "Rattaché";
     default:

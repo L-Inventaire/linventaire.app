@@ -37,7 +37,7 @@ export const ReceivedEInvoicesPage = () => {
       filter: buildQueryFromMap({ state: "attached" }),
     },
     rejected: {
-      label: "Rejetés",
+      label: "Ignorées",
       filter: buildQueryFromMap({ state: "rejected" }),
     },
   };

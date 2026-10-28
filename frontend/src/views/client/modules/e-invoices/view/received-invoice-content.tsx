@@ -114,6 +114,8 @@ const ArticleMatchLine = ({
           {reference
             ? `Réf. fournisseur: ${reference}`
             : "Pas de référence fournisseur"}
+          {" — "}sans article, la ligne sera créée avec l'article par défaut
+          (non liée au stock)
         </p>
       )}
     </div>
@@ -154,9 +156,11 @@ export const ReceivedEInvoiceContent = ({
     }
   }, [contacts.data?.list, setSupplier]);
 
-  // Find matching invoice
+  // Find matching invoice: same supplier, close amount and close date
   const minAmount = invoice ? invoice.total_amount * 0.9 : 0;
   const maxAmount = invoice ? invoice.total_amount * 1.1 : 0;
+  const issueDate = new Date(invoice?.issue_date || 0).getTime();
+  const matchingDays = 45 * 24 * 60 * 60 * 1000;
 
   const { invoices: matchingInvoices } = useInvoices({
     query: invoice?.supplier_invoice_id
@@ -169,11 +173,18 @@ export const ReceivedEInvoiceContent = ({
               type: ["supplier_invoices", "supplier_credit_notes"],
               supplier: supplier.id,
             }),
+            // Values of a key are OR-ed: use a range, not gte + lte
             {
               key: "total.total",
+              values: [{ op: "range" as const, value: [minAmount, maxAmount] }],
+            },
+            {
+              key: "emit_date",
               values: [
-                { op: "gte" as const, value: minAmount },
-                { op: "lte" as const, value: maxAmount },
+                {
+                  op: "range" as const,
+                  value: [issueDate - matchingDays, issueDate + matchingDays],
+                },
               ],
             },
           ]

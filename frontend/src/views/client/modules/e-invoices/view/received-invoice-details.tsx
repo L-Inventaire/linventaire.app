@@ -1,7 +1,11 @@
+import { Unit } from "@atoms/input/input-unit";
 import { ReceivedEInvoices } from "@/features/e-invoicing/types/types";
+import { normalizeUnitCode } from "@shared/consts";
 import { formatAmount, formatNumber } from "@/features/utils/format/strings";
+import { ExclamationTriangleIcon } from "@heroicons/react/24/solid";
 import { Badge } from "@radix-ui/themes";
 import { format } from "date-fns";
+import _ from "lodash";
 import { fr } from "date-fns/locale";
 
 export const ReceivedEInvoiceDetails = ({
@@ -41,11 +45,26 @@ export const ReceivedEInvoiceDetails = ({
       case "attached":
         return { label: "Rattaché", color: "green" as const };
       case "rejected":
-        return { label: "Rejeté", color: "red" as const };
+        return { label: "Ignorée", color: "red" as const };
     }
   };
 
   const stateInfo = getStateLabel(invoice.state);
+
+  // Document-level allowances and charges (BG-20 / BG-21), e.g. shipping or
+  // eco-participation: they are part of the total but not of the lines
+  const amount = (value?: string) => parseFloat(value || "0") || 0;
+  const linesTotal = _.sumBy(enInvoice.lines, (line) =>
+    amount(line.net_amount),
+  );
+  const allowances = enInvoice.document_level_allowances || [];
+  const charges = enInvoice.charges || [];
+  const computedTotal =
+    linesTotal -
+    _.sumBy(allowances, (a) => amount(a.amount)) +
+    _.sumBy(charges, (c) => amount(c.amount));
+  const totalGap =
+    Math.round((invoice.total_amount - computedTotal) * 100) / 100;
 
   return (
     <div className="space-y-6">
@@ -175,9 +194,10 @@ export const ReceivedEInvoiceDetails = ({
               <tr>
                 <th className="px-6 py-3 text-left">Description</th>
                 <th className="px-6 py-3 text-right">Quantité</th>
-                <th className="px-6 py-3 text-right">Prix unitaire</th>
+                <th className="px-6 py-3 text-right">Prix unitaire HT</th>
                 <th className="px-6 py-3 text-right">TVA</th>
-                <th className="px-6 py-3 text-right">Montant</th>
+                <th className="px-6 py-3 text-right">Total HT</th>
+                <th className="px-6 py-3 text-right">Total TTC</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
@@ -201,15 +221,39 @@ export const ReceivedEInvoiceDetails = ({
                           Réf: {line.item_information.seller_identifier}
                         </p>
                       )}
+                      {(line.allowances || []).map((a, i) => (
+                        <p
+                          key={"a" + i}
+                          className="text-xs text-slate-500 dark:text-slate-500 mt-1"
+                        >
+                          Remise {a.reason || a.reason_code || ""} : -
+                          {formatAmount(a.amount, invoice.currency_code)}
+                        </p>
+                      ))}
+                      {(line.charges || []).map((c, i) => (
+                        <p
+                          key={"c" + i}
+                          className="text-xs text-slate-500 dark:text-slate-500 mt-1"
+                        >
+                          Frais {c.reason || c.reason_code || ""} : +
+                          {formatAmount(c.amount, invoice.currency_code)}
+                        </p>
+                      ))}
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-6 py-4 text-right whitespace-nowrap">
                     {formatNumber(line.invoiced_quantity)}{" "}
-                    {line.invoiced_quantity_code}
+                    <Unit
+                      unit={normalizeUnitCode(line.invoiced_quantity_code)}
+                    />
                   </td>
                   <td className="px-6 py-4 text-right">
                     {formatAmount(
-                      line.price_details.item_net_price,
+                      // The net price is given for a base quantity (BT-149)
+                      parseFloat(line.price_details.item_net_price) /
+                        (parseFloat(
+                          line.price_details.item_price_base_quantity || "1",
+                        ) || 1),
                       invoice.currency_code,
                     )}
                   </td>
@@ -218,8 +262,21 @@ export const ReceivedEInvoiceDetails = ({
                       ? `${line.vat_information.invoiced_item_vat_rate}%`
                       : line.vat_information.invoiced_item_vat_category_code}
                   </td>
-                  <td className="px-6 py-4 text-right font-medium">
+                  <td className="px-6 py-4 text-right">
                     {formatAmount(line.net_amount, invoice.currency_code)}
+                  </td>
+                  <td className="px-6 py-4 text-right font-medium">
+                    {formatAmount(
+                      line.line_with_vat_net_amount ||
+                        parseFloat(line.net_amount) *
+                          (1 +
+                            parseFloat(
+                              line.vat_information.invoiced_item_vat_rate ||
+                                "0",
+                            ) /
+                              100),
+                      invoice.currency_code,
+                    )}
                   </td>
                 </tr>
               ))}
@@ -231,6 +288,50 @@ export const ReceivedEInvoiceDetails = ({
       {/* Totals Section */}
       <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
         <div className="max-w-md ml-auto space-y-3">
+          {(allowances.length > 0 || charges.length > 0) && (
+            <>
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-600 dark:text-slate-400">
+                  Total des lignes HT:
+                </span>
+                <span className="font-medium">
+                  {formatAmount(linesTotal, invoice.currency_code)}
+                </span>
+              </div>
+              {allowances.map((a, i) => (
+                <div key={"a" + i} className="flex justify-between text-sm">
+                  <span className="text-slate-600 dark:text-slate-400">
+                    Remise {a.reason || a.reason_code || ""} (TVA{" "}
+                    {a.vat_rate ? `${a.vat_rate}%` : a.vat_category_code}):
+                  </span>
+                  <span className="font-medium">
+                    -{formatAmount(a.amount, invoice.currency_code)}
+                  </span>
+                </div>
+              ))}
+              {charges.map((c, i) => (
+                <div key={"c" + i} className="flex justify-between text-sm">
+                  <span className="text-slate-600 dark:text-slate-400">
+                    {c.reason || c.reason_code || "Frais"} (TVA{" "}
+                    {c.vat_rate ? `${c.vat_rate}%` : c.vat_category_code}):
+                  </span>
+                  <span className="font-medium">
+                    +{formatAmount(c.amount, invoice.currency_code)}
+                  </span>
+                </div>
+              ))}
+            </>
+          )}
+          {Math.abs(totalGap) >= 0.01 && (
+            <div className="flex items-start gap-2 p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md text-xs text-amber-800 dark:text-amber-200">
+              <ExclamationTriangleIcon className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <p>
+                Le total HT de la facture diffère de{" "}
+                {formatAmount(totalGap, invoice.currency_code)} de la somme des
+                lignes, remises et frais transmis : vérifiez le document créé.
+              </p>
+            </div>
+          )}
           <div className="flex justify-between text-sm">
             <span className="text-slate-600 dark:text-slate-400">
               Total HT:

@@ -4,7 +4,7 @@ import { remove, search } from "#src/services/rest/services/rest";
 import { Ctx } from "#src/services/utils";
 import { Router } from "express";
 import { checkClientRoles, checkRole } from "../../common";
-import { ArticlesDefinition } from "../articles/entities/articles";
+import Articles, { ArticlesDefinition } from "../articles/entities/articles";
 import Contacts, { ContactsDefinition } from "../contacts/entities/contacts";
 import {
   EInvoicingConfig,
@@ -417,7 +417,8 @@ export default (router: Router) => {
         if (!ctx) throw new Error("No context");
 
         const { id } = req.params;
-        const { supplier_id, article_mappings } = req.body;
+        const { supplier_id, article_mappings, default_article_id } =
+          req.body;
         const db = await Framework.Db.getService();
 
         // Validate supplier_id is provided
@@ -504,10 +505,9 @@ export default (router: Router) => {
                 );
 
                 if (invoiceLine) {
-                  articleMatches.set(
-                    invoiceLine.item_information.name,
-                    article
-                  );
+                  // Keyed by line so two lines with the same name or
+                  // reference can be matched to different articles
+                  articleMatches.set(invoiceLine.identifier, article);
                 }
               }
             }
@@ -520,10 +520,22 @@ export default (router: Router) => {
           throw new Error("Client not found");
         }
 
+        // Article used for the lines without match, sent once the user
+        // confirmed it (prefilled with service_items.unknown_article)
+        const defaultArticle =
+          default_article_id && typeof default_article_id === "string"
+            ? (await db.selectOne<Articles>(ctx, ArticlesDefinition.name, {
+                id: default_article_id,
+                client_id: ctx.client_id,
+                is_deleted: false,
+              })) || undefined
+            : undefined;
+
         // Convert EN16931 to internal format
         const resolvedEntities = {
           supplier,
           articles: articleMatches,
+          defaultArticle,
           self: client,
         };
 
