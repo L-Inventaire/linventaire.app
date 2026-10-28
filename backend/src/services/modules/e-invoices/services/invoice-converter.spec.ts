@@ -771,4 +771,107 @@ describe("convertEN16931ToInternal - received invoices", () => {
     );
     expect(invoice.content?.[0].tva).toBe("S:10");
   });
+
+  test("keeps the charges only given in the totals", () => {
+    // Ingram Micro: sum_charges_amount without charges nor VAT breakdown
+    const articles = new Map<string, Articles>();
+    articles.set("001", { id: "dock", type: "product" } as Articles);
+    articles.set("002", { id: "riser", type: "product" } as Articles);
+    const invoice = convertEN16931ToInternal(
+      {
+        ...buildEnInvoice([
+          buildLine("001", {
+            invoiced_quantity: "1.0000",
+            net_amount: "100.77",
+            price_details: { item_net_price: "100.770000" },
+            vat_information: {
+              invoiced_item_vat_category_code: "S",
+              invoiced_item_vat_rate: "20.00",
+            },
+          }),
+          buildLine("002", {
+            invoiced_quantity: "20.0000",
+            net_amount: "380.60",
+            price_details: { item_net_price: "19.030000" },
+            vat_information: {
+              invoiced_item_vat_category_code: "S",
+              invoiced_item_vat_rate: "20.00",
+            },
+          }),
+        ]),
+        vat_break_down: [],
+        totals: {
+          total_with_vat: "614.91",
+          total_vat_amount: { value: "102.48", currency_code: "EUR" },
+          total_without_vat: "512.43",
+          sum_charges_amount: "31.06",
+          amount_due_for_payment: "614.91",
+          sum_invoice_lines_amount: "481.37",
+        },
+      } as unknown as EN16931Invoice,
+      entities(articles),
+      "in",
+      ctx,
+    );
+    expect(invoice.content?.[2]).toMatchObject({
+      article: "",
+      type: "service",
+      name: "Frais non détaillés dans la facture électronique",
+      quantity: 1,
+      unit_price: 31.06,
+      tva: "S:20",
+    });
+    const total = computePricesFromInvoice(invoice as Invoices);
+    expect(total.total).toBe(512.43);
+    // The supplier rounds the VAT per line (102.48 instead of 102.49)
+    expect(Math.abs(total.total_with_taxes - 614.91)).toBeLessThanOrEqual(0.01);
+  });
+
+  test("uses the VAT breakdown to know the rate of the missing amounts", () => {
+    const articles = new Map<string, Articles>();
+    articles.set("1", { id: "tyre", type: "product" } as Articles);
+    const invoice = convertEN16931ToInternal(
+      {
+        ...buildEnInvoice([buildLine("1")]),
+        vat_break_down: [
+          {
+            vat_category_code: "S",
+            vat_category_rate: "20",
+            vat_category_taxable_amount: "400",
+            vat_category_tax_amount: "80",
+          },
+          {
+            vat_category_code: "S",
+            vat_category_rate: "5.5",
+            vat_category_taxable_amount: "10",
+            vat_category_tax_amount: "0.55",
+          },
+        ],
+      } as unknown as EN16931Invoice,
+      entities(articles),
+      "in",
+      ctx,
+    );
+    expect(invoice.content).toHaveLength(2);
+    expect(invoice.content?.[1]).toMatchObject({
+      unit_price: 10,
+      tva: "S:5.5",
+    });
+  });
+
+  test("adds nothing when the details match the totals", () => {
+    const articles = new Map<string, Articles>();
+    articles.set("1", { id: "tyre", type: "product" } as Articles);
+    const invoice = convertEN16931ToInternal(
+      {
+        ...buildEnInvoice([buildLine("1")]),
+        vat_break_down: [],
+        totals: { total_without_vat: "400.00" },
+      } as unknown as EN16931Invoice,
+      entities(articles),
+      "in",
+      ctx,
+    );
+    expect(invoice.content).toHaveLength(1);
+  });
 });
