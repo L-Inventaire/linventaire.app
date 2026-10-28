@@ -10,12 +10,21 @@ import { Invoices } from "@/features/invoices/types/types";
 import { fetchServer } from "@/features/utils/fetch-server";
 import { useRest } from "@/features/utils/rest/hooks/use-rest";
 import { ArrowLeftIcon } from "@heroicons/react/16/solid";
-import { CheckIcon, PlusIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import {
+  CheckIcon,
+  ExclamationTriangleIcon,
+  PlusIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { getRoute, ROUTES } from "@/features/routes";
 import { withModel } from "@/components/search-bar/utils/as-model";
 import { useNavigateAlt } from "@/features/utils/navigate";
+import Link from "@atoms/link";
+import { Modal, ModalContent } from "@atoms/modal/modal";
+import { RestDocumentsInput } from "@components/input-rest";
+import { getArticleIcon } from "@views/client/modules/articles/components/article-icon";
 
 export const ReceivedEInvoiceActions = ({
   id,
@@ -37,8 +46,17 @@ export const ReceivedEInvoiceActions = ({
   const { client } = useCurrentClient();
   const [isCreating, setIsCreating] = useState(false);
   const navigate = useNavigateAlt();
+  // Set when some lines match no article, until the user confirms the default article
+  const [pendingCreation, setPendingCreation] = useState<{
+    asQuote: boolean;
+  } | null>(null);
+  const [defaultArticleId, setDefaultArticleId] = useState("");
 
   const canProcessInvoice = supplier && isSupplierValid && areArticlesValid;
+
+  const unmatchedLines = (invoice.en_invoice?.lines || []).filter(
+    (line) => !articleMatches[line.identifier],
+  );
 
   const handleReject = () => {
     if (!id) return;
@@ -88,7 +106,17 @@ export const ReceivedEInvoiceActions = ({
     );
   };
 
-  const handleCreate = async (asQuote: boolean = true) => {
+  const handleCreate = (asQuote: boolean = true) => {
+    if (!id || isCreating || !canProcessInvoice || !supplier) return;
+    if (unmatchedLines.length) {
+      setDefaultArticleId(client?.service_items?.unknown_article || "");
+      setPendingCreation({ asQuote });
+      return;
+    }
+    convert(asQuote);
+  };
+
+  const convert = async (asQuote: boolean, defaultArticle?: string) => {
     if (!id || isCreating || !canProcessInvoice || !supplier) return;
 
     setIsCreating(true);
@@ -108,6 +136,7 @@ export const ReceivedEInvoiceActions = ({
           body: JSON.stringify({
             supplier_id: supplier.id,
             article_mappings,
+            default_article_id: defaultArticle || "",
           }),
         },
       );
@@ -156,12 +185,12 @@ export const ReceivedEInvoiceActions = ({
             theme="outlined"
             onClick={handleReject}
             icon={(p) => <XMarkIcon {...p} />}
-            confirmTitle="Rejeter la facture électronique ?"
-            confirmMessage="Cette action marquera la facture comme rejetée. Vous pourrez la traiter à nouveau plus tard si nécessaire."
+            confirmTitle="Ignorer la facture électronique ?"
+            confirmMessage="La facture sera simplement rangée dans l'onglet « Ignorées » (doublon, facture qui ne vous concerne pas...). Le fournisseur n'est pas prévenu et aucun refus n'est transmis à la plateforme de facturation électronique. Vous pourrez la traiter plus tard si nécessaire."
             confirmButtonTheme="danger"
-            confirmButtonText="Rejeter"
+            confirmButtonText="Ignorer"
           >
-            Rejeter
+            Ignorer
           </ButtonConfirm>
         )}
         {invoice.state !== "attached" && (
@@ -195,6 +224,67 @@ export const ReceivedEInvoiceActions = ({
           </>
         )}
       </div>
+
+      <Modal open={!!pendingCreation} onClose={() => setPendingCreation(null)}>
+        <ModalContent
+          icon={ExclamationTriangleIcon}
+          theme="warning"
+          title="Lignes sans article correspondant"
+          text={`${unmatchedLines.length > 1 ? `${unmatchedLines.length} lignes ne correspondent` : "Une ligne ne correspond"} à aucun article de votre catalogue. Elles peuvent être créées avec l'article par défaut : le libellé, la quantité et le prix de la facture sont conservés, mais elles ne seront pas liées au stock.`}
+        >
+          <ul className="mt-4 space-y-1 text-sm max-h-48 overflow-y-auto">
+            {unmatchedLines.map((line) => (
+              <li key={line.identifier} className="flex justify-between gap-2">
+                <span className="truncate">{line.item_information.name}</span>
+                {line.item_information.seller_identifier && (
+                  <span className="text-slate-500 shrink-0">
+                    Réf. {line.item_information.seller_identifier}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-4">
+            <RestDocumentsInput
+              label="Article par défaut"
+              placeholder="Sélectionner un article"
+              entity="articles"
+              size="lg"
+              value={defaultArticleId}
+              onChange={(value: string) => setDefaultArticleId(value || "")}
+              icon={(p, article) =>
+                getArticleIcon((article as Articles)?.type)(p)
+              }
+            />
+            {!client?.service_items?.unknown_article && (
+              <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                Vous pouvez définir l'article utilisé par défaut dans{" "}
+                <Link to={getRoute(ROUTES.SettingsStockServices)}>
+                  Paramètres &gt; Stock et services
+                </Link>
+                .
+              </p>
+            )}
+          </div>
+
+          <div className="mt-6 flex justify-end gap-2">
+            <Button theme="outlined" onClick={() => setPendingCreation(null)}>
+              Annuler
+            </Button>
+            <Button
+              disabled={!defaultArticleId}
+              onClick={() => {
+                const asQuote = pendingCreation?.asQuote ?? true;
+                setPendingCreation(null);
+                convert(asQuote, defaultArticleId);
+              }}
+            >
+              Créer avec l'article par défaut
+            </Button>
+          </div>
+        </ModalContent>
+      </Modal>
     </>
   );
 };

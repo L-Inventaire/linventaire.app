@@ -1,4 +1,6 @@
+import { Unit } from "@atoms/input/input-unit";
 import { ReceivedEInvoices } from "@/features/e-invoicing/types/types";
+import { normalizeUnitCode } from "@shared/consts";
 import { formatAmount, formatNumber } from "@/features/utils/format/strings";
 import { Badge } from "@radix-ui/themes";
 import { format } from "date-fns";
@@ -41,7 +43,7 @@ export const ReceivedEInvoiceDetails = ({
       case "attached":
         return { label: "Rattaché", color: "green" as const };
       case "rejected":
-        return { label: "Rejeté", color: "red" as const };
+        return { label: "Ignorée", color: "red" as const };
     }
   };
 
@@ -175,9 +177,10 @@ export const ReceivedEInvoiceDetails = ({
               <tr>
                 <th className="px-6 py-3 text-left">Description</th>
                 <th className="px-6 py-3 text-right">Quantité</th>
-                <th className="px-6 py-3 text-right">Prix unitaire</th>
+                <th className="px-6 py-3 text-right">Prix unitaire HT</th>
                 <th className="px-6 py-3 text-right">TVA</th>
-                <th className="px-6 py-3 text-right">Montant</th>
+                <th className="px-6 py-3 text-right">Total HT</th>
+                <th className="px-6 py-3 text-right">Total TTC</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
@@ -203,13 +206,19 @@ export const ReceivedEInvoiceDetails = ({
                       )}
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-6 py-4 text-right whitespace-nowrap">
                     {formatNumber(line.invoiced_quantity)}{" "}
-                    {line.invoiced_quantity_code}
+                    <Unit
+                      unit={normalizeUnitCode(line.invoiced_quantity_code)}
+                    />
                   </td>
                   <td className="px-6 py-4 text-right">
                     {formatAmount(
-                      line.price_details.item_net_price,
+                      // The net price is given for a base quantity (BT-149)
+                      parseFloat(line.price_details.item_net_price) /
+                        (parseFloat(
+                          line.price_details.item_price_base_quantity || "1",
+                        ) || 1),
                       invoice.currency_code,
                     )}
                   </td>
@@ -218,8 +227,21 @@ export const ReceivedEInvoiceDetails = ({
                       ? `${line.vat_information.invoiced_item_vat_rate}%`
                       : line.vat_information.invoiced_item_vat_category_code}
                   </td>
-                  <td className="px-6 py-4 text-right font-medium">
+                  <td className="px-6 py-4 text-right">
                     {formatAmount(line.net_amount, invoice.currency_code)}
+                  </td>
+                  <td className="px-6 py-4 text-right font-medium">
+                    {formatAmount(
+                      line.line_with_vat_net_amount ||
+                        parseFloat(line.net_amount) *
+                          (1 +
+                            parseFloat(
+                              line.vat_information.invoiced_item_vat_rate ||
+                                "0",
+                            ) /
+                              100),
+                      invoice.currency_code,
+                    )}
                   </td>
                 </tr>
               ))}

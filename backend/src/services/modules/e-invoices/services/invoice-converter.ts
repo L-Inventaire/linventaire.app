@@ -6,7 +6,7 @@ import {
   getContactName,
 } from "#src/services/utils";
 import { Context } from "#src/types";
-import { getUnitCode, getVatCode } from "@shared/consts";
+import { getUnitCode, getVatCode, normalizeUnitCode } from "@shared/consts";
 import {
   EN16931AllowanceOrCharge,
   EN16931Buyer,
@@ -88,7 +88,10 @@ export interface EN16931References {
 export interface ResolvedEntities {
   supplier?: Contacts; // Contact entity (for supplier invoices)
   client?: Contacts; // Contact entity (for client invoices)
-  articles: Map<string, Articles>; // Map of article name/reference to article entity
+  articles: Map<string, Articles>; // Map of line identifier, or article name/reference, to article entity
+  // Used for the lines without a matching article: the line keeps its own
+  // name and price and is converted to a service so it doesn't touch the stock
+  defaultArticle?: Articles;
   self: Clients;
 }
 
@@ -167,7 +170,10 @@ export function convertEN16931ToInternal(
       line.item_information.buyer_identifier ||
       line.item_information.name;
 
-    const article = resolvedEntities.articles.get(articleKey);
+    const matchedArticle =
+      resolvedEntities.articles.get(line.identifier) ||
+      resolvedEntities.articles.get(articleKey);
+    const article = matchedArticle || resolvedEntities.defaultArticle;
 
     if (!article) {
       throw new Error(
@@ -175,10 +181,20 @@ export function convertEN16931ToInternal(
       );
     }
 
-    // Parse VAT rate
+    // Parse VAT rate, the line rate is optional (BT-152): fallback on the
+    // breakdown of the same category when there is only one rate for it
+    const categoryCode = line.vat_information.invoiced_item_vat_category_code;
+    const categoryRates = _.uniq(
+      (en16931Invoice.vat_break_down || [])
+        .filter((vb) => vb.vat_category_code === categoryCode)
+        .map((vb) => vb.vat_category_rate)
+        .filter(Boolean)
+    );
     const vatFullCode = getVatCode(
-      line.vat_information.invoiced_item_vat_rate || "0",
-      line.vat_information.invoiced_item_vat_category_code
+      line.vat_information.invoiced_item_vat_rate ||
+        (categoryRates.length === 1 ? categoryRates[0] : "") ||
+        "0",
+      categoryCode
     );
 
     // Calculate discount from allowances/charges
@@ -207,13 +223,17 @@ export function convertEN16931ToInternal(
 
     const invoiceLine = {} as InvoiceLine;
     invoiceLine.article = article.id;
-    invoiceLine.type = article.type || "product";
+    invoiceLine.type = matchedArticle ? article.type || "product" : "service";
     invoiceLine.name = line.item_information.name;
     invoiceLine.reference = line.item_information.seller_identifier || "";
     invoiceLine.description = line.item_information.description || "";
-    invoiceLine.unit = line.invoiced_quantity_code;
+    invoiceLine.unit = normalizeUnitCode(line.invoiced_quantity_code);
     invoiceLine.quantity = parseFloat(line.invoiced_quantity);
-    invoiceLine.unit_price = parseFloat(line.price_details.item_net_price);
+    // The net price is given for a base quantity (BT-149), 1 by default
+    const baseQuantity =
+      parseFloat(line.price_details.item_price_base_quantity || "1") || 1;
+    invoiceLine.unit_price =
+      parseFloat(line.price_details.item_net_price) / baseQuantity;
     invoiceLine.tva = vatFullCode || "S:20";
     invoiceLine.discount = discount;
     invoiceLine.subscription = "";

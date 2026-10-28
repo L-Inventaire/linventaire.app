@@ -35,6 +35,30 @@ export const standardCodeToUnit: Record<string, string> = {
 };
 
 /**
+ * UN/ECE codes we don't offer but receive in e-invoices, mapped to the
+ * equivalent internal unit (C62 "one" and H87 "piece" are the most common)
+ */
+export const standardUnitAliases: Record<string, string> = {
+  C62: "EA", // one
+  H87: "EA", // piece
+  XPP: "EA", // piece (package)
+  NAR: "EA", // number of articles
+  NPR: "EA", // number of pairs
+  SET: "EA", // set
+};
+
+/**
+ * Convert a unit code received in an e-invoice to an internal unit code.
+ * Unknown codes are kept as is.
+ */
+export const normalizeUnitCode = (code?: string): string => {
+  const value = (code || "").trim().toUpperCase();
+  if (!value) return "EA";
+  if (standardCodeToUnit[value]) return value;
+  return standardUnitAliases[value] || value;
+};
+
+/**
  * Map standard VAT codes to internal VAT category keys (reverse lookup)
  * Used for parsing incoming e-invoices with standard VAT codes
  * Format: VAT category code : VAT exemption reason code
@@ -147,10 +171,16 @@ export const getVatCode = (value: string, category?: string): string | null => {
         ) || "O:VATEX-EU-O"
       );
     } else {
+      // Exact rate first: "S:2" is a prefix of "S:20", so 2.1% would become 20%
       return (
+        Object.keys(standardCodeToVatValue).find(
+          (key) =>
+            key.indexOf("S:") === 0 && standardCodeToVatValue[key] === rate,
+        ) ||
         Object.keys(standardCodeToVatCategory).find(
           (key) => key.indexOf("S:" + Math.floor(rate)) === 0,
-        ) || null
+        ) ||
+        null
       );
     }
   } catch (e) {
