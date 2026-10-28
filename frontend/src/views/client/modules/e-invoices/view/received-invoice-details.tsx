@@ -326,9 +326,10 @@ export const ReceivedEInvoiceDetails = ({
             <div className="flex items-start gap-2 p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md text-xs text-amber-800 dark:text-amber-200">
               <ExclamationTriangleIcon className="w-4 h-4 flex-shrink-0 mt-0.5" />
               <p>
-                Le total HT de la facture diffère de{" "}
-                {formatAmount(totalGap, invoice.currency_code)} de la somme des
-                lignes, remises et frais transmis : vérifiez le document créé.
+                {formatAmount(Math.abs(totalGap), invoice.currency_code)} HT{" "}
+                {totalGap > 0 ? "de frais" : "de remise"} ne sont détaillés dans
+                aucune ligne, remise ou frais transmis : ils seront repris sur
+                une ligne dédiée du document créé.
               </p>
             </div>
           )}

@@ -163,6 +163,13 @@ export function convertEN16931ToInternal(
     }
   }
 
+  // Net amounts of the e-invoice by VAT code, to check them against the
+  // VAT breakdown once the lines, allowances and charges are converted
+  const amountsByVat: Record<string, number> = {};
+  const addAmount = (vat: string, value?: string) =>
+    (amountsByVat[vat] =
+      (amountsByVat[vat] || 0) + (parseFloat(value || "0") || 0));
+
   // Convert invoice lines
   const content: InvoiceLine[] = en16931Invoice.lines.map((line) => {
     const articleKey =
@@ -245,6 +252,8 @@ export function convertEN16931ToInternal(
     invoiceLine.optional = false;
     invoiceLine.optional_checked = false;
 
+    addAmount(invoiceLine.tva, line.net_amount);
+
     return invoiceLine;
   });
 
@@ -258,6 +267,11 @@ export function convertEN16931ToInternal(
   ) {
     for (const allowance of en16931Invoice.document_level_allowances) {
       totalDocAllowanceAmount += parseFloat(allowance.amount || "0");
+      addAmount(
+        getVatCode(allowance.vat_rate || "0", allowance.vat_category_code) ||
+          "S:20",
+        `${-(parseFloat(allowance.amount || "0") || 0)}`
+      );
     }
   }
 
@@ -287,6 +301,35 @@ export function convertEN16931ToInternal(
     chargeLine.optional = false;
     chargeLine.optional_checked = false;
     content.push(chargeLine);
+    addAmount(chargeLine.tva, charge.amount);
+  }
+
+  // Some e-invoices put amounts (eco-participation, shipping...) only in the
+  // totals (e.g. sum_charges_amount without charges), not in the lines,
+  // allowances or charges: the created invoice was then lower than the
+  // e-invoice and could not be attached to it. The gap of each VAT rate
+  // becomes a line.
+  for (const gap of getUndetailedAmounts(en16931Invoice, amountsByVat)) {
+    const gapLine = {} as InvoiceLine;
+    gapLine.article = "";
+    gapLine.type = "service";
+    gapLine.name =
+      gap.amount > 0
+        ? "Frais non détaillés dans la facture électronique"
+        : "Remise non détaillée dans la facture électronique";
+    gapLine.reference = "";
+    gapLine.description = "";
+    gapLine.unit = "EA";
+    gapLine.quantity = 1;
+    gapLine.unit_price = gap.amount;
+    gapLine.tva = gap.tva;
+    gapLine.discount = {} as InvoiceDiscount;
+    gapLine.subscription = "";
+    gapLine.quantity_ready = 0;
+    gapLine.quantity_delivered = 0;
+    gapLine.optional = false;
+    gapLine.optional_checked = false;
+    content.push(gapLine);
   }
 
   // Parse payment instructions
@@ -380,6 +423,44 @@ export function convertEN16931ToInternal(
   }
 
   return invoice;
+}
+
+/**
+ * Amounts of the e-invoice totals that are in none of its lines, allowances or
+ * charges, by VAT code. Uses the VAT breakdown (BG-23) to know their rate, or
+ * the total without VAT (BT-109) when there is no breakdown.
+ */
+function getUndetailedAmounts(
+  en16931Invoice: EN16931Invoice,
+  amountsByVat: Record<string, number>
+): { tva: string; amount: number }[] {
+  const breakdown = en16931Invoice.vat_break_down || [];
+
+  if (
+    !breakdown.length ||
+    breakdown.some((vat) => isNaN(parseFloat(vat.vat_category_taxable_amount)))
+  ) {
+    const total = parseFloat(en16931Invoice.totals?.total_without_vat || "");
+    if (isNaN(total)) return [];
+    const gap = round2(total - _.sum(Object.values(amountsByVat)));
+    const tva = Object.keys(amountsByVat)[0] || "S:20";
+    return Math.abs(gap) >= 0.01 ? [{ tva, amount: gap }] : [];
+  }
+
+  const expectedByVat: Record<string, number> = {};
+  for (const vat of breakdown) {
+    const tva =
+      getVatCode(vat.vat_category_rate || "0", vat.vat_category_code) || "S:20";
+    expectedByVat[tva] =
+      (expectedByVat[tva] || 0) + parseFloat(vat.vat_category_taxable_amount);
+  }
+
+  return Object.entries(expectedByVat)
+    .map(([tva, expected]) => ({
+      tva,
+      amount: round2(expected - (amountsByVat[tva] || 0)),
+    }))
+    .filter((gap) => Math.abs(gap.amount) >= 0.01);
 }
 
 export async function getResolvedEntities(
