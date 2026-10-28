@@ -14,6 +14,7 @@ import {
   CheckIcon,
   ExclamationTriangleIcon,
   PlusIcon,
+  PrinterIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { useState } from "react";
@@ -25,6 +26,11 @@ import Link from "@atoms/link";
 import { Modal, ModalContent } from "@atoms/modal/modal";
 import { RestDocumentsInput } from "@components/input-rest";
 import { getArticleIcon } from "@views/client/modules/articles/components/article-icon";
+import { getUnitLabel } from "@atoms/input/input-unit";
+import { useInvoiceMaps } from "@features/invoices/hooks/use-invoice-maps";
+import { normalizeUnitCode } from "@shared/consts";
+import { useTranslation } from "react-i18next";
+import { printReceivedEInvoice } from "./received-invoice-print";
 
 export const ReceivedEInvoiceActions = ({
   id,
@@ -46,6 +52,8 @@ export const ReceivedEInvoiceActions = ({
   const { client } = useCurrentClient();
   const [isCreating, setIsCreating] = useState(false);
   const navigate = useNavigateAlt();
+  const { t } = useTranslation();
+  const { maps } = useInvoiceMaps();
   // Set when some lines match no article, until the user confirms the default article
   const [pendingCreation, setPendingCreation] = useState<{
     asQuote: boolean;
@@ -65,6 +73,12 @@ export const ReceivedEInvoiceActions = ({
       state: "rejected",
     });
   };
+
+  const handlePrint = () =>
+    printReceivedEInvoice(invoice, (code) => {
+      const unit = maps?.units?.[normalizeUnitCode(code)];
+      return unit ? getUnitLabel(unit, t) : code;
+    });
 
   const handleDeattach = () => {
     if (!id) return;
@@ -171,6 +185,13 @@ export const ReceivedEInvoiceActions = ({
   return (
     <>
       <div className="flex justify-end gap-2">
+        <Button
+          theme="outlined"
+          onClick={handlePrint}
+          icon={(p) => <PrinterIcon {...p} />}
+        >
+          Imprimer
+        </Button>
         {invoice.state !== "new" && (
           <Button
             theme="outlined"

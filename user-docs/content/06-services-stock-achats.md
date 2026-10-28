@@ -81,6 +81,7 @@ Si la réception des factures électroniques est activée (**Paramètres › Fac
 
 - **Rattacher** : la lier à une facture d'achat existante (L'inventaire propose celle du même fournisseur avec un montant proche, émise à 45 jours près) ;
 - **Créer** › **Créer une facture** ou **Créer une commande** : créer le document d'achat à partir de la facture reçue ;
+- **Imprimer** : imprimer la facture reçue (ou l'enregistrer en PDF depuis la fenêtre d'impression), sans avoir besoin de la rattacher ;
 - **Ignorer** : si la facture n'est pas pour vous ou est un doublon. Elle est rangée dans l'onglet **Ignorées** ; le fournisseur n'est pas prévenu et aucun refus n'est transmis à la plateforme de facturation électronique.
 
 Avant de créer le document, associez chaque ligne de la facture à un article de votre catalogue (L'inventaire le retrouve tout seul à partir de la référence fournisseur). Les lignes sans article sont créées avec l'**Article par défaut** (**Paramètres › Stock et services**) : elles gardent le libellé, la quantité et le prix de la facture mais ne sont pas liées au stock.
