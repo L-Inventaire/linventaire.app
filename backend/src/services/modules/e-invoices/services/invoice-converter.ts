@@ -214,11 +214,11 @@ export function convertEN16931ToInternal(
       }
     }
 
-    const netDiscountAmount = totalAllowanceAmount - totalChargeAmount;
-
-    if (netDiscountAmount > 0) {
+    // Allowances become the line discount, charges are added to the unit
+    // price so the line total stays the e-invoice one (BT-131)
+    if (totalAllowanceAmount > 0) {
       discount.mode = "amount";
-      discount.value = netDiscountAmount;
+      discount.value = totalAllowanceAmount;
     }
 
     const invoiceLine = {} as InvoiceLine;
@@ -233,7 +233,10 @@ export function convertEN16931ToInternal(
     const baseQuantity =
       parseFloat(line.price_details.item_price_base_quantity || "1") || 1;
     invoiceLine.unit_price =
-      parseFloat(line.price_details.item_net_price) / baseQuantity;
+      parseFloat(line.price_details.item_net_price) / baseQuantity +
+      (totalChargeAmount && invoiceLine.quantity
+        ? totalChargeAmount / invoiceLine.quantity
+        : 0);
     invoiceLine.tva = vatFullCode || "S:20";
     invoiceLine.discount = discount;
     invoiceLine.subscription = "";
@@ -245,10 +248,9 @@ export function convertEN16931ToInternal(
     return invoiceLine;
   });
 
-  // Calculate document-level discount
+  // Document-level allowances become the document discount
   const documentDiscount = {} as InvoiceDiscount;
   let totalDocAllowanceAmount = 0;
-  let totalDocChargeAmount = 0;
 
   if (
     en16931Invoice.document_level_allowances &&
@@ -259,17 +261,32 @@ export function convertEN16931ToInternal(
     }
   }
 
-  if (en16931Invoice.charges && en16931Invoice.charges.length > 0) {
-    for (const charge of en16931Invoice.charges) {
-      totalDocChargeAmount += parseFloat(charge.amount || "0");
-    }
+  if (totalDocAllowanceAmount > 0) {
+    documentDiscount.mode = "amount";
+    documentDiscount.value = totalDocAllowanceAmount;
   }
 
-  const netDocDiscountAmount = totalDocAllowanceAmount - totalDocChargeAmount;
-
-  if (netDocDiscountAmount > 0) {
-    documentDiscount.mode = "amount";
-    documentDiscount.value = netDocDiscountAmount;
+  // Document-level charges (shipping, eco-participation...) become lines
+  // without article, they were lost when they exceeded the allowances
+  for (const charge of en16931Invoice.charges || []) {
+    const chargeLine = {} as InvoiceLine;
+    chargeLine.article = "";
+    chargeLine.type = "service";
+    chargeLine.name = charge.reason || charge.reason_code || "Frais";
+    chargeLine.reference = "";
+    chargeLine.description = "";
+    chargeLine.unit = "EA";
+    chargeLine.quantity = 1;
+    chargeLine.unit_price = parseFloat(charge.amount || "0");
+    chargeLine.tva =
+      getVatCode(charge.vat_rate || "0", charge.vat_category_code) || "S:20";
+    chargeLine.discount = {} as InvoiceDiscount;
+    chargeLine.subscription = "";
+    chargeLine.quantity_ready = 0;
+    chargeLine.quantity_delivered = 0;
+    chargeLine.optional = false;
+    chargeLine.optional_checked = false;
+    content.push(chargeLine);
   }
 
   // Parse payment instructions

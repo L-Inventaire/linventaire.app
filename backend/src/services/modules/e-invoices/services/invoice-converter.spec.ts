@@ -715,6 +715,44 @@ describe("convertEN16931ToInternal - received invoices", () => {
     });
   });
 
+  test("keeps the line and document charges", () => {
+    const articles = new Map<string, Articles>();
+    articles.set("1", { id: "dock", type: "product" } as Articles);
+    const invoice = convertEN16931ToInternal(
+      {
+        ...buildEnInvoice([
+          buildLine("1", {
+            invoiced_quantity: "2",
+            net_amount: "205",
+            price_details: { item_net_price: "100" },
+            charges: [{ amount: "5", reason: "DEEE" }],
+          }),
+        ]),
+        charges: [
+          {
+            amount: "13.78",
+            reason: "Frais de port",
+            vat_category_code: "S",
+            vat_rate: "20",
+          },
+        ],
+      } as unknown as EN16931Invoice,
+      entities(articles),
+      "in",
+      ctx
+    );
+    expect(invoice.content?.[0].unit_price).toBe(102.5);
+    expect(invoice.content?.[1]).toMatchObject({
+      article: "",
+      type: "service",
+      name: "Frais de port",
+      quantity: 1,
+      unit_price: 13.78,
+      tva: "S:20",
+    });
+    expect(computePricesFromInvoice(invoice as Invoices).total).toBe(218.78);
+  });
+
   test("uses the VAT breakdown when the line has no rate", () => {
     const articles = new Map<string, Articles>();
     articles.set("1", { id: "tyre", type: "product" } as Articles);
