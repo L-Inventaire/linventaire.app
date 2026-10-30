@@ -8,6 +8,7 @@ import { Logger } from "../../../platform/logger-db";
 import { InternalApplicationService } from "../../types";
 import StockItems, { StockItemsDefinition } from "./entities/stock-items";
 import { StockLocationsDefinition } from "./entities/stock-locations";
+import { setOnArticleChanged } from "./triggers/on-article-changed";
 import { setUpsertHook } from "./triggers/upsert-hook";
 
 export default class Stocks implements InternalApplicationService {
@@ -93,6 +94,7 @@ export default class Stocks implements InternalApplicationService {
     });
 
     setUpsertHook();
+    setOnArticleChanged();
 
     console.log(`${this.name}:v${this.version} initialized`);
 

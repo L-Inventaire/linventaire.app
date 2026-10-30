@@ -51,6 +51,7 @@ export default class StockItems extends RestEntity {
 
   cache = {
     article_name: "string",
+    article_references: "string",
     client_name: "string",
     quote_name: "string",
     supplier_quote_name: "string",
@@ -78,6 +79,7 @@ export const StockItemsDefinition: RestTableDefinition = {
         ),
         (entity.serial_number || "").split("").reverse().join(""),
         entity.cache?.article_name || "",
+        expandNumericPrefixes(entity.cache?.article_references || ""),
         entity.cache?.client_name || "",
         entity.cache?.quote_name || "",
         entity.cache?.supplier_quote_name || "",
