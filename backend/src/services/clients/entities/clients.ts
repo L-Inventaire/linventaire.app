@@ -119,6 +119,7 @@ export class Preferences {
   email_footer?: string = "string";
   margin_mode?: boolean = false;
   margin_base?: "cost" | "price" = "cost";
+  subscriptions_disabled?: boolean = false; // Hides the subscriptions (menu, recurrence fields) for companies not using them
 }
 
 class Configuration {

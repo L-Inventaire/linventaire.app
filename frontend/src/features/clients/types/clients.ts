@@ -191,6 +191,7 @@ type Preferences = {
   email_footer?: string;
   margin_mode?: boolean;
   margin_base?: "cost" | "price";
+  subscriptions_disabled?: boolean;
 };
 
 type Configuration = {

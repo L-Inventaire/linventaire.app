@@ -312,7 +312,8 @@ export const updateClient = async (
         "timezone",
         "email_footer",
         "margin_mode",
-        "margin_base"
+        "margin_base",
+        "subscriptions_disabled"
       ),
     });
 

@@ -19,7 +19,10 @@ import { ArticlesFieldsNames } from "@features/articles/configuration";
 import { useHasAccess } from "@features/access";
 import { AccountingAccountInput } from "@components/accounting-account-input";
 import Link from "@atoms/link";
-import { useMarginMode } from "@features/clients/state/use-clients";
+import {
+  useMarginMode,
+  useSubscriptionsEnabled,
+} from "@features/clients/state/use-clients";
 import { getArticleMaxCost } from "@features/articles/utils";
 import { MarginInput } from "./margin-input";
 
@@ -49,6 +52,7 @@ export const ArticlesDetailsPage = ({
   );
   const { tvaOptions, getTvaOptions } = useInvoiceMaps();
   const marginMode = useMarginMode();
+  const subscriptionsEnabled = useSubscriptionsEnabled();
   // Price, (margin), VAT and unit share the row equally
   const priceColClass = "w-full lg:flex-1 lg:min-w-0";
 
@@ -182,14 +186,16 @@ export const ArticlesDetailsPage = ({
                 </div>
               </PageColumns>
 
-              <PageColumns>
-                <FormInput
-                  type="select"
-                  label="Récurrence"
-                  ctrl={ctrl("subscription")}
-                  options={frequencyOptions}
-                />
-              </PageColumns>
+              {(subscriptionsEnabled || !!ctrl("subscription").value) && (
+                <PageColumns>
+                  <FormInput
+                    type="select"
+                    label="Récurrence"
+                    ctrl={ctrl("subscription")}
+                    options={frequencyOptions}
+                  />
+                </PageColumns>
+              )}
 
               {readonly && (
                 <>

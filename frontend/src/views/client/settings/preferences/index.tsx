@@ -160,6 +160,19 @@ export const PreferencesPage = () => {
                   ]}
                 />
               )}
+              <FormInput
+                type="boolean"
+                className="mb-1"
+                label={t("settings.preferences.subscriptions_enabled")}
+                disabled={readonly}
+                value={!preferences?.subscriptions_disabled}
+                onChange={(e) =>
+                  setPreferences({ ...preferences, subscriptions_disabled: !e })
+                }
+              />
+              <Info className="block mb-4">
+                {t("settings.preferences.subscriptions_enabled_help")}
+              </Info>
               {!readonly && (
                 <Button
                   theme="primary"
@@ -174,6 +187,8 @@ export const PreferencesPage = () => {
                         email_footer: preferences?.email_footer,
                         margin_mode: !!preferences?.margin_mode,
                         margin_base: preferences?.margin_base || "cost",
+                        subscriptions_disabled:
+                          !!preferences?.subscriptions_disabled,
                       },
                     })
                   }

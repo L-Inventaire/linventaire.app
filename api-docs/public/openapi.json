@@ -9144,6 +9144,10 @@
                   "cost",
                   "price"
                 ]
+              },
+              "subscriptions_disabled": {
+                "type": "boolean",
+                "description": "Hides the subscriptions (menu, recurrence fields) for companies not using them"
               }
             }
           },
@@ -9606,6 +9610,10 @@
                   "cost",
                   "price"
                 ]
+              },
+              "subscriptions_disabled": {
+                "type": "boolean",
+                "description": "Hides the subscriptions (menu, recurrence fields) for companies not using them"
               }
             }
           },
