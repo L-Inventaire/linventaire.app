@@ -203,6 +203,19 @@ export default class DbPostgres implements DbAdapterInterface {
       }
     }
 
+    // A source id (id in another software) identifies at most one live document per company
+    if (
+      columns.some((c) => c.name === "source_id") &&
+      columns.some((c) => c.name === "client_id") &&
+      columns.some((c) => c.name === "is_deleted")
+    ) {
+      await this.query(
+        null,
+        this.client,
+        `CREATE UNIQUE INDEX IF NOT EXISTS ${name}_client_id_source_id_uidx ON ${name} (client_id, source_id) WHERE source_id IS NOT NULL AND source_id <> '' AND is_deleted = false`
+      );
+    }
+
     if (auditable) {
       // History rows are never searched (and saved without searchable): don't
       // compute the full-text search vector at each insert

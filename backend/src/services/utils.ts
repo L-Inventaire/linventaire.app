@@ -138,6 +138,9 @@ export function useCtx(server: Express) {
         context.role = "API";
         context.mfa = [];
         context.api_key = { id: key.id, client_id: key.client_id };
+        context.import = ["1", "true"].includes(
+          String(req.headers["x-linventaire-import"] || "").toLowerCase()
+        );
       } else if (req.headers.authorization !== undefined) {
         const auth: Context = jwt.verify(
           bearer,

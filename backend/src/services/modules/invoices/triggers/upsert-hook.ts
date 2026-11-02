@@ -163,7 +163,7 @@ export const setUpsertHook = () =>
         .map((a) => a.article);
 
       if (!_.isEqual(entity?.articles?.all, updated?.articles?.all)) {
-        setArticlesTagsToInvoices(ctx, updated);
+        await setArticlesTagsToInvoices(ctx, updated);
       }
 
       updated.has_subscription = (entity.content || []).some(
@@ -229,8 +229,9 @@ export const setUpsertHook = () =>
         await setCacheQuoteRef(ctx, updated);
       }
 
-      // If superPDP is enabled, do the following
-      const config = await Services.EInvoices.getConfig(ctx);
+      // If superPDP is enabled, do the following (not for imported documents:
+      // no external call per document)
+      const config = ctx.import ? null : await Services.EInvoices.getConfig(ctx);
       if (config && config.connection_status === "connected") {
         // Test conversion to en16931, and if field changed, then validate it with superPDP
         let en16931: EN16931Invoice | null = null;

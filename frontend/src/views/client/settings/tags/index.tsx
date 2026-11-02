@@ -7,7 +7,7 @@ import { FormInput } from "@components/form/fields";
 import { useFormController } from "@components/form/formcontext";
 import { useHasAccess } from "@features/access";
 import { useTags } from "@features/tags/hooks/use-tags";
-import { Tags } from "@features/tags/types/types";
+import { getTagTooltip, Tags } from "@features/tags/types/types";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { Table } from "@molecules/table";
 import { Heading } from "@radix-ui/themes";
@@ -44,6 +44,12 @@ export const TagsPage = () => {
               <div className="space-y-4">
                 <FormInput label="Name" ctrl={ctrl("name")} autoFocus />
                 <FormInput label="Color" type="color" ctrl={ctrl("color")} />
+                <FormInput
+                  label="Description"
+                  type="text"
+                  placeholder="Affichée au survol de l'étiquette"
+                  ctrl={ctrl("description")}
+                />
                 <Button
                   shortcut={["enter"]}
                   onClick={async () => {
@@ -72,7 +78,20 @@ export const TagsPage = () => {
             {
               title: "Étiquette",
               render: (tag) => (
-                <Tag color={tag.color || "#000000"}>{tag.name}</Tag>
+                <Tag
+                  color={tag.color || "#000000"}
+                  data-tooltip={getTagTooltip(tag)}
+                >
+                  {tag.name}
+                </Tag>
+              ),
+            },
+            {
+              title: "Description",
+              render: (tag) => (
+                <span className="text-sm text-slate-500 whitespace-pre-wrap">
+                  {tag.description || ""}
+                </span>
               ),
             },
             {

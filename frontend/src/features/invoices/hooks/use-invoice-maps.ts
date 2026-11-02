@@ -6,6 +6,7 @@ export type InvoiceMaps = {
   units: Record<string, string>;
   vat: Record<string, string>;
   vat_values: Record<string, number>;
+  vat_deprecated?: string[];
   vat_exemption: Record<string, string>;
 };
 
@@ -40,12 +41,21 @@ export const useInvoiceMaps = () => {
     : [];
 
   // Transform vat categories into options format for dropdown
-  const tvaOptions = query.data?.vat
+  const allTvaOptions = query.data?.vat
     ? Object.entries(query.data.vat).map(([key, label]) => ({
         value: key,
         label: label,
       }))
     : [];
+
+  // Deprecated rates (ex. 19.6%) are only offered when already selected
+  const getTvaOptions = (current?: string) =>
+    allTvaOptions.filter(
+      (option) =>
+        !query.data?.vat_deprecated?.includes(option.value) ||
+        option.value === current,
+    );
+  const tvaOptions = getTvaOptions();
 
   // Transform units into options format for dropdown
   const unitOptions = query.data?.units
@@ -59,6 +69,7 @@ export const useInvoiceMaps = () => {
     ...query,
     tvaMentionOptions,
     tvaOptions,
+    getTvaOptions,
     unitOptions,
     maps: query.data,
   };

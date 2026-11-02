@@ -25,7 +25,9 @@ import {
  */
 export const setOnSentEInvoiceTrigger = () =>
   Framework.TriggersManager.registerTrigger<Invoices>(InvoicesDefinition, {
-    test: (_ctx, entity, prev) =>
+    test: (ctx, entity, prev) =>
+      // Imported documents were already transmitted (or never will be)
+      !ctx?.import &&
       !!entity &&
       ["invoices", "credit_notes"].includes(entity.type) &&
       !["draft", "recurring"].includes(entity.state) &&

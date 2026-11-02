@@ -1,6 +1,6 @@
 import { Tag as TagAtom } from "@atoms/badge/tag";
 import { useTags } from "@features/tags/hooks/use-tags";
-import { Tags } from "@features/tags/types/types";
+import { getTagTooltip, Tags } from "@features/tags/types/types";
 
 export const RestTag = ({
   size,
@@ -25,7 +25,7 @@ const TagServer = ({ size, id }: { size: "sm" | "md"; id: string }) => {
 
 const TagRender = ({ size, tag }: { size: "sm" | "md"; tag?: Tags }) => {
   return (
-    <TagAtom size={size} color={tag?.color}>
+    <TagAtom size={size} color={tag?.color} data-tooltip={getTagTooltip(tag)}>
       {tag?.name || "-"}
     </TagAtom>
   );

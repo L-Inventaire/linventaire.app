@@ -107,7 +107,7 @@ export const InvoiceLineInput = (props: {
   readonly?: boolean;
 }) => {
   const formContext = useContext(FormContextContext);
-  const { tvaOptions } = useInvoiceMaps();
+  const { getTvaOptions } = useInvoiceMaps();
 
   const value = props.ctrl?.value || props.value || ({} as InvoiceLine);
   const onChange = props.ctrl?.onChange || props.onChange;
@@ -335,8 +335,13 @@ export const InvoiceLineInput = (props: {
                       className="whitespace-nowrap"
                     >
                       {getTvaValue(value.tva || "0")
-                        ? "TVA " + getTvaValue(value.tva || "0") * 100 + "%"
-                        : tvaOptions.find((a) => a.value === value.tva)?.label}
+                        ? "TVA " +
+                          Math.round(getTvaValue(value.tva || "0") * 10000) /
+                            100 +
+                          "%"
+                        : getTvaOptions(value.tva).find(
+                            (a) => a.value === value.tva,
+                          )?.label}
                     </Text>
                   </PriceInput>
                 </Box>

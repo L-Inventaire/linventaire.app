@@ -2,7 +2,7 @@ import { Tag } from "@atoms/badge/tag";
 import { InputOutlinedDefaultBorders } from "@atoms/styles/inputs";
 import { FormControllerType } from "@components/form/formcontext";
 import { RestDocumentsInput } from "@components/input-rest";
-import { Tags } from "@features/tags/types/types";
+import { getTagTooltip, Tags } from "@features/tags/types/types";
 import { TagIcon } from "@heroicons/react/20/solid";
 import { twMerge } from "tailwind-merge";
 
@@ -41,6 +41,7 @@ export const TagsInput = ({
           className={twMerge(InputOutlinedDefaultBorders + " rounded-full")}
           size={size}
           color={tag.color}
+          data-tooltip={getTagTooltip(tag)}
         >
           {tag.name}
         </Tag>

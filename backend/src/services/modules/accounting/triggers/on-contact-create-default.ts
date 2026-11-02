@@ -15,7 +15,7 @@ export const setOnContactCreateDefaultTrigger = () => {
       );
     },
     callback: async (ctx, entity) => {
-      ensureContactHasAccountingAccount(ctx, entity);
+      await ensureContactHasAccountingAccount(ctx, entity);
     },
   });
   Framework.TriggersManager.registerTrigger<Invoices>(InvoicesDefinition, {

@@ -51,6 +51,7 @@ export const standardCodeToVatCategory: Record<string, string> = {
   "S:8.5": "8.5%", // Reduced rate 8.5%
   "S:5.5": "5.5%", // Lower rate 5.5%
   "S:2.1": "2.1%", // Super-reduced rate 2.1%
+  "S:19.6": "19.6%", // Former standard rate, until 31/12/2013
 };
 
 /**
@@ -70,7 +71,14 @@ export const standardCodeToVatValue: Record<string, number> = {
   "S:8.5": 8.5, // Reduced rate 8.5%
   "S:5.5": 5.5, // Lower rate 5.5%
   "S:2.1": 2.1, // Super-reduced rate 2.1%
+  "S:19.6": 19.6, // Former standard rate, until 31/12/2013
 };
+
+/**
+ * VAT codes kept for historical documents only: they are computed and displayed,
+ * but never offered for a new line or article
+ */
+export const deprecatedVatCodes = ["S:19.6"];
 
 export const vatCategoryCodeToExemptionReason: Record<string, string> = {
   NONE: "(Aucune mention d'exemption TVA)", // No exemption
