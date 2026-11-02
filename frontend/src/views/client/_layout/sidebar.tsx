@@ -3,6 +3,7 @@ import { MenuItem, MenuSection } from "@atoms/dropdown/components";
 import { withSearchAsModel } from "@components/search-bar/utils/as-model";
 import { buildQueryFromMap } from "@components/search-bar/utils/utils";
 import { useHasAccess } from "@features/access";
+import { useSubscriptionsEnabled } from "@features/clients/state/use-clients";
 import { registerRootNavigation } from "@features/ctrlk";
 import { ROUTES, getRoute } from "@features/routes";
 import { useDashboard } from "@features/statistics/hooks";
@@ -47,9 +48,11 @@ export const SideBar = () => {
   const { counters, unreadNotifications } = useDashboard();
   const { config: eInvoicingConfig } = useEInvoicingConfig();
 
+  const subscriptionsEnabled = useSubscriptionsEnabled();
   const subscriptionsToReview = useRestCount("invoices", {
     key: "sidebarSubscriptionsToReview",
     query: subscriptionsToReviewQuery(),
+    enabled: subscriptionsEnabled,
   });
 
   const showReceivedEInvoices =
@@ -133,7 +136,7 @@ export const SideBar = () => {
                   getRoute(ROUTES.Invoices, { type: "subscriptions" }),
                 ) === 0
               }
-              show={hasAccess("QUOTES_READ")}
+              show={hasAccess("QUOTES_READ") && subscriptionsEnabled}
             />
             <SideMenuItem
               to={getRoute(ROUTES.Invoices, { type: "invoices" })}

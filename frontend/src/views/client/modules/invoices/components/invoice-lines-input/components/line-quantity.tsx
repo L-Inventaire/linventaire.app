@@ -7,6 +7,7 @@ import {
   useFormController,
 } from "@components/form/formcontext";
 import { Articles } from "@features/articles/types/types";
+import { useSubscriptionsEnabled } from "@features/clients/state/use-clients";
 import { InvoiceLine } from "@features/invoices/types/types";
 import { Heading } from "@radix-ui/themes";
 import { frequencyOptions } from "@views/client/modules/articles/components/article-details";
@@ -20,6 +21,7 @@ export const InvoiceLineQuantityInput = (props: {
   const value = props.ctrl?.value || props.value || ({} as InvoiceLine);
   const onChange = props.ctrl?.onChange || props.onChange;
   const { ctrl } = useFormController(value, (e) => onChange!(e(value)));
+  const subscriptionsEnabled = useSubscriptionsEnabled();
 
   return (
     <div className="space-y-2">
@@ -40,13 +42,15 @@ export const InvoiceLineQuantityInput = (props: {
         />
       </div>
 
-      <FormInput
-        type="select"
-        label="Récurrence"
-        placeholder="Sélectionner une fréquence"
-        ctrl={ctrl("subscription")}
-        options={frequencyOptions}
-      />
+      {(subscriptionsEnabled || !!value.subscription) && (
+        <FormInput
+          type="select"
+          label="Récurrence"
+          placeholder="Sélectionner une fréquence"
+          ctrl={ctrl("subscription")}
+          options={frequencyOptions}
+        />
+      )}
 
       <Info className="block mt-2">
         <Link
