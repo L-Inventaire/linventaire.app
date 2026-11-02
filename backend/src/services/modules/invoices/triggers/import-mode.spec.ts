@@ -21,20 +21,32 @@ jest.mock("../../signing-sessions/services/utils", () => ({
 }));
 jest.mock("../services/generate-pdf", () => ({ generatePdf: jest.fn() }));
 jest.mock("../services/send-e-invoice", () => ({ sendEInvoice: jest.fn() }));
+jest.mock("../../contacts/services/french-directory", () => ({
+  getFrenchDirectoryEntries: jest.fn(),
+}));
 
 import { setOnPurchaseOrderTrigger } from "./on-purchase-order";
 import { setOnSentEInvoiceTrigger } from "./on-sent-e-invoice";
 import { setTriggerFirstReminderDate } from "./reminders";
+import { setupOnSirenChanged } from "../../contacts/triggers/on-siren-changed";
 
 setOnSentEInvoiceTrigger();
 setTriggerFirstReminderDate();
 setOnPurchaseOrderTrigger();
-const [eInvoiceTrigger, reminderTrigger, purchaseOrderTrigger] = mockRegistered;
+setupOnSirenChanged();
+const [eInvoiceTrigger, reminderTrigger, purchaseOrderTrigger, sirenTrigger] =
+  mockRegistered;
 
 const ctx = { client_id: "cl-1", role: "API" } as any;
 const importCtx = { ...ctx, import: true };
 
 describe("import mode: no external effect for imported documents", () => {
+  test("the French directory is not called for an imported contact", () => {
+    const contact = { business_registered_id: "552100554" };
+    expect(sirenTrigger.test!(ctx, contact, null)).toBe(true);
+    expect(sirenTrigger.test!(importCtx, contact, null)).toBe(false);
+  });
+
   test("a non draft invoice is not transmitted as an e-invoice", () => {
     const invoice = { type: "invoices", state: "closed", e_invoice: {} };
     expect(eInvoiceTrigger.test!(ctx, invoice, null)).toBe(true);

@@ -13038,6 +13038,10 @@
           "notes": {
             "type": "string"
           },
+          "is_default": {
+            "type": "boolean",
+            "description": "Internal account (bank, cash) preselected for new payments, one per company"
+          },
           "_label": {
             "type": "string",
             "readOnly": true,
@@ -13096,6 +13100,10 @@
           },
           "notes": {
             "type": "string"
+          },
+          "is_default": {
+            "type": "boolean",
+            "description": "Internal account (bank, cash) preselected for new payments, one per company"
           }
         }
       },

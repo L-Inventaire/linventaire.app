@@ -5,6 +5,7 @@ import { InternalApplicationService } from "../../types";
 import { AccountingAccountsDefinition } from "./entities/accounts";
 import { AccountingTransactionsDefinition } from "./entities/transactions";
 import { setOnContactCreateDefaultTrigger } from "./triggers/on-contact-create-default";
+import { setOnDefaultAccountTrigger } from "./triggers/on-default-account";
 
 export default class Accounting implements InternalApplicationService {
   version = 1;
@@ -37,6 +38,7 @@ export default class Accounting implements InternalApplicationService {
     });
 
     setOnContactCreateDefaultTrigger();
+    setOnDefaultAccountTrigger();
 
     console.log(`${this.name}:v${this.version} initialized`);
 
