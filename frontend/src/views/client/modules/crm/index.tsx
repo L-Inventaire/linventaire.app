@@ -1,5 +1,10 @@
 import { Info } from "@atoms/text";
-import { CRMState, useCRMBoardMove } from "@features/crm/state/use-crm-board";
+import {
+  CRM_BOARD_STATES,
+  CRMState,
+  useCRMBoardMove,
+} from "@features/crm/state/use-crm-board";
+import { CRMItem } from "@features/crm/types/types";
 import {
   RestSearchQuery,
   useRestCount,
@@ -8,16 +13,11 @@ import {
 import { Page } from "@views/client/_layout/page";
 import _ from "lodash";
 import { useState } from "react";
+import { useMediaQuery } from "usehooks-ts";
 import { SearchBar } from "../../../../components/search-bar";
 import { schemaToSearchFields } from "../../../../components/search-bar/utils/utils";
 import { CRMColumn } from "./components/crm-column";
-
-const CRM_STATES: { key: CRMState; label: string }[] = [
-  { key: "new", label: "Nouveau" },
-  { key: "qualified", label: "Qualifié" },
-  { key: "proposal", label: "Proposition" },
-  { key: "won", label: "Terminé" },
-];
+import { CRMMobileBoard } from "./components/crm-mobile-board";
 
 const useCRMCount = (state: CRMState, query: RestSearchQuery[]) =>
   useRestCount("crm_items", {
@@ -26,7 +26,7 @@ const useCRMCount = (state: CRMState, query: RestSearchQuery[]) =>
       ...query.filter((q) => q.key !== "state"),
       { key: "state", values: [{ value: state, op: "equals" }] },
     ],
-  }).data || 0;
+  }).data;
 
 export const CRMPage = () => {
   const [query, setQuery] = useState<RestSearchQuery[]>([]);
@@ -35,6 +35,10 @@ export const CRMPage = () => {
     {},
   );
   const move = useCRMBoardMove();
+  const onMove = (item: CRMItem, state: CRMState) =>
+    move.mutate({ item, state });
+  // Phones get one step at a time instead of the columns side by side
+  const isMobile = useMediaQuery("(max-width: 767px)");
   const schema = useRestSchema("crm_items");
 
   const isSearchMode = query.some((a) => a.values?.[0]?.value?.trim?.());
@@ -48,13 +52,16 @@ export const CRMPage = () => {
     (state === "won" && !isSearchMode) ||
     (!!selectedStates.length && !selectedStates.includes(state));
 
-  const counters: Record<string, number> = {
+  const counters: Record<string, number | undefined> = {
     new: useCRMCount("new", query),
     qualified: useCRMCount("qualified", query),
     proposal: useCRMCount("proposal", query),
     won: useCRMCount("won", query),
   };
-  const total = CRM_STATES.reduce((acc, s) => acc + counters[s.key], 0);
+  const total = CRM_BOARD_STATES.reduce(
+    (acc, s) => acc + (counters[s.key] || 0),
+    0,
+  );
 
   return (
     <Page
@@ -82,35 +89,47 @@ export const CRMPage = () => {
       }
     >
       <div className="h-full flex flex-col">
-        <div className="px-3 h-7 w-full bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 flex-shrink-0">
+        <div className="hidden md:block px-3 h-7 w-full bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 flex-shrink-0">
           <Info>{total} documents trouvés</Info>
         </div>
 
-        <div className="flex-1 relative">
-          <div className="absolute inset-0 overflow-x-auto flex p-2 gap-2">
-            {CRM_STATES.map(({ key, label }) => {
-              const collapsedByDefault = isCollapsedByDefault(key);
-              const collapsed =
-                key in toggled ? !!toggled[key] : collapsedByDefault;
-              return (
-                <CRMColumn
-                  key={key}
-                  type={key}
-                  title={label}
-                  query={query}
-                  count={counters[key]}
-                  collapsed={collapsed}
-                  onToggleCollapsed={
-                    collapsedByDefault || key in toggled
-                      ? () => setToggled((t) => ({ ...t, [key]: !collapsed }))
-                      : undefined
-                  }
-                  onMove={(item) => move.mutate({ item, state: key })}
-                />
-              );
-            })}
+        {isMobile ? (
+          <div className="flex-1 relative">
+            <div className="absolute inset-0">
+              <CRMMobileBoard
+                query={query}
+                counters={counters}
+                onMove={onMove}
+              />
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="flex-1 relative">
+            <div className="absolute inset-0 overflow-x-auto flex p-2 gap-2">
+              {CRM_BOARD_STATES.map(({ key, label }) => {
+                const collapsedByDefault = isCollapsedByDefault(key);
+                const collapsed =
+                  key in toggled ? !!toggled[key] : collapsedByDefault;
+                return (
+                  <CRMColumn
+                    key={key}
+                    type={key}
+                    title={label}
+                    query={query}
+                    count={counters[key]}
+                    collapsed={collapsed}
+                    onToggleCollapsed={
+                      collapsedByDefault || key in toggled
+                        ? () => setToggled((t) => ({ ...t, [key]: !collapsed }))
+                        : undefined
+                    }
+                    onMove={onMove}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </Page>
   );

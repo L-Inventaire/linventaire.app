@@ -136,4 +136,8 @@ Le **Tableau de bord** résume l'exercice en cours : chiffre d'affaires, charges
 
 Sur chaque carte, la première ligne de la description sert de titre et s'affiche en gras ; la suite est résumée en quelques lignes (**Afficher plus** pour tout lire). Les opportunités les plus récemment modifiées sont en haut de chaque colonne, et la durée depuis la dernière modification s'affiche en haut à droite de la carte : en orange au-delà d'un mois, en rouge au-delà de trois mois, pour repérer les opportunités qui n'avancent plus. La colonne **Terminé** est repliée par défaut : cliquez dessus pour l'afficher.
 
+Pour changer une opportunité d'étape sans la faire glisser, utilisez le menu **…** de sa carte (**Déplacer vers…**).
+
+Sur téléphone, le CRM affiche une étape à la fois : choisissez-la avec les onglets en haut (chacun indique son nombre d'opportunités) ou en faisant glisser l'écran vers la gauche ou la droite. Le bouton **+** en bas à droite crée une opportunité dans l'étape affichée, et le menu **…** d'une carte la change d'étape.
+
 [![Le CRM : les opportunités par étape](images/crm.png)](images/crm.png)

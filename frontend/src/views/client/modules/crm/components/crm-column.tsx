@@ -1,22 +1,16 @@
 import { useHasAccess } from "@features/access";
 import { useAuth } from "@features/auth/state/use-auth";
-import { useClientUsers } from "@features/clients/state/use-client-users";
-import { useCurrentClient } from "@features/clients/state/use-clients";
-import { buildQueryFromMap } from "@components/search-bar/utils/utils";
-import { useContacts } from "@features/contacts/hooks/use-contacts";
 import { useCRMDefaultModel } from "@features/crm/configuration";
-import { CRMState, useCRMBoardColumn } from "@features/crm/state/use-crm-board";
+import { CRMState } from "@features/crm/state/use-crm-board";
 import { CRMItem } from "@features/crm/types/types";
 import { useEditFromCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
 import { formatNumber } from "@features/utils/format/strings";
 import { RestSearchQuery } from "@features/utils/rest/hooks/use-rest";
 import { CheckIcon, PlusCircleIcon } from "@heroicons/react/24/outline";
 import { Badge, IconButton } from "@radix-ui/themes";
-import _ from "lodash";
-import { useEffect, useMemo, useRef } from "react";
 import { useDragLayer, useDrop } from "react-dnd";
 import { twMerge } from "tailwind-merge";
-import { CRMCard } from "./crm-card";
+import { CRMItemsList } from "./crm-items-list";
 
 export const CRM_COLUMN_STYLES: Record<
   CRMState,
@@ -54,6 +48,19 @@ export const CRM_COLUMN_STYLES: Record<
   },
 };
 
+/** Opens the creation of an opportunity in the given step */
+export const useCreateCRMItem = () => {
+  const { user } = useAuth();
+  const onEdit = useEditFromCtrlK();
+  const getDefaultModel = useCRMDefaultModel;
+  return (state: CRMState) =>
+    onEdit("crm_items", "", {
+      ...getDefaultModel(),
+      seller: user?.id,
+      state,
+    });
+};
+
 type CRMColumnProps = {
   title: string;
   type: CRMState;
@@ -61,29 +68,7 @@ type CRMColumnProps = {
   count?: number;
   collapsed?: boolean;
   onToggleCollapsed?: () => void;
-  onMove?: (item: CRMItem) => void;
-};
-
-/** Contacts of the items whose contact summaries are not computed yet */
-const useMissingContacts = (items: CRMItem[]) => {
-  const ids = useMemo(
-    () =>
-      _.uniq(
-        items
-          .filter(
-            (i) =>
-              (i.contacts?.length || 0) !== (i.contact_summaries?.length || 0),
-          )
-          .flatMap((i) => i.contacts || []),
-      ).sort(),
-    [items],
-  );
-  const { items: contacts } = useContacts({
-    key: "crm-board-contacts",
-    query: buildQueryFromMap({ id: ids }),
-    limit: ids.length,
-  });
-  return contacts?.data?.list || [];
+  onMove?: (item: CRMItem, state: CRMState) => void;
 };
 
 export const CRMColumn = ({
@@ -95,23 +80,15 @@ export const CRMColumn = ({
   onToggleCollapsed,
   onMove,
 }: CRMColumnProps) => {
-  const { user } = useAuth();
-  const { id: clientId } = useCurrentClient();
-  const { users } = useClientUsers(clientId || "");
-  const onEdit = useEditFromCtrlK();
   const hasAccess = useHasAccess();
-  const getDefaultModel = useCRMDefaultModel;
+  const create = useCreateCRMItem();
   const style = CRM_COLUMN_STYLES[type];
-
-  const { list, fetchNextPage, hasNextPage, isFetchingNextPage, isPending } =
-    useCRMBoardColumn(type, query, !collapsed);
-  const contacts = useMissingContacts(list);
 
   const [{ isOver }, dropRef] = useDrop(
     () => ({
       accept: "crm-item",
       drop: (item: CRMItem) => {
-        if (item.state !== type) onMove?.(item);
+        if (item.state !== type) onMove?.(item, type);
       },
       collect: (monitor) => ({ isOver: !!monitor.isOver() }),
     }),
@@ -122,22 +99,6 @@ export const CRMColumn = ({
     isDragging: monitor.isDragging(),
   }));
   const highlighted = isDragging && isOver;
-
-  // Load the next page when the bottom of the column becomes visible
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const sentinelRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const sentinel = sentinelRef.current;
-    if (!sentinel || !hasNextPage) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && !isFetchingNextPage) fetchNextPage();
-      },
-      { root: scrollRef.current, rootMargin: "400px" },
-    );
-    observer.observe(sentinel);
-    return () => observer.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   if (collapsed) {
     const Icon = style.icon;
@@ -191,46 +152,19 @@ export const CRMColumn = ({
             className="cursor-pointer"
             variant="ghost"
             data-tooltip="Nouvelle opportunité"
-            onClick={() => {
-              onEdit("crm_items", "", {
-                ...getDefaultModel(),
-                seller: user?.id,
-                state: type,
-              });
-            }}
+            onClick={() => create(type)}
           >
             <PlusCircleIcon width="18" height="18" />
           </IconButton>
         )}
       </div>
 
-      <div
-        ref={scrollRef}
-        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-3 pb-3"
-      >
-        <div className="space-y-2 min-w-0">
-          {list.map((item) => (
-            <CRMCard
-              key={item.id}
-              crmItem={item}
-              contacts={contacts}
-              users={users}
-              readonly={!hasAccess("CRM_WRITE")}
-            />
-          ))}
-          {!isPending && !list.length && (
-            <div className="text-center text-sm text-slate-400 py-6">
-              Aucun élément
-            </div>
-          )}
-          <div ref={sentinelRef} />
-          {(isPending || isFetchingNextPage) && (
-            <div className="text-center text-sm text-slate-400 py-2">
-              Chargement…
-            </div>
-          )}
-        </div>
-      </div>
+      <CRMItemsList
+        type={type}
+        query={query}
+        onMove={onMove}
+        className="flex-1 min-h-0 px-3 pb-3"
+      />
     </div>
   );
 };

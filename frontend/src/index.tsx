@@ -2,7 +2,6 @@ import "@features/utils/i18n";
 import "./tailwind.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import ReactDOM from "react-dom/client";
-import initReactFastclick from "react-fastclick";
 import { RecoilRoot } from "recoil";
 import "tippy.js/dist/tippy.css";
 import reportWebVitals from "./reportWebVitals";
@@ -31,8 +30,6 @@ if (document.location.hostname !== "localhost") {
     replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
   });
 }
-
-initReactFastclick();
 
 export const queryClient = new QueryClient();
 

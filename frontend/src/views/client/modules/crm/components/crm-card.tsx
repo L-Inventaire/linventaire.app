@@ -3,11 +3,12 @@ import { Tag } from "@atoms/badge/tag";
 import { TagsInput } from "@components/input-rest/tags";
 import { getFullName } from "@features/auth/utils";
 import { Contacts, getContactName } from "@features/contacts/types/types";
+import { CRM_BOARD_STATES, CRMState } from "@features/crm/state/use-crm-board";
 import { CRMItem } from "@features/crm/types/types";
 import { splitCRMNotes } from "@features/crm/utils/notes";
 import { useViewWithCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
-import { ClockIcon } from "@heroicons/react/20/solid";
-import { Card } from "@radix-ui/themes";
+import { ClockIcon, EllipsisHorizontalIcon } from "@heroicons/react/20/solid";
+import { Card, DropdownMenu, IconButton } from "@radix-ui/themes";
 import _ from "lodash";
 import { memo, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useDrag } from "react-dnd";
@@ -48,16 +49,61 @@ const UsersAvatars = ({ ids, users }: { ids: string[]; users: any[] }) => {
           data-tooltip={getFullName(user)}
           className="rounded-full ring-2 ring-white dark:ring-slate-900 inline-flex"
         >
-          <Avatar
-            fallback={getFullName(user)}
-            avatar={user.avatar}
-            size={5}
-          />
+          <Avatar fallback={getFullName(user)} avatar={user.avatar} size={5} />
         </span>
       ))}
     </div>
   );
 };
+
+const STATE_DOTS: Record<CRMState, string> = {
+  new: "bg-blue-500",
+  qualified: "bg-orange-500",
+  proposal: "bg-purple-500",
+  won: "bg-green-500",
+  lost: "bg-slate-500",
+};
+
+/** Clicks on the menu (its button, or its items rendered in a portal) must
+ * not open the item */
+const isMenuClick = (e: React.MouseEvent) =>
+  !!(e.target as HTMLElement).closest?.("[data-crm-card-menu], [role=menu]");
+
+/** "Déplacer vers…" menu, the way to change the step on touch screens */
+const MoveMenu = ({
+  state,
+  onMoveTo,
+}: {
+  state: CRMState;
+  onMoveTo: (state: CRMState) => void;
+}) => (
+  <span className="shrink-0 -my-1 -mr-1" data-crm-card-menu>
+    <DropdownMenu.Root>
+      <DropdownMenu.Trigger>
+        <IconButton
+          variant="ghost"
+          size="1"
+          color="gray"
+          aria-label="Déplacer vers…"
+          className="cursor-pointer [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 data-[state=open]:opacity-100"
+        >
+          <EllipsisHorizontalIcon className="h-4 w-4" />
+        </IconButton>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content align="end">
+        <DropdownMenu.Label>Déplacer vers…</DropdownMenu.Label>
+        {CRM_BOARD_STATES.filter((s) => s.key !== state).map((s) => (
+          <DropdownMenu.Item key={s.key} onSelect={() => onMoveTo(s.key)}>
+            <span
+              className={twMerge("w-2 h-2 rounded-full", STATE_DOTS[s.key])}
+            />
+            {s.label}
+          </DropdownMenu.Item>
+        ))}
+      </DropdownMenu.Content>
+    </DropdownMenu.Root>
+  </span>
+);
 
 type CRMCardProps = {
   readonly?: boolean;
@@ -66,10 +112,22 @@ type CRMCardProps = {
   contacts?: Contacts[];
   /** Users of the company (clients_users rows), loaded once by the column */
   users: any[];
+  /** Can be dragged to another column (not on touch screens) */
+  draggable?: boolean;
+  /** Moves the item to another step, from the card menu */
+  onMoveTo?: (state: CRMState) => void;
 } & React.HTMLAttributes<HTMLDivElement>;
 
 export const CRMCard = memo(
-  ({ crmItem, readonly, contacts, users, ...props }: CRMCardProps) => {
+  ({
+    crmItem,
+    readonly,
+    contacts,
+    users,
+    draggable = true,
+    onMoveTo,
+    ...props
+  }: CRMCardProps) => {
     const onView = useViewWithCtrlK();
     const [expanded, setExpanded] = useState(false);
     const [clamped, setClamped] = useState(false);
@@ -77,11 +135,11 @@ export const CRMCard = memo(
 
     const [, dragRef] = useDrag(
       () => ({
-        canDrag: !readonly,
+        canDrag: !readonly && draggable,
         type: "crm-item",
         item: crmItem,
       }),
-      [crmItem, readonly],
+      [crmItem, readonly, draggable],
     );
 
     const { title, description } = useMemo(
@@ -112,13 +170,14 @@ export const CRMCard = memo(
 
     return (
       <Card
-        ref={dragRef as any}
+        ref={draggable ? (dragRef as any) : undefined}
         className={twMerge(
-          "w-full min-w-0 overflow-hidden cursor-pointer",
+          "group w-full min-w-0 overflow-hidden cursor-pointer",
           props.className,
         )}
         {..._.omit(props, "className")}
-        onClick={() => {
+        onClick={(e) => {
+          if (isMenuClick(e)) return;
           onView(
             "crm_items",
             crmItem.id,
@@ -147,6 +206,7 @@ export const CRMCard = memo(
               {formatAge(updatedAt)}
             </span>
           )}
+          {onMoveTo && <MoveMenu state={crmItem.state} onMoveTo={onMoveTo} />}
         </div>
 
         <div className="mt-1 text-base font-semibold leading-snug text-slate-900 dark:text-white break-words [overflow-wrap:anywhere]">

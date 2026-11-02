@@ -5,6 +5,7 @@ import { DraftContext } from "@features/utils/rest/hooks/use-draft-rest";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useRecoilState } from "recoil";
+import { useMediaQuery } from "usehooks-ts";
 import { ModalEditor } from "./editor";
 import { SearchCtrlK } from "./search";
 
@@ -38,6 +39,8 @@ import { SearchCtrlK } from "./search";
 
 export const CtrlKModal = () => {
   const [states, setStates] = useRecoilState(CtrlKAtom);
+  // On phones the editor takes the whole width (bottom sheet)
+  const isPhone = useMediaQuery("(max-width: 639px)");
 
   useEffect(() => {
     // remove all items with path length 0 and no selection
@@ -88,7 +91,9 @@ export const CtrlKModal = () => {
             currentState.mode === "search"
               ? "1200px"
               : currentState.mode === "editor"
-              ? "calc(100vw - 100px)"
+              ? isPhone
+                ? "100vw"
+                : "calc(100vw - 100px)"
               : "",
         }}
       >

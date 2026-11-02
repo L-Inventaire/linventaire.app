@@ -17,6 +17,14 @@ export type CRMState = CRMItem["state"];
 
 export const CRM_BOARD_PAGE_SIZE = 30;
 
+/** Steps of the pipeline, in order */
+export const CRM_BOARD_STATES: { key: CRMState; label: string }[] = [
+  { key: "new", label: "Nouveau" },
+  { key: "qualified", label: "Qualifié" },
+  { key: "proposal", label: "Proposition" },
+  { key: "won", label: "Terminé" },
+];
+
 type Page = { total: number; list: CRMItem[] };
 
 // Keys start with ["crm_items", client] so that any change made to a CRM item
@@ -98,7 +106,9 @@ export const useCRMBoardMove = () => {
       for (const [queryKey, data] of snapshot) {
         if (!data) continue;
         const columnState = queryKey[3] as CRMState;
-        const had = data.pages.some((p) => p.list.some((i) => i.id === item.id));
+        const had = data.pages.some((p) =>
+          p.list.some((i) => i.id === item.id),
+        );
         const pages = data.pages.map((page, index) => {
           let list = page.list.filter((i) => i.id !== item.id);
           let total = page.total - (had ? 1 : 0);
