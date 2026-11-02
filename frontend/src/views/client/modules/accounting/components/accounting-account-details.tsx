@@ -21,7 +21,7 @@ export const AccountingAccountDetailsPage = ({
     useReadDraftRest<AccountingAccounts>(
       "accounting_accounts",
       id || "new",
-      readonly
+      readonly,
     );
 
   useEffect(() => {
@@ -51,6 +51,14 @@ export const AccountingAccountDetailsPage = ({
             }
           />
           <FormInput label="Name" ctrl={ctrl("name")} autoFocus />
+          {(draft.type || "internal") === "internal" && (
+            <FormInput
+              type="boolean"
+              label="Compte par défaut"
+              placeholder="Présélectionné pour les nouveaux paiements"
+              ctrl={ctrl("is_default")}
+            />
+          )}
           <InputLabel
             label="Notes"
             input={

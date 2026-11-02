@@ -1,3 +1,4 @@
+import { Tag } from "@atoms/badge/tag";
 import { Button } from "@atoms/button/button";
 import { ButtonConfirm } from "@atoms/button/confirm";
 import { Info } from "@atoms/text";
@@ -41,7 +42,9 @@ export const BankAccountsPage = () => {
 
         <Heading size="6">Comptes</Heading>
         <Info>
-          Définissez les comptes bancaires ou de caisse de votre entreprise.
+          Définissez les comptes bancaires ou de caisse de votre entreprise. Le
+          compte par défaut est présélectionné quand vous enregistrez un
+          paiement.
         </Info>
 
         <Table
@@ -50,6 +53,21 @@ export const BankAccountsPage = () => {
           data={_.sortBy(accounting_accounts.data?.list || [], "name")}
           columns={[
             ...AccountingAccountsColumns,
+            {
+              thClassName: "w-1 whitespace-nowrap",
+              title: "Par défaut",
+              render: (accountingAccount) =>
+                accountingAccount.is_default ? (
+                  <Tag
+                    size="sm"
+                    data-tooltip="Présélectionné pour les nouveaux paiements"
+                  >
+                    Par défaut
+                  </Tag>
+                ) : (
+                  <></>
+                ),
+            },
             {
               hidden: !hasAccess("ACCOUNTING_MANAGE"),
               title: "Actions",

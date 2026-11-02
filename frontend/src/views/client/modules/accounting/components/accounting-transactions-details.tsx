@@ -37,7 +37,7 @@ export const AccountingTransactionsDetailsPage = ({
     useReadDraftRest<AccountingTransactions>(
       "accounting_transactions",
       id || "new",
-      readonly
+      readonly,
     );
 
   useEffect(() => {
@@ -71,6 +71,14 @@ export const AccountingTransactionsDetailsPage = ({
   const creditForcedToId =
     invoice?.type === "supplier_invoices" || invoice?.type === "credit_notes";
 
+  // Bank or cash account preselected: the default one, else the only one
+  const defaultInternalAccountId =
+    internalAccounts?.data?.list?.find((a) => a.is_default)?.id ||
+    (internalAccounts?.data?.total === 1
+      ? internalAccounts?.data?.list?.[0]?.id
+      : "") ||
+    "";
+
   useEffect(() => {
     if (!readonly) {
       const counterpartyAccountId = counterpartyAccount?.data?.list?.[0]?.id;
@@ -82,10 +90,7 @@ export const AccountingTransactionsDetailsPage = ({
         setDraft((draft) => ({
           ...draft,
           debit: counterpartyAccountId || "",
-          credit:
-            internalAccounts?.data?.total === 1
-              ? internalAccounts?.data?.list?.[0]?.id
-              : "",
+          credit: defaultInternalAccountId,
         }));
       }
       if (
@@ -95,10 +100,7 @@ export const AccountingTransactionsDetailsPage = ({
       ) {
         setDraft((draft) => ({
           ...draft,
-          debit:
-            internalAccounts?.data?.total === 1
-              ? internalAccounts?.data?.list?.[0]?.id
-              : "",
+          debit: defaultInternalAccountId,
           credit: counterpartyAccountId || "",
         }));
       }
