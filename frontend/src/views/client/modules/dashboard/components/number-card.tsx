@@ -28,7 +28,7 @@ const NumberCard = ({
         <Heading size="7" className="text-blue-600">
           {number}
         </Heading>
-        {totalNumber && <Info>sur {totalNumber}</Info>}
+        {!!totalNumber && <Info>sur {totalNumber}</Info>}
       </div>
     </DashboardCard>
   );
