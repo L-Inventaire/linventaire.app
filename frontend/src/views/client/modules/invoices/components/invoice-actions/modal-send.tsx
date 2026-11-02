@@ -223,12 +223,13 @@ export const InvoiceSendModalContent = ({
                 return;
               }
 
-              if (finalState === "draft") {
-                await save({ state: "draft" });
-              }
-              if (finalState === "sent") {
-                await save({ state: "sent" });
-              }
+              // The save may be refused (e.g. the e-invoice could not be sent
+              // and sending is blocked in the settings): then send nothing,
+              // the error was already shown by save()
+              const saved = await save({
+                state: finalState === "sent" ? "sent" : "draft",
+              });
+              if (!saved) return;
 
               SigningSessionsApiClient.sendInvoice(
                 clientId,

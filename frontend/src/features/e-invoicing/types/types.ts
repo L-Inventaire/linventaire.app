@@ -23,6 +23,7 @@ export interface EInvoicingConfig {
   last_error: string;
   receive_enabled: boolean;
   send_enabled: boolean;
+  send_blocking: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -74,6 +75,7 @@ export interface AuthorizeResponse {
 export interface UpdateSettingsRequest {
   receive_enabled?: boolean;
   send_enabled?: boolean;
+  send_blocking?: boolean;
 }
 
 export interface ReceivedEInvoices extends RestEntity {

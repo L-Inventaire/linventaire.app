@@ -10126,9 +10126,12 @@
                 "enum": [
                   "",
                   "failed",
-                  "uploaded"
+                  "pending",
+                  "sending",
+                  "uploaded",
+                  "skipped"
                 ],
-                "description": "Transmission of the document to the e-invoicing platform (SuperPDP). Unlike state_details, this is NOT reset on state changes: an invoice is transmitted once, when it leaves the draft state. \"\"         -> not transmitted (e-invoicing not connected, or draft) \"uploaded\" -> accepted by SuperPDP, queued for transmission \"failed\"   -> transmission failed (non blocking, see `error`)"
+                "description": "Transmission of the document to the e-invoicing platform (SuperPDP). Unlike state_details, this is NOT reset on state changes: an invoice is transmitted once, when it leaves the draft state. \"\"         -> not transmitted (sending disabled, draft, or older document) \"pending\"  -> queued, will be transmitted in a few seconds \"sending\"  -> being transmitted \"uploaded\" -> accepted by SuperPDP, queued for transmission \"failed\"   -> transmission failed (non blocking, see `error`) \"skipped\"  -> not concerned by e-invoicing (customer abroad, private individual...), see `error` for the reason"
               },
               "superpdp_id": {
                 "type": "number",
@@ -10140,10 +10143,10 @@
               },
               "error": {
                 "type": "string",
-                "description": "Last error message, if any"
+                "description": "Last error message (or reason why it was skipped)"
               }
             },
-            "description": "Transmission to the e-invoicing platform (see on-sent-e-invoice trigger)"
+            "description": "Transmission to the e-invoicing platform (see on-sent-e-invoice trigger), filterable with e_invoice.status (empty for older documents)"
           },
           "from_rel_invoice": {
             "type": "array",
@@ -10890,9 +10893,12 @@
                 "enum": [
                   "",
                   "failed",
-                  "uploaded"
+                  "pending",
+                  "sending",
+                  "uploaded",
+                  "skipped"
                 ],
-                "description": "Transmission of the document to the e-invoicing platform (SuperPDP). Unlike state_details, this is NOT reset on state changes: an invoice is transmitted once, when it leaves the draft state. \"\"         -> not transmitted (e-invoicing not connected, or draft) \"uploaded\" -> accepted by SuperPDP, queued for transmission \"failed\"   -> transmission failed (non blocking, see `error`)"
+                "description": "Transmission of the document to the e-invoicing platform (SuperPDP). Unlike state_details, this is NOT reset on state changes: an invoice is transmitted once, when it leaves the draft state. \"\"         -> not transmitted (sending disabled, draft, or older document) \"pending\"  -> queued, will be transmitted in a few seconds \"sending\"  -> being transmitted \"uploaded\" -> accepted by SuperPDP, queued for transmission \"failed\"   -> transmission failed (non blocking, see `error`) \"skipped\"  -> not concerned by e-invoicing (customer abroad, private individual...), see `error` for the reason"
               },
               "superpdp_id": {
                 "type": "number",
@@ -10904,10 +10910,10 @@
               },
               "error": {
                 "type": "string",
-                "description": "Last error message, if any"
+                "description": "Last error message (or reason why it was skipped)"
               }
             },
-            "description": "Transmission to the e-invoicing platform (see on-sent-e-invoice trigger)"
+            "description": "Transmission to the e-invoicing platform (see on-sent-e-invoice trigger), filterable with e_invoice.status (empty for older documents)"
           },
           "from_rel_invoice": {
             "type": "array",

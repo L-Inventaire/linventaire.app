@@ -181,7 +181,7 @@ export default (router: Router) => {
 
   /**
    * PUT /:clientId/settings
-   * Update receive_enabled / send_enabled settings
+   * Update receive_enabled / send_enabled / send_blocking settings
    */
   router.put(
     "/:clientId/settings",
@@ -192,7 +192,7 @@ export default (router: Router) => {
         const ctx = Ctx.get(req)!.context;
         if (!ctx) throw new Error("No context");
 
-        const { receive_enabled, send_enabled } = req.body;
+        const { receive_enabled, send_enabled, send_blocking } = req.body;
 
         const db = await Framework.Db.getService();
 
@@ -211,7 +211,11 @@ export default (router: Router) => {
                 ? receive_enabled
                 : config.receive_enabled,
             send_enabled:
-              send_enabled !== undefined ? send_enabled : config.send_enabled,
+              send_enabled !== undefined ? !!send_enabled : config.send_enabled,
+            send_blocking:
+              send_blocking !== undefined
+                ? !!send_blocking
+                : config.send_blocking,
           }
         );
 

@@ -9,6 +9,7 @@ import { registerRoutes } from "./routes";
 import { setCheckIsCompleteTrigger } from "./triggers/on-complete";
 import { setOnCompletedCreateInvoicesTrigger } from "./triggers/on-completed-create-invoices";
 import { setOnSentEInvoiceTrigger } from "./triggers/on-sent-e-invoice";
+import { processPendingEInvoices } from "./services/send-e-invoice";
 import { setOnPaymentDelayChanged } from "./triggers/on-payment-delay-changed";
 import { setOnPurchaseOrderTrigger } from "./triggers/on-purchase-order";
 import {
@@ -86,6 +87,16 @@ export default class Invoices implements InternalApplicationService {
     setOnCompletedCreateInvoicesTrigger();
     setOnSentEInvoiceTrigger();
     setStatusTrigger();
+
+    // Queued e-invoices (non blocking mode): normally sent a few seconds after
+    // the document left the draft state, this catches up on restarts
+    Framework.Cron.schedule(
+      this.name + "-e-invoices-queue-cron",
+      "0 * * * * *", // Every minute
+      async () => {
+        await processPendingEInvoices();
+      }
+    );
 
     // Manage recurring quotes
     setTriggerStartRecurring();

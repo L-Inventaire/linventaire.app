@@ -252,6 +252,11 @@ export const generatePdf = async (
       // Factur-X is NOT embedded in the PDF.
       const embedFacturX =
         options.facturx || eInvoicingConfig.send_enabled === true;
+      // Only the e-invoice transmission (options.facturx) requires the
+      // Factur-X: a PDF sent by email (or downloaded) falls back to the plain
+      // PDF, e.g. for a customer abroad. Blocking, when enabled, is decided by
+      // the e-invoice transmission itself (see on-sent-e-invoice).
+      const requireFacturX = options.facturx === true;
       try {
         const facturxPdf = await generateFacturXPdf(
           ctx,
@@ -290,11 +295,11 @@ export const generatePdf = async (
             invoice: JSON.stringify(document, null, 2),
           },
         });
-        if (embedFacturX) {
+        if (requireFacturX) {
           throw e;
         }
         console.error(
-          "Factur-X formatting test failed, but e-invoicing sending is disabled, so we'll ignore this error",
+          "Factur-X generation failed, falling back to the plain PDF",
           e
         );
       }

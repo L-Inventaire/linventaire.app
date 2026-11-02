@@ -1,4 +1,4 @@
-import { useEInvoicingConfig } from "@/features/e-invoicing/hooks/use-e-invoicing-config";
+import { useEInvoicesReady } from "@features/invoices/hooks/use-e-invoices-ready";
 import { Button } from "@atoms/button/button";
 import { DropdownButton } from "@atoms/dropdown";
 import { withModel } from "@components/search-bar/utils/as-model";
@@ -30,7 +30,6 @@ export const InvoicesActions = ({
   const navigate = useNavigateAlt();
   const openSendModal = useSetRecoilState(InvoiceSendModalAtom);
   const openSendSpecialModal = useSetRecoilState(InvoiceSendSpecialModalAtom);
-  const { config: eInvoicingConfig } = useEInvoicingConfig();
 
   const { draft, save: _save } = useReadDraftRest<Invoices>(
     "invoices",
@@ -40,8 +39,11 @@ export const InvoicesActions = ({
   const disabled =
     readonly || draft.state === "closed" || draft.state === "completed";
 
-  const canSend = !!draft?.en16931 || !eInvoicingConfig?.send_enabled;
-  const en16931Warning = !draft?.en16931;
+  // E-invoice: only blocking when enabled in the settings ("Bloquer en cas
+  // d'échec") and for the customers concerned (not abroad, not individuals)
+  const { sendEnabled, enforced } = useEInvoicesReady(draft);
+  const canSend = !!draft?.en16931 || !enforced;
+  const en16931Warning = sendEnabled && !draft?.en16931;
 
   const edit = useEditFromCtrlK();
 
@@ -66,7 +68,9 @@ export const InvoicesActions = ({
     <>
       {!!en16931Warning && (
         <div className="text-sm text-red-500">
-          Impossible de compiler en e-facture pour l'envoi.
+          {enforced
+            ? "Impossible de compiler en e-facture pour l'envoi."
+            : "Impossible de compiler en e-facture, le document sera envoyé sans facture électronique."}
         </div>
       )}
       {draft.state === "draft" && (

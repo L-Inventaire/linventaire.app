@@ -193,14 +193,25 @@ export const ContactsFieldsNames = () => ({
   ...RestFieldsNames(),
 });
 
+/**
+ * French e-invoicing only concerns companies established in France: a
+ * customer abroad or a private individual is not concerned (and must never be
+ * blocked). Same rule as getEInvoiceSkipReason in the backend.
+ */
+export const isContactConcernedByEInvoicing = (contact: Contacts) => {
+  if (contact.type === "person") return false;
+  const country = (contact.address?.country || "").trim().toUpperCase();
+  return !country || country === "FR" || country === "FRANCE";
+};
+
 export const isContactReady = (contact: Contacts) => {
   return (
     // Active an OK
     contact.e_invoices_active ||
     // Not a client / not a supplier
     !(contact.is_supplier || contact.is_client) ||
-    // Not in France
-    (contact.address?.country && contact.address?.country !== "FR")
+    // Not in France, or a private individual
+    !isContactConcernedByEInvoicing(contact)
   );
 };
 

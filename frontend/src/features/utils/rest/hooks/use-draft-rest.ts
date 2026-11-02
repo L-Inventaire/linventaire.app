@@ -90,7 +90,9 @@ export const useDraftRest = <T extends { id: string }>(
       } catch (e: any) {
         setLockNavigation(true);
         console.error(e);
-        toast.error("An error occurred while saving the item");
+        toast.error(
+          e?.serverMessage || "An error occurred while saving the item",
+        );
       }
       return null;
     },
