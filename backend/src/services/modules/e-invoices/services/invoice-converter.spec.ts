@@ -562,7 +562,8 @@ describe("convertInternalToEN16931 matches the SuperPDP specification", () => {
         {
           payment_account_identifier: {
             value: "FR7613135000800800285950618",
-            scheme: "IBAN",
+            // A non-empty scheme becomes a second ProprietaryID (CII-SR-470)
+            scheme: "",
           },
           payment_service_provider_identifier: "CEPAFRPP313",
         },
