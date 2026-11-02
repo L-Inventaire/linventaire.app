@@ -37,6 +37,20 @@ export const setUpsertHook = () =>
     priority: 1, // High priority
   });
 
+// Internal and supplier references of the article, so stock items can be searched by them
+export const getArticleReferences = (article?: Articles | null) =>
+  _.uniq(
+    [
+      article?.internal_reference,
+      article?.supplier_reference,
+      ...Object.values(article?.suppliers_details || {}).map(
+        (details) => details?.reference
+      ),
+    ]
+      .map((reference) => (reference || "").trim())
+      .filter(Boolean)
+  ).join(" ");
+
 export const updateCache = async (
   ctx: Context,
   entity: StockItems,
@@ -55,6 +69,7 @@ export const updateCache = async (
         })
       : null;
     cache.article_name = article?.name;
+    cache.article_references = getArticleReferences(article);
   }
 
   if (force || entity?.for_rel_quote !== prev?.for_rel_quote) {
@@ -69,7 +84,7 @@ export const updateCache = async (
   }
 
   if (
-    force &&
+    force ||
     entity?.from_rel_supplier_quote !== prev?.from_rel_supplier_quote
   ) {
     const quote = entity.from_rel_supplier_quote

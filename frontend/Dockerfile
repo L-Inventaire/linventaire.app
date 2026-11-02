@@ -1,5 +1,5 @@
 # Stage 1: Build the SPA
-FROM node:20 as build
+FROM node:24 as build
 
 ARG SENTRY_AUTH_TOKEN
 

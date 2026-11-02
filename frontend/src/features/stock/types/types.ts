@@ -31,6 +31,7 @@ export type StockItems = RestEntity & {
 
   cache?: {
     article_name: string;
+    article_references?: string;
     client_name: string;
     quote_name: string;
     supplier_quote_name: string;

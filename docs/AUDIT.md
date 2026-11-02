@@ -21,8 +21,8 @@ Périmètre : `backend/` (~36 k lignes, 236 fichiers), `frontend/` (~56 k lignes
 | P1 | Tests : totaux de facture, Factur-X/EN16931, isolation multi-tenant | M–L |
 | P1 | CI : frontend (lint/typecheck/build), `yarn --immutable`, Dependabot/CodeQL | S |
 | P2 | Frontend : clés de cache `useRest`, lazy loading des routes, `define process.env` | S–M |
-| P2 | Dépendances vulnérables/abandonnées (`jsonwebtoken`, `axios`, `multer`, `xlsx`) | S–M |
-| P2 | Docker : multi-stage, non-root, Node 22+, `.dockerignore`, compose de dev réparé | M |
+| P2 | Dépendances vulnérables/abandonnées : reste `xlsx`, `react-router` 7, `react-quill` (voir §6) | S–M |
+| P2 | Docker : multi-stage, non-root, `.dockerignore`, compose de dev réparé (Node 24 fait) | M |
 | P3 | Dette : Recoil → React Query/Zustand, i18n, architecture en couches, nettoyage deps | L |
 
 ---
@@ -119,11 +119,12 @@ Constats vérifiés dans le code ; les points **critiques** sont volontairement 
 **Docker**
 - `docker-compose.yml` / `docker-compose.tests.yml` pointent vers des Dockerfiles inexistants → Quick Start cassé.
 - `docker/node.Dockerfile` : mono-étape (devDeps + sources dans l'image), root, pas de `HEALTHCHECK`, `EXPOSE 80` vs port 3000, `SENTRY_AUTH_TOKEN` en `ARG`. Aucun `.dockerignore`.
-- Node 20 en fin de vie (avril 2026) → Node 22/24.
+- ~~Node 20 en fin de vie (avril 2026)~~ → passé à Node 24 LTS (octobre 2026, `.nvmrc` lu par la CI, images `node:24`).
 - `docker-compose.prod.yml` : Postgres exposé sur `5432:5432`, Watchtower en `:latest` toutes les 30 s (déploiement non contrôlé + migrations au boot), pas de healthchecks, pas de sauvegarde.
 
 **Dépendances**
-- À mettre à jour (sécurité) : `jsonwebtoken` 8 → 9, `axios` 0.27 → 1.x, `multer` 1.4 → 2.x, `xlsx` 0.18.5 (abandonné sur npm) → distribution SheetJS ≥ 0.20.2 ou `exceljs`.
+- Audit d'octobre 2026 (Node 24) : alertes de sécurité backend 140 → 2, frontend 193 → 7, `api-docs`/`user-docs`/`video` → 0. Mis à jour : `jsonwebtoken` 9, `axios` 1.x, `multer` 2.x, `nodemailer` 10 (SES via `@aws-sdk/client-sesv2`), `sharp` 0.35, `twig` 3, `bcrypt` 6, `@sentry/node` 10 (binaire du profiler disponible pour Node 24/Alpine), `i18next-http-backend` 4 ; dépendances transitives rafraîchies ; paquets jamais importés retirés (`gulp`, `short-uuid`, `npm`, `nivo`, `html2pdf.js`, `@editorjs/*`, `react-use`…).
+- Restant : `xlsx` 0.18.5 (abandonné sur npm, seulement utilisé en écriture, les failles concernent la lecture) → distribution SheetJS ≥ 0.20.2 ou `exceljs` ; `react-router` 6 → 7 ; `react-quill` (embarque `quill` 1.3.7) → `react-quill-new` ; `jimp` 0.22 → 1.x (`file-type`) ; `tailwindcss` 3 (`postcss-selector-parser`) ; `braces` 3.0.3 (outillage de dev, pas de correctif publié).
 - Express déclaré `^5.0.0-beta.1` (résolu en 5.2.1) → `^5.2.1` + `@types/express@5`.
 - TypeScript hétérogène (5.1.6 / 5.5 / 6.0.3) ; outils de dev (`jest`, `eslint`, `@types/*`, `@sentry/cli`, `gulp`, `npm`) en `dependencies`.
 - Frontend : dépendances jamais importées (`@fluentui/*`, `nivo@0.31`, `@editorjs/*`, `html2pdf.js`, `react-use`…), doublons (`luxon`+`date-fns`, `clsx`+`classnames`, deux libs de signature, deux versions de Quill), `tailwindcss@3` avec `@tailwindcss/vite@4`, `i18next@21`, `recoil`, `react-quill` non maintenu.

@@ -49,6 +49,8 @@ type Counter = {
 
 class ServiceItems {
   default_article = "string";
+  // Used for received e-invoice lines that match no article (no stock link)
+  unknown_article = "string";
 }
 
 export class Address {

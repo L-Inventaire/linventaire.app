@@ -25,6 +25,7 @@ import { normalizeContactCountryCodes } from "./migrations/017-normalize-contact
 import { reindexArticlesStockNumericPrefixes } from "./migrations/018-reindex-articles-stock-numeric-prefixes";
 import { setSubscriptionsReview } from "./migrations/019-set-subscriptions-review";
 import { reencryptEInvoicingCredentials } from "./migrations/020-reencrypt-einvoicing-credentials";
+import { indexStockArticleReferences } from "./migrations/021-stock-index-article-references";
 
 export default class Clients implements InternalApplicationService {
   version = 1;
@@ -120,6 +121,7 @@ export default class Clients implements InternalApplicationService {
       "018-reindex-articles-stock-numeric-prefixes": reindexArticlesStockNumericPrefixes,
       "019-set-subscriptions-review": setSubscriptionsReview,
       "020-reencrypt-einvoicing-credentials": reencryptEInvoicingCredentials,
+      "021-stock-index-article-references": indexStockArticleReferences,
     } as {
       [key: string]: (ctx: Context) => Promise<void>;
     };

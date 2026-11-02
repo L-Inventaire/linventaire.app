@@ -406,7 +406,7 @@ Install hooks: `./scripts/install-hooks.sh`
 ## Development Environment Setup
 
 **Prerequisites:**
-- Node.js 16+
+- Node.js 24 LTS (see `.nvmrc`)
 - PostgreSQL 12+
 - Docker (optional, recommended)
 

@@ -6,7 +6,7 @@ import {
   getContactName,
 } from "#src/services/utils";
 import { Context } from "#src/types";
-import { getUnitCode, getVatCode } from "@shared/consts";
+import { getUnitCode, getVatCode, normalizeUnitCode } from "@shared/consts";
 import {
   EN16931AllowanceOrCharge,
   EN16931Buyer,
@@ -88,7 +88,10 @@ export interface EN16931References {
 export interface ResolvedEntities {
   supplier?: Contacts; // Contact entity (for supplier invoices)
   client?: Contacts; // Contact entity (for client invoices)
-  articles: Map<string, Articles>; // Map of article name/reference to article entity
+  articles: Map<string, Articles>; // Map of line identifier, or article name/reference, to article entity
+  // Used for the lines without a matching article: the line keeps its own
+  // name and price and is converted to a service so it doesn't touch the stock
+  defaultArticle?: Articles;
   self: Clients;
 }
 
@@ -160,6 +163,13 @@ export function convertEN16931ToInternal(
     }
   }
 
+  // Net amounts of the e-invoice by VAT code, to check them against the
+  // VAT breakdown once the lines, allowances and charges are converted
+  const amountsByVat: Record<string, number> = {};
+  const addAmount = (vat: string, value?: string) =>
+    (amountsByVat[vat] =
+      (amountsByVat[vat] || 0) + (parseFloat(value || "0") || 0));
+
   // Convert invoice lines
   const content: InvoiceLine[] = en16931Invoice.lines.map((line) => {
     const articleKey =
@@ -167,7 +177,10 @@ export function convertEN16931ToInternal(
       line.item_information.buyer_identifier ||
       line.item_information.name;
 
-    const article = resolvedEntities.articles.get(articleKey);
+    const matchedArticle =
+      resolvedEntities.articles.get(line.identifier) ||
+      resolvedEntities.articles.get(articleKey);
+    const article = matchedArticle || resolvedEntities.defaultArticle;
 
     if (!article) {
       throw new Error(
@@ -175,10 +188,20 @@ export function convertEN16931ToInternal(
       );
     }
 
-    // Parse VAT rate
+    // Parse VAT rate, the line rate is optional (BT-152): fallback on the
+    // breakdown of the same category when there is only one rate for it
+    const categoryCode = line.vat_information.invoiced_item_vat_category_code;
+    const categoryRates = _.uniq(
+      (en16931Invoice.vat_break_down || [])
+        .filter((vb) => vb.vat_category_code === categoryCode)
+        .map((vb) => vb.vat_category_rate)
+        .filter(Boolean)
+    );
     const vatFullCode = getVatCode(
-      line.vat_information.invoiced_item_vat_rate || "0",
-      line.vat_information.invoiced_item_vat_category_code
+      line.vat_information.invoiced_item_vat_rate ||
+        (categoryRates.length === 1 ? categoryRates[0] : "") ||
+        "0",
+      categoryCode
     );
 
     // Calculate discount from allowances/charges
@@ -198,22 +221,29 @@ export function convertEN16931ToInternal(
       }
     }
 
-    const netDiscountAmount = totalAllowanceAmount - totalChargeAmount;
-
-    if (netDiscountAmount > 0) {
+    // Allowances become the line discount, charges are added to the unit
+    // price so the line total stays the e-invoice one (BT-131)
+    if (totalAllowanceAmount > 0) {
       discount.mode = "amount";
-      discount.value = netDiscountAmount;
+      discount.value = totalAllowanceAmount;
     }
 
     const invoiceLine = {} as InvoiceLine;
     invoiceLine.article = article.id;
-    invoiceLine.type = article.type || "product";
+    invoiceLine.type = matchedArticle ? article.type || "product" : "service";
     invoiceLine.name = line.item_information.name;
     invoiceLine.reference = line.item_information.seller_identifier || "";
     invoiceLine.description = line.item_information.description || "";
-    invoiceLine.unit = line.invoiced_quantity_code;
+    invoiceLine.unit = normalizeUnitCode(line.invoiced_quantity_code);
     invoiceLine.quantity = parseFloat(line.invoiced_quantity);
-    invoiceLine.unit_price = parseFloat(line.price_details.item_net_price);
+    // The net price is given for a base quantity (BT-149), 1 by default
+    const baseQuantity =
+      parseFloat(line.price_details.item_price_base_quantity || "1") || 1;
+    invoiceLine.unit_price =
+      parseFloat(line.price_details.item_net_price) / baseQuantity +
+      (totalChargeAmount && invoiceLine.quantity
+        ? totalChargeAmount / invoiceLine.quantity
+        : 0);
     invoiceLine.tva = vatFullCode || "S:20";
     invoiceLine.discount = discount;
     invoiceLine.subscription = "";
@@ -222,13 +252,14 @@ export function convertEN16931ToInternal(
     invoiceLine.optional = false;
     invoiceLine.optional_checked = false;
 
+    addAmount(invoiceLine.tva, line.net_amount);
+
     return invoiceLine;
   });
 
-  // Calculate document-level discount
+  // Document-level allowances become the document discount
   const documentDiscount = {} as InvoiceDiscount;
   let totalDocAllowanceAmount = 0;
-  let totalDocChargeAmount = 0;
 
   if (
     en16931Invoice.document_level_allowances &&
@@ -236,20 +267,69 @@ export function convertEN16931ToInternal(
   ) {
     for (const allowance of en16931Invoice.document_level_allowances) {
       totalDocAllowanceAmount += parseFloat(allowance.amount || "0");
+      addAmount(
+        getVatCode(allowance.vat_rate || "0", allowance.vat_category_code) ||
+          "S:20",
+        `${-(parseFloat(allowance.amount || "0") || 0)}`
+      );
     }
   }
 
-  if (en16931Invoice.charges && en16931Invoice.charges.length > 0) {
-    for (const charge of en16931Invoice.charges) {
-      totalDocChargeAmount += parseFloat(charge.amount || "0");
-    }
-  }
-
-  const netDocDiscountAmount = totalDocAllowanceAmount - totalDocChargeAmount;
-
-  if (netDocDiscountAmount > 0) {
+  if (totalDocAllowanceAmount > 0) {
     documentDiscount.mode = "amount";
-    documentDiscount.value = netDocDiscountAmount;
+    documentDiscount.value = totalDocAllowanceAmount;
+  }
+
+  // Document-level charges (shipping, eco-participation...) become lines
+  // without article, they were lost when they exceeded the allowances
+  for (const charge of en16931Invoice.charges || []) {
+    const chargeLine = {} as InvoiceLine;
+    chargeLine.article = "";
+    chargeLine.type = "service";
+    chargeLine.name = charge.reason || charge.reason_code || "Frais";
+    chargeLine.reference = "";
+    chargeLine.description = "";
+    chargeLine.unit = "EA";
+    chargeLine.quantity = 1;
+    chargeLine.unit_price = parseFloat(charge.amount || "0");
+    chargeLine.tva =
+      getVatCode(charge.vat_rate || "0", charge.vat_category_code) || "S:20";
+    chargeLine.discount = {} as InvoiceDiscount;
+    chargeLine.subscription = "";
+    chargeLine.quantity_ready = 0;
+    chargeLine.quantity_delivered = 0;
+    chargeLine.optional = false;
+    chargeLine.optional_checked = false;
+    content.push(chargeLine);
+    addAmount(chargeLine.tva, charge.amount);
+  }
+
+  // Some e-invoices put amounts (eco-participation, shipping...) only in the
+  // totals (e.g. sum_charges_amount without charges), not in the lines,
+  // allowances or charges: the created invoice was then lower than the
+  // e-invoice and could not be attached to it. The gap of each VAT rate
+  // becomes a line.
+  for (const gap of getUndetailedAmounts(en16931Invoice, amountsByVat)) {
+    const gapLine = {} as InvoiceLine;
+    gapLine.article = "";
+    gapLine.type = "service";
+    gapLine.name =
+      gap.amount > 0
+        ? "Frais non détaillés dans la facture électronique"
+        : "Remise non détaillée dans la facture électronique";
+    gapLine.reference = "";
+    gapLine.description = "";
+    gapLine.unit = "EA";
+    gapLine.quantity = 1;
+    gapLine.unit_price = gap.amount;
+    gapLine.tva = gap.tva;
+    gapLine.discount = {} as InvoiceDiscount;
+    gapLine.subscription = "";
+    gapLine.quantity_ready = 0;
+    gapLine.quantity_delivered = 0;
+    gapLine.optional = false;
+    gapLine.optional_checked = false;
+    content.push(gapLine);
   }
 
   // Parse payment instructions
@@ -343,6 +423,44 @@ export function convertEN16931ToInternal(
   }
 
   return invoice;
+}
+
+/**
+ * Amounts of the e-invoice totals that are in none of its lines, allowances or
+ * charges, by VAT code. Uses the VAT breakdown (BG-23) to know their rate, or
+ * the total without VAT (BT-109) when there is no breakdown.
+ */
+function getUndetailedAmounts(
+  en16931Invoice: EN16931Invoice,
+  amountsByVat: Record<string, number>
+): { tva: string; amount: number }[] {
+  const breakdown = en16931Invoice.vat_break_down || [];
+
+  if (
+    !breakdown.length ||
+    breakdown.some((vat) => isNaN(parseFloat(vat.vat_category_taxable_amount)))
+  ) {
+    const total = parseFloat(en16931Invoice.totals?.total_without_vat || "");
+    if (isNaN(total)) return [];
+    const gap = round2(total - _.sum(Object.values(amountsByVat)));
+    const tva = Object.keys(amountsByVat)[0] || "S:20";
+    return Math.abs(gap) >= 0.01 ? [{ tva, amount: gap }] : [];
+  }
+
+  const expectedByVat: Record<string, number> = {};
+  for (const vat of breakdown) {
+    const tva =
+      getVatCode(vat.vat_category_rate || "0", vat.vat_category_code) || "S:20";
+    expectedByVat[tva] =
+      (expectedByVat[tva] || 0) + parseFloat(vat.vat_category_taxable_amount);
+  }
+
+  return Object.entries(expectedByVat)
+    .map(([tva, expected]) => ({
+      tva,
+      amount: round2(expected - (amountsByVat[tva] || 0)),
+    }))
+    .filter((gap) => Math.abs(gap.amount) >= 0.01);
 }
 
 export async function getResolvedEntities(

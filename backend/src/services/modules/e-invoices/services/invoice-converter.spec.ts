@@ -6,8 +6,10 @@ import Invoices from "../../invoices/entities/invoices";
 import { computePricesFromInvoice } from "@shared/invoices";
 import fs from "fs";
 import path from "path";
+import { EN16931Invoice, EN16931InvoiceLine } from "@shared/en16931-types";
 import {
   buildPaymentInstructions,
+  convertEN16931ToInternal,
   convertInternalToEN16931,
   ResolvedEntities,
 } from "./invoice-converter";
@@ -595,5 +597,282 @@ describe("buildPaymentInstructions", () => {
     expect(
       buildPaymentInstructions({ mode: ["direct_debit", "check"] } as any)
     ).toEqual({ payment_means_type_code: "20" });
+  });
+});
+
+describe("convertEN16931ToInternal - received invoices", () => {
+  const ctx = { client_id: "client-1" } as any;
+
+  const buildLine = (
+    identifier: string,
+    line: Partial<EN16931InvoiceLine> = {},
+  ): EN16931InvoiceLine =>
+    ({
+      identifier,
+      invoiced_quantity: "4",
+      invoiced_quantity_code: "C62",
+      net_amount: "400",
+      item_information: {
+        name: "PN HN 245/40R19 98Y VENTUS S1 EVO 3 K127",
+        seller_identifier: "0005817366",
+      },
+      price_details: { item_net_price: "100" },
+      vat_information: {
+        invoiced_item_vat_category_code: "S",
+        invoiced_item_vat_rate: "20",
+      },
+      ...line,
+    }) as EN16931InvoiceLine;
+
+  const buildEnInvoice = (lines: EN16931InvoiceLine[]) =>
+    ({
+      number: "F-1",
+      issue_date: "2026-10-01",
+      type_code: 380,
+      currency_code: "EUR",
+      seller: { name: "Hankook" },
+      buyer: { name: "Proxima" },
+      lines,
+      vat_break_down: [{ vat_category_code: "S", vat_category_rate: "20" }],
+    }) as unknown as EN16931Invoice;
+
+  const entities = (
+    articles: Map<string, Articles>,
+    defaultArticle?: Articles,
+  ): ResolvedEntities => ({
+    ...buildResolvedEntities(),
+    articles,
+    defaultArticle,
+  });
+
+  test("uses the article matched for the line", () => {
+    const articles = new Map<string, Articles>();
+    articles.set("1", { id: "tyre", type: "product" } as Articles);
+    const invoice = convertEN16931ToInternal(
+      buildEnInvoice([buildLine("1")]),
+      entities(articles),
+      "in",
+      ctx,
+    );
+    expect(invoice.content?.[0]).toMatchObject({
+      article: "tyre",
+      type: "product",
+      unit: "EA",
+      quantity: 4,
+      unit_price: 100,
+      tva: "S:20",
+    });
+  });
+
+  test("fails without match nor default article", () => {
+    expect(() =>
+      convertEN16931ToInternal(
+        buildEnInvoice([buildLine("1")]),
+        entities(new Map()),
+        "in",
+        ctx,
+      ),
+    ).toThrow("Article not found");
+  });
+
+  test("uses the default article as a service, keeping the line price", () => {
+    const invoice = convertEN16931ToInternal(
+      buildEnInvoice([buildLine("1")]),
+      entities(new Map(), { id: "unknown", type: "product" } as Articles),
+      "in",
+      ctx,
+    );
+    expect(invoice.content?.[0]).toMatchObject({
+      article: "unknown",
+      type: "service",
+      name: "PN HN 245/40R19 98Y VENTUS S1 EVO 3 K127",
+      unit_price: 100,
+    });
+  });
+
+  test("divides the price by its base quantity and keeps exact VAT rates", () => {
+    const articles = new Map<string, Articles>();
+    articles.set("1", { id: "screws", type: "consumable" } as Articles);
+    const invoice = convertEN16931ToInternal(
+      buildEnInvoice([
+        buildLine("1", {
+          price_details: {
+            item_net_price: "250",
+            item_price_base_quantity: "100",
+          },
+          vat_information: {
+            invoiced_item_vat_category_code: "S",
+            invoiced_item_vat_rate: "2.1",
+          },
+        }),
+      ]),
+      entities(articles),
+      "in",
+      ctx,
+    );
+    expect(invoice.content?.[0]).toMatchObject({
+      unit_price: 2.5,
+      tva: "S:2.1",
+    });
+  });
+
+  test("keeps the line and document charges", () => {
+    const articles = new Map<string, Articles>();
+    articles.set("1", { id: "dock", type: "product" } as Articles);
+    const invoice = convertEN16931ToInternal(
+      {
+        ...buildEnInvoice([
+          buildLine("1", {
+            invoiced_quantity: "2",
+            net_amount: "205",
+            price_details: { item_net_price: "100" },
+            charges: [{ amount: "5", reason: "DEEE" }],
+          }),
+        ]),
+        charges: [
+          {
+            amount: "13.78",
+            reason: "Frais de port",
+            vat_category_code: "S",
+            vat_rate: "20",
+          },
+        ],
+      } as unknown as EN16931Invoice,
+      entities(articles),
+      "in",
+      ctx
+    );
+    expect(invoice.content?.[0].unit_price).toBe(102.5);
+    expect(invoice.content?.[1]).toMatchObject({
+      article: "",
+      type: "service",
+      name: "Frais de port",
+      quantity: 1,
+      unit_price: 13.78,
+      tva: "S:20",
+    });
+    expect(computePricesFromInvoice(invoice as Invoices).total).toBe(218.78);
+  });
+
+  test("uses the VAT breakdown when the line has no rate", () => {
+    const articles = new Map<string, Articles>();
+    articles.set("1", { id: "tyre", type: "product" } as Articles);
+    const invoice = convertEN16931ToInternal(
+      {
+        ...buildEnInvoice([
+          buildLine("1", {
+            vat_information: { invoiced_item_vat_category_code: "S" },
+          }),
+        ]),
+        vat_break_down: [{ vat_category_code: "S", vat_category_rate: "10" }],
+      } as unknown as EN16931Invoice,
+      entities(articles),
+      "in",
+      ctx,
+    );
+    expect(invoice.content?.[0].tva).toBe("S:10");
+  });
+
+  test("keeps the charges only given in the totals", () => {
+    // Ingram Micro: sum_charges_amount without charges nor VAT breakdown
+    const articles = new Map<string, Articles>();
+    articles.set("001", { id: "dock", type: "product" } as Articles);
+    articles.set("002", { id: "riser", type: "product" } as Articles);
+    const invoice = convertEN16931ToInternal(
+      {
+        ...buildEnInvoice([
+          buildLine("001", {
+            invoiced_quantity: "1.0000",
+            net_amount: "100.77",
+            price_details: { item_net_price: "100.770000" },
+            vat_information: {
+              invoiced_item_vat_category_code: "S",
+              invoiced_item_vat_rate: "20.00",
+            },
+          }),
+          buildLine("002", {
+            invoiced_quantity: "20.0000",
+            net_amount: "380.60",
+            price_details: { item_net_price: "19.030000" },
+            vat_information: {
+              invoiced_item_vat_category_code: "S",
+              invoiced_item_vat_rate: "20.00",
+            },
+          }),
+        ]),
+        vat_break_down: [],
+        totals: {
+          total_with_vat: "614.91",
+          total_vat_amount: { value: "102.48", currency_code: "EUR" },
+          total_without_vat: "512.43",
+          sum_charges_amount: "31.06",
+          amount_due_for_payment: "614.91",
+          sum_invoice_lines_amount: "481.37",
+        },
+      } as unknown as EN16931Invoice,
+      entities(articles),
+      "in",
+      ctx,
+    );
+    expect(invoice.content?.[2]).toMatchObject({
+      article: "",
+      type: "service",
+      name: "Frais non détaillés dans la facture électronique",
+      quantity: 1,
+      unit_price: 31.06,
+      tva: "S:20",
+    });
+    const total = computePricesFromInvoice(invoice as Invoices);
+    expect(total.total).toBe(512.43);
+    // The supplier rounds the VAT per line (102.48 instead of 102.49)
+    expect(Math.abs(total.total_with_taxes - 614.91)).toBeLessThanOrEqual(0.01);
+  });
+
+  test("uses the VAT breakdown to know the rate of the missing amounts", () => {
+    const articles = new Map<string, Articles>();
+    articles.set("1", { id: "tyre", type: "product" } as Articles);
+    const invoice = convertEN16931ToInternal(
+      {
+        ...buildEnInvoice([buildLine("1")]),
+        vat_break_down: [
+          {
+            vat_category_code: "S",
+            vat_category_rate: "20",
+            vat_category_taxable_amount: "400",
+            vat_category_tax_amount: "80",
+          },
+          {
+            vat_category_code: "S",
+            vat_category_rate: "5.5",
+            vat_category_taxable_amount: "10",
+            vat_category_tax_amount: "0.55",
+          },
+        ],
+      } as unknown as EN16931Invoice,
+      entities(articles),
+      "in",
+      ctx,
+    );
+    expect(invoice.content).toHaveLength(2);
+    expect(invoice.content?.[1]).toMatchObject({
+      unit_price: 10,
+      tva: "S:5.5",
+    });
+  });
+
+  test("adds nothing when the details match the totals", () => {
+    const articles = new Map<string, Articles>();
+    articles.set("1", { id: "tyre", type: "product" } as Articles);
+    const invoice = convertEN16931ToInternal(
+      {
+        ...buildEnInvoice([buildLine("1")]),
+        vat_break_down: [],
+        totals: { total_without_vat: "400.00" },
+      } as unknown as EN16931Invoice,
+      entities(articles),
+      "in",
+      ctx,
+    );
+    expect(invoice.content).toHaveLength(1);
   });
 });
