@@ -120,6 +120,10 @@ La plupart des opérations se créent avec **Enregistrer un paiement** depuis un
 - les **Bénéfices par clients** ;
 - l'**Export comptable** de vos documents, au format Excel ou CSV, à transmettre à votre expert-comptable.
 
+Dans l'export comptable, chaque ligne de facture porte son compte de vente ou d'achat et son compte de TVA. Le compte de l'article est utilisé en priorité. Pour les articles sans compte et les lignes sans article, l'export utilise les comptes par défaut de **Paramètres › Comptabilité** : par défaut 707 (marchandises) et 706 (prestations de services) pour les ventes, 607, 604 et 6022 pour les achats, 44571 (TVA collectée) et 44566 (TVA déductible). Vous pouvez les modifier, et définir un compte de TVA différent par taux si votre expert-comptable les distingue.
+
+La remise globale d'une facture est répartie sur ses lignes, au prorata de leur montant : le total des lignes de l'export correspond ainsi exactement aux totaux de la facture.
+
 ### Le tableau de bord
 
 Le **Tableau de bord** résume l'exercice en cours : chiffre d'affaires, charges et résultat, leur évolution mois par mois comparée à l'année précédente, ainsi que les devis signés et envoyés, les factures payées et en retard, et les commandes en attente ou à payer.

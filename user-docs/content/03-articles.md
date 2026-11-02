@@ -43,4 +43,4 @@ Le champ **Récurrence** indique qu'un article se facture périodiquement : quot
 
 La fiche d'un article propose un **Accès rapide** vers les factures, devis, commandes et factures fournisseur qui le contiennent. Les numéros de série et de lot, eux, ne se trouvent pas sur l'article : ils sont saisis à la réception du stock (voir [Le stock](#description/le-stock)).
 
-Si vous avez accès à la comptabilité, la section **Comptabilité** permet de choisir le **Compte d'achat** et le **Compte de vente** de l'article.
+Si vous avez accès à la comptabilité, la section **Comptabilité** permet de choisir le **Compte d'achat** et le **Compte de vente** de l'article. Sans compte choisi, l'export comptable utilise le compte par défaut défini dans **Paramètres › Comptabilité** (affiché en grisé dans le champ).

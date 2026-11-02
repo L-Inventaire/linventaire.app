@@ -97,8 +97,11 @@ export type AccountingExportLine = {
   line_quantity: number;
   line_unit: string;
   line_unit_price: number;
-  line_total_ht: number;
+  line_total_before_global_discount: number; // After the line discount
+  line_global_discount: number; // Share of the global discount of the invoice
+  line_total_ht: number; // After line and global discounts
   line_tva_rate: string;
+  line_tva_label: string;
   line_tva_amount: number;
   line_total_ttc: number;
 
@@ -106,6 +109,9 @@ export type AccountingExportLine = {
   accounting_number: string;
   accounting_name: string;
   accounting_standard: string;
+  accounting_is_default: boolean;
+  vat_accounting_number: string;
+  vat_accounting_name: string;
 
   // Tags
   tags: string;

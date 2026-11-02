@@ -69,12 +69,18 @@ export const AccountingExportModal = ({ onClose }: { onClose: () => void }) => {
         Quantité: line.line_quantity,
         Unité: line.line_unit,
         "Prix unitaire HT": line.line_unit_price,
+        "Total ligne HT avant remise globale":
+          line.line_total_before_global_discount,
+        "Part de la remise globale": line.line_global_discount,
         "Total ligne HT": line.line_total_ht,
-        "Taux TVA (%)": line.line_tva_rate,
+        "Taux TVA": line.line_tva_label,
         "Montant TVA": line.line_tva_amount,
         "Total ligne TTC": line.line_total_ttc,
         "Compte comptable": line.accounting_number,
         "Libellé compte": line.accounting_name,
+        "Compte par défaut": line.accounting_is_default ? "Oui" : "Non",
+        "Compte TVA": line.vat_accounting_number,
+        "Libellé compte TVA": line.vat_accounting_name,
         Catégories: line.tags,
         "Total facture HT": line.invoice_total_ht,
         "Total facture TTC": line.invoice_total_ttc,
@@ -101,12 +107,17 @@ export const AccountingExportModal = ({ onClose }: { onClose: () => void }) => {
           { wch: 10 }, // Quantité
           { wch: 8 }, // Unité
           { wch: 12 }, // Prix unitaire HT
+          { wch: 12 }, // Total ligne HT avant remise globale
+          { wch: 12 }, // Part de la remise globale
           { wch: 12 }, // Total ligne HT
           { wch: 12 }, // Taux TVA
           { wch: 12 }, // Montant TVA
           { wch: 12 }, // Total ligne TTC
           { wch: 15 }, // Compte comptable
           { wch: 20 }, // Libellé compte
+          { wch: 10 }, // Compte par défaut
+          { wch: 12 }, // Compte TVA
+          { wch: 20 }, // Libellé compte TVA
           { wch: 20 }, // Catégories
           { wch: 15 }, // Total facture HT
           { wch: 15 }, // Total facture TTC
@@ -155,8 +166,11 @@ export const AccountingExportModal = ({ onClose }: { onClose: () => void }) => {
     <ModalContent title="Export comptable">
       <Info className="mb-4">
         Exportez vos factures en mode comptable avec chaque ligne de facture
-        indépendante et le numéro de compte comptable associé à l'article. Si
-        aucune catégorie/article n'est associé, la case sera vide.
+        indépendante, son compte comptable et son compte de TVA. Le compte de
+        l'article est utilisé en priorité, sinon le compte par défaut défini
+        dans Paramètres → Comptabilité. La remise globale est répartie sur les
+        lignes, les totaux des lignes correspondent donc aux totaux des
+        factures.
       </Info>
 
       <div className="grid grid-cols-2 gap-4 mb-4">

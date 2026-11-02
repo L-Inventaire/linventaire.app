@@ -293,6 +293,19 @@ export const updateClient = async (
       ...body.smtp,
     });
 
+    if (body.accounting !== undefined) {
+      client.accounting = {
+        ...(client.accounting || {}),
+        ..._.pick(
+          body.accounting,
+          "sell",
+          "buy",
+          "vat_collected",
+          "vat_deductible"
+        ),
+      } as Clients["accounting"];
+    }
+
     if (body.security !== undefined) {
       client.security = sanitizeSecurity({
         ...(client.security || {}),
@@ -362,6 +375,7 @@ export const updateClient = async (
         smtp: client.smtp,
         recurring: client.recurring,
         security: client.security,
+        accounting: client.accounting,
       }
     );
 
