@@ -133,12 +133,13 @@ export const InvoiceActions = ({
       error = "Les données du fournisseur sont incomplètes";
     }
 
+    // Supplier documents keep the date of the supplier, however old it is
+    const oneDay = 24 * 60 * 60 * 1000;
     if (
       draft.state === "draft" &&
-      (new Date(draft.emit_date).getTime() >
-        Date.now() + 24 * 60 * 606 * 1000 ||
-        new Date(draft.emit_date).getTime() <
-          Date.now() - 31 * 24 * 60 * 606 * 1000)
+      !draft.type?.startsWith("supplier_") &&
+      (new Date(draft.emit_date).getTime() > Date.now() + oneDay ||
+        new Date(draft.emit_date).getTime() < Date.now() - 31 * oneDay)
     ) {
       error = "La date d'émission du document est invalide.";
     }

@@ -171,7 +171,9 @@
       "margin_mode_help": "Show and edit the margin (based on the highest purchase price) on articles and quote/invoice lines.",
       "margin_base": "Margin calculation",
       "margin_base_cost": "On cost: (price − cost) / cost",
-      "margin_base_price": "On sell price: (price − cost) / price"
+      "margin_base_price": "On sell price: (price − cost) / price",
+      "subscriptions_enabled": "Use subscriptions",
+      "subscriptions_enabled_help": "Shows the Subscriptions menu and the recurrence on articles and quote lines. Existing subscriptions keep working."
     },
     "payments": {
       "title": "Payments"
@@ -232,6 +234,7 @@
       "activity_preferences_title": "Activity",
       "stock_services": "Stocks and services",
       "activity_format": "Invoices and payments",
+      "accounting": "Accounting",
       "bank_accounts": "Bank accounts",
       "stock_locations": "Stock locations",
       "more": "More"

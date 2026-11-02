@@ -21,6 +21,7 @@ export default class AccountingAccounts extends RestEntity {
   standard: "pcg" | "ifrs" = "pcg"; // Plan Comptable Général, dans le futur pourrait être étendu à d'autres standards
   name = "string";
   notes = "string";
+  is_default = false; // Internal account (bank, cash) preselected for new payments, one per company
 }
 
 export const AccountingAccountsDefinition: RestTableDefinition = {

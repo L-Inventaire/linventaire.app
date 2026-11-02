@@ -157,6 +157,7 @@ export default class EInvoicesService implements InternalApplicationService {
         connection_status: "not_configured",
         receive_enabled: false,
         send_enabled: false,
+        send_blocking: false,
       });
     }
 

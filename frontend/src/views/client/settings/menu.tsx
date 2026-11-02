@@ -41,6 +41,10 @@ export const useSettingsMenu: MenuIndex = () => {
         to: getRoute(ROUTES.SettingsStockLocations),
       },
       {
+        label: t("menu.settings.accounting"),
+        to: getRoute(ROUTES.SettingsAccounting),
+      },
+      {
         label: t("menu.settings.bank_accounts"),
         to: getRoute(ROUTES.SettingsBankAccounts),
       },

@@ -1,8 +1,8 @@
 import React from "react";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
-import countries from "@assets/countries.json";
-import { getCountryFromTimezone } from "@features/utils/location";
+import { useCurrentClient } from "@features/clients/state/use-clients";
+import { getDefaultCountry } from "@features/utils/location";
 import { defaultInputClassName } from "./input-text";
 import { twMerge } from "tailwind-merge";
 
@@ -25,16 +25,8 @@ export default function InputPhone(props: {
   size?: "sm" | "md" | "md" | "lg";
   onChange?: (phone: string | undefined) => void;
 }) {
-  const countryHint =
-    getCountryFromTimezone() ||
-    ((window as any).navigator.language.toLocaleUpperCase() as string).slice(
-      0,
-      2
-    ) ||
-    "US";
-  const country = (
-    countries.find((c: any) => c.code === countryHint) || countries[0]
-  )?.code;
+  const { client } = useCurrentClient();
+  const country = getDefaultCountry(client?.address?.country);
 
   let inputClassName = defaultInputClassName();
   if (props.size === "lg") inputClassName = inputClassName + " h-11";
@@ -48,7 +40,7 @@ export default function InputPhone(props: {
         inputClassName,
         "shadow-sm rounded-md border overflow-hidden pl-3",
         props.disabled ? "opacity-50" : "",
-        props.readonly ? "PhoneReadonly border-none shadow-none pl-0" : ""
+        props.readonly ? "PhoneReadonly border-none shadow-none pl-0" : "",
       )}
       defaultCountry={country as any}
       inputComponent={CustomInput}

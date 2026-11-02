@@ -6,9 +6,12 @@ import { getFrenchDirectoryEntries } from "../services/french-directory";
 export const setupOnSirenChanged = () => {
   Framework.TriggersManager.registerTrigger<Contacts>(ContactsDefinition, {
     name: "on-contact-siren-changed-update-e-invoices",
-    test: (_ctx, entity, old) => {
-      // Trigger on create (no old entity) or when SIREN changes
+    test: (ctx, entity, old) => {
+      // Trigger on create (no old entity) or when SIREN changes. Not for imported
+      // contacts: no external call per contact (the directory can be searched
+      // later from the contact)
       return (
+        !ctx?.import &&
         !!entity &&
         entity.business_registered_id !== old?.business_registered_id
       );

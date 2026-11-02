@@ -8698,8 +8698,7 @@
           "created_at": {
             "type": "integer",
             "format": "int64",
-            "description": "Date de création (timestamp en millisecondes).",
-            "readOnly": true
+            "description": "Date de création (timestamp en millisecondes). Fixée par le serveur, sauf si elle est envoyée avec une clé API (reprise d'historique)."
           },
           "created_by": {
             "type": "string",
@@ -8728,6 +8727,10 @@
             "type": "string",
             "description": "Libellé du document, généré automatiquement.",
             "readOnly": true
+          },
+          "source_id": {
+            "type": "string",
+            "description": "Identifiant du document dans un autre logiciel (import, synchronisation). Modifiable uniquement avec une clé API, unique par entreprise parmi les documents non supprimés."
           },
           "favorite": {
             "type": "boolean"
@@ -9141,6 +9144,10 @@
                   "cost",
                   "price"
                 ]
+              },
+              "subscriptions_disabled": {
+                "type": "boolean",
+                "description": "Hides the subscriptions (menu, recurrence fields) for companies not using them"
               }
             }
           },
@@ -9177,10 +9184,19 @@
         "title": "Contacts",
         "description": "Champs modifiables d'un document `contacts`. Les champs inconnus sont ignorés.",
         "properties": {
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Date de création (timestamp en millisecondes). Fixée par le serveur, sauf si elle est envoyée avec une clé API (reprise d'historique)."
+          },
           "fields": {
             "type": "object",
             "additionalProperties": true,
             "description": "Valeurs des champs personnalisés (voir l'entité `fields`), indexées par code de champ."
+          },
+          "source_id": {
+            "type": "string",
+            "description": "Identifiant du document dans un autre logiciel (import, synchronisation). Modifiable uniquement avec une clé API, unique par entreprise parmi les documents non supprimés."
           },
           "favorite": {
             "type": "boolean"
@@ -9594,6 +9610,10 @@
                   "cost",
                   "price"
                 ]
+              },
+              "subscriptions_disabled": {
+                "type": "boolean",
+                "description": "Hides the subscriptions (menu, recurrence fields) for companies not using them"
               }
             }
           },
@@ -9651,8 +9671,7 @@
           "created_at": {
             "type": "integer",
             "format": "int64",
-            "description": "Date de création (timestamp en millisecondes).",
-            "readOnly": true
+            "description": "Date de création (timestamp en millisecondes). Fixée par le serveur, sauf si elle est envoyée avec une clé API (reprise d'historique)."
           },
           "created_by": {
             "type": "string",
@@ -9681,6 +9700,10 @@
             "type": "string",
             "description": "Libellé du document, généré automatiquement.",
             "readOnly": true
+          },
+          "source_id": {
+            "type": "string",
+            "description": "Identifiant du document dans un autre logiciel (import, synchronisation). Modifiable uniquement avec une clé API, unique par entreprise parmi les documents non supprimés."
           },
           "assigned": {
             "type": "array",
@@ -9840,10 +9863,19 @@
         "title": "Articles",
         "description": "Champs modifiables d'un document `articles`. Les champs inconnus sont ignorés.",
         "properties": {
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Date de création (timestamp en millisecondes). Fixée par le serveur, sauf si elle est envoyée avec une clé API (reprise d'historique)."
+          },
           "fields": {
             "type": "object",
             "additionalProperties": true,
             "description": "Valeurs des champs personnalisés (voir l'entité `fields`), indexées par code de champ."
+          },
+          "source_id": {
+            "type": "string",
+            "description": "Identifiant du document dans un autre logiciel (import, synchronisation). Modifiable uniquement avec une clé API, unique par entreprise parmi les documents non supprimés."
           },
           "assigned": {
             "type": "array",
@@ -10024,8 +10056,7 @@
           "created_at": {
             "type": "integer",
             "format": "int64",
-            "description": "Date de création (timestamp en millisecondes).",
-            "readOnly": true
+            "description": "Date de création (timestamp en millisecondes). Fixée par le serveur, sauf si elle est envoyée avec une clé API (reprise d'historique)."
           },
           "created_by": {
             "type": "string",
@@ -10054,6 +10085,10 @@
             "type": "string",
             "description": "Libellé du document, généré automatiquement.",
             "readOnly": true
+          },
+          "source_id": {
+            "type": "string",
+            "description": "Identifiant du document dans un autre logiciel (import, synchronisation). Modifiable uniquement avec une clé API, unique par entreprise parmi les documents non supprimés."
           },
           "assigned": {
             "type": "array",
@@ -10126,9 +10161,12 @@
                 "enum": [
                   "",
                   "failed",
-                  "uploaded"
+                  "pending",
+                  "sending",
+                  "uploaded",
+                  "skipped"
                 ],
-                "description": "Transmission of the document to the e-invoicing platform (SuperPDP). Unlike state_details, this is NOT reset on state changes: an invoice is transmitted once, when it leaves the draft state. \"\"         -> not transmitted (e-invoicing not connected, or draft) \"uploaded\" -> accepted by SuperPDP, queued for transmission \"failed\"   -> transmission failed (non blocking, see `error`)"
+                "description": "Transmission of the document to the e-invoicing platform (SuperPDP). Unlike state_details, this is NOT reset on state changes: an invoice is transmitted once, when it leaves the draft state. \"\"         -> not transmitted (sending disabled, draft, or older document) \"pending\"  -> queued, will be transmitted in a few seconds \"sending\"  -> being transmitted \"uploaded\" -> accepted by SuperPDP, queued for transmission \"failed\"   -> transmission failed (non blocking, see `error`) \"skipped\"  -> not concerned by e-invoicing (customer abroad, private individual...), see `error` for the reason"
               },
               "superpdp_id": {
                 "type": "number",
@@ -10140,10 +10178,10 @@
               },
               "error": {
                 "type": "string",
-                "description": "Last error message, if any"
+                "description": "Last error message (or reason why it was skipped)"
               }
             },
-            "description": "Transmission to the e-invoicing platform (see on-sent-e-invoice trigger)"
+            "description": "Transmission to the e-invoicing platform (see on-sent-e-invoice trigger), filterable with e_invoice.status (empty for older documents)"
           },
           "from_rel_invoice": {
             "type": "array",
@@ -10814,10 +10852,19 @@
         "title": "Documents (devis, factures, avoirs)",
         "description": "Champs modifiables d'un document `invoices`. Les champs inconnus sont ignorés.",
         "properties": {
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Date de création (timestamp en millisecondes). Fixée par le serveur, sauf si elle est envoyée avec une clé API (reprise d'historique)."
+          },
           "fields": {
             "type": "object",
             "additionalProperties": true,
             "description": "Valeurs des champs personnalisés (voir l'entité `fields`), indexées par code de champ."
+          },
+          "source_id": {
+            "type": "string",
+            "description": "Identifiant du document dans un autre logiciel (import, synchronisation). Modifiable uniquement avec une clé API, unique par entreprise parmi les documents non supprimés."
           },
           "assigned": {
             "type": "array",
@@ -10890,9 +10937,12 @@
                 "enum": [
                   "",
                   "failed",
-                  "uploaded"
+                  "pending",
+                  "sending",
+                  "uploaded",
+                  "skipped"
                 ],
-                "description": "Transmission of the document to the e-invoicing platform (SuperPDP). Unlike state_details, this is NOT reset on state changes: an invoice is transmitted once, when it leaves the draft state. \"\"         -> not transmitted (e-invoicing not connected, or draft) \"uploaded\" -> accepted by SuperPDP, queued for transmission \"failed\"   -> transmission failed (non blocking, see `error`)"
+                "description": "Transmission of the document to the e-invoicing platform (SuperPDP). Unlike state_details, this is NOT reset on state changes: an invoice is transmitted once, when it leaves the draft state. \"\"         -> not transmitted (sending disabled, draft, or older document) \"pending\"  -> queued, will be transmitted in a few seconds \"sending\"  -> being transmitted \"uploaded\" -> accepted by SuperPDP, queued for transmission \"failed\"   -> transmission failed (non blocking, see `error`) \"skipped\"  -> not concerned by e-invoicing (customer abroad, private individual...), see `error` for the reason"
               },
               "superpdp_id": {
                 "type": "number",
@@ -10904,10 +10954,10 @@
               },
               "error": {
                 "type": "string",
-                "description": "Last error message, if any"
+                "description": "Last error message (or reason why it was skipped)"
               }
             },
-            "description": "Transmission to the e-invoicing platform (see on-sent-e-invoice trigger)"
+            "description": "Transmission to the e-invoicing platform (see on-sent-e-invoice trigger), filterable with e_invoice.status (empty for older documents)"
           },
           "from_rel_invoice": {
             "type": "array",
@@ -11599,8 +11649,7 @@
           "created_at": {
             "type": "integer",
             "format": "int64",
-            "description": "Date de création (timestamp en millisecondes).",
-            "readOnly": true
+            "description": "Date de création (timestamp en millisecondes). Fixée par le serveur, sauf si elle est envoyée avec une clé API (reprise d'historique)."
           },
           "created_by": {
             "type": "string",
@@ -11629,6 +11678,10 @@
             "type": "string",
             "description": "Libellé du document, généré automatiquement.",
             "readOnly": true
+          },
+          "source_id": {
+            "type": "string",
+            "description": "Identifiant du document dans un autre logiciel (import, synchronisation). Modifiable uniquement avec une clé API, unique par entreprise parmi les documents non supprimés."
           },
           "state": {
             "type": "string",
@@ -11755,10 +11808,19 @@
         "title": "Stock",
         "description": "Champs modifiables d'un document `stock_items`. Les champs inconnus sont ignorés.",
         "properties": {
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Date de création (timestamp en millisecondes). Fixée par le serveur, sauf si elle est envoyée avec une clé API (reprise d'historique)."
+          },
           "fields": {
             "type": "object",
             "additionalProperties": true,
             "description": "Valeurs des champs personnalisés (voir l'entité `fields`), indexées par code de champ."
+          },
+          "source_id": {
+            "type": "string",
+            "description": "Identifiant du document dans un autre logiciel (import, synchronisation). Modifiable uniquement avec une clé API, unique par entreprise parmi les documents non supprimés."
           },
           "state": {
             "type": "string",
@@ -11906,8 +11968,7 @@
           "created_at": {
             "type": "integer",
             "format": "int64",
-            "description": "Date de création (timestamp en millisecondes).",
-            "readOnly": true
+            "description": "Date de création (timestamp en millisecondes). Fixée par le serveur, sauf si elle est envoyée avec une clé API (reprise d'historique)."
           },
           "created_by": {
             "type": "string",
@@ -11936,6 +11997,10 @@
             "type": "string",
             "description": "Libellé du document, généré automatiquement.",
             "readOnly": true
+          },
+          "source_id": {
+            "type": "string",
+            "description": "Identifiant du document dans un autre logiciel (import, synchronisation). Modifiable uniquement avec une clé API, unique par entreprise parmi les documents non supprimés."
           },
           "type": {
             "type": "string",
@@ -11966,10 +12031,19 @@
         "title": "Emplacements de stock",
         "description": "Champs modifiables d'un document `stock_locations`. Les champs inconnus sont ignorés.",
         "properties": {
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Date de création (timestamp en millisecondes). Fixée par le serveur, sauf si elle est envoyée avec une clé API (reprise d'historique)."
+          },
           "fields": {
             "type": "object",
             "additionalProperties": true,
             "description": "Valeurs des champs personnalisés (voir l'entité `fields`), indexées par code de champ."
+          },
+          "source_id": {
+            "type": "string",
+            "description": "Identifiant du document dans un autre logiciel (import, synchronisation). Modifiable uniquement avec une clé API, unique par entreprise parmi les documents non supprimés."
           },
           "type": {
             "type": "string",
@@ -12021,8 +12095,7 @@
           "created_at": {
             "type": "integer",
             "format": "int64",
-            "description": "Date de création (timestamp en millisecondes).",
-            "readOnly": true
+            "description": "Date de création (timestamp en millisecondes). Fixée par le serveur, sauf si elle est envoyée avec une clé API (reprise d'historique)."
           },
           "created_by": {
             "type": "string",
@@ -12051,6 +12124,10 @@
             "type": "string",
             "description": "Libellé du document, généré automatiquement.",
             "readOnly": true
+          },
+          "source_id": {
+            "type": "string",
+            "description": "Identifiant du document dans un autre logiciel (import, synchronisation). Modifiable uniquement avec une clé API, unique par entreprise parmi les documents non supprimés."
           },
           "state": {
             "type": "string",
@@ -12166,10 +12243,19 @@
         "title": "Services (tâches)",
         "description": "Champs modifiables d'un document `service_items`. Les champs inconnus sont ignorés.",
         "properties": {
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Date de création (timestamp en millisecondes). Fixée par le serveur, sauf si elle est envoyée avec une clé API (reprise d'historique)."
+          },
           "fields": {
             "type": "object",
             "additionalProperties": true,
             "description": "Valeurs des champs personnalisés (voir l'entité `fields`), indexées par code de champ."
+          },
+          "source_id": {
+            "type": "string",
+            "description": "Identifiant du document dans un autre logiciel (import, synchronisation). Modifiable uniquement avec une clé API, unique par entreprise parmi les documents non supprimés."
           },
           "state": {
             "type": "string",
@@ -12306,8 +12392,7 @@
           "created_at": {
             "type": "integer",
             "format": "int64",
-            "description": "Date de création (timestamp en millisecondes).",
-            "readOnly": true
+            "description": "Date de création (timestamp en millisecondes). Fixée par le serveur, sauf si elle est envoyée avec une clé API (reprise d'historique)."
           },
           "created_by": {
             "type": "string",
@@ -12336,6 +12421,10 @@
             "type": "string",
             "description": "Libellé du document, généré automatiquement.",
             "readOnly": true
+          },
+          "source_id": {
+            "type": "string",
+            "description": "Identifiant du document dans un autre logiciel (import, synchronisation). Modifiable uniquement avec une clé API, unique par entreprise parmi les documents non supprimés."
           },
           "description": {
             "type": "string"
@@ -12378,10 +12467,19 @@
         "title": "Temps passés",
         "description": "Champs modifiables d'un document `service_times`. Les champs inconnus sont ignorés.",
         "properties": {
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Date de création (timestamp en millisecondes). Fixée par le serveur, sauf si elle est envoyée avec une clé API (reprise d'historique)."
+          },
           "fields": {
             "type": "object",
             "additionalProperties": true,
             "description": "Valeurs des champs personnalisés (voir l'entité `fields`), indexées par code de champ."
+          },
+          "source_id": {
+            "type": "string",
+            "description": "Identifiant du document dans un autre logiciel (import, synchronisation). Modifiable uniquement avec une clé API, unique par entreprise parmi les documents non supprimés."
           },
           "description": {
             "type": "string"
@@ -12445,8 +12543,7 @@
           "created_at": {
             "type": "integer",
             "format": "int64",
-            "description": "Date de création (timestamp en millisecondes).",
-            "readOnly": true
+            "description": "Date de création (timestamp en millisecondes). Fixée par le serveur, sauf si elle est envoyée avec une clé API (reprise d'historique)."
           },
           "created_by": {
             "type": "string",
@@ -12475,6 +12572,10 @@
             "type": "string",
             "description": "Libellé du document, généré automatiquement.",
             "readOnly": true
+          },
+          "source_id": {
+            "type": "string",
+            "description": "Identifiant du document dans un autre logiciel (import, synchronisation). Modifiable uniquement avec une clé API, unique par entreprise parmi les documents non supprimés."
           },
           "contacts": {
             "type": "array",
@@ -12552,10 +12653,19 @@
         "title": "CRM",
         "description": "Champs modifiables d'un document `crm_items`. Les champs inconnus sont ignorés.",
         "properties": {
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Date de création (timestamp en millisecondes). Fixée par le serveur, sauf si elle est envoyée avec une clé API (reprise d'historique)."
+          },
           "fields": {
             "type": "object",
             "additionalProperties": true,
             "description": "Valeurs des champs personnalisés (voir l'entité `fields`), indexées par code de champ."
+          },
+          "source_id": {
+            "type": "string",
+            "description": "Identifiant du document dans un autre logiciel (import, synchronisation). Modifiable uniquement avec une clé API, unique par entreprise parmi les documents non supprimés."
           },
           "contacts": {
             "type": "array",
@@ -12654,8 +12764,7 @@
           "created_at": {
             "type": "integer",
             "format": "int64",
-            "description": "Date de création (timestamp en millisecondes).",
-            "readOnly": true
+            "description": "Date de création (timestamp en millisecondes). Fixée par le serveur, sauf si elle est envoyée avec une clé API (reprise d'historique)."
           },
           "created_by": {
             "type": "string",
@@ -12684,6 +12793,10 @@
             "type": "string",
             "description": "Libellé du document, généré automatiquement.",
             "readOnly": true
+          },
+          "source_id": {
+            "type": "string",
+            "description": "Identifiant du document dans un autre logiciel (import, synchronisation). Modifiable uniquement avec une clé API, unique par entreprise parmi les documents non supprimés."
           },
           "transaction_date": {
             "type": "integer",
@@ -12759,10 +12872,19 @@
         "title": "Transactions comptables",
         "description": "Champs modifiables d'un document `accounting_transactions`. Les champs inconnus sont ignorés.",
         "properties": {
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Date de création (timestamp en millisecondes). Fixée par le serveur, sauf si elle est envoyée avec une clé API (reprise d'historique)."
+          },
           "fields": {
             "type": "object",
             "additionalProperties": true,
             "description": "Valeurs des champs personnalisés (voir l'entité `fields`), indexées par code de champ."
+          },
+          "source_id": {
+            "type": "string",
+            "description": "Identifiant du document dans un autre logiciel (import, synchronisation). Modifiable uniquement avec une clé API, unique par entreprise parmi les documents non supprimés."
           },
           "transaction_date": {
             "type": "integer",
@@ -12859,8 +12981,7 @@
           "created_at": {
             "type": "integer",
             "format": "int64",
-            "description": "Date de création (timestamp en millisecondes).",
-            "readOnly": true
+            "description": "Date de création (timestamp en millisecondes). Fixée par le serveur, sauf si elle est envoyée avec une clé API (reprise d'historique)."
           },
           "created_by": {
             "type": "string",
@@ -12890,6 +13011,10 @@
             "description": "Libellé du document, généré automatiquement.",
             "readOnly": true
           },
+          "source_id": {
+            "type": "string",
+            "description": "Identifiant du document dans un autre logiciel (import, synchronisation). Modifiable uniquement avec une clé API, unique par entreprise parmi les documents non supprimés."
+          },
           "type": {
             "type": "string",
             "enum": [
@@ -12920,6 +13045,10 @@
           },
           "notes": {
             "type": "string"
+          },
+          "is_default": {
+            "type": "boolean",
+            "description": "Internal account (bank, cash) preselected for new payments, one per company"
           },
           "_label": {
             "type": "string",
@@ -12935,10 +13064,19 @@
         "title": "Comptes comptables",
         "description": "Champs modifiables d'un document `accounting_accounts`. Les champs inconnus sont ignorés.",
         "properties": {
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Date de création (timestamp en millisecondes). Fixée par le serveur, sauf si elle est envoyée avec une clé API (reprise d'historique)."
+          },
           "fields": {
             "type": "object",
             "additionalProperties": true,
             "description": "Valeurs des champs personnalisés (voir l'entité `fields`), indexées par code de champ."
+          },
+          "source_id": {
+            "type": "string",
+            "description": "Identifiant du document dans un autre logiciel (import, synchronisation). Modifiable uniquement avec une clé API, unique par entreprise parmi les documents non supprimés."
           },
           "type": {
             "type": "string",
@@ -12970,6 +13108,10 @@
           },
           "notes": {
             "type": "string"
+          },
+          "is_default": {
+            "type": "boolean",
+            "description": "Internal account (bank, cash) preselected for new payments, one per company"
           }
         }
       },
@@ -13006,8 +13148,7 @@
           "created_at": {
             "type": "integer",
             "format": "int64",
-            "description": "Date de création (timestamp en millisecondes).",
-            "readOnly": true
+            "description": "Date de création (timestamp en millisecondes). Fixée par le serveur, sauf si elle est envoyée avec une clé API (reprise d'historique)."
           },
           "created_by": {
             "type": "string",
@@ -13037,11 +13178,19 @@
             "description": "Libellé du document, généré automatiquement.",
             "readOnly": true
           },
+          "source_id": {
+            "type": "string",
+            "description": "Identifiant du document dans un autre logiciel (import, synchronisation). Modifiable uniquement avec une clé API, unique par entreprise parmi les documents non supprimés."
+          },
           "name": {
             "type": "string"
           },
           "color": {
             "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "description": "Shown when hovering the tag"
           },
           "_label": {
             "type": "string",
@@ -13057,16 +13206,29 @@
         "title": "Étiquettes",
         "description": "Champs modifiables d'un document `tags`. Les champs inconnus sont ignorés.",
         "properties": {
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Date de création (timestamp en millisecondes). Fixée par le serveur, sauf si elle est envoyée avec une clé API (reprise d'historique)."
+          },
           "fields": {
             "type": "object",
             "additionalProperties": true,
             "description": "Valeurs des champs personnalisés (voir l'entité `fields`), indexées par code de champ."
+          },
+          "source_id": {
+            "type": "string",
+            "description": "Identifiant du document dans un autre logiciel (import, synchronisation). Modifiable uniquement avec une clé API, unique par entreprise parmi les documents non supprimés."
           },
           "name": {
             "type": "string"
           },
           "color": {
             "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "description": "Shown when hovering the tag"
           }
         }
       },
@@ -13103,8 +13265,7 @@
           "created_at": {
             "type": "integer",
             "format": "int64",
-            "description": "Date de création (timestamp en millisecondes).",
-            "readOnly": true
+            "description": "Date de création (timestamp en millisecondes). Fixée par le serveur, sauf si elle est envoyée avec une clé API (reprise d'historique)."
           },
           "created_by": {
             "type": "string",
@@ -13133,6 +13294,10 @@
             "type": "string",
             "description": "Libellé du document, généré automatiquement.",
             "readOnly": true
+          },
+          "source_id": {
+            "type": "string",
+            "description": "Identifiant du document dans un autre logiciel (import, synchronisation). Modifiable uniquement avec une clé API, unique par entreprise parmi les documents non supprimés."
           },
           "document_type": {
             "type": "string"
@@ -13163,10 +13328,19 @@
         "title": "Champs personnalisés",
         "description": "Champs modifiables d'un document `fields`. Les champs inconnus sont ignorés.",
         "properties": {
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Date de création (timestamp en millisecondes). Fixée par le serveur, sauf si elle est envoyée avec une clé API (reprise d'historique)."
+          },
           "fields": {
             "type": "object",
             "additionalProperties": true,
             "description": "Valeurs des champs personnalisés (voir l'entité `fields`), indexées par code de champ."
+          },
+          "source_id": {
+            "type": "string",
+            "description": "Identifiant du document dans un autre logiciel (import, synchronisation). Modifiable uniquement avec une clé API, unique par entreprise parmi les documents non supprimés."
           },
           "document_type": {
             "type": "string"
@@ -13218,8 +13392,7 @@
           "created_at": {
             "type": "integer",
             "format": "int64",
-            "description": "Date de création (timestamp en millisecondes).",
-            "readOnly": true
+            "description": "Date de création (timestamp en millisecondes). Fixée par le serveur, sauf si elle est envoyée avec une clé API (reprise d'historique)."
           },
           "created_by": {
             "type": "string",
@@ -13248,6 +13421,10 @@
             "type": "string",
             "description": "Libellé du document, généré automatiquement.",
             "readOnly": true
+          },
+          "source_id": {
+            "type": "string",
+            "description": "Identifiant du document dans un autre logiciel (import, synchronisation). Modifiable uniquement avec une clé API, unique par entreprise parmi les documents non supprimés."
           },
           "rel_table": {
             "type": "string",
@@ -13291,10 +13468,19 @@
         "title": "Fichiers",
         "description": "Champs modifiables d'un document `files`. Les champs inconnus sont ignorés.",
         "properties": {
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Date de création (timestamp en millisecondes). Fixée par le serveur, sauf si elle est envoyée avec une clé API (reprise d'historique)."
+          },
           "fields": {
             "type": "object",
             "additionalProperties": true,
             "description": "Valeurs des champs personnalisés (voir l'entité `fields`), indexées par code de champ."
+          },
+          "source_id": {
+            "type": "string",
+            "description": "Identifiant du document dans un autre logiciel (import, synchronisation). Modifiable uniquement avec une clé API, unique par entreprise parmi les documents non supprimés."
           },
           "rel_table": {
             "type": "string",
@@ -13359,8 +13545,7 @@
           "created_at": {
             "type": "integer",
             "format": "int64",
-            "description": "Date de création (timestamp en millisecondes).",
-            "readOnly": true
+            "description": "Date de création (timestamp en millisecondes). Fixée par le serveur, sauf si elle est envoyée avec une clé API (reprise d'historique)."
           },
           "created_by": {
             "type": "string",
@@ -13389,6 +13574,10 @@
             "type": "string",
             "description": "Libellé du document, généré automatiquement.",
             "readOnly": true
+          },
+          "source_id": {
+            "type": "string",
+            "description": "Identifiant du document dans un autre logiciel (import, synchronisation). Modifiable uniquement avec une clé API, unique par entreprise parmi les documents non supprimés."
           },
           "item_entity": {
             "type": "string"
@@ -13453,10 +13642,19 @@
         "title": "Commentaires",
         "description": "Champs modifiables d'un document `comments`. Les champs inconnus sont ignorés.",
         "properties": {
+          "created_at": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Date de création (timestamp en millisecondes). Fixée par le serveur, sauf si elle est envoyée avec une clé API (reprise d'historique)."
+          },
           "fields": {
             "type": "object",
             "additionalProperties": true,
             "description": "Valeurs des champs personnalisés (voir l'entité `fields`), indexées par code de champ."
+          },
+          "source_id": {
+            "type": "string",
+            "description": "Identifiant du document dans un autre logiciel (import, synchronisation). Modifiable uniquement avec une clé API, unique par entreprise parmi les documents non supprimés."
           },
           "item_entity": {
             "type": "string"

@@ -68,7 +68,6 @@
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^18.1.0",
-    "react-fastclick": "^3.0.2",
     "react-hot-toast": "^2.4.0",
     "react-i18next": "^11.18.1",
     "react-phone-number-input": "^3.3.7",

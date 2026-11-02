@@ -52,13 +52,17 @@ export class InvoiceEInvoiceDetails {
   // Transmission of the document to the e-invoicing platform (SuperPDP).
   // Unlike state_details, this is NOT reset on state changes: an invoice is
   // transmitted once, when it leaves the draft state.
-  //   ""         -> not transmitted (e-invoicing not connected, or draft)
+  //   ""         -> not transmitted (sending disabled, draft, or older document)
+  //   "pending"  -> queued, will be transmitted in a few seconds
+  //   "sending"  -> being transmitted
   //   "uploaded" -> accepted by SuperPDP, queued for transmission
   //   "failed"   -> transmission failed (non blocking, see `error`)
-  status: "" | "uploaded" | "failed" = "";
+  //   "skipped"  -> not concerned by e-invoicing (customer abroad, private
+  //                 individual...), see `error` for the reason
+  status: "" | "pending" | "sending" | "uploaded" | "failed" | "skipped" = "";
   superpdp_id = 0; // SuperPDP invoice id, used to follow its events
   sent_at = 0; // Timestamp of the last transmission attempt
-  error = "string"; // Last error message, if any
+  error = "string"; // Last error message (or reason why it was skipped)
 }
 
 export class FromSubscription {

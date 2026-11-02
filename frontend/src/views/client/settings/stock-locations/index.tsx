@@ -24,7 +24,7 @@ export const StockLocationsPage = () => {
   return (
     <Page title={[{ label: "Paramètres" }, { label: "Lieux de stockage" }]}>
       <div className="w-full max-w-4xl mx-auto mt-6">
-        {hasAccess("STOCK_MANAGE") && (
+        {hasAccess("CLIENT_MANAGE") && (
           <Button
             size="md"
             className="float-right"
@@ -112,7 +112,7 @@ export const StockLocationsPage = () => {
           columns={[
             ...StockLocationsColumns,
             {
-              hidden: !hasAccess("STOCK_MANAGE"),
+              hidden: !hasAccess("CLIENT_MANAGE"),
               title: "Actions",
               thClassName: "w-1 whitespace-nowrap",
               render: (stockLocation) => {

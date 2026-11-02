@@ -13,6 +13,7 @@ export class RestEntity {
   searchable = "string";
   searchable_generated = "string";
   display_name = "string"; // A display name for the entity
+  source_id = "string"; // Id in another software, set by API clients (imports, synchronisations)
 }
 
 export class RestEntityColumnsDefinition {
@@ -28,6 +29,7 @@ export class RestEntityColumnsDefinition {
   updated_by = "VARCHAR(64)";
   fields = "JSONB";
   display_name = "TEXT";
+  source_id = "VARCHAR(255)";
   searchable = "TEXT";
 
   // Système de priorité, 4 priorités possibles A A A, B B B, C C, D D D

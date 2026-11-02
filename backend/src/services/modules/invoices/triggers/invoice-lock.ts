@@ -1,3 +1,4 @@
+import { ConflictError } from "#src/types";
 import Framework from "../../../../platform";
 import Invoices, { InvoicesDefinition } from "../entities/invoices";
 
@@ -49,7 +50,7 @@ export const setInvoiceLockTrigger = () =>
     callback: async (_, entity, prev) => {
       // Triggers run inside the write transaction: throwing rolls it back
       const violation = getInvoiceLockViolation(entity, prev);
-      if (violation) throw new Error(violation);
+      if (violation) throw ConflictError(violation);
     },
     name: "invoice-lock",
     priority: 0, // Before any other trigger

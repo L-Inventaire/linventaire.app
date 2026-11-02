@@ -91,6 +91,7 @@ export const ROUTES = {
   SettingsStockServices: "/:client/settings/stock-services",
   SettingsStockLocations: "/:client/settings/stock-locations",
   SettingsBankAccounts: "/:client/settings/bank-accounts",
+  SettingsAccounting: "/:client/settings/accounting",
   SettingsTags: "/:client/settings/tags",
   SettingsCustomFields: "/:client/settings/custom-fields",
   SettingsCompany: "/:client/settings/company",

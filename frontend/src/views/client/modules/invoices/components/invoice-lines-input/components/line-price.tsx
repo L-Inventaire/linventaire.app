@@ -23,7 +23,7 @@ export const InvoiceLinePriceInput = (props: {
   const value = props.ctrl?.value || props.value || ({} as InvoiceLine);
   const onChange = props.ctrl?.onChange || props.onChange;
   const { ctrl } = useFormController(value, (e) => onChange!(e(value)));
-  const { tvaOptions } = useInvoiceMaps();
+  const { getTvaOptions } = useInvoiceMaps();
   const showMargin =
     useMarginMode() &&
     isSellDocument(props.invoice) &&
@@ -51,7 +51,7 @@ export const InvoiceLinePriceInput = (props: {
         label="TVA"
         type="select"
         ctrl={ctrl(`tva`)}
-        options={tvaOptions}
+        options={getTvaOptions(value.tva)}
       />
       {value.type !== "correction" && (
         <Info className="block !mt-4">

@@ -15,7 +15,7 @@ export const setOnContactCreateDefaultTrigger = () => {
       );
     },
     callback: async (ctx, entity) => {
-      ensureContactHasAccountingAccount(ctx, entity);
+      await ensureContactHasAccountingAccount(ctx, entity);
     },
   });
   Framework.TriggersManager.registerTrigger<Invoices>(InvoicesDefinition, {
@@ -66,21 +66,27 @@ export const ensureContactHasAccountingAccount = async (
     });
 
     if (!existingAccounts) {
-      await create<AccountingAccounts>(ctx, "accounting_accounts", {
-        client_id: ctx.client_id,
-        contact: entity.id,
-        type,
-        standard_identifier: type === "client" ? "411" : "401",
-        standard: "pcg",
-        name: [
-          entity.business_registered_name || entity.business_name,
-          entity.person_first_name,
-          entity.person_last_name,
-        ]
-          .filter(Boolean)
-          .join(" "),
-        notes: "",
-      });
+      // Accounting accounts require CLIENT_MANAGE, but any user who can
+      // create a contact must get its default account
+      await create<AccountingAccounts>(
+        { ...ctx, role: "SYSTEM" },
+        "accounting_accounts",
+        {
+          client_id: ctx.client_id,
+          contact: entity.id,
+          type,
+          standard_identifier: type === "client" ? "411" : "401",
+          standard: "pcg",
+          name: [
+            entity.business_registered_name || entity.business_name,
+            entity.person_first_name,
+            entity.person_last_name,
+          ]
+            .filter(Boolean)
+            .join(" "),
+          notes: "",
+        }
+      );
     }
   }
 };

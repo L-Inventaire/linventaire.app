@@ -57,6 +57,10 @@ export const EInvoicingPage = () => {
     await updateSettings.mutateAsync({ send_enabled: enabled });
   };
 
+  const handleToggleBlocking = async (enabled: boolean) => {
+    await updateSettings.mutateAsync({ send_blocking: enabled });
+  };
+
   const handleToggleReceive = async (enabled: boolean) => {
     await updateSettings.mutateAsync({ receive_enabled: enabled });
   };
@@ -425,6 +429,7 @@ export const EInvoicingPage = () => {
             <div>
               <Section>Paramètres d'activation</Section>
               <div className="mt-4 space-y-4">
+                {/* Mandates are only needed for self-billing, not to send */}
                 <InputLabel
                   label="Envoi automatique des factures"
                   input={
@@ -434,12 +439,40 @@ export const EInvoicingPage = () => {
                       disabled={
                         readonly ||
                         updateSettings.isPending ||
-                        !config.superpdp_company.mandates ||
-                        config.superpdp_company.mandates.length === 0
+                        !isConfigured
                       }
                     />
                   }
                 />
+                <Info className="block -mt-2">
+                  Les factures et avoirs sont transmis en facture électronique
+                  dès qu'ils quittent l'état brouillon. Les documents adressés à
+                  un client à l'étranger ou à un particulier ne sont pas
+                  concernés. Le résultat est visible sur chaque facture (icône,
+                  historique) et filtrable dans la liste des factures.
+                </Info>
+
+                <InputLabel
+                  label="Bloquer l'envoi en cas d'échec de la facture électronique"
+                  input={
+                    <Switch
+                      checked={config.send_enabled && !!config.send_blocking}
+                      onCheckedChange={handleToggleBlocking}
+                      disabled={
+                        readonly ||
+                        updateSettings.isPending ||
+                        !isConfigured ||
+                        !config.send_enabled
+                      }
+                    />
+                  }
+                />
+                <Info className="block -mt-2">
+                  Désactivé : le document est envoyé même si la facture
+                  électronique échoue (l'échec est signalé sur la facture).
+                  Activé : le document reste en brouillon tant que la facture
+                  électronique n'a pas pu être transmise.
+                </Info>
 
                 <InputLabel
                   label="Réception automatique des factures"

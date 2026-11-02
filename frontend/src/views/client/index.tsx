@@ -59,6 +59,7 @@ import { StockItemsFromPage } from "./modules/stock/from";
 import { StockItemsViewPage } from "./modules/stock/view";
 import { NoClientView } from "./no-client";
 import { ApiPage } from "./settings/api";
+import { AccountingSettingsPage } from "./settings/accounting";
 import { BankAccountsPage } from "./settings/bank-accounts";
 import { CompanyPage } from "./settings/company";
 import { EInvoicingPage } from "./settings/e-invoicing";
@@ -171,6 +172,10 @@ export const BackOfficeRoutes = () => {
         <Route
           path={ROUTES.SettingsStockLocations}
           element={<StockLocationsPage />}
+        />
+        <Route
+          path={ROUTES.SettingsAccounting}
+          element={<AccountingSettingsPage />}
         />
         <Route
           path={ROUTES.SettingsBankAccounts}

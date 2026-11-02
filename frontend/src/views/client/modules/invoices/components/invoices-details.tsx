@@ -1,3 +1,4 @@
+import { useHasAccess } from "@features/access";
 import { Button } from "@atoms/button/button";
 import { PageLoader } from "@atoms/page-loader";
 import { BaseSmall, Info, Section } from "@atoms/text";
@@ -18,6 +19,7 @@ import { Clients } from "@features/clients/types/clients";
 import { useContact, useContacts } from "@features/contacts/hooks/use-contacts";
 import { Contacts } from "@features/contacts/types/types";
 import { useViewWithCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
+import { EInvoiceStatusBadge } from "@features/invoices/components/e-invoice-status-icon";
 import { InvoicesFieldsNames } from "@features/invoices/configuration";
 import { useEInvoicesReady } from "@features/invoices/hooks/use-e-invoices-ready";
 import { useInvoice, useInvoices } from "@features/invoices/hooks/use-invoices";
@@ -38,7 +40,6 @@ import { useEffectChange } from "@features/utils/hooks/use-changed-effect";
 import { useReadDraftRest } from "@features/utils/rest/hooks/use-draft-rest";
 import {
   ArrowPathIcon,
-  DocumentCheckIcon,
   ExclamationCircleIcon,
   PlayCircleIcon,
 } from "@heroicons/react/16/solid";
@@ -87,6 +88,7 @@ export const InvoicesDetailsPage = ({
 }) => {
   const { client: clientUser } = useClients();
   const client = clientUser!.client!;
+  const hasAccess = useHasAccess();
 
   const { isPending, ctrl, draft, setDraft, save } = useReadDraftRest<Invoices>(
     "invoices",
@@ -426,24 +428,11 @@ export const InvoicesDetailsPage = ({
                     Tacite reconduction
                   </Badge>
                 )}
-              {/* Transmitted to the e-invoicing platform, enforced or not */}
-              {draft.e_invoice?.status === "uploaded" && (
-                <Tooltip
-                  content={`Le ${formatDate(draft.e_invoice.sent_at)} (SuperPDP #${
-                    draft.e_invoice.superpdp_id
-                  })`}
-                >
-                  <Badge
-                    className="ml-2"
-                    variant="outline"
-                    color="green"
-                    size="2"
-                  >
-                    <DocumentCheckIcon className="h-3 w-3 inline-block mr-1 -mt-0.5" />
-                    Envoyé en facture électronique
-                  </Badge>
-                </Tooltip>
-              )}
+              {/* Transmission to the e-invoicing platform (sent, failed...) */}
+              <EInvoiceStatusBadge
+                className="ml-2"
+                eInvoice={draft.e_invoice}
+              />
               <div className="grow" />
               {draft.type === "invoices" && (
                 <TagPaymentCompletion invoice={draft} />
@@ -816,29 +805,32 @@ export const InvoicesDetailsPage = ({
                         readonly &&
                         draft.state !== "draft" && (
                           <div className="mt-8">
-                            {!isQuoteRelated && readonly && (
-                              <div className="float-right">
-                                <Button
-                                  size="sm"
-                                  onClick={() =>
-                                    edit<AccountingTransactions>(
-                                      "accounting_transactions",
-                                      "",
-                                      {
-                                        rel_invoices: [draft.id],
-                                        currency: draft.currency,
-                                        amount:
-                                          (draft.total?.total_with_taxes || 0) -
-                                          (draft.transactions?.total || 0),
-                                        reference: draft.reference,
-                                      },
-                                    )
-                                  }
-                                >
-                                  Enregistrer un paiement
-                                </Button>
-                              </div>
-                            )}
+                            {!isQuoteRelated &&
+                              readonly &&
+                              hasAccess("ACCOUNTING_WRITE") && (
+                                <div className="float-right">
+                                  <Button
+                                    size="sm"
+                                    onClick={() =>
+                                      edit<AccountingTransactions>(
+                                        "accounting_transactions",
+                                        "",
+                                        {
+                                          rel_invoices: [draft.id],
+                                          currency: draft.currency,
+                                          amount:
+                                            (draft.total?.total_with_taxes ||
+                                              0) -
+                                            (draft.transactions?.total || 0),
+                                          reference: draft.reference,
+                                        },
+                                      )
+                                    }
+                                  >
+                                    Enregistrer un paiement
+                                  </Button>
+                                </div>
+                              )}
                             <Section className="mb-2">Paiements</Section>
                             <Table
                               data={accounting_transactions.data?.list || []}

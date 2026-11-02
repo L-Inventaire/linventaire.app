@@ -1,6 +1,9 @@
 import { useContact } from "@features/contacts/hooks/use-contacts";
 import { Invoices } from "../types/types";
-import { isContactReady } from "@/features/contacts/configuration";
+import {
+  isContactConcernedByEInvoicing,
+  isContactReady,
+} from "@/features/contacts/configuration";
 import { useEInvoicingConfig } from "@/features/e-invoicing/hooks/use-e-invoicing-config";
 
 /**
@@ -27,11 +30,24 @@ export const useEInvoicesReady = (invoice?: Invoices) => {
   // Check if e-invoicing is ready
   const isReady = contact && isContactReady(contact);
 
+  // Customer abroad or private individual: no e-invoice, never blocked
+  const concerned = !contact || isContactConcernedByEInvoicing(contact);
+
+  // E-invoices are sent automatically for this document
+  const sendEnabled =
+    eInvoicingConfig?.connection_status === "connected" &&
+    !!eInvoicingConfig?.send_enabled &&
+    !isSupplierInvoice &&
+    concerned;
+
   return {
     isReady,
     isPending,
     contact,
-    enforced: eInvoicingConfig?.send_enabled,
+    concerned,
+    sendEnabled,
+    // Sending the document is refused when its e-invoice can't be sent
+    enforced: sendEnabled && !!eInvoicingConfig?.send_blocking,
     missingReason: !isReady
       ? `${isSupplierInvoice ? "Le fournisseur" : "Le client"} ne possède pas de SIRET valide.`
       : undefined,

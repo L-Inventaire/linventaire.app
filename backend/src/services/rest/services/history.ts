@@ -6,7 +6,7 @@ import { default as Framework, default as platform } from "../../../platform";
 import { TransactionOperation } from "../../../platform/db/api";
 import { EventsDefinition } from "../../../services/system/entities/events";
 import { TasksDefinition } from "../../../services/system/entities/tasks";
-import { Context } from "../../../types";
+import { BadRequestError, Context } from "../../../types";
 import { RestEntity } from "../entities/entity";
 import { isTableAvailable } from "./utils";
 
@@ -98,7 +98,7 @@ export const searchHistory = async <T>(
   offset: number
 ) => {
   if (!(await isTableAvailable(ctx, table, "READ")))
-    throw new Error("Invalid object type");
+    throw BadRequestError("Invalid object type");
   const driver = await platform.Db.getService();
   const historyTable = table + "_history";
 

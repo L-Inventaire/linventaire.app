@@ -32,6 +32,12 @@ export const useMarginBase = (): MarginBase => {
   return client?.preferences?.margin_base === "price" ? "price" : "cost";
 };
 
+/** Subscriptions can be hidden in the preferences by companies not using them */
+export const useSubscriptionsEnabled = () => {
+  const { client } = useCurrentClient();
+  return !client?.preferences?.subscriptions_disabled;
+};
+
 export const useClients = () => {
   const { user } = useAuth();
   const [clients, setClients] = useRecoilState(ClientsState);

@@ -32,7 +32,7 @@ export const InvoicePaymentInput = ({
   contact?: Contacts;
   noResetToDefault?: boolean;
 }) => {
-  const paymentInfo = (ctrl("payment_information") || {}) as Partial<
+  const paymentInfo = (ctrl("payment_information")?.value || {}) as Partial<
     Invoices["payment_information"]
   >;
   return (

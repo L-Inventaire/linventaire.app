@@ -24,4 +24,5 @@ export type AccountingAccounts = RestEntity & {
   standard: "pcg" | "ifrs"; // Plan Comptable Général, dans le futur pourrait être étendu à d'autres standards
   name: string;
   notes: string;
+  is_default?: boolean; // Internal account preselected for new payments
 };

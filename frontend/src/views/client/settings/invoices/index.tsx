@@ -4,7 +4,10 @@ import { InvoiceFormatInput } from "@components/invoice-format-input";
 import { InvoiceNumerotationInput } from "@components/invoice-numerotation-input";
 import { PaymentInput } from "@components/payment-input";
 import { useHasAccess } from "@features/access";
-import { useClients } from "@features/clients/state/use-clients";
+import {
+  useClients,
+  useSubscriptionsEnabled,
+} from "@features/clients/state/use-clients";
 import {
   Clients,
   InvoiceCounters,
@@ -23,6 +26,7 @@ export const InvoicesSettingsPage = () => {
   const client = clientUser?.client;
   const hasAccess = useHasAccess();
   const readonly = !hasAccess("CLIENT_MANAGE");
+  const subscriptionsEnabled = useSubscriptionsEnabled();
 
   useEffect(() => {
     refresh();
@@ -56,7 +60,9 @@ export const InvoicesSettingsPage = () => {
           <Tabs.List>
             <Tabs.Trigger value="format">Format des factures</Tabs.Trigger>
             <Tabs.Trigger value="payment">Paiements des factures</Tabs.Trigger>
-            <Tabs.Trigger value="recurring">Récurrences</Tabs.Trigger>
+            {subscriptionsEnabled && (
+              <Tabs.Trigger value="recurring">Récurrences</Tabs.Trigger>
+            )}
             <Tabs.Trigger value="numerotation">
               Numérotation des factures
             </Tabs.Trigger>

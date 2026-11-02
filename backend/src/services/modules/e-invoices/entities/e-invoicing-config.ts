@@ -50,7 +50,10 @@ export class EInvoicingConfig extends RestEntity {
 
   // E-invoicing settings
   receive_enabled = false; // Auto-fetch received invoices
-  send_enabled = false; // Auto-send invoices via e-invoicing
+  send_enabled = false; // Auto-send invoices and credit notes via e-invoicing
+  // When sending is enabled: refuse to leave the draft state if the e-invoice
+  // can't be transmitted (otherwise the failure is only recorded on the document)
+  send_blocking = false;
 }
 
 export class SuperPDPCompany {

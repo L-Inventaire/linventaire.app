@@ -7,7 +7,11 @@ import Contacts, { ContactsDefinition } from "../../contacts/entities/contacts";
 import Invoices, { InvoicesDefinition } from "../../invoices/entities/invoices";
 import { Tags, TagsDefinition } from "../../tags/entities/tags";
 import { formatDateInTimezone, getContactName } from "#src/services/utils";
-import { getTimezoneOffset } from "@shared/invoices";
+import { getTimezoneOffset, getTvaValue } from "@shared/invoices";
+import { standardCodeToVatCategory } from "@shared/consts";
+import { getAccountingExportLinesAmounts } from "./accounting-export-lines";
+
+const getTvaLabel = (tva: string) => standardCodeToVatCategory[tva] || tva;
 
 export type AccountingExportLine = {
   // Invoice information
@@ -40,15 +44,21 @@ export type AccountingExportLine = {
   line_quantity: number;
   line_unit: string;
   line_unit_price: number;
-  line_total_ht: number;
+  line_total_before_global_discount: number; // After the line discount
+  line_global_discount: number; // Share of the global discount of the invoice
+  line_total_ht: number; // After line and global discounts
   line_tva_rate: string;
+  line_tva_label: string;
   line_tva_amount: number;
   line_total_ttc: number;
 
-  // Accounting information
+  // Accounting information (article account, or default account of the company)
   accounting_number: string;
   accounting_name: string;
   accounting_standard: string;
+  accounting_is_default: boolean;
+  vat_accounting_number: string;
+  vat_accounting_name: string;
 
   // Tags
   tags: string;
@@ -56,7 +66,8 @@ export type AccountingExportLine = {
 
 /**
  * Export invoices in accounting format where each invoice line is a separate row
- * with its associated accounting number from the linked article
+ * with its accounting account (from the linked article, or the default account
+ * of the company) and its VAT account. The global discount is spread over the lines.
  */
 export const getAccountingExport = async (
   ctx: Context,
@@ -295,14 +306,6 @@ export const getAccountingExport = async (
     const quote = quoteId ? quotesMap[quoteId] : undefined;
     const quoteReference = quote?.reference || "";
 
-    const lines = (invoice.content || []).filter(
-      (line) =>
-        ["product", "service", "consumable", "correction"].includes(
-          line.type
-        ) &&
-        (!line.optional || line.optional_checked)
-    );
-
     const invoiceBase = {
       invoice_id: invoice.id,
       invoice_reference: invoice.reference || "",
@@ -319,30 +322,14 @@ export const getAccountingExport = async (
       person_contact_name: personContactName,
     };
 
-    lines.forEach((line, index) => {
-      const article = line.article ? articlesMap[line.article] : null;
-
-      const accountingInfo = article?.accounting
-        ? isSupplier
-          ? article.accounting.buy
-          : article.accounting.sell
-        : null;
-
+    getAccountingExportLinesAmounts(
+      invoice,
+      articlesMap,
+      client?.accounting
+    ).forEach((amounts, index) => {
+      const { line, article } = amounts;
       const quantity = line.quantity || 0;
       const unitPrice = line.unit_price || 0;
-      let lineTotal = quantity * unitPrice;
-
-      if (line.discount) {
-        if (line.discount.mode === "percentage") {
-          lineTotal = lineTotal * (1 - (line.discount.value || 0) / 100);
-        } else if (line.discount.mode === "amount") {
-          lineTotal = lineTotal - (line.discount.value || 0);
-        }
-      }
-
-      const tvaRate = parseFloat(line.tva || "0") || 0;
-      const tvaAmount = lineTotal * (tvaRate / 100);
-      const lineTotalTTC = lineTotal + tvaAmount;
 
       const tagNames = (article?.tags || [])
         .map((tagId) => tagsMap[tagId]?.name)
@@ -362,67 +349,24 @@ export const getAccountingExport = async (
         line_unit_price: parseFloat((unitPrice || 0) as any).toFixed(
           5
         ) as unknown as number,
-        line_total_ht: parseFloat((lineTotal || 0) as any).toFixed(
-          2
-        ) as unknown as number,
-        line_tva_rate: line.tva || "0",
-        line_tva_amount: parseFloat((tvaAmount || 0) as any).toFixed(
-          2
-        ) as unknown as number,
-        line_total_ttc: parseFloat((lineTotalTTC || 0) as any).toFixed(
-          2
-        ) as unknown as number,
-        accounting_number: accountingInfo?.standard_identifier || "",
-        accounting_name: accountingInfo?.name || "",
-        accounting_standard: accountingInfo?.standard || "",
+        line_total_before_global_discount:
+          amounts.line_total_before_global_discount,
+        line_global_discount: amounts.line_global_discount,
+        line_total_ht: amounts.line_total_ht,
+        // VAT is stored as a code ("S:20"), export the rate as a number
+        line_tva_rate: String(getTvaValue(line.tva || "") * 100),
+        line_tva_label: getTvaLabel(line.tva || ""),
+        line_tva_amount: amounts.line_tva_amount,
+        line_total_ttc: amounts.line_total_ttc,
+        accounting_number: amounts.accounting.number,
+        accounting_name: amounts.accounting.name,
+        accounting_standard: amounts.accounting.standard,
+        accounting_is_default: amounts.accounting.is_default,
+        vat_accounting_number: amounts.vat_accounting.number,
+        vat_accounting_name: amounts.vat_accounting.name,
         tags: tagNames,
       });
     });
-
-    // Add global discount as separate line(s) if present, split by TVA rate
-    const globalDiscount = invoice.discount;
-    const allowancesBreakdown = invoice.total?.allowances_breakdown;
-
-    if (
-      globalDiscount?.mode &&
-      globalDiscount.value &&
-      allowancesBreakdown?.length
-    ) {
-      allowancesBreakdown.forEach((allowance, allowanceIndex) => {
-        const discountHt = -allowance.amount;
-        const tvaRate = parseFloat(allowance.tva || "0") || 0;
-        const tvaAmount = discountHt * (tvaRate / 100);
-        const discountTtc = discountHt + tvaAmount;
-
-        exportLines.push({
-          ...invoiceBase,
-          line_index: lines.length + allowanceIndex + 1,
-          line_article_id: "",
-          line_article_name: "Remise globale",
-          line_article_reference: "",
-          line_description: "",
-          line_quantity: 1,
-          line_unit: "",
-          line_unit_price: parseFloat((discountHt || 0) as any).toFixed(
-            5
-          ) as unknown as number,
-          line_total_ht: parseFloat((discountHt || 0) as any).toFixed(
-            2
-          ) as unknown as number,
-          line_tva_rate: allowance.tva || "0",
-          line_tva_amount: parseFloat((tvaAmount || 0) as any).toFixed(
-            2
-          ) as unknown as number,
-          line_total_ttc: parseFloat((discountTtc || 0) as any).toFixed(
-            2
-          ) as unknown as number,
-          accounting_number: "",
-          accounting_name: "",
-          accounting_standard: "",
-          tags: "",
-        });
-      });
-    }
   }
 
   console.log("Accounting export stats:", {

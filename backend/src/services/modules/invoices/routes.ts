@@ -1,3 +1,4 @@
+import { BadRequestError } from "#src/types";
 import { id } from "#src/platform/db/utils";
 import Services from "#src/services/index";
 import { Router } from "express";
@@ -19,6 +20,7 @@ import {
 } from "./services/furnish-invoices";
 import { generatePdf, sendPdf } from "./services/generate-pdf";
 import {
+  deprecatedVatCodes,
   standardCodeToUnit,
   standardCodeToVatCategory,
   standardCodeToVatValue,
@@ -33,6 +35,7 @@ export const registerRoutes = (router: Router) => {
       units: standardCodeToUnit,
       vat: standardCodeToVatCategory,
       vat_values: standardCodeToVatValue,
+      vat_deprecated: deprecatedVatCodes,
       vat_exemption: vatCategoryCodeToExemptionReason,
     });
   });
@@ -261,7 +264,7 @@ export const registerRoutes = (router: Router) => {
       const quotesIDs = ((req.query.quotes as string) ?? "").split(",");
 
       if (!quotesIDs || quotesIDs.length === 0) {
-        throw new Error("No invoice IDs provided");
+        throw BadRequestError("No invoice IDs provided");
       }
 
       const quotes = await db.select<Invoices>(ctx, InvoicesDefinition.name, {
@@ -287,7 +290,7 @@ export const registerRoutes = (router: Router) => {
       const quotesIDs = ((req.query.quotes as string) ?? "").split(",");
 
       if (!quotesIDs || quotesIDs.length === 0) {
-        throw new Error("No invoice IDs provided");
+        throw BadRequestError("No invoice IDs provided");
       }
 
       const quotes = await db.select<Invoices>(ctx, InvoicesDefinition.name, {
@@ -369,14 +372,20 @@ export const registerRoutes = (router: Router) => {
               ctx,
               StockItemsDefinition.name,
               { id: stockItem.id },
-              { quantity: stockItem.quantity - action.quantity }
+              {
+                // Only what was actually moved to the quotes so far
+                quantity:
+                  stockItem.quantity -
+                  (action.quantity - remainingStockToWithdraw),
+              }
             );
 
             await db.insert<Partial<StockItems>>(
               ctx,
               StockItemsDefinition.name,
               {
-                ..._.omit(stockItem, "id"),
+                // source_id is unique per company, the copy is a new item
+                ..._.omit(stockItem, ["id", "source_id"]),
                 id: id(),
                 article: stockItem.article,
                 quantity: toWithdraw,

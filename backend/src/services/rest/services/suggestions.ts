@@ -1,7 +1,7 @@
 import _ from "lodash";
 import Platform from "../../../platform";
 import Services from "../../../services";
-import { Context } from "../../../types";
+import { BadRequestError, Context } from "../../../types";
 import { UsersDefinition } from "../../users/entities/users";
 import { isTableAvailable } from "./utils";
 import { schema as getSchema } from "./rest";
@@ -14,7 +14,7 @@ export const suggestions = async (
   query?: string
 ) => {
   if (!(await isTableAvailable(ctx, table, "READ")))
-    throw new Error("Invalid object type");
+    throw BadRequestError("Invalid object type");
   const driver = await Platform.Db.getService();
   const schema = await getSchema(ctx, table);
 

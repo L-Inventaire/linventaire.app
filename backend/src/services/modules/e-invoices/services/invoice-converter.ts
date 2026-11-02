@@ -686,7 +686,12 @@ export function buildPaymentInstructions(
       payment_means_type_code: "30", // Credit transfer
       credit_transfers: [
         {
-          payment_account_identifier: { value: iban, scheme: "IBAN" },
+          // SuperPDP always writes the value in CII IBANID, and writes any
+          // non-empty scheme as an additional ProprietaryID ("IBAN" ->
+          // <ProprietaryID>IBAN</ProprietaryID>), which is refused by
+          // CII-SR-470 (either the IBAN or a proprietary ID). The scheme is
+          // required by its API, so it is sent empty.
+          payment_account_identifier: { value: iban, scheme: "" },
           payment_service_provider_identifier:
             (payment?.bank_bic || "").replace(/\s/g, "") || undefined,
         },

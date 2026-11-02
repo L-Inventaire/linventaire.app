@@ -55,7 +55,8 @@ export default class Invoices extends RestEntity {
   // reset automatically whenever the state changes (see the upsert-hook).
   state_details?: InvoiceStateDetails | null = new InvoiceStateDetails();
 
-  // Transmission to the e-invoicing platform (see on-sent-e-invoice trigger)
+  // Transmission to the e-invoicing platform (see on-sent-e-invoice trigger),
+  // filterable with e_invoice.status (empty for older documents)
   e_invoice?: InvoiceEInvoiceDetails | null = new InvoiceEInvoiceDetails();
 
   // For credit notes or supplier credit note: invoices refunded by this credit note
@@ -158,6 +159,10 @@ export const InvoicesDefinition: RestTableDefinition = {
   indexes: [
     "USING GIST (client_id, state, emit_date)",
     "USING GIN (searchable_generated)",
+    // E-invoices waiting to be transmitted (see processPendingEInvoices)
+    "((e_invoice->>'status')) WHERE e_invoice->>'status' IN ('pending', 'sending')",
+    ["client_id", "reference"], // Unicity of the references
+    "USING GIN (from_rel_quote)", // Documents created from a quote
   ],
   auditable: true,
   rest: {

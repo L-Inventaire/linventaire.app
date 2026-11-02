@@ -132,7 +132,23 @@ Les acomptes déjà facturés sont automatiquement déduits des factures suivant
 > [!TIP]
 > Pour plusieurs devis d'un même client, sélectionnez-les dans la liste et utilisez **Créer une facture groupée**.
 
-Les factures se trouvent dans **Ventes › Factures**. Elles s'envoient comme les devis (**Envoyer** › **Envoyer par email...**). Le numéro définitif de la facture est attribué à l'envoi, et une facture envoyée n'est plus modifiable. Si la facturation électronique est activée, la facture est aussi transmise sur la plateforme de facturation électronique.
+Les factures se trouvent dans **Ventes › Factures**. Elles s'envoient comme les devis (**Envoyer** › **Envoyer par email...**). Le numéro définitif de la facture est attribué à l'envoi, et une facture envoyée n'est plus modifiable. Si l'envoi automatique des factures électroniques est activé (**Paramètres › Facturation électronique**), la facture est aussi transmise sur la plateforme de facturation électronique dès qu'elle quitte l'état brouillon.
+
+### Suivre l'envoi des factures électroniques
+
+Le résultat de la transmission est affiché sur la facture (badge à côté du statut) et par une icône dans la liste des factures. Une ligne est ajoutée dans l'historique de la facture, en cas de succès comme d'échec (un échec notifie aussi les personnes qui suivent la facture).
+
+| Icône | Signification |
+| --- | --- |
+| Verte | Facture électronique envoyée |
+| Rouge | Échec de l'envoi (survolez l'icône pour voir la raison) |
+| Horloge grise | Envoi en cours (quelques secondes) |
+| Grise | Non concernée : client à l'étranger ou particulier |
+| Aucune | Non transmise (envoi désactivé, ou facture antérieure à l'activation) |
+
+Pour filtrer les factures, tapez **Facture électronique** dans la barre de recherche et choisissez **Envoyée**, **Échec** ou **Non concernée**.
+
+Par défaut, un échec ne bloque pas l'envoi du document : la facture est envoyée normalement et l'échec est simplement signalé. Pour l'interdire, activez **Bloquer l'envoi en cas d'échec de la facture électronique** dans les paramètres : la facture reste alors en brouillon tant que sa facture électronique n'a pas pu être transmise. Les factures adressées à un client à l'étranger ou à un particulier ne sont jamais bloquées.
 
 ## Compléter (payer) une facture
 

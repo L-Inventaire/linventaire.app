@@ -1,3 +1,4 @@
+import { NotFoundError } from "#src/types";
 import { captureException } from "@sentry/node";
 import { Router, query } from "express";
 import Framework from "../../platform";
@@ -266,7 +267,8 @@ export default (router: Router) => {
           ctx,
           req.params.object,
           Object.values(query || {}).length ? req.query : { id },
-          body
+          body,
+          { fromRequest: true }
         )
       );
     }
@@ -279,7 +281,9 @@ export default (router: Router) => {
     checkClientRolesFromObject("WRITE"),
     async (req, res) => {
       const ctx = Ctx.get(req)!.context;
-      return res.json(await create(ctx, req.params.object, req.body));
+      return res.json(
+        await create(ctx, req.params.object, req.body, { fromRequest: true })
+      );
     }
   );
 
@@ -297,7 +301,7 @@ export default (router: Router) => {
         id = req.params.id.split("~")[0];
         const body = await get(ctx, req.params.object, { id }, revision);
         if (!body) {
-          throw new Error("Revision not found");
+          throw NotFoundError("Revision not found");
         }
         (body as any).id = id;
         (body as any).restored_from = parseInt(revision);

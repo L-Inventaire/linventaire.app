@@ -38,7 +38,6 @@ const READ_ONLY = [
   "is_deleted",
   "revisions",
   "restored_from",
-  "created_at",
   "created_by",
   "updated_at",
   "updated_by",
@@ -55,11 +54,14 @@ const COMMON_DESCRIPTIONS: { [key: string]: string } = {
     "Le document a été supprimé (corbeille), il peut être restauré avec `/restore`.",
   revisions: "Nombre de modifications du document.",
   restored_from: "Révision depuis laquelle le document a été restauré.",
-  created_at: "Date de création (timestamp en millisecondes).",
+  created_at:
+    "Date de création (timestamp en millisecondes). Fixée par le serveur, sauf si elle est envoyée avec une clé API (reprise d'historique).",
   created_by: "Utilisateur ayant créé le document.",
   updated_at: "Date de dernière modification (timestamp en millisecondes).",
   updated_by: "Dernier utilisateur ayant modifié le document.",
   display_name: "Libellé du document, généré automatiquement.",
+  source_id:
+    "Identifiant du document dans un autre logiciel (import, synchronisation). Modifiable uniquement avec une clé API, unique par entreprise parmi les documents non supprimés.",
   fields:
     "Valeurs des champs personnalisés (voir l'entité `fields`), indexées par code de champ.",
 };
@@ -411,6 +413,18 @@ Les routes \`/search\` et \`/count\` acceptent une liste de filtres :
 - \`op\` : \`equals\`, \`regex\`, \`gte\`, \`lte\` ou \`range\` (valeur \`[min, max]\`).
 - \`not: true\` inverse le filtre, \`empty: true\` recherche les valeurs vides.
 - \`limit\` est plafonné à 500. Les documents supprimés sont exclus sauf avec \`options.deleted: true\`.
+
+## Import et synchronisation
+
+Pour reprendre des données d'un autre logiciel :
+
+- **\`source_id\`** : envoyez l'identifiant du document dans votre logiciel. Il est unique par entreprise (hors documents supprimés) : une deuxième création avec le même \`source_id\` répond \`409 Conflict\` en indiquant le document existant. Retrouvez un document avec le filtre \`{ "key": "source_id", "values": [{ "op": "equals", "value": "..." }] }\`. Les références entre documents (client d'une facture, articles des lignes...) utilisent toujours les identifiants L'inventaire.
+- **\`created_at\`** : la date de création d'origine peut être envoyée (timestamp en millisecondes ou date ISO 8601, dans le passé). \`updated_at\` est toujours la date de l'appel.
+- **En-tête \`X-Linventaire-Import: true\`** : les documents envoyés sont historiques. Aucun effet externe : pas de transmission ni de validation e-facture, pas de date de relance pour les devis envoyés, pas d'e-mail de bon de commande. Pour qu'aucune relance ne parte jamais, envoyez aussi \`reminder_count: 3\` sur les devis.
+
+## Erreurs
+
+Les erreurs ont la forme \`{ "error": "...", "message": "...", "id": "<identifiant de la requête>" }\`. \`400\` : données invalides, \`401\`/\`403\` : authentification ou permission, \`404\` : introuvable, \`409\` : conflit avec l'état du document (ex. supprimer une facture qui n'est plus en brouillon, \`source_id\` déjà utilisé), \`429\` : trop de requêtes, \`5xx\` : erreur du serveur (la requête peut être rejouée).
 
 ## Limites
 

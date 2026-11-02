@@ -1,7 +1,12 @@
 import _ from "lodash";
 import Services from "../..";
 import { default as Framework } from "../../../platform";
-import { Context, getCtxCache, setCtxCache } from "../../../types";
+import {
+  Context,
+  ForbiddenError,
+  getCtxCache,
+  setCtxCache,
+} from "../../../types";
 import { RestSearchQuery, RestSearchQueryOp } from "../type";
 
 export const isTableAvailable = async (
@@ -30,7 +35,7 @@ export const isTableAvailable = async (
     }
     setCtxCache(ctx, cacheKey, tmp);
     if (!tmp) {
-      throw new Error("Unauthorized access to table " + table);
+      throw ForbiddenError("Unauthorized access to table " + table);
     }
     return tmp;
   }

@@ -1,3 +1,4 @@
+import { ForbiddenError, NotFoundError } from "#src/types";
 import Framework from "#src/platform/index";
 import { ClientsDefinition } from "#src/services/clients/entities/clients";
 import { ClientsUsersDefinition } from "#src/services/clients/entities/clients-users";
@@ -46,7 +47,7 @@ export const setupCreateComment = async () => {
           (oldEntity && ctx?.id !== oldEntity?.created_by) ||
           (entity || oldEntity)?.type !== "comment"
         ) {
-          throw new Error("You can't modify a comment that you don't own");
+          throw ForbiddenError("You can't modify a comment that you don't own");
         }
         const newReactions = _.uniq(
           entity?.reactions?.reduce(
@@ -61,7 +62,7 @@ export const setupCreateComment = async () => {
           )
         )?.filter((a) => a !== ctx.id);
         if (newReactions?.length !== previousReactions?.length) {
-          throw new Error("You can't modify reactions that you don't own");
+          throw ForbiddenError("You can't modify reactions that you don't own");
         }
       }
 
@@ -72,7 +73,7 @@ export const setupCreateComment = async () => {
         id: entity.item_id,
       });
       if (!item) {
-        throw new Error("Item not found or you don't have access to it");
+        throw NotFoundError("Item not found or you don't have access to it");
       }
 
       const oldRestEntity = await db.selectOne<RestEntity>(

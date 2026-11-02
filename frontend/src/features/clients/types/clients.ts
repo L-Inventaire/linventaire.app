@@ -1,5 +1,6 @@
 import { PublicCustomer } from "@features/customers/types/customers";
 import { InvoiceSubscription } from "@features/invoices/types/types";
+import { ClientAccounting } from "@shared/accounting";
 
 export type ClientsUsers = {
   client_id: string;
@@ -102,6 +103,9 @@ export type Clients = {
 
   smtp: SmtpOptions;
   security?: Security;
+
+  // Default accounting accounts (when the article has none, and VAT accounts)
+  accounting?: ClientAccounting;
 };
 
 // Only visible to owners (CLIENT_MANAGE)
@@ -193,6 +197,7 @@ type Preferences = {
   email_footer?: string;
   margin_mode?: boolean;
   margin_base?: "cost" | "price";
+  subscriptions_disabled?: boolean;
 };
 
 type Configuration = {

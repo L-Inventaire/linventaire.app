@@ -29,6 +29,7 @@ export const setNumetorationTrigger = () =>
         entity.client_id,
         entity.emit_date
       );
+      const initialCounters = JSON.stringify(allCounters.counters);
       const { year, type } = await getFormattedNumerotationConfiguration(
         ctx,
         entity,
@@ -132,7 +133,12 @@ export const setNumetorationTrigger = () =>
         );
       }
 
-      if (allCounters?.counters?.[year]) {
+      if (!allCounters?.counters?.[year]) {
+        throw new Error("No counters found for year " + year);
+      }
+      // Only write when a counter moved: the client row is shared by every document
+      // of the company, writing it each time makes concurrent creations wait
+      if (JSON.stringify(allCounters.counters) !== initialCounters) {
         await Services.Clients.updateInvoicesCounters(ctx, entity.client_id, {
           ...(allCounters?.counters || {}),
           [year]: {
@@ -140,8 +146,6 @@ export const setNumetorationTrigger = () =>
             [type]: allCounters.counters[year][type],
           },
         });
-      } else {
-        throw new Error("No counters found for year " + year);
       }
     },
     name: "numerotation-invoices",

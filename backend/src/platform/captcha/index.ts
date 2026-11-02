@@ -8,7 +8,17 @@ export default class Captcha implements PlatformService {
   private service: CaptchaAdapterInterface;
 
   async init() {
-    if (config.get<string>("captcha.type") === "recaptcha") {
+    const keysMissing =
+      !config.get<string>("captcha.recaptcha.project_id") ||
+      !config.get<string>("captcha.recaptcha.api_key");
+    if (
+      config.get<string>("captcha.type") === "recaptcha" &&
+      keysMissing &&
+      process.env.NODE_ENV !== "production"
+    ) {
+      // Local development: no ReCaptcha keys, every login would be refused
+      console.log("Captcha: Disabled (no ReCaptcha keys outside production)");
+    } else if (config.get<string>("captcha.type") === "recaptcha") {
       console.log("Captcha: Using ReCaptcha");
       this.service = await new CaptchaReCaptcha().init();
     } else {

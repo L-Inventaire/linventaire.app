@@ -19,7 +19,15 @@ import { ArticlesFieldsNames } from "@features/articles/configuration";
 import { useHasAccess } from "@features/access";
 import { AccountingAccountInput } from "@components/accounting-account-input";
 import Link from "@atoms/link";
-import { useMarginMode } from "@features/clients/state/use-clients";
+import {
+  useCurrentClient,
+  useMarginMode,
+  useSubscriptionsEnabled,
+} from "@features/clients/state/use-clients";
+import {
+  getAccountingLineKind,
+  getDefaultLineAccount,
+} from "@shared/accounting";
 import { getArticleMaxCost } from "@features/articles/utils";
 import { MarginInput } from "./margin-input";
 
@@ -47,8 +55,9 @@ export const ArticlesDetailsPage = ({
     id || "new",
     readonly,
   );
-  const { tvaOptions } = useInvoiceMaps();
+  const { tvaOptions, getTvaOptions } = useInvoiceMaps();
   const marginMode = useMarginMode();
+  const subscriptionsEnabled = useSubscriptionsEnabled();
   // Price, (margin), VAT and unit share the row equally
   const priceColClass = "w-full lg:flex-1 lg:min-w-0";
 
@@ -71,6 +80,17 @@ export const ArticlesDetailsPage = ({
   };
 
   const hasAccess = useHasAccess();
+  const { client } = useCurrentClient();
+
+  // Account used in the accounting export when the article has none
+  const defaultAccountLabel = (side: "sell" | "buy") => {
+    const account = getDefaultLineAccount(
+      client?.accounting,
+      side,
+      getAccountingLineKind(draft.type),
+    );
+    return `${account.standard_identifier} - ${account.name} (par défaut)`;
+  };
 
   if (isPending || (id && draft.id !== id)) return <PageLoader />;
 
@@ -164,7 +184,7 @@ export const ArticlesDetailsPage = ({
                     ctrl={ctrl("tva")}
                     label="TVA"
                     type="select"
-                    options={tvaOptions}
+                    options={getTvaOptions(ctrl("tva").value)}
                   />
                 )}
                 <div className={priceColClass}>
@@ -182,14 +202,16 @@ export const ArticlesDetailsPage = ({
                 </div>
               </PageColumns>
 
-              <PageColumns>
-                <FormInput
-                  type="select"
-                  label="Récurrence"
-                  ctrl={ctrl("subscription")}
-                  options={frequencyOptions}
-                />
-              </PageColumns>
+              {(subscriptionsEnabled || !!ctrl("subscription").value) && (
+                <PageColumns>
+                  <FormInput
+                    type="select"
+                    label="Récurrence"
+                    ctrl={ctrl("subscription")}
+                    options={frequencyOptions}
+                  />
+                </PageColumns>
+              )}
 
               {readonly && (
                 <>
@@ -242,7 +264,7 @@ export const ArticlesDetailsPage = ({
                         onChange={(value) =>
                           ctrl("accounting.buy").onChange(value)
                         }
-                        placeholder="Compte d'achat"
+                        placeholder={defaultAccountLabel("buy")}
                         readonly={readonly || !hasAccess("ACCOUNTING_WRITE")}
                       />
                     }
@@ -256,7 +278,7 @@ export const ArticlesDetailsPage = ({
                         onChange={(value) =>
                           ctrl("accounting.sell").onChange(value)
                         }
-                        placeholder="Compte de vente"
+                        placeholder={defaultAccountLabel("sell")}
                         readonly={readonly || !hasAccess("ACCOUNTING_WRITE")}
                       />
                     }

@@ -107,9 +107,10 @@ export const checkReminders = async (ctx: Context) => {
 export const setTriggerFirstReminderDate = () => {
   Framework.TriggersManager.registerTrigger<Invoices>(InvoicesDefinition, {
     name: "invoices-reminder-first",
-    test: (_, next, prev) => {
-      // When states changes to "sent"
+    test: (ctx, next, prev) => {
+      // When states changes to "sent", never for imported documents
       return (
+        !ctx?.import &&
         (next?.type === "quotes" || next?.type === "invoices") &&
         next?.state === "sent" &&
         prev?.state !== next?.state &&

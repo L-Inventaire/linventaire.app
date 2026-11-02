@@ -11,6 +11,7 @@ import {
 export class Tags extends RestEntity {
   name = "string";
   color = "string";
+  description = "string"; // Shown when hovering the tag
 }
 
 export const TagsDefinition: RestTableDefinition = {
@@ -19,6 +20,7 @@ export const TagsDefinition: RestTableDefinition = {
     ...new RestEntityColumnsDefinition(),
     name: "VARCHAR(64)",
     color: "VARCHAR(64)",
+    description: "TEXT",
   },
   pk: ["client_id", "id"],
   rest: {

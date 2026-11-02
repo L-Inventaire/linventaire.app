@@ -62,6 +62,22 @@ const fetchServerBatch = (() => {
   };
 })();
 
+/**
+ * Error thrown by a failed write, carrying the message returned by the server
+ * (e.g. "La facture électronique n'a pas pu être envoyée...") in
+ * `serverMessage`, so it can be shown to the user.
+ */
+const restError = async (resp: Response, fallback: string) => {
+  const error = new Error(fallback) as Error & { serverMessage?: string };
+  try {
+    const body = await resp.json();
+    if (typeof body?.message === "string") error.serverMessage = body.message;
+  } catch {
+    // Not a JSON body
+  }
+  return error;
+};
+
 export class RestApiClient<T> {
   constructor(private table: string) {}
 
@@ -162,7 +178,7 @@ export class RestApiClient<T> {
     );
 
     if (resp.status !== 200) {
-      throw new Error("Error updating data");
+      throw await restError(resp, "Error updating data");
     }
 
     return resp.json();
@@ -182,7 +198,7 @@ export class RestApiClient<T> {
     );
 
     if (resp.status !== 200) {
-      throw new Error("Error updating data");
+      throw await restError(resp, "Error updating data");
     }
 
     return resp.json();

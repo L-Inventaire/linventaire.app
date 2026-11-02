@@ -1,3 +1,4 @@
+import { useHasAccess } from "@features/access";
 import { Button } from "@atoms/button/button";
 import { DropdownButton } from "@atoms/dropdown";
 import { Invoices } from "@features/invoices/types/types";
@@ -18,6 +19,7 @@ export const SupplierInvoicesActions = ({
   id?: string;
   readonly?: boolean;
 }) => {
+  const hasAccess = useHasAccess();
   const { draft, save: _save } = useReadDraftRest<Invoices>(
     "invoices",
     id || "new",
@@ -75,22 +77,24 @@ export const SupplierInvoicesActions = ({
               },
             ]}
           />
-          <Button
-            disabled={disabled}
-            icon={(p) => <CheckIcon {...p} />}
-            onClick={() => {
-              edit<AccountingTransactions>("accounting_transactions", "", {
-                rel_invoices: [draft.id],
-                currency: draft.currency,
-                amount:
-                  (draft.total?.total_with_taxes || 0) -
-                  (draft.transactions?.total || 0),
-                reference: draft.reference,
-              });
-            }}
-          >
-            Enregistrer un paiement
-          </Button>
+          {hasAccess("ACCOUNTING_WRITE") && (
+            <Button
+              disabled={disabled}
+              icon={(p) => <CheckIcon {...p} />}
+              onClick={() => {
+                edit<AccountingTransactions>("accounting_transactions", "", {
+                  rel_invoices: [draft.id],
+                  currency: draft.currency,
+                  amount:
+                    (draft.total?.total_with_taxes || 0) -
+                    (draft.transactions?.total || 0),
+                  reference: draft.reference,
+                });
+              }}
+            >
+              Enregistrer un paiement
+            </Button>
+          )}
         </>
       )}
       {draft.state === "closed" && !errorFormat && (
