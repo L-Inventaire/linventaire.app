@@ -130,4 +130,6 @@ Le **Tableau de bord** résume l'exercice en cours : chiffre d'affaires, charges
 
 **Activité › CRM** suit vos opportunités commerciales avant le devis, dans un tableau en colonnes : **Nouveau**, **Qualifié**, **Proposition** et **Terminé**. Créez une opportunité avec le bouton **+** d'une colonne, associez-lui jusqu'à trois clients, un vendeur et des personnes assignées, puis faites-la glisser d'une colonne à l'autre au fil de son avancement.
 
+Sur chaque carte, la première ligne de la description sert de titre et s'affiche en gras ; la suite est résumée en quelques lignes (**Afficher plus** pour tout lire). Les opportunités les plus récemment modifiées sont en haut de chaque colonne, et la durée depuis la dernière modification s'affiche en haut à droite de la carte : en orange au-delà d'un mois, en rouge au-delà de trois mois, pour repérer les opportunités qui n'avancent plus. La colonne **Terminé** est repliée par défaut : cliquez dessus pour l'afficher.
+
 [![Le CRM : les opportunités par étape](images/crm.png)](images/crm.png)
