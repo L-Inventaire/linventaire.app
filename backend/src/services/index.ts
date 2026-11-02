@@ -163,8 +163,10 @@ export default class Services {
       console.error(err);
       console.log(`Error in request ${ctx.req_id}:`, err);
       Framework.LoggerDb.get("api-gateway").error(ctx, err);
-      res.status(err.status || 500).json({
-        error: "Internal server error",
+      const status = err.status || postgresErrorStatus(err) || 500;
+      res.status(status).json({
+        error:
+          status < 500 ? err.error || "Bad Request" : "Internal server error",
         message: err.message,
         id: ctx.req_id,
       });
@@ -198,3 +200,15 @@ export default class Services {
     console.log("Finished initializing application services...");
   }
 }
+
+/**
+ * Postgres errors caused by the data sent by the client: invalid value (class 22)
+ * or constraint violation (class 23, ex. duplicate key)
+ */
+const postgresErrorStatus = (err: any): number | null => {
+  const code = typeof err?.code === "string" ? err.code : "";
+  if (!/^[0-9A-Z]{5}$/.test(code)) return null;
+  if (code.startsWith("22")) return 400;
+  if (code.startsWith("23")) return 409;
+  return null;
+};

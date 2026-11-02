@@ -6,7 +6,9 @@ import {
   FormContextContext,
   FormControllerType,
 } from "@components/form/formcontext";
+import { useCurrentClient } from "@features/clients/state/use-clients";
 import { Clients } from "@features/clients/types/clients";
+import { getDefaultCountry } from "@features/utils/location";
 import { useControlledEffect } from "@features/utils/hooks/use-controlled-effect";
 import { useContext, useEffect, useState } from "react";
 
@@ -24,15 +26,15 @@ export const AddressInput = (props: {
   const disabled = props.disabled ?? context?.disabled;
   const readonly = props.readonly ?? context?.readonly;
   const autoComplete = props.autoComplete === false ? false : true;
+  const { client } = useCurrentClient();
+  const defaultCountry = getDefaultCountry(client?.address?.country);
 
   const [addressLine1, setAddressLine1] = useState(value?.address_line_1 || "");
   const [addressLine2, setAddressLine2] = useState(value?.address_line_2 || "");
   const [zip, setZip] = useState(value?.zip || "");
   const [city, setCity] = useState(value?.city || "");
   const [region, setRegion] = useState(value?.region || "");
-  const [country, setCountry] = useState(
-    value?.country || navigator.language.toLocaleUpperCase() || "US"
-  );
+  const [country, setCountry] = useState(value?.country || defaultCountry);
 
   // TODO Fixme: this introduce a bug when typing very fast
   // But needed for readonly mode
@@ -42,9 +44,7 @@ export const AddressInput = (props: {
     setZip(value?.zip || "");
     setCity(value?.city || "");
     setRegion(value?.region || "");
-    setCountry(
-      value?.country || navigator.language.toLocaleUpperCase() || "US"
-    );
+    setCountry(value?.country || defaultCountry);
   }, [value]);
 
   useControlledEffect(() => {

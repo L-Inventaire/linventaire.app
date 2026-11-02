@@ -47,7 +47,7 @@ export const ArticlesDetailsPage = ({
     id || "new",
     readonly,
   );
-  const { tvaOptions } = useInvoiceMaps();
+  const { tvaOptions, getTvaOptions } = useInvoiceMaps();
   const marginMode = useMarginMode();
   // Price, (margin), VAT and unit share the row equally
   const priceColClass = "w-full lg:flex-1 lg:min-w-0";
@@ -164,7 +164,7 @@ export const ArticlesDetailsPage = ({
                     ctrl={ctrl("tva")}
                     label="TVA"
                     type="select"
-                    options={tvaOptions}
+                    options={getTvaOptions(ctrl("tva").value)}
                   />
                 )}
                 <div className={priceColClass}>

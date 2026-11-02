@@ -161,6 +161,8 @@ export const InvoicesDefinition: RestTableDefinition = {
     "USING GIN (searchable_generated)",
     // E-invoices waiting to be transmitted (see processPendingEInvoices)
     "((e_invoice->>'status')) WHERE e_invoice->>'status' IN ('pending', 'sending')",
+    ["client_id", "reference"], // Unicity of the references
+    "USING GIN (from_rel_quote)", // Documents created from a quote
   ],
   auditable: true,
   rest: {

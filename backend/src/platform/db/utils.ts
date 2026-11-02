@@ -1,4 +1,5 @@
 import Big from "big.js";
+import { randomInt } from "crypto";
 import _ from "lodash";
 import { Condition } from "./api";
 
@@ -58,14 +59,16 @@ export const sanitizeCondition = <Entity>(condition: Entity) => {
   return sanitizeDocument(condition);
 };
 
-// This generate pseudo unique ids, it should be enough as anyway data is segmented by client
-// Also it would mean two objects are created at the same millisecond and share a 1 on 1 000 000 chance of collision
-let localCounter = 0;
-export const id = () =>
-  (
-    new Date().getTime() * 1000000 +
-    (localCounter++ % 1000) * 1000 +
-    Math.round(Math.random() * 1000)
-  )
-    .toString(36)
-    .padStart(12, "0");
+// Ids are the base 36 of (milliseconds × 1 000 000 + a sub-millisecond part), so they sort by
+// creation date. The sub-millisecond part is random: two ids created in the same millisecond by
+// different processes have a 1 in 1 000 000 chance of colliding; within a process ids strictly
+// increase. Computed with BigInt: the value is above Number.MAX_SAFE_INTEGER, and with numbers
+// the low digits were rounded (to 256) so concurrent creations often got the same id.
+let lastId = BigInt(0);
+export const id = () => {
+  let value =
+    BigInt(Date.now()) * BigInt(1000000) + BigInt(randomInt(1000000));
+  if (value <= lastId) value = lastId + BigInt(1);
+  lastId = value;
+  return value.toString(36).padStart(12, "0");
+};

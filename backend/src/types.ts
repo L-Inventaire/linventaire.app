@@ -28,6 +28,9 @@ export type Context = {
   ip?: string;
   db_tnx?: TransactionExecutor;
   _batch_import_ignore_triggers?: boolean;
+  // Import of existing data (Settings → Import, or API with the "X-Linventaire-Import" header):
+  // documents are historical, no external effect (e-invoicing, reminders, emails)
+  import?: boolean;
   trigger_path: string[];
   cache: any;
 };
@@ -74,4 +77,10 @@ export const UnauthorizedError = (message: string | any) => {
 
 export const BadRequestError = (message: string | any) => {
   return { status: 400, error: "Bad Request", message };
+};
+
+// The request is valid but conflicts with the current state of the document
+// (ex. deleting an invoice that is no longer a draft)
+export const ConflictError = (message: string | any) => {
+  return { status: 409, error: "Conflict", message };
 };

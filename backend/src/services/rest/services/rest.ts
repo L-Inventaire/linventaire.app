@@ -2,14 +2,14 @@ import Fuse from "fuse.js";
 import _, { isArray } from "lodash";
 import { default as Framework, default as platform } from "../../../platform";
 import { id } from "../../../platform/db/utils";
-import { Context } from "../../../types";
+import { BadRequestError, ConflictError, Context } from "../../../types";
 import { RestEntity } from "../entities/entity";
 import { RestSearchQuery } from "../type";
 import { generateWhereClause, isTableAvailable } from "./utils";
 
 export const schema = async (ctx: Context, table: string) => {
   if (!(await isTableAvailable(ctx, table, "READ")))
-    throw new Error("Invalid object type");
+    throw BadRequestError("Invalid object type");
   const driver = await platform.Db.getService();
   const { rest } = Framework.TriggersManager.getEntities()[table];
 
@@ -68,7 +68,7 @@ export const get = async (
   historyVersion?: string
 ) => {
   if (!(await isTableAvailable(ctx, table, "READ", query)))
-    throw new Error("Invalid object type");
+    throw BadRequestError("Invalid object type");
   const driver = await platform.Db.getService();
 
   let result = await driver.selectOne<RestEntity>(
@@ -85,7 +85,7 @@ export const get = async (
 
   if (historyVersion) {
     if (!(await isTableAvailable(ctx, table, "READ")))
-      throw new Error("Invalid object type");
+      throw BadRequestError("Invalid object type");
     const driver = await platform.Db.getService();
     const historyTable = table + "_history";
 
@@ -153,7 +153,7 @@ export const search = async <T>(
   }
 ) => {
   if (!(await isTableAvailable(ctx, table, "READ", query)))
-    throw new Error("Invalid object type " + table);
+    throw BadRequestError("Invalid object type " + table);
   const driver = await platform.Db.getService();
   const { rest, columns } = Framework.TriggersManager.getEntities()[table];
   const _schema = await schema(ctx, table);
@@ -269,25 +269,92 @@ export const search = async <T>(
   };
 };
 
+/**
+ * API clients (authenticated with an API key) may set the source id (id of the document
+ * in another software) and the creation date of the documents they send: imports and
+ * synchronisations. Elsewhere (user interface, documents created by the server itself,
+ * ex. an invoice copied from a quote) both are managed by the server.
+ */
+type WriteOptions = {
+  // The document comes from the body of a REST request (not from the server itself)
+  fromRequest?: boolean;
+};
+
+export const isApiRequest = (ctx: Context, options?: WriteOptions) =>
+  !!options?.fromRequest && ctx.role === "API";
+
+export const parseSourceId = (value: any): string | null => {
+  if (value === null || value === undefined) return null;
+  if (typeof value !== "string" && typeof value !== "number")
+    throw BadRequestError("source_id must be a string");
+  const sourceId = String(value).trim();
+  if (sourceId.length > 255)
+    throw BadRequestError("source_id must be at most 255 characters long");
+  return sourceId || null;
+};
+
+export const parseCreatedAt = (value: any): number => {
+  const date =
+    typeof value === "number" || /^\d+$/.test(String(value))
+      ? Number(value)
+      : new Date(value).getTime();
+  // A few minutes of tolerance for the clock of the client
+  if (!Number.isFinite(date) || date <= 0 || date > Date.now() + 5 * 60 * 1000)
+    throw BadRequestError(
+      "created_at must be a date in the past (timestamp in milliseconds or ISO 8601)"
+    );
+  return date;
+};
+
+const checkSourceIdAvailable = async (
+  ctx: Context,
+  table: string,
+  sourceId: string,
+  selfId?: string
+) => {
+  const driver = await platform.Db.getService();
+  const existing = await driver.select<RestEntity>(
+    { ...ctx, role: "SYSTEM" },
+    table,
+    { client_id: ctx.client_id, source_id: sourceId },
+    { limit: 2 }
+  );
+  const other = existing.find((a) => a.id !== selfId);
+  if (other)
+    throw ConflictError(
+      `source_id "${sourceId}" is already used by ${table}/${other.id}`
+    );
+};
+
 export const create = async <T>(
   ctx: Context,
   table: string,
-  document: T & RestEntity & any
+  document: T & RestEntity & any,
+  options?: WriteOptions
 ) => {
   if (!(await isTableAvailable(ctx, table, "WRITE", document)))
-    throw new Error("Invalid object type");
+    throw BadRequestError("Invalid object type");
   const driver = await platform.Db.getService();
   const { rest } = Framework.TriggersManager.getEntities()[table];
+
+  const fromApi = isApiRequest(ctx, options);
+  const sourceId = fromApi ? parseSourceId(document.source_id) : null;
+  const createdAt =
+    fromApi && document.created_at !== undefined && document.created_at !== null
+      ? parseCreatedAt(document.created_at)
+      : new Date().getTime();
+  if (sourceId) await checkSourceIdAvailable(ctx, table, sourceId);
 
   document = _.pick(document, Object.keys(rest.schema));
 
   document.id = id();
   document.client_id = ctx.client_id;
+  document.source_id = sourceId;
 
   delete document.searchable_generated;
   delete document.comment_id;
 
-  document.created_at = new Date().getTime();
+  document.created_at = createdAt;
   document.created_by = ctx.id;
   document.updated_at = new Date().getTime();
   document.updated_by = ctx.id;
@@ -312,27 +379,45 @@ export const update = async (
   ctx: Context,
   table: string,
   query: any,
-  document: any & Partial<RestEntity>
+  document: any & Partial<RestEntity>,
+  options?: WriteOptions
 ) => {
   if (!(await isTableAvailable(ctx, table, "WRITE", { ...document, ...query })))
-    throw new Error("Invalid object type");
+    throw BadRequestError("Invalid object type");
   const driver = await platform.Db.getService();
   const { rest } = Framework.TriggersManager.getEntities()[table];
 
   document = _.pick(document, Object.keys(rest.schema));
 
   if (!document.id && !query.id)
-    throw new Error("Missing id on document for table " + table);
+    throw BadRequestError("Missing id on document for table " + table);
 
   delete query.client_id;
   if (Object.values(query).length === 0)
-    throw new Error("Cannot update all records");
+    throw BadRequestError("Cannot update all records");
 
   delete document.searchable_generated;
   delete document.comment_id;
   delete document.id;
 
-  delete document.created_at;
+  const fromApi = isApiRequest(ctx, options);
+  if (fromApi && document.source_id !== undefined) {
+    document.source_id = parseSourceId(document.source_id);
+    if (document.source_id)
+      await checkSourceIdAvailable(ctx, table, document.source_id, query.id);
+  } else {
+    delete document.source_id;
+  }
+
+  if (
+    fromApi &&
+    document.created_at !== undefined &&
+    document.created_at !== null
+  ) {
+    document.created_at = parseCreatedAt(document.created_at);
+  } else {
+    delete document.created_at;
+  }
   document.updated_at = new Date().getTime();
   document.updated_by = ctx.id;
   document.revisions = (document.revisions || 0) + 1;
@@ -356,12 +441,12 @@ export const update = async (
 
 export const remove = async (ctx: Context, table: string, query: any) => {
   if (!(await isTableAvailable(ctx, table, "WRITE", query)))
-    throw new Error("Invalid object type");
+    throw BadRequestError("Invalid object type");
   const driver = await platform.Db.getService();
 
   delete query.client_id;
   if (Object.values(query).length === 0)
-    throw new Error("Cannot delete all records");
+    throw BadRequestError("Cannot delete all records");
 
   await driver.transaction(ctx, async (ctx) => {
     return await driver.update<RestEntity>(
@@ -385,12 +470,12 @@ export const remove = async (ctx: Context, table: string, query: any) => {
 
 export const restore = async (ctx: Context, table: string, query: any) => {
   if (!(await isTableAvailable(ctx, table, "WRITE", query)))
-    throw new Error("Invalid object type");
+    throw BadRequestError("Invalid object type");
   const driver = await platform.Db.getService();
 
   delete query.client_id;
   if (Object.values(query).length === 0)
-    throw new Error("Cannot delete all records");
+    throw BadRequestError("Cannot delete all records");
 
   await driver.update<RestEntity>(
     ctx,

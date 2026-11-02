@@ -1,3 +1,4 @@
+import { ConflictError } from "#src/types";
 import Clients, {
   ClientsDefinition,
 } from "#src/services/clients/entities/clients";
@@ -14,13 +15,14 @@ import Invoices, { InvoicesDefinition, Recipient } from "../entities/invoices";
  */
 export const setOnPurchaseOrderTrigger = () =>
   Framework.TriggersManager.registerTrigger<Invoices>(InvoicesDefinition, {
-    test: (_ctx, entity, oldEntity) => {
+    test: (ctx, entity, oldEntity) => {
       return (
+        !ctx?.import &&
         entity &&
         // Only client quotes automatically send an email when accepted
         ["quotes"].includes(entity.type) &&
         ["purchase_order"].includes(entity.state) &&
-        oldEntity.state === "sent"
+        oldEntity?.state === "sent"
       );
     },
     callback: async (ctx, entity) => {
@@ -48,7 +50,7 @@ export const setOnPurchaseOrderTrigger = () =>
               0
             );
             if (history.list.some((a) => a.state === "purchase_order")) {
-              throw new Error("Already sent purchase order email");
+              throw ConflictError("Already sent purchase order email");
             }
           } catch (e: any) {
             // We won't send it

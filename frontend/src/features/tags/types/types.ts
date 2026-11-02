@@ -5,4 +5,9 @@ export type Tags = RestEntity & {
   id: string;
   name: string;
   color: string;
+  description?: string;
 };
+
+/** Tooltip of a tag: its name, and its description when there is one */
+export const getTagTooltip = (tag?: Partial<Tags>) =>
+  [tag?.name, tag?.description].filter(Boolean).join(" — ");

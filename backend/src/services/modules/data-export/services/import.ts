@@ -107,7 +107,11 @@ export const importData = async (
         delete recordToInsert.deleted_by;
 
         // Insert the record
-        await db.insert({ ...ctx, role: "SYSTEM" }, tableName, recordToInsert);
+        await db.insert(
+          { ...ctx, role: "SYSTEM", import: true },
+          tableName,
+          recordToInsert
+        );
 
         result[tableName].imported++;
       } catch (error: any) {

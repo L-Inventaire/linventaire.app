@@ -42,7 +42,10 @@ export const AccountingTransactionsDefinition: RestTableDefinition = {
     notes: "TEXT",
   },
   pk: ["client_id", "id"],
-  indexes: ["USING GIN (searchable_generated)"],
+  indexes: [
+    "USING GIN (searchable_generated)",
+    "USING GIN (rel_invoices)", // Payments of a document
+  ],
   auditable: true,
   rest: {
     label: (entity: AccountingTransactions) => entity.reference,

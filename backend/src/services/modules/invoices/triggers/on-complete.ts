@@ -322,19 +322,19 @@ export const recomputeCompletionStatus = async (
   // Quotes and related (invoiced)
   // -------------------
   if (item.type === "quotes" || item.type === "supplier_quotes") {
+    // Direct indexed query: the generic search compares lowercased unaccented
+    // values, which can't use any index and scans all the documents
     const invoices = options?.dryRun
       ? []
-      : (
-          await Services.Rest.search<Invoices>(
-            ctx,
-            InvoicesDefinition.name,
-            buildQueryFromMap({
-              client_id,
-              from_rel_quote: id,
-            }),
-            { limit: 1000 }
-          )
-        ).list;
+      : await db!.select<Invoices>(
+          { ...ctx, role: "SYSTEM" }, // Needed for a raw where clause, filtered on client_id
+          InvoicesDefinition.name,
+          {
+            where: `client_id = $1 AND is_deleted = false AND from_rel_quote @> ARRAY[$2]::varchar[]`,
+            values: [client_id, id],
+          },
+          { limit: 1000 }
+        );
     const sentInvoices = invoices.filter(
       // This triggers need invoiced.percentage to be non draft invoices:
       // - Go to recurring mode (only when invoice is *sent*)
@@ -381,17 +381,16 @@ export const recomputeCompletionStatus = async (
     item.type === "supplier_invoices" ||
     item.type === "supplier_credit_notes"
   ) {
-    const payments = (
-      await Services.Rest.search<AccountingTransactions>(
-        ctx,
-        AccountingTransactionsDefinition.name,
-        buildQueryFromMap({
-          client_id,
-          rel_invoices: id,
-        }),
-        { limit: 1000 }
-      )
-    ).list;
+    // Direct indexed query (see the quotes above)
+    const payments = await db!.select<AccountingTransactions>(
+      { ...ctx, role: "SYSTEM" },
+      AccountingTransactionsDefinition.name,
+      {
+        where: `client_id = $1 AND is_deleted = false AND rel_invoices @> ARRAY[$2]::varchar[]`,
+        values: [client_id, id],
+      },
+      { limit: 1000 }
+    );
 
     // 1. Load all invoices sharing the same payments
     const otherInvoicesIds = payments.reduce(
@@ -414,17 +413,15 @@ export const recomputeCompletionStatus = async (
         : [];
     payments.push(
       ...(otherInvoices?.length > 0
-        ? (
-            await Services.Rest.search<AccountingTransactions>(
-              ctx,
-              AccountingTransactionsDefinition.name,
-              buildQueryFromMap({
-                client_id,
-                rel_invoices: _.uniq(otherInvoices.map((a) => a.id)),
-              }),
-              { limit: 1000 }
-            )
-          ).list
+        ? await db!.select<AccountingTransactions>(
+            { ...ctx, role: "SYSTEM" },
+            AccountingTransactionsDefinition.name,
+            {
+              where: `client_id = $1 AND is_deleted = false AND rel_invoices && $2::varchar[]`,
+              values: [client_id, _.uniq(otherInvoices.map((a) => a.id))],
+            },
+            { limit: 1000 }
+          )
         : [])
     );
 

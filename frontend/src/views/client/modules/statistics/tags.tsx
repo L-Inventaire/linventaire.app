@@ -8,7 +8,7 @@ import { getRoute, ROUTES } from "@features/routes";
 import { useDashboardTags } from "@features/statistics/hooks";
 import { DashboardTags } from "@features/statistics/types";
 import { useTags } from "@features/tags/hooks/use-tags";
-import { Tags } from "@features/tags/types/types";
+import { getTagTooltip, Tags } from "@features/tags/types/types";
 import { formatAmount } from "@features/utils/format/strings";
 import { Table } from "@molecules/table";
 import { Spinner } from "@radix-ui/themes";
@@ -251,7 +251,7 @@ export const TagsPage = ({ year }: { year: number }) => {
               href={getLink(a)}
             >
               {a.color ? (
-                <Tag color={a.color} size="xs">
+                <Tag color={a.color} size="xs" data-tooltip={getTagTooltip(a)}>
                   {a.name}
                 </Tag>
               ) : (
