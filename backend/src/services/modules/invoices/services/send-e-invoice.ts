@@ -2,9 +2,7 @@ import Framework from "#src/platform/index";
 import Services from "#src/services/index";
 import { Context, createContext } from "#src/types";
 import { captureException } from "@sentry/node";
-import Contacts, {
-  ContactsDefinition,
-} from "../../contacts/entities/contacts";
+import Contacts from "../../contacts/entities/contacts";
 import Invoices, { InvoicesDefinition } from "../entities/invoices";
 import { generatePdf } from "./generate-pdf";
 
@@ -191,7 +189,7 @@ export const queueEInvoice = async (ctx: Context, invoice: Invoices) => {
     error: "",
   });
   // Once the request transaction is committed
-  setTimeout(() => processPendingEInvoices().catch(() => {}), 3000);
+  setTimeout(() => processPendingEInvoices().catch(captureException), 3000);
 };
 
 // A transmission claimed but never completed (crash, restart) is retried
