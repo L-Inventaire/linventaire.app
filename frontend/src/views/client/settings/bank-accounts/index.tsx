@@ -25,7 +25,7 @@ export const BankAccountsPage = () => {
   return (
     <Page title={[{ label: "Paramètres" }, { label: "Comptes" }]}>
       <div className="w-full max-w-4xl mx-auto mt-6">
-        {hasAccess("ACCOUNTING_MANAGE") && (
+        {hasAccess("CLIENT_MANAGE") && (
           <Button
             size="md"
             className="float-right"
@@ -69,7 +69,7 @@ export const BankAccountsPage = () => {
                 ),
             },
             {
-              hidden: !hasAccess("ACCOUNTING_MANAGE"),
+              hidden: !hasAccess("CLIENT_MANAGE"),
               title: "Actions",
               thClassName: "w-1 whitespace-nowrap",
               render: (accountingAccount) => {

@@ -32,6 +32,7 @@ export const setCheckIsCompleteTrigger = () => {
         (entity?.quantity !== oldEntity?.quantity ||
           entity?.article !== oldEntity?.article ||
           entity?.state !== oldEntity?.state ||
+          entity?.is_deleted !== oldEntity?.is_deleted ||
           entity?.for_rel_quote !== oldEntity?.for_rel_quote ||
           entity?.from_rel_supplier_quote !==
             oldEntity?.from_rel_supplier_quote)
@@ -43,7 +44,8 @@ export const setCheckIsCompleteTrigger = () => {
       const otherDataChanged =
         entity?.quantity !== oldEntity?.quantity ||
         entity?.article !== oldEntity?.article ||
-        entity?.state !== oldEntity?.state;
+        entity?.state !== oldEntity?.state ||
+        entity?.is_deleted !== oldEntity?.is_deleted;
 
       if (
         entity?.for_rel_quote !== oldEntity?.for_rel_quote ||

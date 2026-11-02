@@ -7,7 +7,7 @@ import Contacts, { ContactsDefinition } from "../../contacts/entities/contacts";
 import Invoices, { InvoicesDefinition } from "../../invoices/entities/invoices";
 import { Tags, TagsDefinition } from "../../tags/entities/tags";
 import { formatDateInTimezone, getContactName } from "#src/services/utils";
-import { getTimezoneOffset } from "@shared/invoices";
+import { getTimezoneOffset, getTvaValue } from "@shared/invoices";
 
 export type AccountingExportLine = {
   // Invoice information
@@ -340,7 +340,8 @@ export const getAccountingExport = async (
         }
       }
 
-      const tvaRate = parseFloat(line.tva || "0") || 0;
+      // VAT is stored as a code ("S:20"), not a number
+      const tvaRate = getTvaValue(line.tva || "") * 100;
       const tvaAmount = lineTotal * (tvaRate / 100);
       const lineTotalTTC = lineTotal + tvaAmount;
 
@@ -365,7 +366,7 @@ export const getAccountingExport = async (
         line_total_ht: parseFloat((lineTotal || 0) as any).toFixed(
           2
         ) as unknown as number,
-        line_tva_rate: line.tva || "0",
+        line_tva_rate: String(tvaRate),
         line_tva_amount: parseFloat((tvaAmount || 0) as any).toFixed(
           2
         ) as unknown as number,
@@ -390,7 +391,7 @@ export const getAccountingExport = async (
     ) {
       allowancesBreakdown.forEach((allowance, allowanceIndex) => {
         const discountHt = -allowance.amount;
-        const tvaRate = parseFloat(allowance.tva || "0") || 0;
+        const tvaRate = getTvaValue(allowance.tva || "") * 100;
         const tvaAmount = discountHt * (tvaRate / 100);
         const discountTtc = discountHt + tvaAmount;
 
@@ -409,7 +410,7 @@ export const getAccountingExport = async (
           line_total_ht: parseFloat((discountHt || 0) as any).toFixed(
             2
           ) as unknown as number,
-          line_tva_rate: allowance.tva || "0",
+          line_tva_rate: String(tvaRate),
           line_tva_amount: parseFloat((tvaAmount || 0) as any).toFixed(
             2
           ) as unknown as number,

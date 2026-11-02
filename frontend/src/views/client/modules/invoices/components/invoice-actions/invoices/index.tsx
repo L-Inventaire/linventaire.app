@@ -1,3 +1,4 @@
+import { useHasAccess } from "@features/access";
 import { useEInvoicesReady } from "@features/invoices/hooks/use-e-invoices-ready";
 import { Button } from "@atoms/button/button";
 import { DropdownButton } from "@atoms/dropdown";
@@ -28,6 +29,7 @@ export const InvoicesActions = ({
   readonly?: boolean;
 }) => {
   const navigate = useNavigateAlt();
+  const hasAccess = useHasAccess();
   const openSendModal = useSetRecoilState(InvoiceSendModalAtom);
   const openSendSpecialModal = useSetRecoilState(InvoiceSendSpecialModalAtom);
 
@@ -163,22 +165,24 @@ export const InvoicesActions = ({
               },
             ]}
           />
-          <Button
-            disabled={disabled}
-            icon={(p) => <CheckIcon {...p} />}
-            onClick={() => {
-              edit<AccountingTransactions>("accounting_transactions", "", {
-                rel_invoices: [draft.id],
-                currency: draft.currency,
-                amount:
-                  (draft.total?.total_with_taxes || 0) -
-                  (draft.transactions?.total || 0),
-                reference: draft.reference,
-              });
-            }}
-          >
-            Enregistrer un paiement
-          </Button>
+          {hasAccess("ACCOUNTING_WRITE") && (
+            <Button
+              disabled={disabled}
+              icon={(p) => <CheckIcon {...p} />}
+              onClick={() => {
+                edit<AccountingTransactions>("accounting_transactions", "", {
+                  rel_invoices: [draft.id],
+                  currency: draft.currency,
+                  amount:
+                    (draft.total?.total_with_taxes || 0) -
+                    (draft.transactions?.total || 0),
+                  reference: draft.reference,
+                });
+              }}
+            >
+              Enregistrer un paiement
+            </Button>
+          )}
         </>
       )}
 

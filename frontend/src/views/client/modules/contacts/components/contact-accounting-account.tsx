@@ -35,7 +35,7 @@ export const ContactAccountingAccount = (props: {
             {account.name ||
               pgcLabel(account?.standard_identifier || "", false)}
           </span>
-          {hasAccess("ACCOUNTING_WRITE") && (
+          {hasAccess("CLIENT_MANAGE") && (
             <IconButton
               variant="ghost"
               size="1"
