@@ -372,14 +372,20 @@ export const registerRoutes = (router: Router) => {
               ctx,
               StockItemsDefinition.name,
               { id: stockItem.id },
-              { quantity: stockItem.quantity - action.quantity }
+              {
+                // Only what was actually moved to the quotes so far
+                quantity:
+                  stockItem.quantity -
+                  (action.quantity - remainingStockToWithdraw),
+              }
             );
 
             await db.insert<Partial<StockItems>>(
               ctx,
               StockItemsDefinition.name,
               {
-                ..._.omit(stockItem, "id"),
+                // source_id is unique per company, the copy is a new item
+                ..._.omit(stockItem, ["id", "source_id"]),
                 id: id(),
                 article: stockItem.article,
                 quantity: toWithdraw,

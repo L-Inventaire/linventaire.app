@@ -1,3 +1,4 @@
+import { useHasAccess } from "@features/access";
 import { Button } from "@atoms/button/button";
 import { PageLoader } from "@atoms/page-loader";
 import { BaseSmall, Info, Section } from "@atoms/text";
@@ -87,6 +88,7 @@ export const InvoicesDetailsPage = ({
 }) => {
   const { client: clientUser } = useClients();
   const client = clientUser!.client!;
+  const hasAccess = useHasAccess();
 
   const { isPending, ctrl, draft, setDraft, save } = useReadDraftRest<Invoices>(
     "invoices",
@@ -803,29 +805,32 @@ export const InvoicesDetailsPage = ({
                         readonly &&
                         draft.state !== "draft" && (
                           <div className="mt-8">
-                            {!isQuoteRelated && readonly && (
-                              <div className="float-right">
-                                <Button
-                                  size="sm"
-                                  onClick={() =>
-                                    edit<AccountingTransactions>(
-                                      "accounting_transactions",
-                                      "",
-                                      {
-                                        rel_invoices: [draft.id],
-                                        currency: draft.currency,
-                                        amount:
-                                          (draft.total?.total_with_taxes || 0) -
-                                          (draft.transactions?.total || 0),
-                                        reference: draft.reference,
-                                      },
-                                    )
-                                  }
-                                >
-                                  Enregistrer un paiement
-                                </Button>
-                              </div>
-                            )}
+                            {!isQuoteRelated &&
+                              readonly &&
+                              hasAccess("ACCOUNTING_WRITE") && (
+                                <div className="float-right">
+                                  <Button
+                                    size="sm"
+                                    onClick={() =>
+                                      edit<AccountingTransactions>(
+                                        "accounting_transactions",
+                                        "",
+                                        {
+                                          rel_invoices: [draft.id],
+                                          currency: draft.currency,
+                                          amount:
+                                            (draft.total?.total_with_taxes ||
+                                              0) -
+                                            (draft.transactions?.total || 0),
+                                          reference: draft.reference,
+                                        },
+                                      )
+                                    }
+                                  >
+                                    Enregistrer un paiement
+                                  </Button>
+                                </div>
+                              )}
                             <Section className="mb-2">Paiements</Section>
                             <Table
                               data={accounting_transactions.data?.list || []}

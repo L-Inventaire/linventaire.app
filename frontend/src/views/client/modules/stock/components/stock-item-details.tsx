@@ -241,7 +241,7 @@ export const StockItemsDetailsPage = ({
                 placeholder="Aucun"
                 label="Quantité"
               >
-                {ctrl("quantity").value || 1} <Unit unit={article.unit} />
+                {ctrl("quantity").value ?? 0} <Unit unit={article.unit} />
               </InputButton>
               {(!readonly || ctrl("location").value) && (
                 <RestDocumentsInput
