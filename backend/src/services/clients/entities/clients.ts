@@ -1,4 +1,5 @@
 import { SmtpOptions } from "#src/platform/push-email/api";
+import { ClientAccounting } from "@shared/accounting";
 import { columnsFromEntity } from "#src/platform/schemas/utils";
 import { TableDefinition } from "../../../platform/db/api";
 
@@ -24,6 +25,9 @@ export default class Clients {
   payment = new Payment();
   invoices = new InvoiceFormat();
   recurring = new InvoiceSubscription();
+
+  // Default accounting accounts (when the article has none, and VAT accounts)
+  accounting?: ClientAccounting = new ClientAccounting();
 
   preferences = new Preferences();
   configuration = new Configuration();
@@ -205,6 +209,7 @@ export const ClientsDefinition: TableDefinition = {
     service_items: "JSONB",
     smtp: "JSONB",
     security: "JSONB",
+    accounting: "JSONB",
   },
   pk: ["id"],
   auditable: true,

@@ -20,9 +20,14 @@ import { useHasAccess } from "@features/access";
 import { AccountingAccountInput } from "@components/accounting-account-input";
 import Link from "@atoms/link";
 import {
+  useCurrentClient,
   useMarginMode,
   useSubscriptionsEnabled,
 } from "@features/clients/state/use-clients";
+import {
+  getAccountingLineKind,
+  getDefaultLineAccount,
+} from "@shared/accounting";
 import { getArticleMaxCost } from "@features/articles/utils";
 import { MarginInput } from "./margin-input";
 
@@ -75,6 +80,17 @@ export const ArticlesDetailsPage = ({
   };
 
   const hasAccess = useHasAccess();
+  const { client } = useCurrentClient();
+
+  // Account used in the accounting export when the article has none
+  const defaultAccountLabel = (side: "sell" | "buy") => {
+    const account = getDefaultLineAccount(
+      client?.accounting,
+      side,
+      getAccountingLineKind(draft.type),
+    );
+    return `${account.standard_identifier} - ${account.name} (par défaut)`;
+  };
 
   if (isPending || (id && draft.id !== id)) return <PageLoader />;
 
@@ -248,7 +264,7 @@ export const ArticlesDetailsPage = ({
                         onChange={(value) =>
                           ctrl("accounting.buy").onChange(value)
                         }
-                        placeholder="Compte d'achat"
+                        placeholder={defaultAccountLabel("buy")}
                         readonly={readonly || !hasAccess("ACCOUNTING_WRITE")}
                       />
                     }
@@ -262,7 +278,7 @@ export const ArticlesDetailsPage = ({
                         onChange={(value) =>
                           ctrl("accounting.sell").onChange(value)
                         }
-                        placeholder="Compte de vente"
+                        placeholder={defaultAccountLabel("sell")}
                         readonly={readonly || !hasAccess("ACCOUNTING_WRITE")}
                       />
                     }
