@@ -8,7 +8,8 @@ import Articles, {
 import _ from "lodash";
 import { default as Framework, default as platform } from "../../../platform";
 import { id } from "../../../platform/db/utils";
-import { Context, NotFoundError } from "../../../types";
+import { BadRequestError, Context, NotFoundError } from "../../../types";
+import { AccountingEmailExport } from "@shared/accounting";
 import Clients, {
   ClientsDefinition,
   InvoiceFormat,
@@ -241,7 +242,9 @@ export const createClient = async (ctx: Context, body: Partial<Clients>) => {
       ctx,
       ClientsDefinition.name,
       { id: client.id },
-      { service_items: { default_article: new_article_id, unknown_article: "" } }
+      {
+        service_items: { default_article: new_article_id, unknown_article: "" },
+      }
     );
 
     return (await getClients(ctx)).find((c) => c.client_id === client.id);
@@ -303,6 +306,14 @@ export const updateClient = async (
           "vat_collected",
           "vat_deductible"
         ),
+        ...(body.accounting?.email_export !== undefined
+          ? {
+              email_export: getAccountingEmailExport(
+                client.accounting?.email_export,
+                body.accounting.email_export
+              ),
+            }
+          : {}),
       } as Clients["accounting"];
     }
 
@@ -427,4 +438,52 @@ export const getLogo = async (_ctx: Context, clientId: string) => {
   const content = await platform.S3.download(`/logos/${clientId}.png`);
   const base64 = Buffer.from(content).toString("base64");
   return Buffer.from(base64.split(",").pop(), "base64");
+};
+
+const isEmail = (email: string) =>
+  /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/.test(email);
+
+/**
+ * Addresses of the accountant (one for the sales, one for the purchases). The
+ * activation dates are set here, when an address is set: only the documents
+ * after it are sent.
+ */
+export const getAccountingEmailExport = (
+  current: Partial<AccountingEmailExport> | undefined | null,
+  body: Partial<AccountingEmailExport> | undefined | null,
+  now = Date.now()
+): AccountingEmailExport => {
+  const side = (
+    email: string | undefined,
+    previousEmail: string | undefined,
+    previousEnabledAt: number | undefined
+  ) => {
+    email = (email || "").trim();
+    if (email && !isEmail(email)) {
+      throw BadRequestError(`Adresse email invalide : ${email}`);
+    }
+    // Kept when only the address changes, reset when disabled
+    const enabledAt = !email
+      ? 0
+      : (previousEmail || "").trim() && previousEnabledAt
+        ? previousEnabledAt
+        : now;
+    return { email, enabledAt };
+  };
+  const sales = side(
+    body?.sales_email ?? current?.sales_email,
+    current?.sales_email,
+    current?.sales_enabled_at
+  );
+  const purchases = side(
+    body?.purchases_email ?? current?.purchases_email,
+    current?.purchases_email,
+    current?.purchases_enabled_at
+  );
+  return {
+    sales_email: sales.email,
+    sales_enabled_at: sales.enabledAt,
+    purchases_email: purchases.email,
+    purchases_enabled_at: purchases.enabledAt,
+  };
 };

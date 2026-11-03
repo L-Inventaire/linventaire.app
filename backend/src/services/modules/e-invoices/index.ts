@@ -122,6 +122,22 @@ export default class EInvoicesService implements InternalApplicationService {
   }
 
   /**
+   * SuperPDP client used to embed the Factur-X data in the PDFs: the company
+   * account when connected, otherwise an anonymous client (the conversion
+   * needs no account), so every company gets Factur-X PDFs.
+   */
+  async getFacturXClient(
+    ctx: Context,
+    config?: EInvoicingConfig | null
+  ): Promise<SuperPDPClient> {
+    if (config === undefined) config = await this.getConfig(ctx);
+    if (config?.connection_status === "connected") {
+      return await this.getClient(ctx);
+    }
+    return SuperPDPClient.anonymous();
+  }
+
+  /**
    * Start the SuperPDP onboarding (OAuth2 authorization_code + PKCE).
    * SuperPDP handles account creation, KYC/KYB and consent, then redirects to
    * our callback.

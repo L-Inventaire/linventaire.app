@@ -1,6 +1,7 @@
 import { Button } from "@atoms/button/button";
 import Link from "@atoms/link";
 import { InputLabel } from "@atoms/input/input-decoration-label";
+import { Input } from "@atoms/input/input-text";
 import { Info, Section } from "@atoms/text";
 import { AccountingAccountInput } from "@components/accounting-account-input";
 import { useHasAccess } from "@features/access";
@@ -146,6 +147,62 @@ export const AccountingSettingsPage = () => {
             </div>
           </div>
         ))}
+
+        <div className="mt-6">
+          <Section>Envoi automatique au comptable</Section>
+          <Info>
+            Chaque facture et avoir est envoyé par email à cette adresse (votre
+            comptable ou son logiciel), en PDF au format Factur-X : les ventes
+            lors de leur envoi, les achats lors de leur comptabilisation. Pour
+            un achat reçu en facture électronique, c'est la facture électronique
+            qui est envoyée. Seuls les documents postérieurs à l'activation sont
+            envoyés, une seule fois chacun.
+          </Info>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+            {(
+              [
+                { key: "sales", label: "Factures et avoirs de vente" },
+                { key: "purchases", label: "Factures et avoirs d'achat" },
+              ] as const
+            ).map(({ key, label }) => {
+              const enabledAt =
+                client?.accounting?.email_export?.[`${key}_enabled_at`];
+              return (
+                <InputLabel
+                  key={key}
+                  label={label}
+                  input={
+                    <div className="space-y-1">
+                      <Input
+                        type="email"
+                        placeholder="Désactivé"
+                        disabled={readonly}
+                        value={accounting.email_export?.[`${key}_email`] || ""}
+                        onChange={(e) =>
+                          setAccounting(
+                            _.set(
+                              _.cloneDeep(accounting),
+                              ["email_export", `${key}_email`],
+                              e.target.value,
+                            ),
+                          )
+                        }
+                      />
+                      {!!enabledAt &&
+                        !!client?.accounting?.email_export?.[
+                          `${key}_email`
+                        ] && (
+                          <Info>
+                            Activé le {new Date(enabledAt).toLocaleDateString()}
+                          </Info>
+                        )}
+                    </div>
+                  }
+                />
+              );
+            })}
+          </div>
+        </div>
 
         {!readonly && (
           <Button
