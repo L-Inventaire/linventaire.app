@@ -1,4 +1,22 @@
-import { describe, expect, jest, test } from "@jest/globals";
+import { beforeEach, describe, expect, jest, test } from "@jest/globals";
+
+// In-memory facturx_xml_cache
+let cache: any[] = [];
+const matches = (row: any, condition: any) =>
+  Object.entries(condition).every(([k, v]) => row[k] === v);
+const db = {
+  selectOne: jest.fn(
+    async (_ctx: any, _table: string, condition: any) =>
+      cache.find((r) => matches(r, condition)) || null
+  ),
+  insert: jest.fn(async (_ctx: any, _table: string, row: any) => {
+    cache.push({ ...row });
+  }),
+};
+jest.mock("#src/platform/index", () => ({
+  __esModule: true,
+  default: { Db: { getService: async () => db } },
+}));
 import { computePricesFromInvoice } from "@shared/invoices";
 import { EN16931Invoice } from "@shared/en16931-types";
 import Clients from "#src/services/clients/entities/clients";
@@ -8,10 +26,13 @@ import Invoices from "../../invoices/entities/invoices";
 import { SuperPDPClient } from "../../../../platform/e-invoices/adapters/superpdp/client";
 import {
   assertEN16931TotalsMatchPdf,
+  embedFacturXXml,
   EN16931TotalsMismatchError,
   generateFacturXPdf,
   getEN16931InvoiceFromError,
+  getFacturXXml,
 } from "./facturx-generator";
+import { PDFDocument, PDFName, PDFRawStream } from "pdf-lib";
 import * as converter from "./invoice-converter";
 import {
   convertInternalToEN16931,
@@ -283,8 +304,8 @@ describe("generateFacturXPdf errors", () => {
     invoice.total = computePricesFromInvoice(invoice);
 
     const superpdpClient = {
-      convertToFacturX: jest.fn(async () => {
-        throw new Error("Failed to convert to Factur-X: [BR-CO-15]");
+      convertToCII: jest.fn(async () => {
+        throw new Error("Failed to convert the invoice: [BR-CO-15]");
       }),
     } as unknown as SuperPDPClient;
 
@@ -298,5 +319,92 @@ describe("generateFacturXPdf errors", () => {
     expect(error).toBeInstanceOf(Error);
     expect(getEN16931InvoiceFromError(error)?.number).toBe("FAC/2026/00003");
     expect(getEN16931InvoiceFromError(new Error("other"))).toBeUndefined();
+  });
+});
+
+describe("getFacturXXml", () => {
+  const invoice = { id: "inv-1", client_id: "c1" };
+  const en16931 = { number: "F-1" } as EN16931Invoice;
+  const ctx = { client_id: "c1", db_tnx: { id: "tnx" } } as any;
+
+  beforeEach(() => {
+    cache = [];
+    jest.clearAllMocks();
+  });
+
+  test("SuperPDP converts once, then the XML is reused", async () => {
+    const convertToCII = jest.fn(async () => Buffer.from("<cii/>"));
+    const client = { convertToCII } as unknown as SuperPDPClient;
+
+    expect(await getFacturXXml(ctx, invoice, en16931, client)).toBe("<cii/>");
+    expect(await getFacturXXml(ctx, invoice, en16931, client)).toBe("<cii/>");
+    expect(convertToCII).toHaveBeenCalledTimes(1);
+    // Never in the transaction of the caller
+    expect((db.insert.mock.calls[0][0] as any).db_tnx).toBeUndefined();
+  });
+
+  test("converted again when the data changes", async () => {
+    const convertToCII = jest.fn(async () => Buffer.from("<cii/>"));
+    const client = { convertToCII } as unknown as SuperPDPClient;
+
+    await getFacturXXml(ctx, invoice, en16931, client);
+    await getFacturXXml(
+      ctx,
+      invoice,
+      { number: "F-1", note: "x" } as unknown as EN16931Invoice,
+      client
+    );
+    expect(convertToCII).toHaveBeenCalledTimes(2);
+  });
+
+  test("a refusal is kept, a temporary failure is retried", async () => {
+    const refused = Object.assign(new Error("[BR-S-02]"), { status: 400 });
+    const down = Object.assign(new Error("timeout"), { status: 503 });
+    const convertToCII = jest
+      .fn<any>()
+      .mockRejectedValueOnce(down)
+      .mockRejectedValueOnce(refused);
+    const client = { convertToCII } as unknown as SuperPDPClient;
+
+    await expect(getFacturXXml(ctx, invoice, en16931, client)).rejects.toBe(
+      down
+    );
+    await expect(getFacturXXml(ctx, invoice, en16931, client)).rejects.toBe(
+      refused
+    );
+    const cached = await getFacturXXml(ctx, invoice, en16931, client).catch(
+      (e) => e
+    );
+    expect(cached).toMatchObject({ message: "[BR-S-02]", cached: true });
+    expect(convertToCII).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("embedFacturXXml", () => {
+  test("adds factur-x.xml as associated file and the Factur-X metadata", async () => {
+    const base = await PDFDocument.create();
+    base.addPage();
+    const pdf = await embedFacturXXml(
+      Buffer.from(await base.save()),
+      "<rsm:CrossIndustryInvoice/>"
+    );
+
+    const doc = await PDFDocument.load(new Uint8Array(pdf));
+    const af = doc.catalog.lookup(PDFName.of("AF")) as any;
+    expect(af.size()).toBe(1);
+    const fileSpec = doc.context.lookup(af.get(0)) as any;
+    expect(fileSpec.get(PDFName.of("AFRelationship"))).toBe(PDFName.of("Data"));
+    expect(fileSpec.lookup(PDFName.of("F")).decodeText()).toBe("factur-x.xml");
+
+    const metadata = doc.catalog.lookup(PDFName.of("Metadata")) as PDFRawStream;
+    const xmp = Buffer.from(metadata.getContents()).toString("utf-8");
+    expect(xmp).toContain("<pdfaid:part>3</pdfaid:part>");
+    expect(xmp).toContain(
+      "<fx:DocumentFileName>factur-x.xml</fx:DocumentFileName>"
+    );
+    expect(xmp).toContain(
+      "<fx:ConformanceLevel>EN 16931</fx:ConformanceLevel>"
+    );
+    expect(pdf.subarray(0, 8).toString()).toBe("%PDF-1.7");
   });
 });

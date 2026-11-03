@@ -9,6 +9,7 @@ import {
   EInvoicingConfigDefinition,
 } from "./entities/e-invoicing-config";
 import { ReceivedEInvoiceDefinition } from "./entities/received-e-invoice";
+import { FacturXXmlCacheDefinition } from "./entities/facturx-xml-cache";
 import { setupCronReceivedInvoices } from "./services/received-invoices-cron";
 import { decrypt, encrypt } from "./utils/encryption";
 import {
@@ -34,6 +35,13 @@ export default class EInvoicesService implements InternalApplicationService {
     const db = await Framework.Db.getService();
     await db.createTable(EInvoicingConfigDefinition);
     await db.createTable(ReceivedEInvoiceDefinition);
+    await db.createTable(FacturXXmlCacheDefinition);
+
+    // Never expose the Factur-X cache through the generic REST api
+    Framework.TriggersManager.registerEntities(
+      [FacturXXmlCacheDefinition],
+      async () => false
+    );
 
     // Register entities with access control
     Framework.TriggersManager.registerEntities([EInvoicingConfigDefinition], {
