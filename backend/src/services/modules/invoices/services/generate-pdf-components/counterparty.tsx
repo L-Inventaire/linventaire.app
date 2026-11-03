@@ -4,7 +4,7 @@ import Framework from "../../../../../platform";
 import { Context } from "../../../../../types";
 import Contacts from "../../../../modules/contacts/entities/contacts";
 import Invoices from "../../entities/invoices";
-import { displayDate, KeyValueDisplay } from "./utils";
+import { displayDate, hasIdentityNumber, KeyValueDisplay } from "./utils";
 import { getContactName } from "#src/services/utils";
 
 export const InvoiceCounterparty = ({
@@ -70,20 +70,21 @@ export const InvoiceCounterparty = ({
         </>
       )}
       {billingParty.type === "company" &&
-        !!billingParty.business_registered_id && (
+        hasIdentityNumber(billingParty.business_registered_id) && (
           <Text wrap={true}>
             {" "}
             {Framework.I18n.t(ctx, "invoices.identities.registration_number")}
             {billingParty.business_registered_id}
           </Text>
         )}
-      {billingParty.type === "company" && !!billingParty.business_tax_id && (
-        <Text wrap={true}>
-          {" "}
-          {Framework.I18n.t(ctx, "invoices.identities.vat_number")}
-          {billingParty.business_tax_id}
-        </Text>
-      )}
+      {billingParty.type === "company" &&
+        hasIdentityNumber(billingParty.business_tax_id) && (
+          <Text wrap={true}>
+            {" "}
+            {Framework.I18n.t(ctx, "invoices.identities.vat_number")}
+            {billingParty.business_tax_id}
+          </Text>
+        )}
       {!!(
         document.delivery_date ||
         document.delivery_delay ||

@@ -4,7 +4,7 @@ import Framework from "../../../../../platform";
 import { Context } from "../../../../../types";
 import Clients from "../../../../clients/entities/clients";
 import Invoices from "../../entities/invoices";
-import { displayDate, KeyValueDisplay } from "./utils";
+import { displayDate, hasIdentityNumber, KeyValueDisplay } from "./utils";
 import { captureException } from "@sentry/node";
 import { computePaymentDelayDate } from "@shared/invoices";
 
@@ -49,11 +49,13 @@ export const InvoiceSelf = ({
           .filter(Boolean)
           .join(", ")}
       </Text>
-      <Text>
-        {Framework.I18n.t(ctx, "invoices.identities.registration_number")}
-        {me.company.registration_number}
-      </Text>
-      {!!me.company.tax_number && (
+      {hasIdentityNumber(me.company.registration_number) && (
+        <Text>
+          {Framework.I18n.t(ctx, "invoices.identities.registration_number")}
+          {me.company.registration_number}
+        </Text>
+      )}
+      {hasIdentityNumber(me.company.tax_number) && (
         <Text>
           {Framework.I18n.t(ctx, "invoices.identities.vat_number")}
           {me.company.tax_number}
