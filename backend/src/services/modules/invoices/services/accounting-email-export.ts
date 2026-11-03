@@ -13,6 +13,7 @@ import AccountingEmailExports, {
   AccountingEmailExportsDefinition,
 } from "../entities/accounting-email-exports";
 import Invoices, { InvoicesDefinition } from "../entities/invoices";
+import { embedFacturXXml } from "../../e-invoices/services/facturx-generator";
 import { generatePdf } from "./generate-pdf";
 import { getInvoicePdfFileName } from "./utils";
 
@@ -136,7 +137,8 @@ const isPdf = (data: Buffer) =>
 
 /**
  * File of an e-invoice: the PDF received (already a Factur-X), or for an XML
- * (CII, UBL) our PDF of the document with the data of the e-invoice embedded.
+ * our PDF of the document with the data of the e-invoice embedded (CII as is,
+ * UBL converted to CII by SuperPDP).
  */
 const getEInvoiceFile = async (
   ctx: Context,
@@ -155,9 +157,9 @@ const getEInvoiceFile = async (
     .subarray(0, 4000)
     .toString("utf-8")
     .includes("CrossIndustryInvoice");
-  return await superpdp.convertToFacturX(
+  return await embedFacturXXml(
     pdf,
-    isCii ? { cii: raw.data } : received.en_invoice
+    isCii ? raw.data : await superpdp.convertToCII(received.en_invoice)
   );
 };
 

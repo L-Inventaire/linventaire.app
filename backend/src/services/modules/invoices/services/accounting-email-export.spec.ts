@@ -35,8 +35,9 @@ const db = {
 const push = jest.fn<any>(async () => true);
 const createEvent = jest.fn();
 const downloadInvoice = jest.fn<any>();
-const convertToFacturX = jest.fn<any>(async () => Buffer.from("%PDF-facturx"));
-const getClient = jest.fn(async () => ({ downloadInvoice, convertToFacturX }));
+const convertToCII = jest.fn<any>(async () => Buffer.from("<cii/>"));
+const getClient = jest.fn(async () => ({ downloadInvoice, convertToCII }));
+const embedFacturXXml = jest.fn<any>(async () => Buffer.from("%PDF-facturx"));
 const generatePdf = jest.fn<any>(async () => ({
   pdf: Buffer.from("%PDF-ours"),
 }));
@@ -58,6 +59,10 @@ jest.mock("#src/services/index", () => ({
 jest.mock("@sentry/node", () => ({ captureException: jest.fn() }));
 
 jest.mock("./generate-pdf", () => ({ generatePdf }));
+
+jest.mock("../../e-invoices/services/facturx-generator", () => ({
+  embedFacturXXml,
+}));
 
 import {
   getAccountingExportAddress,
@@ -261,13 +266,41 @@ describe("processPendingAccountingExports", () => {
       expect.anything(),
       expect.objectContaining({ skipFacturX: true })
     );
-    expect(convertToFacturX).toHaveBeenCalledWith(Buffer.from("%PDF-ours"), {
-      cii,
-    });
+    // Embedded locally, SuperPDP is not called
+    expect(embedFacturXXml).toHaveBeenCalledWith(Buffer.from("%PDF-ours"), cii);
+    expect(convertToCII).not.toHaveBeenCalled();
     expect(exportRows()[0]).toMatchObject({
       status: "sent",
       source: "e_invoice",
     });
+  });
+
+  test("a UBL e-invoice is converted to CII then embedded", async () => {
+    const doc = invoice({ type: "supplier_invoices" });
+    tables.invoices = [doc];
+    tables.received_e_invoices = [
+      {
+        id: "rei-1",
+        client_id: "cl-1",
+        state: "attached",
+        supplier_invoice_id: "inv-1",
+        superpdp_invoice_id: 42,
+        received_at: AFTER,
+        en_invoice: { number: "F-42" },
+      },
+    ];
+    downloadInvoice.mockResolvedValueOnce({
+      contentType: "application/xml",
+      data: Buffer.from("<Invoice xmlns='urn:oasis:names:specification:ubl'/>"),
+    });
+    await queueAndProcess(doc);
+
+    expect(convertToCII).toHaveBeenCalledWith({ number: "F-42" });
+    expect(embedFacturXXml).toHaveBeenCalledWith(
+      Buffer.from("%PDF-ours"),
+      Buffer.from("<cii/>")
+    );
+    expect(exportRows()[0]).toMatchObject({ source: "e_invoice" });
   });
 
   test("e-invoice unavailable: our Factur-X is sent instead", async () => {

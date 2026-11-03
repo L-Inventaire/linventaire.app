@@ -237,8 +237,14 @@ export const generatePdf = async (
   // Factur-X: the EN16931 data is embedded in the PDF so that the software of
   // the customer (or of the accountant) reads the invoice without OCR. Every
   // company gets it, connected to the e-invoicing platform or not (the
-  // conversion needs no account, see getFacturXClient).
-  if (FACTURX_DOCUMENT_TYPES.includes(document.type) && !options.skipFacturX) {
+  // conversion needs no account, see getFacturXClient). Not for drafts (not
+  // final, they change all the time): SuperPDP converts the data once the
+  // document is issued, then the XML is reused (see getFacturXXml).
+  if (
+    FACTURX_DOCUMENT_TYPES.includes(document.type) &&
+    !options.skipFacturX &&
+    (options.facturx || !["draft", "recurring"].includes(document.state))
+  ) {
     const eInvoicingConfig = await db.selectOne<EInvoicingConfig>(
       { ...ctx, role: "SYSTEM" },
       EInvoicingConfigDefinition.name,
@@ -271,13 +277,16 @@ export const generatePdf = async (
           document,
           superpdpClient, // SuperPDP client for Factur-X conversion
           options.as, // Pass the "as" option to handle different invoice types
-          pdfTotals
+          pdfTotals,
+          // The e-invoice transmission gets the Factur-X built by SuperPDP
+          { remote: requireFacturX }
         )
       );
     } catch (e: any) {
       // Only the sales of companies using e-invoicing are reported: the
       // others (and the purchases) often miss data (SIREN, address...)
-      if (requireFacturX || (connected && isSale)) {
+      // (a refusal already reported is cached, see getFacturXXml).
+      if (requireFacturX || (connected && isSale && !e?.cached)) {
         const en16931Invoice = getEN16931InvoiceFromError(e);
         captureException(e, {
           tags: {

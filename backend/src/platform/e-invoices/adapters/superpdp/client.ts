@@ -508,51 +508,26 @@ export class SuperPDPClient {
   }
 
   /**
-   * Convert PDF and invoice data to Factur-X PDF
-   *
-   * The conversion does not need an account: an anonymous client
-   * (SuperPDPClient.anonymous()) can be used by companies not connected to
-   * the e-invoicing platform.
-   *
-   * @param pdfBuffer - The base PDF file
-   * @param invoice - The invoice data to embed: EN16931 (JSON), or the CII XML
-   * @returns The Factur-X PDF buffer
+   * Call the conversion endpoint (/v1.beta/invoices/convert). It needs no
+   * account: an anonymous client (SuperPDPClient.anonymous()) can be used by
+   * companies not connected to the e-invoicing platform.
    */
-  async convertToFacturX(
-    pdfBuffer: Buffer,
-    invoice: EN16931Invoice | { cii: Buffer }
+  private async convert(
+    query: string,
+    body: () => Promise<{ data: any; headers: Record<string, string> }>
   ): Promise<Buffer> {
     if (!this.accessToken && !this.config.anonymous) {
       await this.authenticate();
     }
 
-    const cii = "cii" in invoice ? invoice.cii : null;
-
     const post = async () => {
-      const FormData = (await import("form-data")).default;
-      const formData = new FormData();
-
-      // Add PDF file (field name must be 'pdf' per API spec)
-      formData.append("pdf", pdfBuffer, {
-        filename: "invoice.pdf",
-        contentType: "application/pdf",
-      });
-
-      // Add the invoice as JSON or XML (field name must be 'invoice' per API spec)
-      formData.append(
-        "invoice",
-        cii || Buffer.from(JSON.stringify(invoice), "utf-8"),
-        cii
-          ? { filename: "invoice.xml", contentType: "application/xml" }
-          : { filename: "invoice.json", contentType: "application/json" }
-      );
-
+      const { data, headers } = await body();
       const response = await this.client.post(
-        `/v1.beta/invoices/convert?from=${cii ? "cii" : "en16931"}&to=factur-x`,
-        formData,
+        `/v1.beta/invoices/convert?${query}`,
+        data,
         {
           headers: {
-            ...formData.getHeaders(),
+            ...headers,
             ...(this.accessToken
               ? { Authorization: `Bearer ${this.accessToken}` }
               : {}),
@@ -571,9 +546,7 @@ export class SuperPDPClient {
         // If 401, try to re-authenticate
         if (error.response?.status !== 401 || this.config.anonymous)
           throw error;
-        console.log(
-          "[SuperPDPClient.convertToFacturX] Re-authenticating after 401..."
-        );
+        console.log("[SuperPDPClient.convert] Re-authenticating after 401...");
         await this.authenticate();
         return await post();
       }
@@ -590,14 +563,66 @@ export class SuperPDPClient {
         } catch (parseError) {
           // Not JSON, use as-is
         }
-        console.error("[SuperPDPClient.convertToFacturX] Error:", {
+        console.error("[SuperPDPClient.convert] Error:", {
+          query,
           status: error.response?.status,
           data: dataStr,
         });
       }
 
-      throw new Error(`Failed to convert to Factur-X: ${errorMessage}`);
+      const e = new Error(`Failed to convert the invoice: ${errorMessage}`);
+      // 400: the invoice is refused (business rules), not a temporary failure
+      (e as any).status = error.response?.status;
+      throw e;
     }
+  }
+
+  /**
+   * Convert EN16931 invoice data to the CII XML embedded in the Factur-X PDFs.
+   * SuperPDP checks the EN16931 and French business rules (BR-*, BR-FR-*)
+   * and refuses an invalid invoice.
+   *
+   * @param en16931Invoice - The EN16931 invoice data
+   * @returns The CII XML
+   */
+  async convertToCII(en16931Invoice: EN16931Invoice): Promise<Buffer> {
+    return await this.convert("from=en16931&to=cii", async () => ({
+      data: JSON.stringify(en16931Invoice),
+      headers: { "Content-Type": "application/json" },
+    }));
+  }
+
+  /**
+   * Convert PDF and EN16931 invoice data to Factur-X PDF (the PDF with the CII
+   * XML and the Factur-X metadata embedded)
+   *
+   * @param pdfBuffer - The base PDF file
+   * @param en16931Invoice - The EN16931 invoice data to embed
+   * @returns The Factur-X PDF buffer
+   */
+  async convertToFacturX(
+    pdfBuffer: Buffer,
+    en16931Invoice: EN16931Invoice
+  ): Promise<Buffer> {
+    return await this.convert("from=en16931&to=factur-x", async () => {
+      const FormData = (await import("form-data")).default;
+      const formData = new FormData();
+
+      // Add PDF file (field name must be 'pdf' per API spec)
+      formData.append("pdf", pdfBuffer, {
+        filename: "invoice.pdf",
+        contentType: "application/pdf",
+      });
+
+      // Add EN16931 invoice as JSON (field name must be 'invoice' per API spec)
+      formData.append(
+        "invoice",
+        Buffer.from(JSON.stringify(en16931Invoice), "utf-8"),
+        { filename: "invoice.json", contentType: "application/json" }
+      );
+
+      return { data: formData, headers: formData.getHeaders() };
+    });
   }
 
   /**
