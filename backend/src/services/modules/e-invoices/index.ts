@@ -9,6 +9,7 @@ import {
   EInvoicingConfigDefinition,
 } from "./entities/e-invoicing-config";
 import { ReceivedEInvoiceDefinition } from "./entities/received-e-invoice";
+import { FacturXXmlCacheDefinition } from "./entities/facturx-xml-cache";
 import { setupCronReceivedInvoices } from "./services/received-invoices-cron";
 import { decrypt, encrypt } from "./utils/encryption";
 import {
@@ -34,6 +35,13 @@ export default class EInvoicesService implements InternalApplicationService {
     const db = await Framework.Db.getService();
     await db.createTable(EInvoicingConfigDefinition);
     await db.createTable(ReceivedEInvoiceDefinition);
+    await db.createTable(FacturXXmlCacheDefinition);
+
+    // Never expose the Factur-X cache through the generic REST api
+    Framework.TriggersManager.registerEntities(
+      [FacturXXmlCacheDefinition],
+      async () => false
+    );
 
     // Register entities with access control
     Framework.TriggersManager.registerEntities([EInvoicingConfigDefinition], {
@@ -119,6 +127,22 @@ export default class EInvoicesService implements InternalApplicationService {
       clientId: config.integration_client_id,
       clientSecret,
     });
+  }
+
+  /**
+   * SuperPDP client used to embed the Factur-X data in the PDFs: the company
+   * account when connected, otherwise an anonymous client (the conversion
+   * needs no account), so every company gets Factur-X PDFs.
+   */
+  async getFacturXClient(
+    ctx: Context,
+    config?: EInvoicingConfig | null
+  ): Promise<SuperPDPClient> {
+    if (config === undefined) config = await this.getConfig(ctx);
+    if (config?.connection_status === "connected") {
+      return await this.getClient(ctx);
+    }
+    return SuperPDPClient.anonymous();
   }
 
   /**

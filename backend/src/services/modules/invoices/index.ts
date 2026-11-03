@@ -10,6 +10,9 @@ import { setCheckIsCompleteTrigger } from "./triggers/on-complete";
 import { setOnCompletedCreateInvoicesTrigger } from "./triggers/on-completed-create-invoices";
 import { setOnSentEInvoiceTrigger } from "./triggers/on-sent-e-invoice";
 import { processPendingEInvoices } from "./services/send-e-invoice";
+import { setOnSentAccountingExportTrigger } from "./triggers/on-sent-accounting-export";
+import { processPendingAccountingExports } from "./services/accounting-email-export";
+import { AccountingEmailExportsDefinition } from "./entities/accounting-email-exports";
 import { setOnPaymentDelayChanged } from "./triggers/on-payment-delay-changed";
 import { setOnPurchaseOrderTrigger } from "./triggers/on-purchase-order";
 import {
@@ -42,6 +45,7 @@ export default class Invoices implements InternalApplicationService {
 
     const db = await platform.Db.getService();
     await db.createTable(InvoicesDefinition);
+    await db.createTable(AccountingEmailExportsDefinition);
 
     Invoices.logger = Framework.LoggerDb.get("invoices");
 
@@ -78,6 +82,12 @@ export default class Invoices implements InternalApplicationService {
       }
     );
 
+    // Never expose the copies to the accountant through the generic REST api
+    Framework.TriggersManager.registerEntities(
+      [AccountingEmailExportsDefinition],
+      async () => false
+    );
+
     setInvoiceLockTrigger();
     setUpsertHook();
     setNumetorationTrigger();
@@ -86,6 +96,7 @@ export default class Invoices implements InternalApplicationService {
     setOnPaymentDelayChanged();
     setOnCompletedCreateInvoicesTrigger();
     setOnSentEInvoiceTrigger();
+    setOnSentAccountingExportTrigger();
     setStatusTrigger();
 
     // Queued e-invoices (non blocking mode): normally sent a few seconds after
@@ -95,6 +106,16 @@ export default class Invoices implements InternalApplicationService {
       "0 * * * * *", // Every minute
       async () => {
         await processPendingEInvoices();
+      }
+    );
+
+    // Copies to the accountant: normally sent a few seconds after the
+    // document left the draft state, this catches up retries and restarts
+    Framework.Cron.schedule(
+      this.name + "-accounting-export-cron",
+      "30 * * * * *", // Every minute
+      async () => {
+        await processPendingAccountingExports();
       }
     );
 

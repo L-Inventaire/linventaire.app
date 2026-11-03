@@ -44,6 +44,10 @@ export type EventMetadatas =
       error: string; // Why the e-invoice could not be transmitted
     }
   | {
+      event_type: "accounting_export_failed";
+      error: string; // Why the copy could not be sent to the accountant
+    }
+  | {
       event_type: "subscription_billing_day_updated";
       from_invoice: string;
     };

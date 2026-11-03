@@ -124,6 +124,15 @@ Dans l'export comptable, chaque ligne de facture porte son compte de vente ou d'
 
 La remise globale d'une facture est répartie sur ses lignes, au prorata de leur montant : le total des lignes de l'export correspond ainsi exactement aux totaux de la facture.
 
+### L'envoi automatique au comptable
+
+Dans **Paramètres › Comptabilité**, la section **Envoi automatique au comptable** accepte deux adresses email : une pour les factures et avoirs de vente, une pour les factures et avoirs d'achat (votre expert-comptable, ou l'adresse de collecte de son logiciel). Chaque document y est envoyé seul, en PDF au format Factur-X, avec sa référence comme objet et comme nom de fichier :
+
+- une vente est envoyée lorsqu'elle quitte le brouillon (envoi au client ou marquée comme envoyée) ;
+- un achat est envoyé lorsque vous cliquez sur **Comptabiliser**. Si une facture électronique reçue est rattachée à l'achat, c'est la facture électronique qui est envoyée, et une même facture électronique n'est jamais envoyée deux fois.
+
+Seuls les documents postérieurs à l'activation de l'adresse sont envoyés (pour les achats : saisis ou reçus après cette date), et chacun une seule fois, même s'il est rouvert puis comptabilisé à nouveau. L'envoi apparaît dans l'historique du document. En cas d'échec, il est réessayé plusieurs fois, puis une notification vous prévient.
+
 ### Le tableau de bord
 
 Le **Tableau de bord** résume l'exercice en cours : chiffre d'affaires, charges et résultat, leur évolution mois par mois comparée à l'année précédente, ainsi que les devis signés et envoyés, les factures payées et en retard, et les commandes en attente ou à payer.

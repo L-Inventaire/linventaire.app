@@ -14,6 +14,11 @@ export interface SuperPDPConfig {
    * `staleToken` is the token that was just rejected (401), if any.
    */
   tokenProvider?: (staleToken?: string) => Promise<string>;
+  /**
+   * No account: only the endpoints that need no authentication can be used
+   * (Factur-X conversion, French directory).
+   */
+  anonymous?: boolean;
 }
 
 export interface SuperPDPTokenSet {
@@ -101,6 +106,14 @@ export interface FrenchDirectorySearchResult {
 export class SuperPDPClient {
   private client: AxiosInstance;
   private accessToken?: string;
+
+  static anonymous(): SuperPDPClient {
+    return new SuperPDPClient({
+      clientId: "",
+      clientSecret: "",
+      anonymous: true,
+    });
+  }
 
   constructor(private config: SuperPDPConfig) {
     this.client = axios.create({
@@ -458,29 +471,142 @@ export class SuperPDPClient {
   }
 
   /**
-   * Convert PDF and EN16931 invoice data to Factur-X PDF
+   * Download the raw file of an invoice (received invoices: the file sent by
+   * the supplier, a PDF (Factur-X) or an XML (CII, UBL)).
+   */
+  async downloadInvoice(
+    invoiceId: number
+  ): Promise<{ contentType: string; data: Buffer }> {
+    if (!this.accessToken) {
+      await this.authenticate();
+    }
+
+    const get = () =>
+      this.client.get(`/v1.beta/invoices/${invoiceId}/download`, {
+        headers: { Authorization: `Bearer ${this.accessToken}` },
+        responseType: "arraybuffer",
+      });
+
+    try {
+      let response;
+      try {
+        response = await get();
+      } catch (error: any) {
+        if (error.response?.status !== 401) throw error;
+        await this.authenticate();
+        response = await get();
+      }
+      return {
+        contentType: String(response.headers["content-type"] || ""),
+        data: Buffer.from(response.data),
+      };
+    } catch (error: any) {
+      throw new Error(
+        `Failed to download invoice ${invoiceId}: ${error.message}`
+      );
+    }
+  }
+
+  /**
+   * Call the conversion endpoint (/v1.beta/invoices/convert). It needs no
+   * account: an anonymous client (SuperPDPClient.anonymous()) can be used by
+   * companies not connected to the e-invoicing platform.
+   */
+  private async convert(
+    query: string,
+    body: () => Promise<{ data: any; headers: Record<string, string> }>
+  ): Promise<Buffer> {
+    if (!this.accessToken && !this.config.anonymous) {
+      await this.authenticate();
+    }
+
+    const post = async () => {
+      const { data, headers } = await body();
+      const response = await this.client.post(
+        `/v1.beta/invoices/convert?${query}`,
+        data,
+        {
+          headers: {
+            ...headers,
+            ...(this.accessToken
+              ? { Authorization: `Bearer ${this.accessToken}` }
+              : {}),
+          },
+          responseType: "arraybuffer",
+          timeout: 30000,
+        }
+      );
+      return Buffer.from(response.data);
+    };
+
+    try {
+      try {
+        return await post();
+      } catch (error: any) {
+        // If 401, try to re-authenticate
+        if (error.response?.status !== 401 || this.config.anonymous)
+          throw error;
+        console.log("[SuperPDPClient.convert] Re-authenticating after 401...");
+        await this.authenticate();
+        return await post();
+      }
+    } catch (error: any) {
+      // Try to parse error response (might be JSON or text)
+      let errorMessage = error.message;
+      if (error.response?.data) {
+        const dataStr = Buffer.isBuffer(error.response.data)
+          ? error.response.data.toString("utf-8")
+          : String(error.response.data);
+        try {
+          const jsonData = JSON.parse(dataStr);
+          errorMessage = jsonData.message || jsonData.error || errorMessage;
+        } catch (parseError) {
+          // Not JSON, use as-is
+        }
+        console.error("[SuperPDPClient.convert] Error:", {
+          query,
+          status: error.response?.status,
+          data: dataStr,
+        });
+      }
+
+      const e = new Error(`Failed to convert the invoice: ${errorMessage}`);
+      // 400: the invoice is refused (business rules), not a temporary failure
+      (e as any).status = error.response?.status;
+      throw e;
+    }
+  }
+
+  /**
+   * Convert EN16931 invoice data to the CII XML embedded in the Factur-X PDFs.
+   * SuperPDP checks the EN16931 and French business rules (BR-*, BR-FR-*)
+   * and refuses an invalid invoice.
+   *
+   * @param en16931Invoice - The EN16931 invoice data
+   * @returns The CII XML
+   */
+  async convertToCII(en16931Invoice: EN16931Invoice): Promise<Buffer> {
+    return await this.convert("from=en16931&to=cii", async () => ({
+      data: JSON.stringify(en16931Invoice),
+      headers: { "Content-Type": "application/json" },
+    }));
+  }
+
+  /**
+   * Convert PDF and EN16931 invoice data to Factur-X PDF (the PDF with the CII
+   * XML and the Factur-X metadata embedded)
    *
    * @param pdfBuffer - The base PDF file
    * @param en16931Invoice - The EN16931 invoice data to embed
-   * @param options - Conversion options
    * @returns The Factur-X PDF buffer
    */
   async convertToFacturX(
     pdfBuffer: Buffer,
     en16931Invoice: EN16931Invoice
   ): Promise<Buffer> {
-    if (!this.accessToken) {
-      await this.authenticate();
-    }
-
-    try {
+    return await this.convert("from=en16931&to=factur-x", async () => {
       const FormData = (await import("form-data")).default;
       const formData = new FormData();
-
-      console.log("[SuperPDPClient.convertToFacturX] Creating multipart:", {
-        invoiceNumber: en16931Invoice.number,
-        pdfSize: pdfBuffer.length,
-      });
 
       // Add PDF file (field name must be 'pdf' per API spec)
       formData.append("pdf", pdfBuffer, {
@@ -489,103 +615,14 @@ export class SuperPDPClient {
       });
 
       // Add EN16931 invoice as JSON (field name must be 'invoice' per API spec)
-      const jsonBuffer = Buffer.from(JSON.stringify(en16931Invoice), "utf-8");
-      formData.append("invoice", jsonBuffer, {
-        filename: "invoice.json",
-        contentType: "application/json",
-      });
-
-      // Send multipart request with from=en16931&to=factur-x
-      const response = await this.client.post(
-        "/v1.beta/invoices/convert?from=en16931&to=factur-x",
-        formData,
-        {
-          headers: {
-            ...formData.getHeaders(),
-            Authorization: `Bearer ${this.accessToken}`,
-          },
-          responseType: "arraybuffer",
-        }
+      formData.append(
+        "invoice",
+        Buffer.from(JSON.stringify(en16931Invoice), "utf-8"),
+        { filename: "invoice.json", contentType: "application/json" }
       );
 
-      return Buffer.from(response.data);
-    } catch (error: any) {
-      // Log detailed error information
-      console.error("[SuperPDPClient.convertToFacturX] Error details:", {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        headers: error.response?.headers,
-        data: error.response?.data,
-        message: error.message,
-      });
-
-      // Try to parse error response (might be JSON or text)
-      let errorMessage = error.message;
-      if (error.response?.data) {
-        try {
-          // If data is a Buffer, try to convert to string
-          const dataStr =
-            error.response.data instanceof Buffer
-              ? error.response.data.toString("utf-8")
-              : error.response.data;
-          console.error(
-            "[SuperPDPClient.convertToFacturX] Response data:",
-            dataStr
-          );
-
-          // Try to parse as JSON
-          const jsonData = JSON.parse(dataStr);
-          errorMessage = jsonData.message || jsonData.error || errorMessage;
-          console.error(
-            "[SuperPDPClient.convertToFacturX] Parsed error:",
-            jsonData
-          );
-        } catch (parseError) {
-          // Not JSON, use as-is
-          console.error(
-            "[SuperPDPClient.convertToFacturX] Could not parse error response"
-          );
-        }
-      }
-
-      // If 401, try to re-authenticate
-      if (error.response?.status === 401) {
-        console.log(
-          "[SuperPDPClient.convertToFacturX] Re-authenticating after 401..."
-        );
-        await this.authenticate();
-
-        const FormData = (await import("form-data")).default;
-        const formData = new FormData();
-
-        formData.append("pdf", pdfBuffer, {
-          filename: "invoice.pdf",
-          contentType: "application/pdf",
-        });
-
-        const jsonBuffer = Buffer.from(JSON.stringify(en16931Invoice), "utf-8");
-        formData.append("invoice", jsonBuffer, {
-          filename: "invoice.json",
-          contentType: "application/json",
-        });
-
-        const response = await this.client.post(
-          "/v1.beta/invoices/convert?from=en16931&to=factur-x",
-          formData,
-          {
-            headers: {
-              ...formData.getHeaders(),
-              Authorization: `Bearer ${this.accessToken}`,
-            },
-            responseType: "arraybuffer",
-          }
-        );
-
-        return Buffer.from(response.data);
-      }
-
-      throw new Error(`Failed to convert to Factur-X: ${errorMessage}`);
-    }
+      return { data: formData, headers: formData.getHeaders() };
+    });
   }
 
   /**
