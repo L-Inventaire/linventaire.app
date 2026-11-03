@@ -1,5 +1,5 @@
 import { describe, expect, test } from "@jest/globals";
-import { displayDate } from "./utils";
+import { displayDate, hasIdentityNumber } from "./utils";
 
 describe("generatePdfComponentsUtils", () => {
   test("should return the correct value", () => {
@@ -21,5 +21,14 @@ describe("generatePdfComponentsUtils", () => {
       "2025-01-01"
     );
     expect(displayDate("2025-01-01", "Europe/Paris", "en")).toBe("2025-01-01");
+  });
+
+  test("placeholder registration and VAT numbers are not displayed", () => {
+    expect(hasIdentityNumber("00000000000000")).toBe(false);
+    expect(hasIdentityNumber("FR00000000000")).toBe(false);
+    expect(hasIdentityNumber("")).toBe(false);
+    expect(hasIdentityNumber(undefined)).toBe(false);
+    expect(hasIdentityNumber("590800215")).toBe(true);
+    expect(hasIdentityNumber("FR70590800215")).toBe(true);
   });
 });

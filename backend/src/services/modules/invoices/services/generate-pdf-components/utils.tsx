@@ -37,6 +37,10 @@ export const KeyValueDisplay = (props: {
   </View>
 );
 
+/** Registration and VAT numbers: placeholders like "00000000000000" or "FR00000000000" are not displayed */
+export const hasIdentityNumber = (value?: string | null) =>
+  !!value && /[1-9]/.test(value);
+
 export const formatIBAN = (iban: string) => {
   return (
     iban &&
