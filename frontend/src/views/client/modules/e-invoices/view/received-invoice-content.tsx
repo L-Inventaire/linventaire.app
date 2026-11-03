@@ -189,7 +189,11 @@ export const ReceivedEInvoiceContent = ({
             },
           ]
         : undefined,
-    limit: 1,
+    // Without a linked invoice nor a supplier there is nothing to match:
+    // an unfiltered query would return any document of the company
+    limit: invoice?.supplier_invoice_id || supplier ? 1 : 0,
+    // The cache key uses `limit || 20`: keep it apart from other invoice lists
+    key: "received-e-invoice-match",
   });
 
   const linkedInvoice = matchingInvoices.data?.list?.[0];
