@@ -39,6 +39,14 @@ export type PositionPdf = {
   pageHeight?: number;
 };
 
+// Documents with a Factur-X version (EN16931 only covers invoices and credit notes)
+export const FACTURX_DOCUMENT_TYPES: Invoices["type"][] = [
+  "invoices",
+  "credit_notes",
+  "supplier_invoices",
+  "supplier_credit_notes",
+];
+
 export const generatePdf = async (
   ctx: Context,
   document: Invoices,
@@ -46,7 +54,8 @@ export const generatePdf = async (
     checkedIndexes: { [key: number]: boolean };
     content?: { _index: number; quantity: number }[];
     as?: "proforma" | "receipt_acknowledgement" | "delivery_slip";
-    facturx?: boolean;
+    facturx?: boolean; // Factur-X required (throws if it can't be generated)
+    skipFacturX?: boolean; // Plain PDF, without Factur-X data
   } = {
     checkedIndexes: {},
   }
@@ -225,51 +234,50 @@ export const generatePdf = async (
 
   let pdfWithAttachments = Buffer.from(await doc.save());
 
-  // Ensure Factur-X compliance
-  // Get E-invoicing configuration to create SuperPDP client
-  const eInvoicingConfig = await db.selectOne<EInvoicingConfig>(
-    { ...ctx, role: "SYSTEM" },
-    EInvoicingConfigDefinition.name,
-    {
-      client_id: ctx.client_id,
-    }
-  );
-
-  if (document.type === "invoices" || document.type === "credit_notes") {
-    if (
-      eInvoicingConfig &&
-      eInvoicingConfig.connection_status === "connected"
-    ) {
-      // Get SuperPDP client (automatically decrypts credentials)
-      const superpdpClient = await Services.EInvoices.getClient(ctx);
+  // Factur-X: the EN16931 data is embedded in the PDF so that the software of
+  // the customer (or of the accountant) reads the invoice without OCR. Every
+  // company gets it, connected to the e-invoicing platform or not (the
+  // conversion needs no account, see getFacturXClient).
+  if (FACTURX_DOCUMENT_TYPES.includes(document.type) && !options.skipFacturX) {
+    const eInvoicingConfig = await db.selectOne<EInvoicingConfig>(
+      { ...ctx, role: "SYSTEM" },
+      EInvoicingConfigDefinition.name,
+      {
+        client_id: ctx.client_id,
+      }
+    );
+    const connected = eInvoicingConfig?.connection_status === "connected";
+    const isSale = !document.type.startsWith("supplier_");
+    // Only the e-invoice transmission (options.facturx) requires the
+    // Factur-X: a PDF sent by email (or downloaded) falls back to the plain
+    // PDF, e.g. for a customer abroad or incomplete data. Blocking, when
+    // enabled, is decided by the e-invoice transmission itself (see
+    // on-sent-e-invoice).
+    const requireFacturX = options.facturx === true;
+    try {
+      const superpdpClient = await Services.EInvoices.getFacturXClient(
+        ctx,
+        eInvoicingConfig
+      );
       // Same totals as the ones printed on the PDF (see generate-pdf-components/total.tsx)
       const pdfTotals = computePricesFromInvoice(
         document,
         options.checkedIndexes
       );
-      // When sending is disabled, we only run a formatting test (conversion +
-      // totals check) to get warnings and sentry errors, the resulting
-      // Factur-X is NOT embedded in the PDF.
-      const embedFacturX =
-        options.facturx || eInvoicingConfig.send_enabled === true;
-      // Only the e-invoice transmission (options.facturx) requires the
-      // Factur-X: a PDF sent by email (or downloaded) falls back to the plain
-      // PDF, e.g. for a customer abroad. Blocking, when enabled, is decided by
-      // the e-invoice transmission itself (see on-sent-e-invoice).
-      const requireFacturX = options.facturx === true;
-      try {
-        const facturxPdf = await generateFacturXPdf(
+      pdfWithAttachments = Buffer.from(
+        await generateFacturXPdf(
           ctx,
           pdfWithAttachments, // The base PDF to embed invoice data into
           document,
           superpdpClient, // SuperPDP client for Factur-X conversion
           options.as, // Pass the "as" option to handle different invoice types
           pdfTotals
-        );
-        if (embedFacturX) {
-          pdfWithAttachments = Buffer.from(facturxPdf);
-        }
-      } catch (e: any) {
+        )
+      );
+    } catch (e: any) {
+      // Only the sales of companies using e-invoicing are reported: the
+      // others (and the purchases) often miss data (SIREN, address...)
+      if (requireFacturX || (connected && isSale)) {
         const en16931Invoice = getEN16931InvoiceFromError(e);
         captureException(e, {
           tags: {
@@ -279,7 +287,7 @@ export const generatePdf = async (
               e instanceof EN16931TotalsMismatchError
                 ? "facturx_totals_mismatch"
                 : "facturx_generation_failed",
-            send_enabled: embedFacturX ? "true" : "false",
+            send_enabled: eInvoicingConfig?.send_enabled ? "true" : "false",
           },
           extra: {
             invoice_id: document.id,
@@ -295,14 +303,14 @@ export const generatePdf = async (
             invoice: JSON.stringify(document, null, 2),
           },
         });
-        if (requireFacturX) {
-          throw e;
-        }
-        console.error(
-          "Factur-X generation failed, falling back to the plain PDF",
-          e
-        );
       }
+      if (requireFacturX) {
+        throw e;
+      }
+      console.error(
+        "Factur-X generation failed, falling back to the plain PDF",
+        e?.message || e
+      );
     }
   }
 

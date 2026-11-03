@@ -33,3 +33,27 @@ const mergeObjects = <T>(...overrides: T[]) => {
     return mergeObjects(...overrides.slice(0, -2), result);
   return result;
 };
+
+/**
+ * File name of the PDF of a document: its reference ("FA-2026-0012.pdf").
+ * References may contain characters not allowed in file names (FA/2026/12).
+ */
+export const getInvoicePdfFileName = (invoice: Pick<Invoices, "reference">) =>
+  `${
+    (invoice.reference || "").replace(/[/\\:*?"<>|]+/g, "-").trim() ||
+    "document"
+  }.pdf`;
+
+/**
+ * Content-Disposition header with the document file name, for the browser
+ * PDF viewer (inline) and for downloads (attachment). RFC 6266: plain ASCII
+ * fallback plus the UTF-8 encoded name.
+ */
+export const getPdfContentDisposition = (
+  fileName: string,
+  disposition: "inline" | "attachment"
+) =>
+  `${disposition}; filename="${fileName.replace(
+    /[^\x20-\x7e]|"/g,
+    "_"
+  )}"; filename*=UTF-8''${encodeURIComponent(fileName)}`;

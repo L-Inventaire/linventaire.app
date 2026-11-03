@@ -27,7 +27,10 @@ import Contacts, {
 import { Files } from "../../../files/entities/files";
 import Invoices from "../../entities/invoices";
 import { getInvoiceLogo } from "../../utils";
-import { getInvoiceWithFormatsOverrides } from "../utils";
+import {
+  getInvoicePdfFileName,
+  getInvoiceWithFormatsOverrides,
+} from "../utils";
 import { InvoiceContent } from "./content";
 import { InvoiceCounterparty } from "./counterparty";
 import { InvoicePaymentDetails } from "./payment-details";
@@ -484,7 +487,7 @@ export const getPdf = async (
       </PDFErrorBoundary>
     );
     return {
-      name: document.reference + ".pdf",
+      name: getInvoicePdfFileName(document),
       pdf,
     };
   } catch (error: any) {

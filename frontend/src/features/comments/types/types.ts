@@ -32,6 +32,10 @@ export type EventMetadatas =
   | {
       event_type: "e_invoice_failed";
       error: string; // Why the e-invoice could not be transmitted
+    }
+  | {
+      event_type: "accounting_export_failed";
+      error: string; // Why the copy could not be sent to the accountant
     };
 
 export type Comments = RestEntity & {

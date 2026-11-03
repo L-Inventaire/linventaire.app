@@ -309,6 +309,9 @@
     },
     "e_invoice_failed": {
       "title": "Échec de la transmission de la facture électronique."
+    },
+    "accounting_export_failed": {
+      "title": "Échec de l'envoi de la copie au comptable."
     }
   },
   "timelines": {
@@ -329,7 +332,8 @@
         "content": "Échec de l'envoi du document à <0/>. Le mail n'a pas pu être délivré.",
         "content_partial": "Le document n'a pas pu être envoyé à <0/>. Les autres destinataires l'ont bien reçu."
       },
-      "e_invoice_failed": "La facture électronique n'a pas pu être transmise : {{error}}"
+      "e_invoice_failed": "La facture électronique n'a pas pu être transmise : {{error}}",
+      "accounting_export_failed": "La copie n'a pas pu être envoyée au comptable : {{error}}"
     }
   },
   "atoms": {

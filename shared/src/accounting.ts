@@ -25,11 +25,22 @@ export class AccountingVatDefaults {
   rates: { [vat: string]: AccountingAccountRef } = {};
 }
 
+// Every invoice and credit note is also sent by email (Factur-X PDF) to an
+// address of the accountant (or of its software): one for the sales, one for
+// the purchases. Only the documents after the activation date are sent.
+export class AccountingEmailExport {
+  sales_email = "string"; // Sent when the document is sent
+  sales_enabled_at = 0; // Set by the backend when the address is set
+  purchases_email = "string"; // Sent when the document is booked ("Comptabiliser")
+  purchases_enabled_at = 0;
+}
+
 export class ClientAccounting {
   sell = new AccountingLineDefaults();
   buy = new AccountingLineDefaults();
   vat_collected = new AccountingVatDefaults(); // Sales (44571)
   vat_deductible = new AccountingVatDefaults(); // Purchases (44566)
+  email_export?: AccountingEmailExport = new AccountingEmailExport();
 }
 
 export type AccountingLineKind = keyof AccountingLineDefaults;

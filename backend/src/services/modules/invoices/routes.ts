@@ -19,6 +19,7 @@ import {
   furnishInvoices,
 } from "./services/furnish-invoices";
 import { generatePdf, sendPdf } from "./services/generate-pdf";
+import { getPdfContentDisposition } from "./services/utils";
 import {
   deprecatedVatCodes,
   standardCodeToUnit,
@@ -94,8 +95,14 @@ export const registerRoutes = (router: Router) => {
         facturx: req.query.facturx === "1",
       });
       res.setHeader("Content-Type", "application/pdf");
-      if (req.query.download)
-        res.setHeader("Content-Disposition", `attachment; filename="${name}"`);
+      // The reference is the file name, also when saved from the PDF viewer
+      res.setHeader(
+        "Content-Disposition",
+        getPdfContentDisposition(
+          name,
+          req.query.download ? "attachment" : "inline"
+        )
+      );
       res.send(pdf);
     } catch (error: any) {
       console.error("Error generating PDF:", error);
