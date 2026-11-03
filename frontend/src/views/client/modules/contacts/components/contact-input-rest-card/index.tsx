@@ -9,14 +9,16 @@ export const ContactRestDocument = (
   props: Omit<RestDocumentProps<Contacts>, "entity">,
 ) => {
   const size = props.size || "lg";
+  // The value comes either from `value` or from the form controller `ctrl`
+  const value = props.ctrl?.value || props.value;
   return (
     <RestDocumentsInput
-      key={JSON.stringify(props.value)}
+      key={JSON.stringify(value)}
       {...(props as RestDocumentProps<Contacts>)}
       entity="contacts"
       render={(contact) => <RenderContactCard contact={contact} size={size} />}
       renderEmpty={
-        props.value?.length
+        value?.length
           ? () => (
               <div className="whitespace-normal min-w-32 animate-pulse opacity-75 space-y-1 py-2">
                 <div className="line-clamp-1 text-ellipsis items-center flex space-x-2">
