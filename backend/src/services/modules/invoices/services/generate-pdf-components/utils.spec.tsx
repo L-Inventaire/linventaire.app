@@ -1,7 +1,14 @@
 import { describe, expect, test } from "@jest/globals";
-import { displayDate, hasIdentityNumber } from "./utils";
+import { displayDate, getCountryName, hasIdentityNumber } from "./utils";
 
 describe("generatePdfComponentsUtils", () => {
+  test("country codes are displayed by name", () => {
+    expect(getCountryName("FR", "fr")).toBe("France");
+    expect(getCountryName("be", "fr")).toBe("Belgique");
+    expect(getCountryName("France", "fr")).toBe("France");
+    expect(getCountryName("", "fr")).toBe("");
+  });
+
   test("should return the correct value", () => {
     expect(
       displayDate(new Date("2025-01-01T00:00:00Z"), "Europe/Paris", "en")

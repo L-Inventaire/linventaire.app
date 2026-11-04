@@ -72,17 +72,19 @@ export const FurnishQuotesPage = (_props: { readonly?: boolean }) => {
               setIsLoading(false);
             }}
           >
-            Créer{" "}
-            {
-              actions?.filter((action) => action.action === "order-items")
-                .length
-            }{" "}
-            commandes et reserver{" "}
-            {
-              actions?.filter((action) => action.action === "withdraw-stock")
-                .length
-            }{" "}
-            éléments du stocks
+            {(() => {
+              const orders =
+                actions?.filter((action) => action.action === "order-items")
+                  .length || 0;
+              const reservations =
+                actions?.filter((action) => action.action === "withdraw-stock")
+                  .length || 0;
+              return `Créer ${orders} commande${
+                orders > 1 ? "s" : ""
+              } et réserver ${reservations} élément${
+                reservations > 1 ? "s" : ""
+              } du stock`;
+            })()}
           </Button>
         </div>
       }

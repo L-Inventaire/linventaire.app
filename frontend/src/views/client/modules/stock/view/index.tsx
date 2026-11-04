@@ -29,7 +29,7 @@ export const StockItemsViewPage = (_props: { readonly?: boolean }) => {
     <Page
       loading={isPendingModification}
       title={[
-        { label: "StockItems", to: getRoute(ROUTES.Stock) },
+        { label: "Stock", to: getRoute(ROUTES.Stock) },
         { label: item.serial_number || "" },
       ]}
       bar={

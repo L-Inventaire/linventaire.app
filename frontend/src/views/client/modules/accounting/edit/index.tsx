@@ -46,7 +46,7 @@ export const AccountingTransactionsEditPage = (_props: {
     <Page
       loading={isPendingModification}
       title={[
-        { label: "Accounting", to: getRoute(ROUTES.Accounting) },
+        { label: "Opérations", to: getRoute(ROUTES.Accounting) },
         { label: id ? "Modifier" : "Créer" },
       ]}
       bar={
