@@ -38,7 +38,7 @@ export const AccountingPage = () => {
 
   return (
     <Page
-      title={[{ label: "Accounting" }]}
+      title={[{ label: "Opérations" }]}
       bar={
         <SearchBar
           schema={{

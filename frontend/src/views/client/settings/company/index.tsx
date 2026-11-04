@@ -60,7 +60,7 @@ export const CompanyPage = () => {
           />
 
           <InputLabel
-            label="Logo de l'enreprise"
+            label="Logo de l'entreprise"
             className="mt-4"
             input={
               <InputImage
@@ -113,7 +113,7 @@ export const CompanyPage = () => {
               {
                 label: "Numéro de TVA",
                 key: "tax_number",
-                placeholder: "BE0123456789",
+                placeholder: "FR12345678901",
               },
               {
                 label: "SIRET",

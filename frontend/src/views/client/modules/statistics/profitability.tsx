@@ -78,11 +78,11 @@ export const ProfitabilityExportModal = ({
       if (res.data.length > 1) {
         allData.push({
           Client: `=== ${periodResult.period.label} ===`,
-          "Chiffre d'affaires": "",
-          "Coût estimé min": "",
-          "Coût estimé max": "",
-          "Bénéfice min": "",
-          "Bénéfice max": "",
+          "Chiffre d'affaires HT": "",
+          "Coût estimé min HT": "",
+          "Coût estimé max HT": "",
+          "Bénéfice min HT": "",
+          "Bénéfice max HT": "",
           Factures: "",
           Commandes: "",
         });
@@ -92,11 +92,11 @@ export const ProfitabilityExportModal = ({
       for (const item of periodResult.data) {
         allData.push({
           Client: item.client_name,
-          "Chiffre d'affaires": item.revenue,
-          "Coût estimé min": item.min_cost,
-          "Coût estimé max": item.max_cost,
-          "Bénéfice min": item.min_profit,
-          "Bénéfice max": item.max_profit,
+          "Chiffre d'affaires HT": item.revenue,
+          "Coût estimé min HT": item.min_cost,
+          "Coût estimé max HT": item.max_cost,
+          "Bénéfice min HT": item.min_profit,
+          "Bénéfice max HT": item.max_profit,
           Factures: item.invoice_count,
           Commandes: item.quote_count,
         });
@@ -126,11 +126,11 @@ export const ProfitabilityExportModal = ({
 
       allData.push({
         Client: "Total",
-        "Chiffre d'affaires": totals.revenue,
-        "Coût estimé min": totals.min_cost,
-        "Coût estimé max": totals.max_cost,
-        "Bénéfice min": totals.min_profit,
-        "Bénéfice max": totals.max_profit,
+        "Chiffre d'affaires HT": totals.revenue,
+        "Coût estimé min HT": totals.min_cost,
+        "Coût estimé max HT": totals.max_cost,
+        "Bénéfice min HT": totals.min_profit,
+        "Bénéfice max HT": totals.max_profit,
         Factures: totals.invoice_count,
         Commandes: totals.quote_count,
       });
@@ -139,11 +139,11 @@ export const ProfitabilityExportModal = ({
       if (res.data.length > 1) {
         allData.push({
           Client: "",
-          "Chiffre d'affaires": "",
-          "Coût estimé min": "",
-          "Coût estimé max": "",
-          "Bénéfice min": "",
-          "Bénéfice max": "",
+          "Chiffre d'affaires HT": "",
+          "Coût estimé min HT": "",
+          "Coût estimé max HT": "",
+          "Bénéfice min HT": "",
+          "Bénéfice max HT": "",
           Factures: "",
           Commandes: "",
         });
@@ -158,11 +158,11 @@ export const ProfitabilityExportModal = ({
       // Set column widths
       worksheet["!cols"] = [
         { wch: 30 }, // Client
-        { wch: 18 }, // Chiffre d'affaires
-        { wch: 15 }, // Coût estimé min
-        { wch: 15 }, // Coût estimé max
-        { wch: 15 }, // Bénéfice min
-        { wch: 15 }, // Bénéfice max
+        { wch: 18 }, // Chiffre d'affaires HT
+        { wch: 15 }, // Coût estimé min HT
+        { wch: 15 }, // Coût estimé max HT
+        { wch: 15 }, // Bénéfice min HT
+        { wch: 15 }, // Bénéfice max HT
         { wch: 10 }, // Factures
         { wch: 10 }, // Commandes
       ];
@@ -345,7 +345,7 @@ export const ProfitabilityPage = ({
                     ),
                 },
                 {
-                  title: "Chiffre d'affaires",
+                  title: "Chiffre d'affaires HT",
                   headClassName: "justify-end",
                   cellClassName: "justify-end",
                   render: (row: ClientProfitabilityLine) => (
@@ -362,7 +362,7 @@ export const ProfitabilityPage = ({
                   ),
                 },
                 {
-                  title: "Coût estimé min",
+                  title: "Coût estimé min HT",
                   headClassName: "justify-end",
                   cellClassName: "justify-end",
                   render: (row: ClientProfitabilityLine) => (
@@ -377,7 +377,7 @@ export const ProfitabilityPage = ({
                   ),
                 },
                 {
-                  title: "Coût estimé max",
+                  title: "Coût estimé max HT",
                   headClassName: "justify-end",
                   cellClassName: "justify-end",
                   render: (row: ClientProfitabilityLine) => (
@@ -392,7 +392,7 @@ export const ProfitabilityPage = ({
                   ),
                 },
                 {
-                  title: "Bénéfice min",
+                  title: "Bénéfice min HT",
                   headClassName: "justify-end",
                   cellClassName: "justify-end",
                   render: (row: ClientProfitabilityLine) => (
@@ -409,7 +409,7 @@ export const ProfitabilityPage = ({
                   ),
                 },
                 {
-                  title: "Bénéfice max",
+                  title: "Bénéfice max HT",
                   headClassName: "justify-end",
                   cellClassName: "justify-end",
                   render: (row: ClientProfitabilityLine) => (

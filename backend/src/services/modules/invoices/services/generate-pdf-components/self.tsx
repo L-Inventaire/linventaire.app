@@ -4,7 +4,7 @@ import Framework from "../../../../../platform";
 import { Context } from "../../../../../types";
 import Clients from "../../../../clients/entities/clients";
 import Invoices from "../../entities/invoices";
-import { displayDate, hasIdentityNumber, KeyValueDisplay } from "./utils";
+import { displayDate, getCountryName, hasIdentityNumber, KeyValueDisplay } from "./utils";
 import { captureException } from "@sentry/node";
 import { computePaymentDelayDate } from "@shared/invoices";
 
@@ -44,7 +44,7 @@ export const InvoiceSelf = ({
         {[
           [me.address.zip, me.address.city].filter(Boolean).join(" "),
           me.address.region,
-          me.address.country,
+          getCountryName(me.address.country, document.language),
         ]
           .filter(Boolean)
           .join(", ")}

@@ -176,7 +176,7 @@ async function createSigningTimelineEvent(
     item_entity: "invoices",
     item_id: invoice.id,
     type: "event",
-    content: `Signed by ${signingSession.recipient_email}`,
+    content: `Signé par ${signingSession.recipient_email}`,
     metadata: {
       event_type: "quote_signed",
       email: signingSession.recipient_email,
@@ -233,7 +233,7 @@ export default (router: Router) => {
           item_entity: "invoices",
           item_id: invoice.id,
           type: "event",
-          content: `Sent to ${sentRecipients
+          content: `Envoyé à ${sentRecipients
             .map((rec) => rec.email)
             .join(", ")}`,
           metadata: {
@@ -668,7 +668,7 @@ export default (router: Router) => {
       item_entity: "invoices",
       item_id: invoice.id,
       type: "event",
-      content: `Document signature cancelled by ${signingSession.recipient_email}`,
+      content: `Signature du document annulée par ${signingSession.recipient_email}`,
       metadata: {
         email: signingSession.recipient_email,
         event_type: "quote_refused",

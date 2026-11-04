@@ -107,7 +107,7 @@ const MainChart = ({ year }: { year: number }) => {
   return (
     <>
       <DashboardCard>
-        <Text size="4">Chiffre d'affaires et charges</Text>{" "}
+        <Text size="4">Chiffre d'affaires et charges HT</Text>{" "}
         <div className="w-full h-48 -mx-4">
           <ResponsiveLine
             data={gainsChargesData}
@@ -188,7 +188,7 @@ const MainChart = ({ year }: { year: number }) => {
 
       <DashboardCard>
         <Text size="4">
-          Résultat {year} / {year - 1}
+          Résultat HT {year} / {year - 1}
         </Text>
         <div className="w-full h-48 -mx-4">
           <ResponsiveLine

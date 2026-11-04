@@ -2,7 +2,7 @@ import { Button } from "@atoms/button/button";
 import Select from "@atoms/input/input-select";
 import SelectMultiple from "@atoms/input/input-select-multiple";
 import { Modal } from "@atoms/modal/modal";
-import { Title } from "@atoms/text";
+import { Info, Title } from "@atoms/text";
 import { RestDocumentsInput } from "@components/input-rest";
 import { Contacts } from "@features/contacts/types/types";
 import { ArrowDownTrayIcon, XMarkIcon } from "@heroicons/react/24/outline";
@@ -167,6 +167,19 @@ export const StatisticsPage = () => {
           )}
         </Modal>
 
+        {page === "tags" && (
+          <Info className="block mb-2">
+            Montants hors taxes, avoirs déduits.
+          </Info>
+        )}
+        {(page === "balances-clients" || page === "balances-suppliers") && (
+          <Info className="block mb-2">
+            Montants TTC restant dus, règlements et avoirs déduits.
+          </Info>
+        )}
+        {page === "profitability" && (
+          <Info className="block mb-2">Montants hors taxes, avoirs déduits.</Info>
+        )}
         {page === "tags" && <TagsPage year={year} />}
         {page === "balances-clients" && <BalancesPage type="client" />}
         {page === "balances-suppliers" && <BalancesPage type="supplier" />}

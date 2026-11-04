@@ -5,6 +5,48 @@ import { computePricesFromInvoice } from "@shared/invoices";
 import _ from "lodash";
 
 describe("Compute partial invoices", () => {
+  test("A down payment is deducted by name on the final invoice", async () => {
+    const quote = {
+      type: "quotes",
+      content: [
+        {
+          article: "corner",
+          type: "product",
+          quantity: 10,
+          unit_price: 100,
+          discount: { mode: "amount", value: 0 },
+        },
+      ],
+      discount: { mode: "amount", value: 0 },
+    } as unknown as Invoices;
+    const downPayment = {
+      type: "invoices",
+      state: "closed",
+      reference: "F-2026-15",
+      content: [
+        {
+          type: "correction",
+          article: "",
+          name: "Acompte",
+          quantity: 1,
+          unit_price: 300,
+          discount: { mode: "amount", value: 0 },
+        },
+      ],
+      discount: { mode: "amount", value: 0 },
+    } as unknown as Invoices;
+
+    const result = computePartialInvoice(quote, [downPayment]);
+    const deduction = result.partial_invoice.content.find(
+      (a) => a.type === "correction"
+    );
+
+    expect(deduction?.name).toBe("Déduction des acomptes");
+    expect(deduction?.description).toBe("Facture d'acompte : F-2026-15");
+    expect(deduction?.unit_price).toBe(-300);
+    expect(result.invoiced.total?.total).toBe(300);
+  });
+
   test("Check simple case", async () => {
     const result = computePartialInvoice(
       {

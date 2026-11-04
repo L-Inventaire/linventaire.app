@@ -11,10 +11,11 @@ type PartialInvoiceOutType = {
 
 export const computePartialInvoice = (
   quote: Pick<Invoices, "content" | "discount" | "type">,
-  invoicesAndCreditNotes: Pick<
+  invoicesAndCreditNotes: (Pick<
     Invoices,
     "content" | "type" | "discount" | "state"
-  >[],
+  > &
+    Partial<Pick<Invoices, "reference">>)[],
   requestedItems: Partial<InvoiceLine>[] = []
 ): PartialInvoiceOutType => {
   // This function must takes existing invoices, and credit notes,
@@ -160,6 +161,30 @@ export const computePartialInvoice = (
   console.log("gapFromQuote", gapFromQuote);
   console.log("isFinalInvoice", isFinalInvoice);
 
+  // Too much was invoiced: most of the time because of down payments, which we
+  // name on the invoice the customer receives
+  const downPayments = invoicesAndCreditNotes.filter(
+    (a) =>
+      a.type === invoicesType &&
+      a.state !== "draft" &&
+      (a.content || []).some(
+        (line) => line.type === "correction" && line.unit_price > 0
+      )
+  );
+  const downPaymentsReferences = downPayments
+    .map((a) => a.reference)
+    .filter(Boolean);
+  const overInvoicedLine = downPayments.length
+    ? {
+        name: "Déduction des acomptes",
+        description: downPaymentsReferences.length
+          ? `Facture${
+              downPaymentsReferences.length > 1 ? "s" : ""
+            } d'acompte : ${downPaymentsReferences.join(", ")}`
+          : "",
+      }
+    : { name: "Correction du solde" };
+
   if (gapFromQuote !== 0) {
     if (gapFromQuote > 0) {
       console.log("Gap from quote is positive:", gapFromQuote);
@@ -203,7 +228,7 @@ export const computePartialInvoice = (
           remainingInvoiceItems.push({
             type: "correction",
             article: "correction_remaining_only",
-            name: "Correction du solde",
+            ...overInvoicedLine,
             quantity: 1,
             unit_price: gapFromQuote - remainingInvoiceAmount.discount,
             discount: { mode: "amount", value: 0 },
@@ -214,7 +239,7 @@ export const computePartialInvoice = (
           remainingInvoiceItems.push({
             type: "correction",
             article: "correction_remaining_only",
-            name: "Correction du solde",
+            ...overInvoicedLine,
             quantity: 1,
             unit_price: -(
               remainingInvoiceAmount.total_with_taxes -
@@ -246,7 +271,7 @@ export const computePartialInvoice = (
           thisPartialInvoiceItems.push({
             type: "correction",
             article: "correction",
-            name: "Correction du solde",
+            ...overInvoicedLine,
             quantity: 1,
             unit_price:
               -coveredByThisInvoice - thisPartialInvoiceDiscount.value,
@@ -257,7 +282,7 @@ export const computePartialInvoice = (
             remainingInvoiceItems.push({
               type: "correction",
               article: "correction",
-              name: "Correction du solde",
+              ...overInvoicedLine,
               quantity: 1,
               unit_price:
                 gapFromQuote +
@@ -272,7 +297,7 @@ export const computePartialInvoice = (
           thisPartialInvoiceItems.push({
             type: "correction",
             article: "correction_credit_note",
-            name: "Correction du solde",
+            ...overInvoicedLine,
             quantity: 1,
             unit_price:
               -thisPartialInvoiceAmount.total_with_taxes -
@@ -283,7 +308,7 @@ export const computePartialInvoice = (
           remainingInvoiceItems.push({
             type: "correction",
             article: "correction_credit_note",
-            name: "Correction du solde",
+            ...overInvoicedLine,
             quantity: 1,
             unit_price:
               -remainingInvoiceAmount.total_with_taxes -
@@ -327,13 +352,8 @@ export const computePartialInvoice = (
         mode: "amount",
         value: alreadyInvoicedAmount.discount,
       } as InvoiceDiscount,
-      total: computePricesFromInvoice({
-        content: alreadyInvoiced as Invoices["content"],
-        discount: {
-          mode: "amount",
-          value: alreadyInvoicedAmount.discount,
-        },
-      }),
+      // Sum of the documents, down payments included (not always in the lines)
+      total: alreadyInvoicedAmount,
     } as Invoices,
     partial_invoice: {
       type: invoicesType,

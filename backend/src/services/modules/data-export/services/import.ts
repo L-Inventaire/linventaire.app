@@ -1,5 +1,7 @@
 import Framework from "#src/platform/index";
+import { updateClient } from "#src/services/clients/services/client";
 import { Context } from "#src/types";
+import _ from "lodash";
 
 export type ImportResult = {
   [tableName: string]: {
@@ -8,6 +10,16 @@ export type ImportResult = {
     errors: string[];
   };
 };
+
+// Never smtp nor security: these hold secrets and access rules
+const IMPORTABLE_CLIENT_SETTINGS = [
+  "company",
+  "address",
+  "payment",
+  "invoices",
+  "invoices_counters",
+  "preferences",
+];
 
 export const importData = async (
   ctx: Context,
@@ -24,6 +36,23 @@ export const importData = async (
       skipped: 0,
       errors: [],
     };
+
+    // The company itself: only its settings, and only for the current company
+    if (tableName === "clients") {
+      try {
+        await updateClient(
+          ctx,
+          ctx.client_id,
+          _.pick(data[tableName]?.[0], IMPORTABLE_CLIENT_SETTINGS)
+        );
+        result[tableName].imported++;
+      } catch (error: any) {
+        result[tableName].errors.push(
+          `Error importing company settings: ${error.message || error}`
+        );
+      }
+      continue;
+    }
 
     // Validate that table exists
     if (!entities[tableName]) {

@@ -120,7 +120,8 @@ export const InvoiceTotalCard = ({
           </div>
 
           {/* Margin calculation section */}
-          {marginCalculation.hasCostData && (
+          {marginCalculation.hasCostData &&
+            ["quotes", "invoices", "credit_notes"].includes(invoice.type) && (
             <>
               <div className="border-t border-slate-100 dark:border-slate-700 pt-2 mt-3 text-gray-500">
                 <div className="whitespace-nowrap flex flex-row items-center justify-between w-full space-x-4">

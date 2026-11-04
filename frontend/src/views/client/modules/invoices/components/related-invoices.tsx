@@ -110,7 +110,7 @@ export const RelatedInvoices = ({
       )}
       {!!siblingsOrders?.data?.list?.length && (
         <div>
-          <Section className="my-2">Commandes liés à ce devis</Section>
+          <Section className="my-2">Commandes liées à ce devis</Section>
           <RestTable
             onClick={({ id }, event) =>
               navigate(getRoute(ROUTES.InvoicesView, { id }), { event })

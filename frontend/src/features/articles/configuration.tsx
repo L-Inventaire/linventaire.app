@@ -148,6 +148,8 @@ registerCtrlKRestEntity<Articles>("articles", {
     <ArticlesDetailsPage readonly={props.readonly || false} id={props.id} />
   ),
   groupBy: "type",
+  groupByRender: (row) =>
+    ArticlesColumns.find((c) => c.id === "type")?.render?.(row, {}),
   orderBy: "type,name",
   renderResult: ArticlesColumns,
   useDefaultData: useArticleDefaultModel,

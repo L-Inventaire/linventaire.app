@@ -4,7 +4,7 @@ import Framework from "../../../../../platform";
 import { Context } from "../../../../../types";
 import Contacts from "../../../../modules/contacts/entities/contacts";
 import Invoices from "../../entities/invoices";
-import { displayDate, hasIdentityNumber, KeyValueDisplay } from "./utils";
+import { displayDate, getCountryName, hasIdentityNumber, KeyValueDisplay } from "./utils";
 import { getContactName } from "#src/services/utils";
 
 export const InvoiceCounterparty = ({
@@ -62,7 +62,7 @@ export const InvoiceCounterparty = ({
                 .filter(Boolean)
                 .join(" "),
               billingAddress.region,
-              billingAddress.country,
+              getCountryName(billingAddress.country, document.language),
             ]
               .filter(Boolean)
               .join(", ")}
@@ -127,7 +127,10 @@ export const InvoiceCounterparty = ({
                           .filter(Boolean)
                           .join(" "),
                         document.delivery_address?.region,
-                        document.delivery_address?.country,
+                        getCountryName(
+                          document.delivery_address?.country,
+                          document.language
+                        ),
                       ]
                         .filter(Boolean)
                         .join(", "),

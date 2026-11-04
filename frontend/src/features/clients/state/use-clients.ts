@@ -100,10 +100,10 @@ export const useClients = () => {
     try {
       await ClientsApiClient.update(clientId, client);
       await refresh();
-      toast.success("Your company has been updated.");
+      toast.success("Votre entreprise a été mise à jour.");
     } catch (e: any) {
       console.error(e);
-      toast.error("We couldn't update your company. Please try again.");
+      toast.error("Impossible de mettre à jour votre entreprise. Veuillez réessayer.");
     }
   };
 

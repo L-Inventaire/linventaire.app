@@ -60,7 +60,8 @@ export const getLatePayments = async (
 
     const contactRow = type === "client" ? "client" : "supplier";
     const common1 =
-      "select count(*) as count, sum((total->>'total')::numeric) as amount, " +
+      // What is really owed: with taxes, without what was already paid
+      "select count(*) as count, sum((total->>'total_with_taxes')::numeric - coalesce((transactions->>'total')::numeric, 0)) as amount, " +
       contactRow +
       " as contact from invoices where";
     const common2 =
