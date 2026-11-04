@@ -18,11 +18,34 @@ jest.mock("#src/platform/index", () => ({
   },
 }));
 
+const mockUpdateClient = jest.fn<(...args: any[]) => Promise<void>>();
+jest.mock("#src/services/clients/services/client", () => ({
+  updateClient: mockUpdateClient,
+}));
+
 import { importData } from "./import";
 
 const ctx = { client_id: "cl-1", id: "user-1", role: "USER" } as any;
 
 describe("importData", () => {
+  test("company settings update the current company, without secrets", async () => {
+    const result = await importData(ctx, {
+      clients: [
+        {
+          id: "another-company",
+          company: { registration_number: "12345678900017" },
+          smtp: { host: "evil" },
+        },
+      ],
+    });
+
+    expect(result.clients).toEqual({ imported: 1, skipped: 0, errors: [] });
+    expect(mockInsert).not.toHaveBeenCalled();
+    expect(mockUpdateClient).toHaveBeenCalledWith(ctx, "cl-1", {
+      company: { registration_number: "12345678900017" },
+    });
+  });
+
   test("imported records are visible and have an author", async () => {
     const result = await importData(ctx, {
       tags: [{ client_id: "other", id: "t1", name: "Tag", is_deleted: true }],
