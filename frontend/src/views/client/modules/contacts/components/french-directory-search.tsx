@@ -104,7 +104,7 @@ export const FrenchDirectorySearch = ({
             </Info>
 
             <div
-              className="space-y-4 p-6 bg-gray-50 rounded-lg border border-gray-200"
+              className="space-y-4 p-6 bg-gray-50 dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700"
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   e.preventDefault();
@@ -156,7 +156,7 @@ export const FrenchDirectorySearch = ({
               </div>
 
               {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
+                <div className="p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded text-red-700 dark:text-red-300 text-sm">
                   Erreur: {error}
                 </div>
               )}
@@ -199,20 +199,20 @@ export const FrenchDirectorySearch = ({
                     key={company.number}
                     onClick={() => handleSelectCompany(company)}
                     disabled={isLoadingDetails}
-                    className="w-full text-left p-4 bg-white border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors group disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full text-left p-4 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors group disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <div className="flex items-start gap-3">
-                      <div className="p-2 bg-blue-100 rounded group-hover:bg-blue-200 transition-colors">
-                        <Building2 className="w-5 h-5 text-blue-600" />
+                      <div className="p-2 bg-blue-100 dark:bg-blue-950 rounded group-hover:bg-blue-200 dark:group-hover:bg-blue-900 transition-colors">
+                        <Building2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-gray-900 mb-1">
+                        <div className="font-semibold text-gray-900 dark:text-white mb-1">
                           {company.formal_name}
                         </div>
-                        <div className="text-sm text-gray-600 mb-2">
+                        <div className="text-sm text-gray-600 dark:text-slate-300 mb-2">
                           SIREN: {company.number}
                         </div>
-                        <div className="flex items-start gap-1 text-sm text-gray-500">
+                        <div className="flex items-start gap-1 text-sm text-gray-500 dark:text-slate-400">
                           <MapPin className="w-4 h-4 mt-0.5 shrink-0" />
                           <span>
                             {company.address}, {company.postcode} {company.city}
