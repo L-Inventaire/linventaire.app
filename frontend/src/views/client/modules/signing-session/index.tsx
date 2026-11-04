@@ -55,7 +55,7 @@ export const SigningSessionPage = () => {
   const isExpired =
     !!signingSession &&
     !isErrorResponse(signingSession) &&
-    signingSession.expired;
+    !!signingSession.expired;
   const { data: latestSession, isLoading: isLoadingLatestSession } = useQuery({
     queryKey: ["signing-session-latest", sessionID, signToken],
     queryFn: () =>
