@@ -376,7 +376,7 @@ export const InvoicesDetailsPage = ({
                     {draft.state === "purchase_order" && isQuoteRelated && (
                       <Callout.Root className="mb-4" color="orange">
                         <Callout.Text>
-                          Le devis a été accepté part le client, certaines
+                          Le devis a été accepté par le client, certaines
                           lignes ne sont pas encore complétées.
                         </Callout.Text>
                       </Callout.Root>
@@ -398,7 +398,7 @@ export const InvoicesDetailsPage = ({
                     {draft.state === "purchase_order" && isQuoteRelated && (
                       <Callout.Root className="mb-4" color="orange">
                         <Callout.Text>
-                          La commande a été accepté part le fournisseur, elle
+                          La commande a été acceptée par le fournisseur, elle
                           est en transit.
                         </Callout.Text>
                       </Callout.Root>

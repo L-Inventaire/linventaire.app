@@ -3,7 +3,7 @@ import { Heading, Button, Checkbox, Card, Flex, Text } from "@radix-ui/themes";
 import { Page } from "../../_layout/page";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState, useRef } from "react";
-import { useCurrentClient } from "@features/clients/state/use-clients";
+import { useClients, useCurrentClient } from "@features/clients/state/use-clients";
 import {
   dataExportApiClient,
   AvailableTable,
@@ -20,6 +20,7 @@ import {
 
 export const ImportExportPage = () => {
   const { client } = useCurrentClient();
+  const { refresh: refreshClients } = useClients();
   const queryClient = useQueryClient();
   const [tables, setTables] = useState<AvailableTable[]>([]);
   const [selectedTables, setSelectedTables] = useState<Set<string>>(new Set());
@@ -123,6 +124,8 @@ export const ImportExportPage = () => {
       setImportResult(result);
       // Lists are cached for several minutes and would stay empty otherwise
       queryClient.invalidateQueries();
+      // A file can also hold the settings of the company
+      if (data.clients) await refreshClients();
     } catch (error: any) {
       console.error("Import failed:", error);
       alert(

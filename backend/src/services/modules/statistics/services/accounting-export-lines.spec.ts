@@ -98,6 +98,26 @@ describe("Accounting export lines", () => {
     expect(lines.map((l) => l.vat_accounting.number)).toEqual(["445662", ""]);
   });
 
+  test("down payments and their deduction use the advance accounts", () => {
+    const invoice = withTotal({
+      type: "invoices",
+      content: [line({ type: "correction", tva: "", unit_price: -3000 })],
+    });
+    const lines = getAccountingExportLinesAmounts(invoice, {} as any, {} as any);
+    expect(lines.map((l) => l.accounting.number)).toEqual(["4191"]);
+
+    const supplierInvoice = withTotal({
+      type: "supplier_invoices",
+      content: [line({ type: "correction", tva: "", unit_price: 500 })],
+    });
+    const supplierLines = getAccountingExportLinesAmounts(
+      supplierInvoice,
+      {} as any,
+      {} as any
+    );
+    expect(supplierLines.map((l) => l.accounting.number)).toEqual(["4091"]);
+  });
+
   test("spreads the global discount and the VAT so lines sum to the totals", () => {
     const invoice = withTotal({
       type: "invoices",

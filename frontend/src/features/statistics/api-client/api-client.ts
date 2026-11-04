@@ -59,6 +59,7 @@ export class StatisticsApiClient {
     if (options.from) params.append("from", options.from);
     if (options.to) params.append("to", options.to);
     if (options.type) params.append("type", options.type);
+    if (options.state) params.append("state", options.state);
     const uri = `/api/statistics/v1/${clientId}/accounting-export?${params.toString()}`;
     const response = await fetchServer(uri);
     const data = await response.json();

@@ -168,7 +168,7 @@ export const InvoiceLinesInput = ({
         className="text-center"
         title="Insérez une première ligne"
       >
-        Votre facture ne contient aucune ligne, ajoutez-en une pour continuer.
+        Ce document ne contient aucune ligne, ajoutez-en une pour continuer.
         <br />
         {!readonly && (
           <Button

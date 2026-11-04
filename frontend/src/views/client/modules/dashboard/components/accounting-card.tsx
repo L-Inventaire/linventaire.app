@@ -72,7 +72,7 @@ const AccountingCard = ({ year, ...props }: AccountingCardProps) => {
       {!loading && (
         <>
           <div className="flex flex-col w-1/3">
-            <Text size="4">Chiffre d'affaires</Text>
+            <Text size="4">Chiffre d'affaires HT</Text>
             <Heading size="7" className="text-green-600 my-1">
               {formatAmount(gains ?? 0)}
             </Heading>
@@ -97,7 +97,7 @@ const AccountingCard = ({ year, ...props }: AccountingCardProps) => {
           </div>
 
           <div className="flex flex-col w-1/3">
-            <Text size="4">Charges</Text>
+            <Text size="4">Charges HT</Text>
             <Heading size="7" className="text-red-600 my-1">
               {formatAmount(charges ?? 0)}
             </Heading>
@@ -122,7 +122,7 @@ const AccountingCard = ({ year, ...props }: AccountingCardProps) => {
           </div>
 
           <div className="flex flex-col w-1/3">
-            <Text size="4">Résultat</Text>
+            <Text size="4">Résultat HT</Text>
             <Heading size="7" className="text-blue-600 my-1">
               {formatAmount(revenue ?? 0)}
             </Heading>

@@ -37,6 +37,20 @@ export const KeyValueDisplay = (props: {
   </View>
 );
 
+/** Country name in the document language, from a country code ("FR" => "France") */
+export const getCountryName = (country?: string | null, language = "fr") => {
+  if (!country || !/^[A-Za-z]{2}$/.test(country)) return country || "";
+  try {
+    return (
+      new Intl.DisplayNames([language || "fr"], { type: "region" }).of(
+        country.toUpperCase()
+      ) || country
+    );
+  } catch {
+    return country;
+  }
+};
+
 /** Registration and VAT numbers: placeholders like "00000000000000" or "FR00000000000" are not displayed */
 export const hasIdentityNumber = (value?: string | null) =>
   !!value && /[1-9]/.test(value);

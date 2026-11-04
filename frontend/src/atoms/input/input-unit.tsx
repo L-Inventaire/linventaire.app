@@ -24,7 +24,7 @@ export const getUnitLabel = (
 export const Unit = (props: { unit?: string }) => {
   const { t } = useTranslation();
   const { maps } = useInvoiceMaps();
-  return getUnitLabel(maps?.units?.[props.unit || "EA"] || "unit", t);
+  return getUnitLabel(maps?.units?.[props.unit || "EA"] || props.unit || "unit", t);
 };
 
 export const InputUnit = (props: Select.RootProps & { className?: string }) => {

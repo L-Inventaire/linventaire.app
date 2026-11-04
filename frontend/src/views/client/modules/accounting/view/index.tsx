@@ -32,7 +32,7 @@ export const AccountingTransactionsViewPage = (_props: {
       loading={isPendingModification}
       title={[
         {
-          label: "AccountingTransactions",
+          label: "Opérations",
           to: getRoute(ROUTES.Accounting),
         },
         { label: item.reference || "" },

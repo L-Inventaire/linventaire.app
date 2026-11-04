@@ -105,7 +105,7 @@ const generateInvoicesForRecurringQuote = async (
       client_id: quote.client_id,
       item_entity: "invoices",
       item_id: quote.id,
-      content: `Client was not found, the recurring invoice was put back to draft.`,
+      content: `Client introuvable, la facture récurrente a été remise en brouillon.`,
       metadata: {
         event_type: "invoice_back_to_draft",
         reason: "Client not found",

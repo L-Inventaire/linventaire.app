@@ -255,10 +255,9 @@ async function calculateProfitabilityForPeriod(
 
     for (const invoice of clientInvoices) {
       // Calculate revenue (positive for invoices, negative for credit notes)
-      const invoiceTotal = invoice.total?.total_with_taxes || 0;
-      const revenue =
-        invoice.type === "credit_notes" ? -invoiceTotal : invoiceTotal;
-      totalRevenue += revenue;
+      // Everything is without taxes here, revenue and costs
+      const sign = invoice.type === "credit_notes" ? -1 : 1;
+      totalRevenue += sign * (invoice.total?.total || 0);
 
       // Track related quotes
       (invoice.from_rel_quote || []).forEach((qId) => relatedQuoteIds.add(qId));
@@ -303,10 +302,6 @@ async function calculateProfitabilityForPeriod(
                   }
                 }
 
-                // Apply TVA
-                const tvaRate = parseFloat(supplierLine.tva || "0") || 0;
-                supplierLineTotal *= 1 + tvaRate / 100;
-
                 // Proportional cost based on quantity
                 const unitCost =
                   supplierQuantity > 0
@@ -339,8 +334,8 @@ async function calculateProfitabilityForPeriod(
           }
         }
 
-        minTotalCost += minLineCost;
-        maxTotalCost += maxLineCost;
+        minTotalCost += sign * minLineCost;
+        maxTotalCost += sign * maxLineCost;
       }
     }
 

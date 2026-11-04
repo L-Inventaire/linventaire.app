@@ -71,10 +71,17 @@ export const DEFAULT_CLIENT_ACCOUNTING = {
   vat_deductible: pcg("44566", "TVA sur autres biens et services"),
 };
 
+// Correction lines (down payments and their deduction) are not revenue yet
+export const DEFAULT_DOWN_PAYMENT_ACCOUNTS = {
+  sell: pcg("4191", "Clients, avances et acomptes reçus"),
+  buy: pcg("4091", "Fournisseurs, avances et acomptes versés"),
+};
+
 const isSet = (account?: Partial<AccountingAccount> | null) =>
   !!account?.standard_identifier;
 
 // Correction lines have no kind of their own, they are booked as services
+// in the settings, and on their own account in the export (see getLineAccount)
 export const getAccountingLineKind = (lineType?: string): AccountingLineKind =>
   lineType === "product" || lineType === "consumable" ? lineType : "service";
 
@@ -111,6 +118,9 @@ export const getLineAccount = (
       name: fromArticle!.name || "",
       is_default: false,
     };
+  }
+  if (line.type === "correction") {
+    return { ...DEFAULT_DOWN_PAYMENT_ACCOUNTS[side], is_default: true };
   }
   const kind = getAccountingLineKind(article?.type || line.type);
   return { ...getDefaultLineAccount(accounting, side, kind), is_default: true };
