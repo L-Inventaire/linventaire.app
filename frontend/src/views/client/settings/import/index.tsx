@@ -1,6 +1,7 @@
 import { Info } from "@atoms/text";
 import { Heading, Button, Checkbox, Card, Flex, Text } from "@radix-ui/themes";
 import { Page } from "../../_layout/page";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState, useRef } from "react";
 import { useCurrentClient } from "@features/clients/state/use-clients";
 import {
@@ -19,6 +20,7 @@ import {
 
 export const ImportExportPage = () => {
   const { client } = useCurrentClient();
+  const queryClient = useQueryClient();
   const [tables, setTables] = useState<AvailableTable[]>([]);
   const [selectedTables, setSelectedTables] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
@@ -119,6 +121,8 @@ export const ImportExportPage = () => {
 
       const result = await dataExportApiClient.importData(client.id, data);
       setImportResult(result);
+      // Lists are cached for several minutes and would stay empty otherwise
+      queryClient.invalidateQueries();
     } catch (error: any) {
       console.error("Import failed:", error);
       alert(
