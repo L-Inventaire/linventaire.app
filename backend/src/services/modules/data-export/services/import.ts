@@ -102,9 +102,13 @@ export const importData = async (
         };
 
         // Remove fields that shouldn't be imported
-        delete recordToInsert.is_deleted;
         delete recordToInsert.deleted_at;
         delete recordToInsert.deleted_by;
+        // Every read filters on is_deleted = false: left empty, the record would be invisible
+        recordToInsert.is_deleted = false;
+        // Without an author the activity feed shows "Unknown"
+        recordToInsert.created_by = record.created_by || ctx.id;
+        recordToInsert.updated_by = record.updated_by || ctx.id;
 
         // Insert the record
         await db.insert(
