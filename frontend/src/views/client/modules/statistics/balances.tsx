@@ -239,7 +239,7 @@ export const BalancesPage = ({ type }: { type: "client" | "supplier" }) => {
       border
       columns={[
         {
-          title: "Client",
+          title: type === "client" ? "Client" : "Fournisseur",
           thClassName: "w-1/4",
           render: (row: DashboardBalances[0]) => (
             <Link

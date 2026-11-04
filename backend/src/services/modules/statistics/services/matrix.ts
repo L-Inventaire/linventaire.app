@@ -56,6 +56,17 @@ export const getInvoiceLinesAmounts = (
   return lines;
 };
 
+/** Lines of a document for the revenue: a credit note lowers it */
+export const getRevenueLinesAmounts = (
+  invoice: Pick<Invoices, "type" | "content" | "total">
+) => {
+  const sign = invoice.type === "credit_notes" ? -1 : 1;
+  return getInvoiceLinesAmounts(invoice).map((line) => ({
+    ...line,
+    amount: sign * line.amount,
+  }));
+};
+
 /**
  * This function will generate invoices custom statistics for 2d tables
  */
@@ -78,13 +89,13 @@ export const getMatrix = async (
     InvoicesDefinition.name,
     {
       where:
-        "client_id=$1 and is_deleted=false and type='invoices' and state!='draft' and emit_date >= $2 and emit_date < $3",
+        "client_id=$1 and is_deleted=false and type in ('invoices', 'credit_notes') and state!='draft' and emit_date >= $2 and emit_date < $3",
       values: [clientId, from, to],
     },
     { limit: 5000 }
   );
 
-  const lines = invoices.flatMap(getInvoiceLinesAmounts);
+  const lines = invoices.flatMap(getRevenueLinesAmounts);
 
   const articlesIds = _.uniq(lines.map((a) => a.article).filter(Boolean));
   const articles = (

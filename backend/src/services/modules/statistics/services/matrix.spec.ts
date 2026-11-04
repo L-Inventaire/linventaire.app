@@ -1,5 +1,9 @@
 import { describe, expect, test } from "@jest/globals";
-import { getInvoiceLinesAmounts, getMonthBounds } from "./matrix";
+import {
+  getInvoiceLinesAmounts,
+  getMonthBounds,
+  getRevenueLinesAmounts,
+} from "./matrix";
 
 describe("Statistics matrix", () => {
   test("getMonthBounds", async () => {
@@ -25,6 +29,18 @@ describe("Statistics matrix", () => {
       "2026-09-30T22:00:00.000Z",
       "2026-10-31T23:00:00.000Z",
     ]);
+  });
+
+  test("getRevenueLinesAmounts: credit notes lower the revenue", async () => {
+    const content = [
+      { type: "product", article: "a", quantity: 2, unit_price: 50 },
+    ] as any;
+    expect(
+      getRevenueLinesAmounts({ type: "invoices", content, total: null })
+    ).toEqual([{ article: "a", amount: 100 }]);
+    expect(
+      getRevenueLinesAmounts({ type: "credit_notes", content, total: null })
+    ).toEqual([{ article: "a", amount: -100 }]);
   });
 
   test("getInvoiceLinesAmounts", async () => {

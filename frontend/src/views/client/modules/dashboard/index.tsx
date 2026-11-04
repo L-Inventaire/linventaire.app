@@ -66,7 +66,11 @@ export const DashboardHomePage = () => {
             <NumberCard
               title="Devis signés"
               number={reducer(statistics?.all, "quotes", ["purchase_order"])}
-              totalNumber={reducer(statistics?.all, "quotes", ["sent"])}
+              // Accepted among the quotes which got an answer or wait for one
+              totalNumber={reducer(statistics?.all, "quotes", [
+                "sent",
+                "purchase_order",
+              ])}
               icon={(props) => <DocumentIcon {...props} />}
             />
             <NumberCard
@@ -80,7 +84,11 @@ export const DashboardHomePage = () => {
                 "completed",
                 "closed",
               ])}
-              totalNumber={reducer(statistics?.all, "invoices", ["sent"])}
+              totalNumber={reducer(statistics?.all, "invoices", [
+                "sent",
+                "completed",
+                "closed",
+              ])}
               icon={(props) => <DocumentCheckIcon {...props} />}
             />
             <NumberCard
