@@ -60,6 +60,21 @@ export class InvoicesApiClient {
     return res.json();
   }
 
+  // Retry a failed e-invoice transmission (refused if it is not failed)
+  static async retryEInvoice(invoice: Pick<Invoices, "id" | "client_id">) {
+    const res = await fetchServer(
+      `/api/invoices/v1/${invoice.client_id}/invoice/${invoice.id}/e-invoice/retry`,
+      { method: "POST" }
+    );
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(
+        data?.message || data?.error || "Impossible de renvoyer la facture électronique"
+      );
+    }
+    return data as { e_invoice: Invoices["e_invoice"] };
+  }
+
   // Realign the billing day of the source recurring quote linked to this
   // invoice on the given period start (timestamp in ms).
   static async syncSubscriptionDay(

@@ -178,6 +178,10 @@ export const InvoicesDefinition: RestTableDefinition = {
       ];
     },
     schema: classToSchema(new Invoices()),
+    // Only the e-invoice transmission writes it: a stale copy saved by a
+    // client (e.g. "pending" saved again once sent) would transmit the
+    // document twice, and a duplicated document would never be sent
+    readonly: ["e_invoice"],
   },
 };
 

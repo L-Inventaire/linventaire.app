@@ -1,5 +1,6 @@
-import { Badge, Tooltip } from "@radix-ui/themes";
+import { Badge, Button, Tooltip } from "@radix-ui/themes";
 import {
+  ArrowPathIcon,
   ClockIcon,
   DocumentCheckIcon,
   DocumentMinusIcon,
@@ -7,6 +8,10 @@ import {
 } from "@heroicons/react/16/solid";
 import { formatDate } from "@features/utils/format/dates";
 import { Invoices } from "../types/types";
+import { InvoicesApiClient } from "../api-client/invoices-api-client";
+import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import toast from "react-hot-toast";
 
 type EInvoice = Invoices["e_invoice"];
 
@@ -116,6 +121,54 @@ export const EInvoiceStatusBadge = ({
         <Icon className="h-3 w-3 inline-block mr-1 -mt-0.5" />
         {display.label}
       </Badge>
+    </Tooltip>
+  );
+};
+
+/**
+ * Discreet button next to the failed badge: transmits the document again
+ * (only a failed transmission can be retried, the server refuses otherwise)
+ */
+export const EInvoiceRetryButton = ({
+  invoice,
+  className,
+}: {
+  invoice: Pick<Invoices, "id" | "client_id" | "e_invoice">;
+  className?: string;
+}) => {
+  const queryClient = useQueryClient();
+  const [loading, setLoading] = useState(false);
+  if (invoice.e_invoice?.status !== "failed") return null;
+
+  return (
+    <Tooltip content="Renvoyer la facture électronique">
+      <Button
+        className={className}
+        size="1"
+        variant="ghost"
+        color="red"
+        loading={loading}
+        onClick={async () => {
+          setLoading(true);
+          try {
+            const { e_invoice } =
+              await InvoicesApiClient.retryEInvoice(invoice);
+            if (e_invoice?.status === "uploaded") {
+              toast.success("Facture électronique envoyée");
+            } else if (e_invoice?.status === "failed") {
+              toast.error("Nouvel échec de la facture électronique");
+            }
+          } catch (e: any) {
+            toast.error(e?.message || "Erreur lors du renvoi");
+          } finally {
+            setLoading(false);
+            queryClient.invalidateQueries({ queryKey: ["invoices"] });
+          }
+        }}
+      >
+        <ArrowPathIcon className="h-3 w-3" />
+        Réessayer
+      </Button>
     </Tooltip>
   );
 };

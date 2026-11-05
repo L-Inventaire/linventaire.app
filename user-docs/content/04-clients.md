@@ -16,7 +16,7 @@ Pour une entreprise, les champs sont **Raison sociale**, **Nom commercial**, **S
 [![Fiche d'un client : identité, coordonnées, compte comptable et relations](images/contact.png)](images/contact.png)
 
 > [!NOTE]
-> Pour les entreprises françaises, le SIREN est nécessaire à la facturation électronique. La fiche indique « Facturation électronique active » ou « inactive ». Dans la liste, un point rouge sur l'icône signale un SIREN manquant, un point jaune un SIREN renseigné mais sans facturation électronique active.
+> Pour les entreprises françaises, le SIREN est nécessaire à la facturation électronique. La fiche indique « Facturation électronique active » ou « inactive ». Dans la liste, un point rouge sur l'icône signale un SIREN manquant, un point jaune un SIREN renseigné mais sans facturation électronique active. Ce statut est vérifié à nouveau automatiquement dans l'annuaire quand un devis ou une facture est créé ou ouvert pour ce client, et avant l'envoi de sa facture électronique (si le SIRET seul ne donne rien, l'entreprise est recherchée par son SIREN et retenue si elle est la seule trouvée).
 
 ## Adresses
 

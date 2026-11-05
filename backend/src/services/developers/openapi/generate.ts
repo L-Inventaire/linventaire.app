@@ -134,6 +134,7 @@ const entitySchemas = (
 ): { read: JsonSchema; write: JsonSchema } => {
   const { definition } = entity;
   const hidden = [...INTERNAL, ...(definition.rest?.hidden || [])];
+  const readOnly = [...READ_ONLY, ...(definition.rest?.readonly || [])];
   const schema = Object.fromEntries(
     Object.entries(definition.rest?.schema || {}).filter(
       ([key]) => !hidden.includes(key)
@@ -153,7 +154,7 @@ const entitySchemas = (
     if (COMMON_DESCRIPTIONS[key]) {
       read.properties[key].description = COMMON_DESCRIPTIONS[key];
     }
-    if (READ_ONLY.includes(key)) read.properties[key].readOnly = true;
+    if (readOnly.includes(key)) read.properties[key].readOnly = true;
   }
   read.properties._label = {
     type: "string",
@@ -169,7 +170,7 @@ const entitySchemas = (
     description: `Champs modifiables d'un document \`${definition.name}\`. Les champs inconnus sont ignorés.`,
     properties: Object.fromEntries(
       Object.entries(read.properties).filter(
-        ([key]) => !READ_ONLY.includes(key) && key !== "_label"
+        ([key]) => !readOnly.includes(key) && key !== "_label"
       )
     ),
   };

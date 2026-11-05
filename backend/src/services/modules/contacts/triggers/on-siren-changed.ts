@@ -1,6 +1,6 @@
 import Framework from "#src/platform/index";
 import Contacts, { ContactsDefinition } from "../entities/contacts";
-import { getFrenchDirectoryEntries } from "../services/french-directory";
+import { findEInvoicesEntry } from "../services/refresh-e-invoices-status";
 
 // This trigger will update e-invoices fields when SIREN changes
 export const setupOnSirenChanged = () => {
@@ -44,12 +44,9 @@ export const setupOnSirenChanged = () => {
       try {
         const db = await Framework.Db.getService();
 
-        // Call the French Directory to get e-invoice entries
-        const entries = await getFrenchDirectoryEntries(ctx, registrationId);
-
-        // Find the first active entry or fallback to first entry
-        const activeEntry = entries.find((e) => e.is_active);
-        const entry = activeEntry || entries[0];
+        // Active entry of the French Directory, else the first one (also
+        // searched by SIREN when the SIRET gives nothing)
+        const entry = await findEInvoicesEntry(ctx, registrationId);
 
         // Update the contact with e-invoicing information
         await db.update<Contacts>(

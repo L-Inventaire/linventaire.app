@@ -148,6 +148,10 @@ Le résultat de la transmission est affiché sur la facture (badge à côté du 
 
 Pour filtrer les factures, tapez **Facture électronique** dans la barre de recherche et choisissez **Envoyée**, **Échec** ou **Non concernée**.
 
+En cas d'échec, corrigez la cause (survolez le badge pour la voir), puis cliquez sur **Réessayer** à côté du badge rouge, en haut de la facture. Seule une facture électronique en échec peut être renvoyée : une facture déjà transmise ne l'est jamais une seconde fois, et **Envoyer de nouveau** ne renvoie que l'email.
+
+Avant la transmission, si la facturation électronique du client n'est pas active, son statut est vérifié à nouveau dans l'annuaire. S'il n'y est toujours pas trouvé actif, la facture électronique n'est pas envoyée et passe en échec.
+
 Par défaut, un échec ne bloque pas l'envoi du document : la facture est envoyée normalement et l'échec est simplement signalé. Pour l'interdire, activez **Bloquer l'envoi en cas d'échec de la facture électronique** dans les paramètres : la facture reste alors en brouillon tant que sa facture électronique n'a pas pu être transmise. Les factures adressées à un client à l'étranger ou à un particulier ne sont jamais bloquées.
 
 ## Compléter (payer) une facture

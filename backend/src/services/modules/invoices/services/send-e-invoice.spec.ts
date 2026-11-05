@@ -1,7 +1,11 @@
 import { beforeEach, describe, expect, jest, test } from "@jest/globals";
 
 const update = jest.fn();
-const getService = jest.fn(async () => ({ update }));
+const selectOne = jest.fn<any>();
+const custom = jest.fn<any>();
+const getService = jest.fn(async () => ({ update, selectOne, custom }));
+const getConfig = jest.fn<any>();
+const refreshContactEInvoicesStatus = jest.fn<any>();
 const createEvent = jest.fn();
 const sendInvoice = jest.fn<any>();
 const getClient = jest.fn(async () => ({ sendInvoice }));
@@ -17,14 +21,25 @@ jest.mock("#src/platform/index", () => ({
 
 jest.mock("#src/services/index", () => ({
   __esModule: true,
-  default: { Comments: { createEvent }, EInvoices: { getClient } },
+  default: {
+    Comments: { createEvent },
+    EInvoices: { getClient, getConfig },
+  },
+}));
+
+jest.mock("../../contacts/services/refresh-e-invoices-status", () => ({
+  refreshContactEInvoicesStatus,
 }));
 
 jest.mock("@sentry/node", () => ({ captureException: jest.fn() }));
 
 jest.mock("./generate-pdf", () => ({ generatePdf }));
 
-import { getEInvoiceSkipReason, sendEInvoice } from "./send-e-invoice";
+import {
+  getEInvoiceSkipReason,
+  retryEInvoice,
+  sendEInvoice,
+} from "./send-e-invoice";
 
 const ctx = { client_id: "cl-1", id: "us-1", role: "USER" } as any;
 const invoice = (extra: any = {}) =>
@@ -80,6 +95,8 @@ describe("sendEInvoice", () => {
     update.mockReset();
     createEvent.mockReset();
     sendInvoice.mockReset();
+    selectOne.mockReset();
+    refreshContactEInvoicesStatus.mockReset();
   });
 
   test("records the success and adds a timeline line", async () => {
@@ -119,5 +136,124 @@ describe("sendEInvoice", () => {
     ).rejects.toThrow(/reste en brouillon : boom/);
     expect(update).not.toHaveBeenCalled();
     expect(createEvent).not.toHaveBeenCalled();
+  });
+});
+
+describe("sendEInvoice - customer e-invoicing status", () => {
+  const customer = (extra: any = {}) => ({
+    id: "co-1",
+    client_id: "cl-1",
+    type: "company",
+    address: { country: "FR" },
+    business_registered_id: "39150621900012",
+    e_invoices_identifier: "0225:391506219",
+    e_invoices_active: false,
+    ...extra,
+  });
+
+  beforeEach(() => {
+    update.mockReset();
+    createEvent.mockReset();
+    sendInvoice.mockReset();
+    selectOne.mockReset();
+    refreshContactEInvoicesStatus.mockReset();
+  });
+
+  test("an inactive customer found active again is sent", async () => {
+    selectOne.mockResolvedValue(customer());
+    refreshContactEInvoicesStatus.mockResolvedValue(
+      customer({ e_invoices_active: true })
+    );
+    sendInvoice.mockResolvedValue({ id: 42 });
+
+    await sendEInvoice(ctx, invoice({ client: "co-1" }));
+
+    expect(refreshContactEInvoicesStatus).toHaveBeenCalledWith(
+      ctx,
+      expect.objectContaining({ id: "co-1" }),
+      { force: true }
+    );
+    expect(sendInvoice).toHaveBeenCalled();
+    expect((update.mock.calls[0][3] as any).e_invoice.status).toBe("uploaded");
+  });
+
+  test("a customer still not active is not sent, it is a failure", async () => {
+    selectOne.mockResolvedValue(customer());
+    refreshContactEInvoicesStatus.mockResolvedValue(customer());
+
+    await sendEInvoice(ctx, invoice({ client: "co-1" }));
+
+    expect(sendInvoice).not.toHaveBeenCalled();
+    const payload = update.mock.calls[0][3] as any;
+    expect(payload.e_invoice.status).toBe("failed");
+    expect(payload.e_invoice.error).toMatch(/annuaire/);
+  });
+
+  test("an active customer is not checked again", async () => {
+    selectOne.mockResolvedValue(customer({ e_invoices_active: true }));
+    sendInvoice.mockResolvedValue({ id: 42 });
+
+    await sendEInvoice(ctx, invoice({ client: "co-1" }));
+
+    expect(refreshContactEInvoicesStatus).not.toHaveBeenCalled();
+    expect(sendInvoice).toHaveBeenCalled();
+  });
+
+  test("a customer without SIREN is not checked (nothing to search)", async () => {
+    selectOne.mockResolvedValue(customer({ business_registered_id: "" }));
+    sendInvoice.mockResolvedValue({ id: 42 });
+
+    await sendEInvoice(ctx, invoice({ client: "co-1" }));
+
+    expect(refreshContactEInvoicesStatus).not.toHaveBeenCalled();
+    expect(sendInvoice).toHaveBeenCalled();
+  });
+});
+
+describe("retryEInvoice", () => {
+  beforeEach(() => {
+    update.mockReset();
+    createEvent.mockReset();
+    sendInvoice.mockReset();
+    selectOne.mockReset();
+    custom.mockReset();
+    getConfig.mockReset();
+    getConfig.mockResolvedValue({ connection_status: "connected" });
+  });
+
+  test("a failed transmission is claimed then sent again", async () => {
+    selectOne.mockImplementation(async (_ctx: any, table: string) =>
+      table === "contacts"
+        ? null
+        : invoice({ state: "sent", e_invoice: { status: "failed" } })
+    );
+    custom.mockResolvedValue({ rows: [{ id: "inv-1" }] });
+    sendInvoice.mockResolvedValue({ id: 42 });
+
+    await retryEInvoice(ctx, "inv-1");
+
+    expect(custom.mock.calls[0][1]).toMatch(/e_invoice->>'status' = 'failed'/);
+    expect(sendInvoice).toHaveBeenCalledTimes(1);
+  });
+
+  test("a transmission that is not failed is never sent twice", async () => {
+    selectOne.mockResolvedValue(
+      invoice({ state: "sent", e_invoice: { status: "uploaded" } })
+    );
+    // The atomic claim only matches failed transmissions
+    custom.mockResolvedValue({ rows: [] });
+
+    await expect(retryEInvoice(ctx, "inv-1")).rejects.toMatchObject({
+      status: 409,
+    });
+    expect(sendInvoice).not.toHaveBeenCalled();
+  });
+
+  test("a draft can't be sent", async () => {
+    selectOne.mockResolvedValue(invoice({ state: "draft" }));
+    await expect(retryEInvoice(ctx, "inv-1")).rejects.toMatchObject({
+      status: 400,
+    });
+    expect(custom).not.toHaveBeenCalled();
   });
 });

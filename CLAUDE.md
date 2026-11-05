@@ -74,6 +74,7 @@ The backend exposes a **generic REST API** (`/api/rest/v1`) that handles all ent
 - Audit trail via the `events` table (before/after snapshots)
 - Comment and notification system integrated per entity
 - Custom field extensions via `fields` table (per-entity configuration)
+- Fields listed in a definition's `rest.readonly` (e.g. `invoices.e_invoice`) are managed by the server only: ignored on REST create/update (a stale copy saved by the frontend must never overwrite them)
 
 **Key Feature:** The REST service automatically generates `display_name` and `searchable` fields for all entities, enabling rich search and UI labeling.
 

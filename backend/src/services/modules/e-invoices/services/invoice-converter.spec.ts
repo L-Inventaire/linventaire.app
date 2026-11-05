@@ -94,6 +94,25 @@ describe("convertInternalToEN16931 VAT breakdown", () => {
     expect(result.vat_break_down[0].vat_category_tax_amount).toBe("16.4");
   });
 
+  test("merges VAT codes with the same category and rate (BR-S-08)", () => {
+    const result = convertInternalToEN16931(
+      buildInvoice({
+        // "20" and "S:20" are both standard rated 20%
+        vat_breakdown: [
+          { tva: "20", taxable_amount: 82, tax_amount: 16.4 },
+          { tva: "S:20", taxable_amount: 0, tax_amount: 0 },
+        ],
+      }),
+      buildResolvedEntities()
+    );
+
+    expect(result.vat_break_down).toHaveLength(1);
+    expect(result.vat_break_down[0].vat_category_code).toBe("S");
+    expect(result.vat_break_down[0].vat_category_rate).toBe("20");
+    expect(result.vat_break_down[0].vat_category_taxable_amount).toBe("82");
+    expect(result.vat_break_down[0].vat_category_tax_amount).toBe("16.4");
+  });
+
   test("derives the VAT breakdown from lines when it is missing (BR-CO-18)", () => {
     const result = convertInternalToEN16931(
       buildInvoice({ vat_breakdown: undefined }),

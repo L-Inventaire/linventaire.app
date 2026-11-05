@@ -354,6 +354,11 @@ export default class DbPostgres implements DbAdapterInterface {
       document = this.prehooks[table](document as RestEntity) as Entity;
     }
 
+    // Every read filters on is_deleted = false: left empty, a row is invisible
+    if (cols.is_deleted && !_.isBoolean(document["is_deleted"])) {
+      document["is_deleted"] = false;
+    }
+
     for (const type of Object.keys(cols)) {
       if (cols[type] === "BIGINT") {
         if (document[type]) {
