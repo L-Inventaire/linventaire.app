@@ -12,6 +12,9 @@ export type TableDefinition = {
     searchable?: (object: any) => string | string[];
     label?: string | ((object: any) => string);
     hidden?: string[];
+    // Fields managed by the server only: ignored when written through the
+    // REST API (create, update)
+    readonly?: string[];
     schema?: Schema;
   };
 };

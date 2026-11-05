@@ -110,4 +110,23 @@ export class ContactsApiClient {
     );
     return await response.json();
   };
+
+  /**
+   * Check again in the directory the e-invoicing status of a contact whose
+   * e-invoicing is not active (throttled by the server)
+   */
+  static refreshEInvoicesStatus = async (
+    clientId: string,
+    contactId: string,
+  ): Promise<{
+    e_invoices_identifier: string;
+    e_invoices_active: boolean;
+    updated: boolean;
+  }> => {
+    const response = await fetchServer(
+      `/api/contacts/v1/clients/${clientId}/contacts/${contactId}/e-invoices-status/refresh`,
+      { method: "POST" },
+    );
+    return await response.json();
+  };
 }

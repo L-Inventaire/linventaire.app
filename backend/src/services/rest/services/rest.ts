@@ -345,7 +345,10 @@ export const create = async <T>(
       : new Date().getTime();
   if (sourceId) await checkSourceIdAvailable(ctx, table, sourceId);
 
-  document = _.pick(document, Object.keys(rest.schema));
+  document = _.omit(
+    _.pick(document, Object.keys(rest.schema)),
+    rest.readonly || []
+  );
 
   document.id = id();
   document.client_id = ctx.client_id;
@@ -387,7 +390,10 @@ export const update = async (
   const driver = await platform.Db.getService();
   const { rest } = Framework.TriggersManager.getEntities()[table];
 
-  document = _.pick(document, Object.keys(rest.schema));
+  document = _.omit(
+    _.pick(document, Object.keys(rest.schema)),
+    rest.readonly || []
+  );
 
   if (!document.id && !query.id)
     throw BadRequestError("Missing id on document for table " + table);

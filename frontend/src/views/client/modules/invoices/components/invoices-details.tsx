@@ -19,7 +19,10 @@ import { Clients } from "@features/clients/types/clients";
 import { useContact, useContacts } from "@features/contacts/hooks/use-contacts";
 import { Contacts } from "@features/contacts/types/types";
 import { useViewWithCtrlK } from "@features/ctrlk/use-edit-from-ctrlk";
-import { EInvoiceStatusBadge } from "@features/invoices/components/e-invoice-status-icon";
+import {
+  EInvoiceRetryButton,
+  EInvoiceStatusBadge,
+} from "@features/invoices/components/e-invoice-status-icon";
 import { InvoicesFieldsNames } from "@features/invoices/configuration";
 import { useEInvoicesReady } from "@features/invoices/hooks/use-e-invoices-ready";
 import { useInvoice, useInvoices } from "@features/invoices/hooks/use-invoices";
@@ -433,6 +436,9 @@ export const InvoicesDetailsPage = ({
                 className="ml-2"
                 eInvoice={draft.e_invoice}
               />
+              {readonly && hasAccess("INVOICES_WRITE") && (
+                <EInvoiceRetryButton className="ml-3 my-auto" invoice={draft} />
+              )}
               <div className="grow" />
               {draft.type === "invoices" && (
                 <TagPaymentCompletion invoice={draft} />

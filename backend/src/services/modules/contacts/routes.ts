@@ -1,3 +1,4 @@
+import Framework from "#src/platform/index";
 import { Router } from "express";
 import { checkClientRoles, checkRole } from "../../common";
 import { Ctx } from "../../utils";
@@ -6,6 +7,8 @@ import {
   searchFrenchDirectoryCompanies,
   getFrenchCompanyBySiren,
 } from "./services/french-directory";
+import { refreshContactEInvoicesStatus } from "./services/refresh-e-invoices-status";
+import Contacts, { ContactsDefinition } from "./entities/contacts";
 
 export default (router: Router) => {
   router.get("/status", (req, res) => {
@@ -70,6 +73,35 @@ export default (router: Router) => {
       } catch (error: any) {
         res.status(500).json({ error: error.message });
       }
+    }
+  );
+
+  // Check again the e-invoicing status of a contact whose e-invoicing is not
+  // active (e.g. when a document is edited for it). Throttled per contact.
+  router.post(
+    "/clients/:clientId/contacts/:id/e-invoices-status/refresh",
+    checkRole("USER"),
+    checkClientRoles(["CONTACTS_READ"]),
+    async (req, res) => {
+      const ctx = Ctx.get(req)!.context;
+      const db = await Framework.Db.getService();
+      const contact = await db.selectOne<Contacts>(
+        ctx,
+        ContactsDefinition.name,
+        { client_id: req.params.clientId, id: req.params.id }
+      );
+      if (!contact) {
+        res.status(404).json({ error: "Not found" });
+        return;
+      }
+      const refreshed = await refreshContactEInvoicesStatus(ctx, contact);
+      res.json({
+        e_invoices_identifier: refreshed.e_invoices_identifier || "",
+        e_invoices_active: !!refreshed.e_invoices_active,
+        updated:
+          refreshed.e_invoices_active !== contact.e_invoices_active ||
+          refreshed.e_invoices_identifier !== contact.e_invoices_identifier,
+      });
     }
   );
 };

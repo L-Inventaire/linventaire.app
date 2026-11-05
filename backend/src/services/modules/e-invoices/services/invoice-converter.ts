@@ -932,6 +932,17 @@ export function convertInternalToEN16931(
   // Use precomputed VAT breakdown
   const vatBreakDown: EN16931VatBreakDown[] = [];
   if (invoice.total?.vat_breakdown) {
+    // Several internal VAT codes can give the same category and rate (e.g.
+    // "20" and "S:20"): there must be a single breakdown per category and rate
+    // (BR-S-08, BR-CO-17...), so they are merged.
+    const groups: {
+      [key: string]: {
+        code: string;
+        rate: number;
+        taxable: number;
+        tax: number;
+      };
+    } = {};
     for (const vb of invoice.total.vat_breakdown) {
       const vatCategoryKey = getVatCode(vb.tva);
       let vatCategoryCode = "S"; // Standard rate
@@ -941,11 +952,23 @@ export function convertInternalToEN16931(
       }
       const vatRate = round2(getTvaValue(vb.tva) * 100);
 
+      const key = `${vatCategoryCode}:${vatRate}`;
+      groups[key] = groups[key] || {
+        code: vatCategoryCode,
+        rate: vatRate,
+        taxable: 0,
+        tax: 0,
+      };
+      groups[key].taxable += vb.taxable_amount || 0;
+      groups[key].tax += vb.tax_amount || 0;
+    }
+
+    for (const group of Object.values(groups)) {
       vatBreakDown.push({
-        vat_category_taxable_amount: amount(vb.taxable_amount),
-        vat_category_tax_amount: amount(vb.tax_amount),
-        vat_category_code: vatCategoryCode,
-        vat_category_rate: vatRate.toString(),
+        vat_category_taxable_amount: amount(group.taxable),
+        vat_category_tax_amount: amount(group.tax),
+        vat_category_code: group.code,
+        vat_category_rate: group.rate.toString(),
       });
     }
   }

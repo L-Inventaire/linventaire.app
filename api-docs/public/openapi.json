@@ -10181,7 +10181,8 @@
                 "description": "Last error message (or reason why it was skipped)"
               }
             },
-            "description": "Transmission to the e-invoicing platform (see on-sent-e-invoice trigger), filterable with e_invoice.status (empty for older documents)"
+            "description": "Transmission to the e-invoicing platform (see on-sent-e-invoice trigger), filterable with e_invoice.status (empty for older documents)",
+            "readOnly": true
           },
           "from_rel_invoice": {
             "type": "array",
@@ -10928,36 +10929,6 @@
               }
             },
             "description": "Extra details about the current state (e.g. email send problems). This is reset automatically whenever the state changes (see the upsert-hook)."
-          },
-          "e_invoice": {
-            "type": "object",
-            "properties": {
-              "status": {
-                "type": "string",
-                "enum": [
-                  "",
-                  "failed",
-                  "pending",
-                  "sending",
-                  "uploaded",
-                  "skipped"
-                ],
-                "description": "Transmission of the document to the e-invoicing platform (SuperPDP). Unlike state_details, this is NOT reset on state changes: an invoice is transmitted once, when it leaves the draft state. \"\"         -> not transmitted (sending disabled, draft, or older document) \"pending\"  -> queued, will be transmitted in a few seconds \"sending\"  -> being transmitted \"uploaded\" -> accepted by SuperPDP, queued for transmission \"failed\"   -> transmission failed (non blocking, see `error`) \"skipped\"  -> not concerned by e-invoicing (customer abroad, private individual...), see `error` for the reason"
-              },
-              "superpdp_id": {
-                "type": "number",
-                "description": "SuperPDP invoice id, used to follow its events"
-              },
-              "sent_at": {
-                "type": "number",
-                "description": "Timestamp of the last transmission attempt"
-              },
-              "error": {
-                "type": "string",
-                "description": "Last error message (or reason why it was skipped)"
-              }
-            },
-            "description": "Transmission to the e-invoicing platform (see on-sent-e-invoice trigger), filterable with e_invoice.status (empty for older documents)"
           },
           "from_rel_invoice": {
             "type": "array",

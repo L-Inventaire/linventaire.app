@@ -19,6 +19,7 @@ import {
   furnishInvoices,
 } from "./services/furnish-invoices";
 import { generatePdf, sendPdf } from "./services/generate-pdf";
+import { retryEInvoice } from "./services/send-e-invoice";
 import { getPdfContentDisposition } from "./services/utils";
 import {
   deprecatedVatCodes,
@@ -134,6 +135,17 @@ export const registerRoutes = (router: Router) => {
       });
 
       res.send({ ok: true });
+    }
+  );
+
+  // Retry a failed e-invoice transmission (never sends a document twice)
+  router.post(
+    "/:clientId/invoice/:id/e-invoice/retry",
+    checkRole("USER"),
+    checkClientRoles(["INVOICES_WRITE"]),
+    async (req, res) => {
+      const ctx = Ctx.get(req)!.context;
+      res.json({ e_invoice: await retryEInvoice(ctx, req.params.id) });
     }
   );
 

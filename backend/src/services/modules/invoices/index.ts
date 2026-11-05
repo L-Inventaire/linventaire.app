@@ -9,6 +9,7 @@ import { registerRoutes } from "./routes";
 import { setCheckIsCompleteTrigger } from "./triggers/on-complete";
 import { setOnCompletedCreateInvoicesTrigger } from "./triggers/on-completed-create-invoices";
 import { setOnSentEInvoiceTrigger } from "./triggers/on-sent-e-invoice";
+import { setOnClientSetRefreshEInvoicesTrigger } from "./triggers/on-client-set-refresh-e-invoices";
 import { processPendingEInvoices } from "./services/send-e-invoice";
 import { setOnSentAccountingExportTrigger } from "./triggers/on-sent-accounting-export";
 import { processPendingAccountingExports } from "./services/accounting-email-export";
@@ -96,6 +97,7 @@ export default class Invoices implements InternalApplicationService {
     setOnPaymentDelayChanged();
     setOnCompletedCreateInvoicesTrigger();
     setOnSentEInvoiceTrigger();
+    setOnClientSetRefreshEInvoicesTrigger();
     setOnSentAccountingExportTrigger();
     setStatusTrigger();
 
