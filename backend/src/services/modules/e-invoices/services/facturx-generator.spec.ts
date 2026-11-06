@@ -320,6 +320,70 @@ describe("generateFacturXPdf errors", () => {
     expect(getEN16931InvoiceFromError(error)?.number).toBe("FAC/2026/00003");
     expect(getEN16931InvoiceFromError(new Error("other"))).toBeUndefined();
   });
+
+  test("a credit note sent to SuperPDP references the invoice it corrects (BR-FR-CO-05)", async () => {
+    const client = {
+      business_name: "ACME",
+      address: { address_line_1: "1 rue", city: "Paris", zip: "75001" },
+      invoices: {},
+    } as unknown as Contacts;
+    const articles = new Map<string, Articles>();
+    articles.set("article-1", { id: "article-1", name: "A" } as Articles);
+    jest.spyOn(converter, "getResolvedEntities").mockResolvedValue({
+      self: {
+        company: { name: "Proxima", registration_number: "527830681" },
+        address: { address_line_1: "44", city: "FLOURENS", zip: "31130" },
+        invoices: {},
+      } as unknown as Clients,
+      client,
+      supplier: client,
+      articles,
+      precedingInvoices: [
+        {
+          reference: "FAC/2026/02182",
+          emit_date: Date.UTC(2026, 7, 31, 12),
+          state: "sent",
+        } as any,
+      ],
+    });
+
+    const invoice = {
+      type: "credit_notes",
+      reference: "FAC/2026/02775",
+      currency: "EUR",
+      emit_date: "2026-10-31",
+      from_rel_invoice: ["inv-0"],
+      payment_information: { mode: "" },
+      content: [
+        {
+          article: "article-1",
+          name: "Service",
+          quantity: 1,
+          unit_price: 100,
+          tva: "20",
+          discount: { mode: "amount", value: 0 },
+        },
+      ],
+    } as unknown as Invoices;
+    invoice.total = computePricesFromInvoice(invoice);
+
+    const convertToFacturX = jest.fn(async () => Buffer.from("pdf"));
+    await generateFacturXPdf(
+      { client_id: "c1" } as any,
+      Buffer.from(""),
+      invoice,
+      { convertToFacturX } as unknown as SuperPDPClient,
+      undefined,
+      invoice.total,
+      { remote: true }
+    );
+
+    const sent = (convertToFacturX.mock.calls[0] as any[])[1];
+    expect(sent.type_code).toBe(381);
+    expect(sent.preceding_invoice_references).toEqual([
+      { reference: "FAC/2026/02182", issue_date: "2026-08-31" },
+    ]);
+  });
 });
 
 describe("getFacturXXml", () => {
