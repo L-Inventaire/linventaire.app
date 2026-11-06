@@ -129,6 +129,23 @@ describe("sendEInvoice", () => {
     expect((update.mock.calls[0][3] as any).e_invoice.status).toBe("failed");
   });
 
+  test("a credit note without corrected invoice is a clear failure", async () => {
+    await sendEInvoice(ctx, invoice({ type: "credit_notes" }));
+    expect(sendInvoice).not.toHaveBeenCalled();
+    const payload = update.mock.calls[0][3] as any;
+    expect(payload.e_invoice.status).toBe("failed");
+    expect(payload.e_invoice.error).toMatch(/Facture d'origine/);
+  });
+
+  test("a credit note linked to its invoice is sent", async () => {
+    sendInvoice.mockResolvedValue({ id: 7 });
+    await sendEInvoice(
+      ctx,
+      invoice({ type: "credit_notes", from_rel_invoice: ["inv-0"] })
+    );
+    expect(sendInvoice).toHaveBeenCalled();
+  });
+
   test("blocking: throws and records nothing", async () => {
     sendInvoice.mockRejectedValue(new Error("boom"));
     await expect(

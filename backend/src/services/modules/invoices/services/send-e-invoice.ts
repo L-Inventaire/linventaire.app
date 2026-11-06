@@ -125,6 +125,16 @@ const uploadEInvoice = async (ctx: Context, invoice: Invoices) => {
     );
   }
 
+  // BR-FR-CO-05: a credit note must reference the invoice it corrects
+  if (
+    invoice.type === "credit_notes" &&
+    !(invoice.from_rel_invoice || []).filter(Boolean).length
+  ) {
+    throw new Error(
+      "L'avoir doit être lié à la facture qu'il corrige (champ « Facture d'origine ») pour être transmis en facture électronique."
+    );
+  }
+
   await checkCustomerEInvoicesActive(ctx, invoice);
 
   const { pdf } = await generatePdf(ctx, invoice, {

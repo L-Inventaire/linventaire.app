@@ -24,6 +24,7 @@ import Contacts, { ContactsDefinition } from "../../contacts/entities/contacts";
 import Invoices, {
   InvoiceDiscount,
   InvoiceLine,
+  InvoicesDefinition,
 } from "../../invoices/entities/invoices";
 import { getInvoiceWithFormatsOverrides } from "../../invoices/services/utils";
 
@@ -92,6 +93,9 @@ export interface ResolvedEntities {
   // Used for the lines without a matching article: the line keeps its own
   // name and price and is converted to a service so it doesn't touch the stock
   defaultArticle?: Articles;
+  // Invoices corrected by a credit note (from_rel_invoice), used for the
+  // preceding invoice references (BT-25 / BT-26)
+  precedingInvoices?: Pick<Invoices, "reference" | "emit_date" | "state">[];
   self: Clients;
 }
 
@@ -497,11 +501,26 @@ export async function getResolvedEntities(
     throw new Error("Contact not found for the invoice");
   }
 
+  // A credit note must reference the invoice(s) it corrects (BR-FR-CO-05)
+  const precedingIds = document.type?.includes("credit_note")
+    ? _.uniq((document.from_rel_invoice || []).filter(Boolean))
+    : [];
+  const precedingInvoices = precedingIds.length
+    ? (
+        await search<Invoices>(
+          { ...ctx, role: "SYSTEM" },
+          InvoicesDefinition.name,
+          { client_id: ctx.client_id, id: precedingIds }
+        )
+      ).list
+    : [];
+
   return {
     self: client,
     client: contacts.list[0],
     supplier: contacts.list[0],
     articles: articlesMap,
+    precedingInvoices,
   };
 }
 
@@ -1116,6 +1135,21 @@ export function convertInternalToEN16931(
   const formatDate = (date: number | string | Date) =>
     formatDateInTimezone(date, timezone);
 
+  // BR-FR-CO-05: a credit note must reference the invoice(s) it corrects
+  // (BT-25) with their issue date (BT-26)
+  const precedingInvoiceReferences =
+    typeCode === 381
+      ? _.uniqBy(
+          (resolvedEntities.precedingInvoices || [])
+            .filter((p) => p.reference && p.emit_date && p.state !== "draft")
+            .map((p) => ({
+              reference: p.reference,
+              issue_date: formatDate(p.emit_date),
+            })),
+          "reference"
+        )
+      : [];
+
   // Build EN16931 invoice
   const en16931Invoice: EN16931Invoice = {
     process_control: {
@@ -1130,6 +1164,10 @@ export function convertInternalToEN16931(
     type_code: typeCode,
     currency_code: currencyCode,
     buyer_reference: invoice.alt_reference || undefined,
+    preceding_invoice_references:
+      precedingInvoiceReferences.length > 0
+        ? precedingInvoiceReferences
+        : undefined,
     notes: invoiceNotes.length > 0 ? invoiceNotes : undefined,
     invoicing_period:
       invoice.from_subscription?.from &&

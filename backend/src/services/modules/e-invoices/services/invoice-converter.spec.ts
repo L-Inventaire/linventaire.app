@@ -895,3 +895,41 @@ describe("convertEN16931ToInternal - received invoices", () => {
     expect(invoice.content).toHaveLength(1);
   });
 });
+
+describe("convertInternalToEN16931 credit notes", () => {
+  const creditNote = () =>
+    ({
+      ...buildInvoice({ vat_breakdown: [] }),
+      type: "credit_notes",
+      reference: "AV/2026/00001",
+      emit_date: Date.UTC(2026, 9, 31, 12),
+    } as unknown as Invoices);
+
+  test("references the corrected invoices with their date (BR-FR-CO-05)", () => {
+    const result = convertInternalToEN16931(creditNote(), {
+      ...buildResolvedEntities(),
+      precedingInvoices: [
+        {
+          reference: "FAC/2026/02775",
+          emit_date: Date.UTC(2026, 8, 15, 12),
+          state: "sent",
+        },
+        { reference: "", emit_date: Date.UTC(2026, 8, 15), state: "draft" },
+      ] as any,
+    });
+    expect(result.type_code).toBe(381);
+    expect(result.preceding_invoice_references).toEqual([
+      { reference: "FAC/2026/02775", issue_date: "2026-09-15" },
+    ]);
+  });
+
+  test("invoices have no preceding invoice reference", () => {
+    const result = convertInternalToEN16931(buildInvoice({}), {
+      ...buildResolvedEntities(),
+      precedingInvoices: [
+        { reference: "FAC/1", emit_date: Date.now(), state: "sent" },
+      ] as any,
+    });
+    expect(result.preceding_invoice_references).toBeUndefined();
+  });
+});
