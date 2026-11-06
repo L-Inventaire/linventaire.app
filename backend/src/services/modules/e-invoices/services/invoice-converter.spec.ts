@@ -1,4 +1,6 @@
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, jest, test } from "@jest/globals";
+import Framework from "#src/platform/index";
+import Services from "#src/services/index";
 import Clients from "#src/services/clients/entities/clients";
 import Contacts from "../../contacts/entities/contacts";
 import Articles from "../../articles/entities/articles";
@@ -11,6 +13,7 @@ import {
   buildPaymentInstructions,
   convertEN16931ToInternal,
   convertInternalToEN16931,
+  getResolvedEntities,
   ResolvedEntities,
 } from "./invoice-converter";
 
@@ -931,5 +934,46 @@ describe("convertInternalToEN16931 credit notes", () => {
       ] as any,
     });
     expect(result.preceding_invoice_references).toBeUndefined();
+  });
+});
+
+describe("convertInternalToEN16931 articles", () => {
+  test("a line whose article is gone keeps its own data", () => {
+    const entities = { ...buildResolvedEntities(), articles: new Map() };
+    const result = convertInternalToEN16931(buildInvoice({}), entities);
+    expect(result.lines).toHaveLength(1);
+    expect(result.lines[0].item_information.name).toBe("Reset password");
+    expect(result.lines[0].item_information.buyer_identifier).toBeUndefined();
+  });
+});
+
+describe("getResolvedEntities", () => {
+  test("reads the articles, contact and corrected invoices by id, deleted ones included", async () => {
+    const select = jest.fn(async (_ctx: any, table: string) =>
+      table === "articles"
+        ? [{ id: "art-1", is_deleted: true }]
+        : table === "contacts"
+          ? [{ id: "co-1" }]
+          : [{ id: "inv-0", reference: "FAC/1" }],
+    );
+    (Framework as any).Db = { getService: async () => ({ select }) };
+    Services.Clients = { getClient: jest.fn(async () => ({ id: "cl-1" })) } as any;
+
+    const result = await getResolvedEntities({ client_id: "cl-1" } as any, {
+      type: "credit_notes",
+      client: "co-1",
+      from_rel_invoice: ["inv-0"],
+      content: [{ article: "art-1" }, { article: "art-1" }, { article: "" }],
+    } as any);
+
+    expect(result.articles.get("art-1")).toBeDefined();
+    expect(result.client?.id).toBe("co-1");
+    expect(result.precedingInvoices?.[0].reference).toBe("FAC/1");
+    for (const call of select.mock.calls as any[]) {
+      expect(call[2].client_id).toBe("cl-1");
+      expect((call as any)[3]).toEqual({ include_deleted: true });
+    }
+    expect((select.mock.calls as any[]).find((c) => c[1] === "articles")[2].id)
+      .toEqual(["art-1"]);
   });
 });
