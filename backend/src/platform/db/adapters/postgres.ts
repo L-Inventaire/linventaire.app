@@ -183,6 +183,29 @@ export default class DbPostgres implements DbAdapterInterface {
       }
     }
 
+    // Every read filters on is_deleted = false: a row left empty (inserted
+    // without this field, e.g. by the file import before it was always set)
+    // can be opened from a link but is missing everywhere else, trash
+    // included. Repaired at start, and the column defaults to false.
+    if (columns.some((c) => c.name === "is_deleted")) {
+      await this.query(
+        null,
+        this.client,
+        `ALTER TABLE ${name} ALTER COLUMN is_deleted SET DEFAULT false`
+      );
+      const repaired = await this.query(
+        null,
+        this.client,
+        `UPDATE ${name} SET is_deleted = false WHERE is_deleted IS NULL`
+      );
+      if (repaired?.rowCount) {
+        this.logger.info(
+          null,
+          `${repaired.rowCount} rows of ${name} without is_deleted set to false`
+        );
+      }
+    }
+
     if (indexes) {
       for (const indexDef of indexes) {
         if (typeof indexDef === "object") {
