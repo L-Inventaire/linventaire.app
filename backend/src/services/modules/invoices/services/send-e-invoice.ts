@@ -10,6 +10,10 @@ import {
 import { captureException } from "@sentry/node";
 import Contacts, { ContactsDefinition } from "../../contacts/entities/contacts";
 import { refreshContactEInvoicesStatus } from "../../contacts/services/refresh-e-invoices-status";
+import {
+  convertInternalToEN16931,
+  getResolvedEntities,
+} from "../../e-invoices/services/invoice-converter";
 import Invoices, { InvoicesDefinition } from "../entities/invoices";
 import { generatePdf } from "./generate-pdf";
 
@@ -117,14 +121,6 @@ const checkCustomerEInvoicesActive = async (
  * e-invoicing platform (SuperPDP). Throws on failure, records nothing.
  */
 const uploadEInvoice = async (ctx: Context, invoice: Invoices) => {
-  // en16931 is only set by the upsert-hook once SuperPDP validated it
-  // (validation_reports), so no need to send an invoice we know is invalid.
-  if (!invoice.en16931) {
-    throw new Error(
-      "La facture n'a pas pu être validée au format EN16931 (informations manquantes ou invalides)."
-    );
-  }
-
   // BR-FR-CO-05: a credit note must reference the invoice it corrects
   if (
     invoice.type === "credit_notes" &&
@@ -133,6 +129,26 @@ const uploadEInvoice = async (ctx: Context, invoice: Invoices) => {
     throw new Error(
       "L'avoir doit être lié à la facture qu'il corrige (champ « Facture d'origine ») pour être transmis en facture électronique."
     );
+  }
+
+  // en16931 is only set by the upsert-hook once SuperPDP validated it, but a
+  // null value can be stale (computed before a fix of the conversion, or
+  // SuperPDP unreachable at that time) and never says why. Convert again to
+  // report the actual reason; if the conversion works, SuperPDP checks the
+  // e-invoice when building it and refuses it with the exact rule.
+  if (!invoice.en16931) {
+    try {
+      convertInternalToEN16931(
+        invoice,
+        await getResolvedEntities(ctx, invoice)
+      );
+    } catch (e: any) {
+      throw new Error(
+        `La facture n'a pas pu être convertie au format EN16931 : ${
+          e?.message || String(e)
+        }`
+      );
+    }
   }
 
   await checkCustomerEInvoicesActive(ctx, invoice);

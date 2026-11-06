@@ -260,17 +260,16 @@ export async function generateFacturXPdf(
     return pdfBuffer; // For now, just return the original PDF for unsupported types
   }
 
-  const { self, client, supplier, articles } = await getResolvedEntities(
-    ctx,
-    invoice
-  );
+  const resolved = await getResolvedEntities(ctx, invoice);
 
-  // Prepare resolved entities for conversion
+  // Prepare resolved entities for conversion (keeps the preceding invoices of
+  // a credit note: without them BT-25 is missing, BR-FR-CO-05)
   const resolvedEntities: ResolvedEntities = {
-    supplier: invoice.type.startsWith("supplier_") ? supplier : undefined,
-    client: !invoice.type.startsWith("supplier_") ? client : undefined,
-    articles,
-    self,
+    ...resolved,
+    supplier: invoice.type.startsWith("supplier_")
+      ? resolved.supplier
+      : undefined,
+    client: !invoice.type.startsWith("supplier_") ? resolved.client : undefined,
   };
 
   // Convert internal invoice to EN16931 format

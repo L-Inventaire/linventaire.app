@@ -35,6 +35,12 @@ jest.mock("@sentry/node", () => ({ captureException: jest.fn() }));
 
 jest.mock("./generate-pdf", () => ({ generatePdf }));
 
+const convertInternalToEN16931 = jest.fn<any>(() => ({}));
+jest.mock("../../e-invoices/services/invoice-converter", () => ({
+  convertInternalToEN16931,
+  getResolvedEntities: jest.fn(async () => ({})),
+}));
+
 import {
   getEInvoiceSkipReason,
   retryEInvoice,
@@ -123,10 +129,22 @@ describe("sendEInvoice", () => {
     expect(event.metadata.event_type).toBe("e_invoice_failed");
   });
 
-  test("non blocking: an invalid EN16931 is a failure", async () => {
+  test("non blocking: an EN16931 conversion error is a failure with its reason", async () => {
+    convertInternalToEN16931.mockImplementationOnce(() => {
+      throw new Error("Article not found: art-1");
+    });
     await sendEInvoice(ctx, invoice({ en16931: null }));
     expect(sendInvoice).not.toHaveBeenCalled();
-    expect((update.mock.calls[0][3] as any).e_invoice.status).toBe("failed");
+    const payload = update.mock.calls[0][3] as any;
+    expect(payload.e_invoice.status).toBe("failed");
+    expect(payload.e_invoice.error).toMatch(/Article not found: art-1/);
+  });
+
+  test("a stale empty EN16931 is converted again and sent", async () => {
+    sendInvoice.mockResolvedValue({ id: 8 });
+    await sendEInvoice(ctx, invoice({ en16931: null }));
+    expect(sendInvoice).toHaveBeenCalled();
+    expect((update.mock.calls[0][3] as any).e_invoice.status).toBe("uploaded");
   });
 
   test("a credit note without corrected invoice is a clear failure", async () => {
