@@ -1,6 +1,6 @@
 import Clients, { Address } from "#src/services/clients/entities/clients";
 import Services from "#src/services/index";
-import { search } from "#src/services/rest/services/rest";
+import Framework from "#src/platform/index";
 import {
   formatDateInTimezone,
   getContactName,
@@ -467,29 +467,45 @@ function getUndetailedAmounts(
     .filter((gap) => Math.abs(gap.amount) >= 0.01);
 }
 
+/**
+ * Rows of a table by ids, deleted ones included: a document keeps referencing
+ * an article, a contact or an invoice sent to the trash afterwards (the PDF
+ * still prints it). The REST search can't be used here: it drops deleted rows
+ * and returns at most 25 of them.
+ */
+const selectByIds = async <T>(
+  ctx: Context,
+  table: string,
+  ids: string[]
+): Promise<T[]> => {
+  if (!ids.length) return [];
+  const db = await Framework.Db.getService();
+  return await db.select<T>(
+    { ...ctx, role: "SYSTEM" },
+    table,
+    { client_id: ctx.client_id, id: ids } as any,
+    { include_deleted: true }
+  );
+};
+
 export async function getResolvedEntities(
   ctx: Context,
   document: Invoices
 ): Promise<ResolvedEntities> {
   const client = await Services.Clients.getClient(ctx, ctx.client_id);
-  const contacts = await search<Contacts>(
-    { ...ctx, role: "SYSTEM" },
+  const partnerId = document.client || document.supplier;
+  const [contact] = await selectByIds<Contacts>(
+    ctx,
     ContactsDefinition.name,
-    {
-      client_id: ctx.client_id,
-      id: document.client || document.supplier,
-    }
+    partnerId ? [partnerId] : []
   );
-  const articles = await search<Articles>(
-    { ...ctx, role: "SYSTEM" },
+  const articles = await selectByIds<Articles>(
+    ctx,
     ArticlesDefinition.name,
-    {
-      client_id: ctx.client_id,
-      id: _.uniq(document.content?.map((c) => c.article).filter(Boolean) || []),
-    }
+    _.uniq(document.content?.map((c) => c.article).filter(Boolean) || [])
   );
   const articlesMap = new Map<string, Articles>();
-  for (const article of articles.list) {
+  for (const article of articles) {
     articlesMap.set(article.id, article);
   }
 
@@ -497,28 +513,23 @@ export async function getResolvedEntities(
     throw new Error("Client not found for the invoice");
   }
 
-  if (!contacts?.list?.[0]) {
+  if (!contact) {
     throw new Error("Contact not found for the invoice");
   }
 
   // A credit note must reference the invoice(s) it corrects (BR-FR-CO-05)
-  const precedingIds = document.type?.includes("credit_note")
-    ? _.uniq((document.from_rel_invoice || []).filter(Boolean))
-    : [];
-  const precedingInvoices = precedingIds.length
-    ? (
-        await search<Invoices>(
-          { ...ctx, role: "SYSTEM" },
-          InvoicesDefinition.name,
-          { client_id: ctx.client_id, id: precedingIds }
-        )
-      ).list
+  const precedingInvoices = document.type?.includes("credit_note")
+    ? await selectByIds<Invoices>(
+        ctx,
+        InvoicesDefinition.name,
+        _.uniq((document.from_rel_invoice || []).filter(Boolean))
+      )
     : [];
 
   return {
     self: client,
-    client: contacts.list[0],
-    supplier: contacts.list[0],
+    client: contact,
+    supplier: contact,
     articles: articlesMap,
     precedingInvoices,
   };
@@ -794,13 +805,11 @@ export function convertInternalToEN16931(
     if (line.type === "group" || line.type === "separation") return;
     if (line.optional && !line.optional_checked) return;
 
-    // Articles are optional (e.g. correction lines)
+    // Articles are optional (e.g. correction lines): the line carries its own
+    // name, price and VAT, the article only gives the buyer identifier
     const article = line.article
       ? resolvedEntities.articles.get(line.article)
       : undefined;
-    if (line.article && !article) {
-      throw new Error(`Article not found: ${line.article}`);
-    }
 
     // Same default as computePricesFromInvoice
     line = { ...line, tva: line.tva || "O:VATEX-EU-O" };
