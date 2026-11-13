@@ -14,6 +14,7 @@ import {
   convertEN16931ToInternal,
   convertInternalToEN16931,
   getResolvedEntities,
+  normalizeCountryCode,
   ResolvedEntities,
 } from "./invoice-converter";
 
@@ -469,6 +470,41 @@ describe("convertInternalToEN16931 delivery information", () => {
     expect(result.delivery_information?.delivery_date).toBe(
       "2025-06-15"
     );
+  });
+
+  // Legacy addresses (copied from old quotes) store "FR-FR": refused by the
+  // CII validation ("Value of 'ram:CountryID' is not allowed").
+  test("sends ISO 3166-1 alpha-2 country codes", () => {
+    const entities = buildResolvedEntities();
+    entities.client!.address.country = "fr-FR";
+    entities.self.address.country = "FR-FR";
+    const invoice = {
+      ...buildInvoice({
+        vat_breakdown: [{ tva: "20", taxable_amount: 82, tax_amount: 16.4 }],
+      }),
+      delivery_address: {
+        address_line_1: "14 rue de rimont",
+        city: "Toulouse",
+        zip: "31100",
+        country: "FR-FR",
+      },
+    } as unknown as Invoices;
+
+    const result = convertInternalToEN16931(invoice, entities);
+
+    expect(result.deliver_to_address?.country_code).toBe("FR");
+    expect(result.buyer.postal_address.country_code).toBe("FR");
+    expect(result.seller.postal_address.country_code).toBe("FR");
+  });
+
+  test.each([
+    ["FR-FR", "FR"],
+    ["be", "BE"],
+    ["", "FR"],
+    [undefined, "FR"],
+    ["1", "FR"],
+  ])("normalizeCountryCode(%p) = %p", (input, expected) => {
+    expect(normalizeCountryCode(input)).toBe(expected);
   });
 });
 
