@@ -7,6 +7,7 @@ import {
   createContext,
   NotFoundError,
 } from "#src/types";
+import { parseCountryCode } from "@shared/countries";
 import { captureException } from "@sentry/node";
 import Contacts, { ContactsDefinition } from "../../contacts/entities/contacts";
 import { refreshContactEInvoicesStatus } from "../../contacts/services/refresh-e-invoices-status";
@@ -25,6 +26,10 @@ type EInvoice = NonNullable<Invoices["e_invoice"]>;
  * there is nothing to transmit: e-reporting is not handled here. Such
  * documents must never be blocked.
  *
+ * A customer is only considered abroad when its country is recognized for sure
+ * and is not France: a country that is not recognized is not skipped, its
+ * transmission fails with the reason (see checkCustomer).
+ *
  * Returns the reason why the document is not concerned, or null.
  */
 export const getEInvoiceSkipReason = (
@@ -36,8 +41,8 @@ export const getEInvoiceSkipReason = (
     return "Client particulier : document non concerné par la facturation électronique.";
   }
 
-  const country = (customer.address?.country || "").trim().toUpperCase();
-  if (country && country !== "FR" && country !== "FRANCE") {
+  const country = parseCountryCode(customer.address?.country);
+  if (country && country !== "FR") {
     return "Client établi hors de France : document non concerné par la facturation électronique.";
   }
 
@@ -79,24 +84,31 @@ const addTimelineEvent = async (
 };
 
 /**
- * The customer must be able to receive e-invoices: a French company with a
- * SIREN / SIRET whose e-invoicing is not active is checked again in the
- * directory (its status is only computed when the SIREN changes), and the
- * e-invoice is not sent if it is still not found active.
+ * The customer must be able to receive e-invoices:
+ * - its country must be recognized (never guessed: an unknown country is not
+ *   taken for a foreign one, the user must fix the address),
+ * - a French company with a SIREN / SIRET whose e-invoicing is not active is
+ *   checked again in the directory (its status is only computed when the
+ *   SIREN changes), and the e-invoice is not sent if it is still not found
+ *   active.
  *
  * Without SIREN nothing is checked here (the conversion reports it), and a
  * customer not concerned (abroad, private individual) is skipped beforehand.
  */
-const checkCustomerEInvoicesActive = async (
-  ctx: Context,
-  invoice: Invoices
-) => {
+const checkCustomer = async (ctx: Context, invoice: Invoices) => {
   if (!invoice.client) return;
   const db = await Framework.Db.getService();
   const customer = await db.selectOne<Contacts>(ctx, ContactsDefinition.name, {
     client_id: invoice.client_id,
     id: invoice.client,
   });
+  if (customer && parseCountryCode(customer.address?.country) === null) {
+    throw new Error(
+      `Pays du client non reconnu (« ${(
+        customer.address?.country || ""
+      ).trim()} ») : corrigez le pays de son adresse depuis sa fiche contact.`
+    );
+  }
   if (
     !customer ||
     getEInvoiceSkipReason(customer) ||
@@ -136,6 +148,9 @@ const uploadEInvoice = async (ctx: Context, invoice: Invoices) => {
   // SuperPDP unreachable at that time) and never says why. Convert again to
   // report the actual reason; if the conversion works, SuperPDP checks the
   // e-invoice when building it and refuses it with the exact rule.
+  // Before the conversion: the clearest reason for an unknown country
+  await checkCustomer(ctx, invoice);
+
   if (!invoice.en16931) {
     try {
       convertInternalToEN16931(
@@ -150,8 +165,6 @@ const uploadEInvoice = async (ctx: Context, invoice: Invoices) => {
       );
     }
   }
-
-  await checkCustomerEInvoicesActive(ctx, invoice);
 
   const { pdf } = await generatePdf(ctx, invoice, {
     checkedIndexes: {},

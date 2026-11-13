@@ -1,5 +1,6 @@
 import Framework from "#src/platform/index";
 import { Context, createContext } from "#src/types";
+import { parseCountryCode } from "@shared/countries";
 import Contacts, { ContactsDefinition } from "../entities/contacts";
 import {
   getFrenchDirectoryEntries,
@@ -29,8 +30,9 @@ export const needsEInvoicesStatusRefresh = (
 ): contact is ContactEInvoicesFields => {
   if (!contact?.id || !contact.client_id) return false;
   if (contact.type === "person") return false;
-  const country = (contact.address?.country || "").trim().toUpperCase();
-  if (country && country !== "FR" && country !== "FRANCE") return false;
+  // Abroad only when the country is recognized for sure (see parseCountryCode)
+  const country = parseCountryCode(contact.address?.country);
+  if (country && country !== "FR") return false;
   return !!contact.business_registered_id?.trim() && !contact.e_invoices_active;
 };
 

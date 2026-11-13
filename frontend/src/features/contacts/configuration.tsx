@@ -19,6 +19,7 @@ import { ContactsDetailsPage } from "@views/client/modules/contacts/components/c
 import { Contacts, getContactName } from "./types/types";
 import { setDefaultRestActions } from "../utils/rest/utils";
 import { twMerge } from "tailwind-merge";
+import { parseCountryCode } from "@shared/countries";
 
 export const useContactDefaultModel: () => Partial<Contacts> = () => ({
   type: "company",
@@ -196,12 +197,13 @@ export const ContactsFieldsNames = () => ({
 /**
  * French e-invoicing only concerns companies established in France: a
  * customer abroad or a private individual is not concerned (and must never be
- * blocked). Same rule as getEInvoiceSkipReason in the backend.
+ * blocked). Same rule as getEInvoiceSkipReason in the backend: a country that
+ * is not recognized is not taken for a foreign one (the contact is not ready).
  */
 export const isContactConcernedByEInvoicing = (contact: Contacts) => {
   if (contact.type === "person") return false;
-  const country = (contact.address?.country || "").trim().toUpperCase();
-  return !country || country === "FR" || country === "FRANCE";
+  const country = parseCountryCode(contact.address?.country);
+  return country === null || !country || country === "FR";
 };
 
 export const isContactReady = (contact: Contacts) => {
