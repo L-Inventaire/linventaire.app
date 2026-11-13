@@ -499,12 +499,33 @@ describe("convertInternalToEN16931 delivery information", () => {
 
   test.each([
     ["FR-FR", "FR"],
+    ["BE-BE", "BE"],
     ["be", "BE"],
+    [" FR ", "FR"],
     ["", "FR"],
     [undefined, "FR"],
-    ["1", "FR"],
   ])("normalizeCountryCode(%p) = %p", (input, expected) => {
     expect(normalizeCountryCode(input)).toBe(expected);
+  });
+
+  // Never guessed: "Allemagne" must not become "AL" (Albania), nor "1" France
+  test.each(["1", "France", "Allemagne", "FR-BE", "XX", "FRA"])(
+    "normalizeCountryCode(%p) is an error",
+    (input) => {
+      expect(() => normalizeCountryCode(input)).toThrow(/Pays non reconnu/);
+    }
+  );
+
+  test("an unknown buyer country is a conversion error", () => {
+    const entities = buildResolvedEntities();
+    entities.client!.address.country = "Allemagne";
+    const invoice = buildInvoice({
+      vat_breakdown: [{ tva: "20", taxable_amount: 82, tax_amount: 16.4 }],
+    }) as unknown as Invoices;
+
+    expect(() => convertInternalToEN16931(invoice, entities)).toThrow(
+      /Pays non reconnu.*Allemagne/
+    );
   });
 });
 

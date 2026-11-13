@@ -7,6 +7,7 @@ import {
 } from "#src/services/utils";
 import { Context } from "#src/types";
 import { getUnitCode, getVatCode, normalizeUnitCode } from "@shared/consts";
+import { parseCountryCode, unknownCountryError } from "@shared/countries";
 import {
   EN16931AllowanceOrCharge,
   EN16931Buyer,
@@ -581,11 +582,13 @@ function parseElectronicAddress(
 /**
  * Normalize a stored country to an ISO 3166-1 alpha-2 code (BT-40, BT-55,
  * BT-80). Legacy addresses store locale-like values ("FR-FR", "fr"), which
- * the CII validation refuses.
+ * the CII validation refuses. An address without country is in France, and a
+ * country that is not recognized is an error: it is never guessed.
  */
 export function normalizeCountryCode(country?: string | null): string {
-  const code = (country || "").trim().substring(0, 2).toUpperCase();
-  return /^[A-Z]{2}$/.test(code) ? code : "FR";
+  const code = parseCountryCode(country);
+  if (code === null) throw new Error(unknownCountryError(country));
+  return code || "FR";
 }
 
 /**

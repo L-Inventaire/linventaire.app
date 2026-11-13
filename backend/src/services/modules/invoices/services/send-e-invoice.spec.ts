@@ -73,14 +73,27 @@ describe("getEInvoiceSkipReason", () => {
     ).toBeNull();
   });
 
-  test("a customer abroad is skipped", () => {
+  test.each(["BE", "BE-BE", "de"])("a customer in %p is skipped", (country) => {
     expect(
-      getEInvoiceSkipReason({
-        type: "company",
-        address: { country: "BE" },
-      } as any)
+      getEInvoiceSkipReason({ type: "company", address: { country } } as any)
     ).toMatch(/hors de France/);
   });
+
+  test.each(["FR-FR", "fr"])("%p is France", (country) => {
+    expect(
+      getEInvoiceSkipReason({ type: "company", address: { country } } as any)
+    ).toBeNull();
+  });
+
+  // Never guessed: an unknown country is an error at send time, not a skip
+  test.each(["France", "Allemagne", "FR-BE", "1"])(
+    "an unknown country (%p) is not skipped",
+    (country) => {
+      expect(
+        getEInvoiceSkipReason({ type: "company", address: { country } } as any)
+      ).toBeNull();
+    }
+  );
 
   test("a private individual is skipped", () => {
     expect(
@@ -231,6 +244,40 @@ describe("sendEInvoice - customer e-invoicing status", () => {
     await sendEInvoice(ctx, invoice({ client: "co-1" }));
 
     expect(refreshContactEInvoicesStatus).not.toHaveBeenCalled();
+    expect(sendInvoice).toHaveBeenCalled();
+  });
+
+  test("a customer whose country is not recognized is a failure", async () => {
+    selectOne.mockResolvedValue(
+      customer({ address: { country: "Allemagne" } })
+    );
+
+    await sendEInvoice(ctx, invoice({ client: "co-1" }));
+
+    expect(sendInvoice).not.toHaveBeenCalled();
+    expect(refreshContactEInvoicesStatus).not.toHaveBeenCalled();
+    const payload = update.mock.calls[0][3] as any;
+    expect(payload.e_invoice.status).toBe("failed");
+    expect(payload.e_invoice.error).toMatch(/Pays du client non reconnu.*Allemagne/);
+  });
+
+  test("blocking: a country not recognized refuses the change", async () => {
+    selectOne.mockResolvedValue(customer({ address: { country: "XX" } }));
+
+    await expect(
+      sendEInvoice(ctx, invoice({ client: "co-1" }), { throwOnError: true })
+    ).rejects.toThrow(/Pays du client non reconnu/);
+    expect(sendInvoice).not.toHaveBeenCalled();
+  });
+
+  test("a customer in FR-FR is sent", async () => {
+    selectOne.mockResolvedValue(
+      customer({ address: { country: "FR-FR" }, e_invoices_active: true })
+    );
+    sendInvoice.mockResolvedValue({ id: 42 });
+
+    await sendEInvoice(ctx, invoice({ client: "co-1" }));
+
     expect(sendInvoice).toHaveBeenCalled();
   });
 
