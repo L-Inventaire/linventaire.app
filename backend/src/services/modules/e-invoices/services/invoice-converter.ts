@@ -579,6 +579,16 @@ function parseElectronicAddress(
 }
 
 /**
+ * Normalize a stored country to an ISO 3166-1 alpha-2 code (BT-40, BT-55,
+ * BT-80). Legacy addresses store locale-like values ("FR-FR", "fr"), which
+ * the CII validation refuses.
+ */
+export function normalizeCountryCode(country?: string | null): string {
+  const code = (country || "").trim().substring(0, 2).toUpperCase();
+  return /^[A-Z]{2}$/.test(code) ? code : "FR";
+}
+
+/**
  * Build EN16931 postal address from internal Address entity
  */
 function buildPostalAddress(address?: Address): EN16931PostalAddress {
@@ -587,7 +597,7 @@ function buildPostalAddress(address?: Address): EN16931PostalAddress {
     address_line2: address?.address_line_2 || undefined,
     city: address?.city || "N/A",
     post_code: address?.zip || "00000",
-    country_code: address?.country || "FR",
+    country_code: normalizeCountryCode(address?.country),
   };
 }
 
@@ -1205,7 +1215,9 @@ export function convertInternalToEN16931(
           address_line2: invoice.delivery_address.address_line_2 || undefined,
           city: invoice.delivery_address.city || undefined,
           post_code: invoice.delivery_address.zip || undefined,
-          country_code: invoice.delivery_address.country || "FR",
+          country_code: normalizeCountryCode(
+            invoice.delivery_address.country
+          ),
         }
       : undefined,
     payment_terms:
