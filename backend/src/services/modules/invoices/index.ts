@@ -12,7 +12,10 @@ import { setOnSentEInvoiceTrigger } from "./triggers/on-sent-e-invoice";
 import { setOnClientSetRefreshEInvoicesTrigger } from "./triggers/on-client-set-refresh-e-invoices";
 import { processPendingEInvoices } from "./services/send-e-invoice";
 import { setOnSentAccountingExportTrigger } from "./triggers/on-sent-accounting-export";
-import { processPendingAccountingExports } from "./services/accounting-email-export";
+import {
+  processPendingAccountingExports,
+  queueReceivedEInvoicesExports,
+} from "./services/accounting-email-export";
 import { AccountingEmailExportsDefinition } from "./entities/accounting-email-exports";
 import { setOnPaymentDelayChanged } from "./triggers/on-payment-delay-changed";
 import { setOnPurchaseOrderTrigger } from "./triggers/on-purchase-order";
@@ -112,11 +115,13 @@ export default class Invoices implements InternalApplicationService {
     );
 
     // Copies to the accountant: normally sent a few seconds after the
-    // document left the draft state, this catches up retries and restarts
+    // document left the draft state, this catches up retries and restarts.
+    // The received e-invoices are queued here (within a minute).
     Framework.Cron.schedule(
       this.name + "-accounting-export-cron",
       "30 * * * * *", // Every minute
       async () => {
+        await queueReceivedEInvoicesExports();
         await processPendingAccountingExports();
       }
     );

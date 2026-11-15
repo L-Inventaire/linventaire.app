@@ -129,9 +129,10 @@ La remise globale d'une facture est répartie sur ses lignes, au prorata de leur
 Dans **Paramètres › Comptabilité**, la section **Envoi automatique au comptable** accepte deux adresses email : une pour les factures et avoirs de vente, une pour les factures et avoirs d'achat (votre expert-comptable, ou l'adresse de collecte de son logiciel). Chaque document y est envoyé seul, en PDF au format Factur-X, avec sa référence comme objet et comme nom de fichier :
 
 - une vente est envoyée lorsqu'elle quitte le brouillon (envoi au client ou marquée comme envoyée) ;
-- un achat est envoyé lorsque vous cliquez sur **Comptabiliser**. Si une facture électronique reçue est rattachée à l'achat, c'est la facture électronique qui est envoyée, et une même facture électronique n'est jamais envoyée deux fois.
+- une facture électronique reçue est envoyée à l'adresse des achats dès sa réception (dans la minute), qu'elle soit rattachée à un achat ou non : le PDF Factur-X reçu tel quel, ou pour une facture électronique XML un PDF Factur-X construit à partir de ses données ;
+- un achat saisi manuellement est envoyé lorsque vous cliquez sur **Comptabiliser**. Si une facture électronique reçue est rattachée à l'achat, elle n'est pas envoyée une deuxième fois : une même facture électronique n'est jamais envoyée deux fois.
 
-Seuls les documents postérieurs à l'activation de l'adresse sont envoyés (pour les achats : saisis ou reçus après cette date), et chacun une seule fois, même s'il est rouvert puis comptabilisé à nouveau. L'envoi apparaît dans l'historique du document. En cas d'échec, il est réessayé plusieurs fois, puis une notification vous prévient.
+Seuls les documents postérieurs à l'activation de l'adresse sont envoyés (pour les achats : saisis ou reçus après cette date), et chacun une seule fois, même s'il est rouvert puis comptabilisé à nouveau. L'envoi apparaît dans l'historique du document (et de l'achat rattaché à une facture électronique). En cas d'échec, il est réessayé plusieurs fois, puis une notification vous prévient.
 
 ### Le tableau de bord
 

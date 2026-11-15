@@ -22,6 +22,7 @@ import { generateEmailMessageToRecipient } from "../../signing-sessions/services
 import StockItems, {
   StockItemsDefinition,
 } from "../../stock/entities/stock-items";
+import Contacts from "../../contacts/entities/contacts";
 import Invoices from "../entities/invoices";
 import { computePricesFromInvoice } from "@shared/invoices";
 import { getPdf } from "./generate-pdf-components";
@@ -56,6 +57,9 @@ export const generatePdf = async (
     as?: "proforma" | "receipt_acknowledgement" | "delivery_slip";
     facturx?: boolean; // Factur-X required (throws if it can't be generated)
     skipFacturX?: boolean; // Plain PDF, without Factur-X data
+    // Counterparty printed instead of the contact of the document (a received
+    // e-invoice whose supplier is not in the contacts)
+    counterParty?: Contacts;
   } = {
     checkedIndexes: {},
   }
@@ -138,7 +142,8 @@ export const generatePdf = async (
           }))
           .filter((a) => a.article && a.reference)
       : [],
-    options.as
+    options.as,
+    { counterParty: options.counterParty }
   );
   const pdf = await stream2buffer(stream);
 
