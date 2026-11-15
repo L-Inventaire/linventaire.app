@@ -593,6 +593,18 @@ export class SuperPDPClient {
   }
 
   /**
+   * Convert the original UBL file of an invoice to the CII XML. Unlike
+   * convertToCII, nothing is lost: the file is converted as it was received
+   * (the en_invoice JSON can lack the VAT breakdown and the legal notes).
+   */
+  async convertUblToCII(ubl: Buffer): Promise<Buffer> {
+    return await this.convert("from=ubl&to=cii", async () => ({
+      data: ubl,
+      headers: { "Content-Type": "application/xml" },
+    }));
+  }
+
+  /**
    * Convert PDF and EN16931 invoice data to Factur-X PDF (the PDF with the CII
    * XML and the Factur-X metadata embedded)
    *

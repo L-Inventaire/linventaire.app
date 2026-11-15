@@ -304,14 +304,39 @@ const getEInvoiceFile = async (
     ).pdf;
   }
 
-  const isCii = raw.data
-    .subarray(0, 4000)
-    .toString("utf-8")
-    .includes("CrossIndustryInvoice");
-  return await embedFacturXXml(
-    pdf,
-    isCii ? raw.data : await superpdp.convertToCII(received.en_invoice)
-  );
+  const head = raw.data.subarray(0, 4000).toString("utf-8");
+  let cii: Buffer;
+  if (head.includes("CrossIndustryInvoice")) {
+    cii = raw.data;
+  } else if (/<(\w+:)?Invoice[\s>]|<(\w+:)?CreditNote[\s>]/.test(head)) {
+    // UBL: converted from the file received, never from our en_invoice copy
+    // (it can lack the VAT breakdown and the legal notes, so the result would
+    // be refused by the business rules)
+    cii = await superpdp.convertUblToCII(raw.data);
+  } else {
+    cii = await superpdp.convertToCII(received.en_invoice);
+  }
+  return await embedFacturXXml(pdf, cii);
+};
+
+/** PDF of the data we have, when the file of the e-invoice cannot be built */
+const getEInvoiceFallbackPdf = async (
+  ctx: Context,
+  client: Clients,
+  received: ReceivedEInvoice,
+  invoice: Invoices | null
+): Promise<Buffer> => {
+  if (invoice) {
+    return (await generatePdf(ctx, invoice, { checkedIndexes: {} })).pdf;
+  }
+  const document = getEInvoiceDocument(ctx, client, received);
+  return (
+    await generatePdf(ctx, document.invoice, {
+      checkedIndexes: {},
+      skipFacturX: true,
+      counterParty: document.supplier,
+    })
+  ).pdf;
 };
 
 type ExportResult =
@@ -485,7 +510,20 @@ const exportReceivedEInvoice = async (
       })
     : null;
 
-  const pdf = await getEInvoiceFile(ctx, client!, received, invoice);
+  let pdf: Buffer;
+  try {
+    pdf = await getEInvoiceFile(ctx, client!, received, invoice);
+  } catch (e: any) {
+    // The accountant still gets a readable copy rather than nothing
+    console.error(
+      `Accounting export: e-invoice file of ${received.id} unavailable, sending a PDF of its data`,
+      e?.message || e
+    );
+    captureException(e, {
+      tags: { module: "invoices", action: "accounting_email_export_file" },
+    });
+    pdf = await getEInvoiceFallbackPdf(ctx, client!, received, invoice);
+  }
   await sendCopy(
     ctx,
     client,
