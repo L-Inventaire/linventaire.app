@@ -262,24 +262,8 @@ export const getEInvoiceDocument = (
     { ...ctx, client_id: received.client_id }
   ) as Invoices;
   invoice.id = received.id;
-  invoice.language = client.preferences?.language || "fr";
   invoice.format = {} as Invoices["format"];
   invoice.attachments = [];
-  // As when a document is saved (the PDF computes the line totals with it)
-  invoice.content = (invoice.content || []).map((line) => ({
-    ...line,
-    discount: { mode: "amount", value: 0, ...line.discount },
-  }));
-  // Due date of the e-invoice (BT-9), else the delay read from its terms
-  const dueDate = received.en_invoice.payment_due_date
-    ? new Date(received.en_invoice.payment_due_date).getTime()
-    : NaN;
-  invoice.payment_information = {
-    ...invoice.payment_information,
-    ...(!isNaN(dueDate)
-      ? { delay_type: "date", delay_date: dueDate }
-      : { delay_type: "direct" }),
-  } as Invoices["payment_information"];
   invoice.total = computePricesFromInvoice(invoice);
 
   return { invoice, supplier };

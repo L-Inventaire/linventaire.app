@@ -954,6 +954,49 @@ describe("convertEN16931ToInternal - received invoices", () => {
     );
     expect(invoice.content).toHaveLength(1);
   });
+
+  // The PDF of the supplier invoice printed "Avant le null" and lines at
+  // "0,00 € TTC", and was in English
+  test("fills the fields the PDF needs", () => {
+    const articles = new Map<string, Articles>();
+    articles.set("1", { id: "tyre", type: "product" } as Articles);
+    const invoice = convertEN16931ToInternal(
+      buildEnInvoice([buildLine("1")]),
+      {
+        ...entities(articles),
+        self: {
+          ...buildResolvedEntities().self,
+          preferences: { language: "fr" },
+        } as any,
+      },
+      "in",
+      ctx,
+    );
+    expect(invoice.content?.[0].discount).toEqual({ mode: "amount", value: 0 });
+    expect(invoice.discount).toEqual({ mode: "amount", value: 0 });
+    expect(invoice.language).toBe("fr");
+  });
+
+  test("payment delay: due date of the e-invoice, else days of its terms", () => {
+    const articles = new Map<string, Articles>();
+    articles.set("1", { id: "tyre", type: "product" } as Articles);
+    const convert = (extra: any) =>
+      convertEN16931ToInternal(
+        { ...buildEnInvoice([buildLine("1")]), ...extra },
+        entities(articles),
+        "in",
+        ctx,
+      ).payment_information;
+
+    expect(convert({ payment_due_date: "2026-12-05" })).toMatchObject({
+      delay_type: "date",
+      delay_date: new Date("2026-12-05").getTime(),
+    });
+    expect(convert({ payment_terms: "Paiement à 45 jours" })).toMatchObject({
+      delay_type: "direct",
+      delay: 45,
+    });
+  });
 });
 
 describe("convertInternalToEN16931 credit notes", () => {

@@ -104,7 +104,9 @@ export const InvoicePaymentDetails = ({
           !!document.payment_information.delay && {
             label: Framework.I18n.t(ctx, "invoices.other.delay"),
             value:
-              document.payment_information.delay_type === "direct"
+              // No type: in days (as computePaymentDelayDate)
+              (document.payment_information.delay_type || "direct") ===
+              "direct"
                 ? document.payment_information.delay + " jours"
                 : "Avant le " +
                   displayDate(
