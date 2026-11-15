@@ -4,16 +4,20 @@ import Clients, {
 } from "#src/services/clients/entities/clients";
 import Services from "#src/services/index";
 import { Context, createContext } from "#src/types";
+import { computePricesFromInvoice } from "@shared/invoices";
 import { captureException } from "@sentry/node";
+import Articles from "../../articles/entities/articles";
+import Contacts from "../../contacts/entities/contacts";
 import {
   ReceivedEInvoice,
   ReceivedEInvoiceDefinition,
 } from "../../e-invoices/entities/received-e-invoice";
+import { embedFacturXXml } from "../../e-invoices/services/facturx-generator";
+import { convertEN16931ToInternal } from "../../e-invoices/services/invoice-converter";
 import AccountingEmailExports, {
   AccountingEmailExportsDefinition,
 } from "../entities/accounting-email-exports";
 import Invoices, { InvoicesDefinition } from "../entities/invoices";
-import { embedFacturXXml } from "../../e-invoices/services/facturx-generator";
 import { generatePdf } from "./generate-pdf";
 import { getInvoicePdfFileName } from "./utils";
 
@@ -22,12 +26,16 @@ import { getInvoicePdfFileName } from "./utils";
  * its software), as a Factur-X PDF, configured in "Paramètres › Comptabilité":
  *
  * - Sales (invoices, credit notes): when the document is sent.
+ * - Received e-invoices: when they are received, attached to a supplier
+ *   invoice or not (the file of the e-invoice).
  * - Purchases (supplier invoices and credit notes): when the document is
  *   booked ("Comptabiliser"). When an e-invoice is attached to it, the file of
- *   the e-invoice is sent instead of our PDF.
+ *   the e-invoice is sent instead of our PDF, unless it was already sent.
  *
- * Only the documents after the activation of the address are sent, and each
- * document only once (one row per document in accounting_email_exports).
+ * Only the documents and e-invoices after the activation of the address are
+ * sent, and each one only once (one row per document or e-invoice in
+ * accounting_email_exports, and an e-invoice is never sent a second time with
+ * its document).
  */
 
 export type AccountingExportSide = AccountingEmailExports["side"];
@@ -63,6 +71,28 @@ export const getAccountingExportAddress = (
       : config?.purchases_enabled_at) || 0;
   return email && enabled_at ? { email, enabled_at } : null;
 };
+
+const newExportRow = (
+  row: Pick<
+    AccountingEmailExports,
+    | "client_id"
+    | "invoice_id"
+    | "item_entity"
+    | "side"
+    | "email"
+    | "received_e_invoice_id"
+    | "next_attempt_at"
+  >
+): AccountingEmailExports => ({
+  ...row,
+  status: "pending",
+  source: null,
+  attempts: 0,
+  locked_until: null,
+  sent_at: null,
+  error: null,
+  created_at: Date.now(),
+});
 
 /**
  * Called when a document leaves the draft state: queues its copy, in the same
@@ -104,25 +134,18 @@ export const queueAccountingEmailExport = async (
   );
   if (existing) return;
 
-  const now = Date.now();
   await db.insert<AccountingEmailExports>(
     tnxCtx,
     AccountingEmailExportsDefinition.name,
-    {
+    newExportRow({
       client_id: invoice.client_id,
       invoice_id: invoice.id,
+      item_entity: "invoices",
       side,
-      status: "pending",
       email: address.email,
-      source: null,
       received_e_invoice_id: null,
-      attempts: 0,
-      next_attempt_at: now + EXPORT_DELAY_MS,
-      locked_until: null,
-      sent_at: null,
-      error: null,
-      created_at: now,
-    }
+      next_attempt_at: Date.now() + EXPORT_DELAY_MS,
+    })
   );
 
   // Once the request transaction is committed (the cron catches up restarts)
@@ -132,27 +155,155 @@ export const queueAccountingEmailExport = async (
   );
 };
 
+/**
+ * Queues the copy of the received e-invoices not sent yet: received after the
+ * activation of the purchases address, and neither queued nor sent with their
+ * supplier invoice. Run by the cron, so it also catches up the e-invoices
+ * received before this was in place, and never needs the reception to know
+ * about it.
+ */
+export const queueReceivedEInvoicesExports = async () => {
+  const ctx = createContext("accounting-export", "SYSTEM");
+  const db = await Framework.Db.getService();
+
+  const candidates = await db.custom<{
+    rows: { client_id: string; id: string; email: string }[];
+  }>(
+    ctx,
+    `SELECT r.client_id, r.id,
+            TRIM(c.accounting->'email_export'->>'purchases_email') AS email
+     FROM ${ReceivedEInvoiceDefinition.name} r
+     JOIN ${ClientsDefinition.name} c ON c.id = r.client_id
+     CROSS JOIN LATERAL (
+       SELECT COALESCE(NULLIF(c.accounting->'email_export'->>'purchases_enabled_at', '')::numeric, 0) AS enabled_at
+     ) a
+     WHERE r.is_deleted = false
+       AND TRIM(COALESCE(c.accounting->'email_export'->>'purchases_email', '')) <> ''
+       AND a.enabled_at > 0
+       AND r.received_at >= a.enabled_at
+       AND NOT EXISTS (
+         SELECT 1 FROM ${AccountingEmailExportsDefinition.name} e
+         WHERE e.client_id = r.client_id
+           AND (e.invoice_id = r.id OR e.received_e_invoice_id = r.id)
+       )
+     ORDER BY r.received_at
+     LIMIT 500`,
+    []
+  );
+
+  for (const candidate of candidates?.rows || []) {
+    try {
+      await db.insert<AccountingEmailExports>(
+        { ...ctx, client_id: candidate.client_id },
+        AccountingEmailExportsDefinition.name,
+        newExportRow({
+          client_id: candidate.client_id,
+          invoice_id: candidate.id,
+          item_entity: "received_e_invoices",
+          side: "purchases",
+          email: candidate.email,
+          received_e_invoice_id: candidate.id,
+          next_attempt_at: Date.now(),
+        })
+      );
+    } catch (e: any) {
+      // Queued at the same time by another instance (primary key)
+      console.error(
+        `Accounting export: could not queue the e-invoice ${candidate.id}`,
+        e?.message || e
+      );
+    }
+  }
+};
+
 const isPdf = (data: Buffer) =>
   data.subarray(0, 5).toString("ascii") === "%PDF-";
 
 /**
+ * Document printed for an e-invoice attached to no supplier invoice: built
+ * from the data of the e-invoice, never saved (its supplier may not be in the
+ * contacts, its lines match no article).
+ */
+export const getEInvoiceDocument = (
+  ctx: Context,
+  client: Clients,
+  received: ReceivedEInvoice
+): { invoice: Invoices; supplier: Contacts } => {
+  const seller = received.en_invoice.seller;
+  const address = seller?.postal_address;
+  const supplier = {
+    id: "",
+    client_id: received.client_id,
+    type: "company",
+    business_name: seller?.name || received.seller_name || "",
+    business_registered_name: seller?.name || received.seller_name || "",
+    business_registered_id: seller?.legal_registration_identifier?.value || "",
+    business_tax_id: seller?.vat_identifier || received.seller_vat || "",
+    address: {
+      address_line_1: address?.address_line1 || "",
+      address_line_2: address?.address_line2 || "",
+      region: "",
+      zip: address?.post_code || "",
+      city: address?.city || "",
+      country: address?.country_code || "",
+    },
+    other_addresses: {},
+  } as unknown as Contacts;
+
+  const invoice = convertEN16931ToInternal(
+    received.en_invoice,
+    {
+      supplier,
+      articles: new Map(),
+      defaultArticle: { id: "", type: "service" } as Articles,
+      self: client,
+    },
+    "in",
+    { ...ctx, client_id: received.client_id }
+  ) as Invoices;
+  invoice.id = received.id;
+  invoice.format = {} as Invoices["format"];
+  invoice.attachments = [];
+  invoice.total = computePricesFromInvoice(invoice);
+
+  return { invoice, supplier };
+};
+
+/**
  * File of an e-invoice: the PDF received (already a Factur-X), or for an XML
  * our PDF of the document with the data of the e-invoice embedded (CII as is,
- * UBL converted to CII by SuperPDP).
+ * UBL converted to CII by SuperPDP). Without a document (e-invoice attached
+ * to no supplier invoice), the PDF is made from the e-invoice data.
  */
 const getEInvoiceFile = async (
   ctx: Context,
-  invoice: Invoices,
-  received: ReceivedEInvoice
+  client: Clients,
+  received: ReceivedEInvoice,
+  invoice: Invoices | null
 ): Promise<Buffer> => {
   const superpdp = await Services.EInvoices.getClient(ctx);
   const raw = await superpdp.downloadInvoice(received.superpdp_invoice_id);
   if (isPdf(raw.data)) return raw.data;
 
-  const { pdf } = await generatePdf(ctx, invoice, {
-    checkedIndexes: {},
-    skipFacturX: true,
-  });
+  let pdf: Buffer;
+  if (invoice) {
+    pdf = (
+      await generatePdf(ctx, invoice, {
+        checkedIndexes: {},
+        skipFacturX: true,
+      })
+    ).pdf;
+  } else {
+    const document = getEInvoiceDocument(ctx, client, received);
+    pdf = (
+      await generatePdf(ctx, document.invoice, {
+        checkedIndexes: {},
+        skipFacturX: true,
+        counterParty: document.supplier,
+      })
+    ).pdf;
+  }
+
   const isCii = raw.data
     .subarray(0, 4000)
     .toString("utf-8")
@@ -166,6 +317,50 @@ const getEInvoiceFile = async (
 type ExportResult =
   | { status: "sent"; email: string; source: "document" | "e_invoice" }
   | { status: "skipped"; reason: string };
+
+/** The e-invoice was sent (or is being sent) with another row */
+const isEInvoiceSentElsewhere = async (
+  ctx: Context,
+  row: AccountingEmailExports,
+  receivedId: string
+) => {
+  const db = await Framework.Db.getService();
+  const rows = await db.select<AccountingEmailExports>(
+    ctx,
+    AccountingEmailExportsDefinition.name,
+    { client_id: row.client_id, received_e_invoice_id: receivedId },
+    { limit: 10 }
+  );
+  return rows.some(
+    (r) =>
+      r.invoice_id !== row.invoice_id && ["sent", "sending"].includes(r.status)
+  );
+};
+
+const sendCopy = async (
+  ctx: Context,
+  client: Clients | null,
+  email: string,
+  subject: string,
+  pdf: Buffer
+) => {
+  const sent = await Framework.PushEMail.push(
+    ctx,
+    email,
+    "",
+    {
+      from: client?.company?.name || client?.company?.legal_name,
+      subject,
+      attachments: [
+        { filename: getInvoicePdfFileName({ reference: subject }), content: pdf },
+      ],
+    },
+    client?.smtp
+  );
+  if (!sent) {
+    throw new Error(`L'email n'a pas pu être envoyé à ${email}.`);
+  }
+};
 
 /** Sends the copy of one document, throws when it could not be sent */
 const exportDocument = async (
@@ -214,19 +409,9 @@ const exportDocument = async (
       };
     }
 
-    // Detached from another document already sent: never send it twice
-    const sameEInvoice = await db.select<AccountingEmailExports>(
-      ctx,
-      AccountingEmailExportsDefinition.name,
-      { client_id: row.client_id, received_e_invoice_id: received.id },
-      { limit: 10 }
-    );
-    if (
-      sameEInvoice.some(
-        (r) =>
-          r.invoice_id !== invoice.id && ["sent", "sending"].includes(r.status)
-      )
-    ) {
+    // Already sent when it was received, or with another document: never
+    // send it twice
+    if (await isEInvoiceSentElsewhere(ctx, row, received.id)) {
       return {
         status: "skipped",
         reason: "La facture électronique de ce document a déjà été envoyée.",
@@ -235,7 +420,7 @@ const exportDocument = async (
     await update({ received_e_invoice_id: received.id });
 
     try {
-      pdf = await getEInvoiceFile(ctx, invoice, received);
+      pdf = await getEInvoiceFile(ctx, client!, received, invoice);
       source = "e_invoice";
     } catch (e: any) {
       // Our Factur-X of the document is still a good copy
@@ -250,44 +435,108 @@ const exportDocument = async (
     pdf = (await generatePdf(ctx, invoice, { checkedIndexes: {} })).pdf;
   }
 
-  const sent = await Framework.PushEMail.push(
-    ctx,
-    address.email,
-    "",
-    {
-      from: client?.company?.name || client?.company?.legal_name,
-      subject: invoice.reference,
-      attachments: [{ filename: getInvoicePdfFileName(invoice), content: pdf }],
-    },
-    client?.smtp
-  );
-  if (!sent) {
-    throw new Error(`L'email n'a pas pu être envoyé à ${address.email}.`);
-  }
-
+  await sendCopy(ctx, client, address.email, invoice.reference, pdf);
   return { status: "sent", email: address.email, source };
 };
 
-/** Timeline line on the document (success or failure) */
+/** Sends the copy of one received e-invoice, throws when it could not be sent */
+const exportReceivedEInvoice = async (
+  ctx: Context,
+  row: AccountingEmailExports
+): Promise<ExportResult> => {
+  const db = await Framework.Db.getService();
+
+  const received = await db.selectOne<ReceivedEInvoice>(
+    ctx,
+    ReceivedEInvoiceDefinition.name,
+    { client_id: row.client_id, id: row.invoice_id }
+  );
+  if (!received) {
+    return { status: "skipped", reason: "Facture électronique supprimée." };
+  }
+
+  const client = await db.selectOne<Clients>(ctx, ClientsDefinition.name, {
+    id: row.client_id,
+  });
+  const address = getAccountingExportAddress(client, "purchases");
+  if (!address) {
+    return { status: "skipped", reason: "Envoi au comptable désactivé." };
+  }
+  if (new Date(received.received_at || 0).getTime() < address.enabled_at) {
+    return {
+      status: "skipped",
+      reason: "Facture électronique reçue avant l'activation de l'envoi.",
+    };
+  }
+
+  // Sent in the meantime with its supplier invoice (booked)
+  if (await isEInvoiceSentElsewhere(ctx, row, received.id)) {
+    return {
+      status: "skipped",
+      reason: "La facture électronique a déjà été envoyée avec son achat.",
+    };
+  }
+
+  // Attached to a supplier invoice: the same file as when it is booked
+  const invoice = received.supplier_invoice_id
+    ? await db.selectOne<Invoices>(ctx, InvoicesDefinition.name, {
+        client_id: row.client_id,
+        id: received.supplier_invoice_id,
+      })
+    : null;
+
+  const pdf = await getEInvoiceFile(ctx, client!, received, invoice);
+  await sendCopy(
+    ctx,
+    client,
+    address.email,
+    received.invoice_number || received.id,
+    pdf
+  );
+  return { status: "sent", email: address.email, source: "e_invoice" };
+};
+
+/**
+ * Timeline lines (success or failure): on the document, or on the e-invoice
+ * and the supplier invoice it is attached to.
+ */
 const addTimelineEvent = async (
   ctx: Context,
   row: AccountingEmailExports,
   content: string,
   error?: string
 ) => {
-  await Services.Comments.createEvent(ctx, {
-    client_id: row.client_id,
-    item_entity: "invoices",
-    item_id: row.invoice_id,
-    type: "event",
-    content,
-    // A failure notifies the subscribed users, a success is timeline only
-    metadata: (error
-      ? { event_type: "accounting_export_failed", error }
-      : {}) as any,
-    documents: [],
-    reactions: [],
-  });
+  const items: { entity: string; id: string }[] = [];
+  if (row.item_entity === "received_e_invoices") {
+    items.push({ entity: "received_e_invoices", id: row.invoice_id });
+    const db = await Framework.Db.getService();
+    const received = await db.selectOne<ReceivedEInvoice>(
+      ctx,
+      ReceivedEInvoiceDefinition.name,
+      { client_id: row.client_id, id: row.invoice_id }
+    );
+    if (received?.supplier_invoice_id) {
+      items.push({ entity: "invoices", id: received.supplier_invoice_id });
+    }
+  } else {
+    items.push({ entity: "invoices", id: row.invoice_id });
+  }
+
+  for (const item of items) {
+    await Services.Comments.createEvent(ctx, {
+      client_id: row.client_id,
+      item_entity: item.entity,
+      item_id: item.id,
+      type: "event",
+      content,
+      // A failure notifies the subscribed users, a success is timeline only
+      metadata: (error
+        ? { event_type: "accounting_export_failed", error }
+        : {}) as any,
+      documents: [],
+      reactions: [],
+    });
+  }
 };
 
 const processExport = async (row: AccountingEmailExports) => {
@@ -307,7 +556,10 @@ const processExport = async (row: AccountingEmailExports) => {
 
   const attempts = (row.attempts || 0) + 1;
   try {
-    const result = await exportDocument(ctx, row, update);
+    const result =
+      row.item_entity === "received_e_invoices"
+        ? await exportReceivedEInvoice(ctx, row)
+        : await exportDocument(ctx, row, update);
     if (result.status === "skipped") {
       await update({ status: "skipped", error: result.reason, attempts });
       return;
@@ -331,7 +583,7 @@ const processExport = async (row: AccountingEmailExports) => {
     const error = e?.message || String(e);
     logger.error(
       ctx,
-      `Accounting export failed for ${row.invoice_id}: ${error}`
+      `Accounting export failed for ${row.item_entity || "invoices"} ${row.invoice_id}: ${error}`
     );
     captureException(e, {
       tags: { module: "invoices", action: "accounting_email_export" },

@@ -86,7 +86,8 @@ export const getPdf = async (
   checkedIndexes: { [key: number]: boolean } = [],
   attachments: Files[],
   references: { article: string; reference: string; line?: number }[] = [],
-  as?: "proforma" | "receipt_acknowledgement" | "delivery_slip"
+  as?: "proforma" | "receipt_acknowledgement" | "delivery_slip",
+  overrides: { counterParty?: Contacts } = {}
 ): Promise<{ name: string; pdf: NodeJS.ReadableStream }> => {
   // TODO: step by step the idea would be to only rely on the en16931 information to build the invoice
   try {
@@ -150,14 +151,12 @@ export const getPdf = async (
 
   const db = await Framework.Db.getService();
 
-  const counterParty = await db.selectOne<Contacts>(
-    ctx,
-    ContactsDefinition.name,
-    {
+  const counterParty =
+    overrides.counterParty ||
+    (await db.selectOne<Contacts>(ctx, ContactsDefinition.name, {
       client_id: ctx.client_id,
       id: document.client || document.supplier,
-    }
-  );
+    }));
 
   const counterPartyContact = await db.selectOne<Contacts>(
     ctx,

@@ -210,7 +210,9 @@ export function convertEN16931ToInternal(
     );
 
     // Calculate discount from allowances/charges
-    const discount = {} as InvoiceDiscount;
+    // Same default as a line saved by the interface (the PDF computes the
+    // line totals with it)
+    const discount = { mode: "amount", value: 0 } as InvoiceDiscount;
     let totalAllowanceAmount = 0;
     let totalChargeAmount = 0;
 
@@ -263,7 +265,7 @@ export function convertEN16931ToInternal(
   });
 
   // Document-level allowances become the document discount
-  const documentDiscount = {} as InvoiceDiscount;
+  const documentDiscount = { mode: "amount", value: 0 } as InvoiceDiscount;
   let totalDocAllowanceAmount = 0;
 
   if (
@@ -299,7 +301,7 @@ export function convertEN16931ToInternal(
     chargeLine.unit_price = parseFloat(charge.amount || "0");
     chargeLine.tva =
       getVatCode(charge.vat_rate || "0", charge.vat_category_code) || "S:20";
-    chargeLine.discount = {} as InvoiceDiscount;
+    chargeLine.discount = { mode: "amount", value: 0 } as InvoiceDiscount;
     chargeLine.subscription = "";
     chargeLine.quantity_ready = 0;
     chargeLine.quantity_delivered = 0;
@@ -328,7 +330,7 @@ export function convertEN16931ToInternal(
     gapLine.quantity = 1;
     gapLine.unit_price = gap.amount;
     gapLine.tva = gap.tva;
-    gapLine.discount = {} as InvoiceDiscount;
+    gapLine.discount = { mode: "amount", value: 0 } as InvoiceDiscount;
     gapLine.subscription = "";
     gapLine.quantity_ready = 0;
     gapLine.quantity_delivered = 0;
@@ -348,6 +350,17 @@ export function convertEN16931ToInternal(
     if (delayMatch) {
       payment_information.delay = parseInt(delayMatch[1], 10);
     }
+  }
+  // Due date of the e-invoice (BT-9) when given, else the delay in days read
+  // from the terms (without a type, the PDF printed "Avant le null")
+  const dueDate = en16931Invoice.payment_due_date
+    ? new Date(en16931Invoice.payment_due_date).getTime()
+    : NaN;
+  if (!isNaN(dueDate)) {
+    payment_information.delay_type = "date";
+    payment_information.delay_date = dueDate;
+  } else {
+    payment_information.delay_type = "direct";
   }
   if (en16931Invoice.payment_instructions) {
     // Extract payment mode from payment_means_type_code
@@ -380,7 +393,8 @@ export function convertEN16931ToInternal(
   invoice.reference = en16931Invoice.number;
   invoice.alt_reference = en16931Invoice.buyer_reference || "";
   invoice.emit_date = new Date(en16931Invoice.issue_date);
-  invoice.language = "en"; // Default, could be inferred from postal addresses
+  // Language of the company (the documents it prints)
+  invoice.language = resolvedEntities.self?.preferences?.language || "fr";
   invoice.currency = en16931Invoice.currency_code;
 
   // Set supplier or client based on direction

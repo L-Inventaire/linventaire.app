@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, jest, test } from "@jest/globals";
 
 // In-memory tables, rows matched on equality of the condition fields
 let tables: Record<string, any[]> = {};
+let candidates: any[] = [];
 const matches = (row: any, condition: any) =>
   Object.entries(condition).every(([k, v]) => row[k] === v);
 const db = {
@@ -22,8 +23,13 @@ const db = {
         .forEach((r) => Object.assign(r, changes));
     }
   ),
-  // Claim of processPendingAccountingExports: every due pending row
-  custom: jest.fn(async () => {
+  // Candidates of queueReceivedEInvoicesExports (the SQL filters are tested
+  // on a real database), or claim of processPendingAccountingExports: every
+  // due pending row
+  custom: jest.fn(async (_ctx: any, sql: string) => {
+    if (sql.includes("FROM received_e_invoices")) {
+      return { rows: candidates };
+    }
     const rows = (tables.accounting_email_exports || []).filter(
       (r) => r.status === "pending" && r.next_attempt_at <= Date.now()
     );
@@ -64,10 +70,24 @@ jest.mock("../../e-invoices/services/facturx-generator", () => ({
   embedFacturXXml,
 }));
 
+const convertEN16931ToInternal = jest.fn<any>((en: any, entities: any) => ({
+  type: "supplier_invoices",
+  reference: en.number,
+  supplier: entities.supplier.id,
+  content: [],
+}));
+jest.mock("../../e-invoices/services/invoice-converter", () => ({
+  convertEN16931ToInternal,
+}));
+jest.mock("@shared/invoices", () => ({
+  computePricesFromInvoice: () => ({ total_with_taxes: 120 }),
+}));
+
 import {
   getAccountingExportAddress,
   processPendingAccountingExports,
   queueAccountingEmailExport,
+  queueReceivedEInvoicesExports,
 } from "./accounting-email-export";
 
 const ENABLED_AT = new Date("2026-10-01").getTime();
@@ -114,6 +134,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   jest.useFakeTimers({ doNotFake: ["nextTick", "setImmediate"] });
   tables = { clients: [company()], invoices: [] };
+  candidates = [];
 });
 
 describe("getAccountingExportAddress", () => {
@@ -409,5 +430,209 @@ describe("processPendingAccountingExports", () => {
       })
     );
     push.mockResolvedValue(true);
+  });
+});
+
+describe("received e-invoices", () => {
+  const eInvoice = (extra: any = {}) => ({
+    id: "rei-1",
+    client_id: "cl-1",
+    state: "new",
+    supplier_invoice_id: "",
+    superpdp_invoice_id: 42,
+    invoice_number: "F/42",
+    seller_name: "Fournisseur",
+    received_at: AFTER,
+    en_invoice: {
+      number: "F/42",
+      seller: {
+        name: "Fournisseur SAS",
+        vat_identifier: "FR123",
+        legal_registration_identifier: { value: "123456789" },
+        postal_address: { city: "Lyon", post_code: "69001" },
+      },
+    },
+    ...extra,
+  });
+
+  // Queued by the cron, then processed
+  const receiveAndProcess = async () => {
+    candidates = (tables.received_e_invoices || []).map((r) => ({
+      client_id: r.client_id,
+      id: r.id,
+      email: "achats@compta.fr",
+    }));
+    await queueReceivedEInvoicesExports();
+    await processPendingAccountingExports();
+  };
+
+  test("the cron queues the e-invoices not sent yet", async () => {
+    candidates = [
+      { client_id: "cl-1", id: "rei-1", email: "achats@compta.fr" },
+      { client_id: "cl-1", id: "rei-2", email: "achats@compta.fr" },
+    ];
+    await queueReceivedEInvoicesExports();
+    expect(exportRows()).toMatchObject([
+      {
+        invoice_id: "rei-1",
+        item_entity: "received_e_invoices",
+        received_e_invoice_id: "rei-1",
+        side: "purchases",
+        status: "pending",
+      },
+      { invoice_id: "rei-2", item_entity: "received_e_invoices" },
+    ]);
+  });
+
+  test("a PDF e-invoice attached to nothing is sent as is", async () => {
+    tables.received_e_invoices = [eInvoice()];
+    downloadInvoice.mockResolvedValueOnce({
+      contentType: "application/pdf",
+      data: Buffer.from("%PDF-supplier"),
+    });
+    await receiveAndProcess();
+
+    expect(push).toHaveBeenCalledWith(
+      expect.anything(),
+      "achats@compta.fr",
+      "",
+      expect.objectContaining({
+        subject: "F/42",
+        attachments: [
+          { filename: "F-42.pdf", content: Buffer.from("%PDF-supplier") },
+        ],
+      }),
+      {}
+    );
+    expect(generatePdf).not.toHaveBeenCalled();
+    expect(exportRows()[0]).toMatchObject({
+      status: "sent",
+      source: "e_invoice",
+    });
+    expect(createEvent).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        item_entity: "received_e_invoices",
+        item_id: "rei-1",
+      })
+    );
+  });
+
+  test("a rejected e-invoice is sent too", async () => {
+    tables.received_e_invoices = [eInvoice({ state: "rejected" })];
+    downloadInvoice.mockResolvedValueOnce({
+      contentType: "application/pdf",
+      data: Buffer.from("%PDF-supplier"),
+    });
+    await receiveAndProcess();
+    expect(push).toHaveBeenCalledTimes(1);
+  });
+
+  test("an XML e-invoice attached to nothing: PDF made from its data", async () => {
+    tables.received_e_invoices = [eInvoice()];
+    const cii = Buffer.from(
+      "<rsm:CrossIndustryInvoice>...</rsm:CrossIndustryInvoice>"
+    );
+    downloadInvoice.mockResolvedValueOnce({
+      contentType: "application/xml",
+      data: cii,
+    });
+    await receiveAndProcess();
+
+    const [, document, options] = generatePdf.mock.calls[0] as any[];
+    expect(document).toMatchObject({ id: "rei-1", reference: "F/42" });
+    expect(options).toMatchObject({
+      skipFacturX: true,
+      counterParty: {
+        business_name: "Fournisseur SAS",
+        business_tax_id: "FR123",
+        business_registered_id: "123456789",
+        address: { city: "Lyon", zip: "69001" },
+      },
+    });
+    expect(embedFacturXXml).toHaveBeenCalledWith(Buffer.from("%PDF-ours"), cii);
+    expect(exportRows()[0]).toMatchObject({
+      status: "sent",
+      source: "e_invoice",
+    });
+  });
+
+  test("an XML e-invoice attached to a supplier invoice uses its PDF", async () => {
+    const doc = invoice({ type: "supplier_invoices", state: "draft" });
+    tables.invoices = [doc];
+    tables.received_e_invoices = [
+      eInvoice({ state: "attached", supplier_invoice_id: "inv-1" }),
+    ];
+    downloadInvoice.mockResolvedValueOnce({
+      contentType: "application/xml",
+      data: Buffer.from("<rsm:CrossIndustryInvoice/>"),
+    });
+    await receiveAndProcess();
+
+    expect(generatePdf.mock.calls[0][1]).toMatchObject({ id: "inv-1" });
+    expect(convertEN16931ToInternal).not.toHaveBeenCalled();
+    // Timeline of the e-invoice and of its supplier invoice
+    expect(createEvent.mock.calls.map((c: any) => c[1].item_id)).toEqual([
+      "rei-1",
+      "inv-1",
+    ]);
+  });
+
+  test("not sent again when its supplier invoice is booked", async () => {
+    tables.received_e_invoices = [eInvoice()];
+    downloadInvoice.mockResolvedValue({
+      contentType: "application/pdf",
+      data: Buffer.from("%PDF-supplier"),
+    });
+    await receiveAndProcess();
+    expect(push).toHaveBeenCalledTimes(1);
+
+    // Supplier invoice created from it, then booked
+    const doc = invoice({ type: "supplier_invoices" });
+    tables.invoices = [doc];
+    tables.received_e_invoices[0].state = "attached";
+    tables.received_e_invoices[0].supplier_invoice_id = "inv-1";
+    await queueAndProcess(doc);
+
+    expect(push).toHaveBeenCalledTimes(1);
+    expect(exportRows().find((r) => r.invoice_id === "inv-1")).toMatchObject({
+      status: "skipped",
+    });
+    downloadInvoice.mockReset();
+  });
+
+  test("not sent again when it was sent with its supplier invoice", async () => {
+    tables.received_e_invoices = [
+      eInvoice({ state: "attached", supplier_invoice_id: "inv-1" }),
+    ];
+    tables.accounting_email_exports = [
+      {
+        client_id: "cl-1",
+        invoice_id: "inv-1",
+        status: "sent",
+        received_e_invoice_id: "rei-1",
+      },
+    ];
+    // The cron query excludes it: queued anyway, the processing checks it too
+    await receiveAndProcess();
+
+    expect(push).not.toHaveBeenCalled();
+    expect(exportRows().find((r) => r.invoice_id === "rei-1")).toMatchObject({
+      status: "skipped",
+    });
+  });
+
+  test("an e-invoice received before the activation is not sent", async () => {
+    tables.received_e_invoices = [eInvoice({ received_at: BEFORE })];
+    await receiveAndProcess();
+    expect(push).not.toHaveBeenCalled();
+    expect(exportRows()[0]).toMatchObject({ status: "skipped" });
+  });
+
+  test("a manual purchase is still sent when booked", async () => {
+    const doc = invoice({ type: "supplier_invoices" });
+    tables.invoices = [doc];
+    await queueAndProcess(doc);
+    expect(push.mock.calls[0][1]).toBe("achats@compta.fr");
   });
 });

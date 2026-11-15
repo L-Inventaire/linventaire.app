@@ -280,13 +280,15 @@ export const InvoiceContent = ({
             : itemIndex++;
 
         const discountDisplay =
-          item.discount.mode === "amount"
-            ? formatAmount(item.discount.value, document.currency)
-            : item.discount.value + "%";
+          item.discount?.mode === "amount"
+            ? formatAmount(item.discount?.value, document.currency)
+            : item.discount?.value + "%";
+        // Lines without discount value (e.g. converted from an e-invoice)
         const discountValue =
-          item.discount.mode === "amount"
-            ? item.discount.value
-            : (item.discount.value / 100) * (item.unit_price * item.quantity);
+          (item.discount?.mode === "amount"
+            ? item.discount?.value
+            : ((item.discount?.value || 0) / 100) *
+              (item.unit_price * item.quantity)) || 0;
         return (
           <React.Fragment
             key={`content-${index}-${
