@@ -42,7 +42,12 @@ const push = jest.fn<any>(async () => true);
 const createEvent = jest.fn();
 const downloadInvoice = jest.fn<any>();
 const convertToCII = jest.fn<any>(async () => Buffer.from("<cii/>"));
-const getClient = jest.fn(async () => ({ downloadInvoice, convertToCII }));
+const convertUblToCII = jest.fn<any>(async () => Buffer.from("<cii-ubl/>"));
+const getClient = jest.fn(async () => ({
+  downloadInvoice,
+  convertToCII,
+  convertUblToCII,
+}));
 const embedFacturXXml = jest.fn<any>(async () => Buffer.from("%PDF-facturx"));
 const generatePdf = jest.fn<any>(async () => ({
   pdf: Buffer.from("%PDF-ours"),
@@ -316,10 +321,12 @@ describe("processPendingAccountingExports", () => {
     });
     await queueAndProcess(doc);
 
-    expect(convertToCII).toHaveBeenCalledWith({ number: "F-42" });
+    // Converted from the file received, not from our en_invoice copy
+    expect(convertUblToCII).toHaveBeenCalledTimes(1);
+    expect(convertToCII).not.toHaveBeenCalled();
     expect(embedFacturXXml).toHaveBeenCalledWith(
       Buffer.from("%PDF-ours"),
-      Buffer.from("<cii/>")
+      Buffer.from("<cii-ubl/>")
     );
     expect(exportRows()[0]).toMatchObject({ source: "e_invoice" });
   });
@@ -516,6 +523,20 @@ describe("received e-invoices", () => {
         item_id: "rei-1",
       })
     );
+  });
+
+  test("a UBL conversion refused: a PDF made from its data is sent", async () => {
+    tables.received_e_invoices = [eInvoice()];
+    downloadInvoice.mockResolvedValueOnce({
+      contentType: "application/xml",
+      data: Buffer.from("<Invoice xmlns='urn:oasis:names:specification:ubl'/>"),
+    });
+    convertUblToCII.mockRejectedValueOnce(new Error("refused"));
+    await receiveAndProcess();
+
+    expect(push).toHaveBeenCalledTimes(1);
+    expect(embedFacturXXml).not.toHaveBeenCalled();
+    expect(exportRows()[0]).toMatchObject({ status: "sent" });
   });
 
   test("a rejected e-invoice is sent too", async () => {
